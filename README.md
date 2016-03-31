@@ -3,11 +3,11 @@ This repository contains ATF scripts and data to run it.
 
 ## How To:
 
-* [Setup SDL](https://github.com/smartdevicelink/sdl_atf/blob/develop/README.md). 
+* [Setup SDL](https://github.com/smartdevicelink/sdl_core/blob/master/README.md). 
  * Later the SDL sources destination directory is referenced as `<sdl_core>`  
-* [Setup ATF](https://github.com/smartdevicelink/sdl_core/blob/master/README.md)
+* [Setup ATF](https://github.com/smartdevicelink/sdl_atf/blob/develop/README.md)
  * Later the ATF sources destination directory is referenced as `<sdl_atf>` 
-* Clone [sdl_atf_test_scripts](https://github.com/LuxoftAKutsan/sdl_atf_test_scripts)
+* Clone [sdl_atf_test_scripts](https://github.com/smartdevicelink/sdl_atf_test_scripts)
  * Later the atf test scripts destination directory is referenced as `<sdl_atf_test_scripts>`
 
 ``` git clone https://github.com/smartdevicelink/sdl_atf_test_scripts <sdl_atf_test_scripts>```
@@ -25,7 +25,7 @@ cp <sdl_core>/src/components/interfaces/MOBILE_API.xml <sdl_atf>/data/
   * Pass path to test script as first command line paramater
 ```
 cd <sdl_atf>/
-./start.sh --sdl_core=<sdl_core>/build/bin  ./test_scripts/ATF_Speak.lua
+./start.sh --sdl_core=<sdl_core>/build/bin  ./tests/ATF_Speak.lua
 ```
 
 __Note, that path to SDL binary dir may be different__
