@@ -213,7 +213,7 @@ local applicationData =
 			--        is resolved. The issue is checked only on Genivi
 			local SecondcorrelationId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
 			if(exp.occurences == 2)	then 
-				userPrint(31, "DEFECT ID: APPLINK-24902. Send RegisterAppInterface again to be sure that application is registered!")
+				--userPrint(31, "DEFECT ID: APPLINK-24902. Send RegisterAppInterface again to be sure that application is registered!")
 			end
 			
 				
@@ -468,7 +468,7 @@ local applicationData =
 			--        is resolved. The issue is checked only on Genivi
 			local SecondcorrelationId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
 			if(exp.occurences == 2)	then 
-				userPrint(31, "DEFECT ID: APPLINK-24902. Send RegisterAppInterface again to be sure that application is registered!")
+				--userPrint(31, "DEFECT ID: APPLINK-24902. Send RegisterAppInterface again to be sure that application is registered!")
 			end
 
 
@@ -1183,7 +1183,7 @@ local applicationData =
 
 				if(resumptionDataTable.resumption.resume_app_list[p].ign_off_count ~= nil) then
 					if(resumptionDataTable.resumption.resume_app_list[p].ign_off_count ~=  (ign_cycle) ) then
-						userPrint(31, "DEFECT ID: New defect!")
+						--userPrint(31, "DEFECT ID: New defect!")
 						self:FailTestCase("ign_off_count is not incremented as expected: " .. (ign_cycle) .. "; Real: " .. resumptionDataTable.resumption.resume_app_list[p].ign_off_count)
 					end
 				else
@@ -1213,7 +1213,7 @@ local applicationData =
 		end
 	end
 
-	local function CheckNoDataInAppInfoDat(self)
+	local function CheckNoDataInAppInfoDat(self, ign_cycle)
 		--Requirement id in JAMA/or Jira ID: APPLINK-15991
 		--[Data Resumption] Persistance Data clean up trigger 
 
@@ -1232,7 +1232,6 @@ local applicationData =
 				
 		if(resumptionDataTable.resumption.resume_app_list ~= nil) then
 			for p = 1, #resumptionDataTable.resumption.resume_app_list do
-				resumptionDataTable.resumption.resume_app_list[p].appID
 				
 				self:FailTestCase("Application with appID = " .. resumptionDataTable.resumption.resume_app_list[p].appID .. " is saved in app_info.dat")
 			end
@@ -1296,7 +1295,7 @@ local applicationData =
 				if( ign_cycle  <= 3) then
 					CheckSavedDataInAppInfoDat(self, ign_cycle)
 				else
-					CheckNoDataInAppInfoDat(self)
+					CheckNoDataInAppInfoDat(self, ign_cycle)
 				end
 			end
 
@@ -1468,7 +1467,7 @@ local applicationData =
 					--        is resolved. The issue is checked only on Genivi
 					local SecondcorrelationId = self.mobileSession1:SendRPC("RegisterAppInterface", applicationData.SecondApp)
 					if(exp.occurences == 2)	then 
-						userPrint(31, "DEFECT ID: APPLINK-24902. Send RegisterAppInterface again to be sure that application is registered!")
+						--userPrint(31, "DEFECT ID: APPLINK-24902. Send RegisterAppInterface again to be sure that application is registered!")
 					end
 
 					self.applications[applicationData.SecondApp] = data.params.application.appID	
