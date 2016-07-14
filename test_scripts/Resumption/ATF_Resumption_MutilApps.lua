@@ -414,19 +414,19 @@ local function RegisterApp(self, session, RegisterData, DEFLevel)
 			elseif RegisterData.appName == "TestAppNonMedia" then
 				-- ToDo: second call of function RegisterApp_WithoutHMILevelResumption shall be removed when APPLINK-24902:"Genivi: Unexpected unregistering application at resumption after closing session."
 				--        is resolved. The issue is checked only on Genivi
-				local SecondcorrelationId = self.mobileSession:SendRPC("RegisterAppInterface", applicationData.nonmediaApp)
+				local SecondcorrelationId = self.mobileSession2:SendRPC("RegisterAppInterface", applicationData.nonmediaApp)
 
 				HMIAppIDNonMediaApp = data.params.application.appID
 			elseif RegisterData.appName == "TestAppNavigation" then
 				-- ToDo: second call of function RegisterApp_WithoutHMILevelResumption shall be removed when APPLINK-24902:"Genivi: Unexpected unregistering application at resumption after closing session."
 				--        is resolved. The issue is checked only on Genivi
-				local SecondcorrelationId = self.mobileSession:SendRPC("RegisterAppInterface", applicationData.navigationApp)
+				local SecondcorrelationId = self.mobileSession3:SendRPC("RegisterAppInterface", applicationData.navigationApp)
 
 				HMIAppIDNaviApp = data.params.application.appID
 			elseif RegisterData.appName == "TestAppCommunication" then
 				-- ToDo: second call of function RegisterApp_WithoutHMILevelResumption shall be removed when APPLINK-24902:"Genivi: Unexpected unregistering application at resumption after closing session."
 				--        is resolved. The issue is checked only on Genivi
-				local SecondcorrelationId = self.mobileSession:SendRPC("RegisterAppInterface", applicationData.communicationApp)
+				local SecondcorrelationId = self.mobileSession4:SendRPC("RegisterAppInterface", applicationData.communicationApp)
 
 				HMIAppIDComApp = data.params.application.appID
 			end 
@@ -535,6 +535,7 @@ local function Resumption_2_Apps_FULL_nonMedia_LIMITED_Media(self, TimeNotTrue, 
 								{ application = {appID = HMIAppIDNonMediaApp}, resumeVrGrammars = true})
 	:Do(function(exp,data)
 		if (exp.occurences == 1) then 
+			print("HMIAppIDMediaApp = "..HMIAppIDMediaApp)
 			HMIAppIDMediaApp = data.params.application.appID
 			
 			if (TimeNotTrue == "after") then 
@@ -550,6 +551,7 @@ local function Resumption_2_Apps_FULL_nonMedia_LIMITED_Media(self, TimeNotTrue, 
 				end
 			end
 		elseif (exp.occurences == 2) then
+			print("HMIAppIDNonMediaApp = "..HMIAppIDNonMediaApp)
 			HMIAppIDNonMediaApp = data.params.application.appID
 		end
 	end)
@@ -1960,17 +1962,23 @@ end
   --Requirement id in JAMA/or Jira ID: APPLINK-15683
   --[Data Resumption]: SDL data resumption SUCCESS sequence 
   
-  
+
+
 
 function Test:UnregisterAppInterface_Success() 
-	userPrint(35, "================= Resumption of 2 apps (App1 =LIMITED (media), app2 = FULL (non-media)). IGN_OFF without postpone ==================")
-	userPrint(35, "======================================================= Precondition ===============================================================")
+	xmlReporter.AddMessage("TEST 01")
+	userPrint(35, "TEST 01")
+	userPrint(35, "")
+	userPrint(35, "================= Resumption of 2 apps (App1 =LIMITED (media), app2 = FULL (non-media)). ==================")
+	userPrint(35, "====================================== IGN_OFF without postpone ===========================================")
+	userPrint(35, "======================================================= Precondition ======================================")
 
 	UnregisterAppInterface(self, self.mobileSession)
 
 end
 
 function Test:RegisterMediaApp()
+
 	RegisterApp(self, self.mobileSession, applicationData.mediaApp, AppValuesOnHMIStatusDEFAULTMediaApp)
 end
 
@@ -1990,14 +1998,14 @@ function Test:RegisterNonMediaApp()
 	end)
 end 
 
-  function Test:ActivateMediaApp()
+function Test:ActivateMediaApp()
+
 	ActivationApp(self, HMIAppIDMediaApp)
 
-	EXPECT_NOTIFICATION("OnHMIStatus", 
-	  {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
-  end
+	EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+end
 
-  function Test:ActivateNonMediaApp()
+function Test:ActivateNonMediaApp()
 	ActivationApp(self, HMIAppIDNonMediaApp)
 
 	self.mobileSession2:ExpectNotification("OnHMIStatus", 
@@ -2005,7 +2013,7 @@ end
 
 	EXPECT_NOTIFICATION("OnHMIStatus", 
 	  {hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
-  end
+end
 
   function Test:AddCommandMediaApp()
 	AddCommand(self, 1, self.mobileSession)
@@ -2071,7 +2079,12 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
-	userPrint(35, "================= Precondition ==================")
+  	xmlReporter.AddMessage("TEST 02")
+  	userPrint(35, "TEST 02")
+	userPrint(35, "")
+  	userPrint(35, "=========================== Resumption of 2 apps (App1 =LIMITED (media), app2 = FULL (non-media)). ==============================")
+  	userPrint(35, "================= IGN_OFF with postpone because of VR.Started before RAI requests, VR.Stopped after 30 seconds ==================")
+	userPrint(35, "===================================================== Precondition ==============================================================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
 
@@ -2164,11 +2177,16 @@ end
   end
 
   --======================================================================================--
-  -- IGN_OFF with postpone because of VR.Started after RAI requests, VR.Stopped after 30 seconda
+  -- IGN_OFF with postpone because of VR.Started after RAI requests, VR.Stopped after 30 seconds
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
-	userPrint(35, "================= Precondition ==================")
+  	xmlReporter.AddMessage("TEST 03")
+  	userPrint(35, "TEST 03")
+	userPrint(35, "")
+  	userPrint(35, "========================== Resumption of 2 apps (App1 =LIMITED (media), app2 = FULL (non-media)). ===============================")
+  	userPrint(35, "================= IGN_OFF with postpone because of VR.Started after RAI requests, VR.Stopped after 30 seconds. ==================")
+	userPrint(35, "======================================================= Precondition ============================================================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
 
@@ -2265,6 +2283,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 04")
+  	userPrint(35, "TEST 04")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2363,6 +2384,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 05")
+  	userPrint(35, "TEST 05")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2456,10 +2480,13 @@ end
   end
 
   --======================================================================================--
-  -- IGN_OFF with postpone because of BC.OnEmergencyEvent(true) before RAI requests, BC.OnEmergencyEvent(false) after 30 seconda
+  -- IGN_OFF with postpone because of BC.OnEmergencyEvent(true) before RAI requests, BC.OnEmergencyEvent(false) after 30 seconds
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 06")
+  	userPrint(35, "TEST 06")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2555,8 +2582,10 @@ end
   --======================================================================================--
   -- IGN_OFF with postpone because of BC.OnEmergencyEvent(true) after RAI requests, OnEmergencyEvent(false) after 30 seconda
   --======================================================================================--
-
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 07")
+  	userPrint(35, "TEST 07")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2654,6 +2683,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 08")
+  	userPrint(35, "TEST 08")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2752,6 +2784,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 09")
+  	userPrint(35, "TEST 09")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2849,6 +2884,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 10")
+  	userPrint(35, "TEST 10")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -2946,7 +2984,11 @@ end
   -- IGN_OFF with postpone because of BC.OnPhoneCall(true) after RAI requests, OnPhoneCall(false) after 30 seconda
   --======================================================================================--
 
+
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 11")
+  	userPrint(35, "TEST 11")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3040,10 +3082,13 @@ end
   end
 
   --======================================================================================--
-  -- IGN_OFF with postpone because of BC.OnPhoneCall(true) before RAI requests, BC.OnPhoneCall(false) in 3 secons
+  -- IGN_OFF with postpone because of BC.OnPhoneCall(true) before RAI requests, BC.OnPhoneCall(false) in 3 seconds
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 12")
+  	userPrint(35, "TEST 12")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3142,6 +3187,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 13")
+  	userPrint(35, "TEST 13")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3239,6 +3287,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 14")
+  	userPrint(35, "TEST 14")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3320,6 +3371,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 15")
+  	userPrint(35, "TEST 15")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3401,6 +3455,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 16")
+  	userPrint(35, "TEST 16")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3482,6 +3539,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 17")
+  	userPrint(35, "TEST 17")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3564,6 +3624,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 18")
+  	userPrint(35, "TEST 18")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3645,6 +3708,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 19")
+  	userPrint(35, "TEST 19")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3726,6 +3792,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 20")
+  	userPrint(35, "TEST 20")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3807,6 +3876,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 21")
+  	userPrint(35, "TEST 21")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3889,6 +3961,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 22")
+  	userPrint(35, "TEST 22")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -3970,6 +4045,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 23")
+  	userPrint(35, "TEST 23")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4051,6 +4129,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 24")
+  	userPrint(35, "TEST 24")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4132,6 +4213,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 25")
+  	userPrint(35, "TEST 25")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4214,6 +4298,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 26")
+  	userPrint(35, "TEST 26")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4298,6 +4385,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 27")
+  	userPrint(35, "TEST 27")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4437,6 +4527,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 28")
+  	userPrint(35, "TEST 28")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4584,6 +4677,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 29")
+  	userPrint(35, "TEST 29")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4718,6 +4814,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 30")
+  	userPrint(35, "TEST 30")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4852,6 +4951,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 31")
+  	userPrint(35, "TEST 31")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -4986,6 +5088,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 32")
+  	userPrint(35, "TEST 32")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5124,6 +5229,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 33")
+  	userPrint(35, "TEST 33")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5258,6 +5366,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 34")
+  	userPrint(35, "TEST 34")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5392,6 +5503,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 35")
+  	userPrint(35, "TEST 35")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5527,6 +5641,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 36")
+  	userPrint(35, "TEST 36")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5674,6 +5791,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 37")
+  	userPrint(35, "TEST 37")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5808,6 +5928,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 38")
+  	userPrint(35, "TEST 38")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -5942,6 +6065,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 39")
+  	userPrint(35, "TEST 39")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6076,6 +6202,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 40")
+  	userPrint(35, "TEST 40")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6192,6 +6321,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 41")
+  	userPrint(35, "TEST 41")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6323,6 +6455,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 42")
+  	userPrint(35, "TEST 42")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6441,6 +6576,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 43")
+  	userPrint(35, "TEST 43")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6559,6 +6697,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 44")
+  	userPrint(35, "TEST 44")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6677,6 +6818,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 45")
+  	userPrint(35, "TEST 45")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6808,6 +6952,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 46")
+  	userPrint(35, "TEST 46")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -6926,6 +7073,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 47")
+  	userPrint(35, "TEST 47")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7044,6 +7194,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 48")
+  	userPrint(35, "TEST 48")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7163,6 +7316,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 49")
+  	userPrint(35, "TEST 49")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7294,6 +7450,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 50")
+  	userPrint(35, "TEST 50")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7412,6 +7571,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 51")
+  	userPrint(35, "TEST 51")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7530,6 +7692,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 52")
+  	userPrint(35, "TEST 52")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7651,6 +7816,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 53")
+  	userPrint(35, "TEST 53")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7781,6 +7949,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 54")
+  	userPrint(35, "TEST 54")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7886,6 +8057,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 55")
+  	userPrint(35, "TEST 55")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -7992,6 +8166,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 56")
+  	userPrint(35, "TEST 56")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8097,6 +8274,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 57")
+  	userPrint(35, "TEST 57")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8202,6 +8382,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 58")
+  	userPrint(35, "TEST 58")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8307,6 +8490,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 59")
+  	userPrint(35, "TEST 59")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8413,6 +8599,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 60")
+  	userPrint(35, "TEST 60")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8498,6 +8687,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 61")
+  	userPrint(35, "TEST 61")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8583,6 +8775,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 62")
+  	userPrint(35, "TEST 62")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8669,6 +8864,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 63")
+  	userPrint(35, "TEST 63")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8754,6 +8952,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 64")
+  	userPrint(35, "TEST 64")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8839,6 +9040,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 65")
+  	userPrint(35, "TEST 65")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -8924,6 +9128,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 66")
+  	userPrint(35, "TEST 66")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -9014,6 +9221,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 67")
+  	userPrint(35, "TEST 67")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -9234,6 +9444,9 @@ end
   -- IGN_OFF with postpone because of VR.Started before RAI requests, VR.Stopped after 30 seconds
   --======================================================================================--
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 68")
+  	userPrint(35, "TEST 68")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -9412,6 +9625,9 @@ end
   -- IGN_OFF with postpone because of VR.Started before RAI requests, VR.Stopped in 5 seconds
   --======================================================================================--
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 69")
+  	userPrint(35, "TEST 69")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -9551,7 +9767,7 @@ end
 
 	 self.mobileSession:StartService(7)
   end
-
+  
   function Test:StartSession2()
 	 self.mobileSession2 = mobile_session.MobileSession(
 		self,
@@ -9587,11 +9803,18 @@ end
 	ResumptionData4apps(self)
   end
 
+
+
+ 
+
   --======================================================================================--
   -- IGN_OFF with postpone because of BC.OnEmergencyEvent(true) before RAI requests, BC.OnEmergencyEvent(false) after 30 seconds
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 70")
+  	userPrint(35, "TEST 70")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -9772,6 +9995,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 71")
+  	userPrint(35, "TEST 71")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -9952,6 +10178,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 72")
+  	userPrint(35, "TEST 72")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -10132,6 +10361,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 73")
+  	userPrint(35, "TEST 73")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -10312,6 +10544,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 74")
+  	userPrint(35, "TEST 74")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -10511,6 +10746,9 @@ end
   -- Disconnect with postpone because of VR.Started after RAI requests, VR.Stopped after 30 seconds
   --======================================================================================--
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 75")
+  	userPrint(35, "TEST 75")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -10673,6 +10911,9 @@ end
   -- Disconnect with postpone because of VR.Started after RAI requests, VR.Stopped in 5 seconds
   --======================================================================================--
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 76")
+  	userPrint(35, "TEST 76")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -10853,6 +11094,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 77")
+  	userPrint(35, "TEST 77")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -11016,6 +11260,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 78")
+  	userPrint(35, "TEST 78")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -11179,6 +11426,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 79")
+  	userPrint(35, "TEST 79")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
@@ -11342,6 +11592,9 @@ end
   --======================================================================================--
 
   function Test:UnregisterAppInterface_MediaApp_Success() 
+  	xmlReporter.AddMessage("TEST 80")
+  	userPrint(35, "TEST 80")
+	userPrint(35, "")
 	userPrint(35, "================= Precondition ==================")
 	UnregisterAppInterface(self, self.mobileSession)
   end
