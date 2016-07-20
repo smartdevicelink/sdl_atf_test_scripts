@@ -17,6 +17,8 @@ local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigur
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+
 require('user_modules/AppTypes')
 
 
@@ -33,7 +35,7 @@ require('user_modules/AppTypes')
 	commonSteps:ActivationApp(_, "Preconditions_ActivationApp_1")
 	
 	--2. Get appID Value on HMI side
-	Get_HMI_AppID("Get_HMI_AppID_1")
+	--Get_HMI_AppID("Get_HMI_AppID_1")
 
 
 	--3. Update policy table
@@ -69,13 +71,15 @@ require('user_modules/AppTypes')
 						  "LIMITED",
 						  "NONE"
 						]
-					  },\n]]
+					  },]]
 		
 	
 	local PermissionLinesForGroup1 = nil
 	local PermissionLinesForApplication = nil
 	--TODO: PT is blocked by ATF defect APPLINK-19188
-	local PTName = testCasesForPolicyTable:createPolicyTableFile(PermissionLinesForBase4, PermissionLinesForGroup1, PermissionLinesForApplication, {"OnExitApplication", "GetDTCs", "AddCommand", "OnCommand"})	
+	--local PTName = testCasesForPolicyTable:createPolicyTableFile(PermissionLinesForBase4, PermissionLinesForGroup1, PermissionLinesForApplication, {"OnExitApplication", "GetDTCs", "AddCommand", "OnCommand"})	
+	local PTName = testCasesForPolicyTable:createPolicyTableFile_temp(PermissionLinesForBase4, PermissionLinesForGroup1, PermissionLinesForApplication, {"OnExitApplication", "GetDTCs", "AddCommand", "OnCommand"})	
+
 	--testCasesForPolicyTable:updatePolicy(PTName)
 	testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt(PTName)
 	
