@@ -556,66 +556,65 @@ local function APPLINK_21366()
 		 :Timeout(1000)
 
   		 end
+end
+-- -------------------------------------------------------------------------------------------
 
--------------------------------------------------------------------------------------------
+-- 			--Special cases for OnSystemRequest(requestType = NAVIGATION):
+--                -- 1. notification with appId of the first app => SDL forwards this notification to mobile app1 only
+-- 		      -- 2. notification with appId of the second app => SDL forwards this notification to mobile app2 only
+-- -------------------------------------------------------------------------------------------
 
-			--Special cases for OnSystemRequest(requestType = NAVIGATION):
-               -- 1. notification with appId of the first app => SDL forwards this notification to mobile app1 only
-		      -- 2. notification with appId of the second app => SDL forwards this notification to mobile app2 only
--------------------------------------------------------------------------------------------
+-- 		 function Test:OSR_NAVIGATION_ToApp1IfManyApps()
 
-		 function Test:OSR_NAVIGATION_ToApp1IfManyApps()
+--                  commonTestCases:DelayedExp(1000)
 
-                 commonTestCases:DelayedExp(1000)
+--                  Notification =
+-- 			{
+-- 			    requestType = "NAVIGATION",
+-- 			    appID = Apps[1].appID,
+--                             fileName = "NAVIGATION_REQUEST.jpg"
 
-                 Notification =
-			{
-			    requestType = "NAVIGATION",
-			    appID = Apps[1].appID,
-                            fileName = "NAVIGATION_REQUEST.jpg"
+-- 			}
 
-			}
-
-         	self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", Notification)
-
-
-			--mobile side: expected OnSystemRequest
-			EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "NAVIGATION"})
-			:Timeout(1000)
+--          	self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", Notification)
 
 
-			self.mobileSession2:ExpectNotification("OnSystemRequest", {requestType = "NAVIGATION"})
-			:Timeout(1000)
-			:Times(0)
-
-	       end
+-- 			--mobile side: expected OnSystemRequest
+-- 			EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "NAVIGATION"})
+-- 			:Timeout(1000)
 
 
-		function Test:OSR_NAVIGATION_ToApp2IfManyApps()
+-- 			self.mobileSession:ExpectNotification("OnSystemRequest", {requestType = "NAVIGATION"})
+-- 			:Timeout(1000)
+-- 			:Times(0)
 
-                 commonTestCases:DelayedExp(1000)
-
-                 Notification =
-			{
-			    requestType = "NAVIGATION",
-			    appID = Apps[2].appId,
-                            fileName = "NAVIGATION_REQUEST.jpg"
-
-			}
-
-         	self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", Notification)
+-- 	       end
 
 
-			--mobile side: expected OnSystemRequest
-			EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "NAVIGATION"})
-			:Timeout(1000)
-			:Times(0)
+-- 		function Test:OSR_NAVIGATION_ToApp2IfManyApps()
 
-			self.mobileSession2:ExpectNotification("OnSystemRequest", {requestType = "NAVIGATION"})
-			:Timeout(1000)
+--                  commonTestCases:DelayedExp(1000)
 
-	       end
+--                  Notification =
+-- 			{
+-- 			    requestType = "NAVIGATION",
+-- 			    appID = Apps[2].appId,
+--                             fileName = "NAVIGATION_REQUEST.jpg"
 
+-- 			}
+
+--          	self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", Notification)
+
+
+-- 			--mobile side: expected OnSystemRequest
+-- 			EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "NAVIGATION"})
+-- 			:Timeout(1000)
+-- 			:Times(0)
+
+-- 			self.mobileSession2:ExpectNotification("OnSystemRequest", {requestType = "NAVIGATION"})
+-- 			:Timeout(1000)
+
+-- 	       end
 
 APPLINK_21366()
 
@@ -1085,6 +1084,65 @@ local function SequenceChecks()
 			:Times(0)
 
 		end
+
+		-------------------------------------------------------------------------------------------
+
+			--Special cases for OnSystemRequest(requestType = NAVIGATION):
+               -- 1. notification with appId of the first app => SDL forwards this notification to mobile app1 only
+		      -- 2. notification with appId of the second app => SDL forwards this notification to mobile app2 only
+-------------------------------------------------------------------------------------------
+
+		 function Test:OSR_NAVIGATION_ToApp1IfManyApps()
+
+                 commonTestCases:DelayedExp(1000)
+
+                 Notification =
+			{
+			    requestType = "NAVIGATION",
+			    appID = Apps[1].appID,
+                            fileName = "NAVIGATION_REQUEST.jpg"
+
+			}
+
+         	self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", Notification)
+
+
+			--mobile side: expected OnSystemRequest
+			EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "NAVIGATION"})
+			:Timeout(1000)
+
+
+			self.mobileSession:ExpectNotification("OnSystemRequest", {requestType = "NAVIGATION"})
+			:Timeout(1000)
+			:Times(0)
+
+	       end
+
+
+		function Test:OSR_NAVIGATION_ToApp2IfManyApps()
+
+                 commonTestCases:DelayedExp(1000)
+
+                 Notification =
+			{
+			    requestType = "NAVIGATION",
+			    appID = Apps[2].appId,
+                            fileName = "NAVIGATION_REQUEST.jpg"
+
+			}
+
+         	self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", Notification)
+
+
+			--mobile side: expected OnSystemRequest
+			EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "NAVIGATION"})
+			:Timeout(1000)
+			:Times(0)
+
+			self.mobileSession2:ExpectNotification("OnSystemRequest", {requestType = "NAVIGATION"})
+			:Timeout(1000)
+
+	       end
 
 
 	end
