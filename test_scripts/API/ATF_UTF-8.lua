@@ -9,6 +9,7 @@ local mobile_session = require('mobile_session')
 local config = require('config')
 
 local commonPreconditions = require ('/user_modules/shared_testcases/commonPreconditions')
+local commonFunctions = require ('/user_modules/shared_testcases/commonFunctions')
 local srcPath = config.pathToSDL .. "smartDeviceLink.ini"
 local dstPath = config.pathToSDL .. "smartDeviceLink.ini.origin"
 
@@ -28,28 +29,7 @@ end
 
 local n = 1
 local function ReceivingUpdateAppListaccordingToJsonInSystemRequest(self, JsonFileName, SystemRequestResultCode, UpdateAppListParams )
-  local UpdateAppListTimes
   local successValue
-  local msg = 
-    {
-      serviceType      = 7,
-      frameInfo        = 0,
-      rpcType          = 2,
-      rpcFunctionId    = 32768,
-      rpcCorrelationId = 0,
-      payload          = '{"hmiLevel" :"FULL", "audioStreamingState" : "AUDIBLE", "systemContext" : "MAIN"}'
-    }
-
-  self.mobileSession:Send(msg)
-
-  if 
-    SystemRequestResultCode == "SUCCESS" then
-      UpdateAppListTimes = 2
-      successValue = true
-  else
-      UpdateAppListTimes = 1
-      successValue = false
-  end
 
   local FileFolder
   local FileName
@@ -57,11 +37,9 @@ local function ReceivingUpdateAppListaccordingToJsonInSystemRequest(self, JsonFi
   FileFolder, FileName = JsonFileName:match("([^/]+)/([^/]+)")
 
   --mobile side: OnSystemRequest notification 
-  EXPECT_NOTIFICATION("OnSystemRequest",
-    { requestType = "LOCK_SCREEN_ICON_URL" },
-    { requestType = "QUERY_APPS" })
+  EXPECT_NOTIFICATION("OnSystemRequest")
     :Do(function(_,data)
-      if data.payload.requestType == "LOCK_SCREEN_ICON_URL" then
+      if data.payload.requestType == "QUERY_APPS" then
         local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
           {
             requestType = "QUERY_APPS", 
@@ -72,25 +50,24 @@ local function ReceivingUpdateAppListaccordingToJsonInSystemRequest(self, JsonFi
           --mobile side: SystemRequest response
           self.mobileSession:ExpectResponse(CorIdSystemRequest, { success = successValue, resultCode = SystemRequestResultCode})
       end
-      end)
-    :Times(2)
+    end)
+    :ValidIf(function(_,data)
+      if data.payload.requestType == "QUERY_APPS" then
+        return true
+      elseif data.payload.requestType == "LOCK_SCREEN_ICON_URL" then
+        return true
+      else
+        commonFunctions:userPrint(31, " Unexpected requestType value in OnSystemRequest notification is came " .. data.payload.requestType .. ", expected value 'QUERY_APPS' or 'LOCK_SCREEN_ICON_URL'")
+        return false
+      end
+    end)
+    :Times(Between(1,2))
 
-  --------------------------------------------
-  --TODO: remove after resolving APPLINK-16052
-  for i=1,#UpdateAppListParams.applications do
-    if UpdateAppListParams.applications[i].deviceInfo then
-      UpdateAppListParams.applications[i].deviceInfo = nil
-    end
-  end
-  --------------------------------------------
 
   --hmi side: BasicCommunication.UpdateAppList
   EXPECT_HMICALL("BasicCommunication.UpdateAppList", 
-    {},
     UpdateAppListParams)
     :ValidIf(function(exp,data)
-      if exp.occurences == 2 then
-
         if
           data.params and
           data.params.applications and
@@ -100,15 +77,10 @@ local function ReceivingUpdateAppListaccordingToJsonInSystemRequest(self, JsonFi
           print(" \27[36m Application array in BasicCommunication.UpdateAppList contains "..tostring(#data.params.applications)..", expected " .. tostring(#UpdateAppListParams.applications) .. " \27[0m")
           return false
         end
-      elseif
-        exp.occurences == 1 then
-        return true
-      end
     end)
     :Do(function(data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
     end)
-    :Times(UpdateAppListTimes)
 end
 ----------------------------------------------------------------------------
 -- set value of EnableProtocol4 to "true" in smartDeviceLink.ini file
@@ -148,9 +120,6 @@ print ("Backuping smartDeviceLink.ini")
 
 -- set value of "EnableProtocol4" in smartDeviceLink.ini to "true"
 SetEnableProtocol4toTrue()
-
---TODO: remove after resolving APPLINK-16052
-print ("\27[33m Because of ATF defect APPLINK-16052 check of deviceInfo params in BC.UpdateAppList is commented \27[0m")
 
 --===================================================================================--
 -- Check that SDL write correctly the strings with character's size more than one byte from  language struct to the "vrSynonyms", "ttsName", appName params and send  via UpdateAppList
@@ -398,6 +367,20 @@ for i=1, #LanguagesValue do
 
     self.mobileSession:ExpectNotification("OnHMIStatus", 
         { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})
+        :Do(function()
+            self.mobileSession.correlationId = self.mobileSession.correlationId + 1
+              local msg = 
+                {
+                  serviceType      = 7,
+                  frameInfo        = 0,
+                  rpcType          = 2,
+                  rpcFunctionId    = 32768,
+                  rpcCorrelationId = self.mobileSession.correlationId,
+                  payload          = '{"hmiLevel" :"FULL", "audioStreamingState" : "AUDIBLE", "systemContext" : "MAIN"}'
+                }
+
+              self.mobileSession:Send(msg)
+        end)
 
     local LangValue = string.gsub (LanguagesValue[i], "-", "_")
 
