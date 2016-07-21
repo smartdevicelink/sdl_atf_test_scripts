@@ -8,9 +8,6 @@ local file_connection  = require('file_connection')
 local config = require('config')
 local module = require('testbase')
 
---ToDo: shall be removed when APPLINK-16610 is fixed
-config.defaultProtocolVersion = 2
-
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
 ---------------------------------------------------------------------------------------------
