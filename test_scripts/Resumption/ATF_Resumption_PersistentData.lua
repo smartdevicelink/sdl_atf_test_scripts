@@ -29,30 +29,25 @@ local json = require("json")
 	fileContent = f:read("*all")
 
     -- default section
-    --DefaultContant = fileContent:match('".?default.?".?:.?.?%{.-%}')
     DefaultContant = fileContent:match('"default".?:.?.?%{.-%}')
 
     if not DefaultContant then
-      print ( " \27[31m  default grpoup is not found in sdl_preloaded_pt.json \27[0m " )
+      print ( " \27[31m  default group is not found in sdl_preloaded_pt.json \27[0m " )
     else
        DefaultContant =  string.gsub(DefaultContant, '".?groups.?".?:.?.?%[.-%]', '"groups": ["Base-4", "Location-1", "DrivingCharacteristics-3", "VehicleInfo-3", "Emergency-1"]')
     end
 
-
 	fileContent  =  string.gsub(fileContent, '".?default.?".?:.?.?%{.-%}', DefaultContant)
-
-
-	f = assert(io.open(config.pathToSDL.. "/sdl_preloaded_pt.json", "w+"))
 	
-
-	DefaultContant_SubscribeWayPoints = fileContent:match('"rpcs".?:.?.?%{.-%}')
-
-	if not DefaultContant_SubscribeWayPoints then
-      	print ( " \27[31m  rpcs grpoup is not found in sdl_preloaded_pt.json \27[0m " )
+	-- added SubscribeWayPoints, UnsubscribeWayPoints rps to Base-4 group
+	Base4Group = fileContent:match('"Base%-4"%s-:%s-%{%s-"rpcs".?:.?.?%{')
+	if not Base4Group then
+      	print ( " \27[31m  Base-4 group is not found in sdl_preloaded_pt.json \27[0m " )
     else
-    	DefaultContant_SubscribeWayPoints =  string.gsub(DefaultContant_SubscribeWayPoints, '".?rpcs.?".?:.?.?%[.-%]', '"SubscribeWayPoints": { "hmi_levels": ["BACKGROUND","FULL","LIMITED"]},"UnsubscribeWayPoints": {"hmi_levels": ["BACKGROUND", "FULL", "LIMITED"]}')
+    	fileContent =  string.gsub(fileContent, '"Base%-4"%s-:%s-%{%s-"rpcs".?:.?.?%{', '"Base-4": {"rpcs": { "SubscribeWayPoints": { "hmi_levels": ["BACKGROUND","FULL","LIMITED"]},"UnsubscribeWayPoints": {"hmi_levels": ["BACKGROUND", "FULL", "LIMITED"]},')
     end
 
+    f = assert(io.open(config.pathToSDL.. "/sdl_preloaded_pt.json", "w+"))
 	f:write(fileContent)
 	f:close()
 -------------------------------------------------------------------------------------
@@ -86,8 +81,6 @@ local json = require("json")
 	f:write(fileContent)
 	f:close()
 
-
-
 	--Precondition: backup smartDeviceLink.ini
 	commonPreconditions:BackupFile("smartDeviceLink.ini")
 
@@ -101,10 +94,6 @@ local json = require("json")
 		os.execute(" rm -f " .. config.pathToSDL .. "/sdl_preloaded_pt_origin.json" )
 
 		os.execute( "rm -f ./user_modules/connecttest_OnButtonSubscription.lua" )
-
-		if commonSteps:file_exists(config.pathToSDL .. "policy.sqlite") == true then
-      		os.remove(config.pathToSDL .. "policy.sqlite")
-    	end
 	end
 
 
@@ -798,7 +787,7 @@ local json = require("json")
 			resumeGrammars == true then
 
 			-- TODO: APPLINK-26128: "info" parameter shall be updated
-			self.mobileSession:ExpectResponse(correlationId, { success = true , resultCode = iresultCode, info = "Resume succeeded"})--info = " Resume Succeed"})
+			self.mobileSession:ExpectResponse(correlationId, { success = true , resultCode = iresultCode, info = "Resume succeeded."})--info = " Resume Succeed"})
 		end
 
 
@@ -1052,7 +1041,7 @@ local json = require("json")
 			--[Data Resumption]: SDL data resumption SUCCESS sequence
 			
 			-- TODO: APPLINK-26128: "info" parameter shall be updated
-			self.mobileSession:ExpectResponse(correlationId, { success = true , resultCode = iresultCode, info = "Resume succeeded"})--info = " Resume Succeed"})
+			self.mobileSession:ExpectResponse(correlationId, { success = true , resultCode = iresultCode, info = "Resume succeeded."})--info = " Resume Succeed"})
 		end
 
 		if HMILevel == "FULL" then
@@ -3232,11 +3221,13 @@ local json = require("json")
 			end)
 		:Times(40)
 
-		EXPECT_RESPONSE("AddCommand")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddCommand")
+		-- 	:Times(0)
 
-		EXPECT_RESPONSE("CreateInteractionChoiceSet")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("CreateInteractionChoiceSet")
+		-- 	:Times(0)
 
 		local SubMenuValues = {}
 		for m=1,20 do
@@ -3270,8 +3261,9 @@ local json = require("json")
 			end)
 		:Times(20)
 
-		EXPECT_RESPONSE("AddSubMenu")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddSubMenu")
+		-- 	:Times(0)
 
 		----------------------------------------------
 		-- SetGlbalProperties
@@ -3322,10 +3314,10 @@ local json = require("json")
 				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 			end)
 
-
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SetGlobalProperties response
-		EXPECT_RESPONSE("SetGlobalProperties")
-			:Times(0)
+		-- EXPECT_RESPONSE("SetGlobalProperties")
+		-- 	:Times(0)
 
 		----------------------------------------------
 		-- SubscribeVehicleData
@@ -3338,9 +3330,10 @@ local json = require("json")
 				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"}})	
 			end)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeVehicleData response
-		EXPECT_RESPONSE("SubscribeVehicleData")
-			:Times(0)
+		-- EXPECT_RESPONSE("SubscribeVehicleData")
+		-- 	:Times(0)
  
  		----------------------------------------------
 		-- SubscribeButtons
@@ -3371,6 +3364,7 @@ local json = require("json")
 			end)
 			:Times(#buttonName + 1)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeButtons response
 		-- EXPECT_RESPONSE("SubscribeButton")
 		-- 	:Times(0)
@@ -4076,11 +4070,13 @@ local json = require("json")
 			end)
 		:Times(40)
 
-		EXPECT_RESPONSE("AddCommand")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddCommand")
+		-- 	:Times(0)
 
-		EXPECT_RESPONSE("CreateInteractionChoiceSet")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("CreateInteractionChoiceSet")
+		-- 	:Times(0)
 
 		local SubMenuValues = {}
 		for m=1,25 do
@@ -4114,8 +4110,9 @@ local json = require("json")
 			end)
 		:Times(25)
 
-		EXPECT_RESPONSE("AddSubMenu")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddSubMenu")
+		-- 	:Times(0)
 
 		----------------------------------------------
 		-- SetGlbalProperties
@@ -4167,9 +4164,10 @@ local json = require("json")
 			end)
 
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SetGlobalProperties response
-		EXPECT_RESPONSE("SetGlobalProperties")
-			:Times(0)
+		-- EXPECT_RESPONSE("SetGlobalProperties")
+		-- 	:Times(0)
 
 		----------------------------------------------
 		-- SubscribeVehicleData
@@ -4182,9 +4180,10 @@ local json = require("json")
 				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"}})	
 			end)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeVehicleData response
-		EXPECT_RESPONSE("SubscribeVehicleData")
-			:Times(0)
+		-- EXPECT_RESPONSE("SubscribeVehicleData")
+		-- 	:Times(0)
  
  		----------------------------------------------
 		-- SubscribeButtons
@@ -4215,6 +4214,7 @@ local json = require("json")
 			end)
 			:Times(#buttonName + 1)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeButtons response
 		-- EXPECT_RESPONSE("SubscribeButton")
 		-- 	:Times(0)
@@ -7507,11 +7507,13 @@ local json = require("json")
 		end)
 		:Times(20)
 
-		EXPECT_RESPONSE("AddCommand")
-		:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddCommand")
+		-- :Times(0)
 
-		EXPECT_RESPONSE("CreateInteractionChoiceSet")
-		:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("CreateInteractionChoiceSet")
+		-- :Times(0)
 
 
 		----------------------------------------------
@@ -7525,8 +7527,9 @@ local json = require("json")
 		end)
 		:Times(10)
 
-		EXPECT_RESPONSE("AddSubMenu")
-		:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddSubMenu")
+		-- :Times(0)
 
 		----------------------------------------------
 		-- SetGlbalProperties
@@ -7547,9 +7550,10 @@ local json = require("json")
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 		end)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SetGlobalProperties response
-		EXPECT_RESPONSE("SetGlobalProperties")
-		:Times(0)
+		-- EXPECT_RESPONSE("SetGlobalProperties")
+		-- :Times(0)
 
 		----------------------------------------------
 		-- SubscribeVehicleData
@@ -7588,9 +7592,10 @@ local json = require("json")
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})	
 		end)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeVehicleData response
-		EXPECT_RESPONSE("SubscribeVehicleData")
-		:Times(0)
+		-- EXPECT_RESPONSE("SubscribeVehicleData")
+		-- :Times(0)
  
  		----------------------------------------------
 		-- SubscribeButtons
@@ -7910,11 +7915,13 @@ local json = require("json")
 		end)
 		:Times(20)
 
-		EXPECT_RESPONSE("AddCommand")
-		:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddCommand")
+		-- :Times(0)
 
-		EXPECT_RESPONSE("CreateInteractionChoiceSet")
-		:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("CreateInteractionChoiceSet")
+		-- :Times(0)
 
 		----------------------------------------------
 		-- 10 submenus
@@ -7926,8 +7933,9 @@ local json = require("json")
 		end)
 		:Times(10)
 
-		EXPECT_RESPONSE("AddSubMenu")
-		:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddSubMenu")
+		-- :Times(0)
 
 		----------------------------------------------
 		-- SetGlbalProperties
@@ -7948,9 +7956,10 @@ local json = require("json")
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 		end)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SetGlobalProperties response
-		EXPECT_RESPONSE("SetGlobalProperties")
-		:Times(0)
+		-- EXPECT_RESPONSE("SetGlobalProperties")
+		-- :Times(0)
 
 		----------------------------------------------
 		-- SubscribeVehicleData
@@ -7989,9 +7998,10 @@ local json = require("json")
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})	
 		end)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeVehicleData response
-		EXPECT_RESPONSE("SubscribeVehicleData")
-		:Times(0)
+		-- EXPECT_RESPONSE("SubscribeVehicleData")
+		-- :Times(0)
  
  		----------------------------------------------
 		-- SubscribeButtons
@@ -8364,13 +8374,15 @@ local json = require("json")
 		:Times(600)
 		:Timeout(300000)
 
-		EXPECT_RESPONSE("AddCommand")
-			:Times(0)
-			:Timeout(300000)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddCommand")
+		-- 	:Times(0)
+		-- 	:Timeout(300000)
 
-		EXPECT_RESPONSE("CreateInteractionChoiceSet")
-			:Times(0)
-			:Timeout(300000)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("CreateInteractionChoiceSet")
+		-- 	:Times(0)
+		-- 	:Timeout(300000)
 
 
 		----------------------------------------------
@@ -8385,9 +8397,10 @@ local json = require("json")
 		:Times(500)
 		:Timeout(300000)
 
-		EXPECT_RESPONSE("AddSubMenu")
-			:Times(0)
-			:Timeout(300000)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddSubMenu")
+		-- 	:Times(0)
+		-- 	:Timeout(300000)
 
 		----------------------------------------------
 		-- SetGlbalProperties
@@ -8412,11 +8425,11 @@ local json = require("json")
 			end)
 		:Timeout(300000)
 
-
-		--mobile side: expect SetGlobalProperties response
-		EXPECT_RESPONSE("SetGlobalProperties")
-			:Times(0)
-			:Timeout(300000)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- --mobile side: expect SetGlobalProperties response
+		-- EXPECT_RESPONSE("SetGlobalProperties")
+		-- 	:Times(0)
+		-- 	:Timeout(300000)
 
 		----------------------------------------------
 		-- SubscribeVehicleData
@@ -8456,10 +8469,11 @@ local json = require("json")
 			end)
 			:Timeout(300000)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeVehicleData response
-		EXPECT_RESPONSE("SubscribeVehicleData")
-			:Times(0)
-			:Timeout(300000)
+		-- EXPECT_RESPONSE("SubscribeVehicleData")
+		-- 	:Times(0)
+		-- 	:Timeout(300000)
  
  		----------------------------------------------
 		-- SubscribeButtons
@@ -8470,6 +8484,7 @@ local json = require("json")
 			:Times(#buttonName + 1)
 			:Timeout(300000)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeButtons response
 		-- EXPECT_RESPONSE("SubscribeButton")
 		-- 	:Times(0)
@@ -8814,11 +8829,13 @@ local json = require("json")
 		:Times(600)
 		:Timeout(200000)
 
-		EXPECT_RESPONSE("AddCommand")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddCommand")
+		-- 	:Times(0)
 
-		EXPECT_RESPONSE("CreateInteractionChoiceSet")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("CreateInteractionChoiceSet")
+		-- 	:Times(0)
 
 
 		----------------------------------------------
@@ -8833,8 +8850,9 @@ local json = require("json")
 		:Times(500)
 		:Timeout(200000)
 
-		EXPECT_RESPONSE("AddSubMenu")
-			:Times(0)
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
+		-- EXPECT_RESPONSE("AddSubMenu")
+		-- 	:Times(0)
 
 		----------------------------------------------
 		-- SetGlbalProperties
@@ -8859,10 +8877,10 @@ local json = require("json")
 			end)
 			:Timeout(200000)
 
-
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SetGlobalProperties response
-		EXPECT_RESPONSE("SetGlobalProperties")
-			:Times(0)
+		-- EXPECT_RESPONSE("SetGlobalProperties")
+		-- 	:Times(0)
 
 		----------------------------------------------
 		-- SubscribeVehicleData
@@ -8902,9 +8920,10 @@ local json = require("json")
 			end)
 			:Timeout(200000)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeVehicleData response
-		EXPECT_RESPONSE("SubscribeVehicleData")
-			:Times(0)
+		-- EXPECT_RESPONSE("SubscribeVehicleData")
+		-- 	:Times(0)
  
  		----------------------------------------------
 		-- SubscribeButtons
@@ -8915,6 +8934,7 @@ local json = require("json")
 			:Times(#buttonName + 1)
 			:Timeout(200000)
 
+		-- TODO: Uncomment after resolving ATf defect APPLINK-24873
 		--mobile side: expect SubscribeButtons response
 		-- EXPECT_RESPONSE("SubscribeButton")
 		-- 	:Times(0)
