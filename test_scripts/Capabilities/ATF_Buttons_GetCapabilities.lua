@@ -1422,9 +1422,9 @@ local function NegativeTimeoutTestCase()
 	
 end
 
-function Test:NegativeCheckTimeout ()
+--function Test:NegativeCheckTimeout ()
  	NegativeTimeoutTestCase()	
-end 
+--end 
 
 --Postcondition
 stopSDL()
@@ -1460,17 +1460,17 @@ stopSDL()
 	
 	--Step 3: Mobile starts session
 	connectMobileStartSession()
-	
+		
 	--Step 4: Mobile register an application and verify ButtonCapabilities parameter in RegisterAppInterface response
 	  MobileRegisterAppAndVerifyButtonCapabilitiesInvalid(Input_ButtonsCapabilities_RAI)
 end
 
 
-function Test:CheckNegative ()
+--function Test:CheckNegative ()
  
  	NegativeTestCaseInvalidParametres()
 	
-end 
+--end 
 
 	--End Test case Negative buttonCapabilities.02
 --------------------------------------------------------------------------------------------
