@@ -3,11 +3,10 @@
 	--1. local imageParameter = require('user_modules/shared_testcases/testCasesForImageParameterInNotification')
 	--2. imageParameter:verify_Image_Parameter(Request, Parameter, ImageValueBoundary, Mandatory)
 ---------------------------------------------------------------------------------------------
-
 local testCasesForImageParameter = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local enumerationParameter = require('user_modules/shared_testcases/testCasesForEnumerationParameterInNotification')
-local storagePath = config.SDLStoragePath..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"	
+local storagePath = config.pathToSDL..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"	
 ---------------------------------------------------------------------------------------------
 --Test cases to verify Image Parameter
 ---------------------------------------------------------------------------------------------
