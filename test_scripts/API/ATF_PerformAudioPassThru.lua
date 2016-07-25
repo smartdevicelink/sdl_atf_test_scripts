@@ -425,6 +425,12 @@ end
 	--2. Activate application
 	commonSteps:ActivationApp()
 
+	--3. Update policy to allow request
+	policyTable:precondition_updatePolicy_AllowFunctionInHmiLeves({"FULL", "LIMITED"})
+	
+	--4. Restore preloaded_pt.json after updating it and SDL had loaded it when starting.
+	policyTable:Restore_preloaded_pt()
+
 ---------------------------------------------------------------------------------------------
 -----------------------------------------I TEST BLOCK----------------------------------------
 --CommonRequestCheck: Check of mandatory/conditional request's parameters (mobile protocol)--
@@ -845,6 +851,8 @@ end
 			--Verification criteria:
 					--The request with wrong JSON syntax is sent, the response with INVALID_DATA result code is returned.
 			function Test:PerformAudioPassThru_IncorrectJSON()
+			
+				self.mobileSession.correlationId = self.mobileSession.correlationId + 1
 				local msg =
 				{
 					serviceType      = 7,
