@@ -9,7 +9,7 @@ local events = require('events')
 
 local srcPath = config.pathToSDL .. "sdl_preloaded_pt.json"
 local dstPath = config.pathToSDL .. "sdl_preloaded_pt.json.origin"
-
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ end
 ---------------------------------------------------------------------------------------------
 	--Activation App
 	commonSteps:ActivationApp()
-	
+
 	--PutFiles
 	commonSteps:PutFile( "PutFile_MinLength", "a")
 	commonSteps:PutFile( "PutFile_icon.png", "icon.png")
@@ -1256,3 +1256,5 @@ function Test:Postcondition_Preloadedfile()
   print ("restoring sdl_preloaded_pt.json")
   commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
 end
+
+return Test
