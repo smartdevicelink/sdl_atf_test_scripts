@@ -12,7 +12,9 @@ local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local policyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 require('user_modules/AppTypes')
 
+
 APIName = "OnTBTClientState" -- set API name
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 NewTestSuiteNumber = 0 -- use as subfix of test case "NewTestSuite" to make different test case name.
 Apps = {}
 Apps[1] = {}
@@ -23,7 +25,7 @@ Apps[2].appName = config.application2.registerAppInterfaceParams.appName
 ---------------------------------------------------------------------------------------------
 ------------------------------------------Common functions-----------------------------------
 ---------------------------------------------------------------------------------------------
-	
+
 --Test case: HMI sends OnTBTClientState and SDL forwards it to Mobile
 local function OnTBTClientState_ValidValue_SUCCESS(Input_state, TestCaseName)
 	Test[TestCaseName] = function(self)
@@ -73,7 +75,8 @@ end
 	--2. Update policy to allow request
 	policyTable:precondition_updatePolicy_AllowFunctionInHmiLeves({"BACKGROUND", "FULL", "LIMITED"})
 
-
+	--3. Postcondition: Restore_preloaded_pt
+	policyTable:Restore_preloaded_pt()
 
 	--List of state
 	local TBTState = 
@@ -310,15 +313,17 @@ local function ResultCodeChecks()
 	--Test case #1: API is not in policy table, SDL does not send it to mobile
 	----------------------------------------------------------------------------------------------
 
-		--Precondition: Build policy table file
-		local PTName = policyTable:createPolicyTableWithoutAPI(APIName)
+		--ToDo: Due to changing in implementation of policy update flow, these test case cannot executed.
 		
-		--Precondition: Update policy table
-		policyTable:updatePolicy(PTName)
+		-- --Precondition: Build policy table file
+		-- local PTName = policyTable:createPolicyTableWithoutAPI(APIName)
+		
+		-- --Precondition: Update policy table
+		-- policyTable:updatePolicy(PTName)
 
-		for i = 1, #TBTState do
-			OnTBTClientState_IsIgnored(TBTState[i], "OnTBTClientState_IsNotInPolicyTable_IsIgnored_state_".. TBTState[i])
-		end
+		-- for i = 1, #TBTState do
+			-- OnTBTClientState_IsIgnored(TBTState[i], "OnTBTClientState_IsNotInPolicyTable_IsIgnored_state_".. TBTState[i])
+		-- end
 
 
 
@@ -326,35 +331,14 @@ local function ResultCodeChecks()
 	----------------------------------------------------------------------------------------------
 	--Test case #2: API is in policy table but user has not consented yet, SDL does not send it to mobile
 	----------------------------------------------------------------------------------------------
+		--For Genivi version, SDL do not support user consent function. => These test cases are not applicable. REMOVED
 		
-		
-		--Precondition: Build policy table file
-		local keep_context = true
-		local steal_focus = true
-		local PTName = policyTable:createPolicyTable(APIName, {"FULL", "BACKGROUND", "LIMITED"}, keep_context, steal_focus)
-		
-		--Precondition: Update policy table
-		policyTable:updatePolicy(PTName)
-
-		for i = 1, #TBTState do
-			OnTBTClientState_IsIgnored(TBTState[i], "OnTBTClientState_HaveNotConsentedYet_IsIgnored_state_".. TBTState[i])
-		end
-		
-
 	----------------------------------------------------------------------------------------------
 	--Test case #3: API is in policy table but user disallows, SDL does not send it to mobile
 	----------------------------------------------------------------------------------------------
-			
-		--Precondition: User does not allow function group
-		policyTable:userConsent(false)		
 		
-		for i = 1, #TBTState do
-			OnTBTClientState_IsIgnored(TBTState[i], "OnTBTClientState_UserDisallowed_IsIgnored_state_".. TBTState[i])
-		end
+		--For Genivi version, SDL do not support user consent function. => These test cases are not applicable. REMOVED
 		
-		--Postcondition: User allows function group
-		policyTable:userConsent(true)	
-
 end
 
 ResultCodeChecks()
@@ -531,7 +515,6 @@ end
 verifyDifferentHMIStatus()
 ----------------------------------------------------------------------------------------------
 
---Postcondition: Restore_preloaded_pt
-policyTable:Restore_preloaded_pt()
+
 
 return Test
