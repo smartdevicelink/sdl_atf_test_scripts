@@ -9,6 +9,8 @@ local events = require('events')
 local mobile_session = require('mobile_session')
 local config = require('config')
 
+--ToDo: Remove below line when heartbeat function work well on protocol 3.
+config.defaultProtocolVersion = 2 -- to avoid error with heartbeat function
 
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
@@ -58,7 +60,7 @@ end
 -------------------------------------------Preconditions-------------------------------------
 ---------------------------------------------------------------------------------------------
 
-	-- commonSteps:DeleteLogsFileAndPolicyTable()
+	commonSteps:DeleteLogsFileAndPolicyTable()
 
 
 	--Print new line to separate new test cases group
