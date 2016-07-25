@@ -9,6 +9,8 @@ local events = require('events')
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
 ---------------------------------------------------------------------------------------------
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
@@ -25,7 +27,7 @@ require('user_modules/AppTypes')
 ---------------------------------------------------------------------------------------------
 APIName="UnsubcribleWayPoints"
 strMaxLengthFileName255 = string.rep("a", 251)  .. ".png" -- set max length file name
-local storagePath = config.SDLStoragePath..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"	
+local storagePath = config.pathToSDL..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"	
 
 ---------------------------------------------------------------------------------------------
 ------------------------------------ Common Functions ---------------------------------------
@@ -138,43 +140,12 @@ end
 ------------------------------------------------------------------------------------
 -------------------------------------------Preconditions-------------------------------------
 ---------------------------------------------------------------------------------------------
-	--Activation App
-	commonSteps:ActivationApp()
 	
-	-- PutFiles
-	commonSteps:PutFile( "PutFile_MinLength", "a")
-	commonSteps:PutFile( "PutFile_icon.png", "icon.png")
-	commonSteps:PutFile( "PutFile_action.png", "action.png")
-	commonSteps:PutFile( "PutFile_MaxLength_255Characters", strMaxLengthFileName255)
-	
-	local PermissionLines_SubcribeWayPoints = 
-[[					"SubscribeWayPoints": {
-						"hmi_levels": [
-						  "BACKGROUND",
-						  "FULL",
-						  "LIMITED"
-						]
-					  }]]
+	--Print new line to separate Preconditions
+	commonFunctions:newTestCasesGroup("Preconditions")
 
-	local PermissionLines_UnsubcribeWayPoints = 
-[[					"UnsubscribeWayPoints": {
-						"hmi_levels": [
-						  "BACKGROUND",
-						  "FULL",
-						  "LIMITED"
-						]
-					  }]]
-
-	local PermissionLinesForBase4 = PermissionLines_SubcribeWayPoints .. ", \n" .. PermissionLines_UnsubcribeWayPoints ..", \n"
-	local PermissionLinesForGroup1 = nil
-	local PermissionLinesForApplication = nil
-	
-	--ToDo: This TC is blocked on ATF 2.2 by defect APPLINK-19188. Please try ATF on commit f86f26112e660914b3836c8d79002e50c7219f29
-	--local PTName = testCasesForPolicyTable:createPolicyTableFile(PermissionLinesForBase4, PermissionLinesForGroup1, PermissionLinesForApplication)	
-	--ToDo: Update when new policy table update flow finishes implementation
-	-- testCasesForPolicyTable:updatePolicy(PTName)	
-	--local PTName = "files/ptu_general.json"
-	--testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt(PTName)
+	-- Delete Logs
+	commonSteps:DeleteLogsFileAndPolicyTable()
 	
 	function Test:backUpPreloadedPt()
 		-- body
@@ -223,6 +194,52 @@ end
 	  file:close()
 	 end
 	 Test:updatePreloadedJson()
+	
+	function Test:RestorePreloadedPt()
+		-- body
+		os.execute('cp ' .. config.pathToSDL .. 'backup_sdl_preloaded_pt.json' .. ' ' .. config.pathToSDL .. 'sdl_preloaded_pt.json')
+		os.execute('rm ' .. config.pathToSDL .. 'backup_sdl_preloaded_pt.json')
+	end
+	
+	--Activation App
+	commonSteps:ActivationApp()
+	
+	-- PutFiles
+	commonSteps:PutFile( "PutFile_MinLength", "a")
+	commonSteps:PutFile( "PutFile_icon.png", "icon.png")
+	commonSteps:PutFile( "PutFile_action.png", "action.png")
+	commonSteps:PutFile( "PutFile_MaxLength_255Characters", strMaxLengthFileName255)
+	
+	local PermissionLines_SubcribeWayPoints = 
+[[					"SubscribeWayPoints": {
+						"hmi_levels": [
+						  "BACKGROUND",
+						  "FULL",
+						  "LIMITED"
+						]
+					  }]]
+
+	local PermissionLines_UnsubcribeWayPoints = 
+[[					"UnsubscribeWayPoints": {
+						"hmi_levels": [
+						  "BACKGROUND",
+						  "FULL",
+						  "LIMITED"
+						]
+					  }]]
+
+	local PermissionLinesForBase4 = PermissionLines_SubcribeWayPoints .. ", \n" .. PermissionLines_UnsubcribeWayPoints ..", \n"
+	local PermissionLinesForGroup1 = nil
+	local PermissionLinesForApplication = nil
+	
+	--ToDo: This TC is blocked on ATF 2.2 by defect APPLINK-19188. Please try ATF on commit f86f26112e660914b3836c8d79002e50c7219f29
+	--local PTName = testCasesForPolicyTable:createPolicyTableFile(PermissionLinesForBase4, PermissionLinesForGroup1, PermissionLinesForApplication)	
+	--ToDo: Update when new policy table update flow finishes implementation
+	-- testCasesForPolicyTable:updatePolicy(PTName)	
+	--local PTName = "files/ptu_general.json"
+	--testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt(PTName)
+	
+
 	
   ---------------------------------------------------------------------------------------------
   -----------------------------------------TEST BLOCK I----------------------------------------
