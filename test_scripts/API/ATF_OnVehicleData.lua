@@ -25,6 +25,7 @@ local functionId = require('function_id')
 require('user_modules/AppTypes')
 
 APIName = "OnVehicleData" -- set API name
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 Apps = {}
 Apps[1] = {}
 Apps[1].storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
@@ -53,7 +54,8 @@ local SVDValues = {		gps						= "VEHICLEDATA_GPS",
 						headLampStatus			= "VEHICLEDATA_HEADLAMPSTATUS", 
 						engineTorque			= "VEHICLEDATA_ENGINETORQUE", 
 						accPedalPosition		= "VEHICLEDATA_ACCPEDAL", 
-						steeringWheelAngle		= "VEHICLEDATA_STEERINGWHEEL"
+						steeringWheelAngle		= "VEHICLEDATA_STEERINGWHEEL",
+						vin						= "VEHICLEDATA_VIN"
 					}
 						
 
@@ -75,7 +77,8 @@ local allVehicleData = {	"gps",
 							"headLampStatus", 
 							"engineTorque", 
 							"accPedalPosition", 
-							"steeringWheelAngle"
+							"steeringWheelAngle",
+							"vin"
 						}
 							
 
@@ -99,19 +102,19 @@ function Test:subscribeVehicleDataSuccess(paramsSend)
 			vehicleDataResultCodeValue = "SUCCESS"
 		end
 		
-		-- for i = 1, #paramsSend do
-		-- 	if  paramsSend[i] == "clusterModeStatus" then
-		-- 		temp["clusterModes"] = {					
-		-- 					resultCode = vehicleDataResultCodeValue, 
-		-- 					dataType = SVDValues[paramsSend[i]]
-		-- 			}
-		-- 	else
-		-- 		temp[paramsSend[i]] = {					
-		-- 					resultCode = vehicleDataResultCodeValue, 
-		-- 					dataType = SVDValues[paramsSend[i]]
-		-- 			}
-		-- 	end
-		-- end	
+		for i = 1, #paramsSend do
+			if  paramsSend[i] == "clusterModeStatus" then
+				temp["clusterModes"] = {
+							resultCode = vehicleDataResultCodeValue,
+							dataType = SVDValues[paramsSend[i]]
+					}
+			else
+				temp[paramsSend[i]] = {
+							resultCode = vehicleDataResultCodeValue,
+							dataType = SVDValues[paramsSend[i]]
+					}
+			end
+		end
 		return temp
 	end
 	
@@ -184,7 +187,7 @@ end
 -------------------------------------------Preconditions-------------------------------------
 ---------------------------------------------------------------------------------------------
 
-
+	commonSteps:DeleteLogsFileAndPolicyTable()
 
 	--Print new line to separate new test cases group
 	commonFunctions:newTestCasesGroup("Preconditions")
@@ -260,8 +263,115 @@ end
 	--TODO: PT is blocked by ATF defect APPLINK-19188
 	--local PTName = testCasesForPolicyTable:createPolicyTableFile(PermissionLinesForBase4, PermissionLinesForGroup1, PermissionLinesForApplication)	
 	--testCasesForPolicyTable:updatePolicy(PTName)		
+
+	local function backUpPreloadedPt_AndUpdate()
+
+		--Backup sdl_preloaded_pt.json file 
+		os.execute('cp ' .. config.pathToSDL .. 'sdl_preloaded_pt.json' .. ' ' .. config.pathToSDL .. 'backup_sdl_preloaded_pt.json')
+		os.execute('rm ' .. config.pathToSDL .. 'policy.sqlite')
+
+
+		pathToFile = config.pathToSDL .. 'sdl_preloaded_pt.json'
+		local file  = io.open(pathToFile, "r")
+		local json_data = file:read("*all") -- may be abbreviated to "*a";
+		file:close()
+
+		local json = require("modules/json")
+		 
+		local data = json.decode(json_data)
+		for k,v in pairs(data.policy_table.functional_groupings) do
+			if (data.policy_table.functional_groupings[k].rpcs == nil) then
+			    --do
+			    data.policy_table.functional_groupings[k] = nil
+			else
+			    --do
+			    local count = 0
+			    for _ in pairs(data.policy_table.functional_groupings[k].rpcs) do count = count + 1 end
+			    if (count < 30) then
+			        --do
+					data.policy_table.functional_groupings[k] = nil
+			    end
+			end
+		end
 		
-			
+
+		data.policy_table.functional_groupings["Base-4"].rpcs.OnVehicleData = {
+						hmi_levels =  {
+						  "BACKGROUND",
+						  "FULL",
+						  "LIMITED"
+						},
+						parameters = {
+							"gps", 
+							"speed",  
+							"rpm", 
+							"fuelLevel", 
+							"fuelLevel_State", 
+							"instantFuelConsumption", 
+							"externalTemperature", 
+							"prndl", 
+							"tirePressure", 
+							"odometer", 
+							"beltStatus", 
+							"bodyInformation", 
+							"deviceStatus", 
+							"driverBraking", 
+							"wiperStatus", 
+							"headLampStatus", 
+							"engineTorque", 
+							"accPedalPosition", 
+							"steeringWheelAngle",
+							"vin"
+					   }
+					  }
+					  
+		data.policy_table.functional_groupings["Base-4"].rpcs.SubscribeVehicleData = {
+						hmi_levels = {
+						  "BACKGROUND",
+						  "FULL",
+						  "LIMITED"
+						},
+						parameters = {
+							"gps", 
+							"speed", 
+							"rpm", 
+							"fuelLevel", 
+							"fuelLevel_State", 
+							"instantFuelConsumption", 
+							"externalTemperature", 
+							"prndl", 
+							"tirePressure", 
+							"odometer", 
+							"beltStatus", 
+							"bodyInformation", 
+							"deviceStatus", 
+							"driverBraking", 
+							"wiperStatus", 
+							"headLampStatus", 
+							"engineTorque", 
+							"accPedalPosition", 
+							"steeringWheelAngle",
+							"vin"
+					   }
+					  }
+
+		
+		data = json.encode(data)
+
+		file = io.open(pathToFile, "w")
+		file:write(data)
+		file:close()
+	end
+
+	--This function is not a test so it will execute before executing tests and does not show in report as a test.
+	backUpPreloadedPt_AndUpdate()
+	
+	function Test:RestorePreloadedPt()
+		-- body
+		os.execute('cp ' .. config.pathToSDL .. 'backup_sdl_preloaded_pt.json' .. ' ' .. config.pathToSDL .. 'sdl_preloaded_pt.json')
+		os.execute('rm ' .. config.pathToSDL .. 'backup_sdl_preloaded_pt.json')
+	end
+	
 	----Get appID Value on HMI side
 	function Test:GetAppID()
 		Apps[1].appID = self.applications[Apps[1].appName]
@@ -2243,4 +2353,6 @@ end
 	end
 	DifferentHMIlevelChecks()
 
+	
+	
 return Test	
