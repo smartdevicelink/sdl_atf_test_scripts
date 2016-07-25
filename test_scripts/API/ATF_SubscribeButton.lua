@@ -9,14 +9,34 @@
 --Test result: This test script has 8 failed test cases. It related to subscribe OK button (APPLINK-11135), CUSTOM_BUTTON and SEARCH buttons (UNSUPPORT_RESOURCE)
 ---------------------------------------------------------------------------------------------
 
-Test = require('user_modules/connecttestSubscribeSB')
+
+--Test = require('user_modules/connecttestSubscribeSB')
+
+--use protocol 2 to avoid disconnect.
+config.defaultProtocolVersion = 2
+
+Test = require('connecttest')
+
+
 require('cardinalities')
 local events = require('events')
 local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
+
+---------------------------------------------------------------------------------------------
+-----------------------------Required Shared Libraries---------------------------------------
+---------------------------------------------------------------------------------------------
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local policyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+require('user_modules/AppTypes')
+
+APIName = "SubscribeButton" -- set request name
+
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 local iTimeout = 5000
 local buttonName = {"OK","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
@@ -372,24 +392,23 @@ function RegisterAppInterface(self, appNumber)
 
 		DelayedExp(1000)
 	end
-		
+	
 ---------------------------------------------------------------------------------------------
 -------------------------------------------Preconditions-------------------------------------
 ---------------------------------------------------------------------------------------------
-	--Begin Precondition.1
-	--Description: Activation App by sending SDL.ActivateApp
 
-		function Test:Activate_Media_Application()
-			--HMI send ActivateApp request			
-			ActivateApplication(self, config.application1.registerAppInterfaceParams.appName)
-		end
+	--Print new line to separate Preconditions
+	commonFunctions:newTestCasesGroup("Preconditions")
 
-	--End Precondition.1
-
-	-----------------------------------------------------------------------------------------
-
-
+	--1. Delete Logs
+	commonSteps:DeleteLogsFileAndPolicyTable()
 	
+	
+	--2. Activate application
+	commonSteps:ActivationApp()
+
+	--3. Update policy to allow request
+	policyTable:precondition_updatePolicy_AllowFunctionInHmiLeves({"FULL", "LIMITED", "BACKGROUND"})
 
 ---------------------------------------------------------------------------------------------
 -----------------------------------------I TEST BLOCK----------------------------------------
@@ -455,7 +474,7 @@ function RegisterAppInterface(self, appNumber)
 			
 		--End test case CommonRequestCheck.2
 		-----------------------------------------------------------------------------------------	
-
+	
 
 		--Skipped CommonRequestCheck.3-4: There next checks are not applicable:
 			-- request with all combinations of conditional-mandatory parameters (if exist)
@@ -618,38 +637,44 @@ function RegisterAppInterface(self, appNumber)
 
 			Precondition_TC_UnsubscribeButton(self, "PRESET_0")
 			Precondition_TC_UnsubscribeButton(self, "PRESET_1")
-			
-			function Test:SubscribeButton_DuplicatedCorrelationID_SUCCESS()
-			
-				--mobile side: sending SubscribeButton request
-				local cid = self.mobileSession:SendRPC("SubscribeButton",
-				{
-					buttonName = "PRESET_0"
 
-				})
-				
-				--The second message with the same correlationID
-				local msg = 
-			 	{
-			 		serviceType      = 7,
-			 		frameInfo        = 0,
-			 		rpcType          = 0,
-			 		rpcFunctionId    = 18, --SubscribeButtonID
-			 		rpcCorrelationId = cid,
-			 		payload          = '{"buttonName":"PRESET_1"}'
-			 	}
-			 	self.mobileSession:Send(msg)
+
+			--ToDo: Need update according to APPLINK-19834
+			-- function Test:SubscribeButton_DuplicatedCorrelationID_SUCCESS()
+			
+				-- --mobile side: sending SubscribeButton request
+				-- local cid = self.mobileSession:SendRPC("SubscribeButton",
+				-- {
+					-- buttonName = "PRESET_0"
+
+				-- })
+			
+
+				-- --The second message with the same correlationID
+				-- local msg = 
+			 	-- {
+			 		-- serviceType      = 7,
+			 		-- frameInfo        = 0,
+			 		-- rpcType          = 0,
+			 		-- rpcFunctionId    = 18, --SubscribeButtonID
+			 		-- rpcCorrelationId = cid,
+			 		-- payload          = '{"buttonName":"PRESET_1"}'
+			 	-- }
+
+			 	-- self.mobileSession:Send(msg)
 				
 
-				--mobile side: expect SubscribeButton response
-				EXPECT_RESPONSE(cid, {success = true, resultCode = "SUCCESS"})
-				:Timeout(iTimeout)
-				:Times(2)
+				-- --mobile side: expect SubscribeButton response
+				-- EXPECT_RESPONSE(cid, {success = true, resultCode = "SUCCESS"})
+				-- :Timeout(iTimeout)
+				-- :Times(2)
 				
-				EXPECT_NOTIFICATION("OnHashChange")
-				:Times(2)
+				
+				
+				-- EXPECT_NOTIFICATION("OnHashChange")
+				-- :Times(2)
 								
-			end
+			-- end
 
 		--End test case CommonRequestCheck.9
 		-----------------------------------------------------------------------------------------
@@ -1468,8 +1493,10 @@ function RegisterAppInterface(self, appNumber)
 			function Test:TC_SubscribeButton_06_AddNewSession()
 			  -- Connected expectation
 				self.mobileSession2 = mobile_session.MobileSession(
-				self.expectations_list,
+				--self.expectations_list,
+				self,
 				self.mobileConnection)
+				
 				
 				self.mobileSession2:StartService(7)
 			end
@@ -1966,11 +1993,11 @@ function RegisterAppInterface(self, appNumber)
 				:Timeout(12000)				
 				
 			end	
-			
+				
 			--Subscribe PRESET_1 button
 			strTestCaseName = "TC_SubscribeButton_08_SubscribeButton_PRESET_1_SUCCESS_With_OnButtonSubscription"
 			TC_SubscribeButtonSUCCESS(self, "PRESET_1", strTestCaseName)
-
+	
 			-- Unregister application: check that SDL doesn't send OnButtonSubscription(false) after app was unregistered or disconnected unexpectedly.
 			function Test:TC_SubscribeButton_08_UnregisterAppInterface_Without_OnButtonSubscription()
 				local cid = self.mobileSession:SendRPC("UnregisterAppInterface",{})
@@ -1982,7 +2009,7 @@ function RegisterAppInterface(self, appNumber)
 				EXPECT_HMICALL("OnButtonSubscription")
 				:Times(0)
 			end 
-			
+	
 			local function TC_SubscribeButton_08_Steps_From_4_To_9()
 			-- Register the same App again 
 			function Test:TC_SubscribeButton_08_RegisterAppInterfaceAndCheckOnButtonSubscription()
@@ -2054,6 +2081,8 @@ function RegisterAppInterface(self, appNumber)
 			--RegisterAppInterface
 			function Test:TC_SubscribeButton_08_RegisterAppInterfaceAndCheckOnButtonSubscription()				
 				RegisterAppInterface(self, 1)
+				--ToDo: Register again to avoid error: app is unregistered 
+				--RegisterAppInterface(self, 1)
 			end			
 			
 			--Verification that SDL resend OnButtonEvent and OnButtionPress notifications to App
@@ -2064,10 +2093,10 @@ function RegisterAppInterface(self, appNumber)
 					TC_OnButtonEvent_OnButtonPress_When_SubscribedButton(self, "PRESET_1", mode[j], strTestCaseName)
 			end
 		end
-			Steps_4_9()
+			--Steps_4_9()
+			TC_SubscribeButton_08_Steps_From_4_To_9()
 			
 		--End test case SequenceCheck.8
-		
 		-----------------------------------------------------------------------------------------			
 		
 		--Write TEST_BLOCK_VI_End to ATF log
@@ -2297,7 +2326,7 @@ function RegisterAppInterface(self, appNumber)
 		
 	--End test suit DifferentHMIlevel
 
-			
+
 		
 return Test
 
