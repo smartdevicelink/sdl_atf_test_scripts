@@ -25,7 +25,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 	
 
 --Contains all test cases with verify mandatory is false
-function testCasesForStringParameterInResponse:verify_String_Parameter(Response, Parameter, Boundary, Mandatory)
+function testCasesForStringParameterInResponse:verify_String_Parameter(Response, Parameter, Boundary, Mandatory, IsSupportedSpecialCharacters)
 
 		local Response = commonFunctions:cloneTable(Response)	
 
@@ -80,10 +80,22 @@ function testCasesForStringParameterInResponse:verify_String_Parameter(Response,
 		local value = commonFunctions:createString(Boundary[2] + 1)
 		commonFunctions:TestCaseForResponse(self, Response, Parameter, "IsOutUpperBound", value, "GENERIC_ERROR")
 		
-		--7. IsInvalidCharacters: Special characters validation: GENERIC_ERROR response should come according to APPLINK-7687
-		commonFunctions:TestCaseForResponse(self, Response, Parameter, "ContainsNewLineCharacter", "a\nb", "GENERIC_ERROR")
-		commonFunctions:TestCaseForResponse(self, Response, Parameter, "ContainsTabCharacter", "a\tb", "GENERIC_ERROR")
-		commonFunctions:TestCaseForResponse(self, Response, Parameter, "WhiteSpacesOnly", "   ", "GENERIC_ERROR")
+		-- Check special characters
+		if IsSupportedSpecialCharacters == nil then
+			-- do not check support special characters or not.
+			print("Note: Do not check parameter supports special characters or not.")
+			
+		elseif IsSupportedSpecialCharacters == true then
+			--7. Check support special characters
+			commonFunctions:TestCaseForResponse(self, Response, Parameter, "ContainsNewLineCharacter", "a\nb", "SUCCESS")
+			commonFunctions:TestCaseForResponse(self, Response, Parameter, "ContainsTabCharacter", "a\tb", "SUCCESS")
+			commonFunctions:TestCaseForResponse(self, Response, Parameter, "WhiteSpacesOnly", "   ", "SUCCESS")
+		else		
+			--7. Check not support special characters: Special characters validation: GENERIC_ERROR response should come according to APPLINK-7687
+			commonFunctions:TestCaseForResponse(self, Response, Parameter, "ContainsNewLineCharacter", "a\nb", "GENERIC_ERROR")
+			commonFunctions:TestCaseForResponse(self, Response, Parameter, "ContainsTabCharacter", "a\tb", "GENERIC_ERROR")
+			commonFunctions:TestCaseForResponse(self, Response, Parameter, "WhiteSpacesOnly", "   ", "GENERIC_ERROR")
+		end
 end
 
 

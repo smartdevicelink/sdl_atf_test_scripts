@@ -1,0 +1,57 @@
+{
+    "status": "200 ok",
+    "responseType": "array",
+    "response": [
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "1",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.testApp1.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.testApp1.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "Test application1"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "2",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.testApp2.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.testApp2.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "Test application2"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "3",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.testApp3.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.testApp3.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "Test application3"
+        }
+    ]
+}

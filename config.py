@@ -35,8 +35,8 @@ sdl_branch = "develop"
 atf_repository = "https://github.com/smartdevicelink/sdl_atf/"
 atf_branch = "BUILD_SERVER_VERSION"
 
-scripts_repository = "https://github.com/smartdevicelink/sdl_atf_test_scripts/"
-scripts_branch = "master"
+scripts_repository = "https://github.com/CustomSDL/sdl_atf_test_scripts/"
+scripts_branch = "GENIVI"
 
 sdl_clone_dir = work_dir + "sdl_core/"
 sdl_build_dir = sdl_clone_dir + "build/"

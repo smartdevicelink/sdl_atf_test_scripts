@@ -15,6 +15,13 @@
                 "sdlMinVersion": "1.0",
                 "languages": [
                     {
+
+                        "default": {
+                            "ttsName": "en_ABC",
+                            "vrSynonyms": ["en_ABC"]
+                        }
+                    },
+                    {
                         "FR-FR": {
                             "ttsName": "icôneFrançaiseÂâ TTS",
                             "vrSynonyms": [
@@ -42,6 +49,13 @@
                 "sdlMinVersion": "1.0",
                 "urlScheme": "rockmusicapp://",
                 "languages": [
+                    {
+
+                        "default": {
+                            "ttsName": "en_ABC",
+                            "vrSynonyms": ["en_ABC"]
+                        }
+                    },
                     {
                         "FR-FR": {
                             "ttsName": "l'icôneFrançaiseÂâÊêaisondel'arbrelacdelaforêtÎîÔôÛûÀàÈèÙËëÏïÜüŸÿÇçl'icôneFrançaiseÂâÊêaisondel'arbrelÜüŸÿÇçl'ôneaiseÂâÊêaisondel'arbrelacdeladel'arbrelacdelaforêtÎîÔôÛûÀàÈèÙËëÏïÜüŸÿÇçl'icôneFrançaiseÂâÊêaisondel'arbrelacdelaforêtÎîÔôÛûÀàÈèÙËëÏïÜüŸÿÇl'icôneFrançaiseÂâÊêaisondel'arbrelacdelaforêtÎîÔôÛûÀàÈèÙËëÏïÜüŸÿÇçl'icôneFrançaiseÂâÊêaisondel'arbrelÜüŸÿÇçl'ôneaiseÂâÊêaisondel'arbrelacdeladel'arbrelacdelaforêtÎîÔôÛûÀàÈèÙËëÏïÜüŸÿÇçl'icôneFrançaiseÂâÊêaisondel'arbrelacdelaforêtÎîÔôÛûÀàÈèÙËëÏïÜëÏïï",

@@ -1,0 +1,57 @@
+{
+    "status": "200 ok",
+    "responseType": "array",
+    "response": [
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "00002",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.SecondDeviceApp.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.awesome.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "Second device application 1"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "00012",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.SecondDeviceApp2.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.awesome.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "Second device application 2"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "00022",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.SecondDeviceApp3.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.awesome.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "Second device application 3"
+        }
+    ]
+}

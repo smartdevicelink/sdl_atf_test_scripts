@@ -32,6 +32,20 @@
 		"functional_groupings": {
 			"Base-4": {
 				"rpcs": {
+					"SubscribeWayPoints": {
+						"hmi_levels": [
+						  "BACKGROUND",
+						  "FULL",
+						  "LIMITED"
+						]
+					 },
+					"OnWayPointChange": {
+						"hmi_levels": [
+						  "BACKGROUND",
+						  "FULL",
+						  "LIMITED"
+						]
+					},
 					"AddCommand": {
 						"hmi_levels": ["BACKGROUND",
 						"FULL",
@@ -264,7 +278,6 @@
 				}
 			},
 			"Location-1": {
-				"user_consent_prompt": "Location",
 				"rpcs": {
 					"GetVehicleData": {
 						"hmi_levels": ["BACKGROUND",
@@ -288,13 +301,6 @@
 						"speed"]
 					},
 					"UnsubscribeVehicleData": {
-						"hmi_levels": ["BACKGROUND",
-						"FULL",
-						"LIMITED"],
-						"parameters": ["gps",
-						"speed"]
-					},
-					"SendLocation": {
 						"hmi_levels": ["BACKGROUND",
 						"FULL",
 						"LIMITED"],
@@ -2268,6 +2274,13 @@
 				"steal_focus": true,
 				"priority": "NONE",
 				"default_hmi": "NONE",
+				"groups": ["Base-4", "Navigation-1","DrivingCharacteristics-3", "Location-1", "VehicleInfo-3", "Emergency-1", "OnKeyboardInputOnlyGroup", "PropriataryData-1", "SendLocation"]
+			},
+			"0000004": {
+				"keep_context": true,
+				"steal_focus": true,
+				"priority": "NONE",
+				"default_hmi": "BACKGROUND",
 				"groups": ["Base-4", "Navigation-1","DrivingCharacteristics-3", "Location-1", "VehicleInfo-3", "Emergency-1", "OnKeyboardInputOnlyGroup", "PropriataryData-1", "SendLocation"]
 			},
 			"background": {
