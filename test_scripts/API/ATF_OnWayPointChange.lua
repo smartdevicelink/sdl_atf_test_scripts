@@ -10,6 +10,8 @@ local events = require('events')
 local srcPath = config.pathToSDL .. "sdl_preloaded_pt.json"
 local dstPath = config.pathToSDL .. "sdl_preloaded_pt.json.origin"
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+--ToDo: shall be removed when APPLINK-16610 is fixed
+config.defaultProtocolVersion = 2
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
 ---------------------------------------------------------------------------------------------
