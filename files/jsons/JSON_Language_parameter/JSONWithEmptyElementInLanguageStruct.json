@@ -1,0 +1,46 @@
+{
+    "status": "200 ok",
+    "responseType": "array",
+    "response": [
+        {
+            "_id": "45275cfb891ec700002d3845",
+            "__v": 0,
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.crappy.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.crappy.fake",
+                "sdlMaxVersion": "2.0",
+                "sdlMinVersion": "1.0",
+                "languages": [
+                    {}
+                ]
+            },
+            "appId": "553426",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/R3a11YFAk3.png",
+            "name": "Rap Music App"
+        },
+        {
+            "_id": "45275cfb891ec700002d3846",
+            "__v": 0,
+            "ios": {
+                "appHmiType": "MEDIA",
+                "category": "Music",
+                "isMediaApplication": true,
+                "itunesUrl": "http://itunes.apple.com/app/rock-music-app/id324384482?mt=8",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0",
+                "urlScheme": "rockmusicapp://",
+                "languages": [
+                    {}
+                ]
+            },
+            "appId": "553426",
+            "name": "Rock music App",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/R3a11YFAk3.png"
+        }
+    ]
+}

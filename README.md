@@ -83,7 +83,6 @@ You can get additional help of usage ATF:
 ```
 
 #### Known Issues
-Some test cases are failed due to known SDL issues. List of failed test cases available in KnownIssues.md
-
-
+- Some test cases are failed due to known SDL issues. List of failed test cases available in KnownIssues.md
+- For testing different application types (NAVI, MEDIA, etc...) you need to modify your ```<sdl_atf>/modules/config.lua``` after *prepare* step 
 

@@ -20,8 +20,12 @@ local config = require('config')
 
 --1. GetValue(parameterName)
 function SmartDeviceLinkConfigurations:GetValue(parameterName)
-	
-	 
+
+	findresult = string.find (config.pathToSDL, '.$')
+	if string.sub(config.pathToSDL,findresult) ~= "/" then
+		config.pathToSDL = config.pathToSDL..tostring("/")
+	end
+		 
 	-- Opens a file in read mode
 	local file = io.open(config.pathToSDL .. "smartDeviceLink.ini", "r")
 	local value = ""

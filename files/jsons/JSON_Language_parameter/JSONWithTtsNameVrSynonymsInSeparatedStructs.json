@@ -16,7 +16,11 @@
                 "languages": [
                     {
                         "default": {
-                            "ttsName": "Rap music App tts name default"
+                            "ttsName": "Rap music App tts name default",
+                            "vrSynonyms": [
+                                "Rap music App 1 default",
+                                "Rap music App 2 default"
+                            ]
                         }
                     },
                     {
@@ -48,6 +52,7 @@
                 "languages": [
                     {
                         "default": {
+                            "ttsName": "Rock music App tts name default",
                             "vrSynonyms": [
                                 "Rock music App 1 default",
                                 "Rock music App 2 default"

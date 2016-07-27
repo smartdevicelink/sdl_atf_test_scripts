@@ -1,6 +1,6 @@
 {
     "status": "200 ok",
-    "responseType": "array",
+    responseType: "array", //status responseType ""
     "response": [
         {
             "_id": "53f75cfb891ec700002d3592",
@@ -17,7 +17,7 @@
                 "sdlMaxVersion": "3.0",
                 "sdlMinVersion": "1.0"
             },
-            "name": "Awesome Music App
+            "name": "Awesome Music App"
         },
         {
             "_id": "45275cfb891ec700002d3845",

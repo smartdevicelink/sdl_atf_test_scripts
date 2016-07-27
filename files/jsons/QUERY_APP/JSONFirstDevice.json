@@ -1,0 +1,60 @@
+{
+    "status": "200 ok",
+    "responseType": "array",
+    "response": [
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "8675309",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.SyncProxyTester.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.SyncProxyTester.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0",
+                "languages": [
+                    {
+                        "default": {
+                            "ttsName": "SyncProxyTester TTS default",
+                            "vrSynonyms": [
+                                "SyncProxyTester VR default"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "name": "SyncProxyTester"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "853426",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.Pandora.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.Pandora.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0",
+                "languages": [
+                    {
+                        "default": {
+                            "ttsName": "Pandora TTS default",
+                            "vrSynonyms": [
+                                "Pandora VR default"
+                            ]
+                        }
+                    }
+                ]
+            },
+            "name": "Pandora"
+        }
+    ]
+}

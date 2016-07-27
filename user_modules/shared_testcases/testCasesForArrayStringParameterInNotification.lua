@@ -25,7 +25,6 @@ local stringParameterInNotification = require('user_modules/shared_testcases/tes
 --Contains all test cases
 function testCasesForArrayStringParameterInNotification:verify_Array_String_Parameter(Notification, Parameter, Boundary,  ElementBoundary, Mandatory, IsStringElementAcceptedSpecialCharacter)
 
-
 		--Print new line to separate new test cases group
 		commonFunctions:newTestCasesGroup(Parameter)	
 		
@@ -84,10 +83,12 @@ function testCasesForArrayStringParameterInNotification:verify_Array_String_Para
 		commonFunctions:setValueForParameter(TestingNotification, Parameter, {})	
 
 		local parameter_arrayElement = commonFunctions:BuildChildParameter(Parameter, 1) -- element #1
-
-		stringParameterInNotification:verify_String_Parameter(TestingNotification, parameter_arrayElement, ElementBoundary, true, IsStringElementAcceptedSpecialCharacter)
-		
-		
+		-- verify_String_Parameter(Notification, Parameter, Boundary, IsMandatory, IsAcceptedInvalidCharacters)
+		if Boundary[1] >0 then
+			stringParameterInNotification:verify_String_Parameter(TestingNotification, parameter_arrayElement, ElementBoundary, true, IsStringElementAcceptedSpecialCharacter)
+		else 
+			stringParameterInNotification:verify_String_Parameter(TestingNotification, parameter_arrayElement, ElementBoundary, false, IsStringElementAcceptedSpecialCharacter)
+		end
 end
 ---------------------------------------------------------------------------------------------
 
