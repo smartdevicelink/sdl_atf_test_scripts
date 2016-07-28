@@ -29,6 +29,25 @@ end
 -- Function will delete all needed files and folders => SDL will start very first ignition cycle.
 DeleteLog_app_info_dat_policy()
 
+--UPDATED
+local default_HelpPromt = "Default Help Prompt"
+	
+-- Requirement id in JIRA: APPLINK-19475
+-- Read default value of HelpPromt in .ini file
+f = assert(io.open(config.pathToSDL.. "/smartDeviceLink.ini", "r"))
+ 
+fileContent = f:read("*all")
+DefaultContant = fileContent:match('HelpPromt.?=.?([^\n]*)')
+ 	
+if not DefaultContant then
+	print ( " \27[31m HelpPromt is not found in smartDeviceLink.ini \27[0m " )
+else
+	default_HelpPromt = DefaultContant
+	print(default_HelpPromt)
+end
+f:close()
+
+
 Test = require('connecttest')
 require('cardinalities')
 
@@ -83,18 +102,38 @@ function Test:AppSendsFirstSGPWithVrHelpItems(...)
 	custom.testMessage("App sends the very first SetGlobalProperties_request in current ignition cycle WITH <VRHelp> and <VRHelpTitle> params")
 	custom.info("Expected: SDL transfers vrHelp and vrHelpTitle via UI.SetGlobalProperties")
 
+
 	-- custom.userPrint(33, custom.SGP_with_vr_help_start)
 	local cid = self.mobileSession:SendRPC("SetGlobalProperties", custom.SGP_with_vr_help_start)
 	
 	EXPECT_HMICALL("UI.SetGlobalProperties", {
 		vrHelp = custom.SGP_with_vr_help_start.vrHelp, 
-		vrHelpTitle = custom.SGP_with_vr_help_start.vrHelpTitle})
+		vrHelpTitle = custom.SGP_with_vr_help_start.vrHelpTitle},
+		--UPDATED
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+		)
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
 		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 		actualVrHelpItem = custom.SGP_with_vr_help_start.vrHelp
 		actualVrHelpTitle = custom.SGP_with_vr_help_start.vrHelpTitle
 	end)
+
+	--UPDATED
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+						{
+							helpPrompt = 
+										{
+											{
+												text = default_HelpPromt,
+												type = "TEXT"
+										}	},																		
+							appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+						})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -192,7 +231,14 @@ function Test:AppSendsFirstSGPWithoutVrHelpItems1(...)
 	
 	EXPECT_HMICALL("UI.SetGlobalProperties",
 	{
-		vrHelpTitle = tostring(config.application1.registerAppInterfaceParams.appName)
+		vrHelpTitle = tostring(config.application1.registerAppInterfaceParams.appName),
+		--UPDATED
+		vrHelp ={ 
+					{
+						text = config.application1.registerAppInterfaceParams.appName,
+						position = 1
+				}	},
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
 	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
@@ -203,6 +249,21 @@ function Test:AppSendsFirstSGPWithoutVrHelpItems1(...)
 			self:FailTestCase("vrHelp is present")
 		end
 	end)
+
+	--UPDATED
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+					{
+						helpPrompt = {
+										{
+											text = default_HelpPromt,
+											type = "TEXT"
+									}	},																		
+						appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+					})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -324,7 +385,14 @@ function Test:AppSendsFirstSGPWithoutVrHelpItems2(...)
 	
 	EXPECT_HMICALL("UI.SetGlobalProperties",
 	{
-		vrHelpTitle = tostring(config.application1.registerAppInterfaceParams.appName)
+		vrHelpTitle = tostring(config.application1.registerAppInterfaceParams.appName),
+		--UPDATED
+		vrHelp = { 
+					{
+						text = config.application1.registerAppInterfaceParams.appName,
+						position = 1
+				}	},
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
 	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
@@ -338,6 +406,23 @@ function Test:AppSendsFirstSGPWithoutVrHelpItems2(...)
 			self:FailTestCase("vrHelp is absent")
 		end
 	end)
+
+	--UPDATED
+	--hmi side: expect TTS.SetGlobalProperties request
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+										{
+											helpPrompt = 
+														{
+															{
+																text = default_HelpPromt,
+																type = "TEXT"
+														}	},																		
+											appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+										})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -547,7 +632,14 @@ function Test:AppSendsFirstSGPWithoutVrHelpItems3(...)
 	
 	EXPECT_HMICALL("UI.SetGlobalProperties",
 	{
-		vrHelpTitle = tostring(config.application1.registerAppInterfaceParams.appName)
+		vrHelpTitle = tostring(config.application1.registerAppInterfaceParams.appName),
+		--UPDATED
+		vrHelp = { 
+					{
+						text = config.application1.registerAppInterfaceParams.appName,
+						position = 1
+				}	},
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
 	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
@@ -571,6 +663,24 @@ function Test:AppSendsFirstSGPWithoutVrHelpItems3(...)
 			self:FailTestCase("vrHelp is absent")
 		end
 	end)
+
+	--UPDATED
+	--hmi side: expect TTS.SetGlobalProperties request
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+						{
+							helpPrompt = 
+										{
+											{
+												text = default_HelpPromt,
+												type = "TEXT"
+											}			
+										},																		
+							appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+						})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -601,7 +711,9 @@ function Test:AppSendsNextSGPWithVrHelpItemsAfterDefaultProperties(...)
 	EXPECT_HMICALL("UI.SetGlobalProperties",
 	{
 		vrHelp = custom.SGP_with_vr_help_next.vrHelp,
-		vrHelpTitle = custom.SGP_with_vr_help_next.vrHelpTitle
+		vrHelpTitle = custom.SGP_with_vr_help_next.vrHelpTitle,
+		--UPDATED
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
 	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
@@ -609,6 +721,24 @@ function Test:AppSendsNextSGPWithVrHelpItemsAfterDefaultProperties(...)
 		actualVrHelpItem = custom.SGP_with_vr_help_next.vrHelp
 		actualVrHelpTitle = custom.SGP_with_vr_help_next.vrHelpTitle
 	end)
+
+	--UPDATED
+	--hmi side: expect TTS.SetGlobalProperties request
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+						{
+							helpPrompt = 
+										{
+											{
+												text = default_HelpPromt,
+												type = "TEXT"
+											}			
+										},																		
+							appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+						})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -636,18 +766,50 @@ function Test:AppSendsNextSGPWithoutVrHelpItems(...)
 	-- custom.info(custom.SGP_without_vr_help_next.vrHelp)
 	-- custom.info(custom.SGP_without_vr_help_next.vrHelpTitle)
 
-	EXPECT_HMICALL("UI.SetGlobalProperties")
+	EXPECT_HMICALL("UI.SetGlobalProperties",
+	{
+		--UPDATED
+		vrHelpTitle = config.application1.registerAppInterfaceParams.appName,
+		
+		-- Clarification is done: APPLINK-26638
+		vrHelp = { 
+					{
+						text = config.application1.registerAppInterfaceParams.appName,
+						position = 1
+				}	},
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
 		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-		if data.params.vrHelp then
+		
+		--UPDATED
+		--[[if data.params.vrHelp then
 			self:FailTestCase("vrHelp is present")
 		end
 		if data.params.vrHelpTitle then
 			custom.info("vrHelpTitle is: " .. tostring(data.params.vrHelpTitle))
 			self:FailTestCase("vrHelpTitle is present")
-		end
+		end]]
 	end)
+
+	--UPDATED
+	--hmi side: expect TTS.SetGlobalProperties request
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+						{
+							helpPrompt = 
+										{
+											{
+												text = default_HelpPromt,
+												type = "TEXT"
+											}			
+										},																		
+							appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+						})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -760,14 +922,44 @@ function Test:AfterResumptionNextSGPWithoutVrHelpItems(...)
 
 	local cid = self.mobileSession:SendRPC("SetGlobalProperties", custom.SGP_without_vr_help_next)
 
-	EXPECT_HMICALL("UI.SetGlobalProperties")
+	EXPECT_HMICALL("UI.SetGlobalProperties",
+	{
+		vrHelpTitle = config.application1.registerAppInterfaceParams.appName,
+		-- Clarification is done: APPLINK-26638
+		vrHelp = { 
+					{
+						text = config.application1.registerAppInterfaceParams.appName,
+						position = 1
+				}	},
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
 		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-		if (data.params.vrHelp) or (data.params.vrHelpTitle) then
+		
+		--UPDATED
+		--[[if (data.params.vrHelp) or (data.params.vrHelpTitle) then
 			self:FailTestCase("vrHelp or vrHelpTitle is present")
-		end
+		end]]
 	end)
+
+	--UPDATED
+	--hmi side: expect TTS.SetGlobalProperties request
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+						{
+							helpPrompt = 
+										{
+											{
+												text = default_HelpPromt,
+												type = "TEXT"
+											}			
+										},																		
+							appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+						})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
@@ -796,7 +988,8 @@ function Test:AfterResumptionNextSGPWithVrHelpItems(...)
 	EXPECT_HMICALL("UI.SetGlobalProperties",
 	{
 		vrHelp = custom.SGP_with_vr_help_next.vrHelp,
-		vrHelpTitle = custom.SGP_with_vr_help_next.vrHelpTitle
+		vrHelpTitle = custom.SGP_with_vr_help_next.vrHelpTitle,
+		appID = self.applications[config.application1.registerAppInterfaceParams.appName]
 	})
 	:Do(function(_,data)
 		--hmi side: sending UI.SetGlobalProperties response
@@ -804,6 +997,24 @@ function Test:AfterResumptionNextSGPWithVrHelpItems(...)
 		actualVrHelpItem = custom.SGP_with_vr_help_next.vrHelp
 		actualVrHelpTitle = custom.SGP_with_vr_help_next.vrHelpTitle
 	end)
+
+	--UPDATED
+	--hmi side: expect TTS.SetGlobalProperties request
+	EXPECT_HMICALL("TTS.SetGlobalProperties",
+						{
+							helpPrompt = 
+										{
+											{
+												text = default_HelpPromt,
+												type = "TEXT"
+											}			
+										},																		
+							appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+						})
+	:Do(function(_,data)
+		--hmi side: sending UI.SetGlobalProperties response
+		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	end)		
 
 	--mobile side: expect SetGlobalProperties response
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
