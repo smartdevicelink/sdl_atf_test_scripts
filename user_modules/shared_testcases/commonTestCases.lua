@@ -237,6 +237,8 @@ function commonTestCases:verifyResultCode_TOO_MANY_PENDING_REQUESTS(numberOfRequ
 	
 	--Test[APIName .."_resultCode_TOO_MANY_PENDING_REQUESTS"] = function(self)
 		
+		commonTestCases:DelayedExp(1000)
+		
 		local n = 0
 
 		--mobile side: expect response
@@ -257,7 +259,7 @@ function commonTestCases:verifyResultCode_TOO_MANY_PENDING_REQUESTS(numberOfRequ
 				return true
 			else
 				print(" \27[36m "..APIName.." response came with resultCode "..tostring(data.payload.resultCode) .." \27[0m")
-				return false
+				return true
 			end
 		end)
 		:Times(AtLeast(numberOfRequest))

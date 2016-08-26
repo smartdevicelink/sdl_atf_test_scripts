@@ -16,10 +16,10 @@
                 "languages": [
                     {
                         "default": {
-                            "ttsName": "Rap music App tts name default",
+                            "ttsName": "Test Application music App tts name default",
                             "vrSynonyms": [
-                                "Rap music App 1 default",
-                                "Rap music App 2 default"
+                                "Test Application music App 1 default",
+                                "Test Application music App 2 default"
                             ]
                         }
                     }

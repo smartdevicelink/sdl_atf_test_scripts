@@ -1,0 +1,57 @@
+{
+    "status": "200 ok",
+    "responseType": "array",
+    "response": [
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "00001",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.FirstDeviceApp.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.awesome.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "First device application 1"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "00011",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.FirstDeviceApp2.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.awesome.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "First device application 2"
+        },
+        {
+            "_id": "53f75cfb891ec700002d3592",
+            "__v": 0,
+            "appId": "00021",
+            "development": false,
+            "iconUrl": "http://i.imgur.com/S0FAk3.png",
+            "android": {
+                "appHmiType": "MEDIA",
+                "category": "MusicAndAudio",
+                "isMediaApplication": true,
+                "packageName": "com.FirstDeviceApp3.fake",
+                "playStoreUrl": "http://play.google.com/store/apps/details?id=com.awesome.fake",
+                "sdlMaxVersion": "3.0",
+                "sdlMinVersion": "1.0"
+            },
+            "name": "First device application 3"
+        }
+    ]
+}

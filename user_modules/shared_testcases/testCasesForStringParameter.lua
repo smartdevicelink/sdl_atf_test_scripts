@@ -79,7 +79,7 @@ function testCasesForStringParameter:verify_String_Parameter_Mandatory(Request, 
 	local Request = commonFunctions:cloneTable(Request)	
 
 	--Print new line to separate new test cases group
-	commonFunctions:newTestCasesGroup(Parameter)	
+	-- commonFunctions:newTestCasesGroup(Parameter)	
 	
 	--1. IsMissed
 	local resultCode

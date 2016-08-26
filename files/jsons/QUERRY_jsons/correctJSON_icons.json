@@ -15,7 +15,18 @@
                 "packageName": "com.testApp1.fake",
                 "playStoreUrl": "http://play.google.com/store/apps/details?id=com.testApp1.fake",
                 "sdlMaxVersion": "3.0",
-                "sdlMinVersion": "1.0"
+                "sdlMinVersion": "1.0",
+                 "languages": [
+                    {
+                        "default": {
+                            "ttsName": "Test application1 music App tts name default",
+                            "vrSynonyms": [
+                                "Test application1 music App 1 default",
+                                "Test application1 music App 2 default"
+                            ]
+                        }
+                    }
+                ]
             },
             "name": "Test application1"
         },
@@ -32,7 +43,18 @@
                 "packageName": "com.testApp2.fake",
                 "playStoreUrl": "http://play.google.com/store/apps/details?id=com.testApp2.fake",
                 "sdlMaxVersion": "3.0",
-                "sdlMinVersion": "1.0"
+                "sdlMinVersion": "1.0",
+                 "languages": [
+                    {
+                        "default": {
+                            "ttsName": "Test application2 music App tts name default",
+                            "vrSynonyms": [
+                                "Test application2 music App 1 default",
+                                "Test application2 music App 2 default"
+                            ]
+                        }
+                    }
+                ]
             },
             "name": "Test application2"
         },
@@ -49,7 +71,18 @@
                 "packageName": "com.testApp3.fake",
                 "playStoreUrl": "http://play.google.com/store/apps/details?id=com.testApp3.fake",
                 "sdlMaxVersion": "3.0",
-                "sdlMinVersion": "1.0"
+                "sdlMinVersion": "1.0",
+                 "languages": [
+                    {
+                        "default": {
+                            "ttsName": "Test application3 music App tts name default",
+                            "vrSynonyms": [
+                                "Test application3 music App 1 default",
+                                "Test application3 music App 2 default"
+                            ]
+                        }
+                    }
+                ]
             },
             "name": "Test application3"
         }

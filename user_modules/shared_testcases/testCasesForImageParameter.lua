@@ -81,7 +81,7 @@ function testCasesForImageParameter:verify_Image_Parameter(Request, Parameter, I
 	
 		
 		--Print new line to separate new test cases group
-		commonFunctions:newTestCasesGroup()	
+		commonFunctions:newTestCasesGroup(Parameter)	
 		
 		--1. IsMissed
 		local resultCode
