@@ -45,5 +45,5 @@ TC_10: "MOB->SDL, sends SetGlobalProperties_request, without “autoCompleteList
       SDL must: transfer SetGlobalProperties with all requested params to HMI, respond with <resultCode_received_from_HMI> to mobile app"
 
 Questions (not posted)
-TC_03: "Q1: If request will be disallowed by policies, What will be behaviour of SDL?
-        Q2: MOB send SetGlobalProperties with invalid autoCompleteList, Behaviour of SDL?"
+TC_03: "Q1: If request will be disallowed by policies, what will be behaviour of SDL?
+        Q2: MOB send SetGlobalProperties with invalid autoCompleteList, behaviour of SDL?"
