@@ -1,0 +1,49 @@
+Summary
+"TC_01_[HMI_capabilites] The “keyboardProperties” structure with default values, must be added"
+"TC_02_[SetGlobalProperties] Conditional for SDL to omit “autoCompleteText” param at request to HMI"
+"TC_03 [SetGlobalProperties] SDL must transfer request to HMI In case of valid “autoCompleteList” param"
+"TC_04 [GeneralResultCodes] GENERIC_ERROR watchlog timeout from HMI"
+"TC_05 [GeneralResultCodes] INVALID_DATA wrong json syntax"
+"TC_06 [GeneralResultCodes] INVALID_DATA wrong type"
+"TC_07 [GeneralResultCodes] INVALID_DATA out of bounds"
+"TC_08 [GENERIC_ERROR] SDL behaviour in case HMI sends invalid responce and SDL must transfer responce to mobileApp"
+"TC_09 [APPLINK-14765] SDL must send GENERIC_ERROR to mobileApp in case SDL cuts fake params from RPC and this RPC becomes invalid"
+"TC_10 [SetGlobalProperties] SDL must transfer request to HMI In case of “autoCompleteList” param omited from mobileApp"
+
+Precondtions:
+TC_02: "App sucessfully register and running on SDL" 
+TC_03: "App sucessfully register and running on SDL"
+TC_04: "App sucessfully register and running on SDL"
+TC_05: "App sucessfully register and running on SDL. Connection, session and service #7 are initialized for the application the request 
+one of the defined in moile API intented to be sent from mobile application with appID. The request is sending with wrong JSON syntax format"
+TC_06: "App sucessfully register and running on SDL. Connection, session and service #7 are initialized for the application the request one of the defined in moile API intented to be sent from mobile application with appID. 
+The request contains wrong type parameters (single or as the parameters of structures)"
+TC_07: "App sucessfully register and running on SDL. Connection, session and service #7 are initialized for the application the request one of the defined in moile API intented to be sent from mobile application with appID. 
+The request contains parameter(s) with out-of-bounds array ranges or out-of-bounds values (for a single parameter, or param any type)"
+TC_08: "App_1 is SDL-enabled and successfully registred"
+TC_09: "App sucessfully register and running on SDL. ChoiseSetID_1 and ChoiseSetID_2 were successfully created."
+TC_10: "App sucessfully register and running on SDL"
+
+Steps:
+TC_01: "Check the autoCompleteList with “false” value, Must be expanded in keyboardProperties"
+TC_02: "Mobile App send SetGlobalProperties_request to SDL with both valid values of autoCompleteText and autoCompleteList 
+        SDL must: transfer <autoCompleteList> (without <autoCompleteTest>) param to HMI and receive response with result code success to mobile App"
+TC_03: "Mobile App send SetGlobalProperties_request to SDL with valid autoCompleteList and other valid params related to request and this req is allowed by Policies 
+       SDL must: transfer SetGlobalProperties with all req params to HMI. Send respond with <resultCode_received_form_HMI> to mobile app"
+TC_04: "In case SDL splits the req. from mobile app to several HMI interfaces(VR, TTS and etc), and at least on of the interface doesn't respond during SDL's watchlog
+       SDL must: return “GENERIC ERROR, success:false” result to mobile App, include appropriate description into “info” parameter"
+TC_05: "Mobile send request to SDL with wrong syntax in JSON
+       SDL must: send respond with resultCode “INVALID_DATA”, and success  “false” value"
+TC_06: "App send req to SDL with wrong type of params (ex. enum as integer) and include params of structure 
+       SDL must: respond with result code “INVALID_DATA”, and success “false” value"
+TC_07: "Mobile send request to SDL with out-of-bounds param values (include params of structures) of any types.
+      SDL must: send respond with resultCode “INVALID_DATA”, and success  “false” value"
+TC_08: "HMI->SDL invalid response, SDL must transfer to mobileApp
+      SDL must: log the error internally, SDL->MOB: GENERIC_ERROR (success:false, info: “invalid message received from vehilce”) to mobileApp"
+TC_09: "SDL must: respond GENERIC_ERROR (success:false, <info>) to mobileApp"
+TC_10: "MOB->SDL, sends SetGlobalProperties_request, without “autoCompleteList” parameter, but with valid other params related to request and this request is allowed by Policies 
+      SDL must: transfer SetGlobalProperties with all requested params to HMI, respond with <resultCode_received_from_HMI> to mobile app"
+
+Questions (not posted)
+TC_03: "Q1: If request will be disallowed by policies, What will be behaviour of SDL?
+        Q2: MOB send SetGlobalProperties with invalid autoCompleteList, Behaviour of SDL?"
