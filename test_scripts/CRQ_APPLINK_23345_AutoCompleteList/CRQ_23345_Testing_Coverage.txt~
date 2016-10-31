@@ -28,6 +28,6 @@ TC_27: Check that SDL will wait <keyboardProperties> with  <"autoCompleteList"> 
 TC_28: Check that SDL will resume <keyboardProperties> with <"autoCompleteList"> as part of "SetGlobalProperties" within Data Resumption  (CRQ APPLINK-25939)
 TC_29: Check that SDL must received from HMI new <"autoCompleteList"> in <keyboardProperties>, for new mobille application is registered (CRQ APPLINK-25939)
 TC_30: Check that SDL must respond with "GENERIC_ERROR, success:false" in case HMI does NOT respond during <DefaultTimeout>
-TC_31: Check that SDL transfers ResetGlobalProperties_request from mobile app to HMI with default value of "autoCompleteList". SDL receives SUCCESS result code from HMI and transfer 'SUCCESS, success:true' to mobile app.
+TC_31: Check that SDL transfers "ResetGlobalProperties"_request from mobile app to HMI with default value of "autoCompleteList". SDL receives SUCCESS result code from HMI and transfer 'SUCCESS, success:true' to mobile app.
 
 
