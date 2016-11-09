@@ -33,7 +33,7 @@ sdl_repository = "https://github.com/smartdevicelink/sdl_core/"
 sdl_branch = "develop"
 
 atf_repository = "https://github.com/smartdevicelink/sdl_atf/"
-atf_branch = "BUILD_SERVER_VERSION"
+atf_branch = "f86f261"
 
 scripts_repository = "https://github.com/smartdevicelink/sdl_atf_test_scripts/"
 scripts_branch = "develop"
