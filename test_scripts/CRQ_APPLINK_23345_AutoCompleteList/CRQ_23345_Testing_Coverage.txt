@@ -1,0 +1,33 @@
+TC_01: Check the, hmi_capabilities.json contains "autoCompleteList" with "false" value and expanded in "keyboardProperties".
+TC_02: Check that SDL transfer <"autoCompleteList"> (without <autoCompleteTest>) param to HMI and receive response with result code success to mobile App", if "Mobile App send "SetGlobalProperties"_request to SDL with both valid values for both params.    
+TC_03: Check that SDL transfer "SetGlobalProperties" with all requested params to HMI, respond with <resultCode_received_from_HMI> to mobile app" if HMI send "SetGlobalProperties"_request, without “"autoCompleteList"” parameter, but with valid other params related to request and this request is allowed by Policies 
+TC_04: Check that SDL transfer valid "autoCompleteList" param to HMI.
+TC_05: Check that SDL transfer "SetGlobalProperties" to HMI without "autoCompleteList" param 
+TC_06: Check that SDL transfer "autoCompleteList" to HMI if string in array is lower bound.
+TC_07: Check that SDL transfer "autoCompleteList" to HMI if string in array is upper bound.
+TC_08: Check that SDL transfer "autoCompleteList" to HMI if array is lower bound.
+TC_09: Check that SDL transfer "autoCompleteList" to HMI if array is upper bound.
+TC_10: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array is out upper bound.
+TC_11: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" array is out lower bound.
+TC_12: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" array is out upper bound.
+TC_13: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" element in array is wrong type.
+TC_14: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" is wrong type.
+TC_15: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array with "\n" character.
+TC_16: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array with "\t" character.
+TC_17: Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array with white spaces only characters.
+TC_18: Check that SDL transfer "SetGlobalProperties" with all req params to HMI. Send respond with <resultCode_received_form_HMI> to mobile app"
+TC_19: Check that SDL return “GENERIC ERROR, success:false” result to mobile App, include appropriate description into “info” parameter" if SDL splits the request from mobile application to several HMI interfaces(VR, TTS and etc), and at least on of the interface doesn't respond during SDL's watchlog
+TC_20: Check that SDL send respond with result code “INVALID_DATA”, and success  “false” value" if applicaion sent request to SDL with wrong syntax in JSON.
+TC_21: Check that SDL send respond with result code “INVALID_DATA”, and success “false” value" if applicaion sent request to SDL with wrong type of params (ex. enum as integer) and include params of structure. 
+TC_22: Check that SDL send respond with result code “INVALID_DATA”, and success “false” value" if applicaion sent request to SDL with out-of-bounds param values params of structures of any types.
+TC_23: Check that SDL log the error internally, and send responce GENERIC_ERROR (success:false, info: “invalid message received from vehilce”) to mobileApp, if HMI send invalid responce. 
+TC_24: Check that SDL cut off fake params from RPC, if PRC comes with wrong params and sent respond GENERIC_ERROR (success:false, <info>) to mobileApp".
+TC_25: Check that SDL doesn’t transfer not allowed "SetGlobalProperties"_request with valid ""autoCompleteList"
+TC_26: Check that SDL resume "autoCompleteList" in keyboardProperties (CRQ APPLINK-25939)
+TC_27: Check that SDL will wait <keyboardProperties> with  <"autoCompleteList"> within 10 sec started from app registration (CRQ APPLINK-25939)
+TC_28: Check that SDL will resume <keyboardProperties> with <"autoCompleteList"> as part of "SetGlobalProperties" within Data Resumption  (CRQ APPLINK-25939)
+TC_29: Check that SDL must received from HMI new <"autoCompleteList"> in <keyboardProperties>, for new mobille application is registered (CRQ APPLINK-25939)
+TC_30: Check that SDL must respond with "GENERIC_ERROR, success:false" in case HMI does NOT respond during <DefaultTimeout>
+TC_31: Check that SDL transfers ResetGlobalProperties_request from mobile app to HMI with default value of "autoCompleteList". SDL receives SUCCESS result code from HMI and transfer 'SUCCESS, success:true' to mobile app.
+
+
