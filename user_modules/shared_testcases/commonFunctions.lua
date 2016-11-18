@@ -3,12 +3,9 @@
 	--1. local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 	--2. commonFunctions:createString(500) --example
 ---------------------------------------------------------------------------------------------
-
 local commonFunctions = {}
 local mobile_session = require('mobile_session')
 local json = require('json4lua/json/json')
-
-
 ---------------------------------------------------------------------------------------------
 ------------------------------------------ Functions ----------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -23,6 +20,9 @@ local json = require('json4lua/json/json')
 --8. Functions for Notification
 --9. Functions for checking the existence
 --10. Functions for updated .ini file
+--11. Function for updating PendingRequestsAmount in .ini file to test TOO_MANY_PENDING_REQUESTS resultCode
+--12. Functions array of structures
+--13. Functions for SDL stop
 ---------------------------------------------------------------------------------------------
 
 --return true if app is media or navigation
@@ -647,6 +647,15 @@ function commonFunctions:Directory_exist(DirectoryPath)
 	return returnValue
 end
 
+-- Check file existence
+function commonFunctions:File_exists(file_name)	
+  	local file_found=io.open(file_name, "r")  
+  	if file_found==nil then
+    	return false
+  	else
+    	return true
+  	end
+end
 ---------------------------------------------------------------------------------------------
 --10. Functions for updated .ini file
 ---------------------------------------------------------------------------------------------
@@ -702,6 +711,13 @@ function commonFunctions:createArrayStruct(size, Struct)
 
 	return temp
 
+end
+---------------------------------------------------------------------------------------------
+--13. Functions for SDL stop
+---------------------------------------------------------------------------------------------
+function commonFunctions:SDLForceStop(self)
+	os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
+	os.execute("sleep 1")
 end
 
 return commonFunctions
