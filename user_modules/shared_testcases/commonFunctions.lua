@@ -23,6 +23,8 @@ local json = require('json4lua/json/json')
 --11. Function for updating PendingRequestsAmount in .ini file to test TOO_MANY_PENDING_REQUESTS resultCode
 --12. Functions array of structures
 --13. Functions for SDL stop
+--14. Function gets parameter from ini file
+--15. Function sets parameter to ini file
 ---------------------------------------------------------------------------------------------
 
 --return true if app is media or navigation
@@ -718,6 +720,57 @@ end
 function commonFunctions:SDLForceStop(self)
 	os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
 	os.execute("sleep 1")
+end
+
+---------------------------------------------------------------------------------------------
+--14. Function gets parameter from ini file
+---------------------------------------------------------------------------------------------
+function commonFunctions:read_parameter_from_ini(param_name)
+	local sdl_ini_file_name = config.pathToSDL .. "smartDeviceLink.ini"
+
+	local file = assert(io.open(sdl_ini_file_name, "rb"))
+	if not file then
+		return nil
+	end
+	local param_value  = nil
+	for line in io.lines(sdl_ini_file_name) do
+		if string.sub(line, 1 , 1) ~= ";" then
+			if string.find(line, param_name.."%s") ~= nil then
+				local b, e = string.find(line, "%s".."=".."%s.")
+				if b ~= nil then
+					local len = string.len(line)
+					param_value = string.sub(line, e, len)
+					break
+				end
+			end
+		end
+	end
+	file:close()
+	return param_value
+end
+
+---------------------------------------------------------------------------------------------
+--15. Function sets parameter to ini file
+---------------------------------------------------------------------------------------------
+local function commonFunctions:write_parameter_to_ini(param_name, param_value)
+	local sdl_ini_file_name = config.pathToSDL .. "smartDeviceLink.ini"
+	local file = assert(io.open(sdl_ini_file_name, "r"))
+	if not file then
+		return false
+	end
+	local file_content = file:read("*a")
+	file:close()
+	local found_string = string.match(file_content, param_name .. "%s*=[^;\n]*")
+	if found_string then
+		file_content = string.gsub(file_content, param_name .. "%s*=[^;\n]*", param_name .. " = " .. param_value)
+		file = assert(io.open(sdl_ini_file_name, "w"))
+		if file then
+			file:write(file_content)
+			file:close()
+			return true
+		end
+	end
+	return false
 end
 
 return commonFunctions
