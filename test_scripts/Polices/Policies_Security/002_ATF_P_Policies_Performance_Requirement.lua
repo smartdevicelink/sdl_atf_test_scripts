@@ -1,23 +1,24 @@
------ -[General] Policies performance requirement
------  Communication of Policy manager and mobile device must not make discernible difference in system operation.
------  Execution of any other operation between SDL and mobile app is possible and has no discernibly more latency. 
------  (Assumption: here is assumed that mobile app sends PTS(Policy Table Snapshot) and receives PTU(Policy Table Update) from backend in separate thread, 
-------  i.e. mobile app is not blocked for other operations while waiting response from backend for updated Policy Table)
+-- Requirement summary:
+-- [General] Policies performance requirement
+--
+-- Communication of Policy manager and mobile device must not make discernible difference in system operation.
+-- Execution of any other operation between SDL and mobile app is possible and has no discernibly more latency.
+--(Assumption: here is assumed that mobile app sends PTS(Policy Table Snapshot) and receives PTU(Policy Table Update) from backend in separate thread,
+-- i.e. mobile app is not blocked for other operations while waiting response from backend for updated Policy Table)
+--
 -- Description:
 -- 1. SDL started PTU
 -- 2. Mobile waiting response from backend, in that time sent RPC
 -- Expected result
 -- SDL must correctly finish the PTU
 
-
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
---[[ Required Shared libraries ]]  
+--[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
-
 
 --[[ General Precondition before ATF start]]
 -- Copy attached ptu.json in /tmp/fs/mp/images/ivsu_cache
@@ -34,11 +35,11 @@ local function policyUpdate(self)
       pathToSnaphot = data.params.file
       self.hmiConnection:SendResponse(data.id, "BasicCommunication.PolicyUpdate", "SUCCESS", {})
     end)
-    
+
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-   EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {url = "http://policies.telematics.ford.com/api/policies"}}})
-    
-    :Do(function(_,data)
+  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {url = "http://policies.telematics.ford.com/api/policies"}}})
+
+  :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
@@ -51,7 +52,7 @@ local function policyUpdate(self)
     end)
 
   EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY" })
-  :Do(function(_,data)
+  :Do(function(_,_)
       local CorIdSystemRequest = self.mobileSession:SendRPC ("SystemRequest",
         {
           requestType = "PROPRIETARY",
@@ -60,36 +61,36 @@ local function policyUpdate(self)
         pathToSnaphot
       )
 
-   local CorIdAlert = self.mobileSession:SendRPC("Alert",{}) 
-   EXPECT_RESPONSE(CorIdAlert, {success = false, resultCode = "DISALLOWED" })
-   
-   EXPECT_HMICALL("BasicCommunication.SystemRequest")
-     :Do(function(_,data)
+      local CorIdAlert = self.mobileSession:SendRPC("Alert",{})
+      EXPECT_RESPONSE(CorIdAlert, {success = false, resultCode = "DISALLOWED" })
+
+      EXPECT_HMICALL("BasicCommunication.SystemRequest")
+      :Do(function(_,data)
           self.hmiConnection:SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
         end)
       EXPECT_RESPONSE(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
 
-      :Do(function(_,data)
+      :Do(function(_,_)
           self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
             {
               policyfile = "/tmp/fs/mp/images/ivsu_cache/ptu.json"
             })
         end)
 
-      :Do(function(_,data)
+      :Do(function(_,_)
           EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
         end)
     end)
 end
 
---[[ Test Case]]
-function Test:Initiate_PTU_with_AlertRPC_Before_SystemRequest()
-commonFunctions:userPrint(33, "================= Test_Case ====================")
+--[[Test]]
+function Test:TestStep_Initiate_PTU_with_AlertRPC_Before_SystemRequest()
+  commonFunctions:userPrint(33, "Test")
   policyUpdate(self, "/tmp/fs/mp/images/ivsu_cache/ptu.json")
 end
- 
- --[[ Postconditions ]]
+
+--[[ Postconditions ]]
 Test["StopSDL"] = function()
-commonFunctions:userPrint(33, "================= Postcondition ================")
-    StopSDL()
-  end
+  commonFunctions:userPrint(33, "Postcondition")
+  StopSDL()
+end
