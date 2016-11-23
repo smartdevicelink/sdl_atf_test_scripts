@@ -1,35 +1,52 @@
-----  Name of requirement that is covered.
------ [General] Policies enough memory for PTS
-----  Policies Manager must have enough memory to hold a Policy Table Snapshot in memory.
+-- UNREADY---
+-- Iliana as I understand, we need create a function witch will be return How much memory Policy Manager have.
+-- I have problems with it. I just send sdl_preloaded json size near 1 mb, and done PTU with it. Please help me with this function for check avaliable memory.
+-- Thanks a lot.
 
---------------------------------------------------------------------------------------------
------------------------------Required Shared Libraries---------------------------------------
----------------------------------------------------------------------------------------------
-local mobile_session = require('mobile_session')
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local commonSteps = require('user_modules/shared_testcases/commonSteps')
+-- Requirement summary:
+-- [General] Policies enough memory for PTS
+ 
+-- Description:
+-- Before sending PTS via OnSystemRequest to mobile app, SDL checks to have available more than 1 Mbytes of allocated memory RAM.
+-- Policies Manager must have enough memory to hold a Policy Table Snapshot in memory. 
+-- Please rename attached ptu_1mb.json and copy this file on this way /tmp/fs/mp/images/ivsu_cache/,
+-- And for run SDL use attached sdl_preloaded_pt.
+
+-- Performed steps
+--       1. MOB-SDL - register application
+--       2. SDL - start PTU
+--       3. Before OnSystemRequest SDL checks to have available more than 1 Mbytes of allocated memory RAM
+--       3. Finish PTU.
+
+
+ --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
+--[[ Required Shared libraries ]]
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local commonSteps = require('user_modules/shared_testcases/commonSteps')
+
 --[[ Local preparing ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
+commonFunctions:newTestCasesGroup("Preconditions")
 
 --[[ Preconditions ]]
-commonFunctions:userPrint(33, "================= Precondition ==================")
+commonFunctions:userPrint(33, "Precondition")
 Test = require('connecttest')
 
---[[Test Case]]
-function Test:GeneralSDLbehaviour_PTsize_1mb()
-commonFunctions:userPrint(33, "================= Test Case ======================")
+function Test:TestStep_GeneralSDLbehaviour_PTsize_1mb()
+commonFunctions:userPrint(33, "TestCase")
  local pathToSnaphot = nil
   EXPECT_HMICALL ("BasicCommunication.PolicyUpdate")
   :Do(function(_,data)
     pathToSnaphot = data.params.file
     self.hmiConnection:SendResponse(data.id, "BasicCommunication.PolicyUpdate", "SUCCESS", {})
    end)
+
     local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
     EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {url = "http://policies.telematics.ford.com/api/policies"}}})
+
     :Do(function(_,data)
      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
     {
@@ -51,15 +68,14 @@ commonFunctions:userPrint(33, "================= Test Case =====================
    }, 
  pathToSnaphot
   )
+
   EXPECT_HMICALL("BasicCommunication.SystemRequest")
    :Do(function(_,data)
-  --hmi side: sending SystemRequest response
    self.hmiConnection:SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
  end)
+
   EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
  :Do(function(_,data)
- --Copy of JSON file size near 1_MB in /tmp/fs/mp/images/ivsu_cache/
- --Example: os.execute("cp /home/anikolaev/OpenSDL_AUTOMATION/test_run/files/ptu.json /tmp/fs/mp/images/ivsu_cache/")
    self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
  {
    policyfile = "/tmp/fs/mp/images/ivsu_cache/ptu.json"
@@ -73,10 +89,7 @@ end
 
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")
-
-Test["ForceKill"] = function (self)
-os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
-os.execute("sleep 1")
-
-return Test
+Test["StopSDL"] = function()
+   commonFunctions:userPrint(33, "Postcondition")
+    StopSDL()
 end
