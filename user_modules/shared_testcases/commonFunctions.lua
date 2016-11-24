@@ -4,7 +4,6 @@
 	--2. commonFunctions:createString(500) --example
 ---------------------------------------------------------------------------------------------
 local commonFunctions = {}
-local mobile_session = require('mobile_session')
 local json = require('json4lua/json/json')
 ---------------------------------------------------------------------------------------------
 ------------------------------------------ Functions ----------------------------------------
@@ -168,38 +167,82 @@ function commonFunctions:cloneTable(original)
     return copy
 end
 
---Compare 2 tables
-function commonFunctions:is_table_equal(t1,t2)
-
-   local ty1 = type(t1)
-   local ty2 = type(t2)
-
-
-   if ty1 ~= ty2 then return false end
-
-
-   -- non-table types can be directly compared
-   if ty1 ~= 'table' and ty2 ~= 'table' then return t1 == t2 end
-
-
-   -- as well as tables which have the metamethod __eq
-   --local mt = getmetatable(t1)
-   --if not ignore_mt and mt and mt.__eq then return t1 == t2 end
-
-   for k1,v1 in pairs(t1) do
-      local v2 = t2[k1]
-      if v2 == nil or not commonFunctions:is_table_equal(v1,v2) then return false end
-   end
-
-   for k2,v2 in pairs(t2) do
-      local v1 = t1[k2]
-
-      if v1 == nil or not commonFunctions:is_table_equal(v1,v2) then return false end
-   end
-
-   return true
+-- Get table size on top level
+local function TableSize(T)
+	local count = 0
+	for _ in pairs(T) do count = count + 1 end
+	return count
 end
 
+--Compare 2 tables
+function commonFunctions:is_table_equal(table1, table2)
+  print("Parameter 1 type is " .. type(table1))
+  print("Parameter 2 type is " .. type(table2))
+ -- compare value types
+  if type(table1) ~= type(table2) then
+    print("Error. Type diff. "..type(table1).." not equal "..type(table2))
+    return false
+  end
+  if type(table1) == 'number' then
+    if (table1 ~= table2) then print("Error. Number diff. "..table1.." not equal "..table2) end
+    return table1 == table2
+  end
+  if type(table1) == 'boolean' then
+    if (table1 ~= table2) then print("Error. Boolean diff. "..table1.." not equal "..table2) end
+    return table1 == table2 end
+  if type(table1) == 'string' then
+    if (table1 ~= table2) then print("Error. String diff. "..table1.." not equal "..table2) end
+    return table1 == table2
+  end
+  -- non-table can't be comparing
+  if type(table1) ~= 'table' then
+    print("Error. It isn't table. "..type(table1))
+    return false
+  end
+
+  if type(table1) == 'nil' then
+    return true
+  end
+
+  -- Now, on to tables.
+  -- If tables have different size they can't be equal
+  --calc size t1
+  local size_t1 = TableSize(table1)
+  --calc size t2
+  local size_t2 = TableSize(table2)
+  print("Size t1 = " .. size_t1)
+  print("Size t2 = " .. size_t2)
+  if (size_t1 ~= size_t2) then
+    print("Error. Size diff. "..size_t1.." not equal "..size_t2)
+    return false
+  end
+
+  --compare arrays. Order in array must be equal
+  if json.isArray(table1) and json.isArray(table2) then
+    for k1,v1 in table1 do
+      if not commonFunctions:is_table_equal(v1, table2[k1]) then -- get element  by the same index
+        return false
+      end
+    end
+    return true
+  end
+  -- compare tables by elements
+  local already_compared = {} --optimization
+  for _,v1 in pairs(table1) do
+    for k2,v2 in pairs(table2) do
+      if not already_compared[k2] and commonFunctions:is_table_equal(v1,v2) then
+        already_compared[k2] = true
+      end
+    end
+  end
+  print("size_t2: "..size_t2)
+  print("size already_compared: "..TableSize(already_compared))
+  if size_t2 ~= TableSize(already_compared) then
+    print("Error. No equal element")
+    return false
+  end
+  return true
+end
 ---------------------------------------------------------------------------------------------
 
 
