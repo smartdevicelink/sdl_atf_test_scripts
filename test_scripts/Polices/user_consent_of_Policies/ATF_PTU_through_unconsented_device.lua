@@ -8,8 +8,9 @@
 --			Delete log files and policy table
 --			Close current connection
 -- 			Connect unconsented device
+--      Register application
 --     2. Performed steps
---		    Register application
+--		  Activate application
 --
 -- Expected result:
 --     PoliciesManager must send OnSDLConsentNeeded to initiate getting User`s data consent on HMI ->
