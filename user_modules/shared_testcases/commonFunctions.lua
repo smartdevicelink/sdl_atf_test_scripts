@@ -23,8 +23,8 @@ local json = require('json4lua/json/json')
 --11. Function for updating PendingRequestsAmount in .ini file to test TOO_MANY_PENDING_REQUESTS resultCode
 --12. Functions array of structures
 --13. Functions for SDL stop
---14. Function gets parameter from ini file
---15. Function sets parameter to ini file
+--14. Function gets parameter from smartDeviceLink.ini file
+--15. Function sets parameter to smartDeviceLink.ini file
 ---------------------------------------------------------------------------------------------
 
 --return true if app is media or navigation
@@ -722,55 +722,69 @@ function commonFunctions:SDLForceStop(self)
 	os.execute("sleep 1")
 end
 
----------------------------------------------------------------------------------------------
---14. Function gets parameter from ini file
----------------------------------------------------------------------------------------------
-function commonFunctions:read_parameter_from_ini(param_name)
-	local sdl_ini_file_name = config.pathToSDL .. "smartDeviceLink.ini"
-
-	local file = assert(io.open(sdl_ini_file_name, "rb"))
-	if not file then
-		return nil
+function check_file_existing(path)
+	local file = io.open(path, "r")
+	if file == nil then
+		print("File doesnt exist, path:"..path)
+		assert(false)
 	end
+	file:close()
+end
+
+---------------------------------------------------------------------------------------------
+--14. Function gets parameter from smartDeviceLink.ini file
+---------------------------------------------------------------------------------------------
+function commonFunctions:read_parameter_from_smart_device_link_ini(param_name)
+	local path_to_ini_file = config.pathToSDL .. "smartDeviceLink.ini"
+	check_file_existing(path_to_ini_file)
 	local param_value  = nil
-	for line in io.lines(sdl_ini_file_name) do
-		if string.sub(line, 1 , 1) ~= ";" then
-			if string.find(line, param_name.."%s") ~= nil then
-				local b, e = string.find(line, "%s".."=".."%s.")
-				if b ~= nil then
-					local len = string.len(line)
-					param_value = string.sub(line, e, len)
-					break
-				end
+	for line in io.lines(path_to_ini_file) do
+		if string.match(line, "^%s*"..param_name.."%s*=%s*") ~= nil then
+			if string.find(line, "%s*=%s*$") ~= nil then
+				param_value = ""
+				break
+			end
+			local b, e = string.find(line, "%s*=%s*.")
+			if b ~= nil then
+				local len = string.len(line)
+				param_value = string.sub(line, e, len)
+				break
 			end
 		end
 	end
-	file:close()
 	return param_value
 end
 
 ---------------------------------------------------------------------------------------------
---15. Function sets parameter to ini file
+--15. Function sets parameter to smartDeviceLink.ini file
 ---------------------------------------------------------------------------------------------
-local function commonFunctions:write_parameter_to_ini(param_name, param_value)
-	local sdl_ini_file_name = config.pathToSDL .. "smartDeviceLink.ini"
-	local file = assert(io.open(sdl_ini_file_name, "r"))
-	if not file then
-		return false
+function commonFunctions:write_parameter_to_smart_device_link_ini(param_name, param_value)
+	local path_to_ini_file = config.pathToSDL .. "smartDeviceLink.ini"
+	check_file_existing(path_to_ini_file)
+	local new_file_content = ""
+	local is_find_string = false
+	local result = false
+	for line in io.lines(path_to_ini_file) do
+		if is_find_string == false then
+			if string.match(line, "^%s*"..param_name.."%s*=%s*") ~= nil then
+				line = param_name.." = "..param_value
+				is_find_string = true
+			end
+		end
+		new_file_content = new_file_content..line.."\n"
 	end
-	local file_content = file:read("*a")
-	file:close()
-	local found_string = string.match(file_content, param_name .. "%s*=[^;\n]*")
-	if found_string then
-		file_content = string.gsub(file_content, param_name .. "%s*=[^;\n]*", param_name .. " = " .. param_value)
-		file = assert(io.open(sdl_ini_file_name, "w"))
+	if is_find_string == true then
+		local file = io.open(path_to_ini_file, "w")
 		if file then
-			file:write(file_content)
+			file:write(new_file_content)
 			file:close()
-			return true
+			result = true
+		else
+			print("File doesn't open, path:"..path_to_ini_file)
+			assert(false)
 		end
 	end
-	return false
+	return result
 end
 
 return commonFunctions
