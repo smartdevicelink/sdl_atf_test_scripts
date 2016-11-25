@@ -1,0 +1,165 @@
+-- UNREADY
+-- currently case fails due to:
+-- issure "[Service] SDL doesn't send onSDLClose to HMI upon ignition Off"
+-- testCasesForPolicyTableSnapshot.lua is not ready yet
+---------------------------------------------------------------------------------------------
+-- Requirement summary:
+-- [PolicyTableUpdate] Policy Table Update in case of failed retry strategy during previous IGN_ON
+-- [HMI API] OnStatusUpdate
+--
+-- Description:
+-- PoliciesManager must check the stored status of PTUpdate upon every Ign_On and IN CASE the status is UPDATE_NEEDED 
+-- PoliciesManager must initiate the PTUpdate sequence right after the first app registers on SDL
+-- 1. Used preconditions: device and app with app_ID is running the application is not yet connected to SDL
+-- the status of PTU Update is UPDATE_NEEDED
+-- 2. Performed steps: IGN_ON happens 
+--
+-- Expected result:
+-- 1. PolicyManager checks the status of PTU Update 
+-- 2. On application with app_ID registering :
+--   2.1. app_ID->SDL:RegisterAppInterface()
+--   2.2. SDL->app_ID:SUCCESS:RegisterAppInterface()
+-- 3. PTU sequence started: *SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)*
+-- 4. PTS is created by SDL.....//PTU started
+---------------------------------------------------------------------------------------------
+
+--[[ General configuration parameters ]]
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+
+--[[ Required Shared libraries ]]
+local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
+--local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+--local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+--local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+--local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local testCasesForBuildingSDLPolicyFlag = require('user_modules/shared_testcases/testCasesForBuildingSDLPolicyFlag')
+local testCasesForPolicyTableSnapshot = require ('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+
+--[[ General Precondition before ATF start ]]
+commonFunctions:SDLForceStop()
+testCasesForBuildingSDLPolicyFlag:Update_PolicyFlag("EXTENDED_POLICY","")
+testCasesForBuildingSDLPolicyFlag:CheckPolicyFlagAfterBuild("EXTENDED_POLICY","")
+commonSteps:DeleteLogsFileAndPolicyTable()
+
+--TODO(VVVakulenko): Should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
+config.defaultProtocolVersion = 2
+
+--[[ General Settings for configuration ]]
+Test = require('user_modules/connecttest_resumption')
+require('cardinalities')
+require('user_modules/AppTypes')
+local mobile_session = require('mobile_session')
+
+---[[ Preconditions ]]
+commonFunctions:newTestCasesGroup("Preconditions")
+
+--ToDo(VVVakulenko): shall be substitiuted to StopSDL when issue: "SDL doesn't stop at execution ATF function StopSDL()" is fixed
+function Test.Precondition_SDLForceStop()
+  commonFunctions:SDLForceStop()
+end
+  
+function Test.Precondition_StartSDL()
+  StartSDL(config.pathToSDL, config.ExitOnCrash)
+end
+
+function Test:Precondtion_initHMI()
+  self:initHMI()
+end
+
+function Test:Precondtion_initHMI_onReady()
+  self:initHMI_onReady()
+end
+
+function Test:Precondtion_initHMI_onReady()
+  self:connectMobile()
+end
+
+function Test:Precondtion_CreateSession()
+  self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
+  self.mobileSession:StartService(7)
+end
+
+function Test:RegisterApp()
+  self.mobileSession:StartService(7)
+  :Do(function ()
+    self:registerApp(self.mobileSession)
+  end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+end
+
+--[[ Test ]]
+commonFunctions:newTestCasesGroup("Test")
+
+function Test:TestStep_Suspend()
+  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
+end
+
+function Test:TestStep_IGNITION_OFF()
+  StopSDL()
+  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "IGNITION_OFF" })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered")
+  :Times(2)
+end
+
+-- function Test.TestStep_SDLForceStop()
+--   commonFunctions:SDLForceStop()
+-- end
+
+function Test.TestStep_startSDL()
+  StartSDL(config.pathToSDL, config.ExitOnCrash)
+end
+
+function Test:TestStep_InitHMI()
+  self:initHMI()
+end
+
+function Test:TestStep_InitHMI_onReady()
+  self:initHMI_onReady()
+end
+
+function Test:TestStep_ConnectMobile()
+  self:connectMobile()
+end
+
+function Test:TestStep_StartSessionRegisterApp()
+  self:startSession()
+end
+
+function Test:TestStep_RegisterApp_failed_retry_strategy_in_prev_IGN_cycle()
+  local correlationId = self.mobileSession:SendRPC("RegisterAppInterface", config.application.registerAppInterfaceParams)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application.appName } })
+  :Do(function(_,data)
+    local hmi_app_id = data.params.application.appID
+    EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+    testCasesForPolicyTableSnapshot:create_PTS(true, {
+      config.application.registerAppInterfaceParams.appID,
+      },
+      {config.deviceMAC},
+      {hmi_app_id}
+     )
+    local timeout_after_x_seconds = testCasesForPolicyTableSnapshot:get_data_from_PTS("timeout_after_x_seconds")
+    local seconds_between_retry = testCasesForPolicyTableSnapshot:get_data_from_PTS("seconds_between_retry")
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate",
+      {
+       file = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate",
+       timeout = timeout_after_x_seconds,
+       retry = seconds_between_retry
+      })
+        :Do(function()
+          self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+        end)
+    end)
+  self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
+end
+
+--[[ Postconditions ]]
+commonFunctions:newTestCasesGroup("Postconditions")
+
+function Test.Postcondition_ForceStopSDL()
+  commonFunctions:SDLForceStop()
+end
+
+return Test
