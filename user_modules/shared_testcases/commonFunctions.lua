@@ -176,33 +176,14 @@ end
 
 --Compare 2 tables
 function commonFunctions:is_table_equal(table1, table2)
-  print("Parameter 1 type is " .. type(table1))
-  print("Parameter 2 type is " .. type(table2))
  -- compare value types
-  if type(table1) ~= type(table2) then
-    print("Error. Type diff. "..type(table1).." not equal "..type(table2))
-    return false
-  end
-  if type(table1) == 'number' then
-    if (table1 ~= table2) then print("Error. Number diff. "..table1.." not equal "..table2) end
-    return table1 == table2
-  end
-  if type(table1) == 'boolean' then
-    if (table1 ~= table2) then print("Error. Boolean diff. "..table1.." not equal "..table2) end
-    return table1 == table2 end
-  if type(table1) == 'string' then
-    if (table1 ~= table2) then print("Error. String diff. "..table1.." not equal "..table2) end
-    return table1 == table2
-  end
+  if type(table1) ~= type(table2) then return false end
+  if type(table1) == 'number' then return table1 == table2 end
+  if type(table1) == 'boolean' then return table1 == table2 end
+  if type(table1) == 'string' then return table1 == table2 end
   -- non-table can't be comparing
-  if type(table1) ~= 'table' then
-    print("Error. It isn't table. "..type(table1))
-    return false
-  end
-
-  if type(table1) == 'nil' then
-    return true
-  end
+  if type(table1) ~= 'table' then return false end
+  if type(table1) == 'nil' then return true end
 
   -- Now, on to tables.
   -- If tables have different size they can't be equal
@@ -210,12 +191,7 @@ function commonFunctions:is_table_equal(table1, table2)
   local size_t1 = TableSize(table1)
   --calc size t2
   local size_t2 = TableSize(table2)
-  print("Size t1 = " .. size_t1)
-  print("Size t2 = " .. size_t2)
-  if (size_t1 ~= size_t2) then
-    print("Error. Size diff. "..size_t1.." not equal "..size_t2)
-    return false
-  end
+  if (size_t1 ~= size_t2) then return false end
 
   --compare arrays. Order in array must be equal
   if json.isArray(table1) and json.isArray(table2) then
@@ -235,10 +211,7 @@ function commonFunctions:is_table_equal(table1, table2)
       end
     end
   end
-  print("size_t2: "..size_t2)
-  print("size already_compared: "..TableSize(already_compared))
   if size_t2 ~= TableSize(already_compared) then
-    print("Error. No equal element")
     return false
   end
   return true
