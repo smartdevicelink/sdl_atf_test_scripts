@@ -10,11 +10,11 @@
 -- Policy Manager gets information about device being unpaired (SDL.OnDeviceStateChanged(UNPAIRED) obtained from HMI)
 --
 -- Preconditions:
--- x. Application with <appID> is registered to SDL
+-- 1. Application with <appID> is registered to SDL
 -- No activation, no PTU --> device is non-consented
--- x. Verifies that "Alert" RPC is not allowed for non-consented device
--- x. Activate app --> device becames consented
--- x. Verifies that "Alert" RPC is allowed for consented device
+-- 2. Verifies that "Alert" RPC is not allowed for non-consented device
+-- 3. Activate app --> device becames consented
+-- 4. Verifies that "Alert" RPC is allowed for consented device
 -- Steps:
 -- 1. HMI -> SDL: Send SDL.OnDeviceStateChanged(UNPAIRED) notification
 -- Device becames non-consented
