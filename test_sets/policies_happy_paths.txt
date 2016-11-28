@@ -1,3 +1,1 @@
-./test_scripts/Polices/Policy_Table_Update/002_ATF_P_TC_PTU_AppID_NotListed_PT_DeviceConsented_SecondApp_ExternalProprieatry.lua
-./test_scripts/Polices/Policy_Table_Update/005_ATF_P_TC_User_requests_PTU_ExternalProprietary.lua
 ./test_scripts/Polices/Policy_Table_Update/006_ATF_P_TC_User_PressButton_HMI_PTU_ExternalProprietary.lua
