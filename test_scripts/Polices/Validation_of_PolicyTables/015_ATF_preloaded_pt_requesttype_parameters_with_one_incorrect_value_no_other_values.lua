@@ -1,4 +1,7 @@
 ---------------------------------------------------------------------------------------------
+-- Requirement summary:
+-- [Policies] PreloadPT the only one invalid value in "RequestType" array
+--
 -- Description:
 -- Behavior of SDL during start SDL in case when PreloadedPT has one value in "RequestType" array and it is invalid
 -- 1. Used preconditions:
@@ -7,9 +10,6 @@
 -- 2. Performed steps:
 -- Add one invalid value in "RequestType" array in PreloadedPT json file
 -- Start SDL with created PreloadedPT json file
-
--- Requirement summary:
--- [Policies] PreloadPT the only one invalid value in "RequestType" array
 --
 -- Expected result:
 -- SDL must shutdown
@@ -20,6 +20,8 @@ local config = require('config')
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
+
+--[[ Local Variables ]]
 local PRELOADED_PT_FILE_NAME = "sdl_preloaded_pt.json"
 local INCORRECT_REQUEST_TYPE = "TRAFIC_MESSAGE_CHANNEL"
 Test.APP_POLICIES_DATA = {
@@ -42,12 +44,12 @@ local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local SDL = require('modules/SDL')
 local json = require("modules/json")
 
---[[ Preconditions ]]
-function Test.backup_preloaded_pt()
+--[[ Local Functions ]]
+function Test.backupPreloadedPT()
   os.execute(table.concat({"cp ", config.pathToSDL, PRELOADED_PT_FILE_NAME, ' ', config.pathToSDL, "backup_", PRELOADED_PT_FILE_NAME}))
 end
 
-function Test:update_preloaded_pt()
+function Test:updatePreloadedPT()
   local changed_parameters = self.APP_POLICIES_DATA
 
   local pathToFile = config.pathToSDL .. PRELOADED_PT_FILE_NAME
@@ -75,19 +77,7 @@ function Test:update_preloaded_pt()
   file:close()
 end
 
-function Test:Precondition_stop_sdl()
-  StopSDL(self)
-end
-
-function Test:Precondition()
-  commonSteps:DeletePolicyTable()
-  self.backup_preloaded_pt()
-  self:update_preloaded_pt()
-end
-
---[[ Test ]]
-
-function Test.check_sdl()
+function Test.checkSdl()
   local status = SDL:CheckStatusSDL()
   if status == SDL.RUNNING then
     commonFunctions:userPrint(31, "Test failed: SDL is running with invalid PreloadedPT json file")
@@ -96,22 +86,34 @@ function Test.check_sdl()
   return true
 end
 
-function Test:Test_start_sdl()
+function Test:Test_StartSdl()
   StartSDL(config.pathToSDL, true, self)
 end
 
-function Test:Test()
-  os.execute("sleep 3")
-  self.check_sdl()
-end
-
---[[ Postconditions ]]
-function Test.restore_preloaded_pt()
+function Test.restorePreloadedPT()
   os.execute(table.concat({"mv ", config.pathToSDL, "backup_", PRELOADED_PT_FILE_NAME, " ", config.pathToSDL, PRELOADED_PT_FILE_NAME}))
 end
 
+--[[ Preconditions ]]
+function Test:Precondition_StopSdl()
+  StopSDL(self)
+end
+
+function Test:Precondition()
+  commonSteps:DeletePolicyTable()
+  self.backupPreloadedPT()
+  self:updatePreloadedPT()
+end
+
+--[[ Test ]]
+function Test:Test()
+  os.execute("sleep 3")
+  self.checkSdl()
+end
+
+--[[ Postconditions ]]
 function Test:Postconditions()
-  self.restore_preloaded_pt()
+  self.restorePreloadedPT()
 end
 
 commonFunctions:SDLForceStop()
