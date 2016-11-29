@@ -5,7 +5,6 @@
 ---------------------------------------------------------------------------------------------
 local commonFunctions = {}
 local json = require('json4lua/json/json')
-local json_module = require("modules/json")
 ---------------------------------------------------------------------------------------------
 ------------------------------------------ Functions ----------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -822,7 +821,7 @@ function commonFunctions:convert_ptu_to_permissions_change_data(path_to_ptu, gro
 	local json_data = file:read("*a")
 	file:close()
 
-	local data = json_module.decode(json_data)
+	local data = json.decode(json_data)
 	local rpcs = nil
 	for key in pairs(data.policy_table.functional_groupings) do
 		if key == group_name then
