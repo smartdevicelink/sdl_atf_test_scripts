@@ -5,6 +5,7 @@
 ---------------------------------------------------------------------------------------------
 local commonFunctions = {}
 local json = require('json4lua/json/json')
+local json_module = require("modules/json")
 ---------------------------------------------------------------------------------------------
 ------------------------------------------ Functions ----------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -24,6 +25,7 @@ local json = require('json4lua/json/json')
 --13. Functions for SDL stop
 --14. Function gets parameter from smartDeviceLink.ini file
 --15. Function sets parameter to smartDeviceLink.ini file
+--16. Function transform data from PTU to permission change data
 ---------------------------------------------------------------------------------------------
 
 --return true if app is media or navigation
@@ -801,6 +803,51 @@ function commonFunctions:write_parameter_to_smart_device_link_ini(param_name, pa
 		end
 	end
 	return result
+end
+
+---------------------------------------------------------------------------------------------
+--16. Function transform data from PTU to permission change data
+---------------------------------------------------------------------------------------------
+function commonFunctions:convert_ptu_to_permissions_change_data(path_to_ptu, group_name, is_user_allowed)
+	local permission_item_json_template = [[{"rpcName":"",
+	"parameterPermissions":{"userDisallowed":[], "allowed":[]},
+	"hmiPermissions":{"allowed":[], "userDisallowed":[]}}]]
+	local permission_item_table_template = json.decode(permission_item_json_template);
+	local file = io.open(path_to_ptu, "r")
+	if file == nil then
+		print("File doesnt exist, path:"..path_to_ptu)
+		assert(false)
+	end
+
+	local json_data = file:read("*a")
+	file:close()
+
+	local data = json_module.decode(json_data)
+	local rpcs = nil
+	for key in pairs(data.policy_table.functional_groupings) do
+		if key == group_name then
+			rpcs = data.policy_table.functional_groupings[key].rpcs
+			break
+		end
+	end
+	local permission_items = {}
+	local permission_item
+	if rpcs == nil then
+		print("Group name:"..group_name.." doesn't contain list of rpcs")
+		assert(false)
+	end
+
+	for key in pairs(rpcs) do
+		permission_item = commonFunctions:cloneTable(permission_item_table_template)
+		permission_item.rpcName = key
+		if is_user_allowed == true then
+			permission_item.hmiPermissions.allowed = rpcs[key].hmi_levels
+		else
+			permission_item.hmiPermissions.userDisallowed = rpcs[key].hmi_levels
+		end
+		table.insert(permission_items, permission_item)
+	end
+	return permission_items
 end
 
 return commonFunctions
