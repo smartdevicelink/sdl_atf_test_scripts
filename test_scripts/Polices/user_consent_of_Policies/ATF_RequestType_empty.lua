@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------
 -- Requirement summary:
---    	[Policies] PTU "RequestType" array is empty
+--    [Policies] PTU "RequestType" array is empty
 --
 -- Description:
 --    PTU with "<appID>" policies comes and "RequestType" array is empty
@@ -62,12 +62,12 @@ function Test:Precondition_Activate_app()
   EXPECT_HMIRESPONSE(RequestId)
   :Do(function(_,data)
   if data.result.isSDLAllowed ~= true then
-    local RequestId = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
-    EXPECT_HMIRESPONSE(RequestId)
-    :Do(function(_,data)
+    local RequestIdGetMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
+    EXPECT_HMIRESPONSE(RequestIdGetMessage)
+    :Do(function()
     self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
     EXPECT_HMICALL("BasicCommunication.ActivateApp")
-    :Do(function(_,data)
+    :Do(function()
     self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
     end)
     :Times(AnyNumber())
@@ -127,9 +127,19 @@ function Test:TestStep2_Check_RPC_processed()
       menuName ="Command111"
     }
   })
-  EXPECT_HMICALL("UI.AddCommand",{})
-  EXPECT_RESPONSE(RequestIDAddCommand, { success = false, resultCode = "SUCCESS" })
-  EXPECT_NOTIFICATION("OnHashChange")
+  EXPECT_HMICALL("UI.AddCommand",
+  {
+    cmdID = 111,
+    menuParams =
+    {
+      position = 1,
+      menuName ="Command111"
+    }
+  })
+  :Do(function(_,data)
+  self.hmiConnection:SendResponse(data.id, "UI.AddCommand", "SUCCESS", {})
+  end)
+  EXPECT_RESPONSE(RequestIDAddCommand, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Postconditions ]]
