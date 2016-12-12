@@ -1,15 +1,11 @@
---UNREADY: Need to add json file from https://github.com/smartdevicelink/sdl_atf_test_scripts/pull/363/
--- Also the sequence array is filled in with BasicCommunication.OnSystemRequest
--- r_actual also returns nil and this invalidates the whole check
--- Neees to be updated for scexonds between retries as well
-
 ---------------------------------------------------------------------------------------------
+-- PROPRIETARY flow
 -- Requirement summary:
 -- [PolicyTableUpdate] Policy Table Update retry timeout computation
 --
 -- Description:
---PoliciesManager must use the values from "seconds_between_retries" section of Local PT as the values to 
---computate the timeouts of retry sequense (that is, seconds to wait for the response). 
+--PoliciesManager must use the values from "seconds_between_retries" section of Local PT as the values to
+--computate the timeouts of retry sequense (that is, seconds to wait for the response).
 --
 -- 1. Used preconditions
 -- SDL is built with "-DEXTENDED_POLICY: ON" flag, application with <appID_1> is running on SDL
@@ -44,15 +40,16 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local testCasesForBuildingSDLPolicyFlag = require('user_modules/shared_testcases/testCasesForBuildingSDLPolicyFlag')
 
 --[[ Local Variables ]]
 local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
 local policy_file_name = "PolicyTableUpdate"
-local ptu_file = "files/jsons/Policies/build_options/ptu_18243.json"
+local ptu_file = "files/jsons/Policies/build_options/ptu_18244.json"
 local sequence = { }
 local accuracy = 2
-local seconds_between_retries = {1, 5, 10, 15, 20}
-local timeout_after_x_seconds = 10
+local attempts = 55
+local r_expected = { 1, 30, 45, 71, 101 }
 local r_actual = { }
 
 --[[ Local Functions ]]
@@ -60,13 +57,11 @@ local function timestamp()
   local f = io.popen("date +%H:%M:%S.%3N")
   local o = f:read("*all")
   f:close()
-  o = o:gsub("\n", "")
-  return o
+  return (o:gsub("\n", ""))
 end
 
-local function log(e, p)
-  print("Logging")
-  table.insert(sequence, { ts = os.time(), event = e, timeout = p, ts2 = timestamp() })
+local function log(event, ...)
+  table.insert(sequence, { ts = timestamp(), e = event, p = {...} })
 end
 
 local function get_min(v, a)
@@ -78,16 +73,9 @@ local function get_max(v, a)
   return v + a
 end
 
-local function computation()
-  local tprev = 0
-  local tout = 0
-  for i=1,5 do
-    tout = tprev + seconds_between_retries[i] + timeout_after_x_seconds
-    tprev = tout
-  end
-end
-
 --[[ General Precondition before ATF start ]]
+testCasesForBuildingSDLPolicyFlag:CheckPolicyFlagAfterBuild("PROPRIETARY")
+commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
 
 --ToDo: Should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
@@ -99,9 +87,9 @@ require('cardinalities')
 require("user_modules/AppTypes")
 
 --[[ Specific Notifications ]]
-EXPECT_HMICALL("BasicCommunication.OnSystemRequest")
-:Do(function(_, d)
-    log("SDL->HMI: BC.OnSystemRequest", d.params.timeout)
+EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+:Do(function(_, _)
+    log("SDL->HMI: BC.PolicyUpdate", os.time())
   end)
 :Times(AnyNumber())
 :Pin()
@@ -165,22 +153,22 @@ function Test:TestStep_Second_PTU()
     end)
 end
 
-Test["TestStep_Starting waiting cycle [" .. 55 * 5 .. "] sec"] = function() end
+Test["Starting waiting cycle [" .. attempts * 5 .. "] sec"] = function() end
 
-for i = 1, 3 do
+for i = 1, attempts do
   Test["Waiting " .. i * 5 .. " sec"] = function()
     os.execute("sleep 5")
   end
 end
 
-function Test.TestStep_Computatuin()
-  computation()
-end
-
 function Test.TestStep_ShowSequence()
   print("--- Sequence -------------------------------------")
   for k, v in pairs(sequence) do
-    print(k .. ": " .. v.ts2 .. ": " .. v.ts .. ": " .. v.event .. ": " .. v.timeout)
+    local s = k .. ": " .. v.ts .. ": " .. v.e
+    for _, val in pairs(v.p) do
+      if val then s = s .. ": " .. val end
+    end
+    print(s)
   end
   print("--------------------------------------------------")
 end
@@ -188,20 +176,16 @@ end
 function Test.TestStep_ShowTimeouts()
   print("--- Timeouts -------------------------------------")
   for i = 2, #sequence do
-    local t = sequence[i].ts - sequence[i - 1].ts
+    local t = sequence[i].p[1] - sequence[i - 1].p[1]
     r_actual[i - 1] = t
     print(i - 1 .. ": " .. t)
   end
   print("--------------------------------------------------")
 end
 
-function Test:TestStep_ValidateResult()
+function Test:Step_ValidateResult()
   for i = 1, 5 do
-    print("r_actual ", r_actual[i])
-    print("r_expected ", r_expected[i])
-    if (r_actual[i] < get_min(r_expected[i], accuracy))
-    or (r_actual[i] > get_max(r_expected[i], accuracy))
-    then
+    if (r_actual[i] < get_min(r_expected[i], accuracy)) or (r_actual[i] > get_max(r_expected[i], accuracy)) then
       self:FailTestCase("Expected timeout: " .. r_expected[i] .. ", got: " .. r_actual[i])
     end
   end
@@ -210,8 +194,8 @@ end
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")
 
-function Test:Postcondition_Force_Stop_SDL()
-  commonFunctions:SDLForceStop(self)
+function Test.Postcondition_Force_Stop_SDL()
+  StopSDL()
 end
 
 return Test
