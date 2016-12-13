@@ -39,6 +39,7 @@ local testCasesForPolicyTableSnapshot = require ('user_modules/shared_testcases/
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
+commonFunctions:SDLForceStop()
 commonPreconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnectionRegisterApp("connecttest_connect_device.lua")
 --TODO(istoimenova): shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -67,7 +68,7 @@ local function Get_RPCs()
   end
 
   -- for i = 1, #RPC_BaseBeforeDataConsent do
-  --   print("allowed_rps = "..RPC_BaseBeforeDataConsent[i])
+  -- print("allowed_rps = "..RPC_BaseBeforeDataConsent[i])
   -- end
 end
 Get_RPCs()
@@ -194,7 +195,7 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
       if(is_test_fail == true) then
         self:FailTestCase("Test is FAILED. See prints.")
       end
-  end)
+    end)
 end
 
 --[[ Postconditions ]]
