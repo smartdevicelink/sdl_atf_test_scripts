@@ -220,6 +220,13 @@ function commonFunctions:is_table_equal(table1, table2)
 end
 ---------------------------------------------------------------------------------------------
 
+function commonFunctions:IsDbContains(db_path, sql_query, exp_result)
+	local commandToExecute = "sqlite3 "..db_path ..sql_query
+	local db = assert(io.popen(commandToExecute, 'r'))
+	local selected_data = assert(db:read('*a'))
+	db:close()
+	commonFunctions:is_table_equal(selected_data, exp_result);
+end
 
 ---------------------------------------------------------------------------------------------
 --3. Functions for Test Case
