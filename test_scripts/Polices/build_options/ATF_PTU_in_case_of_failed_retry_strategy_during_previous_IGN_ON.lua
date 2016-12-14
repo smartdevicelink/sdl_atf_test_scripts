@@ -25,6 +25,7 @@
 
 --[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -37,9 +38,9 @@ local testCasesForBuildingSDLPolicyFlag = require('user_modules/shared_testcases
 local testCasesForPolicyTableSnapshot = require ('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 
 --[[ General Precondition before ATF start ]]
-commonFunctions:SDLForceStop()
-testCasesForBuildingSDLPolicyFlag:Update_PolicyFlag("EXTENDED_POLICY","")
-testCasesForBuildingSDLPolicyFlag:CheckPolicyFlagAfterBuild("EXTENDED_POLICY","")
+-- commonFunctions:SDLForceStop()
+-- testCasesForBuildingSDLPolicyFlag:Update_PolicyFlag("EXTENDED_POLICY","")
+-- testCasesForBuildingSDLPolicyFlag:CheckPolicyFlagAfterBuild("EXTENDED_POLICY","")
 commonSteps:DeleteLogsFileAndPolicyTable()
 
 --TODO(VVVakulenko): Should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
@@ -55,8 +56,8 @@ local mobile_session = require('mobile_session')
 commonFunctions:newTestCasesGroup("Preconditions")
 
 --ToDo(VVVakulenko): shall be substitiuted to StopSDL when issue: "SDL doesn't stop at execution ATF function StopSDL()" is fixed
-function Test.Precondition_SDLForceStop()
-  commonFunctions:SDLForceStop()
+function Test.Precondition_SDLStop()
+  StopSDL()
 end
   
 function Test.Precondition_StartSDL()
