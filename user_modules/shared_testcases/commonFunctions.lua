@@ -981,7 +981,24 @@ function commonFunctions:check_ptu_sequence_partly(self, ptu_path, ptu_name)
     },ptu_path)
   EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMICALL("BasicCommunication.SystemRequest"):Times(0)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status="UP_TO_DATE"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
+  :ValidIf(function(exp,data)
+    if 
+              exp.occurences == 1 and
+              data.params.status == "UP_TO_DATE" then
+                return true
+            elseif
+              exp.occurences == 1 and
+              data.params.status == "UPDATING" then
+                return true
+            elseif
+              exp.occurences == 2 and
+              data.params.status == "UP_TO_DATE" then
+                return true
+            else 
+              return false
+            end
+  end):Times(Between(1,2))
   EXPECT_HMICALL("VehicleInfo.GetVehicleData", {odometer=true}):Do(
     function(_,data)
   --hmi side: sending VehicleInfo.GetVehicleData response
