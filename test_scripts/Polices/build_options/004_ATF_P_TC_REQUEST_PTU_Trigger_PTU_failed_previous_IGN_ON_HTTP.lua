@@ -1,4 +1,3 @@
--- UNREADY
 -- currently case fails due to:
 -- issure "[Service] SDL doesn't send onSDLClose to HMI upon ignition Off"
 -- testCasesForPolicyTableSnapshot.lua is not ready yet
