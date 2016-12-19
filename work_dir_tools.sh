@@ -3,6 +3,7 @@
 #variables
 MODE=$1
 SDL_BACKUP=${TMPDIR-/tmp}"/sdL_backup"
+SDL_TMP=${TMPDIR-/tmp}"/fs/mp/images/ivsu_cache"
 SDL=${2%/}
 
 #functions
@@ -35,10 +36,10 @@ clean() {
 	if [ -d $SDL ]; then
 		rm -r -f $SDL"/storage"
 		rm -f $SDL"/app_info.dat"
-		rm -f $SDL"/backup_sdl_preloaded_pt.json"
 		rm -f $SDL"/ProtocolFordHandling.log"
 		rm -f $SDL"/SmartDeviceLinkCore.log"
 		rm -f $SDL"/TransportManager.log"
+		rm -r -f $SDL_TMP
 		echo "Done"
 	else
 		echo "Folder '"$SDL"' doesn't exists"
@@ -51,7 +52,7 @@ restore() {
 		cp $SDL_BACKUP"/hmi_capabilities.json" $SDL
 		cp $SDL_BACKUP"/sdl_preloaded_pt.json" $SDL
 		cp $SDL_BACKUP"/smartDeviceLink.ini" $SDL
-		rm -r -f $SDL_BACKUP
+		# rm -r -f $SDL_BACKUP
 		echo "Done"
 	else
 		echo "Folder '"$SDL_BACKUP"' doesn't exists"
