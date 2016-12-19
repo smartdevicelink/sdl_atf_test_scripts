@@ -25,12 +25,12 @@ local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
 local testCasesForPolicyTableSnapshot = require ('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
-
 --[[ Local variables ]]
 local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
-
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
+commonFunctions:SDLForceStop()
+
 commonPreconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnectionRegisterApp("connecttest_connect_device.lua")
 
 --[[ General Settings for configuration ]]
@@ -60,9 +60,9 @@ function Test:Precondition_ActivateApplication()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { policyAppID = "123456"} })
   :Do(function(_,data)
-    self.applications[config.application1.registerAppInterfaceParams.appName] = data.params.application.appID
-    local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
-    EXPECT_HMIRESPONSE(RequestId, { result = {
+      self.applications[config.application1.registerAppInterfaceParams.appName] = data.params.application.appID
+      local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
+      EXPECT_HMIRESPONSE(RequestId, { result = {
             code = 0,
             isSDLAllowed = false},
           method = "SDL.ActivateApp"})
