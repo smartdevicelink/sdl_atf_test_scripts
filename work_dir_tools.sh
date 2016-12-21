@@ -27,7 +27,7 @@ backup() {
 		cp $SDL"/smartDeviceLink.ini" $SDL_BACKUP
 		echo "Done"
 	else
-		echo "Folder '"$SDL_BACKUP"' doesn't exists"
+		echo "Unable to create '"$SDL_BACKUP"' folder"
 	fi
 }
 
@@ -41,8 +41,6 @@ clean() {
 		rm -f $SDL"/TransportManager.log"
 		rm -r -f $SDL_TMP
 		echo "Done"
-	else
-		echo "Folder '"$SDL"' doesn't exists"
 	fi
 }
 
@@ -55,11 +53,15 @@ restore() {
 		# rm -r -f $SDL_BACKUP
 		echo "Done"
 	else
-		echo "Folder '"$SDL_BACKUP"' doesn't exists"
+		echo "Unable to find '"$SDL_BACKUP"' folder"
 	fi
 }
 
 #main
+if [ ! -d $SDL ]; then
+	echo "Unable to find '"$SDL"' folder"
+	exit
+fi
 case $MODE in
 	-h | --help)
 		usage
