@@ -27,17 +27,112 @@ local json = require("modules/json")
 
 --[[ Local Variables ]]
 local TESTED_DATA = {
-  {
-    key = "de-de",
-    label = "Fahrzeuginformationen",
-    tts = "Eine App hat Zugriff auf die folgenden Fahrzeuginformationen: Kraftstoff-Füllstand, Kraftstoffverbrauch, Motordrehzahl, Kilometerzähler, FIN, Außentemperatur, Gangstellung, Reifenluftdruck."
+  initialPreloadedPT = {
+    preloaded_date = "2000-10-01",
+    messages = {
+      VehicleInfo = {
+        languages = {
+          ["de-de"] = {
+            label = "Fahrzeuginformationen",
+            tts = "Kilometerzähler, FIN, Außentemperatur, Gangstellung, Reifenluftdruck."
+          },
+          ["en-us"] = {
+            label = "Vehicle information",
+            textBody = "meter, VIN, External Temperature, Gear Position, Tire Pressure.",
+            tts = "VIN, External Temperature, Gear Position, Tire Pressure."
+          }
+        }
+      },
+      AppPermissions = {
+        languages = {
+          ["de-de"] = {
+            line1 = "Zugriffsanfrage(n)",
+            line2 = "erlauben?",
+            tts = "%appName% benötigt die folgenden Fahrzeuginformationen"
+          },
+          ["en-us"] = {
+            line1 = "Grant Requested",
+            line2 = "Permission(s)?",
+            textBody = "If you press yes, you agree ",
+            tts = "%appName% is requesting"
+          }
+        }
+      }
+    }
   },
-  {
-    key = "en-us",
-    label = "Vehicle information",
-    tts = "An app can access the following vehicle information: Fuel Level, Fuel Economy, Engine RPMs, Odometer, VIN, External Temperature, Gear Position, Tire Pressure."
+  newPreloadedPT = {
+    preloaded_date = "2016-01-01",
+    messages = {
+      VehicleInfo = {
+        languages = {
+          ["en-au"] = {
+            label = "Vehicle information",
+            tts = "Fuel level, Fuel economy"
+          },
+          ["en-us"] = {
+            label = "NEW Vehicle information",
+            tts = "An app can access"
+          }
+        }
+      },
+      DataConsent = {
+        languages = {
+          ["en-gb"] = {
+            textBody = "enable Mobile Apps"
+          },
+          ["en-us"] = {
+            line1 = "Enable Mobile Apps",
+            line2 = "on SYNC? (Uses Data)",
+            textBody = "Would you like to enable Mobile Apps on SYNC?"
+          }
+        }
+      }
+    }
   },
-  preloaded_date = {"2000-10-01","2016-01-01"}
+  resultLocalPT = {
+    preloaded_date = "2016-01-01",
+    messages = {
+      VehicleInfo = {
+        languages = {
+          ["en-au"] = {
+            label = "Vehicle information",
+            tts = "Fuel level, Fuel economy"
+          },
+          ["en-us"] = {
+            label = "NEW Vehicle information",
+            tts = "An app can access"
+          }
+        }
+      },
+      DataConsent = {
+        languages = {
+          ["en-gb"] = {
+            textBody = "enable Mobile Apps"
+          },
+          ["en-us"] = {
+            line1 = "Enable Mobile Apps",
+            line2 = "on SYNC? (Uses Data)",
+            textBody = "Would you like to enable Mobile Apps on SYNC?"
+          }
+        }
+      },
+      AppPermissions = {
+        languages = {
+          ["de-de"] = {
+            line1 = "Zugriffsanfrage(n)",
+            line2 = "erlauben?",
+            tts = "%appName% benötigt die folgenden Fahrzeuginformationen"
+          },
+          ["en-us"] = {
+            line1 = "Grant Requested",
+            line2 = "Permission(s)?",
+            textBody = "If you press yes, you agree ",
+            tts = "%appName% is requesting"
+          }
+        }
+      }
+    }
+  }
 }
 local PRELOADED_PT_FILE_NAME = "sdl_preloaded_pt.json"
 
@@ -111,14 +206,15 @@ local function prepareNewPreloadedPT()
       end
     end,
     function(data)
-      data.policy_table.module_config.preloaded_date = TESTED_DATA.preloaded_date[2]
+      data.policy_table.module_config.preloaded_date = TESTED_DATA.newPreloadedPT.preloaded_date
     end,
     function(data)
-      for key,_ in pairs(data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages) do
-        if key ~= "en-us" then
-          data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages[key] = nil
-        end
-      end
+      data.policy_table.consumer_friendly_messages.messages = TESTED_DATA.newPreloadedPT.messages
+      -- for key,_ in pairs(data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages) do
+      -- if (key == TESTED_DATA[2].key) or (key == TESTED_DATA[1].key) then
+      -- data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages[key] = nil
+      -- end
+      -- end
     end
   }
   updatePreloadedPt(newUpdaters)
@@ -134,14 +230,15 @@ local function prepareInitialPreloadedPT()
       end
     end,
     function(data)
-      data.policy_table.module_config.preloaded_date = TESTED_DATA.preloaded_date[1]
+      data.policy_table.module_config.preloaded_date = TESTED_DATA.initialPreloadedPT.preloaded_date
     end,
     function(data)
-      for key,_ in pairs(data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages) do
-        if key ~= TESTED_DATA[1].key and key ~= TESTED_DATA[2].key then
-          data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages[key] = nil
-        end
-      end
+      data.policy_table.consumer_friendly_messages.messages = TESTED_DATA.initialPreloadedPT.messages
+      -- for key,_ in pairs(data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages) do
+      -- if key ~= TESTED_DATA[1].key and key ~= TESTED_DATA[2].key then
+      -- data.policy_table.consumer_friendly_messages.messages.VehicleInfo.languages[key] = nil
+      -- end
+      -- end
     end
   }
   updatePreloadedPt(initialUpdaters)
@@ -273,71 +370,135 @@ function Test:TestStep_VerifyInitialLocalPT()
   local checks = {
     {
       query = 'select preloaded_date from module_config',
-      expectedValues = {TESTED_DATA.preloaded_date[1]}
+      expectedValues = {TESTED_DATA.initialPreloadedPT.preloaded_date}
     },
     {
-      query = 'select language_code from message where message_type_name = "VehicleInfo"',
-      expectedValues = {TESTED_DATA[1].key, TESTED_DATA[2].key}
-    },
-    {
-      query = 'select tts from message where message_type_name = "VehicleInfo"',
-      expectedValues = {TESTED_DATA[1].tts, TESTED_DATA[2].tts}
-    },
-    {
-      query = 'select label from message where message_type_name = "VehicleInfo"',
-      expectedValues = {TESTED_DATA[1].label, TESTED_DATA[2].label}
+      query = 'select message_type_name, language_code, tts, label, line1, line2, textBody from message',
+      expectedValues = (function(data)
+          local function nilHandle(pValue)
+            if pValue then
+              return pValue
+            else
+              return ""
+            end
+          end
+
+          local result = {}
+          local message
+          for messageTypeName,messageTypeValue in pairs(data) do
+            for languageCode, languageValue in pairs(messageTypeValue.languages) do
+              message = table.concat({
+                  messageTypeName, "|",
+                  languageCode, "|",
+                  nilHandle(languageValue.tts), "|",
+                  nilHandle(languageValue.label), "|",
+                  nilHandle(languageValue.line1), "|",
+                  nilHandle(languageValue.line2), "|",
+                  nilHandle(languageValue.textBody)
+                })
+              table.insert(result, message)
+            end
+          end
+          return result
+          end)(TESTED_DATA.initialPreloadedPT.messages)
+      }
+
+      -- {
+      -- query = 'select language_code from message where message_type_name = "VehicleInfo"',
+      -- expectedValues = {TESTED_DATA[1].key, TESTED_DATA[2].key}
+      -- },
+      -- {
+      -- query = 'select tts from message where message_type_name = "VehicleInfo"',
+      -- expectedValues = {TESTED_DATA[1].tts, TESTED_DATA[2].tts}
+      -- },
+      -- {
+      -- query = 'select label from message where message_type_name = "VehicleInfo"',
+      -- expectedValues = {TESTED_DATA[1].label, TESTED_DATA[2].label}
+      -- }
     }
-  }
-  if not self.checkLocalPT(checks) then
-    self:FailTestCase("SDL has wrong values in LocalPT")
+    if not self.checkLocalPT(checks) then
+      self:FailTestCase("SDL has wrong values in LocalPT")
+    end
   end
-end
 
-function Test:TestStep_StopSDL()
-  StopSDL(self)
-end
-
-function Test.TestStep_LoadNewPreloadedPT()
-  prepareNewPreloadedPT()
-  TestData:store("New preloaded PT is stored", config.pathToSDL .. PRELOADED_PT_FILE_NAME, "new_" .. PRELOADED_PT_FILE_NAME)
-end
-
-function Test:TestStep_StartSDL()
-  StartSDL(config.pathToSDL, true, self)
-end
-
-function Test:TestStep_VerifyNewLocalPT()
-  os.execute("sleep 3")
-  TestData:store("New Local PT is stored", constructPathToDatabase(), "new_policy.sqlite")
-  local checks = {
-    {
-      query = 'select preloaded_date from module_config',
-      expectedValues = {TESTED_DATA.preloaded_date[2]}
-    },
-    {
-      query = 'select language_code from message where message_type_name = "VehicleInfo"',
-      expectedValues = {TESTED_DATA[1].key, TESTED_DATA[2].key}
-    },
-    {
-      query = 'select tts from message where message_type_name = "VehicleInfo"',
-      expectedValues = {TESTED_DATA[1].tts, TESTED_DATA[2].tts}
-    },
-    {
-      query = 'select label from message where message_type_name = "VehicleInfo"',
-      expectedValues = {TESTED_DATA[1].label, TESTED_DATA[2].label}
-    }
-  }
-  if not self.checkLocalPT(checks) then
-    self:FailTestCase("SDL has wrong values in LocalPT")
+  function Test:TestStep_StopSDL()
+    StopSDL(self)
   end
-end
 
---[[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postconditions")
-testCasesForPolicyTable:Restore_preloaded_pt()
-function Test.Postcondition()
-  StopSDL()
-  TestData:info()
-end
+  function Test.TestStep_LoadNewPreloadedPT()
+    prepareNewPreloadedPT()
+    TestData:store("New preloaded PT is stored", config.pathToSDL .. PRELOADED_PT_FILE_NAME, "new_" .. PRELOADED_PT_FILE_NAME)
+  end
 
-return Test
+  function Test:TestStep_StartSDL()
+    StartSDL(config.pathToSDL, true, self)
+  end
+
+  function Test:TestStep_VerifyNewLocalPT()
+    os.execute("sleep 3")
+    TestData:store("New Local PT is stored", constructPathToDatabase(), "new_policy.sqlite")
+    local checks = {
+      {
+        query = 'select preloaded_date from module_config',
+        expectedValues = {TESTED_DATA.resultLocalPT.preloaded_date}
+      },
+      {
+        query = 'select message_type_name, language_code, tts, label, line1, line2, textBody from message',
+        expectedValues = (function(data)
+            local function nilHandle(pValue)
+              if pValue then
+                return pValue
+              else
+                return ""
+              end
+            end
+
+            local result = {}
+            local message
+            for messageTypeName,messageTypeValue in pairs(data) do
+              for languageCode, languageValue in pairs(messageTypeValue.languages) do
+                message = table.concat({
+                    messageTypeName, "|",
+                    languageCode, "|",
+                    nilHandle(languageValue.tts), "|",
+                    nilHandle(languageValue.label), "|",
+                    nilHandle(languageValue.line1), "|",
+                    nilHandle(languageValue.line2), "|",
+                    nilHandle(languageValue.textBody)
+                  })
+                table.insert(result, message)
+              end
+            end
+            return result
+            end)(TESTED_DATA.resultLocalPT.messages)
+        }
+        -- {
+        -- query = 'select preloaded_date from module_config',
+        -- expectedValues = {TESTED_DATA.preloaded_date[2]}
+        -- },
+        -- {
+        -- query = 'select language_code from message where message_type_name = "VehicleInfo"',
+        -- expectedValues = {TESTED_DATA[1].key, TESTED_DATA[2].key}
+        -- },
+        -- {
+        -- query = 'select tts from message where message_type_name = "VehicleInfo"',
+        -- expectedValues = {TESTED_DATA[1].tts, TESTED_DATA[2].tts}
+        -- },
+        -- {
+        -- query = 'select label from message where message_type_name = "VehicleInfo"',
+        -- expectedValues = {TESTED_DATA[1].label, TESTED_DATA[2].label}
+        -- }
+      }
+      if not self.checkLocalPT(checks) then
+        self:FailTestCase("SDL has wrong values in LocalPT")
+      end
+    end
+
+    --[[ Postconditions ]]
+    commonFunctions:newTestCasesGroup("Postconditions")
+    testCasesForPolicyTable:Restore_preloaded_pt()
+    function Test.Postcondition()
+      StopSDL()
+    end
+
+    return Test
