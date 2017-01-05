@@ -56,7 +56,7 @@ function Test:Precondition_InitHMI_OnReady()
 	event.matches = function(_, data) return data.method == "UI.GetCapabilities" end
 
 	EXPECT_HMIEVENT(event, "UI.GetCapabilities")
-	:Do(function(_,_)
+	:Do(function(_,data)
 		self.hmiConnection:Send('{"id":'..tostring(data.id + 10)..',"jsonrpc":"2.0","result":{"available":true,"method":"UI.GetCapabilities", "code":0}}')
 	end)
 end
