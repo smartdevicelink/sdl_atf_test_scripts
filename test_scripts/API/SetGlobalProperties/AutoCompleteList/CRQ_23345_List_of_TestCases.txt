@@ -1,0 +1,27 @@
+Check that SDL transfer valid "autoCompleteList" param to HMI. 
+Check that SDL transfer "SetGlobalProperties" to HMI without "autoCompleteList" param 
+Check that SDL transfer "autoCompleteList" to HMI if string in array is lower bound.(coverage WithoutValue)
+Check that SDL transfer "autoCompleteList" to HMI if string in array is upper bound. 
+Check that SDL transfer "autoCompleteList" to HMI if array is lower bound. 
+Check that SDL transfer "autoCompleteList" to HMI if array is upper bound. 
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array is out upper bound. 
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" array is out lower bound. (coverage WithoutValue) 
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" array is out upper bound. 
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" element in array is wrong type.
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" is wrong type. +
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array with "\n" character.
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array with "\t" character.
+Check that SDL fails "SetGlobalProperties" request (INVALID_DATA) if "autoCompleteList" string in array with white spaces only characters.
+Check that SDL send respond with result code “INVALID_DATA”, and success  “false” value" if applicaion sent request to SDL with wrong syntax in JSON. 
+Check that SDL send respond with result code “INVALID_DATA”, and success “false” value" if applicaion sent request to SDL with wrong type of params (ex. enum as integer) and include params of structure.
+Check that SDL send respond with result code “INVALID_DATA”, and success “false” value" if applicaion sent request to SDL with out-of-bounds param values params of structures of any types.
+Check that SDL log the error internally, and send responce GENERIC_ERROR (success:false, info: “invalid message received from vehilce”) to mobileApp, if HMI send invalid responce.
+Check that SDL cut off fake params from RPC, if PRC comes with wrong params and sent respond GENERIC_ERROR (success:false, <info>) to mobileApp".
+Check that SDL doesn’t transfer not allowed "SetGlobalProperties"_request with valid ""autoCompleteList" - in preloaded json 
+Check that SDL transfer "SetGlobalProperties" with all requested params to HMI, respond with <resultCode_received_from_HMI> to mobile app" if HMI send "SetGlobalProperties"_request, without “"autoCompleteList"” parameter, but with valid other params related to request and this request is allowed by Policies 
+Check that SDL transfers "ResetGlobalProperties"_request from mobile app to HMI with default value of "autoCompleteList". SDL receives SUCCESS result code from HMI and transfer 'SUCCESS, success:true' to mobile app.
+
+
+
+
+
