@@ -14,7 +14,7 @@
 --1. Used preconditions
 --1.1. Request is sent with audioPassThruIcon that contains new line charachter and is with type DYNAMIC and with all mandatory parameters within bounds (samplingRate, maxDuration, bitsPerSample, audioType)
 --2. Performed steps
--- Send PerformAudioPassThru (audioPassThruIcon with only whitespaces, mandatory params) from mobile to SDL and check:
+-- Send PerformAudioPassThru (audioPassThruIcon with new line charachter, mandatory params) from mobile to SDL and check:
 --2.1 SDL sends UI.PerformAudioPassThru (without audioPassThruIcon, mandatory params) to HMI
 --2.2 SDL sends TTS.Speak to HMI
 --2.3 HMI sends UI.PerformAudioPassThru (WARNINGS) to SDL
