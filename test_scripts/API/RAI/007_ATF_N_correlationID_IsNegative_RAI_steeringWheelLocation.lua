@@ -38,7 +38,7 @@ local value_steering_wheel_location = testCasesForRAI.get_data_steeringWheelLoca
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
 commonSteps:DeletePolicyTable()
-testCasesForRAI:Connecttest_onlywith_StartSDL_InitHMIOnReady("connecttest_initHMI.lua")
+
 --TODO(istoimenova): shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
