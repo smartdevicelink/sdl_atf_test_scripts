@@ -50,7 +50,7 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Precondition_InitHMI_OnReady()
-	testCasesForRAI:InitHMI_onReady_without_UI_GetCapabilities(self)
+	testCasesForRAI.InitHMI_onReady_without_UI_GetCapabilities(self)
 	local event = events.Event()
 	event.level = 2
 	event.matches = function(_, data) return data.method == "UI.GetCapabilities" end
