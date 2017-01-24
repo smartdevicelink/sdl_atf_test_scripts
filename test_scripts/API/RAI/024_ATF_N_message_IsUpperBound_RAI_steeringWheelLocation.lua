@@ -30,7 +30,6 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForRAI = require('user_modules/shared_testcases/testCasesForRAI')
-local events = require("events")
 local mobile_session = require('mobile_session')
 
 --[[ Local variables ]]
@@ -52,14 +51,11 @@ commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Precondition_InitHMI_OnReady()
 	testCasesForRAI.InitHMI_onReady_without_UI_GetCapabilities(self)
-	local event = events.Event()
-	event.level = 2
-	event.matches = function(_, data) return data.method == "UI.GetCapabilities" end
-
-	EXPECT_HMIEVENT(event, "UI.GetCapabilities")
+	
+	EXPECT_HMICALL("UI.GetCapabilities")
 	:Do(function(_,data)
 		local messageValue = string.rep("a", 1000)
-	  self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"UI.GetCapabilities"}, "message":"' .. messageValue ..'","code":11}}')
+	  self.hmiConnection:Send('{"id":' .. tostring(data.id) .. ',"jsonrpc":"2.0","error":{"data":{"method":"UI.GetCapabilities"}, "message":"' .. messageValue ..'","code":11}}')
 	end)
 end
 
