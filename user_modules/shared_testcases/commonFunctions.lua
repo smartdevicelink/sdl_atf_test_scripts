@@ -1242,23 +1242,23 @@ end
 --! @string ... more file paths
 --! @usage Function usage example: commonFunctions:path_join("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
 
-function commonFunctions:path_join(...)
+function commonFunctions:pathJoin(...)
   local function assertPath(path, is_base_path)
     if type(path) ~= "string" or string.find(path, "%c") then
       return false
     else
-        if not is_base_path and string.sub(path, 1, 1) == "/" then
+      if not is_base_path and string.sub(path, 1, 1) == "/" then
         return false
       end
     end
     return true
   end
 
-  if select('#', ...) >= 2 then
+  if select('#',...) >= 2 then
     local args = {...}
     local p = args[1]
     local p2
-    if assertPath(p, true) and p ~= "" then
+    if assertPath(p, true) then
       for i = 2, #args do
         p2 = args[i]
         if assertPath(p2, false) then
@@ -1269,6 +1269,7 @@ function commonFunctions:path_join(...)
             p2 = string.sub(p2, 3)
           end
           p = string.gsub(p .. p2, "//", "/")
+          p = string.gsub(p, "/[^/]*/%.%./", "/")
         else
           return nil
         end
