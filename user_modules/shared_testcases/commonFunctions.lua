@@ -1235,55 +1235,51 @@ end
 --27. Function joins paths of file system
 -- ---------------------------------------------------------------------------------------------
 --! @brief Return the path resulting from combining the individual paths or nil
---! if the second (or later) path is absolute will be returned the last absolute path (joined with any non-absolute paths following).
+--! if the second (or later) path is absolute will be returned nil
 --! empty elements (except the first) will be ignored.
 --! @string p1 A file path
 --! @string p2 A file path
 --! @string ... more file paths
-function commonFunctions:path_join(p1, p2, ...)
+--! @usage Function usage example: commonFunctions:path_join("/tmp/, /")
 
-    local function assertPath(val)
-        if type(val) ~= "string" or string.find(val, "%c") then
-            return false
-        end
-        return true
-    end
-
-    if assertPath(p1) and assertPath(p2) then
-        if select('#',...) > 0 then
-            local p = commonFunctions:path_join(p1,p2)
-            local args = {...}
-            for i = 1, #args do
-                assertPath(args[i])
-                p = commonFunctions:path_join(p,args[i])
-            end
-            return p
-        end
-
-        -- second path is absolute
-        if string.sub(p2,1,1) == '/' then
-            return p2
-        end
-
-        if p1 == "" then
-            return nil
-        end
-
-        local endChar = string.sub(p1,#p1,#p1)
-        if endChar ~= "/" then
-            p1 = p1 .. "/"
-        end
-
-        if string.sub(p2, 1, 2) == "./" then
-            p2 = string.sub(p2, 3)
-        end
-
-        p2 = string.gsub(p2, "%s*$", "")
-
-        return string.gsub(p1 .. p2, "//", "/")
+function commonFunctions:path_join(...)
+  local function assertPath(path, is_base_path)
+    if type(path) ~= "string" or string.find(path, "%c") then
+      return false
     else
-        return nil
+        if not is_base_path and string.sub(path, 1, 1) == "/" then
+        return false
+      end
     end
+    return true
+  end
+
+  if select('#',...) >= 2 then
+    local args = {...}
+    local p = args[1]
+    local p2
+    if assertPath(p, true) and p ~= "" then
+      for i = 2, #args do
+        p2 = args[i]
+        if assertPath(p2, false) then
+          if string.sub(p, -1) ~= "/" then
+            p = p .. "/"
+          end
+          if string.sub(p2, 1, 2) == "./" then
+            p2 = string.sub(p2, 3)
+          end
+          p = string.gsub(p .. p2, "//", "/")
+        else
+          return nil
+        end
+      end
+      return p
+    else
+      return nil
+    end
+   else
+    return nil
+  end
 end
 
 return commonFunctions
