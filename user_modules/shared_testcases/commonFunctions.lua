@@ -40,6 +40,7 @@ local path_config = commonPreconditions:GetPathToSDL()
 --24. Function start PTU sequence HTTP flow
 --25. Function reads log file and find specific string in this file.
 --26. Function updates json file with new section
+--27. Function joins paths of file system
 ---------------------------------------------------------------------------------------------
 
 --return true if app is media or navigation
@@ -992,7 +993,7 @@ function commonFunctions:check_ptu_sequence_partly(self, ptu_path, ptu_name)
   EXPECT_HMICALL("BasicCommunication.SystemRequest"):Times(0)
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :ValidIf(function(exp,data)
-    if 
+    if
       (exp.occurences == 1 or exp.occurences == 2) and
       data.params.status == "UP_TO_DATE" then
         return true
@@ -1001,7 +1002,7 @@ function commonFunctions:check_ptu_sequence_partly(self, ptu_path, ptu_name)
       exp.occurences == 1 and
       data.params.status == "UPDATING" then
         return true
-    end             
+    end
     return false
   end):Times(Between(1,2))
   EXPECT_HMICALL("VehicleInfo.GetVehicleData", {odometer=true}):Do(
@@ -1036,7 +1037,7 @@ assert(commonFunctions:File_exists(ptu_path))
     elseif exp.occurences == 2 and
       data.params.status == "UPDATING" then
     return true
-    elseif exp.occurences == 3 and 
+    elseif exp.occurences == 3 and
       data.params.status == "UP_TO_DATE" then
       return true
     end
@@ -1228,6 +1229,61 @@ function commonFunctions:update_json_file(path_to_json, old_section, new_section
   file = io.open(path_to_json, "w")
   file:write(dataToWrite)
   file:close()
+end
+
+-- ---------------------------------------------------------------------------------------------
+--27. Function joins paths of file system
+-- ---------------------------------------------------------------------------------------------
+--! @brief Return the path resulting from combining the individual paths or nil
+--! if the second (or later) path is absolute will be returned the last absolute path (joined with any non-absolute paths following).
+--! empty elements (except the first) will be ignored.
+--! @string p1 A file path
+--! @string p2 A file path
+--! @string ... more file paths
+function commonFunctions:path_join(p1, p2, ...)
+
+    local function assertPath(val)
+        if type(val) ~= "string" or string.find(val, "%c") then
+            return false
+        end
+        return true
+    end
+
+    if assertPath(p1) and assertPath(p2) then
+        if select('#',...) > 0 then
+            local p = commonFunctions:path_join(p1,p2)
+            local args = {...}
+            for i = 1, #args do
+                assertPath(args[i])
+                p = commonFunctions:path_join(p,args[i])
+            end
+            return p
+        end
+
+        -- second path is absolute
+        if string.sub(p2,1,1) == '/' then
+            return p2
+        end
+
+        if p1 == "" then
+            return nil
+        end
+
+        local endChar = string.sub(p1,#p1,#p1)
+        if endChar ~= "/" then
+            p1 = p1 .. "/"
+        end
+
+        if string.sub(p2, 1, 2) == "./" then
+            p2 = string.sub(p2, 3)
+        end
+
+        p2 = string.gsub(p2, "%s*$", "")
+
+        return string.gsub(p1 .. p2, "//", "/")
+    else
+        return nil
+    end
 end
 
 return commonFunctions
