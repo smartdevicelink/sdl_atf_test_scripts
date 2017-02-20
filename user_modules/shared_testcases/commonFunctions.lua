@@ -1240,7 +1240,7 @@ end
 --! @string p1 A file path
 --! @string p2 A file path
 --! @string ... more file paths
---! @usage Function usage example: commonFunctions:path_join("/tmp/, /")
+--! @usage Function usage example: commonFunctions:path_join("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
 
 function commonFunctions:path_join(...)
   local function assertPath(path, is_base_path)
@@ -1254,7 +1254,7 @@ function commonFunctions:path_join(...)
     return true
   end
 
-  if select('#',...) >= 2 then
+  if select('#', ...) >= 2 then
     local args = {...}
     local p = args[1]
     local p2
