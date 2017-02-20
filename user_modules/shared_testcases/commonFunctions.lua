@@ -1240,9 +1240,9 @@ end
 --! @string p1 A file path
 --! @string p2 A file path
 --! @string ... more file paths
---! @usage Function usage example: commonFunctions:path_join("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
+--! @usage Function usage example: commonFunctions:pathJoin("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
 
-function commonFunctions:pathJoin(...)
+function commonFunctions:path_join(...)
   local function assertPath(path, is_base_path)
     if type(path) ~= "string" or string.find(path, "%c") then
       return false
@@ -1265,11 +1265,16 @@ function commonFunctions:pathJoin(...)
           if string.sub(p, -1) ~= "/" then
             p = p .. "/"
           end
-          if string.sub(p2, 1, 2) == "./" then
-            p2 = string.sub(p2, 3)
-          end
+          -- // -> /
           p = string.gsub(p .. p2, "//", "/")
+          -- /./ -> /
+          p = string.gsub(p, "/%./", "/")
+          -- /<folder>/../ -> /
           p = string.gsub(p, "/[^/]*/%.%./", "/")
+          -- <root>/../ -> return nil
+          if string.find(p, "^/%.%./") then
+            return nil
+          end
         else
           return nil
         end
