@@ -1241,7 +1241,7 @@ end
 --! @string p2 A file path
 --! @string ... more file paths
 --! @usage Function usage example: commonFunctions:pathJoin("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
-function commonFunctions:path_join(...)
+function commonFunctions:pathJoin(...)
   local function assertPath(path, is_base_path)
     if type(path) ~= "string" or string.find(path, "%c") then
       return false
