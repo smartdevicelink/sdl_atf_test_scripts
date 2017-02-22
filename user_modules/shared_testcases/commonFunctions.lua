@@ -1275,11 +1275,23 @@ function commonFunctions:pathJoin(...)
             p, count = string.gsub(p, "/%./", "/")
           until count == 0
           -- /<folder>/../ -> /
+          local str
           repeat
-            p, count = string.gsub(p, "/[^/]*/%.%./", "/")
+            str = p
+            p, count = string.gsub(p, "(/[^/]*/%.%./)",
+              function(s)
+                if s == "/../../" then
+                  return s
+                else
+                  return "/"
+                end
+              end)
+            if count ~= 0 and p == str then -- take place fake replace of "/../../"
+              count = 0
+            end
           until count == 0
-          -- <root>/../ -> return nil
-          if string.find(p, "^/%.%./") then
+          -- /../ or */../ or ../ -> return nil
+          if string.find(p, "^%.%./")  or string.find(p, "^.*/%.%./") or string.find(p, "^.*/%.%.$") then
             return nil
           end
         else
