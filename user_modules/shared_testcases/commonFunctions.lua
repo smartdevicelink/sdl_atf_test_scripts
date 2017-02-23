@@ -1242,69 +1242,75 @@ end
 --! @string ... more file paths
 --! @usage Function usage example: commonFunctions:pathJoin("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
 function commonFunctions:pathJoin(...)
-  local function assertPath(path, is_base_path)
-    if type(path) ~= "string" or string.find(path, "%c") then
+  local function checkParam(parameter)
+    if type(parameter) ~= "string" or string.find(parameter, "%c") then
       return false
-    else
-      if not is_base_path and (string.sub(path, 1, 1) == "/" or string.sub(path, 1, 1) == "~") then
-        return false
-      end
     end
     return true
   end
 
-  if select('#',...) >= 2 then
-    local args = {...}
-    local p = args[1]
-    local p2
-    if assertPath(p, true) then
-      for i = 2, #args do
-        p2 = args[i]
-        if assertPath(p2, false) then
-          if string.sub(p, -1) ~= "/" then
-            p = p .. "/"
-          end
-          p = p .. p2
-          local count
-          -- // -> /
-          repeat
-            p, count = string.gsub(p, "//", "/")
-          until count == 0
-          -- /./ -> /
-          repeat
-            p, count = string.gsub(p, "/%./", "/")
-          until count == 0
-          -- /<folder>/../ -> /
-          local str
-          repeat
-            str = p
-            p, count = string.gsub(p, "(/[^/]*/%.%./)",
-              function(s)
-                if s == "/../../" then
-                  return s
-                else
-                  return "/"
-                end
-              end)
-            if count ~= 0 and p == str then -- take place fake replace of "/../../"
-              count = 0
+  local function parseParam(parameter)
+    local parsedParameter = {}
+    parsedParameter.parts = {}
+    local startChar = string.sub(parameter, 1, 1)
+    if startChar == "/"  then
+      parsedParameter.root = ""
+    elseif startChar == "~" then
+      parsedParameter.root = startChar
+      parameter = string.sub(parameter, 2)
+    end
+    for pathPart in string.gmatch(parameter, "[^/]*") do
+      table.insert(parsedParameter.parts, pathPart)
+    end
+    return parsedParameter
+  end
+
+  local function buildPath(paths)
+    local resultPathTable = {}
+    for i = 1, #paths do
+      -- check abs paths (/ or ~)
+      if paths[i].root and i > 1 then
+        return nil
+      end
+      local part
+      for j = 1, #paths[i].parts do
+        part = paths[i].parts[j]
+        -- check . and ""
+        if part ~= "" and part ~= "." then
+          -- check ..
+          if part ~= ".." then
+            table.insert(resultPathTable, part)
+          else
+            -- check out of root
+            if not table.remove(resultPathTable) or (#resultPathTable == 0 and not paths[1].root) then
+              return nil
             end
-          until count == 0
-          -- /../ or */../ or ../ -> return nil
-          if string.find(p, "^%.%./")  or string.find(p, "^.*/%.%./") or string.find(p, "^.*/%.%.$") then
-            return nil
           end
-        else
-          return nil
         end
       end
-      return p
+    end
+    if paths[1].root then
+      table.insert(resultPathTable, 1, paths[1].root)
     else
+      table.insert(resultPathTable, 1, ".")
+    end
+    return table.concat(resultPathTable, "/")
+  end
+
+  local args = {...}
+--1. Check input parameters (string?)
+  for i = 1, #args do
+    if not checkParam(args[i]) then
       return nil
     end
-   else
-    return nil
   end
+--2. Parse parameters to path parts (table: root, parts)
+  local paths = {}
+  for i = 1, #args do
+    paths[i] = parseParam(args[i])
+  end
+--3. Build final path (concatenate parts)
+  return buildPath(paths)
 end
 
 return commonFunctions
