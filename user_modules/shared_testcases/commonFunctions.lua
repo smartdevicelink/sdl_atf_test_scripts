@@ -1298,18 +1298,18 @@ function commonFunctions:pathJoin(...)
   end
 
   local args = {...}
---1. Check input parameters (string?)
+  --1. Check input parameters (string?)
   for i = 1, #args do
     if not checkParam(args[i]) then
       return nil
     end
   end
---2. Parse parameters to path parts (table: root, parts)
+  --2. Parse parameters to path parts (table: root, parts)
   local paths = {}
   for i = 1, #args do
     paths[i] = parseParam(args[i])
   end
---3. Build final path (concatenate parts)
+  --3. Build final path (concatenate parts)
   return buildPath(paths)
 end
 
