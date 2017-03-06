@@ -6,7 +6,7 @@
 --
 -- Description:
 -- For Genivi applicable ONLY for 'EXTERNAL_PROPRIETARY' Polcies
--- Check that SDL invalidates notification OnAppPermissionConsent due to missing mandatory parameter entityID
+-- Check that SDL invalidates notification OnAppPermissionConsent due to invalid value type of parameter entityType
 --
 -- 1. Used preconditions
 -- SDL is built with External_Proprietary flag
@@ -14,7 +14,7 @@
 -- Application is registered and activated
 -- PTU file is updated and application is assigned to functional groups: Base-4, user-consent groups: Location-1 and Notifications
 -- PTU has passed successfully
--- HMI sends <externalConsentStatus> to SDl via OnAppPermissionConsent (mandatory parameter entityID is missed, rest of params present and within bounds, EntityStatus = 'ON')
+-- HMI sends <externalConsentStatus> to SDl via OnAppPermissionConsent (parameter entityType has invalid value, rest of params present and within bounds, EntityStatus = 'ON')
 -- SDL doesn't receive updated Permission items and consent status
 --
 -- 2. Performed steps
@@ -51,60 +51,60 @@ function Test:Precondition_trigger_getting_device_consent()
   testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
 end
 
-function Test:Precondition_PTU_and_OnAppPermissionConsent_AllParams_Valid()
+function Test:Precondition_PTU_and_OnAppPermissionConsent_Invalid_entityType()
   local ptu_file_path = "files/jsons/Policies/Related_HMI_API/"
   local ptu_file = "OnAppPermissionConsent_ptu.json"
   
   testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, nil, nil, nil, ptu_file_path, nil, ptu_file)
-  
+
   EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged",{ appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
   :Do(function(_,data)
-    if (data.params.appPermissionsConsentNeeded== true) then
-      local RequestIdListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
+      if (data.params.appPermissionsConsentNeeded== true) then
+        local RequestIdListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
         EXPECT_HMIRESPONSE(RequestIdListOfPermissions,{result = {code = 0, method = "SDL.GetListOfPermissions",
-          -- allowed: If ommited - no information about User Consent is yet found for app.
-          allowedFunctions = {
-            { name = "Location", id = 156072572},
-            { name = "Notifications", id = 1809526495}
-          },
-          externalConsentStatus = {}
-        }
-      })
-      :Do(function()
-        local ReqIDGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
-        {language = "EN-US", messageCodes = {"AppPermissions"}})
-        
-        EXPECT_HMIRESPONSE(ReqIDGetUserFriendlyMessage,
-        {result = {code = 0, messages = {{messageCode = "AppPermissions"}}, method = "SDL.GetUserFriendlyMessage"}})
-        :Do(function(_,_)
-          self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent",
-          {
-            appID = self.applications[config.application1.registerAppInterfaceParams.appName],
-            consentedFunctions = {
-              { allowed = true, id = 156072572, name = "Location-1"},
-              { allowed = true, id = 1809526495, name = "Notifications"}
-            },
-            externalConsentStatus = {
-              {entityType = 13, status = "ON"}
-            },
-            source = "GUI"
+              -- allowed: If ommited - no information about User Consent is yet found for app.
+              allowedFunctions = {
+                { name = "Location", id = 156072572},
+                { name = "Notifications", id = 1809526495}
+              },
+              externalConsentStatus = {}
+            }
           })
-          EXPECT_NOTIFICATION("OnPermissionsChange")
+        :Do(function()
+            local ReqIDGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
+              {language = "EN-US", messageCodes = {"AppPermissions"}})
+
+            EXPECT_HMIRESPONSE(ReqIDGetUserFriendlyMessage,
+              {result = {code = 0, messages = {{messageCode = "AppPermissions"}}, method = "SDL.GetUserFriendlyMessage"}})
+            :Do(function(_,_)
+                self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent",
+                  {
+                    appID = self.applications[config.application1.registerAppInterfaceParams.appName],
+                    consentedFunctions = {
+                      { allowed = true, id = 156072572, name = "Location-1"},
+                      { allowed = true, id = 1809526495, name = "Notifications"}
+                    },
+                    externalConsentStatus = {
+                      {entityType = "invalidValue", entityID = 113, status = "ON"}
+                    },
+                    source = "GUI"
+                  })
+                EXPECT_NOTIFICATION("OnPermissionsChange")
+              end)
         end)
-      end)
-    else
-      commonFunctions:userPrint(31, "Wrong SDL bahavior: there are app permissions for consent, isPermissionsConsentNeeded should be true")
-      return false
-    end
+      else
+        commonFunctions:userPrint(31, "Wrong SDL bahavior: there are app permissions for consent, isPermissionsConsentNeeded should be true")
+        return false
+      end
   end)
 end
 
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 
-function Test:TestStep_GetListofPermissions_entityType_missing()
+function Test:TestStep_GetListofPermissions_entityType_invalid()
   local RequestIdListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
-  
+
   EXPECT_HMIRESPONSE(RequestIdListOfPermissions, {
     code = "0",
     allowedFunctions = {
