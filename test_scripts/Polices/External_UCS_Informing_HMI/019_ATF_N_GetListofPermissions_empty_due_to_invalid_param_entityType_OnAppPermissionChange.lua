@@ -89,7 +89,8 @@ function Test:Precondition_PTU_and_OnAppPermissionConsent_Invalid_entityType()
                     },
                     source = "GUI"
                   })
-                EXPECT_NOTIFICATION("OnPermissionsChange")
+                EXPECT_NOTIFICATION("OnPermissionsChange"):Times(0)
+                commonTestCases:DelayedExp(10000)
               end)
         end)
       else
@@ -108,8 +109,8 @@ function Test:TestStep_GetListofPermissions_entityType_invalid()
   EXPECT_HMIRESPONSE(RequestIdListOfPermissions, {
     code = "0",
     allowedFunctions = {
-    { name = "Location-1", id = 156072572, allowed = true},
-    { name = "Notifications", id = 1809526495, allowed = true}
+    { name = "Location-1", id = 156072572},
+    { name = "Notifications", id = 1809526495}
     },
     externalConsentStatus = {}
   })
