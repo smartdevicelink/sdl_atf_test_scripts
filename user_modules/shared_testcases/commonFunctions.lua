@@ -40,6 +40,7 @@ local path_config = commonPreconditions:GetPathToSDL()
 --24. Function start PTU sequence HTTP flow
 --25. Function reads log file and find specific string in this file.
 --26. Function updates json file with new section
+--27. Function joins paths of file system
 ---------------------------------------------------------------------------------------------
 
 --return true if app is media or navigation
@@ -992,7 +993,7 @@ function commonFunctions:check_ptu_sequence_partly(self, ptu_path, ptu_name)
   EXPECT_HMICALL("BasicCommunication.SystemRequest"):Times(0)
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :ValidIf(function(exp,data)
-    if 
+    if
       (exp.occurences == 1 or exp.occurences == 2) and
       data.params.status == "UP_TO_DATE" then
         return true
@@ -1001,7 +1002,7 @@ function commonFunctions:check_ptu_sequence_partly(self, ptu_path, ptu_name)
       exp.occurences == 1 and
       data.params.status == "UPDATING" then
         return true
-    end             
+    end
     return false
   end):Times(Between(1,2))
   EXPECT_HMICALL("VehicleInfo.GetVehicleData", {odometer=true}):Do(
@@ -1036,7 +1037,7 @@ assert(commonFunctions:File_exists(ptu_path))
     elseif exp.occurences == 2 and
       data.params.status == "UPDATING" then
     return true
-    elseif exp.occurences == 3 and 
+    elseif exp.occurences == 3 and
       data.params.status == "UP_TO_DATE" then
       return true
     end
@@ -1228,6 +1229,88 @@ function commonFunctions:update_json_file(path_to_json, old_section, new_section
   file = io.open(path_to_json, "w")
   file:write(dataToWrite)
   file:close()
+end
+
+-- ---------------------------------------------------------------------------------------------
+--27. Function joins paths of file system
+-- ---------------------------------------------------------------------------------------------
+--! @brief Return the path resulting from combining the individual paths or nil
+--! if the second (or later) path is absolute will be returned nil
+--! empty elements (except the first) will be ignored.
+--! @string p1 A file path
+--! @string p2 A file path
+--! @string ... more file paths
+--! @usage Function usage example: commonFunctions:pathJoin("/tmp", "fs/mp/images/ivsu_cache", "ptu.json") returns "/tmp/fs/mp/images/ivsu_cache/ptu.json"
+function commonFunctions:pathJoin(...)
+  local function checkParam(parameter)
+    if type(parameter) ~= "string" or string.find(parameter, "%c") then
+      return false
+    end
+    return true
+  end
+
+  local function parseParam(parameter)
+    local parsedParameter = {}
+    parsedParameter.parts = {}
+    local startChar = string.sub(parameter, 1, 1)
+    if startChar == "/"  then
+      parsedParameter.root = ""
+    elseif startChar == "~" then
+      parsedParameter.root = startChar
+      parameter = string.sub(parameter, 2)
+    end
+    for pathPart in string.gmatch(parameter, "[^/]*") do
+      table.insert(parsedParameter.parts, pathPart)
+    end
+    return parsedParameter
+  end
+
+  local function buildPath(paths)
+    local resultPathTable = {}
+    for i = 1, #paths do
+      -- check abs paths (/ or ~)
+      if paths[i].root and i > 1 then
+        return nil
+      end
+      local part
+      for j = 1, #paths[i].parts do
+        part = paths[i].parts[j]
+        -- check . and ""
+        if part ~= "" and part ~= "." then
+          -- check ..
+          if part ~= ".." then
+            table.insert(resultPathTable, part)
+          else
+            -- check out of root
+            if not table.remove(resultPathTable) or (#resultPathTable == 0 and not paths[1].root) then
+              return nil
+            end
+          end
+        end
+      end
+    end
+    if paths[1].root then
+      table.insert(resultPathTable, 1, paths[1].root)
+    else
+      table.insert(resultPathTable, 1, ".")
+    end
+    return table.concat(resultPathTable, "/")
+  end
+
+  local args = {...}
+  --1. Check input parameters (string?)
+  for i = 1, #args do
+    if not checkParam(args[i]) then
+      return nil
+    end
+  end
+  --2. Parse parameters to path parts (table: root, parts)
+  local paths = {}
+  for i = 1, #args do
+    paths[i] = parseParam(args[i])
+  end
+  --3. Build final path (concatenate parts)
+  return buildPath(paths)
 end
 
 return commonFunctions
