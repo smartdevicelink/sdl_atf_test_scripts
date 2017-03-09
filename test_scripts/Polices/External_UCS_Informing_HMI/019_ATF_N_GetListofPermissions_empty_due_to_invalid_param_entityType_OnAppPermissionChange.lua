@@ -42,8 +42,8 @@ local params_invalid_data =
   {param_value = 1.32 comment = "Float"},
   {param_value = {}, comment = "Empty table" },
   {param_value = { entityType = 1, entityID = 1 }, comment = "Non-empty table"},
-  {param_value = xxxx, comment = "OutOfLowerBound"},
-  {param_value = xxxx, comment = "OutOfUpperBound" },
+  {param_value = -1, comment = "OutOfLowerBound"},
+  {param_value = 129, comment = "OutOfUpperBound" },
   {param_value = "", comment = "Empty" },
   {param_value = nil, desc = "Null" }
 }
