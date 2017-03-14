@@ -64,23 +64,23 @@ require('cardinalities')
 require('user_modules/AppTypes')
 
 --[[ Preconditions ]]
+function Test:Precondition_trigger_getting_device_consent()
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+end
+
 for i = 1, #params_invalid_data do
   if(i > 1) then
     commonFunctions:newTestCasesGroup("Preconditions")
 
-    Test["TestStep_trigger_user_request_update_from_HMI_"..params_invalid_data[i].comment] = function(self)
+    Test["Precondition_trigger_user_request_update_from_HMI_"..params_invalid_data[i].comment] = function(self)
       testCasesForPolicyTable:trigger_user_request_update_from_HMI(self)
     end
-
-    function Test:Precondition_trigger_getting_device_consent()
-      testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
-   end
   end
 
   Test["Precondition_PTU_and_OnAppPermissionConsent_Invalid_"..params_invalid_data[i].comment] = function(self)
-  local ptu_file_path = "files/jsons/Policies/Related_HMI_API/"
+    local ptu_file_path = "files/jsons/Policies/Related_HMI_API/"
     if ( (i % 2) == 0 ) then
-
+      
       ptu_file = "OnAppPermissionConsent_ptu1.json"
       consentedgroups = {{ allowed = true, id = 4734356, name = "DrivingCharacteristics-3"}}
       allowed_func = { { name = "DrivingCharacteristics", id = 4734356}}
@@ -111,7 +111,7 @@ for i = 1, #params_invalid_data do
         :Do(function()
           local ReqIDGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
           {language = "EN-US", messageCodes = {"AppPermissions"}})
-         
+          
           EXPECT_HMIRESPONSE(ReqIDGetUserFriendlyMessage,
           {result = {code = 0, messages = {{messageCode = "AppPermissions"}}, method = "SDL.GetUserFriendlyMessage"}})
           :Do(function(_,_)
@@ -134,14 +134,12 @@ for i = 1, #params_invalid_data do
       end
     end)
   end
-end
 
---[[ Test ]]
-commonFunctions:newTestCasesGroup("Test")
+  --[[ Test ]]
+  commonFunctions:newTestCasesGroup("Test")
 
-function Test:TestStep_GetListofPermissions_entityType_invalid()
-  local RequestIdListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
-   for i = 1, #params_invalid_data do
+  function Test:TestStep_GetListofPermissions_entityType_invalid()
+    local RequestIdListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
     if ( (i % 2) == 0 ) then
       allowed_func = { { name = "DrivingCharacteristics", id = 4734356}}
     else
@@ -156,6 +154,7 @@ function Test:TestStep_GetListofPermissions_entityType_invalid()
       externalConsentStatus = {}
     })
   end
+
 end
 
 --[[ Postconditions ]]
