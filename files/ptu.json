@@ -1,7 +1,6 @@
 {
   "policy_table": {
     "module_config": {
-      "preloaded_pt": true,
       "exchange_after_x_ignition_cycles": 100,
       "exchange_after_x_kilometers": 1800,
       "exchange_after_x_days": 20,
@@ -2300,7 +2299,7 @@
         "RequestType":[
         	"PROPRIETARY",
         	"HTTP",
-        	"QUERY_APPS"	
+        	"QUERY_APPS"
         ]
       },
       "device": {
@@ -2321,7 +2320,7 @@
           "BaseBeforeDataConsent"
         ],
         "RequestType":[
-        	"PROPRIETARY"	
+        	"PROPRIETARY"
         ]
       },
       "123456": {
@@ -2336,7 +2335,7 @@
           "TRAFFIC_MESSAGE_CHANNEL",
           "PROPRIETARY",
           "HTTP",
-          "QUERY_APPS"  
+          "QUERY_APPS"
         ]
       }
     }

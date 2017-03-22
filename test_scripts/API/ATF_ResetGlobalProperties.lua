@@ -50,6 +50,61 @@ end
 
 UpdatePolicy()
 
+local icon_to_check
+local title_to_check = "MENU"
+local SDLini        = config.pathToSDL .. tostring("smartDeviceLink.ini")
+-----------------------------------------------------------------------------------------
+-- This function check in INI file path of menu_icon and menuTitle
+-- parameters: NO
+-----------------------------------------------------------------------------------------
+local function CheckINI()
+	
+	f = assert(io.open(SDLini, "r"))
+
+	local fileContentUpdated = false
+	local fileContent = f:read("*all")
+	local menuIconContent = fileContent:match('menuIcon%s*=%s*[a-zA-Z%/0-9%_.]+[^\n]')
+	local default_path
+	 	
+	-- Check menuIcon
+	if not menuIconContent then
+		--APPLINK-29383 => APPLINK-13145, comment from Stefan
+		print ("\27[31m ERROR: menuIcon is not found in smartDeviceLink.ini \27[0m " )
+	else	
+		--for split_menuicon in string.gmatch(menuIconContent,"[^=]*") do
+		for split_menuicon in string.gmatch(menuIconContent,"[^%s]+") do
+			if( (split_menuicon ~= nil) and (#split_menuicon > 1) ) then
+				default_path = split_menuicon
+			end
+		end
+		icon_to_check = default_path
+	end
+
+	-- Check menuTitle
+	local menuTitleContent = fileContent:match('menuTitle%s*=%s*[a-zA-Z%/0-9%_.]+[^\n]')
+	local default_title
+	 	
+	if not menuTitleContent then
+		--APPLINK-29383 => APPLINK-13145, comment from Stefan
+		print ("\27[31m ERROR: menuTitle is not found in smartDeviceLink.ini \27[0m " )
+	else	
+		--for split_menuicon in string.gmatch(menuTitleContent,"[^=]*") do
+		for split_menuicon in string.gmatch(menuTitleContent,"[^%s]+") do
+			if( (split_menuicon ~= nil) and (#split_menuicon > 1) ) then
+				default_title = split_menuicon
+			end
+		end
+	end
+
+	if (default_title ~= "MENU") then
+		print ("\27[31m ERROR: menuTitle is not equal to MENU in smartDeviceLink.ini \27[0m " )
+		return false
+	end
+
+	f:close()
+end
+
+CheckINI()
 
 Test = require('connecttest')
 require('cardinalities')
@@ -288,7 +343,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 					--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 					{
-						menuTitle = "",
+						menuTitle = title_to_check,
+						menuIcon = {
+										imageType = "DYNAMIC",
+										value = icon_to_check
+									},
 						vrHelpTitle = "Test Application",
 						keyboardProperties = 
 						{
@@ -429,7 +488,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 					--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 					{
-						menuTitle = "",
+						menuTitle = title_to_check,
+						menuIcon = {
+										imageType = "DYNAMIC",
+										value = icon_to_check
+									},
 						vrHelpTitle = "Test Application",
 						keyboardProperties = 
 						{
@@ -531,7 +594,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 					--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 					{
-						menuTitle = "",
+						menuTitle = title_to_check,
+						menuIcon = {
+										imageType = "DYNAMIC",
+										value = icon_to_check
+									},
 						vrHelpTitle = "Test Application",
 						keyboardProperties = 
 						{
@@ -1278,7 +1345,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 					--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 									{
-										menuTitle = "",
+										menuTitle = title_to_check,
+										menuIcon = {
+														imageType = "DYNAMIC",
+														value = icon_to_check
+													},
 										vrHelpTitle = "Test Application",
 										keyboardProperties = 
 										{
@@ -2523,7 +2594,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3258,7 +3333,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3339,7 +3418,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3420,7 +3503,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3501,7 +3588,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3584,7 +3675,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3667,7 +3762,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3750,7 +3849,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3831,7 +3934,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3912,7 +4019,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -3993,7 +4104,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4074,7 +4189,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4155,7 +4274,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4238,7 +4361,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4321,7 +4448,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4404,7 +4535,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4485,7 +4620,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4566,7 +4705,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4647,7 +4790,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4728,7 +4875,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4809,7 +4960,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4890,7 +5045,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -4973,7 +5132,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5056,7 +5219,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5139,7 +5306,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5220,7 +5391,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5301,7 +5476,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5382,7 +5561,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5463,7 +5646,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -5544,7 +5731,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 						--hmi side: expect UI.SetGlobalProperties request
 						EXPECT_HMICALL("UI.SetGlobalProperties",
 						{
-							menuTitle = "",
+							menuTitle = title_to_check,
+							menuIcon = {
+											imageType = "DYNAMIC",
+											value = icon_to_check
+										},
 							vrHelpTitle = "Test Application",
 							keyboardProperties = 
 							{
@@ -7475,7 +7666,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 					--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 					{
-						menuTitle = "",
+						menuTitle = title_to_check,
+						menuIcon = {
+										imageType = "DYNAMIC",
+										value = icon_to_check
+									},
 						vrHelpTitle = "Test Application",
 						keyboardProperties = 
 						{
@@ -7572,7 +7767,11 @@ local textPromtValue = {"Please speak one of the following commands," ,"Please s
 				--hmi side: expect UI.SetGlobalProperties request
 				EXPECT_HMICALL("UI.SetGlobalProperties",
 				{
-					menuTitle = "",
+					menuTitle = title_to_check,
+					menuIcon = {
+									imageType = "DYNAMIC",
+									value = icon_to_check
+								},
 					vrHelpTitle = "Test Application",
 					keyboardProperties = 
 					{

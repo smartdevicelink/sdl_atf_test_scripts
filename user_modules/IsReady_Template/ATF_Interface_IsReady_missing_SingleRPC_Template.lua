@@ -1,6 +1,8 @@
+--TODO: APPLINK-29352: Genivi: SDL doesn't accept some error_codes from HMI when they are sending with type of protocol_message "error"
+--ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-config.SDLStoragePath = config.pathToSDL .. "storage/"
+
 ---------------------------------------------------------------------------------------------
 ---------------------------- Required Shared libraries --------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -10,7 +12,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 	local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 	local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 	local commonPreconditions = require ('/user_modules/shared_testcases/commonPreconditions')
-
+	config.SDLStoragePath = commonPreconditions:GetPathToSDL() .. "storage/"
 	DefaultTimeout = 3
 	local iTimeout = 2000
 
@@ -193,7 +195,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 				{success = false, resultCode = "ABORTED", 						expected_resultCode = "ABORTED", value = 5},
 				{success = false, resultCode = "IGNORED", 						expected_resultCode = "IGNORED", value = 6},
 				{success = false, resultCode = "IN_USE", 						expected_resultCode = "IN_USE", value = 8},
-				--{success = false, resultCode = "VEHICLE_DATA_NOT_AVAILABLE",	expected_resultCode = "VEHICLE_DATA_NOT_AVAILABLE"},
+				{success = false, resultCode = "DATA_NOT_AVAILABLE",	        expected_resultCode = "DATA_NOT_AVAILABLE"},
 				{success = false, resultCode = "TIMED_OUT", 					expected_resultCode = "TIMED_OUT", value = 10},
 				{success = false, resultCode = "INVALID_DATA", 					expected_resultCode = "INVALID_DATA", value = 11},
 				{success = false, resultCode = "CHAR_LIMIT_EXCEEDED", 			expected_resultCode = "CHAR_LIMIT_EXCEEDED", value = 12},
@@ -218,9 +220,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 				local other_interfaces_call = {}			
 				local hmi_method_call = TestedInterface.."."..hmi_call.name
 
-				--if(i == 1) then
-					
-				--end --if(i == 1) then
+				if(mob_request.name == "SetGlobalProperties" and TestedInterface == "TTS") then mob_request.single = false end
 
 				if( ( Tested_resultCode == "AllTested" ) or (Tested_resultCode == TestData[i].resultCode) ) then
 					if(mob_request.single == true)then
@@ -267,140 +267,242 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 						    end
 					    end --if(mob_request.name == "PerformInteraction") then
 
-						Test["TC_"..mob_request.name.."_Only_".. tostring(TestData[i].resultCode).."_"..TestCaseName] = function(self)
+					    if( (mob_request.name ~= "StartStream") and (mob_request.name ~= "StopStream") and 
+					    	(mob_request.name ~= "StartAudioStream") and (mob_request.name ~= "StopAudioStream")) then
+							Test["TC_"..mob_request.name.."_Only_".. tostring(TestData[i].resultCode).."_"..TestCaseName] = function(self)
 
-						  	local menuparams = ""
-						  	local vrCmd = ""
-							userPrint(33, "Testing RPC = "..mob_request.name)
-							--======================================================================================================
-							-- Update and backup used params
-								
-								if ( mob_request.params.appName ~= nil )    then mob_request.params.appName = config.application1.registerAppInterfaceParams.appName end
-								if ( mob_request.params.cmdID ~= nil ) then mob_request.params.cmdID = i end
-								
-								if( TestedInterface == "UI") then
-									if ( mob_request.params.vrCommands ~= nil ) then 
-										vrCmd = mob_request.params.vrCommands
-										mob_request.params.vrCommands = nil
-									end
-								else
-									if ( mob_request.params.vrCommands ~= nil ) then 
-										mob_request.params.vrCommands =  {"vrCommands_" .. tostring(i)}
-									end
-								end
-								
-								if ( TestedInterface == "VR") then 
-									if (mob_request.params.menuParams ~= nil ) then 
-										menuparams = mob_request.params.menuParams 
-										mob_request.params.menuParams =  nil 
-									end
-								else --if( TestedInterface == "UI") then
-									if (mob_request.params.menuParams ~= nil ) then 
-										mob_request.params.menuParams = {position = 1, menuName = "Command " .. tostring(i)}
-									end
-								end
-							
-								if ( mob_request.params.interactionChoiceSetIDList ~= nil) then mob_request.params.interactionChoiceSetIDList = {i} end
-							--======================================================================================================
-							commonTestCases:DelayedExp(iTimeout)
-								
-							--mobile side: sending RPC request
-							local cid = self.mobileSession:SendRPC(mob_request.name, mob_request.params)
-							
-							--======================================================================================================
-							-- Update of verified params
-								if ( hmi_call.params.appID ~= nil )          then hmi_call.params.appID = self.applications[config.application1.registerAppInterfaceParams.appName] end
-								if ( hmi_call.params.cmdID ~= nil )          then hmi_call.params.cmdID = i end
-							  	if ( hmi_call.params.vrCommands ~= nil )     then hmi_call.params.vrCommands =  {"vrCommands_" .. tostring(i)}  end
-							  	if ( mob_request.params.menuParams ~= nil )  then hmi_call.params.menuParams = {position = 1, menuName = "Command " .. tostring(i)} end
-							  	if ( hmi_call.params.grammarID ~= nil )      then 
-							  		if (mob_request.name == "DeleteCommand") then
-							  			hmi_call.params.grammarID =  grammarID  
-									else
-							  			hmi_call.params.grammarID[1] =  grammarID  
-							  		end
-							  	end
-							--======================================================================================================
-
-
-				 			--hmi side: expect Interface.RPC request 	
-				 			if(hmi_method_call == "UI.EndAudioPassThru") then
-				 				hmi_call.params = nil
-				 			end
-				 			if( (TestData[i].success == false) and 
-				 				(mob_request.name == "DeleteCommand" or mob_request.name == "DeleteSubMenu") ) then
-				 				EXPECT_HMICALL( hmi_method_call, hmi_call.params)
-				 				:Times(0)
-				 			else
-								EXPECT_HMICALL( hmi_method_call, hmi_call.params)
-								:Do(function(_,data)
-									if(mob_request.name == "AddCommand") then grammarID = data.params.grammarID end
+							  	local menuparams = ""
+							  	local vrCmd = ""
+								userPrint(33, "Testing RPC = "..mob_request.name)
+								--======================================================================================================
+								-- Update and backup used params
 									
-									--hmi side: sending response
-									if (TestData[i].resultCode == "") then
-										-- HMI does not respond					
+									if ( mob_request.params.appName ~= nil )    then mob_request.params.appName = config.application1.registerAppInterfaceParams.appName end
+									if ( mob_request.params.cmdID ~= nil ) then mob_request.params.cmdID = i end
+									
+									if( TestedInterface == "UI") then
+										if ( mob_request.params.vrCommands ~= nil ) then 
+											vrCmd = mob_request.params.vrCommands
+											mob_request.params.vrCommands = nil
+										end
 									else
-										if TestData[i].success == true then 
-											if(hmi_call.mandatory_params ~= nil) then
-												self.hmiConnection:SendResponse(data.id, data.method, TestData[i].resultCode, hmi_call.mandatory_params )
-											else
-												--self.hmiConnection:SendResponse(data.id, data.method, TestData[i].resultCode, {})
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","code":'..tostring(TestData[i].value)..'}}')
-											end
-										else
-											if(hmi_call.mandatory_params ~= nil) then
-												--print("hmi_call.mandatory_params = " ..hmi_call.mandatory_params)
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'",'..hmi_call.string_mandatory_params..',"message":"error message","code":'..tostring(TestData[i].value)..'}}')
-											else
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","message":"error message","code":'..tostring(TestData[i].value)..'}}')
-											end
-										end						
+										if ( mob_request.params.vrCommands ~= nil ) then 
+											mob_request.params.vrCommands =  {"vrCommands_" .. tostring(i)}
+										end
 									end
-								end)
-							end
-							
-							--mobile side: expect AddCommand response and OnHashChange notification
-							if TestData[i].success == true then 
-								EXPECT_RESPONSE(cid, { success = TestData[i].success , resultCode = TestData[i].expected_resultCode })
-							
-								--mobile side: expect OnHashChange notification
-								if(mob_request.hashChange == true) then
-									EXPECT_NOTIFICATION("OnHashChange")
-									:Timeout(iTimeout)
+									
+									if ( TestedInterface == "VR") then 
+										if (mob_request.params.menuParams ~= nil ) then 
+											menuparams = mob_request.params.menuParams 
+											mob_request.params.menuParams =  nil 
+										end
+									else --if( TestedInterface == "UI") then
+										if (mob_request.params.menuParams ~= nil ) then 
+											mob_request.params.menuParams = {position = 1, menuName = "Command " .. tostring(i)}
+										end
+									end
+								
+									if ( mob_request.params.interactionChoiceSetIDList ~= nil) then mob_request.params.interactionChoiceSetIDList = {i} end
+								--======================================================================================================
+								commonTestCases:DelayedExp(iTimeout)
+									
+								--mobile side: sending RPC request
+								local cid = self.mobileSession:SendRPC(mob_request.name, mob_request.params)
+								
+								--======================================================================================================
+								-- Update of verified params
+									if ( hmi_call.params.appID ~= nil )          then hmi_call.params.appID = self.applications[config.application1.registerAppInterfaceParams.appName] end
+									if ( hmi_call.params.cmdID ~= nil )          then hmi_call.params.cmdID = i end
+								  	if ( hmi_call.params.vrCommands ~= nil )     then hmi_call.params.vrCommands =  {"vrCommands_" .. tostring(i)}  end
+								  	if ( mob_request.params.menuParams ~= nil )  then hmi_call.params.menuParams = {position = 1, menuName = "Command " .. tostring(i)} end
+								  	if ( hmi_call.params.grammarID ~= nil )      then 
+								  		if (mob_request.name == "DeleteCommand") then
+								  			hmi_call.params.grammarID =  grammarID  
+										else
+								  			hmi_call.params.grammarID[1] =  grammarID  
+								  		end
+								  	end
+								--======================================================================================================
+
+
+					 			--hmi side: expect Interface.RPC request 	
+					 			if( (hmi_method_call == "UI.EndAudioPassThru") or (hmi_method_call == "Navigation.SubscribeWayPoints") or (hmi_method_call == "Navigation.UnsubscribeWayPoints") ) then
+					 				hmi_call.params = nil
+					 			end
+					 			if( (TestData[i].success == false) and 
+					 				(mob_request.name == "DeleteCommand" or mob_request.name == "DeleteSubMenu" or mob_request.name == "UnsubscribeWayPoints") ) then
+					 				EXPECT_HMICALL( hmi_method_call, hmi_call.params)
+					 				:Times(0)
+					 			else
+									EXPECT_HMICALL( hmi_method_call, hmi_call.params)
+									:Do(function(_,data)
+										if(mob_request.name == "AddCommand") then grammarID = data.params.grammarID end
+										
+										--hmi side: sending response
+										if (TestData[i].resultCode == "") then
+											-- HMI does not respond					
+										else
+											if TestData[i].success == true then 
+												if(hmi_call.mandatory_params ~= nil) then
+													if(mob_request.name == "GetWayPoints") then mandatory_params = 'appID" : '.. tostring(self.applications[config.application1.registerAppInterfaceParams.appName]) end
+													--print("mandatory_params = "..mandatory_params)
+													self.hmiConnection:SendResponse(data.id, data.method, TestData[i].resultCode, hmi_call.mandatory_params )
+												else
+													--self.hmiConnection:SendResponse(data.id, data.method, TestData[i].resultCode, {})
+													self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","code":'..tostring(TestData[i].value)..'}}')
+												end
+											else
+												if(mob_request.name == "GetWayPoints") then mandatory_params = 'appID" : '.. tostring(self.applications[config.application1.registerAppInterfaceParams.appName]) end
+												if(hmi_call.mandatory_params ~= nil) then
+													--print("hmi_call.mandatory_params = " ..hmi_call.mandatory_params)
+													self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'",'..hmi_call.string_mandatory_params..',"message":"error message","code":'..tostring(TestData[i].value)..'}}')
+												else
+													self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","message":"error message","code":'..tostring(TestData[i].value)..'}}')
+												end
+											end						
+										end
+									end)
+								end
+								
+								--mobile side: expect AddCommand response and OnHashChange notification
+								if TestData[i].success == true then 
+									EXPECT_RESPONSE(cid, { success = TestData[i].success , resultCode = TestData[i].expected_resultCode })
+								
+									--mobile side: expect OnHashChange notification
+									if(mob_request.hashChange == true) then
+										EXPECT_NOTIFICATION("OnHashChange")
+										:Timeout(iTimeout)
+									else
+										EXPECT_NOTIFICATION("OnHashChange")
+										:Times(0)
+									end
+								
 								else
+									if(mob_request.name == "DeleteCommand" or mob_request.name == "DeleteSubMenu") then
+										-- According to APPLINK-27079; APPLNIK-19401
+										--mobile side: expect RPC response
+										EXPECT_RESPONSE(cid, {success = false, resultCode = "INVALID_ID"})
+										
+									elseif(mob_request.name == "UnsubscribeVehicleData" or (mob_request.name == "UnsubscribeWayPoints")) then
+										-- According to APPLINK-27872 and APPLINK-20043
+										-- mobile side: expect RPC response
+										EXPECT_RESPONSE(cid, {success = false, resultCode = "IGNORED"})
+									else
+										if (TestData[i].resultCode == "") then
+											EXPECT_RESPONSE(cid, { success = TestData[i].success , resultCode = TestData[i].expected_resultCode})
+										else
+											EXPECT_RESPONSE(cid, { success = TestData[i].success , resultCode = TestData[i].expected_resultCode, info = "error message"})
+										end
+									end
+
 									EXPECT_NOTIFICATION("OnHashChange")
 									:Times(0)
+
 								end
+			 					
+			 					--======================================================================================================
+			 					--restore values for used parameters
+									if(menuparams ~= "") then mob_request.params.menuParams = menuparams end
+									if(vrCmd ~= "")      then mob_request.params.VRCommands = vrCmd end
+							end
+						
+						--TODO: Uncomment when APPLINK-29286 is resolved
+						--[[else
+							--ToDo: Because of APPLINK-16610 resultCode SUCCESS is separated in other script.
+							-- when the defect is fixed if-end will be removed
+							if(TestData[i].resultCode ~= "SUCCESS") then
 							
-							else
-								if(mob_request.name == "DeleteCommand" or mob_request.name == "DeleteSubMenu") then
-									-- According to APPLINK-27079; APPLNIK-19401
-									--mobile side: expect RPC response
-									EXPECT_RESPONSE(cid, {success = false, resultCode = "INVALID_ID"})
-									
-								elseif(mob_request.name == "UnsubscribeVehicleData") then
-									-- According to APPLINK-27872 and APPLINK-20043
-									-- mobile side: expect RPC response
-									EXPECT_RESPONSE(cid, {success = false, resultCode = "IGNORED"})
-								else
-									--TODO: APPLINK-28492 - update after clarification
-									if (TestData[i].resultCode == "") then
-										EXPECT_RESPONSE(cid, { success = TestData[i].success , resultCode = TestData[i].expected_resultCode})
-									else
-										EXPECT_RESPONSE(cid, { success = TestData[i].success , resultCode = TestData[i].expected_resultCode, info = "error message"})
+								--Preconditions:
+								if(mob_request.name == "StopStream" and TestData[i].success == false) then
+									Test["Precondition_StopStream_SUCCESS"] = function(self)
+										self.mobileSession:StartService(11)
+			
+										EXPECT_HMICALL("Navigation.StartStream")
+										:Do(function(_,data)
+											self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+										end)								
+										
+										self.mobileSession:StartStreaming(11,"files/Wildlife.wmv")
+
+										EXPECT_HMINOTIFICATION("Navigation.OnVideoDataStreaming",{available = true})
+										:Times(1) 
 									end
 								end
 
-								EXPECT_NOTIFICATION("OnHashChange")
-								:Times(0)
+								if(mob_request.name == "StopAudioStream" and TestData[i].success == false) then
+									Test["Precondition_StopAudioStream_SUCCESS"] = function(self)
+										self.mobileSession:StartService(10)
+			
+										EXPECT_HMICALL("Navigation.StartStream")
+										:Do(function(_,data)
+											self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+										end)					
+										self.mobileSession:StartStreaming(10,"files/Kalimba.mp3")			
+										
+										EXPECT_HMINOTIFICATION("Navigation.OnAudioDataStreaming",{available = true})
+										:Times(1) 
+									end
+								end
 
-							end
-		 					
-		 					--======================================================================================================
-		 					--restore values for used parameters
-								if(menuparams ~= "") then mob_request.params.menuParams = menuparams end
-								if(vrCmd ~= "")      then mob_request.params.VRCommands = vrCmd end
-						end
+								Test["TC_"..mob_request.name.."_Only_".. tostring(TestData[i].resultCode).."_"..TestCaseName] = function(self)
+									userPrint(33, "Testing RPC = "..mob_request.name)
+										
+										local exTime = 1
+										if(TestData[i].success == true) then
+											exTime = 1
+										else
+											exTime = 0
+										end
+										
+										if (mob_request.name == "StartStream") then 
+											self.mobileSession:StartService(11)
+											self.mobileSession:StartStreaming(11,"files/Wildlife.wmv")
+										elseif (mob_request.name == "StopStream") then 
+											self.mobileSession:StopService(11)	
+										elseif (mob_request.name == "StartAudioStream") then 
+											self.mobileSession:StartService(10)
+											self.mobileSession:StartStreaming(10,"files/Kalimba.mp3")
+										elseif (mob_request.name == "StopAudioStream") then 
+						    				self.mobileSession:StopService(10)
+						    			end
+
+										
+								
+										EXPECT_HMICALL(hmi_method_call, {})
+										:Do(function(_,data)
+											if (TestData[i].resultCode == "") then
+												-- HMI does not respond					
+											else
+												if TestData[i].success == true then 
+													--self.hmiConnection:SendResponse(data.id, data.method, TestData[i].resultCode, {})
+													self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","code":'..tostring(TestData[i].value)..'}}')
+												else
+													self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","message":"error message","code":'..tostring(TestData[i].value)..'}}')
+												end						
+											end
+										end)
+										
+										if (mob_request.name == "StartStream") then 
+												
+											EXPECT_HMINOTIFICATION("Navigation.OnVideoDataStreaming",{available = true})
+											:Times(exTime)
+										elseif (mob_request.name == "StopStream") then 
+												
+											EXPECT_HMINOTIFICATION("Navigation.OnVideoDataStreaming",{available = false})
+											:Times(exTime)
+										elseif (mob_request.name == "StartAudioStream") then 
+												
+											EXPECT_HMINOTIFICATION("Navigation.OnAudioDataStreaming",{available = true})
+											:Times(exTime)
+										elseif (mob_request.name == "StopAudioStream") then 
+							    				
+							    			EXPECT_HMINOTIFICATION("Navigation.OnAudioDataStreaming",{available = false})
+							    			:Times(exTime)
+							    		end
+								end			
+							end --if(TestData[i].resultCode ~= "SUCCESS") then
+							]]
+						end --  if( (mob_request.name ~= "StartStream") and (mob_request.name ~= "StopStream") and 
 					end -- if(mob_request.single == true)then
 					if(IsExecutedAllRelatedRPCs == false) then
 					 	break -- use break to exit the second for loop "for count_RPC = 1, #RPCs do"
@@ -411,7 +513,6 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 	end
 
 	
-	--ToDo: Defect APPLINK-26394 Due to problem when stop and start SDL, script is debugged by updating user_modules/connecttest_VR_Isready.lua
 	for i=1, #TestData do
 	
 		local TestCaseName = "Case_" .. TestData[i].caseID .. "_IsReady_" ..TestData[i].description
@@ -499,6 +600,12 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 
 	function Test:Postcondition_RestorePreloadedFile()
 		commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
+	end
+
+	Test["ForceKill"] = function (self)
+		print("--------------------- Postconditions ------------------------")
+		os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
+		os.execute("sleep 1")
 	end
 
 return Test

@@ -4,15 +4,17 @@ local Preconditions = {}
 --------------------------------------------------------------------------------------------------------
 -- Precondition function is added needed fields.
 
-function Preconditions:SendLocationPreconditionUpdateHMICap()
--- Verify config.pathToSDL
-findresult = string.find (config.pathToSDL, '.$')
-if string.sub(config.pathToSDL,findresult) ~= "/" then
-	config.pathToSDL = config.pathToSDL..tostring("/")
-end 
+function Preconditions:GetPathToSDL()
+	local pathToSDL = config.pathToSDL
+  if pathToSDL:sub(-1) ~= '/' then
+    pathToSDL = pathToSDL .. "/"
+  end
+  return pathToSDL
+end
 
+function Preconditions:SendLocationPreconditionUpdateHMICap()
 -- Update hmi_capabilities.json
-local HmiCapabilities = config.pathToSDL .. "hmi_capabilities.json"
+local HmiCapabilities = Preconditions:GetPathToSDL() .. "hmi_capabilities.json"
 
 f = assert(io.open(HmiCapabilities, "r"))
 
@@ -80,7 +82,7 @@ function Preconditions:UpdateConfig(paramName, valueToSet)
 
   if type(valueToSet) == number then
     WhitespaceChar, fileContentTextFields = fileContent:match("(%s?)(" .. paramName .. "%s?=%s?%d+)%s?\n")
-  else 
+  else
     WhitespaceChar, fileContentTextFields = fileContent:match("(%s?)(" .. paramName .. "%s?=%s?[%w\"\"]+)%s?\n")
   end
 
@@ -90,7 +92,7 @@ function Preconditions:UpdateConfig(paramName, valueToSet)
   if not fileContentTextFields then
       print ( " \27[31m " .. paramName .. " is not found in config.lua \27[0m " )
     else
-   
+
       fileContentUpdated  =  string.gsub(fileContent, fileContentTextFields, StringToReplace)
       f = assert(io.open(PathToConfig, "w"))
       f:write(fileContentUpdated)
@@ -103,13 +105,13 @@ end
 ----------------------------------------------------------------------------------------------
 -- make reserve copy of file (FileName) in /bin folder
 function Preconditions:BackupFile(FileName)
-  os.execute(" cp " .. config.pathToSDL .. FileName .. " " .. config.pathToSDL .. FileName .. "_origin" )
+  os.execute(" cp " .. Preconditions:GetPathToSDL() .. FileName .. " " .. Preconditions:GetPathToSDL() .. FileName .. "_origin" )
 end
 
 -- restore origin of file (FileName) in /bin folder
 function Preconditions:RestoreFile(FileName)
-  os.execute(" cp " .. config.pathToSDL .. FileName .. "_origin " .. config.pathToSDL .. FileName )
-  os.execute( " rm -f " .. config.pathToSDL .. FileName .. "_origin" )
+  os.execute(" cp " .. Preconditions:GetPathToSDL() .. FileName .. "_origin " .. Preconditions:GetPathToSDL() .. FileName )
+  os.execute( " rm -f " .. Preconditions:GetPathToSDL() .. FileName .. "_origin" )
 end
 
 --------------------------------------------------------------------------------------------------------
@@ -129,13 +131,13 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnec
 	local connectMobileCall = fileContent:match(pattertConnectMobileCall)
 	local startSessionCall = fileContent:match(patternStartSessionCall)
 
-	if connectMobileCall == nil then 
+	if connectMobileCall == nil then
 		print(" \27[31m ConnectMobile functions is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, pattertConnectMobileCall, "")
 	end
 
-	if startSessionCall == nil then 
+	if startSessionCall == nil then
 		print(" \27[31m StartSession functions is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, patternStartSessionCall, "")
@@ -143,7 +145,7 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnec
 
 	local patternDisconnect = "print%(\"Disconnected%!%!%!\"%).-quit%(1%)"
 	local DisconnectMessage = fileContent:match(patternDisconnect)
-	if DisconnectMessage == nil then 
+	if DisconnectMessage == nil then
 		print(" \27[31m 'Disconnected!!!' message is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, patternDisconnect, 'print("Disconnected!!!")')
@@ -169,7 +171,7 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect_OpenConnection(Fi
 	local patternStartSessionCall = "function .?module%:StartSession.-startSession.-end"
 	local startSessionCall = fileContent:match(patternStartSessionCall)
 
-	if startSessionCall == nil then 
+	if startSessionCall == nil then
 		print(" \27[31m StartSession functions is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, patternStartSessionCall, "")
@@ -177,7 +179,7 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect_OpenConnection(Fi
 
 	local patternDisconnect = "print%(\"Disconnected%!%!%!\"%).-quit%(1%)"
 	local DisconnectMessage = fileContent:match(patternDisconnect)
-	if DisconnectMessage == nil then 
+	if DisconnectMessage == nil then
 		print(" \27[31m 'Disconnected!!!' message is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, patternDisconnect, 'print("Disconnected!!!")')
@@ -202,7 +204,7 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect(FileName)
 
 	local patternDisconnect = "print%(\"Disconnected%!%!%!\"%).-quit%(1%)"
 	local DisconnectMessage = fileContent:match(patternDisconnect)
-	if DisconnectMessage == nil then 
+	if DisconnectMessage == nil then
 		print(" \27[31m 'Disconnected!!!' message is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, patternDisconnect, 'print("Disconnected!!!")')
@@ -232,7 +234,7 @@ function Preconditions:Connecttest_adding_timeOnReady(FileName, createFile)
 
 	local SearchPattern = 'self.hmiConnection%:.?SendNotification.?%(.?"BasicCommunication.OnReady".?%)'
 	local OnReadyNotFinding = fileContent:match(SearchPattern)
-	if OnReadyNotFinding == nil then 
+	if OnReadyNotFinding == nil then
 		print(" \27[31m 'self.hmiConnection:SendNotification(\"BasicCommunication.OnReady\")' string is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, SearchPattern, 'self.hmiConnection:SendNotification("BasicCommunication.OnReady")\nself.timeOnReady = timestamp()')
@@ -263,7 +265,7 @@ function Preconditions:Connecttest_Navigation_IsReady_available_false(FileName, 
 
 	local SearchPattern = '%(%s?\"%s?Navigation.IsReady%s?\"%s?, %s?true%s?, %s?%{ %s?available %s?=%s?[%w]-%s-%}%)'
 	local OnReadyNotFinding = fileContent:match(SearchPattern)
-	if OnReadyNotFinding == nil then 
+	if OnReadyNotFinding == nil then
 		print(" \27[31m '(\"Navigation.IsReady\", true, { available = true })' string is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, SearchPattern, '("Navigation.IsReady", true, { available = false })')
@@ -296,7 +298,7 @@ function Preconditions:Connecttest_OnButtonSubscription(FileName, createFile)
 	local pattern1 = "registerComponent%s-%(%s-\"Buttons\"%s-[%w%s%{%}.,\"]-%)"
 	local pattern1Result = fileContent:match(pattern1)
 
-	if pattern1Result == nil then 
+	if pattern1Result == nil then
 		print(" \27[31m Buttons registerComponent function is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		fileContent  =  string.gsub(fileContent, pattern1, 'registerComponent("Buttons", {"Buttons.OnButtonSubscription"})')
@@ -354,7 +356,7 @@ function Preconditions:Connecttest_Languages_update(FileName, createFile)
 	local pattern1 = 'ExpectRequest%s-%(%s-"VR.GetSupportedLanguages".-%{.-%}%s-%)'
 	local pattern1Result = fileContent:match(pattern1)
 
-	if pattern1Result == nil then 
+	if pattern1Result == nil then
 		print(" \27[31m ExpectRequest VR.GetSupportedLanguages function call is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		local StringToAdd = LanguageCheck(pattern1Result)
@@ -373,7 +375,7 @@ function Preconditions:Connecttest_Languages_update(FileName, createFile)
 	local pattern2 = 'ExpectRequest%s-%(%s-"TTS.GetSupportedLanguages".-%{.-%}%s-%)'
 	local pattern2Result = fileContent:match(pattern2)
 
-	if pattern2Result == nil then 
+	if pattern2Result == nil then
 		print(" \27[31m ExpectRequest TTS.GetSupportedLanguages function call is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		local StringToAdd = LanguageCheck(pattern2Result)
@@ -392,7 +394,7 @@ function Preconditions:Connecttest_Languages_update(FileName, createFile)
 	local pattern3 = 'ExpectRequest%s-%(%s-"UI.GetSupportedLanguages".-%{.-%}%s-%)'
 	local pattern3Result = fileContent:match(pattern3)
 
-	if pattern3Result == nil then 
+	if pattern3Result == nil then
 		print(" \27[31m ExpectRequest UI.GetSupportedLanguages function call is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
 		local StringToAdd = LanguageCheck(pattern3Result)
@@ -433,7 +435,7 @@ function Preconditions:Connecttest_InitHMI_onReady_call(FileName, createFile)
   	local pattern1 = "function .?module%:InitHMI_onReady.-initHMI_onReady.-end"
   	local pattern1Result = fileContent:match(pattern1)
 
-  	if pattern1Result == nil then 
+  	if pattern1Result == nil then
     	print(" \27[31m InitHMI_onReady functions is not found in /user_modules/" .. tostring(FileName) " \27[0m ")
   	else
     	fileContent  =  string.gsub(fileContent, pattern1, "")

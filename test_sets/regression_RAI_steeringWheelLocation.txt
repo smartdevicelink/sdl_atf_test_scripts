@@ -1,0 +1,2 @@
+./test_scripts/API/IsReady/UI_IsReady/ATF_UI_IsReady_available_false_RAI.lua
+./test_scripts/API/IsReady/UI_IsReady/ATF_UI_IsReady_missing_RAI.lua
