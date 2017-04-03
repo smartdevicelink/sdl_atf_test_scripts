@@ -1168,4 +1168,27 @@ function testCasesForPolicyTable:AddApplicationToPTJsonFile(basic_file, new_pt_f
   new_ptu:close()
 end
 
+function testCasesForPolicyTable.Update_preloaded_pt_removeRC()
+  commonPreconditions:BackupFile("sdl_preloaded_pt.json")
+  local config_path = commonPreconditions:GetPathToSDL()
+
+  local pathToFile = config_path .. 'sdl_preloaded_pt.json'
+  local file = io.open(pathToFile, "r")
+  local json_data = file:read("*all")
+  file:close()
+
+  local data = json.decode(json_data)
+  if(data.policy_table.functional_groupings["DataConsent-2"]) then
+    data.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  end
+
+  --RC data
+  data.policy_table.module_config.equipment = nil
+  data.policy_table.module_config.country_consent_passengersRC = nil
+
+  file = io.open(config_path .. 'sdl_preloaded_pt.json', "w")
+  file:write(json.encode(data))
+  file:close()
+end
+
 return testCasesForPolicyTable
