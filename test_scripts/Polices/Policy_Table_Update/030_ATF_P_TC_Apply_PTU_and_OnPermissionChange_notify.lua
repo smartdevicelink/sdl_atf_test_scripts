@@ -119,25 +119,21 @@ end
 
 function Test:ActivateAppInFull()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID,"FULL")
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
 end
 
 function Test:UpdatePolicy_ExpectOnAppPermissionChangedWithAppID()
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function()
+  testCasesForPolicyTable:updatePolicyInDifferentSessions(Test, ptu_app_registered,
+    config.application1.registerAppInterfaceParams.appName, self.mobileSession)
 
-      testCasesForPolicyTable:updatePolicyInDifferentSessions(Test, ptu_app_registered,
-        config.application1.registerAppInterfaceParams.appName,
-        self.mobileSession)
-
-      EXPECT_NOTIFICATION("OnPermissionsChange")
-      :ValidIf(function (_, data)
-          if data.payload~=nil then
-            return true
-          else
-            print("OnPermissionsChange came without permissions")
-            return false
-          end
-        end)
+  EXPECT_NOTIFICATION("OnPermissionsChange")
+  :ValidIf(function (_, data)
+      if data.payload~=nil then
+        return true
+      else
+        print("OnPermissionsChange came without permissions")
+        return false
+      end
     end)
 end
 

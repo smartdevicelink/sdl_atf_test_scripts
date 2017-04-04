@@ -98,7 +98,8 @@ local function activate_app(self, id)
 end
 
 local function deactivate_app(self, id)
-  self.hmiConnection:SendNotification("BasicCommunication.OnAppDeactivated", { appID = get_app_hmi_id(self, id)})
+  --self.hmiConnection:SendNotification("BasicCommunication.OnAppDeactivated", { appID = get_app_hmi_id(self, id)})
+  self.hmiConnection:SendNotification("BasicCommunication.OnAppDeactivated", {appID = get_app_hmi_id(self, id), reason = "GENERAL"})
 end
 
 local function register_OnHMIStatus(self, id)
