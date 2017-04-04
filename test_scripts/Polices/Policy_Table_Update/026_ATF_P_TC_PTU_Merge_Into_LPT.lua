@@ -27,6 +27,7 @@ local json = require("modules/json")
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 
 --[[ Local Variables ]]
@@ -59,7 +60,31 @@ local function is_table_equal(t1, t2)
   return true
 end
 
+local function update_preloaded_pt_removeRC()
+  commonPreconditions:BackupFile("sdl_preloaded_pt.json")
+  local config_path = commonPreconditions:GetPathToSDL()
+
+  local pathToFile = config_path .. 'sdl_preloaded_pt.json'
+  local file = io.open(pathToFile, "r")
+  local json_data = file:read("*all")
+  file:close()
+
+  local data = json.decode(json_data)
+  if(data.policy_table.functional_groupings["DataConsent-2"]) then
+    data.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  end
+
+  --RC data
+  data.policy_table.module_config.equipment = nil
+  data.policy_table.module_config.country_consent_passengersRC = nil
+
+  file = io.open(config_path .. 'sdl_preloaded_pt.json', "w")
+  file:write(json.encode(data))
+  file:close()
+end
+
 --[[ General Precondition before ATF start ]]
+update_preloaded_pt_removeRC()
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
 commonSteps:DeleteLogsFileAndPolicyTable()
 
@@ -82,24 +107,24 @@ function Test:TestStep_PTU()
 
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)
-    self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_name})
+      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_name})
 
-    EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
-    :Do(function(_, _)
-      local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_name},
-        ptu_file)
-      EXPECT_HMICALL("BasicCommunication.SystemRequest")
-      :Do(function(_, data)
-        self.hmiConnection:SendResponse(data.id, "BasicCommunication.SystemRequest", "SUCCESS", {})
-        self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", {policyfile = policy_file_path .. "/" .. policy_file_name})
-      end)
-      EXPECT_RESPONSE(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
-      :Do(function(_,_)
-        local requestId1 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"StatusUpToDate"}})
-        EXPECT_HMIRESPONSE(requestId1)
-      end)
+      EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
+      :Do(function(_, _)
+          local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_name},
+            ptu_file)
+          EXPECT_HMICALL("BasicCommunication.SystemRequest")
+          :Do(function(_, data)
+              self.hmiConnection:SendResponse(data.id, "BasicCommunication.SystemRequest", "SUCCESS", {})
+              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", {policyfile = policy_file_path .. "/" .. policy_file_name})
+            end)
+          EXPECT_RESPONSE(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+          :Do(function(_,_)
+              local requestId1 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"StatusUpToDate"}})
+              EXPECT_HMIRESPONSE(requestId1)
+            end)
+        end)
     end)
-  end)
 
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
     {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
@@ -125,8 +150,8 @@ function Test:TestStep_RegisterNewApp()
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 function Test:TestStep_ValidateResult()
@@ -160,6 +185,11 @@ end
 
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")
+
+function Test.Postcondition_Restore_files()
+  commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
+end
+
 function Test.Postcondition_Stop()
   StopSDL()
 end
