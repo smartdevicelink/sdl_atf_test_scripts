@@ -1,1 +1,5 @@
 ./test_scripts/Polices/Policy_Table_Update/030_ATF_P_TC_Apply_PTU_and_OnPermissionChange_notify.lua
+./test_scripts/Polices/Policy_Table_Update/003_ATF_P_TC_PTU_NotSuccessful_AppID_ListedPT_NewIgnCycle.lua
+./test_scripts/Polices/Policy_Table_Update/026_ATF_P_TC_PTU_Merge_Into_LPT.lua
+./test_scripts/Polices/Policy_Table_Update/028_ATF_P_TC_HMILvl_on_PTU_affected_in_BACKGROUND_or_NONE.lua
+./test_scripts/Polices/Policy_Table_Update/029_ATF_P_Policy_Table_Update_Trigger_After_N_Days.lua
