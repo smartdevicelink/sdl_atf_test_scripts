@@ -1,0 +1,1 @@
+./test_scripts/Polices/Policy_Table_Update/030_ATF_P_TC_Apply_PTU_and_OnPermissionChange_notify.lua
