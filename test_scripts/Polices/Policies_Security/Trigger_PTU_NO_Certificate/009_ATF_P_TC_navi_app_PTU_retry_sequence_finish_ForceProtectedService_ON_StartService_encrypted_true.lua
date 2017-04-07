@@ -101,7 +101,8 @@ function Test.Precondition_PolicyTableUpdate_retry_sequence_elapse()
   :Timeout(time_wait)
   :Do(function(exp, data) print("exp: ".. exp.occurences) print("data = "..data.params.status)end)
 
-  commonTestCases:DelayedExp(time_wait)
+  --TODO(istoimenova): Update when "SDL sends only one OnStatusUpdate message on every retry in retry sequence" is fixed
+  commonTestCases:DelayedExp(10*60*1000)
 end
 
 --[[ Test ]]

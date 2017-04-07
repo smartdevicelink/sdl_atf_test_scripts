@@ -143,6 +143,8 @@ function Test:TestStep_PolicyTableUpdate_retry_sequence_finish()
       end
     end)
 
+  --TODO(istoimenova): Update when "SDL sends only one OnStatusUpdate message on every retry in retry sequence" is fixed
+  commonTestCases:DelayedExp(10*60*1000)
 end
 
 --[[ Postconditions ]]
