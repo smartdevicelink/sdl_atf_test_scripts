@@ -111,12 +111,8 @@ Test[TEST_NAME_ON .. "Precondition_HMI_sends_OnAppPermissionConsent"] = function
       externalConsentStatus = {{entityType = 2, entityID = 5, status = "ON"}},
       consentedFunctions = {{name = "ConsentGroup001", id = id_group_1, allowed = false}}
     })
-  self.mobileSession:ExpectNotification("OnPermissionsChange")
-  :ValidIf(function(_,data)
-      local validate_result = common_functions_external_consent:ValidateHMIPermissions(data,
-        "SubscribeWayPoints", {allowed = {"BACKGROUND","FULL","LIMITED"}, userDisallowed = {}})
-      return validate_result
-    end)
+  self.mobileSession:ExpectNotification("OnPermissionsChange"):Times(1)
+  common_functions:DelayedExp(10000)
 end
 
 --------------------------------------------------------------------------
