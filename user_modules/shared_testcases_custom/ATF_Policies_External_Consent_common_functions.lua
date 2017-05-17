@@ -3,6 +3,7 @@
 ------------------------------------------------------------------------------------------------------
 require('user_modules/all_common_modules')
 local policy_table = require('user_modules/shared_testcases_custom/testCasesForPolicyTable')
+local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 ------------------------------------------------------------------------------------------------------
 ---------------------------------------Common Variables-----------------------------------------------
 ------------------------------------------------------------------------------------------------------
@@ -23,6 +24,7 @@ function external_consent_common_functions:PreconditonSteps(mobile_connection_na
   -- delete sdl_snapshot
   os.execute( "rm -f /tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" )
   -- delete app_info.dat, SmartDeviceLinkCore.log, TransportManager.log, ProtocolFordHandling.log, HmiFrameworkPlugin.log and policy.sqlite
+  testCasesForPolicyTable.Update_preloaded_pt_removeRC()
   common_functions:DeleteLogsFileAndPolicyTable()
   common_steps:PreconditionSteps("Start_SDL_and_Add_Mobile_Connection", 4)
   -- register and activate first application (appID = "0000001")
