@@ -145,19 +145,15 @@ def prepare_test_run(rewrite=False):
     """
     with open_dir(config.test_run_dir, rewrite):
         run("cp -r {} {}".format(config.atf_build_dir +
+                                 "bin/", config.test_run_dir))
+        run("cp -r {} {}".format(config.atf_build_dir +
                                  "modules/", config.test_run_dir))
         run("cp -r {} {}".format(config.atf_build_dir +
                                  "data/", config.test_run_dir))
         run("cp -r {} {}".format(config.atf_build_dir +
-                                 "StartSDL.sh", config.test_run_dir))
-        run("cp -r {} {}".format(config.atf_build_dir +
-                                 "StopSDL.sh", config.test_run_dir))
-        run("cp -r {} {}".format(config.atf_build_dir +
-                                 "WaitClosingSocket.sh", config.test_run_dir))
+                                 "tools/", config.test_run_dir))
         run("cp -r {} {}".format(config.atf_build_dir +
                                  "start.sh", config.test_run_dir))
-        run("cp -r {} {}".format(config.atf_build_dir +
-                                 "interp", config.test_run_dir))
         run("cp -r {} {}".format(config.scripts_clone_dir +
                                  "/*", config.test_run_dir))
         run("cp -r {} {}".format(config.sdl_build_dir + "bin",

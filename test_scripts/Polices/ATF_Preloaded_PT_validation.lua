@@ -12,7 +12,7 @@ local file_connection  = require('file_connection')
 local mobile  = require('mobile_connection')
 local config = require('config')
 local json = require("modules/json")
-
+local SDL = require('SDL')
 ---------------------------------------------------------------------------------------------
 --------------------------------Required Shared Libraries------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -51,6 +51,23 @@ end
 --User output
 local function userPrint( color, message)
   print ("\27[" .. tostring(color) .. "m " .. tostring(message) .. " \27[0m")
+end
+
+local function WaitForStopSDL(self)
+  local status = SDL:CheckStatusSDL()
+  local timer =0
+  while status == SDL.RUNNING and timer < 10 do
+    sleep(1)
+    timer = timer+1
+    status = SDL:CheckStatusSDL()
+  end
+  status = SDL:CheckStatusSDL()
+  if status == SDL.RUNNING then
+    self:FailTestCase("SDL didn't finish correctly")
+    StopSDL()
+  else    
+    userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL stops successfully")
+  end
 end
 
 --Backup preloaded file
@@ -629,6 +646,7 @@ commonSteps:ActivationApp()
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
+				WaitForStopSDL(self)
 			end
 
 		--Start Postcondition to case7.
@@ -638,9 +656,11 @@ commonSteps:ActivationApp()
 		  		RestorePreloadedPT()
 		   	end
 
-			function Test:StartSDLWithDeviceInPT()
+
+
+			function Test:StartSDLWithDeviceInPT()				
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
-				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully:")
+  				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case7.
 
@@ -685,6 +705,7 @@ commonSteps:ActivationApp()
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
+				WaitForStopSDL(self)
 			end
  		
 		--Start Postcondition to case8.
@@ -694,9 +715,9 @@ commonSteps:ActivationApp()
 		  		RestorePreloadedPT()
 		   	end
 
-			function Test:StartSDLWithDeviceInPT()
+			function Test:StartSDLWithDeviceInPT()				
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
-				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully:")
+  				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case8.
 	-- End Negative case8.
@@ -742,6 +763,7 @@ commonSteps:ActivationApp()
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
+				WaitForStopSDL(self)
 			end
 	
 		--Start Postcondition to case9.
@@ -750,9 +772,9 @@ commonSteps:ActivationApp()
 		  		RestorePreloadedPT()
 		    	end   
 
-			function Test:StartSDLWithPreDataInPT()
+			function Test:StartSDLWithPreDataInPT()				
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
-				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully:")
+  				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case9.
 	-- End Negative case9.
@@ -796,6 +818,7 @@ commonSteps:ActivationApp()
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
+				WaitForStopSDL(self)
 			end
  		
 		--Start Postcondition to case10.
@@ -806,7 +829,7 @@ commonSteps:ActivationApp()
 
 			function Test:StartSDLWithDeviceInPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
-				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully:")
+  				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case10.
 	-- End Negative case10.
@@ -852,6 +875,7 @@ commonSteps:ActivationApp()
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
+				WaitForStopSDL(self)
 			end
 	
 		--Start Postcondition to case11.
@@ -860,9 +884,9 @@ commonSteps:ActivationApp()
 		  		RestorePreloadedPT()
 		  	end   
 
-			function Test:StartSDLWithDeviceAndPreDataInPT()
+			function Test:StartSDLWithDeviceAndPreDataInPT()				
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
-				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully:")
+  				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case11.
 	-- End Negative case11.
@@ -908,6 +932,7 @@ commonSteps:ActivationApp()
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
+				WaitForStopSDL(self)
 			end
  
 		--Start Postcondition to case12.
@@ -916,9 +941,9 @@ commonSteps:ActivationApp()
 		  		RestorePreloadedPT()
 		 	end
 
-			function Test:StartSDLWithDeviceInPT()
+			function Test:StartSDLWithDeviceInPT()				
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
-				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully:")
+  				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case12.
 	-- End Negative case12.
