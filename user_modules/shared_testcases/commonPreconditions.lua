@@ -114,6 +114,12 @@ function Preconditions:RestoreFile(FileName)
   os.execute( " rm -f " .. Preconditions:GetPathToSDL() .. FileName .. "_origin" )
 end
 
+
+-- replace origin of file with new one
+function Preconditions:ReplaceFile(originalFile, newFile)
+  os.execute(" cp " .. newFile .. " " .. config.pathToSDL .. originalFile)
+end
+
 --------------------------------------------------------------------------------------------------------
 -- Updating user connect test: removing from start app registration and remove closing script after SDL disconnect
 function Preconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnectionRegisterApp(FileName)

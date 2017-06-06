@@ -1,0 +1,6 @@
+;./test_scripts/RC/REVSDL-1038/08_REVSDL-1038.lua
+./test_scripts/RC/REVSDL-831/01_REVSDL-831.lua
+./test_scripts/RC/REVSDL-966/01_REVSDL-966.lua
+;./test_scripts/RC/REVSDL-846/04_REVSDL-846.lua
+./test_scripts/RC/REVSDL-966/02.01_REVSDL-966.lua
+;./test_scripts/RC/REVSDL-966/05_REVSDL-966.lua
