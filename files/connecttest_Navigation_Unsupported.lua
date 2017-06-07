@@ -45,10 +45,10 @@ function module.hmiConnection:EXPECT_HMIRESPONSE(id, args)
         results_args = arguments.result
         results_args2 = arguments.result
       end
-      if results_args2 and results_args2.code then 
+      if results_args2 and results_args2.code then
           results_args2 = table.removeKey(results_args2, 'code')
       end
-      if results_args2 and results_args2.method then 
+      if results_args2 and results_args2.method then
           results_args2 = table.removeKey(results_args2, 'method')
       end
       if func_name == nil and type(data.result) == 'table' then
@@ -63,7 +63,7 @@ function module.hmiConnection:EXPECT_HMIRESPONSE(id, args)
         return _res,_err
       end
       if func_name and results_args and data.result then
-        return compareValues( data.result, results_args, "result")                              
+        return compareValues( data.result, results_args, "result")
       else
         return compareValues(results_args, data.params, "params")
       end
@@ -139,11 +139,11 @@ function EXPECT_NOTIFICATION(func,...)
 --  xmlReporter.AddMessage(debug.getinfo(1, "n").name, "EXPECTED_RESULT", ... )
    local args = table.pack(...)
    local args_count = 1
-   if #args > 0 then 
+   if #args > 0 then
        local arguments = {}
        if #args > 1 then
-           for args_count = 1, #args do 
-              if(type( args[args_count])) == 'table' then 
+           for args_count = 1, #args do
+              if(type( args[args_count])) == 'table' then
                     table.insert(arguments, args[args_count])
               end
            end
@@ -153,7 +153,7 @@ function EXPECT_NOTIFICATION(func,...)
         arguments["notifyId"] = module.notification_counter
         module.notification_counter = module.notification_counter + 1
         return module.mobileSession:ExpectNotification(func,arguments)
-    end    
+    end
     return module.mobileSession:ExpectNotification(func,args)
 
 end
@@ -425,7 +425,6 @@ function module:runSDL()
           trim = "SE"
         }
       })
-    ExpectRequest("VehicleInfo.GetVehicleData", true, { vin = "52-452-52-752" })
 
     local function button_capability(name, shortPressAvailable, longPressAvailable, upDownAvailable)
       xmlReporter.AddMessage(debug.getinfo(1, "n").name, tostring(name))

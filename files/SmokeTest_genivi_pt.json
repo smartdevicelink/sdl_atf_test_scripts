@@ -2252,8 +2252,8 @@
         },
         "app_policies": {
             "default": {
-                "keep_context": false,
-                "steal_focus": false,
+                "keep_context": true,
+                "steal_focus": true,
                 "priority": "NONE",
                 "default_hmi": "NONE",
                 "groups": ["Base-4","Navigation-1","DrivingCharacteristics-3", "Location-1", "VehicleInfo-3", "Emergency-1", "PropriataryData-1", "SendLocation"]

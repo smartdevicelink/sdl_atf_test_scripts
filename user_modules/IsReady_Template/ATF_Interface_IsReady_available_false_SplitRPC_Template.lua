@@ -2,7 +2,7 @@
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-config.SDLStoragePath = config.pathToSDL .. "storage/"
+
 ---------------------------------------------------------------------------------------------
 ---------------------------- Required Shared libraries --------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 	local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 	local commonPreconditions = require ('/user_modules/shared_testcases/commonPreconditions')
 	local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
-		
+	config.SDLStoragePath = commonPreconditions:GetPathToSDL() .. "storage/"
 	DefaultTimeout = 3
 	local iTimeout = 3000
 
@@ -567,10 +567,10 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 										else
 											-- self.hmiConnection:SendError(data.id, data.method, TestData[i].resultCode, TestData[i].info)
 											-- Use Send() function because it is required to verify resultCode is invalid (not in [0, 25])
-											if TestData[i].info == nil then													
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'.. data.method.. '","code":'..TestData[i].value..'}}')													
+											if TestData[i].info == nil then									
+												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"code":'..tostring(TestData[i].value)..'}}')				
 											else													
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'.. data.method.. '","code":'..TestData[i].value..', "message":"'.. TestData[i].info .. '"}}')
+												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"message":"'.. TestData[i].info .. '","code":'..tostring(TestData[i].value)..'}}')
 											end
 										end
 									end)
@@ -617,9 +617,9 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 														-- self.hmiConnection:SendError(data.id, data.method, TestData[i].resultCode, TestData[i].info)
 														-- Use Send() function because it is required to verify resultCode is invalid (not in [0, 25])
 														if TestData[i].info == nil then													
-															self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'.. data.method.. '","code":'..TestData[i].value..'}}')													
+															self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"code":'..tostring(TestData[i].value)..'}}')
 														else													
-															self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'.. data.method.. '","code":'..TestData[i].value..', "message":"'.. TestData[i].info .. '"}}')
+															self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"message":"'.. TestData[i].info .. '","code":'..tostring(TestData[i].value)..'}}')
 														end
 													end
 												end)	
@@ -639,9 +639,9 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 											--self.hmiConnection:SendError(data.id, data.method, TestData[i].resultCode, TestData[i].info)
 											-- Use Send() function because it is required to verify resultCode is invalid (not in [0, 25])
 											if TestData[i].info == nil then													
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'.. data.method.. '","code":'..TestData[i].value..'}}')													
+												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"code":'..tostring(TestData[i].value)..'}}')
 											else													
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'.. data.method.. '","code":'..TestData[i].value..', "message":"'.. TestData[i].info .. '"}}')
+												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"message":"'.. TestData[i].info .. '","code":'..tostring(TestData[i].value)..'}}')
 											end
 											
 											
@@ -684,6 +684,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 												return true
 											end
 										else
+											if(mob_request.name == "ChangeRegistration") then TestData[i].info = "Error message, Error message" end
 											-- APPLINK-26900  SDL receives errorCode and with error message from other interface, SDL responds to mobile with info = error message from other interface
 											if data.payload.info ~= TestData[i].info then
 												if (data.payload.info ~= nil) then 
@@ -760,10 +761,8 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 		commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
 	end
 
-	Test["ForceKill"] = function (self)
-		print("------------------ Postconditions ---------------------------")
-		os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
-		os.execute("sleep 1")
+	function Test.Postcondition_StopSDL()
+	  StopSDL()
 	end
 
 return Test

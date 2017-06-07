@@ -169,10 +169,12 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     { name = "app_policies.default.moduleType.1", elem_required = "optional"},
     { name = "app_policies.default.moduleType.2", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.memory_kb", elem_required = "optional"},
+    { name = "app_policies.pre_consent_passengersRC.heart_beat_timeout_ms", elem_required = "optional"},
+    { name = "app_policies.pre_consent_passengersRC.RequestType", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.certificate", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.priority", elem_required = "optional"},
-    { name = "app_policies.pre_consent_passengersRC.groups.1", elem_required = "optional"}
-    --
+    { name = "app_policies.pre_consent_passengersRC.groups.1", elem_required = "optional"},
+    { name = "app_policies.pre_consent_passengersRC.AppHMIType.1", elem_required = "optional"}
   }
 
   if(flag ~= "PROPRIETARY" and flag ~= "HTTP") then
@@ -575,11 +577,10 @@ function testCasesForPolicyTableSnapshot:get_data_from_PTS(pts_element)
     end
   end
   if(is_found == false) then
-    print(" \27[31m Element "..pts_element.." is not found in PTS! \27[0m")
+    print(" \27[33m Element "..pts_element.." is not found in PTS! \27[0m")
   end
   if (value == nil) then
-    print(" \27[31m Value of "..pts_element.." is nil \27[0m")
-    value = 0
+    print(" \27[33m Value of "..pts_element.." is nil \27[0m")
   end
 
   return value

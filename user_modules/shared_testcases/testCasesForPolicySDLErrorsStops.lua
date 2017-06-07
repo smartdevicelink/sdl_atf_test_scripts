@@ -2,14 +2,38 @@ local testCasesForPolicySDLErrorsStops = {}
 local json = require("modules/json")
 local SDL = require('modules/SDL')
 local commonTestCases =  require ('user_modules/shared_testcases/commonTestCases')
-local commonFunctions =  require ('user_modules/shared_testcases/commonFunctions')
+local commonPreconditions =  require ('user_modules/shared_testcases/commonPreconditions')
 
---The function will check if 'message' is printed in SmartDeviceLinkCore.log
--- should return:
---               true if 'message' is found
---               false if 'message' is not found
-function testCasesForPolicySDLErrorsStops.ReadSpecificMessage(message)
-  return commonFunctions:read_specific_message(config.pathToSDL.."/SmartDeviceLinkCore.log", message)
+--[[@GetCountOfRows: Get count of rows in SmartDeviceLinkCore.log file
+--! @parameters: NO
+--]]
+function testCasesForPolicySDLErrorsStops.GetCountOfRows()
+  local fileName = commonPreconditions:GetPathToSDL() .. "SmartDeviceLinkCore.log"
+  local i = 0
+  for _ in io.lines(fileName) do
+    i = i + 1
+  end
+  return i
+end
+
+--[[@ReadSpecificMessage: Check if 'message' is printed in SmartDeviceLinkCore.log file
+--! @parameters:
+--! message - string that has to be found
+--! startLine - line in file starting from wich search will be performed (optional)
+--]]
+function testCasesForPolicySDLErrorsStops.ReadSpecificMessage(message, startLine)
+  local fileName = commonPreconditions:GetPathToSDL() .. "SmartDeviceLinkCore.log"
+  if not startLine then
+    startLine = 1
+  end
+  local n = 1
+  for l in io.lines(fileName) do
+    if n >= startLine and string.find(l, message) ~= nil then
+      return true
+    end
+    n = n + 1
+  end
+  return false
 end
 
 --The function will corrupt specific 'section' with data 'specificParameters'

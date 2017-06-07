@@ -2300,7 +2300,8 @@
         "RequestType":[
         	"PROPRIETARY",
         	"HTTP",
-        	"QUERY_APPS"
+        	"QUERY_APPS",
+          "LOCK_SCREEN_ICON_URL"
         ]
       },
       "device": {

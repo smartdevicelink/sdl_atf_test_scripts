@@ -3,9 +3,9 @@ local interfaces = { }
 -- APPLINK-29356: Can you clarify is there a priority from where SDL should take capabilities params when HMI does not reply to <Interface>.IsReady
 -- APPLINK-29351: Expected error message for Navigation Interface
 
-
+local commonPreconditions = require ('/user_modules/shared_testcases/commonPreconditions')
 -- Read paramaters from hmi_capabilities.json
-local HmiCapabilities_file = config.pathToSDL .. "hmi_capabilities.json"
+local HmiCapabilities_file = commonPreconditions:GetPathToSDL() .. "hmi_capabilities.json"
 f = assert(io.open(HmiCapabilities_file, "r"))
 fileContent = f:read("*all")
 f:close()
@@ -133,6 +133,7 @@ interfaces.RAI = {
                                   hmiCapabilities = { 
                                                         navigation = false,
                                                         phoneCall  = false,
+                                                        steeringWheelLocation = "CENTER"
                                                       }
                                 }
 

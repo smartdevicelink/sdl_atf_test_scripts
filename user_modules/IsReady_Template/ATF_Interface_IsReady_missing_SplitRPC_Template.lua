@@ -22,7 +22,7 @@
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-config.SDLStoragePath = config.pathToSDL .. "storage/"
+
 
 ---------------------------------------------------------------------------------------------
 ---------------------------- Required Shared libraries --------------------------------------
@@ -36,7 +36,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 	DefaultTimeout = 3
 	local iTimeout = 2000
 	local commonPreconditions = require ('/user_modules/shared_testcases/commonPreconditions')
-
+	config.SDLStoragePath = commonPreconditions:GetPathToSDL() .. "storage/"
 
 ---------------------------------------------------------------------------------------------
 ------------------------- General Precondition before ATF start -----------------------------
@@ -372,7 +372,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 															self.hmiConnection:SendResponse(data.id, data.method, TestData[i].resultCode, {})
 														else
 															--self.hmiConnection:SendError(data.id, data.method, TestData[i].resultCode, "error message")
-															self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","code":'..TestData[i].value..'}}')	
+															self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"code":'..tostring(TestData[i].value)..'}}')
 														end						
 													end
 												end)
@@ -685,11 +685,6 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 										end)
 								end
 								local hmi_info = "error message"
-								
-								-- APPLINK-16277
-								if(mob_request.name == "PerformInteraction") then
-									hmi_info = "Unsupported phoneme type was sent in an item"
-								end
 
 								if (hmi_method_call == "TTS.StopSpeaking") then
 									--mobile side: expect mobile response
@@ -953,7 +948,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 											:Do(function(_,data)
 												--hmi side: sending UI.AddCommand response
 												--self.hmiConnection:SendError(data.id, data.method, TestData[i].resultCode, "error message 2")
-												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"'..data.method..'","message":"error message 2","code":'..tostring(TestData[i].value)..'}}')
+												self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"message":"error message 2","code":'..tostring(TestData[i].value)..'}}')
 											end)
 								 		end -- if (local_rpc == hmi_call.name) then
 								 	end --for cnt_rpc = 1, #NotTestedInterfaces[cnt].usedRPC do
@@ -968,7 +963,7 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 										self.hmiConnection:SendNotification("TTS.Started")
 										SpeakId = data.id
 										local function speakResponse()
-											self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","result":{"method":"TTS.Speak","code":'..TestData[i].value..'}}')
+											self.hmiConnection:Send('{"id":'..tostring(data.id)..',"jsonrpc":"2.0","error":{"data":{"method":"'..data.method..'"},"code":'..tostring(TestData[i].value)..'}}')
 											--self.hmiConnection:SendError(SpeakId, "TTS.Speak", TestData[i].resultCode, { })
 											self.hmiConnection:SendNotification("TTS.Stopped")
 										end
@@ -1109,10 +1104,8 @@ config.SDLStoragePath = config.pathToSDL .. "storage/"
 		commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
 	end
 
-	Test["ForceKill"] = function (self)
-		print("------------------------ Positions --------------------------")
-		os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
-		os.execute("sleep 1")
+	function Test.Postcondition_Stop()
+	  StopSDL()
 	end
 
 return Test
