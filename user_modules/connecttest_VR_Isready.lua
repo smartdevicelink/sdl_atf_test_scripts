@@ -196,7 +196,7 @@ function RUN_AFTER(func, timeout, funcName)
   if funcName then
     func_name_str = funcName
   end
-  xmlReporter.AddMessage(debug.getinfo(1, "n").name, func_name_str, 
+  xmlReporter.AddMessage(debug.getinfo(1, "n").name, func_name_str,
     {["functionLine"] = debug.getinfo(func, "S").linedefined, ["Timeout"] = tostring(timeout)})
   local d = qt.dynamic()
   d.timeout = function(self)
@@ -314,7 +314,6 @@ function module:runSDL()
   end
   local result, errmsg = SDL:StartSDL(config.pathToSDL, config.SDL, config.ExitOnCrash)
   if not result then
-    SDL:DeleteFile()
     quit(1)
   end
   SDL.autoStarted = true
@@ -369,7 +368,7 @@ end
 
 function module:initHMI_onReady()
   local function ExpectRequest(name, mandatory, params)
-  
+
 	local event = events.Event()
 	event.level = 2
 	event.matches = function(self, data) return data.method == name end
@@ -383,21 +382,21 @@ function module:initHMI_onReady()
 			["mandatory"] = mandatory ,
 			["params"]= params
 		  })
-		  
+
 		if (name == "VR.IsReady") then
-			
+
 			--ToDo: Change VR.IsReady response here to debug script
 			--Response available = false
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { available = false }) 
-			
+			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { available = false })
+
 
 		else
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", params) 			
-		end  
-		
+			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", params)
+		end
+
 	  end)
 
-	
+
   end
 
   ExpectRequest("BasicCommunication.MixingAudioSupported",
@@ -412,7 +411,7 @@ function module:initHMI_onReady()
   ExpectRequest("UI.GetLanguage", true, { language = "EN-US" })
   ExpectRequest("VR.GetLanguage", true, { language = "EN-US" })
   :Times(0)
-  
+
   ExpectRequest("TTS.GetLanguage", true, { language = "EN-US" })
   ExpectRequest("UI.ChangeRegistration", false, { }):Pin()
   ExpectRequest("TTS.SetGlobalProperties", false, { }):Pin()
@@ -427,7 +426,7 @@ function module:initHMI_onReady()
         "NO-NO","NL-BE","EL-GR","HU-HU","FI-FI","SK-SK" }
     })
 	:Times(0)
-	
+
   ExpectRequest("TTS.GetSupportedLanguages", true, {
       languages = {
         "EN-US","ES-MX","FR-CA","DE-DE","ES-ES","EN-GB","RU-RU",
@@ -488,7 +487,7 @@ function module:initHMI_onReady()
   ExpectRequest("Buttons.GetCapabilities", true, buttons_capabilities)
   ExpectRequest("VR.GetCapabilities", true, { vrCapabilities = { "TEXT" } })
   :Times(0)
-  
+
   ExpectRequest("TTS.GetCapabilities", true, {
       speechCapabilities = { "TEXT", "PRE_RECORDED" },
       prerecordedSpeechCapabilities =
@@ -660,11 +659,11 @@ function module:startSession()
     -- self.mobileConnection,
     -- config.application1.registerAppInterfaceParams)
   -- self.mobileSession:Start()
-  
+
   self.mobileSession= mobile_session.MobileSession(self, self.mobileConnection)
 				self.mobileSession:StartService(7)
-				
-				
+
+
   -- EXPECT_HMICALL("BasicCommunication.UpdateAppList")
   -- :Do(function(_, data)
       -- self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })

@@ -2299,7 +2299,8 @@
         "RequestType":[
         	"PROPRIETARY",
         	"HTTP",
-        	"QUERY_APPS"
+        	"QUERY_APPS",
+          "LOCK_SCREEN_ICON_URL"
         ]
       },
       "device": {
@@ -2320,7 +2321,8 @@
           "BaseBeforeDataConsent"
         ],
         "RequestType":[
-        	"PROPRIETARY"
+        	"PROPRIETARY",
+          "LOCK_SCREEN_ICON_URL"
         ]
       },
       "123456": {
@@ -2335,7 +2337,8 @@
           "TRAFFIC_MESSAGE_CHANNEL",
           "PROPRIETARY",
           "HTTP",
-          "QUERY_APPS"
+          "QUERY_APPS",
+          "LOCK_SCREEN_ICON_URL"
         ]
       }
     }

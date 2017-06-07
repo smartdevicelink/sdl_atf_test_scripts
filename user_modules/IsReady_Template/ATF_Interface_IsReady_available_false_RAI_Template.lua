@@ -18,7 +18,7 @@ local testCasesForPolicyTable = require('user_modules/shared_testcases/testCases
 
 config.defaultProtocolVersion = 2
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-config.SDLStoragePath = config.pathToSDL .. "storage/"
+config.SDLStoragePath = commonPreconditions:GetPathToSDL() .. "storage/"
 local isReady = require('user_modules/IsReady_Template/isReady')
 
 DefaultTimeout = 3
@@ -31,7 +31,7 @@ local iTimeout = 2000
 ---------------------------------------------------------------------------------------------
 
 local function update_sdl_preloaded_pt_json_allow_All_Related_RPCs()
-	pathToFile = config.pathToSDL .. 'sdl_preloaded_pt.json'
+	pathToFile = commonPreconditions:GetPathToSDL() .. 'sdl_preloaded_pt.json'
 	local file = io.open(pathToFile, "r")
 	local json_data = file:read("*all") -- may be abbreviated to "*a";
 	file:close()
@@ -70,7 +70,7 @@ function StopStartSDL_HMI_MOBILE_VR_TTS(self)
 	--Start SDL
 	Test["Precondition_StartSDL_VR_TTS_available_false"] = function(self)
 
-		StartSDL(config.pathToSDL, config.ExitOnCrash)
+		StartSDL(commonPreconditions:GetPathToSDL(), config.ExitOnCrash)
 	end
 			
 	--InitHMI
@@ -314,12 +314,12 @@ function StopStartSDL_HMI_MOBILE_VR_TTS(self)
 	      },
 	      hmiZoneCapabilities = "FRONT",
 	      softButtonCapabilities =
-	      {
+	      {{
 	        shortPressAvailable = true,
 	        longPressAvailable = true,
 	        upDownAvailable = true,
 	        imageSupported = true
-	      }
+	      }}
 	    })
 
 	  	ExpectRequest("VR.IsReady", true, { available = false })
@@ -628,7 +628,7 @@ local function RAI_WARNINGS()
 	commonFunctions:newTestCasesGroup("Verify RAI: resultCode WARNINGS")
 	
 	local function update_sdl_preloaded_pt_json()
-		pathToFile = config.pathToSDL .. 'sdl_preloaded_pt.json'
+		pathToFile = commonPreconditions:GetPathToSDL() .. 'sdl_preloaded_pt.json'
 		local file = io.open(pathToFile, "r")
 		local json_data = file:read("*all") -- may be abbreviated to "*a";
 		file:close()
@@ -1667,14 +1667,16 @@ end --if(TestedInterface ~= "NAVIGATION") then
 ----------------------------------------------------------------------------------------------
 -- Not applicable
 
-function Test:Postcondition_RestorePreloadedFile()
+--[[ Postconditions ]]
+commonFunctions:newTestCasesGroup("Postconditions")
+
+function Test.Postcondition_RestorePreloadedFile()
 	commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
 end
 
-Test["ForceKill" .. tostring(i)] = function (self)
-	print("------------------ Postconditions ---------------------------")
-	os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
-	os.execute("sleep 1")
+function Test.Postcondition_Stop()
+  StopSDL()
 end
+
 
 return Test

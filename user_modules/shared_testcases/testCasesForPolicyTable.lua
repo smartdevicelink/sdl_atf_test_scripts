@@ -902,9 +902,8 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
   if (ptu_file_name == nil) then ptu_file_name = "PolicyTableUpdate" end
   if (ptu_file == nil) then ptu_file = "ptu.json" end
   --[[Start get data from PTS]]
-  --TODO(istoimenova): function for reading INI file should be implemented
-  --local SystemFilesPath = commonSteps:get_data_from_SDL_ini("SystemFilesPath")
-  local SystemFilesPath = "/tmp/fs/mp/images/ivsu_cache/"
+  local SystemFilesPath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
+  local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
 
   -- Check SDL snapshot is created correctly and get needed data
   testCasesForPolicyTableSnapshot:verify_PTS(true, {app_id}, {device_id}, {hmi_app_id})
@@ -927,9 +926,12 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
   EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS", urls = endpoints} } )
   :Do(function(_,_)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-    { requestType = "PROPRIETARY", fileName = ptu_file_name})
+    { requestType = "PROPRIETARY", fileName = SystemFilesPath .. pts_file_name})
     EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
-    :Do(function()
+    :Do(function(_, d2)
+      if not (d2.binaryData ~= nil and string.len(d2.binaryData) > 0) then
+        self:FailTestCase("PTS was not sent to Mobile in payload of OnSystemRequest")
+      end
       local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {requestType = "PROPRIETARY", fileName = ptu_file_name, appID = app_id}, ptu_file_path..ptu_file)
       EXPECT_HMICALL("BasicCommunication.SystemRequest",{ requestType = "PROPRIETARY", fileName = SystemFilesPath..ptu_file_name })
       :Do(function(_,_data1)

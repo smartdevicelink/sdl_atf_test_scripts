@@ -257,7 +257,7 @@ end
 	end
 
 	commonPreconditions:BackupFile("sdl_preloaded_pt.json")
-	f = assert(io.open(config.pathToSDL.. "/sdl_preloaded_pt.json", "r"))
+	f = assert(io.open(commonPreconditions:GetPathToSDL().. "sdl_preloaded_pt.json", "r"))
 	fileContent = f:read("*all")
 
     DefaultContant = fileContent:match('"default".?:.?.?%{.-%}')
@@ -272,7 +272,7 @@ end
 	fileContent  =  string.gsub(fileContent, '".?default.?".?:.?.?%{.-%}', DefaultContant)
 
 
-	f = assert(io.open(config.pathToSDL.. "/sdl_preloaded_pt.json", "w+"))
+	f = assert(io.open(commonPreconditions:GetPathToSDL().. "sdl_preloaded_pt.json", "w+"))
 	
 	f:write(fileContent)
 	f:close()
@@ -733,9 +733,9 @@ end
 			        name = name,
 			        imageTypeSupported =
 			       	{
-			          {"GRAPHIC_BMP"},
-			          {"GRAPHIC_JPEG"},
-			          {"GRAPHIC_PNG"}
+			          "GRAPHIC_BMP",
+			          "GRAPHIC_JPEG",
+			          "GRAPHIC_PNG"
 			        },
 			        imageResolution =
 			        {
@@ -839,15 +839,16 @@ end
 											        hmiZoneCapabilities = "FRONT",
 											        hmiDisplayLanguage  = "EN-US",
 											        softButtonCapabilities =
-											        {
+											        {{
 											          shortPressAvailable = true,
 											          longPressAvailable = true,
 											          upDownAvailable = true,
 											          imageSupported = true
-											        },
+											        }},
 											        hmiCapabilities = { 
 											        					navigation = false,
 											        					phoneCall  = false,
+											        					steeringWheelLocation = "CENTER"
 											        				}
 											    }
 
@@ -1094,9 +1095,9 @@ end
 			        name = name,
 			        imageTypeSupported =
 			       	{
-			          {"GRAPHIC_BMP"},
-			          {"GRAPHIC_JPEG"},
-			          {"GRAPHIC_PNG"}
+			          "GRAPHIC_BMP",
+			          "GRAPHIC_JPEG",
+			          "GRAPHIC_PNG"
 			        },
 			        imageResolution =
 			        {
@@ -1200,15 +1201,16 @@ end
 											        hmiZoneCapabilities = "FRONT",
 											        hmiDisplayLanguage  = "EN-US",
 											        softButtonCapabilities =
-											        {
+											        {{
 											          shortPressAvailable = true,
 											          longPressAvailable = true,
 											          upDownAvailable = true,
 											          imageSupported = true
-											        },
+											        }},
 											        hmiCapabilities = { 
 											        					navigation = false,
 											        					phoneCall  = false,
+											        					steeringWheelLocation = "CENTER"
 											        				}
 											    }
 
@@ -1360,7 +1362,7 @@ end
 			--Start SDL
 			Test["Precondition_StartSDL_" ..tostring(TestCaseName) ] = function(self)
 
-				StartSDL(config.pathToSDL, config.ExitOnCrash)
+				StartSDL(commonPreconditions:GetPathToSDL(), config.ExitOnCrash)
 			end
 			
 			--InitHMI
@@ -1406,7 +1408,7 @@ end
 			--Start SDL
 			Test["Precondition_StartSDL_" ..tostring(TestCaseName) ] = function(self)
 
-				StartSDL(config.pathToSDL, config.ExitOnCrash)
+				StartSDL(commonPreconditions:GetPathToSDL(), config.ExitOnCrash)
 			end
 			
 			--InitHMI

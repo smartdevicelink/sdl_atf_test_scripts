@@ -1,139 +1,107 @@
----------------------------------------------------------------------------------------------
----------------------------- Required Shared libraries --------------------------------------
----------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+--[[ General configuration parameters ]]-------------------------------------------------------------------------------
+config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+
+--[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions') 
-local Policies = require('user_modules/shared_testcases/testCasesForPolicyTable') 
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local SDLConfig = require ('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 
----------------------------------------------------------------------------------------------
-------------------------- General Precondition before ATF start -----------------------------
----------------------------------------------------------------------------------------------
-
--- Precondition for SendLocation script execution: Because of APPLINK-17511 SDL defect hmi_capabilities.json need to be updated : added textfields locationName, locationDescription, addressLines, phoneNumber.
-commonPreconditions:SendLocationPreconditionUpdateHMICap()
-
--- TODO: Remove after implementation policy update
--- Precondition: remove policy table
+--[[ General Precondition before ATF start ]]--------------------------------------------------------------------------
+commonFunctions:SDLForceStop()
 commonSteps:DeletePolicyTable()
+commonSteps:DeleteLogsFiles()
+commonPreconditions:BackupFile("sdl_preloaded_pt.json")
+os.execute("cp -f files/SmokeTest_genivi_pt.json " .. commonPreconditions:GetPathToSDL() .. "sdl_preloaded_pt.json")
 
--- TODO: Remove after implementation policy update
--- Precondition: replace preloaded file with new one
-os.execute(  'cp files/SmokeTest_genivi_pt.json ' .. tostring(config.pathToSDL) .. "sdl_preloaded_pt.json")
-
----------------------------------------------------------------------------------------------
----------------------------- General Settings for configuration----------------------------
----------------------------------------------------------------------------------------------
-
+--[[ General Settings for configuration ]]-----------------------------------------------------------------------------
 Test = require('connecttest')
 require('cardinalities')
-local events = require('events')
 require('user_modules/AppTypes')
-local SDLConfig = require ('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
-config.SDLStoragePath = config.pathToSDL .. "storage/"
-config.sharedMemoryPath = ""
-local dif_fileType = {{typeV = "GRAPHIC_BMP", file = "files/PutFile/bmp_6kb.bmp" }, {typeV = "GRAPHIC_JPEG", file = "files/PutFile/jpeg_4kb.jpg" }, {typeV = "GRAPHIC_PNG", file = "files/PutFile/icon.png" }, {typeV = "AUDIO_WAVE", file = "files/PutFile/WAV_6kb.wav" }, {typeV = "AUDIO_MP3", file = "files/PutFile/MP3_123kb.mp3" }, {typeV = "AUDIO_AAC", file = "files/PutFile/Alarm.aac" }, {typeV = "BINARY", file = "files/PutFile/binaryFile" }, {typeV = "JSON", file = "files/PutFile/luxoftPT.json" }}
 
-local ButtonArray = {"OK","SEEKLEFT", "SEEKRIGHT", "TUNEUP", "TUNEDOWN", "PRESET_0", "PRESET_1", "PRESET_2", "PRESET_3", "PRESET_4", "PRESET_5", "PRESET_6", "PRESET_7", "PRESET_8", "PRESET_9"}
-
-
---------------------------------------------------------------------------------------------
------------------------------------- Common Variables ---------------------------------------
----------------------------------------------------------------------------------------------
-local imageValues = {"a", "icon.png", "qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=QWERTYUIOPASDFGHJKLZXCVBNM{}|?>:<qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=QWERTY"}
+--[[ Local Variables ]]------------------------------------------------------------------------------------------------
 local applicationName = config.application1.registerAppInterfaceParams.appName
-Test.spaceAvailable = tonumber(SDLConfig:GetValue("AppDirectoryQuota"))
-Test.InitialSpaceAvailable = tonumber(SDLConfig:GetValue("AppDirectoryQuota"))
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-local iTimeout = 5000
-local PathToAppFolder = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
-local updateModeNotRequireStartEndTime = {"PAUSE", "RESUME", "CLEAR"}
-local updateMode = {"COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR"}
-local updateModeCountUpDown = {"COUNTUP", "COUNTDOWN"}
-local buttonName = {"OK","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
-local PositiveChoiceSets
-local textPromtValue = {"Please speak one of the following commands," ,"Please say a command,"}
+local pathToAppFolder = commonPreconditions:GetPathToSDL() .. SDLConfig:GetValue("AppStorageFolder") .. "/"
+	.. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+local spaceAvailable = tonumber(SDLConfig:GetValue("AppDirectoryQuota"))
+local fileTypes = {
+		{ typeV = "GRAPHIC_BMP", file = "files/PutFile/bmp_6kb.bmp" },
+		{ typeV = "GRAPHIC_JPEG", file = "files/PutFile/jpeg_4kb.jpg" },
+		{ typeV = "GRAPHIC_PNG", file = "files/PutFile/icon.png" },
+		{ typeV = "AUDIO_WAVE", file = "files/PutFile/WAV_6kb.wav" },
+		{ typeV = "AUDIO_MP3", file = "files/PutFile/MP3_123kb.mp3" },
+		{ typeV = "AUDIO_AAC", file = "files/PutFile/Alarm.aac" },
+		{ typeV = "BINARY", file = "files/PutFile/binaryFile" },
+		{ typeV = "JSON", file = "files/PutFile/luxoftPT.json" }
+	}
+local buttonArray = { "OK", "SEEKLEFT", "SEEKRIGHT", "TUNEUP", "TUNEDOWN", "PRESET_0", "PRESET_1", "PRESET_2", "PRESET_3",
+	"PRESET_4", "PRESET_5", "PRESET_6", "PRESET_7", "PRESET_8", "PRESET_9" }
+local updateModeNotRequireStartEndTime = { "PAUSE", "RESUME", "CLEAR" }
+local updateMode = { "COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR" }
+local updateModeCountUpDown = { "COUNTUP", "COUNTDOWN" }
+local textPromtValue = { "Please speak one of the following commands,", "Please say a command," }
+local ttsChunksType = {
+		{ text = "4025", type = "PRE_RECORDED" },
+		{ text = "Sapi", type = "SAPI_PHONEMES" },
+		{ text = "LHplus", type = "LHPLUS_PHONEMES" },
+		{ text = "Silence", type = "SILENCE" }
+	}
+local positiveChoiceSets = {
+		{	choiceID = 1001, menuName ="Choice1001", image = { value = pathToAppFolder .. "icon.png",	imageType ="DYNAMIC" } },
+		{	choiceID = 1002, menuName ="Choice1002", image = { value = pathToAppFolder .. "icon.png",	imageType ="DYNAMIC" } },
+		{	choiceID = 103,	menuName ="Choice103", image = { value = pathToAppFolder .. "icon.png",	imageType ="DYNAMIC" } }
+	}
+local blockId = 1
 
-local NavigationType = false
-if Test.appHMITypes["NAVIGATION"] == true then
-	NavigationType = true
-end
+--[[ Local Functions ]]------------------------------------------------------------------------------------------------
 
----------------------------------------------------------------------------------------------
------------------------------------------ Functions Used ------------------------------------
----------------------------------------------------------------------------------------------
-
-	--Common functions
-	------------------------------------------------------------------------------------------
-
-	function DelayedExp(timeout)
-	  local event = events.Event()
-	  event.matches = function(self, e) return self == e end
-	  EXPECT_EVENT(event, "Delayed event")
-	  RUN_AFTER(function()
-	              RAISE_EVENT(event, event)
-	            end, timeout)
+	-- Print test block
+	local function testBlock(desc)
+		local strLen = 85
+		local filler = "_"
+		local name = "Block: " .. string.format("%02d", blockId) .. ". " .. desc .. " "
+		name = name .. string.rep(filler, strLen - string.len(name))
+		Test[name] = function() end
+		blockId = blockId + 1
 	end
 
 	-- Sending OnSystemContext notification
-	local function SendOnSystemContext(self, ctx)
+	local function sendOnSystemContext(self, ctx)
 	  self.hmiConnection:SendNotification("UI.OnSystemContext",{ appID = self.applications[applicationName], systemContext = ctx })
 	end
 
-	local function InvalidDataAPI(self, APIName, SentParams)
-
-	  --mobile side: sending request
+	local function invalidDataAPI(self, APIName, SentParams)
 	  local CorId = self.mobileSession:SendRPC(APIName, SentParams)
-
-	  --mobile side: expect response
 	  EXPECT_RESPONSE(CorId, { success = false, resultCode = "INVALID_DATA"})
-
 	end
 
 	-- Functions for SetMediaClockTimer
-	---------------------------------------------------------------------------------------------
-
-	function Test:setMediaClockTimerFunction(Request, ResultCode, HMIrequest)
-
+	local function setMediaClockTimerFunction(self, Request, ResultCode, HMIrequest)
 		ResultCode = ResultCode or "SUCCESS"
-
 		local cid = self.mobileSession:SendRPC("SetMediaClockTimer", Request)
-
 		if HMIrequest == true then
-
-			if 
-				self.isMediaApplication == true then
-
-					local successValue
-
-					EXPECT_HMICALL("UI.SetMediaClockTimer", Request )
-						:Do(function(_,data)
-							local Info
-							--hmi side: sending UI.SetMediaClockTimer response
-							if ResultCode == "SUCCESS" then
-								successValue = true
-								self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-							else
-								successValue = false
-								local Info = "Error message"
-								self.hmiConnection:SendError(data.id, data.method, ResultCode, Info)
-							end
-						end)
-
-					--mobile side: expect SetMediaClockTimer response
+			if self.isMediaApplication == true then
+				local successValue
+				local Info
+				EXPECT_HMICALL("UI.SetMediaClockTimer", Request)
+				:Do(function(_, data)
+					  if ResultCode == "SUCCESS" then
+							successValue = true
+							self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+						else
+							successValue = false
+							Info = "Error message"
+							self.hmiConnection:SendError(data.id, data.method, ResultCode, Info)
+						end
+					end)
 					EXPECT_RESPONSE(cid, { success = successValue, resultCode = ResultCode, info = Info})
-
-			else 
-				EXPECT_HMICALL("UI.SetMediaClockTimer", Request )
-					:Times(0)
-
-				--mobile side: expect SetMediaClockTimer response
+			else
+				EXPECT_HMICALL("UI.SetMediaClockTimer", Request)
+				:Times(0)
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
-
 			end
-		else
-
 		end
 	end
 
@@ -141,49 +109,49 @@ end
 	---------------------------------------------------------------------------------------------
 
 	--Description: Set all parameters for PutFile
-	function putFileAllParams()
-		local temp = { 
-			syncFileName ="icon.png",
-			fileType ="GRAPHIC_PNG",
-			persistentFile =false,
-			systemFile = false,
-			offset =0,
-			length =11600
-		} 
-		return temp
+	local function putFileAllParams()
+		return {
+				syncFileName ="icon.png",
+				fileType ="GRAPHIC_PNG",
+				persistentFile =false,
+				systemFile = false,
+				offset = 0,
+				length = 11600
+			}
+	end
+
+		--Description: Function used to check file is existed on expected path
+		--file_name: file want to check
+	local function file_check(file_name)
+	  local file_found = io.open(file_name, "r")
+	  if file_found == nil then
+	    return false
+	  else
+	    return true
+	  end
 	end
 
 	--Description: PutFile successfully with default image file
-	--paramsSend: Parameters will be sent to SDL
-	function Test:putFileSuccess(paramsSend, file)
-
+	local function putFileSuccess(self, paramsSend, file)
 		file = file or "files/icon.png"
-		
 		local cid = self.mobileSession:SendRPC("PutFile",paramsSend, file)
-
 		local ErrorMessage = ""
-
-		EXPECT_RESPONSE(cid, 
-			{ 
-				success = true, 
+		EXPECT_RESPONSE(cid,
+			{
+				success = true,
 				resultCode = "SUCCESS",
-				info = "File was downloaded" 
+				info = "File was downloaded"
 			})
 			:ValidIf(function(_,data)
 				local CurrentSpaceAvailable = tostring(data.payload.spaceAvailable)
-
-				if CurrentSpaceAvailable == self.spaceAvailable then
+				if CurrentSpaceAvailable == spaceAvailable then
 					ErrorMessage = ErrorMessage .." Available space value is not changed after successfully PutFile request \n"
-
 				end
-
-				self.spaceAvailable = CurrentSpaceAvailable
-
-				local FileCheckValue = file_check(PathToAppFolder .. paramsSend.syncFileName)
+				spaceAvailable = CurrentSpaceAvailable
+				local FileCheckValue = file_check(pathToAppFolder .. paramsSend.syncFileName)
 				if FileCheckValue == false then
 					ErrorMessage = ErrorMessage .. " Added via PutFile request file " .. tostring(paramsSend.syncFileName) .. " is not found on file system "
 				end
-
 				if ErrorMessage ~= "" then
 					commonFunctions:userPrint(31,ErrorMessage)
 					return false
@@ -194,15 +162,13 @@ end
 	end
 
 	--Description: Used to check PutFile with invalid data
-	function Test:putFileInvalidData(paramsSend)
-		local cid = self.mobileSession:SendRPC("PutFile",paramsSend, "files/icon.png")	
+	local function putFileInvalidData(self, paramsSend)
+		local cid = self.mobileSession:SendRPC("PutFile",paramsSend, "files/icon.png")
 		EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
 			:ValidIf(function()
 				if paramsSend.syncFileName then
-
-					local FileCheckValue = file_check(PathToAppFolder .. paramsSend.syncFileName)
-					print("FileCheckValue".. tostring(FileCheckValue))
-
+					local FileCheckValue = file_check(pathToAppFolder .. paramsSend.syncFileName)
+					print("FileCheckValue: ".. tostring(FileCheckValue))
 					if FileCheckValue == true then
 						commonFunctions:userPrint(31," File " .. tostring(paramsSend.syncFileName) .. " after unsuccessfully PutFile request is found on file system ")
 						return false
@@ -215,31 +181,12 @@ end
 			end)
 	end
 
-	--Description: Function used to check file is existed on expected path
-		--file_name: file want to check	
-	function file_check(file_name)
-	  local file_found=io.open(file_name, "r")      
-
-	  if file_found==nil then
-	    return false
-	  else
-	    return true
-	  end
-	end
-
-
 	-- Functions for Alert
 	-------------------------------------------------------------------------------------------
-
-	local function ExpectOnHMIStatusWithAudioStateChangedAlert(self, request, timeout)
-
+	local function expectOnHMIStatusWithAudioStateChangedAlert(self, request, timeout)
 		request = request or "BOTH"
 		timeout = timeout or 10000
-
-		if 
-			self.isMediaApplication == true or 
-			NavigationType == true then 
-
+		if self.isMediaApplication == true or	Test.appHMITypes["NAVIGATION"] == true then
 				if request == "BOTH" then
 					--mobile side: OnHMIStatus notifications
 					EXPECT_NOTIFICATION("OnHMIStatus",
@@ -264,9 +211,8 @@ end
 					    :Times(2)
 					    :Timeout(timeout)
 				end
-		elseif 
+		elseif
 			self.isMediaApplication == false then
-
 				if request == "BOTH" then
 					--mobile side: OnHMIStatus notifications
 					EXPECT_NOTIFICATION("OnHMIStatus",
@@ -288,22 +234,15 @@ end
 					    :Timeout(timeout)
 				end
 		end
-
 	end
 
 
 	-- Functions for PI
 	-------------------------------------------------------------------------------------------
-
-	local function ExpectOnHMIStatusWithAudioStateChangedPI(self, request, timeout) 
-
+	local function expectOnHMIStatusWithAudioStateChangedPI(self, request, timeout)
 		if request == nil then  request = "BOTH" end
 		if timeout == nil then timeout = 10000 end
- 
-			if 
-				self.isMediaApplication == true or 
-				NavigationType == true then 
-
+			if self.isMediaApplication == true or	Test.appHMITypes["NAVIGATION"] == true then
 					if request == "BOTH" then
 						--mobile side: OnHMIStatus notifications
 						EXPECT_NOTIFICATION("OnHMIStatus",
@@ -312,7 +251,7 @@ end
 								{ hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "VRSESSION"},
 								{ hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "HMI_OBSCURED"},
 								{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED"},
-								{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})		    
+								{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 							:Times(6)
 					elseif request == "BOTH_With_Choice" then
 						--mobile side: OnHMIStatus notifications
@@ -321,7 +260,7 @@ end
 								{ hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"},
 								{ hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION"},
 								{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "VRSESSION"},
-								{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})		    
+								{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 							:Times(5)
 					elseif request == "VR" then
 						--mobile side: OnHMIStatus notification
@@ -343,15 +282,15 @@ end
 							:Times(4)
 						    :Timeout(timeout)
 					end
-			elseif 
+			elseif
 				self.isMediaApplication == false then
-
+				local level = nil
 					if request == "BOTH" then
 						--mobile side: OnHMIStatus notifications
 						EXPECT_NOTIFICATION("OnHMIStatus",
 								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION"},
 								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "HMI_OBSCURED"},
-								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})		    
+								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
 							:Times(3)
 						    :Timeout(timeout)
 					elseif request == "BOTH_With_Choice" then
@@ -372,34 +311,33 @@ end
 						--mobile side: OnHMIStatus notification
 						EXPECT_NOTIFICATION("OnHMIStatus",
 								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "HMI_OBSCURED"},
-								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})		    
+								{ hmiLevel = level, audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
 							:Times(2)
 					end
 			end
-
 	end
 
-	function setImage() 
-	    local temp = {
-						value = "icon.png",
-						imageType = "STATIC",
-	                } 
-	        return temp
+	local function setImage()
+	  local temp = {
+			value = "icon.png",
+			imageType = "STATIC"
+	  }
+	  return temp
 	end
 
-	function setInitialPrompt(size, character, outChar)  
+	local function setInitialPrompt(size, character, outChar)
 		local temp
 		if character == nil then
 			if size == 1 or size == nil then
-				temp = {{ 
+				temp = {{
 					text = " Make  your choice ",
 					type = "TEXT",
-				}}       
+				}}
 				return temp
 			else
 				temp = {}
 				for i =1, size do
-					temp[i] = { 
+					temp[i] = {
 						text = "Makeyourchoice"..string.rep("v",i),
 						type = "TEXT",
 					}
@@ -420,30 +358,30 @@ end
 						type = "TEXT",
 					}
 				end
-			end			
-			return temp		
+			end
+			return temp
 		end
 	end
 
-	function setTimeoutPrompt(size, character, outChar) 
+	local function setTimeoutPrompt(size, character, outChar)
 		local temp
-		if character == nil then	
+		if character == nil then
 			if size == 1 or size == nil then
-				temp = {{ 
+				temp = {{
 					text = " Time  out  ",
 					type = "TEXT",
-					}}       
+					}}
 				return temp
 			else
 				temp = {}
 				for i =1, size do
-					temp[i] = { 
+					temp[i] = {
 						text = "Timeout"..string.rep("v",i),
 						type = "TEXT",
 					}
 				end
 				return temp
-			end 	
+			end
 		else
 			temp = {}
 			for i =1, size do
@@ -458,31 +396,31 @@ end
 						type = "TEXT",
 					}
 				end
-			end			
-			return temp		
+			end
+			return temp
 		end
 	end
 
-	function setHelpPrompt(size, character, outChar)
+	local	function setHelpPrompt(size, character, outChar)
 		local temp
 		if character == nil then
-			local temp = {}
+			temp = {}
 			if size == 1 or size == nil then
-				 temp[1] = {{ 
+				 temp[1] = {{
 					text = " Help   Prompt  ",
 					type = "TEXT"
-					}}       
+					}}
 				return temp
 			else
-				local temp = {}
+				temp = {}
 				for i =1, size do
-					temp[i] = { 
+					temp[i] = {
 						text = "HelpPrompt"..string.rep("v",i),
 						type = "TEXT"
 					}
 				end
 				return temp
-			end	
+			end
 		else
 			temp = {}
 			for i =1, size do
@@ -497,26 +435,26 @@ end
 						type = "TEXT"
 					}
 				end
-			end			
-			return temp		
+			end
+			return temp
 		end
 	end
 
-	function setVrHelp(size, character, outChar)
+	local function setVrHelp(size, character, outChar)
 		local temp
-		if character == nil then	
+		if character == nil then
 			if size == 1 or size == nil then
-				local temp = {
-						{ 
+				temp = {
+						{
 							text = "  New  VRHelp   ",
 							position = 1
 						}
-					}        
+					}
 				return temp
 			else
-				local temp = {}
+				temp = {}
 				for i =1, size do
-					temp[i] = { 
+					temp[i] = {
 						text = "NewVRHelp"..string.rep("v",i),
 						position = i
 					}
@@ -537,175 +475,117 @@ end
 						position = i
 					}
 				end
-			end			
-			return temp		
-		end
-	end
-
-	function setExChoiseSet(choiceIDValues)
-		local exChoiceSet = {}
-		for i = 1, #choiceIDValues do	
-			exChoiceSet[i] =  {
-				choiceID = choiceIDValues[i],			
-				image = 
-				{
-					value = "icon.png",
-					imageType = "STATIC",
-				},
-				menuName = Choice100
-			}
-			if (choiceIDValues[i] == 2000000000) then
-				exChoiceSet[i].choiceID = 65535
 			end
+			return temp
 		end
-		return exChoiceSet
 	end
 
-	function performInteractionAllParams()
-		local temp = {
-					initialText = "StartPerformInteraction",
-					initialPrompt = setInitialPrompt(),
-					interactionMode = "BOTH",
-					interactionChoiceSetIDList = { 1001 },
-					helpPrompt = setHelpPrompt(2),
-					timeoutPrompt = setTimeoutPrompt(2),
-					timeout = 5000,
-					vrHelp = setVrHelp(3),
-					interactionLayout = "ICON_ONLY"
-				}
-		return temp
-	end
-
-
-	function Test:performInteractionInvalidData(paramsSend)
-        local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
-        EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+	local	function performInteractionAllParams()
+		return {
+				initialText = "StartPerformInteraction",
+				initialPrompt = setInitialPrompt(),
+				interactionMode = "BOTH",
+				interactionChoiceSetIDList = { 1001 },
+				helpPrompt = setHelpPrompt(2),
+				timeoutPrompt = setTimeoutPrompt(2),
+				timeout = 5000,
+				vrHelp = setVrHelp(3),
+				interactionLayout = "ICON_ONLY"
+			}
 	end
 
 
-	function Test:performInteraction_withChoice( paramsSend, ChoiceParams, ChoiceIdForChoice, AppId )
+	local function performInteractionInvalidData(self, paramsSend)
+    local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
+    EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+	end
 
+	local function performInteraction_withChoice(self, paramsSend, ChoiceParams, ChoiceIdForChoice, AppId)
 		local VRParams = {}
 		local UIParams = {}
-
 		UIParams.appID = AppId
 		VRParams.appID = AppId
-
 		if paramsSend.timeout then
 			UIParams.timeout = paramsSend.timeout
 			VRParams.timeout = paramsSend.timeout
 		end
-
-		if 	
-			paramsSend.interactionMode == "VR_ONLY" or
-			paramsSend.interactionMode == "BOTH" then
-
-				if paramsSend.vrHelp then
-					UIParams.vrHelp = paramsSend.vrHelp
-				end
-		end
-
-
-		if 	
-			paramsSend.interactionMode == "MANUAL_ONLY" or
-			paramsSend.interactionMode == "BOTH" then
-
-				UIParams.choiceSet = ChoiceParams
-		end
-
-
-		if paramsSend.initialPrompt then
-				VRParams.initialPrompt = paramsSend.initialPrompt
+		if paramsSend.interactionMode == "VR_ONLY" or	paramsSend.interactionMode == "BOTH" then
+			if paramsSend.vrHelp then
+				UIParams.vrHelp = paramsSend.vrHelp
 			end
-
+		end
+		if paramsSend.interactionMode == "MANUAL_ONLY" or	paramsSend.interactionMode == "BOTH" then
+			UIParams.choiceSet = ChoiceParams
+		end
+		if paramsSend.initialPrompt then
+			VRParams.initialPrompt = paramsSend.initialPrompt
+		end
 		if paramsSend.helpPrompt then
 			VRParams.helpPrompt = paramsSend.helpPrompt
 		end
-
 		if paramsSend.timeoutPrompt then
 			VRParams.timeoutPrompt = paramsSend.timeoutPrompt
 		end
 
-		
-		--mobile side: sending PerformInteraction request
 		local cid = self.mobileSession:SendRPC("PerformInteraction", paramsSend)
 
 		if paramsSend.interactionMode == "VR_ONLY" then
-
 			if paramsSend.initialText then
 				UIParams.vrHelpTitle = paramsSend.initialText
 			end
-
-			--hmi side: expect VR.PerformInteraction request 
 			EXPECT_HMICALL("VR.PerformInteraction", VRParams)
-			:Do(function(_,data)
-				--Send notification to start TTS & VR						
-				self.hmiConnection:SendNotification("TTS.Started")
-				self.hmiConnection:SendNotification("VR.Started")
-				SendOnSystemContext(self,"VRSESSION")
-			
-				--Send VR.PerformInteraction response 
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = ChoiceIdForChoice })
+			:Do(function(_, data)
+					self.hmiConnection:SendNotification("TTS.Started")
+					self.hmiConnection:SendNotification("VR.Started")
+					sendOnSystemContext(self,"VRSESSION")
+					local function vrResponse()
+						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = ChoiceIdForChoice })
+						self.hmiConnection:SendNotification("TTS.Stopped")
+						self.hmiConnection:SendNotification("VR.Stopped")
+						sendOnSystemContext(self,"MAIN")
+					end
+					RUN_AFTER(vrResponse, 500)
+				end)
 
-				--Send notification to stop TTS & VR
-				self.hmiConnection:SendNotification("TTS.Stopped")
-				self.hmiConnection:SendNotification("VR.Stopped")
-				SendOnSystemContext(self,"MAIN")						
-			end)
-
-			--hmi side: expect UI.PerformInteraction request 						
 			EXPECT_HMICALL("UI.PerformInteraction", UIParams)
 			:Do(function(_,data)
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-			end)
-				
-			--mobile side: OnHMIStatus notifications					
-			ExpectOnHMIStatusWithAudioStateChangedPI(self, "VR")
-			
-			--mobile side: expect PerformInteraction response	
+					local function uiResponse()
+						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+					end
+					RUN_AFTER(uiResponse, 100)
+				end)
+
+			expectOnHMIStatusWithAudioStateChangedPI(self, "VR")
+
 			EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS", choiceID = ChoiceIdForChoice, triggerSource = "VR" } )
 
 		elseif paramsSend.interactionMode == "MANUAL_ONLY" then
-
 			if paramsSend.initialText then
 				UIParams.initialText = { fieldName = "initialInteractionText", fieldText = paramsSend.initialText}
 			end
-
 			if paramsSend.interactionLayout then
 				UIParams.interactionLayout = paramsSend.interactionLayout
 			end
 
-			--hmi side: expect VR.PerformInteraction request 
 			EXPECT_HMICALL("VR.PerformInteraction", VRParams)
-			:Do(function(_,data)
-				--Send notification to start TTS						
-				self.hmiConnection:SendNotification("TTS.Started")
-			
-				--Send VR.PerformInteraction response 
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {} )
+			:Do(function(_, data)
+					self.hmiConnection:SendNotification("TTS.Started")
+					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {} )
+					self.hmiConnection:SendNotification("TTS.Stopped")
+				end)
 
-				--Send notification to stop TTS
-				self.hmiConnection:SendNotification("TTS.Stopped")					
-			end)
-
-			--hmi side: expect UI.PerformInteraction request 						
 			EXPECT_HMICALL("UI.PerformInteraction", UIParams)
-			:Do(function(_,data)
-				SendOnSystemContext(self,"HMI_OBSCURED")
+			:Do(function(_, data)
+					sendOnSystemContext(self,"HMI_OBSCURED")
+					local function uiResponse()
+						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = ChoiceIdForChoice })
+						sendOnSystemContext(self, "MAIN")
+					end
+					RUN_AFTER(uiResponse, 10)
+				end)
 
-				local function uiResponse()
+			expectOnHMIStatusWithAudioStateChangedPI(self, "MANUAL")
 
-					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = ChoiceIdForChoice })
-
-					SendOnSystemContext(self,"MAIN")
-				end
-				RUN_AFTER(uiResponse, 10)
-			end)
-				
-			--mobile side: OnHMIStatus notifications					
-			ExpectOnHMIStatusWithAudioStateChangedPI(self, "MANUAL")
-			
-			--mobile side: expect PerformInteraction response	
 			EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS", choiceID = ChoiceIdForChoice, triggerSource = "MENU" } )
 
 		else
@@ -720,51 +600,42 @@ end
 			end
 
 
-			--hmi side: expect VR.PerformInteraction request 
+			--hmi side: expect VR.PerformInteraction request
 			EXPECT_HMICALL("VR.PerformInteraction", VRParams)
-			:Do(function(_,data)
-				--Send notification to start TTS & VR						
-				self.hmiConnection:SendNotification("TTS.Started")
-				self.hmiConnection:SendNotification("VR.Started")
-				SendOnSystemContext(self,"VRSESSION")
-			
-				local function VRResponse()
-					--Send VR.PerformInteraction response 
-					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { choiceID = ChoiceIdForChoice })
+			:Do(function(_, data)
+					self.hmiConnection:SendNotification("TTS.Started")
+					self.hmiConnection:SendNotification("VR.Started")
+					sendOnSystemContext(self,"VRSESSION")
+					local function vrResponse()
+						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { choiceID = ChoiceIdForChoice })
+						self.hmiConnection:SendNotification("TTS.Stopped")
+						self.hmiConnection:SendNotification("VR.Stopped")
+						sendOnSystemContext(self,"MAIN")
+					end
+					RUN_AFTER(vrResponse, 500)
+				end)
 
-					EXPECT_HMICALL("UI.ClosePopUp")
-						:Do(function()
-							self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-						end)
-
-					--Send notification to stop TTS & VR
-					self.hmiConnection:SendNotification("TTS.Stopped")
-					self.hmiConnection:SendNotification("VR.Stopped")
-					SendOnSystemContext(self,"MAIN")
-				end		
-
-				RUN_AFTER(VRResponse, 500)				
+			--hmi side: expect UI.PerformInteraction request
+			EXPECT_HMICALL("UI.PerformInteraction", UIParams)
+			:Do(function(_, data)
+				local function uiResponse()
+					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = ChoiceIdForChoice})
+				end
+				RUN_AFTER(uiResponse, 100)
 			end)
 
-			--hmi side: expect UI.PerformInteraction request 						
-			EXPECT_HMICALL("UI.PerformInteraction", UIParams)
+			expectOnHMIStatusWithAudioStateChangedPI(self, "BOTH_With_Choice")
 
-			--mobile side: OnHMIStatus notifications					
-			ExpectOnHMIStatusWithAudioStateChangedPI(self, "BOTH_With_Choice")
-			--mobile side: expect PerformInteraction response	
 			EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS", choiceID = ChoiceIdForChoice, triggerSource = "VR" } )
 		end
 	end
 
-	function Test:performInteraction_ViaBOTHTimedOut(paramsSend, level, ChoiceSets)
-		if level == nil then  level = "FULL" end
-
+	local function performInteraction_ViaBOTHTimedOut(self, paramsSend, level, ChoiceSets)
+		if level == nil then level = "FULL" end
 		paramsSend.interactionMode = "BOTH"
-		--mobile side: sending PerformInteraction request
-		cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
 
-			if 
-			paramsSend.fakeParam and
+		local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
+			if paramsSend.fakeParam and
 			paramsSend.initialPrompt[1].fakeParam and
 			paramsSend.helpPrompt[1].fakeParam and
 			paramsSend.timeoutPrompt[1].fakeParam then
@@ -772,129 +643,83 @@ end
 				paramsSend.initialPrompt[1].fakeParam = nil
 				paramsSend.helpPrompt[1].fakeParam = nil
 				paramsSend.timeoutPrompt[1].fakeParam = nil
-			elseif
-			paramsSend.ttsChunks then 
+			elseif paramsSend.ttsChunks then
 				paramsSend.ttsChunks = nil
 			end
-		
-		--hmi side: expect VR.PerformInteraction request 
-		EXPECT_HMICALL("VR.PerformInteraction", 
-		{	
+
+		EXPECT_HMICALL("VR.PerformInteraction",
+		{
 			appID = self.applications[applicationName],
 			helpPrompt = paramsSend.helpPrompt,
 			initialPrompt = paramsSend.initialPrompt,
 			timeout = paramsSend.timeout,
 			timeoutPrompt = paramsSend.timeoutPrompt
 		})
-		:Do(function(_,data)
-			--Send notification to start TTS & VR
-			self.hmiConnection:SendNotification("VR.Started")						
-			self.hmiConnection:SendNotification("TTS.Started")						
-			SendOnSystemContext(self,"VRSESSION")
-			
-			--First speak timeout and second speak started
+		:Do(function(_, data)
+			self.hmiConnection:SendNotification("VR.Started")
+			self.hmiConnection:SendNotification("TTS.Started")
+			sendOnSystemContext(self,"VRSESSION")
 			local function firstSpeakTimeOut()
 				self.hmiConnection:SendNotification("TTS.Stopped")
 				self.hmiConnection:SendNotification("TTS.Started")
 			end
-			RUN_AFTER(firstSpeakTimeOut, 5)							
-									
+			RUN_AFTER(firstSpeakTimeOut, 5)
 			local function vrResponse()
-				--hmi side: send VR.PerformInteraction response 
-				self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")																					
+				self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
 				self.hmiConnection:SendNotification("VR.Stopped")
-			end 
-			RUN_AFTER(vrResponse, 20)						
-		end)					
-		:ValidIf(function(_,data)
-			if data.params.fakeParam or 
+			end
+			RUN_AFTER(vrResponse, 20)
+		end)
+		:ValidIf(function(_, data)
+			if data.params.fakeParam or
 				data.params.helpPrompt[1].fakeParam or
 				data.params.initialPrompt[1].fakeParam or
 				data.params.timeoutPrompt[1].fakeParam or
 				data.params.ttsChunks then
 					print(" \27[36m SDL re-sends fakeParam parameters to HMI in VR.PerformInteraction request \27[0m ")
 					return false
-			else 
+			else
 				return true
 			end
 		end)
 
-
-
-		-- --------------------------------------------------
-		--TODO: remove block after resolving APPLINK-16052
-		local VrHelp
-		if paramsSend.vrHelp then
-			VrHelp = paramsSend.vrHelp
-			for i=1,#paramsSend.vrHelp do
-				if paramsSend.vrHelp[i].image then
-					paramsSend.vrHelp[i].image = nil
-				end
-			end
-		end
-		-- --------------------------------------------------
-
-		--hmi side: expect UI.PerformInteraction request 
-		EXPECT_HMICALL("UI.PerformInteraction", 
+		EXPECT_HMICALL("UI.PerformInteraction",
 		{
-			timeout = paramsSend.timeout,			
+			timeout = paramsSend.timeout,
 			choiceSet = ChoiceSets,
-			initialText = 
+			initialText =
 						{
 						 fieldName = "initialInteractionText",
 						 fieldText = paramsSend.initialText
-						},				
+						},
 			vrHelp = paramsSend.vrHelp,
 			vrHelpTitle = paramsSend.initialText
 		})
-		:Do(function(_,data)
-			--Choice icon list is displayed
-			local function choiceIconDisplayed()						
-				SendOnSystemContext(self,"HMI_OBSCURED")
-			end
-			RUN_AFTER(choiceIconDisplayed, 25)
-			
-			--hmi side: send UI.PerformInteraction response 
-			local function uiResponse()
-				self.hmiConnection:SendNotification("TTS.Stopped")
-				self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
-				SendOnSystemContext(self,"MAIN")
-			end
-			RUN_AFTER(uiResponse, 30)
-		end)
-		:ValidIf(function(_,data)
-			if data.params.fakeParam or 
-				data.params.vrHelp[1].fakeParam or			
-				data.params.ttsChunks then
-					print(" \27[36m SDL re-sends fakeParam parameters to HMI in UI.PerformInteraction request \27[0m ")
-					return false
-			--------------------------------------------------
-			--TODO: remove block after resolving APPLINK-16052
-			elseif VrHelp then
-				for i=1,#VrHelp do
-					if VrHelp[i].image then 
-						local expectedResult = VrHelp[i].image.imageType
-						if data.vrHelp[i].image.imageType ~= expectedResult then
-							commonFunctions:userPrint( 31, " imageType value in " .. tostring(i) .. " vrHelp item is not " .. tostring(expectedResult) .. ", got " .. tostring(data.vrHelp[i].image.imageType))
-							return false
-						else 
-							return true
-						end
-					else 
-						return true
-					end
+		:Do(function(_, data)
+				local function choiceIconDisplayed()
+					sendOnSystemContext(self,"HMI_OBSCURED")
 				end
-			--------------------------------------------------
-			else 
-				return true
-			end
+				RUN_AFTER(choiceIconDisplayed, 25)
+				local function uiResponse()
+					self.hmiConnection:SendNotification("TTS.Stopped")
+					self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
+					sendOnSystemContext(self,"MAIN")
+				end
+				RUN_AFTER(uiResponse, 30)
+			end)
+		:ValidIf(function(_,data)
+				if data.params.fakeParam or
+					data.params.vrHelp[1].fakeParam or
+					data.params.ttsChunks then
+						print(" \27[36m SDL re-sends fakeParam parameters to HMI in UI.PerformInteraction request \27[0m ")
+						return false
+				else
+					return true
+				end
+			end)
 
-		end)
-		
-		--mobile side: OnHMIStatus notifications
-		ExpectOnHMIStatusWithAudioStateChangedPI(self,_,_,level)
-		
-		--mobile side: expect PerformInteraction response
+		expectOnHMIStatusWithAudioStateChangedPI(self, nil, nil, level)
+
 		EXPECT_RESPONSE(cid, { success = false, resultCode = "TIMED_OUT" })
 	end
 
@@ -902,22 +727,19 @@ end
 	-- Functions for Show
 	------------------------------------------------------------------------------------------
 
-	local ImageTypeValue
+	-- local ImageTypeValue
 	--Create UI expected result based on parameters from the request
-	function Test:createUIParameters(Request) 
-
+	local function createUIParameters(Request)
 		local param =  {}
-
-		param["alignment"] =  Request["alignment"]
-		param["customPresets"] =  Request["customPresets"]
-		
-		--Convert showStrings parameter
+		param["alignment"] = Request["alignment"]
+		param["customPresets"] = Request["customPresets"]
+		-- Convert showStrings parameter
 		local j = 0
-		for i = 1, 4 do	
+		for i = 1, 4 do
 			if Request["mainField" .. i] ~= nil then
 				j = j + 1
 				if param["showStrings"] == nil then
-					param["showStrings"] = {}			
+					param["showStrings"] = {}
 				end
 				param["showStrings"][j] = {
 					fieldName = "mainField" .. i,
@@ -925,152 +747,119 @@ end
 				}
 			end
 		end
-		
-		--mediaClock
+
+		-- mediaClock
 		if Request["mediaClock"] ~= nil then
 			j = j + 1
 			if param["showStrings"] == nil then
-				param["showStrings"] = {}			
-			end		
+				param["showStrings"] = {}
+			end
 			param["showStrings"][j] = {
 				fieldName = "mediaClock",
 				fieldText = Request["mediaClock"]
 			}
 		end
-		
-		--mediaTrack
+
+		-- mediaTrack
 		if Request["mediaTrack"] ~= nil then
 			j = j + 1
 			if param["showStrings"] == nil then
-				param["showStrings"] = {}			
-			end				
+				param["showStrings"] = {}
+			end
 			param["showStrings"][j] = {
 				fieldName = "mediaTrack",
 				fieldText = Request["mediaTrack"]
 			}
 		end
-		
-		--statusBar
+
+		-- statusBar
 		if Request["statusBar"] ~= nil then
 			j = j + 1
 			if param["showStrings"] == nil then
-				param["showStrings"] = {}			
-			end				
+				param["showStrings"] = {}
+			end
 			param["showStrings"][j] = {
 				fieldName = "statusBar",
 				fieldText = Request["statusBar"]
 			}
 		end
 
-		param["graphic"] =  Request["graphic"]
-		if param["graphic"] ~= nil and 
+		param["graphic"] = Request["graphic"]
+		if param["graphic"] ~= nil and
 			param["graphic"].imageType ~= "STATIC" and
 			param["graphic"].value ~= nil and
 			param["graphic"].value ~= "" then
-				param["graphic"].value = PathToAppFolder ..param["graphic"].value
-		end	
-		
-		param["secondaryGraphic"] =  Request["secondaryGraphic"]
-		if param["secondaryGraphic"] ~= nil and 
+				param["graphic"].value = pathToAppFolder ..param["graphic"].value
+		end
+
+		param["secondaryGraphic"] = Request["secondaryGraphic"]
+		if param["secondaryGraphic"] ~= nil and
 			param["secondaryGraphic"].imageType ~= "STATIC" and
 			param["secondaryGraphic"].value ~= nil and
 			param["secondaryGraphic"].value ~= "" then
-				param["secondaryGraphic"].value = PathToAppFolder ..param["secondaryGraphic"].value
-		end	
-		
-		--softButtons
+				param["secondaryGraphic"].value = pathToAppFolder ..param["secondaryGraphic"].value
+		end
+
+		-- softButtons
 		if Request["softButtons"]  ~= nil then
 			param["softButtons"] =  Request["softButtons"]
 			for i = 1, #param["softButtons"] do
-			
-				--if type = TEXT, image = nil, else type = IMAGE, text = nil
-				if param["softButtons"][i].type == "TEXT" then			
+				if param["softButtons"][i].type == "TEXT" then
 					param["softButtons"][i].image =  nil
-
-				elseif param["softButtons"][i].type == "IMAGE" then			
+				elseif param["softButtons"][i].type == "IMAGE" then
 					param["softButtons"][i].text =  nil
 				end
-
-				--TODO: remove 'if' after resolving APPLINK-16052
-				if param["softButtons"][i].image ~= nil then
-					ImageTypeValue = Request.softButtons[i].image.imageType
-					param["softButtons"][i].image = nil
-				end	
-			
-				--if image.imageType ~=STATIC, add app folder to image value 
-				if param["softButtons"][i].image ~= nil and 
+				if param["softButtons"][i].image ~= nil and
 					param["softButtons"][i].image.imageType ~= "STATIC" then
-					
-					param["softButtons"][i].image.value = PathToAppFolder ..param["softButtons"][i].image.value
+					param["softButtons"][i].image.value = pathToAppFolder .. param["softButtons"][i].image.value
 				end
-
 
 			end
 		end
-			
 		return param
-
 	end
 
 	--This function sends a request from mobile and verify result on HMI and mobile for SUCCESS resultCode cases.
-	function Test:verify_SUCCESS_Case(Request)
-
-		--mobile side: sending Show request
-		local cid = self.mobileSession:SendRPC("Show", Request)
-
-		UIParams = self:createUIParameters(Request)
-		
-		--hmi side: expect UI.Show request
+	local function verify_SUCCESS_Case(self, request)
+		local cid = self.mobileSession:SendRPC("Show", request)
+		local UIParams = createUIParameters(request)
 		EXPECT_HMICALL("UI.Show", UIParams)
-			:Do(function(_,data)
-				--hmi side: sending UI.Show response
+		:Do(function(_,data)
 				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 			end)
-			--TODO: remove 'ValidIf' after resolving APPLINK-16052
-			:ValidIf(function(_,data)
-				if Request.softButtons  ~= nil then
-					for i = 1, #Request.softButtons do
-						if 	data.params.softButtons[i].image and
-							data.params.softButtons[i].image.imageType ~= ImageTypeValue then
-							commonFunctions(31, " imageType in " .. tostring(i) .. " softButtons is not " .. tostring(ImageTypeValue) .. ", got " .. tostring(data.params.softButtons[i].image.imageType) )
-							return false
-						else
-							return true
-						end
-					end
-				else
-					return true
-				end
-
-			end)
-
-
-		--mobile side: expect Show response
 		EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-				
 	end
 
 
------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------
 
 ---------------------------------------------------------------------------------------------
 ---------------------------------------General Preconditions---------------------------------
 ---------------------------------------------------------------------------------------------
 	--Begin Precondition.1
-	--Description: Activation of application by sending SDL.ActivateApp	
+	--Description: Activation of application by sending SDL.ActivateApp
 
-		function Test:ActivateApp()
-			-- hmi side: sending SDL.ActivateApp request
-		  	local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[applicationName]})
-
-		  	-- hmi side: expect SDL.ActivateApp response
-			EXPECT_HMIRESPONSE(RequestId)
-
-			--mobile side: expect OnHMIStatus notification
-		  	EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})	
-		
-			end
+	function Test:ActivateApp()
+	  local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications["Test Application"] })
+	  EXPECT_HMIRESPONSE(requestId1)
+	  :Do(function(_, data1)
+	      if data1.result.isSDLAllowed ~= true then
+	        local requestId2 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
+	          { language = "EN-US", messageCodes = { "DataConsent" } })
+	        EXPECT_HMIRESPONSE(requestId2)
+	        :Do(function(_, _)
+	            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+	              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+	            EXPECT_HMICALL("BasicCommunication.ActivateApp")
+	            :Do(function(_, data2)
+	                self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
+	              end)
+	            :Times(1)
+	          end)
+	      end
+	    end)
+	end
 
 	--End Precondition.1
 
@@ -1087,43 +876,29 @@ end
 
 		  self.mobileSession:ExpectResponse("PutFile", { success = true, resultCode = "SUCCESS", info = "File was downloaded" })
 		  	:Do(function(_,data)
-		  		self.spaceAvailable = data.payload.spaceAvailable
+		  		spaceAvailable = data.payload.spaceAvailable
 		  	end)
 
-		  DelayedExp(1000)
+		  commonTestCases:DelayedExp(1000)
 		end
 	--End Precondition.2
 
 	-----------------------------------------------------------------------------------------
 
-	--Begin Precondition.3
-	-- TODO: implemented only HTTP sequence, need to cover PROPRIETARY sequence
-	-- Description: Update of Polcy table
-	  	-- function Test:PolicyUpdate()
-	  	-- 	Policies:updatePolicyGenivi(self, "files/SmokeTest_genivi_pt.json")
-	  	-- end
-	--End Precondition.3
------------------------------------------------------------------------------------------ 
------------------------------------------------------------------------------------------
-
-
 ---------------------------------------------------------------------------------------------
 -----------------------------------------I. PUT FILE TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-
-	function Test:NewTestBlock()
-		print("****************************** I. PUT FILE TEST BLOCK ******************************")
-	end
+  testBlock("PUT FILE")
 
 	--Begin Test suit PutFile
 	--Description:
         -- request is sent with persistentfile = false
         -- request is sent with persistentfile = true
-        -- request is sent with all mandatory parametres and different file types 
+        -- request is sent with all mandatory parametres and different file types
         -- request is sent with missing syncFileName
         -- request is sent with missing fileType
 
-        -- List of parametres in the request 
+        -- List of parametres in the request
         --1. syncFileName, type=String, maxlength=255, mandatory=true
         --2. fileType, type=FileType, mandatory=true
         --3. persistentFile, type=Boolean, defvalue=false, mandatory=false
@@ -1131,117 +906,115 @@ end
         --5. offset, type=Integer, minvalue=0, maxvalue=100000000000, mandatory=false
         --6. length, type=Integer, minvalue=0, maxvalue=100000000000, mandatory=false
 
-    --Requirement id in Jira 
+    --Requirement id in Jira
 		-- To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=284921859
 
 	-----------------------------------------------------------------------------------------
- 
+
 		--Description: Put file request is sent with all params and persistentFile = false
-			function Test:PutFile_AllParamsDiffPersistent_persistantFalse() 
+			function Test:PutFile_AllParamsDiffPersistent_persistantFalse()
 
 				local paramsSend = putFileAllParams()
 				paramsSend.syncFileName = "persistantFalse"
 				paramsSend.persistentFile = false
-						
-				self:putFileSuccess(paramsSend)
-				DelayedExp(500)
-			end	
+
+				putFileSuccess(self, paramsSend)
+				commonTestCases:DelayedExp(500)
+			end
 
 	-----------------------------------------------------------------------------------------
 
 		--Description: Put file request is sent with all params and persistentFile = true
-			function Test:PutFile_AllParamsDiffPersistent_persistantTrue() 
+			function Test:PutFile_AllParamsDiffPersistent_persistantTrue()
 				local paramsSend = putFileAllParams()
 				paramsSend.syncFileName = "persistantTrue"
 				paramsSend.persistentFile = true
-					
-				self:putFileSuccess(paramsSend)
-				DelayedExp(500)
-			end	
+
+				putFileSuccess(self, paramsSend)
+				commonTestCases:DelayedExp(500)
+			end
 
 	-----------------------------------------------------------------------------------------
-		
-		--Description: With mandatory parameter only
-			for i=1, #dif_fileType do 
-				Test["PutFile_MandatoryOnly_" .. tostring(dif_fileType[i].typeV) ] = function(self)
-					local paramsSend = { 
-										 syncFileName ="file_" .. tostring(dif_fileType[i].typeV),
-										 fileType = dif_fileType[i].typeV,										
-										} 
-										
-					self:putFileSuccess(paramsSend, dif_fileType[i].file)
 
-					DelayedExp(500)
+		--Description: With mandatory parameter only
+			for i=1, #fileTypes do
+				Test["PutFile_MandatoryOnly_" .. tostring(fileTypes[i].typeV) ] = function(self)
+					local paramsSend = {
+										 syncFileName ="file_" .. tostring(fileTypes[i].typeV),
+										 fileType = fileTypes[i].typeV,
+										}
+
+					putFileSuccess(self, paramsSend, fileTypes[i].file)
+
+					commonTestCases:DelayedExp(500)
 				end
 			end
- 
+
 	-----------------------------------------------------------------------------------------
- 
+
 		--Description: syncFileName is missing
-			function Test:PutFile_syncFileNameMissing() 
+			function Test:PutFile_syncFileNameMissing()
 				local paramsSend = putFileAllParams()
 				paramsSend.syncFileName = nil
-			
-				self:putFileInvalidData(paramsSend)
-				DelayedExp(500)
+
+				putFileInvalidData(self, paramsSend)
+				commonTestCases:DelayedExp(500)
 			end
 
-	-----------------------------------------------------------------------------------------	
+	-----------------------------------------------------------------------------------------
 
-		--Description: fileType is missing 
-			function Test:PutFile_fileTypeMissing() 
+		--Description: fileType is missing
+			function Test:PutFile_fileTypeMissing()
 				local paramsSend = putFileAllParams()
 				paramsSend.syncFileName = "fileTypeMissing"
 				paramsSend.fileType = nil
-				
-				self:putFileInvalidData(paramsSend)
+
+				putFileInvalidData(self, paramsSend)
 			end
-			
+
 	--End Test suit PutFile
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
-			
-	
+
+
 --------------------------------------------------------------------------------------------------
 -------------------------------------------II. LIST FILE TEST BLOCK-------------------------------
 --------------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** II. LIST FILE TEST BLOCK *************************")
-	end
+  testBlock("LIST FILE")
 
-	--Begin Test Suit ListFile 
+	--Begin Test Suit ListFile
 
-        -- List of parametres in the request  
-		-- 1. no prametres in the request 
+        -- List of parametres in the request
+		-- 1. no prametres in the request
 
-		--Requirement id in Jira APPLINK-21659; APPLINK-19645			
+		--Requirement id in Jira APPLINK-21659; APPLINK-19645
 	--------------------------------------------------------------------------------------------------
 	--Description:
 		-- request with all parameters and result SUCCESS
 		function Test:ListFiles_AllParams()
-		
+
 			--mobile side: sending ListFiles request
 			local cid = self.mobileSession:SendRPC("ListFiles", {} )
 
 			--mobile side: expect ListFiles response
-			EXPECT_RESPONSE(cid, 
+			EXPECT_RESPONSE(cid,
 							{
-							 success = true, 
+							 success = true,
 							 resultCode = "SUCCESS",
-							 spaceAvailable = tonumber(self.spaceAvailable)
+							 spaceAvailable = tonumber(spaceAvailable)
 							})
 				:ValidIf(function(_,data)
 
-					if data.payload.filenames == nil then					
+					if data.payload.filenames == nil then
 						commonFunctions:userPrint( 21, " ListFiles response came without filenames parameter")
 						return false
 					elseif data.payload.filenames == "" then
 						commonFunctions:userPrint( 21, " ListFiles response came without filenames parameter")
 						return false
-					elseif data.payload.spaceAvailable ==  self.InitialSpaceAvailable then
+					elseif data.payload.spaceAvailable == tonumber(SDLConfig:GetValue("AppDirectoryQuota")) then
 						commonFunctions:userPrint( 21, " spaceAvailable in ListFile response is equal to initial spaceAvailable value from .ini file ")
 						return false
-					else 
+					else
 						return true
 					end
 				end)
@@ -1255,28 +1028,26 @@ end
 -----------------------------------------------------------------------------------------------
 --------------------------------------III. SetGlobalProperties Test Block ---------------------
 -----------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("********************* III. SET GLOBAL PROPERTIES TEST BLOCK *********************")
-	end
+  testBlock("SET GLOBAL PROPERTIES")
 
     --Begin Test suit SetGlobalProperties
 
-		--Description: TC's checks processing 
+		--Description: TC's checks processing
 			-- request is sent with all parameters
-			-- request is sent with only mandatory parameters  
-			-- request is sent with helpPrompt only 
-			-- request is sent with timeoutPrompt only 
-			-- request is sent with vrHelpTitle and vrHelpItems only 
-			-- request is sent with missing mandatory 
+			-- request is sent with only mandatory parameters
+			-- request is sent with helpPrompt only
+			-- request is sent with timeoutPrompt only
+			-- request is sent with vrHelpTitle and vrHelpItems only
+			-- request is sent with missing mandatory
 			-- request is sent with missing all mandatory
 			-- request is sent with missing vrHelpTitle
 			-- request is sent with missing vrHelp
-			-- request is sent with different speech capabilities 
-			-- request is sent with non sequential positions of vrHelpItems 
+			-- request is sent with different speech capabilities
+			-- request is sent with non sequential positions of vrHelpItems
 			-- request is sent with sequential positions of vrHelpItems but not started from 1
-			-- request is sent with different image types 
+			-- request is sent with different image types
 
-			-- List of parametres in the request 
+			-- List of parametres in the request
 			-- 1.helpPrompt, type=TTSChunk, minsize=0, maxsize=100, array=true, mandatory=false
 			-- 2.timeoutPrompt, type=TTSChunk, minsize=1, maxsize=100, array=true, mandatory=false
 			-- 3.vrHelpTitle, type=String, maxlength=500, mandatory=false
@@ -1285,38 +1056,35 @@ end
 			-- 6.menuIcon, type=Image, mandatory=false
 			-- 7.keyboardProperties, type=KeyboardProperties, mandatory=false
 
-		--Requirement id in Jira: 
-				--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283515946	
-
-			-- Defining value for future using
-			APIName = "SetGlobalProperties" 
+		--Requirement id in Jira:
+				--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283515946
 
 		-----------------------------------------------------------------------------------------------
 
-			--Description: Check request with all parameters			
-				function Test:SetGlobalProperties_AllParams() 
+			--Description: Check request with all parameters
+				function Test:SetGlobalProperties_AllParams()
 
 					local sentParam = {
-									timeoutPrompt = 
+									timeoutPrompt =
 											{
 												{
 												 text = "Timeout prompt",
 												 type = "TEXT"
 												}
 											},
-									vrHelp = 
+									vrHelp =
 											{
 												{
 												 position = 1,
-												 image = 
+												 image =
 														{
-														 value = "icon.png", 
+														 value = "icon.png",
 														 imageType = "DYNAMIC"
 														},
 												text = "VR help item"
 												}
 									},
-									helpPrompt = 
+									helpPrompt =
 												{
 													{
 													 text = "Help prompt",
@@ -1326,16 +1094,15 @@ end
 									vrHelpTitle = "VR help title",
 								}
 					local UIParam = {
-									 vrHelp = 
+									 vrHelp =
 											{
 												{
 												 position = 1,
-													--[[ TODO: update after resolving APPLINK-16052
-												image = 
+												image =
 														{
 														imageType = "DYNAMIC",
-														value = PathToAppFolder .. "icon.png"
-														},]] 
+														value = pathToAppFolder .. "icon.png"
+														},
 												 text = "VR help item"
 												}
 											},
@@ -1345,17 +1112,16 @@ end
 					if self.appHMITypes["NAVIGATION"] == true then
 						sentParam.menuTitle = "Menu Title"
 						sentParam.menuIcon = {
-												 value = "icon.png", 
+												 value = "icon.png",
 												 imageType = "DYNAMIC"
 											}
 						sentParam.keyboardProperties = {
 											 keyboardLayout = "QWERTY",
 											 keypressMode = "SINGLE_KEYPRESS",
-													--[=[ TODO: update after resolving APPLINK-16047
-													limitedCharacterList = 
+													limitedCharacterList =
 														{
 															"a"
-														},]=]
+														},
 											 language = "EN-US",
 											 autoCompleteText = "Daemon, Freedom"
 											}
@@ -1364,25 +1130,25 @@ end
 						UIParam.menuTitle = sentParam.menuTitle
 						UIParam.menuIcon = 	{
 												imageType = "DYNAMIC",
-												value = PathToAppFolder .. "icon.png" 
+												value = pathToAppFolder .. "icon.png"
 											}
 						UIParam.keyboardProperties = sentParam.keyboardProperties
 					end
-				
+
 					--mobile side: sending SetGlobalProperties request
 					local cid = self.mobileSession:SendRPC("SetGlobalProperties",sentParam)
-		
+
 					--hmi side: expect TTS.SetGlobalProperties request
 					EXPECT_HMICALL("TTS.SetGlobalProperties",
 									{
-									timeoutPrompt = 
+									timeoutPrompt =
 											{
 												{
 												 text = "Timeout prompt",
 												 type = "TEXT"
 												}
 											},
-									helpPrompt = 
+									helpPrompt =
 											{
 												{
 												 text = "Help prompt",
@@ -1394,7 +1160,7 @@ end
 							--hmi side: sending UI.SetGlobalProperties response
 							self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 						end)
-		
+
 					--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties", UIParam)
 						:Do(function(_,data)
@@ -1404,7 +1170,7 @@ end
 
 					--mobile side: expect SetGlobalProperties response
 					EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-					
+
 					--mobile side: expect OnHashChange notification
 					EXPECT_NOTIFICATION("OnHashChange")
 				end
@@ -1412,11 +1178,11 @@ end
 
 		--Description: Test is intended to check request with only one conditional parameter: helpPrompt
 			function Test:SetGlobalProperties_helpPromptOnly()
-			
+
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 							{
-							 helpPrompt = 
+							 helpPrompt =
 								{
 									{
 									 text = "Help prompt",
@@ -1424,11 +1190,11 @@ end
 									}
 								}
 							})
-			
+
 				--hmi side: expect TTS.SetGlobalProperties request
 				EXPECT_HMICALL("TTS.SetGlobalProperties",
 								{
-								 helpPrompt = 
+								 helpPrompt =
 									{
 										{
 										 text = "Help prompt",
@@ -1440,23 +1206,23 @@ end
 						--hmi side: sending UI.SetGlobalProperties response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-			
+
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-							
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 			end
-							
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: Test is intended to check processing request with only one conditional parameter: timeoutPrompt
 			function Test:SetGlobalProperties_timeoutPromptOnly()
-		
+
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 														{
-														 timeoutPrompt = 
+														 timeoutPrompt =
 															{
 															  {
 																text = "Timeout prompt",
@@ -1464,12 +1230,12 @@ end
 															  }
 															}
 														})
-	
+
 
 				--hmi side: expect TTS.SetGlobalProperties request
 				EXPECT_HMICALL("TTS.SetGlobalProperties",
 								{
-								 timeoutPrompt = 
+								 timeoutPrompt =
 									{
 									  {
 										 text = "Timeout prompt",
@@ -1484,8 +1250,8 @@ end
 
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-					:Timeout(iTimeout)
-							
+					:Timeout(5000)
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 
@@ -1493,19 +1259,19 @@ end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: Test is intended to check processing request with two conditional parametres vrHelpTitle and vrHelpItems 
+		--Description: Test is intended to check processing request with two conditional parametres vrHelpTitle and vrHelpItems
 	     	function Test:SetGlobalProperties_vrHelpTitleandvrHelpitemsOnly()
-		
+
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 								{
-								 	vrHelp = 
+								 	vrHelp =
 										{
 											{
 											 	position = 1,
-												image = 
+												image =
 													{
-													 value = PathToAppFolder .. "icon.png",
+													 value = pathToAppFolder .. "icon.png",
 													 imageType = "DYNAMIC"
 													},
 											 	text = "VR help item"
@@ -1513,24 +1279,23 @@ end
 										},
 								 	vrHelpTitle = "VR help title"
 								})
-			
+
 				--hmi side: expect UI.SetGlobalProperties request
 				EXPECT_HMICALL("UI.SetGlobalProperties",
 								{
-								 vrHelp = 
+								 vrHelp =
 									{
 										{
 										 position = 1,
-										--[[ TODO: update after resolving APPLINK-16052
-										 image = 
+										 image =
 											{
 											 imageType = "DYNAMIC",
-											 value = "icon.png"
-											},]]
+											 value = pathToAppFolder .. "icon.png"
+											},
 										 text = "VR help item"
 										}
 									},
-									vrHelpTitle = "VR help title"									
+									vrHelpTitle = "VR help title"
 								})
 				:Do(function(_,data)
 					--hmi side: sending UI.SetGlobalProperties response
@@ -1539,24 +1304,30 @@ end
 
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-					
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 			end
 	-----------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check processing request with all parameters missing				
-			commonTestCases:VerifyRequestIsMissedAllParameters() 
-		
-	-----------------------------------------------------------------------------------------		
+		--Description: This test is intended to check processing request with all parameters missing
 
-		--Description: This test is intended to check processing request with vrHelpTitle parameter missing 
+	function Test:SetGlobalProperties_IsMissedAllParameters_INVALID_DATA()
+		--mobile side: sending request
+		local cid = self.mobileSession:SendRPC("SetGlobalProperties", {})
+		--mobile side: expect the response
+		EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+	end
+
+	-----------------------------------------------------------------------------------------
+
+		--Description: This test is intended to check processing request with vrHelpTitle parameter missing
 			function Test:SetGlobalProperties_vrHelpTitleMissing()
-				
+
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 							{
-								timeoutPrompt = 
+								timeoutPrompt =
 										{
 											{
 											 text = "Timeout prompt",
@@ -1565,16 +1336,16 @@ end
 										},
 								vrHelp = {
 											{
-											 position = 1,												
-											 image = 
+											 position = 1,
+											 image =
 													{
 													value = "icon.png",
 													imageType = "DYNAMIC"
 													},
 											text = "VR help item"
 											}
-										}, 														
-								helpPrompt = 
+										},
+								helpPrompt =
 										{
 											{
 											 text = "Help prompt",
@@ -1582,31 +1353,31 @@ end
 											}
 										}
 							})
-			
+
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
-							
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
-			end		
+				commonTestCases:DelayedExp(1000)
+			end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check processing request with vrHelp parameter missing 
-			function Test:SetGlobalProperties_vrHelpMissing() 
+		--Description: This test is intended to check processing request with vrHelp parameter missing
+			function Test:SetGlobalProperties_vrHelpMissing()
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 								{
-									timeoutPrompt = 
+									timeoutPrompt =
 										{
 											{
 											 text = "Timeout prompt",
 											 type = "TEXT"
 											}
 										},
-									helpPrompt = 
+									helpPrompt =
 										{
 											{
 											 text = "Help prompt",
@@ -1616,19 +1387,19 @@ end
 									vrHelpTitle = "VR help title"
 
 								})
-		
+
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
-							 
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
-		
+				commonTestCases:DelayedExp(1000)
+
 			end
-					
+
 	-----------------------------------------------------------------------------------------
-					
+
 		--Description: ttschunk in speechCapabilities is sent with values:  SAPI_PHONEMES, LHPLUS_PHONEMES, PRE_RECORDED, SILENCE
 			local SpeechCapabilitiesArray = {"SAPI_PHONEMES", "LHPLUS_PHONEMES", "PRE_RECORDED", "SILENCE"}
 
@@ -1637,21 +1408,21 @@ end
 				Test["SetGlobalProperties_TTSChunk" .. tostring(SpeechCapabilitiesArray[i])] = function(self)
 
 					--mobile side: sending SetGlobalProperties request
-					local cid = self.mobileSession:SendRPC("SetGlobalProperties", 
+					local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 											{
-											 timeoutPrompt = 
+											 timeoutPrompt =
 															{
 																{
 																 text = "Timeout prompt",
-																 type = SpeechCapabilitiesArray[i] 
+																 type = SpeechCapabilitiesArray[i]
 																}
 															}
-											})			
+											})
 
 					--hmi side: expect TTS.SetGlobalProperties request
 					EXPECT_HMICALL("TTS.SetGlobalProperties",
 											{
-											 timeoutPrompt = 
+											 timeoutPrompt =
 															{
 																{
 																 text = "Timeout prompt",
@@ -1666,33 +1437,33 @@ end
 
 					--mobile side: expect SetGlobalProperties response
 					EXPECT_RESPONSE(cid, { success = true, resultCode = "WARNINGS", info = "Speak type is not supported"})
-								
+
 					--mobile side: expect OnHashChange notification
 					EXPECT_NOTIFICATION("OnHashChange")
 				end
 			end
-								
-								
+
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: SDL rejects the request with REJECTED resultCode in case the list of VR Help Items contains non-sequential items
-			function Test:SetGlobalProperties_NonsequentialvrHelpItems()			
+			function Test:SetGlobalProperties_NonsequentialvrHelpItems()
 
-				local sentParam = 	{											
-										vrHelp = 
+				local sentParam = 	{
+										vrHelp =
 												{
 													{
 													 position = 1,
-													 image = 
+													 image =
 															{
 															 value = "icon.png",
 															 imageType = "DYNAMIC"
-															},															
+															},
 													 text = "VR help item 1"
 													},
 													{
 													position = 3,
-													image = 
+													image =
 															{
 															 value = "icon.png",
 															 imageType = "DYNAMIC"
@@ -1700,23 +1471,22 @@ end
 													text = "VR help item 3"
 													}
 												},
-										vrHelpTitle = "VR help title"													
+										vrHelpTitle = "VR help title"
 									}
 
 				if self.appHMITypes["NAVIGATION"] == true then
 					sentParam.menuTitle = "Menu Title"
 					sentParam.menuIcon = {
-											 value = "icon.png", 
+											 value = "icon.png",
 											 imageType = "DYNAMIC"
 										}
 					sentParam.keyboardProperties = {
 										 keyboardLayout = "QWERTY",
 										 keypressMode = "SINGLE_KEYPRESS",
-												--[=[ TODO: update after resolving APPLINK-16047
-												limitedCharacterList = 
+												limitedCharacterList =
 													{
 														"a"
-													},]=]
+													},
 										 language = "EN-US",
 										 autoCompleteText = "Daemon, Freedom"
 										}
@@ -1725,15 +1495,15 @@ end
 
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties", sentParam )
-		
+
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
-						
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 					:Times(0)
 
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 		end
 
 	-----------------------------------------------------------------------------------------
@@ -1741,25 +1511,25 @@ end
 		--Description: SDL rejects the request with REJECTED resultCode in case the list of VR Help Items contains items not started from 1 position
 			function Test:SetGlobalProperties_vrHelpItemssequentialNotFrom1()
 
-				local sentParam = {																
-										vrHelp = 
+				local sentParam = {
+										vrHelp =
 										{
 											{
 											 	position = 10,
-											 	image = 
+											 	image =
 													{
 													 value = "icon.png",
 													 imageType = "DYNAMIC"
-													},											
+													},
 												text = "VR help item 10"
-											},									
+											},
 											{
 												position = 11,
-												image = 
+												image =
 													{
 													 value = "icon.png",
 													 imageType = "DYNAMIC"
-													},											
+													},
 												text = "VR help item 11"
 											}
 
@@ -1770,17 +1540,16 @@ end
 				if self.appHMITypes["NAVIGATION"] == true then
 					sentParam.menuTitle = "Menu Title"
 					sentParam.menuIcon = {
-											 value = "icon.png", 
+											 value = "icon.png",
 											 imageType = "DYNAMIC"
 										}
 					sentParam.keyboardProperties = {
 										 keyboardLayout = "QWERTY",
 										 keypressMode = "SINGLE_KEYPRESS",
-												--[=[ TODO: update after resolving APPLINK-16047
-												limitedCharacterList = 
+												limitedCharacterList =
 													{
 														"a"
-													},]=]
+													},
 										 language = "EN-US",
 										 autoCompleteText = "Daemon, Freedom"
 										}
@@ -1789,76 +1558,74 @@ end
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties", sentParam)
 
-			
+
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
-						
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
 
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: Request is successfully processed with STATIC image type 
+		--Description: Request is successfully processed with STATIC image type
 			function Test:SetGlobalProperties_STATICimage()
 
 				local sentParam = {
-									vrHelp = 
+									vrHelp =
 									{
 										{
 										 position = 1,
-										 image = 
+										 image =
 											{
-											 value = "icon.png", 
+											 value = "icon.png",
 											 imageType = "STATIC"
 											},
 										text = "VR help item Static"
-										}, 
+										},
 									},
-									vrHelpTitle = "VR help title"								    
+									vrHelpTitle = "VR help title"
 								}
 
 				if self.appHMITypes["NAVIGATION"] == true then
 					sentParam.menuTitle = "Menu Title"
 					sentParam.menuIcon = {
-											 value = "icon.png", 
+											 value = "icon.png",
 											 imageType = "DYNAMIC"
 										}
 					sentParam.keyboardProperties = {
 										 keyboardLayout = "QWERTY",
 										 keypressMode = "SINGLE_KEYPRESS",
-												--[=[ TODO: update after resolving APPLINK-16047
-												limitedCharacterList = 
+												limitedCharacterList =
 													{
 														"a"
-													},]=]
+													},
 										 language = "EN-US",
 										 autoCompleteText = "Daemon, Freedom"
 										}
 				end
-		
+
 				--mobile side: sending SetGlobalProperties request
 				local cid = self.mobileSession:SendRPC("SetGlobalProperties", sentParam)
-		
+
 				--hmi side: expect UI.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 										{
 										 	vrHelp = {
 											 			{
 														 	position = 1,
-																--[[ TODO: update after resolving APPLINK-16052
-																-- image = 
-																-- 	{
-																-- 	 imageType = "STATIC",
-																-- 	 value = "icon.png"
-																-- 	},}]]
-														 	text = "VR help item Static"											
+																image =
+																	{
+																	 imageType = "STATIC",
+																	 value = "icon.png"
+																	},
+														 	text = "VR help item Static"
 														}
 													},
-											vrHelpTitle = "VR help title"														
+											vrHelpTitle = "VR help title"
 								        })
 				:Do(function(_,data)
 					--hmi side: sending UI.SetGlobalProperties response
@@ -1875,15 +1642,15 @@ end
 
 				--mobile side: expect SetGlobalProperties response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-				
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 		end
 
 	-----------------------------------------------------------------------------------------
 
-		if NavigationType == true then
-		-- Test cases in only for navigation app			
+		if Test.appHMITypes["NAVIGATION"] == true then
+		-- Test cases in only for navigation app
 		-- Description: Different keyboardLayout:  QWERTY, QWERTZ, AZERTY
 			local KeyboardLayoutArray = {"QWERTY", "QWERTZ", "AZERTY"}
 
@@ -1892,15 +1659,15 @@ end
 				Test["SetGlobalProperties_KeyboardLayout" .. tostring(KeyboardLayoutArray[i])] = function(self)
 
 					--mobile side: sending SetGlobalProperties request
-					local cid = self.mobileSession:SendRPC("SetGlobalProperties", 
+					local cid = self.mobileSession:SendRPC("SetGlobalProperties",
 									{
-									 	vrHelp = 
+									 	vrHelp =
 											{
 												{
 												 	position = 1,
-													image = 
+													image =
 														{
-														 value = PathToAppFolder .. "icon.png",
+														 value = pathToAppFolder .. "icon.png",
 														 imageType = "DYNAMIC"
 														},
 												 	text = "VR help item"
@@ -1909,55 +1676,52 @@ end
 									 	vrHelpTitle = "VR help title",
 									 	menuTitle = "Menu Title",
 										menuIcon = 	{
-														value = "icon.png", 
+														value = "icon.png",
 														imageType = "DYNAMIC"
 													},
 										keyboardProperties = {
 															 keyboardLayout = KeyboardLayoutArray[i],
 															 keypressMode = "SINGLE_KEYPRESS",
-																	--[=[ TODO: update after resolving APPLINK-16047
-																	limitedCharacterList = 
+																	limitedCharacterList =
 																		{
 																			"a"
-																		},]=]
+																		},
 															 language = "EN-US",
 															 autoCompleteText = "Daemon, Freedom"
 															}
-									})			
+									})
 
 					--hmi side: expect TTS.SetGlobalProperties request
 					EXPECT_HMICALL("UI.SetGlobalProperties",
 											{
-											 	vrHelp = 
+											 	vrHelp =
 													{
 														{
 														 position = 1,
-														--[[ TODO: update after resolving APPLINK-16052
-														 image = 
+														 image =
 															{
 															 imageType = "DYNAMIC",
-															 value = "icon.png"
-															},]]
+															 value = pathToAppFolder .. "icon.png"
+															},
 														 text = "VR help item"
 														}
 													},
 												vrHelpTitle = "VR help title",
 												menuTitle = "Menu Title",
 												menuIcon = 	{
-																value =  PathToAppFolder .. "icon.png", 
+																value =  pathToAppFolder .. "icon.png",
 																imageType = "DYNAMIC"
 															},
 												keyboardProperties = {
 																	 keyboardLayout = KeyboardLayoutArray[i],
 																	 keypressMode = "SINGLE_KEYPRESS",
-																			--[=[ TODO: update after resolving APPLINK-16047
-																			limitedCharacterList = 
+																			limitedCharacterList =
 																				{
 																					"a"
-																				},]=]
+																				},
 																	 language = "EN-US",
 																	 autoCompleteText = "Daemon, Freedom"
-																	}									
+																	}
 											})
 						:Do(function(_,data)
 						--hmi side: sending TTS.SetGlobalProperties response
@@ -1966,7 +1730,7 @@ end
 
 					--mobile side: expect SetGlobalProperties response
 					EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-								
+
 					--mobile side: expect OnHashChange notification
 					EXPECT_NOTIFICATION("OnHashChange")
 				end
@@ -1981,34 +1745,32 @@ end
 ------------------------------------------------------------------------------------------------
 ----------------------------------IV. ADD SUBMENU TEST BLOCK-----------------------------------
 ------------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** IV.ADD SUBMENU TEST BLOCK ******************************")
-	end
+  testBlock("ADD SUBMENU")
 
 	--Begin Test suit AddSubmenu
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request is sent with all parameters
-		-- request is sent with lower bound parametres 
-		-- request is sent with upper bound parametres 
-        -- request is sent with only mandatory parameters 
+		-- request is sent with lower bound parametres
+		-- request is sent with upper bound parametres
+        -- request is sent with only mandatory parameters
 	    -- request is sent with missing mandatory parameter menuID
 	    -- request is sent with missing mandatory parameter menuName
 	    -- request is sent with missing both mandatory menuID and menuName
 	    -- request is sent with all parameters missing
 	    -- invalid values(duplicate)
 
-	    -- List of parametres in the request 
+	    -- List of parametres in the request
 			--1. menuID, type=Integer, minvalue=1, maxvalue=2000000000, mandatory=true
             --2. position, type=Integer, minvalue=0, maxvalue=1000, mandatory=false
             --3. menuName, type=String, maxlength=500, mandatory=true
 
-		--Requirement id in Jira: 
+		--Requirement id in Jira:
 			--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282666819
 
 	------------------------------------------------------------------------------------------------
 		--Description: This test is intended to check positive cases and when all parameters are in boundary conditions
-											
+
 			function Test:AddSubMenu_Positive()
 				--mobile side: sending AddSubMenu request
 				local cid = self.mobileSession:SendRPC("AddSubMenu",
@@ -2018,10 +1780,10 @@ end
 									menuName ="SubMenupositive"
 								})
 				--hmi side: expect UI.AddSubMenu request
-				EXPECT_HMICALL("UI.AddSubMenu", 
-								{ 
+				EXPECT_HMICALL("UI.AddSubMenu",
+								{
 									menuID = 1000,
-									menuParams = 
+									menuParams =
 												{
 												 position = 500,
 												 menuName ="SubMenupositive"
@@ -2031,7 +1793,7 @@ end
 					--hmi side: sending UI.AddSubMenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-					
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -2043,7 +1805,7 @@ end
 	-----------------------------------------------------------------------------------------
 
 		--Description: Test is intended to check values in boundary conditions lower
-			function Test:AddSubMenu_LowerBound()	
+			function Test:AddSubMenu_LowerBound()
 				--mobile side: sending AddSubMenu request
 				local cid = self.mobileSession:SendRPC("AddSubMenu",
 														{
@@ -2052,8 +1814,8 @@ end
 															menuName ="Smoke Submenu0"
 														})
 				--hmi side: expect UI.AddSubMenu request
-				EXPECT_HMICALL("UI.AddSubMenu", 
-								{ 
+				EXPECT_HMICALL("UI.AddSubMenu",
+								{
 									menuID = 1,
 									menuParams = {
 												 position = 0,
@@ -2064,7 +1826,7 @@ end
 					--hmi side: sending UI.AddSubMenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-					
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -2084,19 +1846,19 @@ end
 															menuName =  "Smoke SubMenu2000000000"
 														})
 				--hmi side: expect UI.AddSubMenu request
-				EXPECT_HMICALL("UI.AddSubMenu", 
-								{ 
+				EXPECT_HMICALL("UI.AddSubMenu",
+								{
 									menuID = 2000000000,
 									menuParams = {
 												 position = 1000,
-												 menuName = "Smoke SubMenu2000000000" 
+												 menuName = "Smoke SubMenu2000000000"
 												 }
 								})
 				:Do(function(_,data)
 					--hmi side: sending UI.AddSubMenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-					
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -2106,7 +1868,7 @@ end
 
 	-----------------------------------------------------------------------------------------
 
-	    --Description: Test is intended to check request with only mandatory parametres 
+	    --Description: Test is intended to check request with only mandatory parametres
 			function Test:AddSubMenu_MandatoryOnly()
 				--mobile side: sending AddSubMenu request
 				local cid = self.mobileSession:SendRPC("AddSubMenu",
@@ -2115,10 +1877,10 @@ end
 															menuName ="SubMenumandatoryonly"
 														})
 				--hmi side: expect UI.AddSubMenu request
-				EXPECT_HMICALL("UI.AddSubMenu", 
-								{ 
+				EXPECT_HMICALL("UI.AddSubMenu",
+								{
 									menuID = 11,
-									menuParams = 
+									menuParams =
 												{
 													menuName ="SubMenumandatoryonly"
 												}
@@ -2127,13 +1889,13 @@ end
 					--hmi side: sending UI.AddSubMenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-					
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
-			end	
+			end
 
 	-----------------------------------------------------------------------------------------
 
@@ -2145,15 +1907,15 @@ end
 															position = 1,
 															menuName ="SubMenu1"
 														})
-												
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
-			end		
+				commonTestCases:DelayedExp(1000)
+			end
 
 	-----------------------------------------------------------------------------------------
 
@@ -2164,17 +1926,17 @@ end
 														{
 															menuID = 2001,
 															position = 1
-														})			
-								
+														})
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-					
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: Missing both "menuId" and "menuName"
@@ -2184,33 +1946,33 @@ end
 							{
 							position = 1
 							})
-												
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
-			end	
-								
+				commonTestCases:DelayedExp(1000)
+			end
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: All parameters missing
 			function Test:AddSubMenu_MissingAllParams()
 				--mobile side: sending AddSubMenu request
-				local cid = self.mobileSession:SendRPC("AddSubMenu",{})				 
-									
+				local cid = self.mobileSession:SendRPC("AddSubMenu",{})
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
 
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-		
+
 	-----------------------------------------------------------------------------------------
 
 		--Description:This test is intended to check providing request with duplicate menuID
@@ -2222,16 +1984,16 @@ end
 															position = 1000,
 															menuName ="SubMenuInvalidID"
 														})
-										
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-	-----------------------------------------------------------------------------------------	
+	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with duplicate menuName
 				function Test:AddSubMenu_menuNameDuplicate()
@@ -2242,16 +2004,16 @@ end
 															position = 999,
 															menuName ="Smoke Submenu0"
 														})
-									
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = false , resultCode = "DUPLICATE_NAME" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000) 
+				commonTestCases:DelayedExp(1000)
 			end
-	-----------------------------------------------------------------------------------------	
+	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with duplicate position
 			function Test:AddSubMenu_DuplicatePosition()
@@ -2264,10 +2026,10 @@ end
 										})
 
 				--hmi side: expect UI.AddSubMenu request
-				EXPECT_HMICALL("UI.AddSubMenu", 
-										{ 
+				EXPECT_HMICALL("UI.AddSubMenu",
+										{
 										 menuID = 8008,
-										 menuParams = 
+										 menuParams =
 													 {
 													 position = 1000,
 													 menuName = "PositionSubMenu"
@@ -2276,14 +2038,14 @@ end
 				:Do(function(_,data)
 					--hmi side: sending UI.AddSubMenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-				end) 
-									
+				end)
+
 				--mobile side: expect AddSubMenu response
 				EXPECT_RESPONSE(cid, { success = true , resultCode = "SUCCESS" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
-			
+
 			end
 
 	--End Test suit AddSubmenu
@@ -2294,73 +2056,71 @@ end
 -----------------------------------------------------------------------------------------------
 ------------------------------------V. ADD COMMAND TEST BLOCK----------------------------------
 ----------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** V. ADD COMMAND TEST BLOCK ******************************")
-	end
+  testBlock("ADD COMMAND")
 
 	--Begin Test suit AddCommand
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request is sent with all parameters
-		-- request is sent with lower bound parametres 
-		-- request is sent with upper bound parametres 
-        -- request is sent with only mandatory parameters for VR 
+		-- request is sent with lower bound parametres
+		-- request is sent with upper bound parametres
+        -- request is sent with only mandatory parameters for VR
         -- request is sent with only mandatory parameters for UI only with parentID
         -- request is sent with only mandatory parameters for UI only without parentID
         -- request is sent with missing mandatory parameter cmdID
         -- request is sent with missing mandatory both UI and VR
         -- request is sent with missing mandatory menuName
         -- request is sent with missing all mandatory parametres
-        -- request is sent with DYNAMIC image type 
-        -- request is sent with STATIC image type 
+        -- request is sent with DYNAMIC image type
+        -- request is sent with STATIC image type
         -- invalid values(duplicate)
-	    
-	    -- List of parametres in the request 
+
+	    -- List of parametres in the request
 			-- 1. cmdID, type=Integer, minvalue=1, maxvalue=2000000000, mandatory=true
 			-- 2. menuParams, type=MenuParams, mandatory=false
 			-- 3. vrCommands, type=String, minsize=1, maxsize=100, maxlength = 99, array=true, mandatory=false
 			-- 4. cmdIcon, type=Image, mandatory=false
 
-		--Requirement id in Jira: 
+		--Requirement id in Jira:
 				--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282665309#AddCommand(Ford-specific)-RelatedHMIAPI
 
 	--------------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check positive cases and when all parameters are in boundary conditions and both UI and VR requests are sent 									
+		--Description: This test is intended to check positive cases and when all parameters are in boundary conditions and both UI and VR requests are sent
 			function Test:AddCommand_AllParams()
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 														{
 														 cmdID = 11,
-														 menuParams = 	
-															{ 
+														 menuParams =
+															{
 															 parentID = 1000,
 															 position = 500,
 															 menuName = "Commandpositive"
-															}, 
-														vrCommands = 
-															{ 
+															},
+														vrCommands =
+															{
 															 "VRCommandonepositive",
 															 "VRCommandonepositivedouble"
-															}, 
-														cmdIcon = 	
-															{ 
+															},
+														cmdIcon =
+															{
 															 value ="icon.png",
 															 imageType ="DYNAMIC"
 															}
 														})
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-								{ 
+				EXPECT_HMICALL("UI.AddCommand",
+								{
 								 cmdID = 11,
-								 cmdIcon = 
+								 cmdIcon =
 										{
-										 value = PathToAppFolder.."icon.png",
+										 value = pathToAppFolder.."icon.png",
 										 imageType = "DYNAMIC"
 										},
-								menuParams = 
-										{ 
-										 parentID = 1000, 
+								menuParams =
+										{
+										 parentID = 1000,
 										 position = 500,
 										 menuName = "Commandpositive"
 										}
@@ -2369,15 +2129,15 @@ end
 					--hmi side: sending UI.AddCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-					
+
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
+				EXPECT_HMICALL("VR.AddCommand",
+								{
 								 cmdID = 11,
 								 type = "Command",
-								 vrCommands = 
+								 vrCommands =
 										{
-										 "VRCommandonepositive", 
+										 "VRCommandonepositive",
 										 "VRCommandonepositivedouble"
 										}
 								})
@@ -2385,7 +2145,7 @@ end
 					--hmi side: sending VR.AddCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-				
+
 				--mobile side: expect AddCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -2401,34 +2161,34 @@ end
 				local cid = self.mobileSession:SendRPC("AddCommand",
 						{
 							cmdID = 0,
-							menuParams = 	
-								{ 
+							menuParams =
+								{
 								 parentID = 1,
 								 position = 1,
 								 menuName = "Smoke command 0"
 								},
-							vrCommands = 
-								{ 
+							vrCommands =
+								{
 								 "Smoke command 0"
-								}, 
-							cmdIcon = 	
-							{ 
+								},
+							cmdIcon =
+							{
 							 value = "icon.png",
 							 imageType ="DYNAMIC"
 							}
 						})
-					
+
 					--hmi side: expect UI.AddCommand request
-					EXPECT_HMICALL("UI.AddCommand", 
-							{ 
+					EXPECT_HMICALL("UI.AddCommand",
+							{
 								cmdID = 0,
-								cmdIcon = 
+								cmdIcon =
 									{
-									 value = PathToAppFolder.."icon.png", 
+									 value = pathToAppFolder.."icon.png",
 									 imageType = "DYNAMIC",
 									},
-								menuParams = 
-									{ 					
+								menuParams =
+									{
 									 parentID = 1,
 									 position = 1,
 									 menuName = "Smoke command 0"
@@ -2438,13 +2198,13 @@ end
 						--hmi side: sending response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-					
+
 					--hmi side: expect VR.AddCommand request
-					EXPECT_HMICALL("VR.AddCommand", 
-							{ 
-							 cmdID = 0,							
+					EXPECT_HMICALL("VR.AddCommand",
+							{
+							 cmdID = 0,
 							 type = "Command",
-							 vrCommands = 
+							 vrCommands =
 									{
 									 "Smoke command 0"
 									}
@@ -2452,11 +2212,11 @@ end
 						:Do(function(_,data)
 						--hmi side: sending response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-					end)	
-					
+					end)
+
 					EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-					EXPECT_NOTIFICATION("OnHashChange")				
-				end		
+					EXPECT_NOTIFICATION("OnHashChange")
+				end
 
 	-----------------------------------------------------------------------------------------
 
@@ -2466,45 +2226,45 @@ end
 				local cid = self.mobileSession:SendRPC("AddCommand",
 								{
 									cmdID = 2000000000,
-									menuParams = 	
+									menuParams =
 											{ parentID = 2000000000,
 											  position = 1000,
 											  menuName ="Smoke command 2000000000"
 											},
-									vrCommands = 
-											{ 
+									vrCommands =
+											{
 											"Smoke Command 2000000000"
-											},											 
-									cmdIcon = 	
+											},
+									cmdIcon =
 											{ value = "icon.png",
 											  imageType ="DYNAMIC"
 											}
 								})
-				
+
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-								{ 
+				EXPECT_HMICALL("UI.AddCommand",
+								{
 									cmdID = 2000000000,
-									cmdIcon = 
+									cmdIcon =
 										{
-										 value = PathToAppFolder.."icon.png",
+										 value = pathToAppFolder.."icon.png",
 										 imageType ="DYNAMIC"
 										},
-									menuParams = 	
+									menuParams =
 										{
 										 position = 1000,
 										 menuName = "Smoke command 2000000000"
 										}
-								})			
+								})
 				:Do(function(_,data)
 					--hmi side: sending UI.AddCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-				end)			
-				
+				end)
+
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-				    		{ 
-							 cmdID = 2000000000,							
+				EXPECT_HMICALL("VR.AddCommand",
+				    		{
+							 cmdID = 2000000000,
 							 type = "Command",
 							 vrCommands = {
 							 			   "Smoke Command 2000000000"
@@ -2514,11 +2274,11 @@ end
 				:Do(function(_,data)
 					--hmi side: sending response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-				end)	
-				
+				end)
+
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 				EXPECT_NOTIFICATION("OnHashChange")
-			end			
+			end
 
 	-----------------------------------------------------------------------------------------
 
@@ -2528,18 +2288,18 @@ end
 				local cid = self.mobileSession:SendRPC("AddCommand",
 								{
 								 cmdID = 1005,
-								 vrCommands = 
-									{ 
+								 vrCommands =
+									{
 									 "OnlyVRCommand"
 									}
 								})
-					
+
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
-								 cmdID = 1005,				
+				EXPECT_HMICALL("VR.AddCommand",
+								{
+								 cmdID = 1005,
 								 type = "Command",
-								 vrCommands = 
+								 vrCommands =
 									{
 									 "OnlyVRCommand"
 									}
@@ -2547,20 +2307,20 @@ end
 					:Do(function(_,data)
 					--hmi side: sending response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-					end)	
+					end)
 
-				--hmi side: expect UI.AddCommand request is not sent 
+				--hmi side: expect UI.AddCommand request is not sent
 				EXPECT_HMICALL("UI.AddCommand")
 				:Times(0)
 
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 
 			    EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-						
+
 				EXPECT_NOTIFICATION("OnHashChange")
 
 			end
-					
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: If the command has only MenuParams definitions and no VR command definitions the command should be added only to UI Commands Menu/SubMenu. (with ParentID)
@@ -2569,20 +2329,20 @@ end
 				local cid = self.mobileSession:SendRPC("AddCommand",
 														{
 														 cmdID = 20,
-														 menuParams = 	
-															{ 
+														 menuParams =
+															{
 															 parentID = 1,
 															 position = 0,
 															 menuName ="Command20"
 															}
 														})
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-								{ 
-								 cmdID = 20,								
-								 menuParams = 
-									{ 
-									 parentID = 1,	
+				EXPECT_HMICALL("UI.AddCommand",
+								{
+								 cmdID = 20,
+								 menuParams =
+									{
+									 parentID = 1,
 									 position = 0,
 									 menuName ="Command20"
 									}
@@ -2591,17 +2351,17 @@ end
 					--hmi side: sending UI.AddCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-                 	--hmi side: expect VR.AddCommand request is not sent 
+                 	--hmi side: expect VR.AddCommand request is not sent
 				EXPECT_HMICALL("VR.AddCommand")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 
 				--mobile side: expect AddCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
-			end	
+			end
 
 	-----------------------------------------------------------------------------------------
 
@@ -2611,21 +2371,21 @@ end
 				local cid = self.mobileSession:SendRPC("AddCommand",
 														{
 														 cmdID = 21,
-														 menuParams = 	
-															{ 
+														 menuParams =
+															{
 															 position = 0,
 															 menuName ="Command21"
 															}
 														})
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-								{ 
+				EXPECT_HMICALL("UI.AddCommand",
+								{
 								 cmdID = 21,
-								 appID = self.applications[applicationName] ,										
-								 menuParams = 
-									{ 
+								 appID = self.applications[applicationName] ,
+								 menuParams =
+									{
 									 position = 0,
-									 menuName ="Command21", 
+									 menuName ="Command21",
 									 parentID = 0
 									}
 								})
@@ -2633,40 +2393,40 @@ end
 						--hmi side: sending UI.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-									
+
 				--mobile side: expect AddCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
-			end	
+			end
 
-	---------------------------------------------------------------------------------------		
+	---------------------------------------------------------------------------------------
 
 		--Description: Mandatory missing - cmdID
 			function Test:AddCommand_cmdIDMissing()
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 				{
-					menuParams = 	
-					{ 
+					menuParams =
+					{
 						parentID = 1,
 						position = 0,
 						menuName ="Command1"
-					}, 
-					vrCommands = 
-					{ 
+					},
+					vrCommands =
+					{
 						"Voicerecognitioncommandone"
 					}
-				})		
-				
+				})
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
-			end		
+				commonTestCases:DelayedExp(1000)
+			end
 
 	-----------------------------------------------------------------------------------------
 
@@ -2675,106 +2435,106 @@ end
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 						{
-						 cmdID = 22,				
-						 cmdIcon = 	
-							{ 
+						 cmdID = 22,
+						 cmdIcon =
+							{
 							 value ="icon.png",
 							 imageType ="DYNAMIC"
 							}
-						})		
-				
+						})
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-					
+
 	-----------------------------------------------------------------------------------------
-					
+
 		--Description: Mandatory missing - menuName are not provided
 			function Test:AddCommand_menuNameMissing()
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 				{
 					cmdID = 123,
-					menuParams = 	
-						{ 
+					menuParams =
+						{
 						 parentID = 1,
 						 position = 0
-						}, 
-					vrCommands = 
-						{ 
+						},
+					vrCommands =
+						{
 						 "VRCommandonepositive",
 						 "VRCommandonepositivedouble"
 						}
-				})		
-				
+				})
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
-			end						
-								
+				commonTestCases:DelayedExp(1000)
+			end
+
 	---------------------------------------------------------------------------------------
-					
+
 		--Description: All parameter missing
 			function Test:AddCommand_AllParamsMissing()
 				--mobile side: sending AddCommand request
-				local cid = self.mobileSession:SendRPC("AddCommand", {}) 
-				
+				local cid = self.mobileSession:SendRPC("AddCommand", {})
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-				
-			
+
+
 	-----------------------------------------------------------------------------------------
 
-		--Description: Dynamic image is supported 
+		--Description: Dynamic image is supported
 			function Test:AddCommand_DynamicImage()
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 								{
 								cmdID = 1814,
-								menuParams = 	
-											{ 																
+								menuParams =
+											{
 											 menuName ="Dynamicimage"
 											},
-								cmdIcon = 	
+								cmdIcon =
 											{
 											 value = "icon.png",
 											 imageType ="DYNAMIC"
 											}
 								})
-									
+
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-								{ 
-								cmdID = 1814,							
-								menuParams = 	
-											{ 																
+				EXPECT_HMICALL("UI.AddCommand",
+								{
+								cmdID = 1814,
+								menuParams =
+											{
 											 menuName ="Dynamicimage"
 											},
-								cmdIcon = 	
+								cmdIcon =
 											{
-											 value = PathToAppFolder.."icon.png",
+											 value = pathToAppFolder.."icon.png",
 											 imageType ="DYNAMIC"
 											}
 								})
-				:Do(function(exp,data)
-					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})		
-					end)					
-				
+				:Do(function(_, data)
+					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+					end)
+
 				--mobile side: expect response
-				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" }) 
-				
+				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 
@@ -2782,48 +2542,48 @@ end
 
 	---------------------------------------------------------------------------------------
 
-		--Description: request is sent with static image that is unsupported 
+		--Description: request is sent with static image that is unsupported
 			function Test:AddCommand_StaticImage()
 				--mobile side: sending AddCommand request
 					local cid = self.mobileSession:SendRPC("AddCommand",
 									{
 										cmdID = 1815,
-										menuParams = 	
-													{ 																
+										menuParams =
+													{
 													 menuName ="Staticimage"
 													},
-										cmdIcon = 	
+										cmdIcon =
 													{
 													value ="icon.png",
 													imageType ="STATIC"
 													}
 									})
-									
+
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-									{ 
-										cmdID = 1815,							
-										menuParams = 	
-													{ 																
+				EXPECT_HMICALL("UI.AddCommand",
+									{
+										cmdID = 1815,
+										menuParams =
+													{
 														menuName ="Staticimage"
 													},
-										cmdIcon = 	
+										cmdIcon =
 													{
 														value ="icon.png",
 														imageType ="STATIC"
 													}
 									})
-				:Do(function(exp,data)
+				:Do(function(_, data)
 					self.hmiConnection:SendError(data.id, data.method, "UNSUPPORTED_RESOURCE", "Unsupported STATIC type. Available data in request was processed.")
-				end)					
-				
+				end)
+
 				--mobile side: expect response
-				EXPECT_RESPONSE(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "Unsupported STATIC type. Available data in request was processed." })
-				
+				EXPECT_RESPONSE(cid, { success = true, resultCode = "UNSUPPORTED_RESOURCE", info = "Unsupported STATIC type. Available data in request was processed." })
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
-				:Times(0)
-				DelayedExp(1000) 
+				:Times(1)
+
 
 			end
 
@@ -2835,24 +2595,24 @@ end
 				local cid = self.mobileSession:SendRPC("AddCommand",
 							{
 							cmdID = 11,
-							menuParams = 	
-										{ 
+							menuParams =
+										{
 										 parentID = 1,
 										 position = 0,
 										 menuName ="CommandDifferent"
-										}, 
-							vrCommands = 
-										{ 
+										},
+							vrCommands =
+										{
 										 "CommandDifferent"
 										}
 							})
-				
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -2867,84 +2627,84 @@ end
 								 vrCommands = {
 												"VRCommandonepositive",
 											  	"VRCommandonepositivedouble"
-											  }, 			
+											  },
 					            })
-					
-				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })							
-				
+
+				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
-				:Times(0) 
-				DelayedExp(1000)
+				:Times(0)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: menuParams - menuName already exists 
+		--Description: menuParams - menuName already exists
 			function Test:AddCommand_MenuParamNameDuplicate()
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 							{
 							 cmdID = 411,
-							 menuParams = 	
-								{ 
+							 menuParams =
+								{
 								 parentID = 1000,
 								 position = 0,
 								 menuName ="Commandpositive"
 								}
-							})					
-			
+							})
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)		
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
-			
+
 		--Description: Submenu does not exist (no ParentID)
 			function Test:AddCommand_MenuParamsWithNotExistedParentID()
 				--mobile side: sending AddCommand request
 				local cid = self.mobileSession:SendRPC("AddCommand",
 						{
 							cmdID = 1004,
-							menuParams = 	
-								{ 
+							menuParams =
+								{
 								 parentID = 1111,
 								 position = 0,
 								 menuName ="Command1004"
 								}
 						})
-							
+
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
 
 				EXPECT_NOTIFICATION("OnHashChange")
 					:Times(0)
-			end		
+			end
 
 	-----------------------------------------------------------------------------------------
-	
+
 		--Description: AddCommand requests is sent with duplicate menuName within different subMenu
-			function Test:AddCommand_duplicateMenuNameSameTime() 
+			function Test:AddCommand_duplicateMenuNameSameTime()
 
 				local cid= self.mobileSession:SendRPC("AddCommand",
 								{
 								cmdID = 451,
-								menuParams = 	
-										{ 
+								menuParams =
+										{
 										 parentID = 11,
 										 position = 0,
 										 menuName = "Smoke command 0"
 										}
-								})						
-				
+								})
+
 				--hmi side: expect UI.AddCommand request
-				EXPECT_HMICALL("UI.AddCommand", 
-								{ 
+				EXPECT_HMICALL("UI.AddCommand",
+								{
 								cmdID = 451,
-								menuParams = 
-									{ 					
+								menuParams =
+									{
 									parentID = 11,
 									position = 0,
 									menuName = "Smoke command 0"
@@ -2954,9 +2714,9 @@ end
 					--hmi side: sending response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-											
-				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" }) 
-				
+
+				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 			end
@@ -2968,57 +2728,55 @@ end
 -----------------------------------------------------------------------------------------------
 ----------------------------------VI. DELETE COMMAND TEST BLOCK--------------------------------
 -----------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** VI. DELETE COMMAND TEST BLOCK ******************************")
-	end
+  testBlock("DELETE COMMAND")
 
 	--Begin Test suit DeleteCommand
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request is sent with all parameters
 		-- request is sent with cmdID lower bound = 0 and within subMenu
 		-- request is sent with cmdID upper bound = 2000000000
 		-- request is sent with top application menu
-     	-- request is sent with only mandatory parameters 
+     	-- request is sent with only mandatory parameters
      	-- request is sent with non existent cmdID
 
-	    -- List of parametres in the request 
+	    -- List of parametres in the request
 			-- 1. cmdID, type=Integer, minvalue=0, maxvalue=2000000000
 
-		--Requirement id in Jira: 
+		--Requirement id in Jira:
 					--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282665895
 
 	---------------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check  DeleteCommand from both UI and VR Command menu in main menu
-			function Test:DeleteCommand_PositiveMainMenu()				
+			function Test:DeleteCommand_PositiveMainMenu()
 				--mobile side: sending DeleteCommand request
 				local cid = self.mobileSession:SendRPC("DeleteCommand",
 						{
 						 cmdID = 11
 						})
-				
+
 				--hmi side: expect UI.DeleteCommand request
-				EXPECT_HMICALL("UI.DeleteCommand", 
-					{ 
+				EXPECT_HMICALL("UI.DeleteCommand",
+					{
 					 cmdID = 11
 					})
 					:Do(function(_,data)
 						--hmi side: sending UI.DeleteCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-				
+
 				--hmi side: expect VR.DeleteCommand request
-				EXPECT_HMICALL("VR.DeleteCommand", 
-					{ 
+				EXPECT_HMICALL("VR.DeleteCommand",
+					{
 					 cmdID = 11
 					})
 					:Do(function(_,data)
 						--hmi side: sending VR.DeleteCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-							
-				--mobile side: expect DeleteCommand response 
+
+				--mobile side: expect DeleteCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				EXPECT_NOTIFICATION("OnHashChange")
@@ -3026,39 +2784,39 @@ end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: Test is intended to check cmdID parameter in boundary conditions lower 
+		--Description: Test is intended to check cmdID parameter in boundary conditions lower
 			function Test:DeleteCommand_cmdIDLowerBound()
 				--mobile side: sending DeleteCommand request
 				local cid = self.mobileSession:SendRPC("DeleteCommand",
 					{
 					 cmdID = 0
 					})
-				
+
 				--hmi side: expect UI.DeleteCommand request
-				EXPECT_HMICALL("UI.DeleteCommand", 
-				{ 
+				EXPECT_HMICALL("UI.DeleteCommand",
+				{
 				 cmdID = 0
 				})
 				:Do(function(_,data)
 					--hmi side: sending UI.DeleteCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-				
+
 				--hmi side: expect VR.DeleteCommand request
-				EXPECT_HMICALL("VR.DeleteCommand", 
-					{ 
+				EXPECT_HMICALL("VR.DeleteCommand",
+					{
 					 cmdID = 0
 					})
 				:Do(function(_,data)
 					--hmi side: sending VR.DeleteCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-							
-				--mobile side: expect DeleteCommand response 
+
+				--mobile side: expect DeleteCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				EXPECT_NOTIFICATION("OnHashChange")
-			end				
+			end
 
 	---------------------------------------------------------------------------------------
 
@@ -3069,32 +2827,32 @@ end
 					{
 					 cmdID = 2000000000
 					})
-				
+
 				--hmi side: expect UI.DeleteCommand request
-				EXPECT_HMICALL("UI.DeleteCommand", 
-					{ 
+				EXPECT_HMICALL("UI.DeleteCommand",
+					{
 					 cmdID = 2000000000
 					})
 				:Do(function(_,data)
 					--hmi side: sending UI.DeleteCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-				
+
 				--hmi side: expect VR.DeleteCommand request
-				EXPECT_HMICALL("VR.DeleteCommand", 
-					{ 
+				EXPECT_HMICALL("VR.DeleteCommand",
+					{
 					 cmdID = 2000000000
 					})
 				:Do(function(_,data)
 					--hmi side: sending VR.DeleteCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-							
-				--mobile side: expect DeleteCommand response 
+
+				--mobile side: expect DeleteCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
-				EXPECT_NOTIFICATION("OnHashChange")							
-			end		
+				EXPECT_NOTIFICATION("OnHashChange")
+			end
 
 	---------------------------------------------------------------------------------------
 
@@ -3105,41 +2863,41 @@ end
 					{
 					 cmdID = 20
 					})
-				
+
 				--hmi side: expect UI.DeleteCommand request
-				EXPECT_HMICALL("UI.DeleteCommand", 
-					{ 
+				EXPECT_HMICALL("UI.DeleteCommand",
+					{
 					 cmdID = 20
 					})
 				:Do(function(_,data)
 					--hmi side: sending UI.DeleteCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-				
+
 				--hmi side: expect VR.DeleteCommand request
 				EXPECT_HMICALL("VR.DeleteCommand")
 					:Times(0)
-							
-				--mobile side: expect DeleteCommand response 
+
+				--mobile side: expect DeleteCommand response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
-				EXPECT_NOTIFICATION("OnHashChange")							
+				EXPECT_NOTIFICATION("OnHashChange")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check processing requests without mandatory parameter
 			function Test:DeleteCommand_MissingAllParams()
-				--mobile side: DeleteCommand request 
-				local cid = self.mobileSession:SendRPC("DeleteCommand",{}) 
-			 
+				--mobile side: DeleteCommand request
+				local cid = self.mobileSession:SendRPC("DeleteCommand",{})
+
 			    --mobile side: DeleteCommand response
 			    EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-						
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)				
+				commonTestCases:DelayedExp(1000)
 			end
 
 	---------------------------------------------------------------------------------------
@@ -3152,40 +2910,38 @@ end
 					cmdID = 9999
 				})
 
-				--mobile side: expect DeleteCommand response 
+				--mobile side: expect DeleteCommand response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	--End Test suit DeleteCommand
------------------------------------------------------------------------------------------ 
+-----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 
 -----------------------------------------------------------------------------------------------
 ----------------------------------VII. DELETE SUBMENU TEST BLOCK-------------------------------
 -----------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** VII. DELETE SUBMENU TEST BLOCK ******************************")
-	end
+  testBlock("DELETE SUBMENU")
 
 	--Begin Test suit DeleteSubmenu
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request is sent with all parameters
 		-- request is sent with menuID lower bound = 0 and without commands
-		-- request is sent with cmdID upper bound = 2000000000 and without commands 
-		-- request is sent with commands 
-        -- request is sent with missing mandatory parameters 
-	    
-	    -- List of parametres in the request 
+		-- request is sent with cmdID upper bound = 2000000000 and without commands
+		-- request is sent with commands
+        -- request is sent with missing mandatory parameters
+
+	    -- List of parametres in the request
 			-- 1. menuID, type=Integer, minvalue=1, maxvalue=2000000000
 
-			--Requirement id in Jira: 
+			--Requirement id in Jira:
 					--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282667297
 
 	-----------------------------------------------------------------------------------------
@@ -3195,44 +2951,44 @@ end
 					--mobile side: sending DeleteSubMenu request
 					local cid = self.mobileSession:SendRPC("DeleteSubMenu",
 								{
-								 menuID = 1000 
+								 menuID = 1000
 								})
 					--hmi side: expect UI.DeleteSubMenu request
-					EXPECT_HMICALL("UI.DeleteSubMenu", 
-								{ 
+					EXPECT_HMICALL("UI.DeleteSubMenu",
+								{
 								 menuID = 1000
 								})
 					:Do(function(_,data)
 						--hmi side: sending UI.DeleteSubMenu response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-						
+
 					--mobile side: expect DeleteSubMenu response
 					EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-				
+
 					--mobile side: expect OnHashChange notification
 					EXPECT_NOTIFICATION("OnHashChange")
 				end
-				 
+
 	-----------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check DeleteSumenu without commands when menuID in lower 
+		--Description: This test is intended to check DeleteSumenu without commands when menuID in lower
 			function Test:DeleteSubMenu_WithoutCommandmenuIDLowerBound()
 				--mobile side: sending DeleteSubMenu request
 				local cid = self.mobileSession:SendRPC("DeleteSubMenu",
 							{
-							 menuID = 1 
+							 menuID = 1
 							})
 				--hmi side: expect UI.DeleteSubMenu request
-				EXPECT_HMICALL("UI.DeleteSubMenu", 
-							{ 
+				EXPECT_HMICALL("UI.DeleteSubMenu",
+							{
 							 menuID = 1
 							})
 				:Do(function(_,data)
 					--hmi side: sending UI.DeleteSubMenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-					
+
 				--mobile side: expect DeleteSubMenu response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -3248,28 +3004,28 @@ end
 							{
 							 menuID = 2000000000
 							})
-				
+
 				--hmi side: expect UI.DeleteSubmenu request
-				EXPECT_HMICALL("UI.DeleteSubMenu", 
-							{ 
+				EXPECT_HMICALL("UI.DeleteSubMenu",
+							{
 							 menuID = 2000000000
 							})
 				:Do(function(_,data)
 					--hmi side: sending UI.DeleteSubmenu response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-																
-				--mobile side: expect DeleteSubmenu response 
+
+				--mobile side: expect DeleteSubmenu response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
-				EXPECT_NOTIFICATION("OnHashChange")							
-			end						
+				EXPECT_NOTIFICATION("OnHashChange")
+			end
 
 	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check DeleteSubmenu with command
 			function Test:DeleteSubMenu_WithCommand()
-			
+
 				--mobile side: sending DeleteSubMenu request
 				local cid = self.mobileSession:SendRPC("DeleteSubMenu",
 								{
@@ -3277,19 +3033,19 @@ end
 								})
 
 				--hmi side: expect UI.DeleteSubMenu request
-				EXPECT_HMICALL("UI.DeleteSubMenu", 
-								{ 
+				EXPECT_HMICALL("UI.DeleteSubMenu",
+								{
 								 menuID = 11
 								})
 					:Do(function(_,data)
 						--hmi side: sending UI.DeleteSubMenu response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-				
+
 
 				--hmi side: expect UI.DeleteCommand request
-				EXPECT_HMICALL("UI.DeleteCommand", 
-								{ 
+				EXPECT_HMICALL("UI.DeleteCommand",
+								{
 								 cmdID = 451
 								})
 					:Do(function(_,data)
@@ -3298,25 +3054,25 @@ end
 					end)
 
 					--mobile side: expect DeleteSubMenu response
-					EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })	
+					EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 					--mobile side: expect OnHashChange notification
 					EXPECT_NOTIFICATION("OnHashChange")
 			end
-		
-	-----------------------------------------------------------------------------------------		
+
+	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check processing requests without mandatory parameters
 			function Test:DeleteSubMenu_MissingAllParams()
-				--mobile side: DeleteSubMenu request 
-				 local cid = self.mobileSession:SendRPC("DeleteSubMenu",{}) 
-		 
+				--mobile side: DeleteSubMenu request
+				 local cid = self.mobileSession:SendRPC("DeleteSubMenu",{})
+
 		    	--mobile side: DeleteSubMenu response
 		    	 EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				 EXPECT_NOTIFICATION("OnHashChange")
-				 :Times(0)			
-				 DelayedExp(1000)				
+				 :Times(0)
+				 commonTestCases:DelayedExp(1000)
 		    end
 
 	-----------------------------------------------------------------------------------------
@@ -3327,14 +3083,14 @@ end
 				local cid = self.mobileSession:SendRPC("DeleteSubMenu",
 														{
 														 menuID = 5555
-														})										
+														})
 				--mobile side: expect DeleteSubMenu response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 
 			end
 
@@ -3347,29 +3103,27 @@ end
 -------------------------------------------------------------------------------------------
 ------------------------------VIII. CREATE INTERACTION CHOICE SET TEST BLOCK ---------------
 --------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** VIII.  CREATE INTERACTION CHOICE SET TEST BLOCK ******************************")
-	end
+  testBlock("CREATE INTERACTION CHOICE SET")
 
 	--Begin Test suit CreateInteractionChoiceSet
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request is sent with all parameters
-		-- request is sent with only mandatory parameters 
+		-- request is sent with only mandatory parameters
 		-- request is sent with missing mandatory parameter interactionChoiceSetID
 		-- request is sent with missing mandatory parameter choiceSet
 		-- request is sent with missing mandatory parameter choiceID
 		-- request is sent with missing mandatory parameter vrCommand
-		-- request is sent with missing all mandatory parametres 
-		-- request is sent with diferent image types 
+		-- request is sent with missing all mandatory parametres
+		-- request is sent with diferent image types
 		--ChoiceID for current choiceSet or interactionChoiceSetID already exists in the system
 		--ChoiceIDs within the ChoiceSet have duplicate IDs
 
-	    --List of parametres in the request 
+	    --List of parametres in the request
 			--1. interactionChoiceSetID, type= Integer, minvalue=0, maxvalue=2000000000
-			--2. choiceSet, type=Choice, minsize=1, maxsize=100, array=true 
+			--2. choiceSet, type=Choice, minsize=1, maxsize=100, array=true
 
-		--Requirement id in Jira: 
+		--Requirement id in Jira:
 				--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282664972,
 				-- APPLINK-17043,
 				-- APPLINK-17789
@@ -3380,44 +3134,44 @@ end
 
 				local sentParam = {
 									interactionChoiceSetID = 1001,
-									choiceSet = 
-										{ 
-											
-											{ 
+									choiceSet =
+										{
+
+											{
 											choiceID = 1001,
 											menuName ="Choice1001",
-											vrCommands = 
-													{ 
+											vrCommands =
+													{
 													"Choice1001",
-													}, 
+													},
 											image =
-													{ 
+													{
 													value ="icon.png",
 													imageType ="DYNAMIC",
 													}
 											},
-											{ 
+											{
 											choiceID = 1002,
 											menuName ="Choice1002",
-											vrCommands = 
-													{ 
+											vrCommands =
+													{
 													"Choice1002",
-													}, 
+													},
 											image =
-													{ 
+													{
 													value ="icon.png",
 													imageType ="DYNAMIC",
 													}
 											},
-											{ 
+											{
 											choiceID = 103,
 											menuName ="Choice103",
-											vrCommands = 
-													{ 
+											vrCommands =
+													{
 													"Choice103",
-													}, 
+													},
 											image =
-													{ 
+													{
 													value ="icon.png",
 													imageType ="DYNAMIC",
 													}
@@ -3425,42 +3179,7 @@ end
 										}
 									}
 
-				PositiveChoiceSets = { 
-														
-									{ 
-									choiceID = 1001,
-									menuName ="Choice1001",
-									--[[ TODO: Update test after APPLINK-16052 will be fixed
-									image =
-											{ 
-											value = PathToAppFolder .. "icon.png",
-											imageType ="DYNAMIC",
-											}]]
-									},
-									{ 
-									choiceID = 1002,
-									menuName ="Choice1002",
-									--[[ TODO: Update test after APPLINK-16052 will be fixed
-									image =
-											{ 
-											value = PathToAppFolder .. "icon.png",
-											imageType ="DYNAMIC",
-											}]]
-									},
-									{ 
-									choiceID = 103,
-									menuName ="Choice103",
-									--[[ TODO: Update test after APPLINK-16052 will be fixed
-									image =
-											{ 
-											value = PathToAppFolder .. "icon.png",
-											imageType ="DYNAMIC",
-											}]]
-									}
-								}
-
-
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText" .. tostring(i)
@@ -3469,40 +3188,41 @@ end
 																	imageType = "DYNAMIC"
 																}
 
-						PositiveChoiceSets[i].secondaryText = sentParam.choiceSet[i].secondaryText
-						PositiveChoiceSets[i].tertiaryText = sentParam.choiceSet[i].tertiaryText
+						positiveChoiceSets[i].secondaryText = sentParam.choiceSet[i].secondaryText
+						positiveChoiceSets[i].tertiaryText = sentParam.choiceSet[i].tertiaryText
 
-						-- TODO: Update test after APPLINK-16052 will be fixed
-						-- PositiveChoiceSets[i].secondaryImage = sentParam.choiceSet[i].secondaryImage
-
+						positiveChoiceSets[i].secondaryImage = {
+																	value = pathToAppFolder .. "icon.png",
+																	imageType ="DYNAMIC",
+																}
 					end
 				end
 
 				--mobile side: sending CreateInteractionChoiceSet request
-				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)															
+				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
 
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-									{ 
+				EXPECT_HMICALL("VR.AddCommand",
+									{
 									 cmdID = 1001,
-									 appID = self.applications[applicationName], 
+									 appID = self.applications[applicationName],
 									 type = "Choice",
 									 vrCommands = {"Choice1001"}
 									},
-									{ 
+									{
 									 cmdID = 1002,
-									 appID = self.applications[applicationName], 
+									 appID = self.applications[applicationName],
 									 type = "Choice",
 									 vrCommands = {"Choice1002"}
 									},
-									{ 
+									{
 									 cmdID = 103,
-									 appID = self.applications[applicationName], 
+									 appID = self.applications[applicationName],
 									 type = "Choice",
 									 vrCommands = {"Choice103"}
 									})
-				:Do(function(_,data)					
-				--hmi side: sending VR.AddCommand response													
+				:Do(function(_,data)
+				--hmi side: sending VR.AddCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				 end)
 				:ValidIf(function(_,data)
@@ -3514,7 +3234,7 @@ end
 						end
 					end)
 				:Times(3)
-				
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -3532,24 +3252,24 @@ end
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",
 														{
 															interactionChoiceSetID = 2002,
-															choiceSet = 							
-																{ 
+															choiceSet =
+																{
 																	{
 																	 choiceID = 2002,
 																	 menuName ="Choice2002",
-																	 vrCommands = 
-																		{ 
+																	 vrCommands =
+																		{
 																		"Choice2002",
 																		}
 																	}
 																}
 															}
-														)				
-					
+														)
+
 				--hmi side: expect VR.AddCommand request
 				EXPECT_HMICALL("VR.AddCommand",
-									{ 
-									 cmdID = 2002,										
+									{
+									 cmdID = 2002,
 									 appID = self.applications[applicationName],
 									 type = "Choice"
 									}
@@ -3557,50 +3277,50 @@ end
 					:Do(function(_,data)
 						--hmi side: sending VR.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-					end) 
-					:ValidIf(function(_,data) 
+					end)
+					:ValidIf(function(_,data)
 						if not data.params.grammarID then
 							print( " \27[31m SDL sends VR.AddCommand related to choice without grammarID \27[0m " )
 							return false
 						else
 							return true
 						end
-					end)					
-	
+					end)
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				--mobile side: expect OnHashChange notification
-				EXPECT_NOTIFICATION("OnHashChange")	
+				EXPECT_NOTIFICATION("OnHashChange")
 
-		    end	
+		    end
 
-	---------------------------------------------------------------------------------------	
+	---------------------------------------------------------------------------------------
 
-		--Description: Mandatory missing - interactionChoiceSetID					 
+		--Description: Mandatory missing - interactionChoiceSetID
 			function Test:CIChoiceSet_interactionChoiceSetIDMissing()
 
 				local sentParam = {
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 										 choiceID = 1003,
 										 menuName ="Choice1003",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1003",
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										}
 									}
 								}
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_ChoiceSetIDMissing" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_ChoiceSetIDMissing" .. tostring(i)
@@ -3613,14 +3333,14 @@ end
 
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",sentParam)
-													
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 
 			end
 	---------------------------------------------------------------------------------------
@@ -3630,16 +3350,16 @@ end
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",
 														{
-														 interactionChoiceSetID = 1004															
+														 interactionChoiceSetID = 1004
 														})
-													
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not sent to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -3649,25 +3369,25 @@ end
 
 				local sentParam = {
 									interactionChoiceSetID = 1005,
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 										 menuName ="Choice1005",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1005",
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										}
 									}
 								}
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_ChoiceIDMissing" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_ChoiceIDMissing" .. tostring(i)
@@ -3680,14 +3400,14 @@ end
 
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
-													
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -3697,17 +3417,17 @@ end
 
 				local sentParam = {
 									interactionChoiceSetID = 1006,
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 										 choiceID = 1006,
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1006"
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC"
 											}
@@ -3715,7 +3435,7 @@ end
 									}
 								}
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_menuNameDMissing" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_menuNameMissing" .. tostring(i)
@@ -3728,14 +3448,14 @@ end
 
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",sentParam)
-													
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	---------------------------------------------------------------------------------------
@@ -3746,26 +3466,26 @@ end
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",
 														{
 															interactionChoiceSetID = 1007,
-															choiceSet = 							
-																{ 
+															choiceSet =
+																{
 																	{
 																	 choiceID = 1007,
 																	 menuName ="Choice1007",
 																	}
 																}
 															}
-														)				
-				
-	
+														)
+
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)	
+				commonTestCases:DelayedExp(1000)
 
-		    end	
+		    end
 
 	---------------------------------------------------------------------------------------
 
@@ -3773,44 +3493,44 @@ end
 			function Test:CIChoiceSet_AllParamsMissing()
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", {})
-													
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-			
 
-	--------------------------------------------------------------------------------------		
 
-		--Description: This test is intended to check providing request with DYNAMIC image type 
+	--------------------------------------------------------------------------------------
+
+		--Description: This test is intended to check providing request with DYNAMIC image type
 			function Test:CIChoiceSet_DynamicImageType()
 
 				local sentParam = {
 									interactionChoiceSetID = 6011,
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 											choiceID = 601,
 											menuName ="ChoiceDynamic",
-											vrCommands = 
-											{ 
+											vrCommands =
+											{
 												"ChoiceDynamic",
-											}, 
+											},
 											image =
-											{ 
+											{
 												value ="icon.png",
 												imageType ="DYNAMIC",
-											}, 
+											},
 										}
 									}
 								}
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_Dynamic" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_Dynamic" .. tostring(i)
@@ -3823,11 +3543,11 @@ end
 
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",sentParam)
-				
-					
+
+
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
+				EXPECT_HMICALL("VR.AddCommand",
+								{
 									cmdID = 601,
 									appID = self.applications[applicationName],
 									type = "Choice",
@@ -3837,7 +3557,7 @@ end
 						--hmi side: sending VR.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-					:ValidIf(function(_,data) 
+					:ValidIf(function(_,data)
 						if not data.params.grammarID then
 							print( " \27[31m SDL sends VR.AddCommand related to choice without grammarID \27[0m " )
 							return false
@@ -3845,7 +3565,7 @@ end
 							return true
 						end
 					end)
-				
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
@@ -3853,33 +3573,33 @@ end
 				EXPECT_NOTIFICATION("OnHashChange")
 			end
 
- 	-----------------------------------------------------------------------------------------		
+ 	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with STATIC image type
 			function Test:CIChoiceSet_StaticImageType()
 
 				local sentParam = {
 										interactionChoiceSetID = 6022,
-										choiceSet = 
-										{ 
-											
-											{ 
+										choiceSet =
+										{
+
+											{
 												choiceID = 602,
 												menuName ="ChoiceStatic",
-												vrCommands = 
-												{ 
+												vrCommands =
+												{
 													"ChoiceStatic",
-												}, 
+												},
 												image =
-												{ 
+												{
 													value ="icon.png",
 													imageType ="STATIC",
-												}, 
+												},
 											}
 										}
 									}
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_Static" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_Static" .. tostring(i)
@@ -3892,11 +3612,11 @@ end
 
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
-				
-					
+
+
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
+				EXPECT_HMICALL("VR.AddCommand",
+								{
 									cmdID = 602,
 									appID = self.applications[applicationName],
 									type = "Choice",
@@ -3906,7 +3626,7 @@ end
 						--hmi side: sending VR.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-					:ValidIf(function(_,data) 
+					:ValidIf(function(_,data)
 						if not data.params.grammarID then
 							print( " \27[31m SDL sends VR.AddCommand related to choice without grammarID \27[0m " )
 							return false
@@ -3914,79 +3634,79 @@ end
 							return true
 						end
 					end)
-				
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
 			end
-				
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with interactionChoiceSetID that already exists in the system
-				function Test: CIChoiceSet_ChoiceSetIDAlreadyExist()	
+				function Test: CIChoiceSet_ChoiceSetIDAlreadyExist()
 				--mobile side: sending CreateInteractionChoiceSet request
 						local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",
 										{
-											interactionChoiceSetID = 1001, 
-											choiceSet = 
-											{ 
-												
-												{ 
+											interactionChoiceSetID = 1001,
+											choiceSet =
+											{
+
+												{
 													choiceID = 701,
 													menuName ="AlreadyExist",
-													vrCommands = 
-													{ 
+													vrCommands =
+													{
 														"AlreadyExist",
-													}, 
+													},
 													image =
-													{ 
+													{
 														value ="icon.png",
 														imageType ="STATIC",
-													}, 
+													},
 												}
 											}
-										})						
-						
+										})
+
 					--mobile side: expect CreateInteractionChoiceSet response
 					EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-					
+
 					--mobile side: expect OnHashChange notification is not send to mobile
 					EXPECT_NOTIFICATION("OnHashChange")
 					:Times(0)
-					DelayedExp(1000)
+					commonTestCases:DelayedExp(1000)
 				end
 
 	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with ChoiceID that already exists in the system
-			function Test:CIChoiceSet_ChoiceIDAlreadyExist()	
+			function Test:CIChoiceSet_ChoiceIDAlreadyExist()
 				--mobile side: sending CreateInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet",
 								{
 									interactionChoiceSetID = 1052,
-									choiceSet = 
-									{ 													
-										{ 
+									choiceSet =
+									{
+										{
 											choiceID = 1001,
 											menuName ="ChoiceIDAlreadyExist",
-											vrCommands = 
-											{ 
+											vrCommands =
+											{
 												"ChoiceIDAlreadyExist",
-											}, 
+											},
 											image =
-											{ 
+											{
 												value ="icon.png",
 												imageType ="STATIC",
-											}, 
+											},
 										}
 									}
 								})
 
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
+				EXPECT_HMICALL("VR.AddCommand",
+								{
 									cmdID = 1001,
 									appID = self.applications[applicationName],
 									type = "Choice",
@@ -3996,7 +3716,7 @@ end
 						--hmi side: sending VR.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-					:ValidIf(function(_,data) 
+					:ValidIf(function(_,data)
 						if not data.params.grammarID then
 							print( " \27[31m SDL sends VR.AddCommand related to choice without grammarID \27[0m " )
 							return false
@@ -4004,54 +3724,54 @@ end
 							return true
 						end
 					end)
-						
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 			end
 
-	-----------------------------------------------------------------------------------------	
+	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with "ChoiceID" which duplicates within the current ChoiceSet
-			function Test:CIChoiceSet_ChoiceIDAlreadyExistinChoiceSet()	
+			function Test:CIChoiceSet_ChoiceIDAlreadyExistinChoiceSet()
 
 				local sentParam = {
 										 interactionChoiceSetID = 1053,
-										 choiceSet = 
-											{ 
-												
-												{ 
+										 choiceSet =
+											{
+
+												{
 												 choiceID = 1053,
 												 menuName ="Choice1053a",
-												 vrCommands = 
-													{ 
+												 vrCommands =
+													{
 													 "Choice1053a",
-													}, 
+													},
 													image =
-													{ 
+													{
 													 value ="icon.png",
 													 imageType ="STATIC",
-													}, 
+													},
 												},
-												{ 
+												{
 												 choiceID = 1053,
 												 menuName ="Choice1053b",
-												 vrCommands = 
-													{ 
+												 vrCommands =
+													{
 													 "Choice1053b",
-													}, 
+													},
 													image =
-													{ 
+													{
 													 value ="icon.png",
 													 imageType ="STATIC",
-													}, 
+													},
 												}
 											}
 										}
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_ChoiceIDAlreadyExistinChoiceSet" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_ChoiceIDAlreadyExistinChoiceSet" .. tostring(i)
@@ -4064,71 +3784,71 @@ end
 
 
 				--mobile side: sending CreateInteractionChoiceSet request
-				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)						
-						
+				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
-	---------------------------------------------------------------------------------------		
+	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with menuName duplicated between the current ChoiceSet
-			function Test: CIChoiceSet_menuNameAlreadyExistWithinOneChoiceSet()	
+			function Test: CIChoiceSet_menuNameAlreadyExistWithinOneChoiceSet()
 
 				local sentParam = {
 									interactionChoiceSetID = 1054,
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 										 choiceID = 1054,
 										 menuName ="ChoiceAlreadyExist",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1054",
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										},
-										{ 
+										{
 										 choiceID = 1055,
 										 menuName ="ChoiceDifferent",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1055",
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										},
-										{ 
+										{
 										 choiceID = 1056,
 										 menuName ="ChoiceAlreadyExist",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1056",
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										}
 									}
 								}
 
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_menuNameAlreadyExistWithinOneChoiceSet" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_menuNameAlreadyExistWithinOneChoiceSet" .. tostring(i)
@@ -4141,32 +3861,32 @@ end
 
 
 				--mobile side: sending CreateInteractionChoiceSet request
-				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)	
-				
+				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-                DelayedExp(1000)
+                commonTestCases:DelayedExp(1000)
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with menuName duplicated between the different ChoiceSets
-			function Test: CIChoiceSet_menuNameAlreadyExistWithinDifferenChoiceSets()	
+			function Test: CIChoiceSet_menuNameAlreadyExistWithinDifferenChoiceSets()
 
 				local sentParam = {
 										interactionChoiceSetID = 1057,
-										choiceSet = 
-										{ 
-											
-											{ 
+										choiceSet =
+										{
+
+											{
 											 choiceID = 1057,
 											 menuName ="Choice1001",
-											 vrCommands = 
-												{ 
+											 vrCommands =
+												{
 												 "Choice1057",
 												}
 											}
@@ -4174,7 +3894,7 @@ end
 									}
 
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_menuNameAlreadyExistWithinDifferenChoiceSets" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_menuNameAlreadyExistWithinDifferenChoiceSets" .. tostring(i)
@@ -4186,11 +3906,11 @@ end
 				end
 
 				--mobile side: sending CreateInteractionChoiceSet request
-				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)	
+				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
 
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
+				EXPECT_HMICALL("VR.AddCommand",
+								{
 									cmdID = 1057,
 									appID = self.applications[applicationName],
 									type = "Choice",
@@ -4200,7 +3920,7 @@ end
 						--hmi side: sending VR.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-					:ValidIf(function(_,data) 
+					:ValidIf(function(_,data)
 						if not data.params.grammarID then
 							print( " \27[31m SDL sends VR.AddCommand related to choice without grammarID \27[0m " )
 							return false
@@ -4208,55 +3928,55 @@ end
 							return true
 						end
 					end)
-				
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 
 			end
-	-----------------------------------------------------------------------------------------		
+	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with vrCommand duplicate inside choice set
-			function Test: CIChoiceSet_vrCommandsDuplicateInsideChoiceSet()	
+			function Test: CIChoiceSet_vrCommandsDuplicateInsideChoiceSet()
 
 				local sentParam = {
 									interactionChoiceSetID = 1059,
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 										 choiceID = 1059,
 										 menuName ="Choice1059",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1059"
-											}, 
+											},
 										image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										},
-										{ 
+										{
 										 choiceID = 1060,
 										 menuName ="Choice1060",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1059"
-											}, 
+											},
 										 image =
-											{ 
+											{
 											 value ="icon.png",
 											 imageType ="STATIC",
-											}, 
+											},
 										}
 									}
 								}
 
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_vrCommandsDuplicateInsideChoiceSet" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_vrCommandsDuplicateInsideChoiceSet" .. tostring(i)
@@ -4268,32 +3988,32 @@ end
 				end
 
 				--mobile side: sending CreateInteractionChoiceSet request
-				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)						
-									
+				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 					:Times(0)
 
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with menuName vrCommands between the different ChoiceSets
-			function Test: CIChoiceSet_vrCommandsDuplicateWithinDifferenChoiceSets()	
+			function Test: CIChoiceSet_vrCommandsDuplicateWithinDifferenChoiceSets()
 
 				local sentParam = {
 									interactionChoiceSetID = 1061,
-									choiceSet = 
-									{ 
-										
-										{ 
+									choiceSet =
+									{
+
+										{
 										 choiceID = 1061,
 										 menuName ="Choice1061",
-										 vrCommands = 
-											{ 
+										 vrCommands =
+											{
 											 "Choice1001",
 											}
 										}
@@ -4301,7 +4021,7 @@ end
 								}
 
 
-				if NavigationType then
+				if Test.appHMITypes["NAVIGATION"] then
 					for i=1, #sentParam.choiceSet do
 						sentParam.choiceSet[i].secondaryText = "secondaryText_vrCommandsDuplicateWithinDifferenChoiceSets" ..tostring(i)
 						sentParam.choiceSet[i].tertiaryText = "tertiaryText_vrCommandsDuplicateWithinDifferenChoiceSets" .. tostring(i)
@@ -4316,8 +4036,8 @@ end
 				local cid = self.mobileSession:SendRPC("CreateInteractionChoiceSet", sentParam)
 
 				--hmi side: expect VR.AddCommand request
-				EXPECT_HMICALL("VR.AddCommand", 
-								{ 
+				EXPECT_HMICALL("VR.AddCommand",
+								{
 									cmdID = 1061,
 									appID = self.applications[applicationName],
 									type = "Choice",
@@ -4327,7 +4047,7 @@ end
 						--hmi side: sending VR.AddCommand response
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
-					:ValidIf(function(_,data) 
+					:ValidIf(function(_,data)
 						if not data.params.grammarID then
 							print( " \27[31m SDL sends VR.AddCommand related to choice without grammarID \27[0m " )
 							return false
@@ -4335,10 +4055,10 @@ end
 							return true
 						end
 					end)
-				
+
 				--mobile side: expect CreateInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-					
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 
@@ -4352,32 +4072,30 @@ end
 ---------------------------------------------------------------------------------------------
 ------------------------------IX. PERFORMINTERACTION TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** IX. PERFORMINTERACTION TEST BLOCK ******************************")
-	end
+  testBlock("PERFORMINTERACTION")
 
-	--Begin Test suit PerformInteraction 
+	--Begin Test suit PerformInteraction
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request is sent with all parameters and different interactionModes (VR_ONLY, MANUAL_ONLY, BOTH)
 		-- request is sent with only mandatory parameters and different interactionModes (VR_ONLY, MANUAL_ONLY, BOTH)
 		-- request is sent with missing parameter initialText
 		-- request is sent with missing parameter interactionMode
 		-- request is sent with missing parameter interactionChoiceSetIDList
-		-- request is sent with missing all parameters 
-		-- request is sent that is timed out 
-		-- request is sent with DYNAMIC image type 
-		-- request is sent when when images are not supported on HMI 
-		-- Choice set does not exist 
+		-- request is sent with missing all parameters
+		-- request is sent that is timed out
+		-- request is sent with DYNAMIC image type
+		-- request is sent when when images are not supported on HMI
+		-- Choice set does not exist
 		-- Duplicate menuName
 		-- Duplicate vrCommand
 		-- Non-sequential positions of vrHelpItems started from 1
 		-- Sequential position of vrHelpItems not started from 1
-		-- Request is closed by timeout 
-		-- Request is sent with STATIC and DYNAMIC image types 
+		-- Request is closed by timeout
+		-- Request is sent with STATIC and DYNAMIC image types
 		-- Request is sent with ttsChunks type is sent but not supported (e.g. SAPI_PHONEMES or LHPLUS_PHONEMES)
-	    
-	    -- List of parametres in the request 
+
+	    -- List of parametres in the request
 			-- 1. initialText, type= String, maxlength=500
 			-- 2. initialPrompt, type=TTSChunk, minsize=1, maxsize=100, array=true, mandatory=false
 			-- 3. interactionMode, type=InteractionMode
@@ -4389,95 +4107,95 @@ end
 			-- 9. interactionLayout, type=LayoutMode, mandatory=false
 			-- There is 10th parameter related to SUCESS code only - triggerSource. It is included in diagrams but not available in HMI_API.xml
 
-	--Requirement id in Jira: 
+	--Requirement id in Jira:
 		--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282664977
 
 	---------------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check sending request when all parameters are in boundary conditions with different interaction modes
 		--Description: PerformInteraction request via VR_ONLY
-			function Test:PI_VR_ONLY_AllParams() 
+			function Test:PI_VR_ONLY_AllParams()
 
 				local paramsSend = performInteractionAllParams()
 				paramsSend.interactionMode = "VR_ONLY"
 				paramsSend.interactionChoiceSetIDList = {1001}
 
-				self:performInteraction_withChoice( paramsSend,_, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
+				performInteraction_withChoice(self, paramsSend, nil, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
 
 			end
 
 	---------------------------------------------------------------------------------------
-			
+
 		--Description: PerformInteraction request via MANUAL_ONLY
-			function Test:PI_MANUAL_ONLY_AllParams() 
+			function Test:PI_MANUAL_ONLY_AllParams()
 
 				local paramsSend = performInteractionAllParams()
 				paramsSend.interactionMode = "MANUAL_ONLY"
 				paramsSend.interactionChoiceSetIDList = {1001}
 
 
-				self:performInteraction_withChoice( paramsSend, PositiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
+				performInteraction_withChoice(self, paramsSend, positiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
 
-			end				
+			end
 
 	-----------------------------------------------------------------------------------------
-			
+
 		--Description: PerformInteraction request via BOTH
-			function Test:PI_BOTH_AllParams() 
+			function Test:PI_BOTH_AllParams()
 
 				local paramsSend = performInteractionAllParams()
 				paramsSend.interactionMode = "BOTH"
 				paramsSend.interactionChoiceSetIDList = {1001}
 
-				self:performInteraction_withChoice( paramsSend, PositiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
+				performInteraction_withChoice(self, paramsSend, positiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
 
 			end
 
-	-----------------------------------------------------------------------------------------	
+	-----------------------------------------------------------------------------------------
 
 		--Description: PerformInteraction request with mandatory parameter only via VR_ONLY
 			function Test:PI_MandatoryOnlyViaVR_ONLY()
 
 				local paramsSend = {
-									 	initialText = "StartPerformInteraction",	
+									 	initialText = "StartPerformInteraction",
 									 	interactionMode = "VR_ONLY",
 									 	interactionChoiceSetIDList = {1001}
 									}
 
-				self:performInteraction_withChoice( paramsSend, PositiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
+				performInteraction_withChoice(self, paramsSend, positiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
 
 			end
 	---------------------------------------------------------------------------------------
-			
+
 		--Description: PerformInteraction request with mandatory parameter only via MANUAL_ONLY
 			function Test:PI_MandatoryOnlyViaMANUAL_ONLY()
 
 				local paramsSend = {
-									 	initialText = "StartPerformInteraction",	
+									 	initialText = "StartPerformInteraction",
 									 	interactionMode = "MANUAL_ONLY",
 									 	interactionChoiceSetIDList = {1001}
 									}
 
-				self:performInteraction_withChoice( paramsSend, PositiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
+				performInteraction_withChoice(self, paramsSend, positiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
 
 			end
 
 	---------------------------------------------------------------------------------------
-			
-		--Description: PerformInteraction request with mandatory parameter only via BOTH			
+
+		--Description: PerformInteraction request with mandatory parameter only via BOTH
 			function Test:PI_MandatoryOnlyViaBOTH()
 
 				local paramsSend = {
-									 	initialText = "StartPerformInteraction",	
+									 	initialText = "StartPerformInteraction",
 									 	interactionMode = "BOTH",
 									 	interactionChoiceSetIDList = {1001}
 									}
 
-				self:performInteraction_withChoice( paramsSend, PositiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
+				performInteraction_withChoice(self, paramsSend, positiveChoiceSets, 1001, self.applications[config.application1.registerAppInterfaceParams.appName] )
 
 			end
 
-			
+
 	---------------------------------------------------------------------------------------
 
 		--Description: Mandatory missing - initialText
@@ -4485,27 +4203,27 @@ end
 				local params = performInteractionAllParams()
 				params["initialText"] = nil
 
-				self:performInteractionInvalidData(params)
+				performInteractionInvalidData(self, params)
 			end
 
 	-----------------------------------------------------------------------------------------
-						
+
 		--Description: Mandatory missing - interactionMode
 			function Test:PI_interactionModeMissing()
 				local params = performInteractionAllParams()
-				params["interactionMode"] = nil	
+				params["interactionMode"] = nil
 
-				self:performInteractionInvalidData(params)
+				performInteractionInvalidData(self, params)
 			end
 
 	-----------------------------------------------------------------------------------------
-						
+
 		--Description: Mandatory missing - interactionChoiceSetIDList
 			function Test:PI_interactionChoiceSetIDListMissing()
 				local params = performInteractionAllParams()
 				params["interactionChoiceSetIDList"] = nil
 
-				self:performInteractionInvalidData(params)
+				performInteractionInvalidData(self, params)
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -4514,12 +4232,12 @@ end
 			function Test:PI_AllParamsMissing()
 				local params = {}
 
-				self:performInteractionInvalidData(params)
+				performInteractionInvalidData(self, params)
 			end
 
 	-----------------------------------------------------------------------------------------
 
-		if NavigationType then
+		if Test.appHMITypes["NAVIGATION"] then
 		--Test case is for navigation app only
 		--Description: Different interactionLayout : ICON_ONLY, ICON_WITH_SEARCH, LIST_ONLY, LIST_WITH_SEARCH, KEYBOARD
 		-- "ICON_ONLY" SKIPPED, already covered
@@ -4529,41 +4247,41 @@ end
 					local params = performInteractionAllParams()
 					params.interactionLayout = LayoutModeArray[i]
 
-					self:performInteraction_ViaBOTHTimedOut(params, _, PositiveChoiceSets)
+					performInteraction_ViaBOTHTimedOut(self, params, nil, positiveChoiceSets)
 				end
 			end
 		end
-			
+
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request when DYNAMIC image type is supported
-			function Test:PI_DYNAMICImageSuccess()	
+			function Test:PI_DYNAMICImageSuccess()
 				local params = performInteractionAllParams()
-				params.vrHelp = {{ 
+				params.vrHelp = {{
 									text = "New VR Help",
-									position = 1,	
+									position = 1,
 									image = 	{
-													value = "icon.png",
+													value = pathToAppFolder .. "icon.png",
 													imageType = "DYNAMIC",
 												}
 								}}
 
-				self:performInteraction_ViaBOTHTimedOut(params, _, PositiveChoiceSets)
+				performInteraction_ViaBOTHTimedOut(self, params, nil, positiveChoiceSets)
 			end
 
-	---------------------------------------------------------------------------------------	
+	---------------------------------------------------------------------------------------
 
-		--Description: This test case is intended to check providing request when images aren't supported on HMI 
-			function Test:PI_IMAGESnotSupported() 
+		--Description: This test case is intended to check providing request when images aren't supported on HMI
+			function Test:PI_IMAGESnotSupported()
 				local paramsSend = performInteractionAllParams()
 				paramsSend.interactionMode = "BOTH"
-				
+
 				--mobile side: sending PerformInteraction request
 				local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
-				
-				--hmi side: expect VR.PerformInteraction request 
-				EXPECT_HMICALL("VR.PerformInteraction", 
-								{						
+
+				--hmi side: expect VR.PerformInteraction request
+				EXPECT_HMICALL("VR.PerformInteraction",
+								{
 								 helpPrompt = paramsSend.helpPrompt,
 								 initialPrompt = paramsSend.initialPrompt,
 								 timeout = paramsSend.timeout,
@@ -4573,80 +4291,68 @@ end
 					self.hmiConnection:SendError(data.id, data.method, "ABORTED"," VR is Aborted")
 				end)
 
-				--TODO: remove 'if' after resolving APPLINK-16052
-				if paramsSend.vrHelp then
-					for i=1,#paramsSend.vrHelp do
-						if paramsSend.vrHelp[i].image then
-							paramsSend.vrHelp[i].image = nil
-						end
-					end
-				end
-				
-				--hmi side: expect UI.PerformInteraction request 
-				EXPECT_HMICALL("UI.PerformInteraction", 
+				--hmi side: expect UI.PerformInteraction request
+				EXPECT_HMICALL("UI.PerformInteraction",
 								{
-									timeout = paramsSend.timeout,			
-									choiceSet = { 
-															
-										{ 
+									timeout = paramsSend.timeout,
+									choiceSet = {
+
+										{
 										choiceID = 1001,
 										menuName ="Choice1001",
-										--[[ TODO: Update test after APPLINK-16052 will be fixed
 										image =
-												{ 
-												value = PathToAppFolder .. "icon.png",
+												{
+												value = pathToAppFolder .. "icon.png",
 												imageType ="DYNAMIC",
-												}]]
+												}
 										},
-										{ 
+										{
 										choiceID = 1002,
 										menuName ="Choice1002",
-										--[[ TODO: Update test after APPLINK-16052 will be fixed
 										image =
-												{ 
-												value = PathToAppFolder .. "icon.png",
+												{
+												value = pathToAppFolder .. "icon.png",
 												imageType ="DYNAMIC",
-												}]]
+												}
 										},
-										{ 
+										{
 										choiceID = 103,
 										menuName ="Choice103",
-										--[[ TODO: Update test after APPLINK-16052 will be fixed
 										image =
-												{ 
-												value = PathToAppFolder .. "icon.png",
+												{
+												value = pathToAppFolder .. "icon.png",
 												imageType ="DYNAMIC",
-												}]]
+												}
 										}
 									},
-									initialText = 
+									initialText =
 												{
 												 fieldName = "initialInteractionText",
 												 fieldText = paramsSend.initialText
-												},				
+												},
 									vrHelp = paramsSend.vrHelp,
 									vrHelpTitle = paramsSend.initialText
 								})
 				:Do(function(_,data)
-					--Choice icon list is displayed						
-					SendOnSystemContext(self,"HMI_OBSCURED")
-					
-					--hmi side: send UI.PerformInteraction response 
+					--Choice icon list is displayed
+					sendOnSystemContext(self,"HMI_OBSCURED")
+
+					--hmi side: send UI.PerformInteraction response
 					local function uiResponse()
 						self.hmiConnection:SendError(data.id, data.method, "UNSUPPORTED_RESOURCE", " Image is not supported")
-						SendOnSystemContext(self,"MAIN")
+						sendOnSystemContext(self,"MAIN")
 					end
 					RUN_AFTER(uiResponse, 20)
 				end)
 
 
-				local audioStreamingStateValue 
-				if 
-					self.isMediaApplication == true or 
-					NavigationType == true then 
+				local audioStreamingStateValue
+				if
+					self.isMediaApplication == true or
+					Test.appHMITypes["NAVIGATION"] == true then
 						audioStreamingStateValue = "AUDIBLE"
 
-				elseif 
+				elseif
 					self.isMediaApplication == false then
 
 					audioStreamingStateValue = "NOT_AUDIBLE"
@@ -4657,107 +4363,95 @@ end
 						{ systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = audioStreamingStateValue },
 						{ systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = audioStreamingStateValue })
 					:Times(2)
-						                 
+
 				--mobile side: expect PerformInteraction response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "UNSUPPORTED_RESOURCE"})
 			end
 
-	-----------------------------------------------------------------------------------------	
+	-----------------------------------------------------------------------------------------
 
 		--Description: This test case Covers cases when ttsChunks type is sent but not supported (e.g. SAPI_PHONEMES or LHPLUS_PHONEMES),"Info" parameter in the response should provide further details. When this error code is issued, ttsChunks are not processed, but the RPC should be otherwise successful.
 			function Test:PI_UNSUPPORTED_TTS_CHUNKS()
 				local paramsSend = performInteractionAllParams()
 				paramsSend.interactionMode = "BOTH"
-				
+
 				--mobile side: sending PerformInteraction request
 				local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
-				
-				--hmi side: expect VR.PerformInteraction request 
-				EXPECT_HMICALL("VR.PerformInteraction", 
-				{						
+
+				--hmi side: expect VR.PerformInteraction request
+				EXPECT_HMICALL("VR.PerformInteraction",
+				{
 					helpPrompt = paramsSend.helpPrompt,
 					initialPrompt = paramsSend.initialPrompt,
 					timeout = paramsSend.timeout,
 					timeoutPrompt = paramsSend.timeoutPrompt
 				})
 				:Do(function(_,data)
-					self.hmiConnection:SendError(data.id, data.method, "UNSUPPORTED_RESOURCE","")						
+					self.hmiConnection:SendError(data.id, data.method, "UNSUPPORTED_RESOURCE","")
 				end)
 
-				--TODO: remove 'if' after resolving APPLINK-16052
-				if paramsSend.vrHelp then
-					for i=1,#paramsSend.vrHelp do
-						if paramsSend.vrHelp[i].image then
-							paramsSend.vrHelp[i].image = nil
-						end
-					end
-				end
-				
-				--hmi side: expect UI.PerformInteraction request 
-				EXPECT_HMICALL("UI.PerformInteraction", 
+				--hmi side: expect UI.PerformInteraction request
+				EXPECT_HMICALL("UI.PerformInteraction",
 				{
-					timeout = paramsSend.timeout,			
-					choiceSet = { 
-															
-										{ 
+					timeout = paramsSend.timeout,
+					choiceSet = {
+
+										{
 										choiceID = 1001,
 										menuName ="Choice1001",
-										--[[ TODO: Update test after APPLINK-16052 will be fixed
 										image =
-												{ 
-												value = PathToAppFolder .. "icon.png",
+												{
+												value = pathToAppFolder .. "icon.png",
 												imageType ="DYNAMIC",
-												}]]
+												}
 										},
-										{ 
+										{
 										choiceID = 1002,
 										menuName ="Choice1002",
-										--[[ TODO: Update test after APPLINK-16052 will be fixed
 										image =
-												{ 
-												value = PathToAppFolder .. "icon.png",
+												{
+												value = pathToAppFolder .. "icon.png",
 												imageType ="DYNAMIC",
-												}]]
+												}
 										},
-										{ 
+										{
 										choiceID = 103,
 										menuName ="Choice103",
-										--[[ TODO: Update test after APPLINK-16052 will be fixed
 										image =
-												{ 
-												value = PathToAppFolder .. "icon.png",
+												{
+												value = pathToAppFolder .. "icon.png",
 												imageType ="DYNAMIC",
-												}]]
+												}
 										}
 									},
-					initialText = 
+					initialText =
 					{
 						fieldName = "initialInteractionText",
 						fieldText = paramsSend.initialText
-					},				
+					},
 					vrHelp = paramsSend.vrHelp,
 					vrHelpTitle = paramsSend.initialText
 				})
 				:Do(function(_,data)
-					--Choice icon list is displayed						
-					SendOnSystemContext(self,"HMI_OBSCURED")
-					
-					--hmi side: send UI.PerformInteraction response 
+					--Choice icon list is displayed
+					sendOnSystemContext(self,"HMI_OBSCURED")
+
+					--hmi side: send UI.PerformInteraction response
 					local function uiResponse()
 						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { choiceID = 1001 })
-						SendOnSystemContext(self,"MAIN")
+						sendOnSystemContext(self,"MAIN")
 					end
 					RUN_AFTER(uiResponse, 20)
 				end)
-				
+
 				--mobile side: OnHMIStatus notifications
-				local audioStreamingStateValue 
-				if 
-					self.isMediaApplication == true or 
-					NavigationType == true then 
+				local audioStreamingStateValue
+				if
+					self.isMediaApplication == true or
+					Test.appHMITypes["NAVIGATION"] == true then
 						audioStreamingStateValue = "AUDIBLE"
 
-				elseif 
+				elseif
 					self.isMediaApplication == false then
 
 					audioStreamingStateValue = "NOT_AUDIBLE"
@@ -4768,62 +4462,62 @@ end
 						{ systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = audioStreamingStateValue },
 						{ systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = audioStreamingStateValue })
 					:Times(2)
-				
+
 				--mobile side: expect PerformInteraction response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "UNSUPPORTED_RESOURCE"})
 			end
 
-	---------------------------------------------------------------------------------------		
+	---------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check providing request with choiceSetID that does not exist			
+		--Description: This test is intended to check providing request with choiceSetID that does not exist
 			function Test:PI_choiceSetIDInvalid ()
-					local paramsSend = performInteractionAllParams()
+				local paramsSend = performInteractionAllParams()
 				paramsSend.interactionChoiceSetIDList = {9999}
-
-				self:performInteractionInvalidData(params)
-			end	
+				local cid = self.mobileSession:SendRPC("PerformInteraction", paramsSend)
+        EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
+			end
 
 	---------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check providing request with "MenuName" that is duplicated in the different ChoiceSets 
-  			function Test:PI_MenuNameDuplicate ()				
+		--Description: This test is intended to check providing request with "MenuName" that is duplicated in the different ChoiceSets
+  			function Test:PI_MenuNameDuplicate ()
 				local paramsSend = performInteractionAllParams()
-				paramsSend.interactionChoiceSetIDList = {1001,1057} 
+				paramsSend.interactionChoiceSetIDList = {1001,1057}
 
 				local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
 
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })
-			end 
+			end
 
-	---------------------------------------------------------------------------------------	
+	---------------------------------------------------------------------------------------
 
-		--Description: This test is intended to check providing request with "vrCommands" that is duplicated within different ChoiceSet 
+		--Description: This test is intended to check providing request with "vrCommands" that is duplicated within different ChoiceSet
 			function Test:PI_VRCommandsDuplicate()
 				local paramsSend = performInteractionAllParams()
-				paramsSend.interactionChoiceSetIDList = {1001,1061} 
+				paramsSend.interactionChoiceSetIDList = {1001,1061}
 
 				local cid = self.mobileSession:SendRPC("PerformInteraction",paramsSend)
 
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "DUPLICATE_NAME" })
-			end				
-				
+			end
+
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with VR Help Items that contains non-sequential positions
-			function Test:PerformInteraction_NonsequentialPositionsfrom1() 
+			function Test:PerformInteraction_NonsequentialPositionsfrom1()
 
 				local paramsSend = performInteractionAllParams()
-				paramsSend.vrHelp = { 
+				paramsSend.vrHelp = {
 										{
 											text = "NewVRHelp1",
-										  	position = 1,	
+										  	position = 1,
 										  	image = setImage()
 										},
-										{ 
+										{
 										  	text = "NewVRHelp1",
-										  	position = 3,	
+										  	position = 3,
 										  	image = setImage()
-										}	
+										}
 									}
 
 
@@ -4833,26 +4527,26 @@ end
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
 			end
 
-	---------------------------------------------------------------------------------------		
+	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with VR Help Items that contains sequential positions but not started from 1
-			function Test:PerformInteraction_SequentialPositionsNotfrom1 () 
+			function Test:PerformInteraction_SequentialPositionsNotfrom1 ()
 				local paramsSend = performInteractionAllParams()
-				paramsSend.vrHelp = { 
+				paramsSend.vrHelp = {
 										{
 											text = "NewVRHelp1",
-										  	position = 3,	
+										  	position = 3,
 										  	image = setImage()
 										},
-										{ 
+										{
 										  	text = "NewVRHelp1",
-										  	position = 4,	
+										  	position = 4,
 										  	image = setImage()
-										}	
+										}
 									}
 
 				local cid = self.mobileSession:SendRPC("PerformInteraction", paramsSend)
-				
+
 				--mobile side: expect PerformInteraction response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
 			end
@@ -4865,36 +4559,34 @@ end
 ---------------------------------------------------------------------------------------------
 -------------------------X. DELETE INTERACTION CHOICE SET TEST BLOCK------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** X. DELETE INTERACTION CHOICE SET TEST BLOCK ******************************")
-	end
+  testBlock("DELETE INTERACTION CHOICE SET")
 
 	--Begin Test suit DeleteInteractionChoiceSet
 
-	--Description: TC's checks processing 
+	--Description: TC's checks processing
 		-- request with all parameters
         -- request with missing mandatory parameter
-        -- request with non existent ChoiceSetID 
+        -- request with non existent ChoiceSetID
         -- request when ChoiceSetID is in use
 
-	    -- List of parametres in the request 
+	    -- List of parametres in the request
 			-- 1. interactionChoiceSetID, type=Integer, minvalue=0, maxvalue=2000000000
-	
-		--Requirement id in Jira: 
+
+		--Requirement id in Jira:
 				--To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282664980
 
 	---------------------------------------------------------------------------------------------
 
 		--Description:Positive case and in boundary conditions
-			function Test:DelIChoiceSet_Positive()				
+			function Test:DelIChoiceSet_Positive()
 				--mobile side: sending DeleteInteractionChoiceSet request
 				local cid = self.mobileSession:SendRPC("DeleteInteractionChoiceSet",
 																					{
-																						interactionChoiceSetID = 1001  
+																						interactionChoiceSetID = 1001
 																					})
-				
+
 				--hmi side: expect VR.DeleteCommand request
-				EXPECT_HMICALL("VR.DeleteCommand", 
+				EXPECT_HMICALL("VR.DeleteCommand",
 							{cmdID = 1001, type = "Choice"},
 							{cmdID = 1002, type = "Choice"},
 							{cmdID = 103, type = "Choice"})
@@ -4903,28 +4595,28 @@ end
 					--hmi side: sending VR.DeleteCommand response
 					self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 				end)
-							
-				--mobile side: expect DeleteInteractionChoiceSet response 
-				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })						
-						
+
+				--mobile side: expect DeleteInteractionChoiceSet response
+				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+
 				--mobile side: expect OnHashChange notification
 				EXPECT_NOTIFICATION("OnHashChange")
-			end			
-		
+			end
+
 	-----------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check processing requests without mandatory parameters
 			function Test:DelIChoiceSet_MissingAllParams()
-				--mobile side: DeleteInteractionChoiceSet request 
-				local cid = self.mobileSession:SendRPC("DeleteInteractionChoiceSet",{}) 
-			 
+				--mobile side: DeleteInteractionChoiceSet request
+				local cid = self.mobileSession:SendRPC("DeleteInteractionChoiceSet",{})
+
 			    --mobile side: DeleteInteractionChoiceSet response
-			    EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })				
-						
+			    EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -4937,15 +4629,15 @@ end
 					interactionChoiceSetID = 9999
 				})
 
-				--mobile side: expect DeleteInteractionChoiceSet response 
+				--mobile side: expect DeleteInteractionChoiceSet response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_ID" })
-				
+
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 				:Times(0)
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
-	---------------------------------------------------------------------------------------				
+	---------------------------------------------------------------------------------------
 
 		--Description:  Choiceset in use
 			function Test:DelChoiceSetUsed()
@@ -4955,23 +4647,23 @@ end
 
 				--mobile side: sending PerformInteraction request
 				local cid = self.mobileSession:SendRPC("PerformInteraction", paramsSend)
-				
-				--hmi side: expect VR.PerformInteraction request 
+
+				--hmi side: expect VR.PerformInteraction request
 				EXPECT_HMICALL("VR.PerformInteraction")
 				:Do(function(_,data)
 					local function vrResponse()
-						--Send VR.PerformInteraction response 
-						self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "VR is timed out")	
-					end	
+						--Send VR.PerformInteraction response
+						self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "VR is timed out")
+					end
 
-					RUN_AFTER(vrResponse, 3000)				
+					RUN_AFTER(vrResponse, 3000)
 				end)
 
-				--hmi side: expect UI.PerformInteraction request 						
+				--hmi side: expect UI.PerformInteraction request
 				EXPECT_HMICALL("UI.PerformInteraction")
 				:Do(function(_,data)
 
-					local cid = self.mobileSession:SendRPC("DeleteInteractionChoiceSet",
+					local cid2 = self.mobileSession:SendRPC("DeleteInteractionChoiceSet",
 						{
 							interactionChoiceSetID = 1057
 						})
@@ -4979,28 +4671,28 @@ end
 					--hmi side: expect VR.DeleteCommand request
 					EXPECT_HMICALL("VR.DeleteCommand")
 						:Times(0)
-					
-					--mobile side: expect response 
-					EXPECT_RESPONSE(cid, { success = false, resultCode = "IN_USE" })
+
+					--mobile side: expect response
+					EXPECT_RESPONSE(cid2, { success = false, resultCode = "IN_USE" })
 
 					local function uiResponse()
-						--Send VR.PerformInteraction response 
-						self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "UI is timed out")	
-					end	
+						--Send VR.PerformInteraction response
+						self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "UI is timed out")
+					end
 
 					RUN_AFTER(uiResponse, 3000)
 
 				end)
-						
-					
-				--mobile side: expect PerformInteraction response	
-				EXPECT_RESPONSE(cid, { success = false, resultCode = "TIMED_OUT",  info = "VR is timed out.UI is timed out" } )
+
+
+				--mobile side: expect PerformInteraction response
+				EXPECT_RESPONSE(cid, { success = false, resultCode = "TIMED_OUT",  info = "UI is timed out, VR is timed out" } )
 
 				--mobile side: expect OnHashChange notification is not send to mobile
 				EXPECT_NOTIFICATION("OnHashChange")
 					:Times(0)
 
-				DelayedExp(1000)
+				commonTestCases:DelayedExp(1000)
 			end
 
 	--Begin Test suit DeleteInteractionChoiceSet
@@ -5011,13 +4703,10 @@ end
 ---------------------------------------------------------------------------------------------
 --------------------------------XI. ALERT TEST BLOCK-----------------------------------------
 ---------------------------------------------------------------------------------------------
+  testBlock("ALERT")
 
-	function Test:NewTestBlock()
-		print("****************************** XI. ALERT TEST BLOCK ******************************")
-	end
+	--Begin Test suit Alert
 
-	--Begin Test suit Alert 
-	
 	--Description:
 		-- request is sent with all parameters
         -- request is sent with only mandatory parameters
@@ -5026,8 +4715,8 @@ end
         -- request is sent with soft buttons and image type DYNAMIC
         -- request is sent with soft buttons and image type STATIC
         -- Request is sent with with different ttsChunks type both supported (TEXT) and not supported (PRE_RECORDED, SAPI_PHONEMES, LHPLUS_PHONEMES, SILENCE)
- 
- 	    -- List of parametres in the request 
+
+ 	    -- List of parametres in the request
 			-- 1. alertText1, type=String, maxlength=500, mandatory=false
 			-- 2. alertText2, type=String, maxlength=500, mandatory=false
 			-- 3. alertText3, type=String, maxlength=500, mandatory=false
@@ -5035,80 +4724,78 @@ end
 			-- 5. duration, type=Integer, minvalue=3000, maxvalue=10000, defvalue=5000, mandatory=false
 			-- 6. playTone, type=Boolean, mandatory=false
 			-- 7. progressIndicator, type=Boolean, mandatory=false, platform=MobileNav
-			-- 8. softButtons, type=SoftButton, minsize=0, maxsize=4, array=true, mandatory=false    
+			-- 8. softButtons, type=SoftButton, minsize=0, maxsize=4, array=true, mandatory=false
 
-		--Requirement id in Jira 
+		--Requirement id in Jira
 				-- To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282668983
 
 	---------------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check positive cases and when all parameters are in boundary conditions
-			function Test:Alert_Positive_AllParams() 
+			function Test:Alert_Positive_AllParams()
 
-				--mobile side: Alert request 	
+				--mobile side: Alert request
 				local CorIdAlert = self.mobileSession:SendRPC("Alert",
 									{
-									  	 
+
 										alertText1 = "alertText1",
 										alertText2 = "alertText2",
 										alertText3 = "alertText3",
-										ttsChunks = 
-										{ 
-											
-											{ 
+										ttsChunks =
+										{
+
+											{
 												text = "TTSChunk",
 												type = "TEXT",
-											} 
-										}, 
+											}
+										},
 										duration = 5000,
 										playTone = true,
 										progressIndicator = true,
-										softButtons = 
-										{ 
-											
-											{ 
+										softButtons =
+										{
+
+											{
 												type = "BOTH",
 												text = "Close",
-												 image = 
-									
-												{ 
+												 image =
+												{
 													value = "icon.png",
 													imageType = "DYNAMIC",
-												}, 
+												},
 												isHighlighted = true,
 												softButtonID = 3,
 												systemAction = "DEFAULT_ACTION",
-											}, 
-											
-											{ 
+											},
+
+											{
 												type = "TEXT",
 												text = "Keep",
 												isHighlighted = true,
 												softButtonID = 4,
 												systemAction = "KEEP_CONTEXT",
-											}, 
-											
-											{ 
+											},
+
+											{
 												type = "IMAGE",
-												 image = 
-									
-												{ 
+												 image =
+												{
 													value = "icon.png",
 													imageType = "DYNAMIC",
-												}, 
+												},
 												softButtonID = 5,
 												systemAction = "STEAL_FOCUS",
-											}, 
+											},
 										}
-									
+
 									})
 
 				local AlertId
-				--hmi side: UI.Alert request 
-				EXPECT_HMICALL("UI.Alert", 
-							{	
+				--hmi side: UI.Alert request
+				EXPECT_HMICALL("UI.Alert",
+							{
 								appID = self.applications[applicationName],
-								alertStrings = 
+								alertStrings =
 								{
 									{fieldName = "alertText1", fieldText = "alertText1"},
 							        {fieldName = "alertText2", fieldText = "alertText2"},
@@ -5117,65 +4804,62 @@ end
 							    alertType = "BOTH",
 								duration = 0,
 								progressIndicator = true,
-								softButtons = 
-								{ 
-									
-									{ 
+								softButtons =
+								{
+									{
 										type = "BOTH",
 										text = "Close",
-										--[[ TODO: update after resolving APPLINK-16052
-										image = 
+										image =
 										{
-											value = "icon.png",
-											imageType = "STATIC",
-										},]]
+											value = pathToAppFolder .. "icon.png",
+											imageType = "DYNAMIC",
+										},
 										isHighlighted = true,
 										softButtonID = 3,
 										systemAction = "DEFAULT_ACTION",
-									}, 
-									
-									{ 
+									},
+
+									{
 										type = "TEXT",
 										text = "Keep",
 										isHighlighted = true,
 										softButtonID = 4,
 										systemAction = "KEEP_CONTEXT",
-									}, 
-									
-									{ 
+									},
+
+									{
 										type = "IMAGE",
-										 --[[ TODO: update after resolving APPLINK-16052
-										image = 
+										image =
 										{
-											value = "icon.png",
-											imageType = "STATIC",
-										},]]
+											value = pathToAppFolder .. "icon.png",
+											imageType = "DYNAMIC",
+										},
 										softButtonID = 5,
 										systemAction = "STEAL_FOCUS",
-									}, 
+									},
 								}
 							})
 					:Do(function(_,data)
-						SendOnSystemContext(self,"ALERT")
+						sendOnSystemContext(self,"ALERT")
 						AlertId = data.id
 
 						local function alertResponse()
 							self.hmiConnection:SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
 
-							SendOnSystemContext(self,"MAIN")
+							sendOnSystemContext(self,"MAIN")
 						end
 
 						RUN_AFTER(alertResponse, 3000)
 					end)
 
 				local SpeakId
-				--hmi side: TTS.Speak request 
-				EXPECT_HMICALL("TTS.Speak", 
-							{	
-								ttsChunks = 
-								{ 
-									
-									{ 
+				--hmi side: TTS.Speak request
+				EXPECT_HMICALL("TTS.Speak",
+							{
+								ttsChunks =
+								{
+
+									{
 										text = "TTSChunk",
 										type = "TEXT"
 									}
@@ -5205,72 +4889,72 @@ end
 						end
 					end)
 
-				--hmi side: BC.PalayTone request 
+				--hmi side: BC.PalayTone request
 				EXPECT_HMICALL("BasicCommunication.PlayTone")
 					:Times(0)
-			 
+
 				--mobile side: OnHMIStatus notification
-				ExpectOnHMIStatusWithAudioStateChangedAlert(self)
+				expectOnHMIStatusWithAudioStateChangedAlert(self)
 
 			    --mobile side: Alert response
 			    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "SUCCESS" })
 
-			    DelayedExp(1000)
-				
+			    commonTestCases:DelayedExp(1000)
+
 		end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: Check request with  alertText1, alertText2, alertText3 and ttsChunks only  
+		--Description: Check request with  alertText1, alertText2, alertText3 and ttsChunks only
 
-			function Test:Alert_Positive_MandatoryOnly() 
-			--mobile side: Alert request 	
+			function Test:Alert_Positive_MandatoryOnly()
+			--mobile side: Alert request
 			local CorIdAlert = self.mobileSession:SendRPC("Alert",
 									{
 									  	alertText1 = "alertText1",
 										alertText2 = "alertText2",
 										alertText3 = "alertText3",
-										ttsChunks = { 
+										ttsChunks = {
 													 {text = "Alert!",
-													  type = "TEXT" 
-													 } 
-										            } 										
-									}						
+													  type = "TEXT"
+													 }
+										            }
+									}
 								)
 
 			local AlertId
-			--hmi side: UI.Alert request 
-			EXPECT_HMICALL("UI.Alert", 
-						{	
-							alertStrings = 
+			--hmi side: UI.Alert request
+			EXPECT_HMICALL("UI.Alert",
+						{
+							alertStrings =
 							{
 								{fieldName = "alertText1", fieldText = "alertText1"},
 						        {fieldName = "alertText2", fieldText = "alertText2"},
 						        {fieldName = "alertText3", fieldText = "alertText3"}
 						    },
 						    alertType = "BOTH",
-							duration = 5000, 								
+							duration = 5000,
 						})
 				:Do(function(_,data)
-					SendOnSystemContext(self,"ALERT")
+					sendOnSystemContext(self,"ALERT")
 					AlertId = data.id
 
 					local function alertResponse()
 						self.hmiConnection:SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
 
-						SendOnSystemContext(self,"MAIN")
+						sendOnSystemContext(self,"MAIN")
 					end
 
 					RUN_AFTER(alertResponse, 3000)
 				end)
 			local SpeakId
-			--hmi side: TTS.Speak request 
-			EXPECT_HMICALL("TTS.Speak", 
-						{	
-							ttsChunks = 
-							{ 
-								
-								{ 
+			--hmi side: TTS.Speak request
+			EXPECT_HMICALL("TTS.Speak",
+						{
+							ttsChunks =
+							{
+
+								{
 									text = "Alert!",
 									type = "TEXT"
 								}
@@ -5298,154 +4982,153 @@ end
 						return true
 					end
 				end)
-		
+
 				--mobile side: OnHMIStatus notifications
-				ExpectOnHMIStatusWithAudioStateChangedAlert(self)
+				expectOnHMIStatusWithAudioStateChangedAlert(self)
 
 			    --mobile side: Alert response
 			    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "SUCCESS" })
 
-			    DelayedExp(1000)
+			    commonTestCases:DelayedExp(1000)
 			end
 
 	-----------------------------------------------------------------------------------------
-			
-		--Description: This test is intended to check processing requests without mandatory parameters
-			function Test:Alert_WithoutMandatory() 
 
-			--mobile side: Alert request 	
+		--Description: This test is intended to check processing requests without mandatory parameters
+			function Test:Alert_WithoutMandatory()
+
+			--mobile side: Alert request
 			local CorIdAlert = self.mobileSession:SendRPC("Alert",
 															{
-															  	 
+
 																alertText3 = "alertText3",
 																duration = 3000,
 																playTone = true,
-																softButtons = 
-																{ 
-																	
-																	{ 
+																softButtons =
+																{
+
+																	{
 																		type = "BOTH",
 																		text = "Close",
-																		 image = 
-															
-																		{ 
+																		 image =
+
+																		{
 																			value = "icon.png",
 																			imageType = "DYNAMIC",
-																		}, 
+																		},
 																		isHighlighted = true,
 																		softButtonID = 3,
 																		systemAction = "DEFAULT_ACTION",
-																	}, 
-																	
-																	{ 
+																	},
+
+																	{
 																		type = "TEXT",
 																		text = "Keep",
 																		isHighlighted = true,
 																		softButtonID = 4,
 																		systemAction = "KEEP_CONTEXT",
-																	}, 
-																	
-																	{ 
+																	},
+
+																	{
 																		type = "IMAGE",
-																		 image = 
-															
-																		{ 
+																		 image =
+
+																		{
 																			value = "icon.png",
 																			imageType = "DYNAMIC",
-																		}, 
+																		},
 																		softButtonID = 5,
 																		systemAction = "STEAL_FOCUS",
-																	}, 
-																}, 
-															
-															}) 
-		 
+																	},
+																},
+
+															})
+
 		    --mobile side: Alert response
-		    EXPECT_RESPONSE(CorIdAlert, { success = false, resultCode = "INVALID_DATA" })	
+		    EXPECT_RESPONSE(CorIdAlert, { success = false, resultCode = "INVALID_DATA" })
 
 		end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: All parameters are missing (INVALID_DATA)
-			function Test:Alert_MissingAllParams() 
+			function Test:Alert_MissingAllParams()
 
-				--mobile side: Alert request 
-				local CorIdAlert = self.mobileSession:SendRPC("Alert",{}) 
-			 
+				--mobile side: Alert request
+				local CorIdAlert = self.mobileSession:SendRPC("Alert",{})
+
 			    --mobile side: Alert response
-			    EXPECT_RESPONSE(CorIdAlert, { success = false, resultCode = "INVALID_DATA" })	
+			    EXPECT_RESPONSE(CorIdAlert, { success = false, resultCode = "INVALID_DATA" })
 
 			end
 
 	---------------------------------------------------------------------------------------
 
-		--Description: Check processing request with SoftButtons: type = BOTH and imageType = Dynamic (ABORTED because of SoftButtons presence) 
-			function Test:Alert_IMAGEDynamic() 
+		--Description: Check processing request with SoftButtons: type = BOTH and imageType = Dynamic (ABORTED because of SoftButtons presence)
+			function Test:Alert_IMAGEDynamic()
 
-			 	--mobile side: Alert request 	
+			 	--mobile side: Alert request
 				local CorIdAlert = self.mobileSession:SendRPC("Alert",
 									{
 										alertText1 = "alertText1",
 										alertText2 = "alertText2",
 										alertText3 = "alertText1",
-										ttsChunks = 
-										{ 
-											
-											{ 
+										ttsChunks =
+										{
+
+											{
 												text = "Alert!",
 												type = "TEXT"
-											}, 
-										}, 
+											},
+										},
 										duration = 10000,
 										playTone= true,
-										softButtons = 
-										{ 					
-											{ 
+										softButtons =
+										{
+											{
 												type = "BOTH",
 												text = "Close",
-												image = 			
-												{ 
+												image =
+												{
 													value = "icon.png",
 													imageType = "DYNAMIC",
-												}, 
+												},
 												isHighlighted = true,
 												softButtonID = 3,
 												systemAction = "DEFAULT_ACTION"
 											}
 										}
 									})
-			
+
 
 				local AlertId
-				--hmi side: UI.Alert request 
-				EXPECT_HMICALL("UI.Alert", 
-					{	
+				--hmi side: UI.Alert request
+				EXPECT_HMICALL("UI.Alert",
+					{
 						duration = 0,
-						softButtons = 
-						{ 			
-							{ 
+						softButtons =
+						{
+							{
 								type = "BOTH",
-								--[[TODO: Update test after APPLINK-16052 will be fixed
-								image = 
-									{ 
-										value = PathToAppFolder .. "icon.png",
+								image =
+									{
+										value = pathToAppFolder .. "icon.png",
 										imageType = "DYNAMIC",
-									}, ]]
+									},
 								isHighlighted = true,
 								softButtonID = 3,
 								systemAction = "DEFAULT_ACTION",
-							}, 
+							},
 						}
 					})
 					:Do(function(_,data)
-						SendOnSystemContext(self,"ALERT")
+						sendOnSystemContext(self,"ALERT")
 						AlertId = data.id
 
 						local function alertResponse()
 							self.hmiConnection:SendError(AlertId, "UI.Alert", "ABORTED", "Alert is aborted")
 
-							SendOnSystemContext(self,"MAIN")
+							sendOnSystemContext(self,"MAIN")
 						end
 
 						RUN_AFTER(alertResponse, 30000)
@@ -5460,9 +5143,9 @@ end
 					end)
 
 				local SpeakId
-				--hmi side: TTS.Speak request 
-				EXPECT_HMICALL("TTS.Speak", 
-					{	
+				--hmi side: TTS.Speak request
+				EXPECT_HMICALL("TTS.Speak",
+					{
 						speakType = "ALERT",
 						playTone = true
 					})
@@ -5484,83 +5167,80 @@ end
 			    --mobile side: Alert response
 			    EXPECT_RESPONSE(CorIdAlert, { success = false, resultCode = "ABORTED", info = "Alert is aborted" })
 				 :Timeout(32000)
-			
+
 			end
 
 	---------------------------------------------------------------------------------------
 
-		--Description: Check processing request with SoftButtons: type = BOTH and imageType = Static (ABORTED because of SoftButtons presence) 
-			function Test:Alert_IMAGEStatic() 
+		--Description: Check processing request with SoftButtons: type = BOTH and imageType = Static (ABORTED because of SoftButtons presence)
+			function Test:Alert_IMAGEStatic()
 
-			 --mobile side: Alert request 	
+			 --mobile side: Alert request
 				local CorIdAlert = self.mobileSession:SendRPC("Alert",
 					{
 						alertText1 = "alertText1",
 						alertText2 = "alertText2",
 						alertText3 = "alertText1",
-						
-						ttsChunks = 
-						{ 
-							
-							{ 
+
+						ttsChunks =
+						{
+
+							{
 								text = "Alert!",
 								type = "TEXT"
-							}, 
-						}, 
+							},
+						},
 						duration = 10000,
 						playTone = true,
-						softButtons = 
-						{ 					
-							{ 
+						softButtons =
+						{
+							{
 								type = "BOTH",
 								text = "Close",
-								image = 			
-								{ 
+								image =
+								{
 									value = "icon.png",
 									imageType = "STATIC"
-								},  
+								},
 								isHighlighted = true,
 								softButtonID = 3,
 								systemAction = "DEFAULT_ACTION"
 							}
 						}
 					})
-			
+
 				local AlertId
-				--hmi side: UI.Alert request 
-				EXPECT_HMICALL("UI.Alert", 
-				{	
+				--hmi side: UI.Alert request
+				EXPECT_HMICALL("UI.Alert",
+				{
 					duration = 0,
-					softButtons = 
-					{ 			
-						{ 
+					softButtons =
+					{
+						{
 							type = "BOTH",
-							--[[TODO: Update test after APPLINK-16052 will be fixed
-							 image = 
-				
-							{ 
+							image =
+							{
 								value = "icon.png",
 								imageType = "STATIC",
-							}, ]]
+							},
 							isHighlighted = true,
 							softButtonID = 3,
 							systemAction = "DEFAULT_ACTION",
-						}, 
+						},
 					}
 				})
 				:Do(function(_,data)
-					SendOnSystemContext(self,"ALERT")
+					sendOnSystemContext(self,"ALERT")
 					AlertId = data.id
 
 					local function alertResponse()
 						self.hmiConnection:SendError(AlertId, "UI.Alert", "ABORTED", "Alert is aborted")
 
-						SendOnSystemContext(self,"MAIN")
+						sendOnSystemContext(self,"MAIN")
 					end
 
 					RUN_AFTER(alertResponse, 30000)
 				end)
-				--TODO: Remove ValifIf after APPLINK-16052 will be fixed
 				:ValidIf(function(_,data)
 					if data.params.softButtons[1].image.imageType ~= "STATIC" then
 						commonFunctions:userPrint(31, " imageType is softButtons is not STATIC - " .. tostring(data.params.softButtons[1].image.imageType))
@@ -5572,9 +5252,9 @@ end
 
 
 				local SpeakId
-				--hmi side: TTS.Speak request 
-				EXPECT_HMICALL("TTS.Speak", 
-				{	
+				--hmi side: TTS.Speak request
+				EXPECT_HMICALL("TTS.Speak",
+				{
 					speakType = "ALERT",
 					playTone = true
 				})
@@ -5600,34 +5280,34 @@ end
 	--------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with ttsChunks with type "TEXT"
-			function Test:Alert_ttsChunks_typeTEXT() 
+			function Test:Alert_ttsChunks_typeTEXT()
 
-				--mobile side: Alert request 	
+				--mobile side: Alert request
 				local CorIdAlert = self.mobileSession:SendRPC("Alert",
 									{
-									  	 
+
 										alertText1 = "alertText1",
 										alertText2 = "alertText2",
 										alertText3 = "alertText3",
-										ttsChunks = 
-										{ 
-											
-											{ 
+										ttsChunks =
+										{
+
+											{
 												text = "TTSChunk",
 												type = "TEXT",
-											} 
-										}, 
+											}
+										},
 										duration = 3000,
 										playTone = true,
 										progressIndicator = true
-									
+
 									})
 
 				local AlertId
-				--hmi side: UI.Alert request 
-				EXPECT_HMICALL("UI.Alert", 
-							{	
-								alertStrings = 
+				--hmi side: UI.Alert request
+				EXPECT_HMICALL("UI.Alert",
+							{
+								alertStrings =
 								{
 									{fieldName = "alertText1", fieldText = "alertText1"},
 							        {fieldName = "alertText2", fieldText = "alertText2"},
@@ -5639,26 +5319,26 @@ end
 							}
 							)
 					:Do(function(_,data)
-						SendOnSystemContext(self,"ALERT")
+						sendOnSystemContext(self,"ALERT")
 						AlertId = data.id
 
 						local function alertResponse()
 							self.hmiConnection:SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
 
-							SendOnSystemContext(self,"MAIN")
+							sendOnSystemContext(self,"MAIN")
 						end
 
-						RUN_AFTER(alertResponse, 3000)
+						RUN_AFTER(alertResponse, 2900)
 					end)
 
 				local SpeakId
-				--hmi side: TTS.Speak request 
-				EXPECT_HMICALL("TTS.Speak", 
-							{	
-								ttsChunks = 
-								{ 
-									
-									{ 
+				--hmi side: TTS.Speak request
+				EXPECT_HMICALL("TTS.Speak",
+							{
+								ttsChunks =
+								{
+
+									{
 										text = "TTSChunk",
 										type = "TEXT"
 									}
@@ -5690,66 +5370,63 @@ end
 
 			    --mobile side: Alert response
 			    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "SUCCESS" })
-				
+
 			end
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check providing request with ttsChunks with type "PRE_RECORDED", "SAPI_PHONEMES","LHPLUS_PHONEMES" and "SILENCE"}}
 
-			local ttsChunksType = {{text = "4025",type = "PRE_RECORDED"},{ text = "Sapi",type = "SAPI_PHONEMES"}, {text = "LHplus", type = "LHPLUS_PHONEMES"}, {text = "Silence", type = "SILENCE"}}
-			for i=1,#ttsChunksType do
+			for i=1, #ttsChunksType do
 				Test["Alert_ttsChunksType_" .. tostring(ttsChunksType[i].type)] = function(self)
-					--mobile side: Alert request 	
+					--mobile side: Alert request
 					local CorIdAlert = self.mobileSession:SendRPC("Alert",
 					{
-					  	 
+
 						alertText1 = "alertText1",
 						alertText2 = "alertText2",
 						alertText3 = "alertText3",
-						ttsChunks = 
-						{ 
-							
-							{ 
+						ttsChunks =
+						{
+
+							{
 								text = ttsChunksType[i].text,
 								type = ttsChunksType[i].type
-							}, 
-						}, 
+							},
+						},
 						duration = 6000
-					}) 
+					})
 
 					local AlertId
-					--hmi side: UI.Alert request 
+					--hmi side: UI.Alert request
 					EXPECT_HMICALL("UI.Alert", {})
 					:Do(function(_,data)
-						SendOnSystemContext(self,"ALERT")
+						sendOnSystemContext(self,"ALERT")
 						AlertId = data.id
 
 						local function alertResponse()
 							self.hmiConnection:SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
 
-							SendOnSystemContext(self,"MAIN")
+							sendOnSystemContext(self,"MAIN")
 						end
 
 						RUN_AFTER(alertResponse, 2000)
 					end)
 
-				--hmi side: TTS.Speak request 
-				EXPECT_HMICALL("TTS.Speak", 
-							{	
-								ttsChunks = 
-								{ 
-									
-									{ 
+				--hmi side: TTS.Speak request
+				EXPECT_HMICALL("TTS.Speak",
+							{
+								ttsChunks =
+								{
+
+									{
 										text = ttsChunksType[i].text,
 										type = ttsChunksType[i].type
 									}
 								},
 								speakType = "ALERT"
 							})
-					:Do(function(_,data)								
-						SpeakId = data.id
-
-						self.hmiConnection:SendError(SpeakId, "TTS.Speak", "UNSUPPORTED_RESOURCE", "Error message")
+					:Do(function(_,data)
+						self.hmiConnection:SendError(data.id, data.method, "UNSUPPORTED_RESOURCE", "Error message")
 					end)
 					:ValidIf(function(_,data)
 						if #data.params.ttsChunks == 1 then
@@ -5761,7 +5438,7 @@ end
 					end)
 
 				    --mobile side: Alert response
-				    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "WARNINGS", info = "Error message" }) 
+				    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "WARNINGS", info = "Error message" })
 
 				end
 			end
@@ -5773,58 +5450,56 @@ end
 			local progressIndicatorValue = {true, false}
 			for i=1,#progressIndicatorValue do
 				Test["Alert_progressIndicator_" .. tostring(progressIndicatorValue[i])] = function(self)
-					--mobile side: Alert request 	
+					--mobile side: Alert request
 					local CorIdAlert = self.mobileSession:SendRPC("Alert",
 					{
 						alertText1 = "alertText1",
 						alertText2 = "alertText2",
 						alertText3 = "alertText3",
-						ttsChunks = { 
+						ttsChunks = {
 									 {
 									 	text = "Alert!",
-									  	type = "TEXT" 
-									 } 
+									  	type = "TEXT"
+									 }
 						            },
 						duration = 7000,
 						progressIndicator = progressIndicatorValue[i]
-					}) 
+					})
 
 					local AlertId
-					--hmi side: UI.Alert request 
-					EXPECT_HMICALL("UI.Alert", 
+					--hmi side: UI.Alert request
+					EXPECT_HMICALL("UI.Alert",
 						{
 							progressIndicator = progressIndicatorValue[i]
 						})
 					:Do(function(_,data)
-						SendOnSystemContext(self,"ALERT")
+						sendOnSystemContext(self,"ALERT")
 						AlertId = data.id
 
 						local function alertResponse()
 							self.hmiConnection:SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
 
-							SendOnSystemContext(self,"MAIN")
+							sendOnSystemContext(self,"MAIN")
 						end
 
 						RUN_AFTER(alertResponse, 2000)
 					end)
 
-				--hmi side: TTS.Speak request 
-				EXPECT_HMICALL("TTS.Speak", 
-							{	
-								ttsChunks = 
-								{ 
-									
-									{ 
+				--hmi side: TTS.Speak request
+				EXPECT_HMICALL("TTS.Speak",
+							{
+								ttsChunks =
+								{
+
+									{
 										text = "Alert!",
-										type = "TEXT"	
+										type = "TEXT"
 									}
 								},
 								speakType = "ALERT"
 							})
-					:Do(function(_,data)								
-						SpeakId = data.id
-
-						self.hmiConnection:SendResponse(SpeakId, "TTS.Speak", "SUCCESS", {})
+					:Do(function(_,data)
+						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 					end)
 					:ValidIf(function(_,data)
 						if #data.params.ttsChunks == 1 then
@@ -5836,32 +5511,30 @@ end
 					end)
 
 				    --mobile side: Alert response
-				    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "SUCCESS" }) 
+				    EXPECT_RESPONSE(CorIdAlert, { success = true, resultCode = "SUCCESS" })
 
 				end
 			end
 
 		--End Test suit Alert
------------------------------------------------------------------------------------------ 
+-----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 
 ---------------------------------------------------------------------------------------------
 ------------------------------------XII. SHOW TEST BLOCK-------------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** XII. SHOW TEST BLOCK ******************************")
-	end
+  testBlock("SHOW")
 
 	--Begin Test suit Show
-	
+
 	--Description:
 		-- request is sent with all parameters
         -- request is sent with all parameters missing
         -- request is sent with empty parameters
         -- request is sent with soft buttons and image type DYNAMIC
         -- request is sent with soft buttons and image type STATIC
-       
+
 		--List of parameters in the request:
 			--1. mainField1: type=String, maxlength=500, mandatory=false
 			--2. mainField2, type=String, maxlength=500, mandatory=false
@@ -5876,17 +5549,17 @@ end
 			--11. softButtons, type=SoftButton, mandatory=false, minsize=0, array=true, maxsize=8
 			--12. customPresets, type=String, maxlength=500, mandatory=false, minsize=0, maxsize=8, array=true
 
-			
-		--Requirement id in Jira 
+
+		--Requirement id in Jira
 			-- To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283518436
 
 	---------------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check positive cases and when all parameters are in boundary conditions
 			function Test:Show_AllParametersWithinBound ()
-	
+
 				--mobile side: request parameters
-				local RequestParams = 
+				local RequestParams =
 				{
 					mainField1 = "Show1",
 					mainField2 = "Show2",
@@ -5896,128 +5569,128 @@ end
 					mediaClock = "00:00:01",
 					mediaTrack = "mediaTrack",
 					alignment = "CENTERED",
-					graphic = 
-					{	
+					graphic =
+					{
 						imageType ="DYNAMIC",
 						value = "icon.png"
 					},
-					secondaryGraphic = 
-					{	
+					secondaryGraphic =
+					{
 						imageType = "DYNAMIC",
 						value = "icon.png"
 					},
-					softButtons = 
+					softButtons =
 					{
 						{
 							text = "1 Close",
 							systemAction = "DEFAULT_ACTION",
 							type = "BOTH",
-							isHighlighted = true,																
+							isHighlighted = true,
 							image =
 							{
 							   imageType = "DYNAMIC",
 							   value = "icon.png"
-							},																
+							},
 							softButtonID = 1
 						},
 						{
 							text = "2 Close",
 							systemAction = "DEFAULT_ACTION",
 							type = "BOTH",
-							isHighlighted = true,																
+							isHighlighted = true,
 							image =
 							{
 							   imageType = "DYNAMIC",
 							   value = "icon.png"
-							},																
+							},
 							softButtonID = 2
 						}
 					},
-					customPresets = 
+					customPresets =
 					{
 						"Preset1",
 						"Preset2",
 						"Preset3"
-					}	
+					}
 				}
-				
-				self:verify_SUCCESS_Case(RequestParams)
-		
+
+				verify_SUCCESS_Case(self, RequestParams)
+
 			end
 
 	---------------------------------------------------------------------------------------
-	
-		--Description: This test is intended to check processing requests with missing all parameters  
+
+		--Description: This test is intended to check processing requests with missing all parameters
 			function Test:Show_AllParametersAreMissed()
-			
+
 				--mobile side: sending sending the request
 				local cid = self.mobileSession:SendRPC("Show",{})
-			
+
 				--mobile side: expect SetMediaClockTimer response
 				EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
-							
+
 			end
 
 	---------------------------------------------------------------------------------------
-			
+
 	--Description: This test is intended to check processing requests with empty parameters
 		function Test:Show_EmptyParameters()
-	
+
 			--mobile side: request parameters
-			local RequestParams = 
+			local RequestParams =
 				{
 					mainField1 = "",
 					mainField2 = "",
 					mainField3 = "",
 					mainField4 = "",
 					mediaTrack = ""
-					
+
 				}
-				
-			self:verify_SUCCESS_Case(RequestParams)		
+
+			verify_SUCCESS_Case(self, RequestParams)
 		end
 
 	-----------------------------------------------------------------------------------------
 
-		--Description: Check processing request with SoftButtons imageType = Dynamic 
+		--Description: Check processing request with SoftButtons imageType = Dynamic
 			function Test:Show_SoftButtons_imageDYNAMIC()
-	
+
 				--mobile side: request parameters
-				local RequestParams = 
+				local RequestParams =
 				{
 					mainField1 = "Show1",
-					softButtons = 
+					softButtons =
 					{
 						{
 							text = "1 Close",
 							systemAction = "DEFAULT_ACTION",
 							type = "BOTH",
-							isHighlighted = true,																
+							isHighlighted = true,
 							image =
 							{
 							   imageType = "DYNAMIC",
 							   value = "icon.png"
-							},																
+							},
 							softButtonID = 1
 						},
 						{
 							text = "2 Close",
 							systemAction = "DEFAULT_ACTION",
 							type = "BOTH",
-							isHighlighted = true,																
+							isHighlighted = true,
 							image =
 							{
 							   imageType = "DYNAMIC",
 							   value = "icon.png"
-							},																
+							},
 							softButtonID = 2
 						}
 					}
-					
+
 				}
-				
-				self:verify_SUCCESS_Case(RequestParams)
-		
+
+				verify_SUCCESS_Case(self, RequestParams)
+
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -6028,33 +5701,33 @@ end
 				--mobile side: sending Show request
 				local cid = self.mobileSession:SendRPC("Show",
 														{
-															mainField1 = "Text1",													
+															mainField1 = "Text1",
 															softButtons =
 															{
 																 {
 																	text = "Close",
 																	systemAction = "KEEP_CONTEXT",
 																	type = "BOTH",
-																	isHighlighted = true,				
+																	isHighlighted = true,
 																	image =
 																			{
 																			   imageType = "STATIC",
 																			   value = "icon.png"
-																			},															
+																			},
 																	softButtonID = 1
 																 }
-															 },														
+															 },
 															mediaTrack = "Track1"
 														})
 				--hmi side: expect UI.Show request
-				EXPECT_HMICALL("UI.Show", 
-							{ 
-								showStrings = 
-								{							
+				EXPECT_HMICALL("UI.Show",
+							{
+								showStrings =
+								{
 									{
 										fieldName = "mainField1",
 										fieldText = "Text1"
-									},		
+									},
 									{
 										fieldName = "mediaTrack",
 										fieldText = "Track1"
@@ -6065,152 +5738,143 @@ end
 	 									text = "Close",
 	 									systemAction = "KEEP_CONTEXT",
 	 									type = "BOTH",
-	 									isHighlighted = true,														
+	 									isHighlighted = true,
 	 									softButtonID = 1,
-	 									--[[ TODO: update after resolving APPLINK-16052
 	 									image =
 	 											{
 	 											   imageType = "STATIC",
 	 											   value = "icon.png"
-	 											}]]
- 								 	}	
- 								}							 
+	 											}
+ 								 	}
+ 								}
 							})
 					:Do(function(_,data)
 						--hmi side: sending UI.Show response
 						self.hmiConnection:SendError(data.id, data.method, "UNSUPPORTED_RESOURCE", "info")
 					end)
-					:ValidIf (function (_,data)	
+					:ValidIf (function (_,data)
 						if data.params.softButtons[1].image.imageType ~= "STATIC" then
 							commonFunctions:userPrint(31, " imageType value in softButtons is not Static - " .. tostring(data.params.softButtons[1].image.imageType))
 							return false
 						else
 							return true
 						end
-					end)													
-			
+					end)
+
 				--mobile side: expect Show response
-				EXPECT_RESPONSE(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "info"}) 
-				
-			end		
+				EXPECT_RESPONSE(cid, { success = true, resultCode = "UNSUPPORTED_RESOURCE", info = "info"})
+
+			end
 
 	--End Test suit Show
------------------------------------------------------------------------------------------ 
+-----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
 
 
 ---------------------------------------------------------------------------------------------
 ------------------------------------XIII. SPEAK TEST BLOCK-----------------------------------
 ---------------------------------------------------------------------------------------------
+  testBlock("SPEAK")
 
-	function Test:NewTestBlock()
-		print("****************************** XIII. SPEAK TEST BLOCK ******************************")
-	end
+	-- Begin Test suit Speak
 
-	-- Begin Test suit Speak 
-	
 	-- 	Description:
 		-- Request is sent with all parameters
-		-- Request is sent with missing mandatory parameter 
+		-- Request is sent with missing mandatory parameter
 		-- Request is sent with different ttsChunks types both supported (TEXT) and not supported (PRE_RECORDED, SAPI_PHONEMES, LHPLUS_PHONEMES, SILENCE)
 
-		--  List of parametres in the request 
+		--  List of parametres in the request
 		-- 	1. ttsChunks, type=TTSChunk, minsize=1, maxsize=100, array=true
 
-		--Requirement id in Jira 
+		--Requirement id in Jira
 					-- To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283512902
 
 	---------------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check positive case  when all parameter is in boundary conditions
-			function Test:Speak_PositiveCase() 
-		
+			function Test:Speak_PositiveCase()
+
 				--mobile side: sending the request
-				local cid = self.mobileSession:SendRPC("Speak", 
-													{													
-													ttsChunks = {
-																	{ 
-																		text = 'a',
-																		type = "TEXT"
-																	}
-															
-																}
-													})
+				local request = {
+						ttsChunks = {
+							{
+								text = 'a',
+								type = "TEXT"
+							}
+						}
+					}
+				local cid = self.mobileSession:SendRPC("Speak", request)
 				--hmi side: expect TTS.Speak request
-				EXPECT_HMICALL("TTS.Speak", Request)
+				EXPECT_HMICALL("TTS.Speak", request)
 				:Do(function(_,data)
 					self.hmiConnection:SendNotification("TTS.Started")
-					SpeakId = data.id
 
 					local function speakResponse()
-						self.hmiConnection:SendResponse(SpeakId, "TTS.Speak", "SUCCESS", { })
+						self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
 
 						self.hmiConnection:SendNotification("TTS.Stopped")
 					end
 					RUN_AFTER(speakResponse, 1000)
 				end)
 
-				if 
+				if
 		          self.appHMITypes["NAVIGATION"] == true or
 		          self.appHMITypes["COMMUNICATION"] == true or
 		          self.isMediaApplication == true then
 		            --mobile side: expect OnHMIStatus notification
-		            EXPECT_NOTIFICATION("OnHMIStatus", 
+		            EXPECT_NOTIFICATION("OnHMIStatus",
 		              {hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN"},
-		              {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"}) 
+		              {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 		            :Times(2)
 		        else
 		          EXPECT_NOTIFICATION("OnHMIStatus")
 		            :Times(0)
 
-		          DelayedExp()
+		          commonTestCases:DelayedExp()
 		        end
 
 				--mobile side: expect the response
 				EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-		
+
 			end
 
 	---------------------------------------------------------------------------------------
 
-	--Description: This test is intended to check case when mandatory parameter (all) is missing 
+	--Description: This test is intended to check case when mandatory parameter (all) is missing
 		function Test:Speak_AllParameterAreMissed_INVALID_DATA()
-		
+
 			--mobile side: sending sending the request
 			local cid = self.mobileSession:SendRPC("Speak", {})
-		
+
 			--mobile side: expect SetMediaClockTimer response
 			EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
-						
+
 		end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check processing request with unsupported speechCapabilities ("SAPI_PHONEMES", "LHPLUS_PHONEMES", "PRE_RECORDED", "SILENCE")
-
-			local ttsChunksType = {{text = "4025",type = "PRE_RECORDED"},{ text = "Sapi",type = "SAPI_PHONEMES"}, {text = "LHplus", type = "LHPLUS_PHONEMES"}, {text = "Silence", type = "SILENCE"}}
-			for i=1,#ttsChunksType do
+			for i=1, #ttsChunksType do
 				Test["Speak_ttsChunksType" .. tostring(ttsChunksType[i].type)] = function(self)
-					--mobile side: Speak request 	
+					--mobile side: Speak request
 					local cid = self.mobileSession:SendRPC("Speak",
-					{	  	 								
-						ttsChunks = 
-						{ 
-							{ 
+					{
+						ttsChunks =
+						{
+							{
 							 text = ttsChunksType[i].text,
 							 type = ttsChunksType[i].type
-							} 								
+							}
 						}
-					}) 
+					})
 
-					local Speak
-					--hmi side: TTS.Speak request 
-					EXPECT_HMICALL("TTS.Speak", 
-								{	
-									ttsChunks = 
-									{ 
-										
-										{ 
+					--hmi side: TTS.Speak request
+					EXPECT_HMICALL("TTS.Speak",
+								{
+									ttsChunks =
+									{
+
+										{
 										 text = ttsChunksType[i].text,
 										 type = ttsChunksType[i].type
 										}
@@ -6219,9 +5883,9 @@ end
 									appID = self.applications[applicationName]
 								})
 						:Do(function(_,data)
-							SpeakId = data.id
+							local SpeakId = data.id
 
-							self.hmiConnection:SendError(SpeakId, "TTS.Speak", "UNSUPPORTED_RESOURCE", "UNSUPPORTED_RESOURCE")		
+							self.hmiConnection:SendError(SpeakId, "TTS.Speak", "UNSUPPORTED_RESOURCE", "UNSUPPORTED_RESOURCE")
 						end)
 						:ValidIf(function(_,data)
 							if #data.params.ttsChunks == 1 then
@@ -6233,7 +5897,7 @@ end
 						end)
 
 				    --mobile side: Speak response
-				    EXPECT_RESPONSE(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "UNSUPPORTED_RESOURCE"})
+				    EXPECT_RESPONSE(cid, { success = true, resultCode = "UNSUPPORTED_RESOURCE", info = "UNSUPPORTED_RESOURCE"})
 
 				end
 			end
@@ -6246,64 +5910,62 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------XIV. SET MEDIA CLOCK TIMER TEST BLOCK-----------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** XIV. SET MEDIA CLOCK TIMER TEST BLOCK ******************************")
-	end
+  testBlock("SET MEDIA CLOCK TIMER")
 
 	--Begin Test suit SetMediaClockTimer
-	
+
 	--Description:
 		--request is sent with all parameters for COUNTUP and COUNTDOWN modes
-        --request is sent with only mandatory parameter for PAUSE, RESUME and CLEAR modes 
-        --request is sent with missing mandatory parameters 
+        --request is sent with only mandatory parameter for PAUSE, RESUME and CLEAR modes
+        --request is sent with missing mandatory parameters
         --request is sent with pausing paused timer
-        --request is sent with resuming resumed timer 
-        --request is sent with resuming CountUp/CountDown Timer 
-        -- attempt to pause already paused timer 
-		-- attempt to resume already resumed timer 
-		-- resumption of CountUp/CountDown timer 
+        --request is sent with resuming resumed timer
+        --request is sent with resuming CountUp/CountDown Timer
+        -- attempt to pause already paused timer
+		-- attempt to resume already resumed timer
+		-- resumption of CountUp/CountDown timer
 
 		--List of parameters in the request:
 			--1. startTime: type=StartTime, mandatory=false
 			--2. endTime, type=StartTime, mandatory=false
 			--3. updateMode, type=UpdateMode, mandatory=true
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- To be added https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283514780
 	---------------------------------------------------------------------------------------------
 
 		--Description: This test is intended to check positive case  when all parameters are in boundary conditions and mode = COUNTUP or COUNTDOWN
-			for i=1,#updateModeCountUpDown do					
+			for i=1,#updateModeCountUpDown do
 				Test["SetMediaClockTimer_PositiveCase_" .. tostring(updateMode[i]).."_SUCCESS"] = function(self)
-					countDown = 0
+					local countDown = 0
 					if updateMode[i] == "COUNTDOWN" then
 						countDown = -1
 					end
 
 					local Request = {
-						startTime = 
+						startTime =
 						{
 							hours = 0,
 							minutes = 1,
 							seconds = 33
 						},
-						endTime = 
+						endTime =
 						{
 							hours = 0,
 							minutes = 1 + countDown,
 							seconds = 35
-						},						
+						},
 						updateMode = updateMode[i]
 					}
 
-					self:setMediaClockTimerFunction(Request, _, true)
-				 
+					setMediaClockTimerFunction(self, Request, nil, true)
+
 				end
-			end			
+			end
 
 	---------------------------------------------------------------------------------------
-	
+
 		--Description: This test is intended to check positive case when only mandatory parameter is sent and updateMode = "PAUSE", "RESUME" and "CLEAR"
 			for i=1,#updateModeNotRequireStartEndTime do
 				Test["SetMediaClockTimer_OnlyMandatory_" .. tostring(updateModeNotRequireStartEndTime[i]).."_SUCCESS"] = function(self)
@@ -6312,20 +5974,20 @@ end
 										updateMode = updateModeNotRequireStartEndTime[i]
 									}
 
-					self:setMediaClockTimerFunction(Request, _, true)
-				 
+					setMediaClockTimerFunction(self, Request, nil, true)
+
 				end
-			end				
+			end
 
 	---------------------------------------------------------------------------------------
-			
-		--Description: This test is intended to check processing requests when only parameter updateMode = COUNTUP is sent 
+
+		--Description: This test is intended to check processing requests when only parameter updateMode = COUNTUP is sent
 			function Test:SetMediaClockTimer_onlyCOUNTUP_ParameterSent_INVALID_DATA()
-				local Request = {															
+				local Request = {
 									updateMode = "COUNTUP"
 								}
 
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")						
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	-----------------------------------------------------------------------------------------
@@ -6333,54 +5995,54 @@ end
 		--Description: Check processing request when only parameter updateMode = COUNTDOWN is sent
 
 			function Test:SetMediaClockTimer_onlyCOUNTDOWN_ParameterSent_INVALID_DATA()
-				local Request = {															
+				local Request = {
 									updateMode = "COUNTDOWN"
 								}
 
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 	---------------------------------------------------------------------------------------
 
-		--Description: Check processing request with missing all fields 
+		--Description: Check processing request with missing all fields
 
 			function Test:SetMediaClockTimer_AllParameterAreMissed_INVALID_DATA()
 				local Request = {}
 
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 	---------------------------------------------------------------------------------------
 
-		--Description: Check processing request without updateMode 
-			function Test:SetMediaClockTimer_updateModeMissing() 
-				local Request = {								
-									startTime = 
+		--Description: Check processing request without updateMode
+			function Test:SetMediaClockTimer_updateModeMissing()
+				local Request = {
+									startTime =
 									{
 										hours = 1,
 										minutes = 1,
 										seconds = 33
 									},
-									endTime = 
+									endTime =
 									{
 										hours = 1,
 										minutes = 1,
 										seconds = 50
 									}
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: Check processing request without startTime.hours
-			function Test:SetMediaClockTimer_StartTimeHoursMissing() 
-				local Request = {								
-									startTime = 
+			function Test:SetMediaClockTimer_StartTimeHoursMissing()
+				local Request = {
+									startTime =
 									{
 										minutes = 1,
 										seconds = 33
 									},
-									endTime = 
+									endTime =
 									{
 										hours = 1,
 										minutes = 1,
@@ -6388,21 +6050,21 @@ end
 									},
 									updateMode = "COUNTUP"
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: Check processing request without startTime.minutes
-			function Test:SetMediaClockTimer_StartTimeMinutesMissing() 
-				local Request = {								
-									startTime = 
+			function Test:SetMediaClockTimer_StartTimeMinutesMissing()
+				local Request = {
+									startTime =
 									{
 										hours = 1,
 										seconds = 33
 									},
-									endTime = 
+									endTime =
 									{
 										hours = 1,
 										minutes = 1,
@@ -6410,21 +6072,21 @@ end
 									},
 									updateMode = "COUNTUP"
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: Check processing request without startTime.seconds
-			function Test:SetMediaClockTimer_StartTimeSecondsMissing() 
-				local Request = {								
-									startTime = 
+			function Test:SetMediaClockTimer_StartTimeSecondsMissing()
+				local Request = {
+									startTime =
 									{
 										hours = 1,
 										minutes = 1
 									},
-									endTime = 
+									endTime =
 									{
 										hours = 1,
 										minutes = 1,
@@ -6432,121 +6094,121 @@ end
 									},
 									updateMode = "COUNTUP"
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")									
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: Check processing request without endTime.hours
 			function Test:SetMediaClockTimer_EndTimeHoursMissing()
-				local Request = {								
-									startTime = 
+				local Request = {
+									startTime =
 									{
 										hours = 1,
 										minutes = 1,
 										seconds = 33
 									},
-									endTime = 
+									endTime =
 									{
 										minutes = 1,
 										seconds = 50
 									},
 									updateMode = "COUNTUP"
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: Check processing request without endTime.minutes
 			function Test:SetMediaClockTimer_EndTimeMinutesMissing()
-				local Request = {								
-									startTime = 
+				local Request = {
+									startTime =
 									{
 										hours = 1,
 										minutes = 1,
 										seconds = 33
 									},
-									endTime = 
+									endTime =
 									{
 										hours = 1,
 										seconds = 50
 									},
 									updateMode = "COUNTUP"
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: Check processing request without endTime.seconds
-			function Test:SetMediaClockTimer_EndTimeSecondsMissing() 
-				local Request = {								
-									startTime = 
+			function Test:SetMediaClockTimer_EndTimeSecondsMissing()
+				local Request = {
+									startTime =
 									{
 										hours = 1,
 										minutes = 1,
 										seconds = 33
 									},
-									endTime = 
+									endTime =
 									{
 										hours = 1,
 										minutes = 1
 									},
 									updateMode = "COUNTUP"
 								}
-				
-				self:setMediaClockTimerFunction(Request, "INVALID_DATA")
+
+				setMediaClockTimerFunction(self, Request, "INVALID_DATA")
 			end
 
 	---------------------------------------------------------------------------------------
 
 		--Description: When request to pause media SetMediaClockTimes is sent to already paused timer, the request is ignored
 
-			--Precondition: Start new SetMediaClockTimer 
+			--Precondition: Start new SetMediaClockTimer
 
-				function Test:SetMediaClockTimer_updateMode_Precondition() 	
+				function Test:SetMediaClockTimer_updateMode_Precondition()
 					local Request = {
-										startTime = 
+										startTime =
 										{
 											hours = 0,
 											minutes = 1,
 											seconds = 35
 										},
-										endTime = 
+										endTime =
 										{
 											hours = 0,
 											minutes = 1,
 											seconds = 45
-										}, 
+										},
 										updateMode = "COUNTUP"
 									}
 
-					self:setMediaClockTimerFunction(Request, _, true)				
-							
-				end						
+					setMediaClockTimerFunction(self, Request, nil, true)
 
-			-- Send first request to pause timer 
+				end
 
-				function Test:SetMediaClockTimer_FirstPAUSE_SUCESS()	
+			-- Send first request to pause timer
+
+				function Test:SetMediaClockTimer_FirstPAUSE_SUCESS()
 					local Request = {
 									 	updateMode = "PAUSE"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, _, true)		
-				end		
+					setMediaClockTimerFunction(self, Request, nil, true)
+				end
 
-			-- Send second request to pause timer 
+			-- Send second request to pause timer
 
 				function Test:SetMediaClockTimer_SecondPAUSE_IGNORED()
 					local Request = {
 									 	updateMode = "PAUSE"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, "IGNORED", true)
+					setMediaClockTimerFunction(self, Request, "IGNORED", true)
 				end
 
 	---------------------------------------------------------------------------------------
@@ -6555,46 +6217,46 @@ end
 		--Description: When request to resume media SetMediaClockTimes is sent to already resumed timer, the request is ignored
 
 
-			--Precondition: Start new SetMediaClockTimer 
+			--Precondition: Start new SetMediaClockTimer
 
 				function Test:SetMediaClockTimer_Resume_Precondition_SUCESS()
 					local Request = {
-									 	startTime = 
+									 	startTime =
 										{
 											hours = 1,
 											minutes = 2,
 											seconds = 3
 										},
-										endTime = 
+										endTime =
 										{
 											hours = 1,
 											minutes = 2,
 											seconds = 13
-										}, 
+										},
 										updateMode = "COUNTUP"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, _, true)
-				end						
+					setMediaClockTimerFunction(self, Request, nil, true)
+				end
 
-			-- Send  request to pause timer 
+			-- Send  request to pause timer
 
 				function Test:SetMediaClockTimer_Resume_PAUSE_SUCESS()
 					local Request = {
 									 	updateMode = "PAUSE"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, _, true)					
-				end		
+					setMediaClockTimerFunction(self, Request, nil, true)
+				end
 
-			-- Send first request to resume timer 
+			-- Send first request to resume timer
 
 				function Test:SetMediaClockTimer_Resume__SUCESS()
 					local Request = {
 									 	updateMode = "RESUME"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, _, true)			
+					setMediaClockTimerFunction(self, Request, nil, true)
 				end
 
 			-- Send second request to pause timer
@@ -6602,9 +6264,9 @@ end
 				function Test:SetMediaClockTimer__RESUME_IGNORED()
 					local Request = {
 									 	updateMode = "RESUME"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, "IGNORED", true)	
+					setMediaClockTimerFunction(self, Request, "IGNORED", true)
 				end
 
 	---------------------------------------------------------------------------------------
@@ -6615,72 +6277,72 @@ end
 
 				function Test:SetMediaClockTimer_ResumeCOUNTUP_Precondition()
 					local Request = {
-									 	startTime = 
+									 	startTime =
 										{
 											hours = 1,
 											minutes = 2,
 											seconds = 3
 										},
-										endTime = 
+										endTime =
 										{
 											hours = 1,
 											minutes = 2,
 											seconds = 13
-										}, 
+										},
 										updateMode = "COUNTUP"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, _, true)					
+					setMediaClockTimerFunction(self, Request, nil, true)
 				end
 
-			-- Send resume request	
+			-- Send resume request
 
-				function Test:SetMediaClockTimer__ResumeCOUNTUP_IGNORED() 
+				function Test:SetMediaClockTimer__ResumeCOUNTUP_IGNORED()
 					local Request = {
 									 	updateMode = "RESUME"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, "IGNORED", true)		
+					setMediaClockTimerFunction(self, Request, "IGNORED", true)
 				end
 
 	--------------------------------------------------------------------------------------
-		
+
 		--Description: When request to resume media SetMediaClockTimes is sent to not paused COUNTDOWN timer, the request is ignored
 
-			--Precondition: Start new SetMediaClockTimer 
+			--Precondition: Start new SetMediaClockTimer
 				function Test:SetMediaClockTimer_ResumeCOUNTDOWN_Precondition()
 					local Request = {
-									 	startTime = 
+									 	startTime =
 										{
 											hours = 1,
 											minutes = 15,
 											seconds = 3
 										},
-										endTime = 
+										endTime =
 										{
 											hours = 1,
 											minutes = 2,
 											seconds = 13
-										}, 
+										},
 										updateMode = "COUNTDOWN"
-									}	
+									}
 
-					self:setMediaClockTimerFunction(Request, _, true)
-					
-				end						
-
-			-- Send resume request 
-
-				function Test:SetMediaClockTimer__RESUMECOUNTDOWN_IGNORED()
-		
-					local Request = {
-									 	updateMode = "RESUME"
-									}	
-
-					self:setMediaClockTimerFunction(Request, "IGNORED", true)
+					setMediaClockTimerFunction(self, Request, nil, true)
 
 				end
-	
+
+			-- Send resume request
+
+				function Test:SetMediaClockTimer__RESUMECOUNTDOWN_IGNORED()
+
+					local Request = {
+									 	updateMode = "RESUME"
+									}
+
+					setMediaClockTimerFunction(self, Request, "IGNORED", true)
+
+				end
+
 	--End test suit SetMediaClockTimer
 -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------
@@ -6689,50 +6351,48 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------XV. SUBSCRIBE BUTTON TEST BLOCK-----------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** XV. SUBSCRIBE BUTTON TEST BLOCK ******************************")
-	end
+  testBlock("SUBSCRIBE BUTTON")
 
 	--Begin Test suit SubscribeButton
-	
+
 	--Description:
 		--request is sent with all parameters
         --request is sent with only mandatory parameter
-        --request is sent with missing mandatory parameters 
+        --request is sent with missing mandatory parameters
         --subscribing already subscribed data
 
 		--List of parameters in the request:
 			--1. buttonName: type="ButtonName"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283511077
 
 	---------------------------------------------------------------------------------------------
 
 		-- Description: SubscribeButton: All parameters
-		  	for i=1,#ButtonArray do
-			    Test["Case_SubscribeButtonAllPAramsTest_" .. tostring(ButtonArray[i])] = function(self)
+		  	for i=1,#buttonArray do
+			    Test["Case_SubscribeButtonAllPAramsTest_" .. tostring(buttonArray[i])] = function(self)
 			      local CorIdSubscribeButtonAllPAramsVD = self.mobileSession:SendRPC("SubscribeButton",
 			        {
-			          buttonName = ButtonArray[i]
+			          buttonName = buttonArray[i]
 			        })
 
 
 			      if self.isMediaApplication == true then
 				      	--expect Buttons.OnButtonSubscription
-				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = ButtonArray[i], isSubscribed = true, appID = self.applications[applicationName]})
+				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = buttonArray[i], isSubscribed = true, appID = self.applications[applicationName]})
 
 				      	--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(CorIdSubscribeButtonAllPAramsVD, { success = true, resultCode = "SUCCESS"})
 
-				      	EXPECT_NOTIFICATION("OnHashChange") 
+				      	EXPECT_NOTIFICATION("OnHashChange")
 				  else
-				  	if 
-				  		ButtonArray[i] == "SEEKLEFT" or 
-				  		ButtonArray[i] == "SEEKRIGHT" or
-				  		ButtonArray[i] == "TUNEUP" or
-				  		ButtonArray[i] == "TUNEDOWN" then
+				  	if
+				  		buttonArray[i] == "SEEKLEFT" or
+				  		buttonArray[i] == "SEEKRIGHT" or
+				  		buttonArray[i] == "TUNEUP" or
+				  		buttonArray[i] == "TUNEDOWN" then
 				  			--mobile side: expect SubscribeButton response
 				      		self.mobileSession:ExpectResponse(CorIdSubscribeButtonAllPAramsVD, { success = false, resultCode = "REJECTED"})
 
@@ -6743,47 +6403,47 @@ end
 				      		EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
 				      			:Times(0)
 
-				      		DelayedExp(1000)
-				  	else 
+				      		commonTestCases:DelayedExp(1000)
+				  	else
 				  		--expect Buttons.OnButtonSubscription
-				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = ButtonArray[i], isSubscribed = true, appID = self.applications[applicationName]})
+				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = buttonArray[i], isSubscribed = true, appID = self.applications[applicationName]})
 
 				  		--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(CorIdSubscribeButtonAllPAramsVD, { success = true, resultCode = "SUCCESS"})
 
-				      	EXPECT_NOTIFICATION("OnHashChange") 
+				      	EXPECT_NOTIFICATION("OnHashChange")
 				  	end
-				  end                               
+				  end
 
 			    end
 		  	end
 	---------------------------------------------------------------------------------------------
 
-		-- Description: SubscribeButton: Missing mandatory 
+		-- Description: SubscribeButton: Missing mandatory
 		    function Test:Case_SubscribeButtonMissingMandatoryTest()
-		          
+
 		      --mobile side: sending SubscribeButton request
 		      local CorIdSubscribeButtonMissingMandatoryVD = self.mobileSession:SendRPC("SubscribeButton", {})
 
 		      --mobile side: expect SubscribeButton response
 		      EXPECT_RESPONSE(CorIdSubscribeButtonMissingMandatoryVD, { success = false, resultCode = "INVALID_DATA"})
-		            
+
 		      --mobile side: expect OnHashChange notification is not send to mobile
 		      EXPECT_NOTIFICATION("OnHashChange")
-		      :Times(0)      
+		      :Times(0)
 
-			  DelayedExp(1000)
-		    end  
+			  commonTestCases:DelayedExp(1000)
+		    end
 	---------------------------------------------------------------------------------------------
 
 		-- Description:SubscribeButton: Subscribe already subscribed
-			for i=1,#ButtonArray do
-		        Test["SubscribeButton_Alreadysubscribed_" .. tostring(ButtonArray[i])..""] = function(self)
-		        
+			for i=1,#buttonArray do
+		        Test["SubscribeButton_Alreadysubscribed_" .. tostring(buttonArray[i])..""] = function(self)
+
 		          --mobile side: sending SubscribeButton request
 		          local cid = self.mobileSession:SendRPC("SubscribeButton",
 		            {
-		              buttonName = ButtonArray[i]
+		              buttonName = buttonArray[i]
 		            }
 		          )
 
@@ -6796,26 +6456,26 @@ end
 				      	--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "IGNORED"})
 				  else
-				  	if 
-				  		ButtonArray[i] == "SEEKLEFT" or 
-				  		ButtonArray[i] == "SEEKRIGHT" or
-				  		ButtonArray[i] == "TUNEUP" or
-				  		ButtonArray[i] == "TUNEDOWN" then
+				  	if
+				  		buttonArray[i] == "SEEKLEFT" or
+				  		buttonArray[i] == "SEEKRIGHT" or
+				  		buttonArray[i] == "TUNEUP" or
+				  		buttonArray[i] == "TUNEDOWN" then
 				  			--mobile side: expect SubscribeButton response
 				      		self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED"})
-				  	else 
+				  	else
 				  		--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "IGNORED"})
 				  	end
 				  end
-		          
+
 		          EXPECT_NOTIFICATION("OnHashChange")
 		          :Times(0)
-				  
-		          DelayedExp(1000)
+
+		          commonTestCases:DelayedExp(1000)
 		        end
-		        
-		      end 
+
+		      end
 
 	--End Test suit SubscribeButton
 ---------------------------------------------------------------------------------------------
@@ -6825,12 +6485,10 @@ end
 ---------------------------------------------------------------------------------------------
 ------------------------------XVI. UNSUBSCRIBEBUTTON TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XVI. UNSUBSCRIBEBUTTON TEST BLOCK *****************************")
-	end
+  testBlock("UNSUBSCRIBEBUTTON")
 
 	--Begin Test suit UnsubscribeButton
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with missing mandatory parameters
@@ -6838,36 +6496,36 @@ end
 
 		--List of parameters in the request:
 			-- 1. buttonName : type="ButtonName"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283511600
 
 	---------------------------------------------------------------------------------------------
 		-- Description: UnsubscribeButton: All parameters
 
-		  	for i=1,#ButtonArray do
-			    Test["Case_UnsubscribeButtonAllPAramsTest_" .. tostring(ButtonArray[i])] = function(self)
+		  	for i=1,#buttonArray do
+			    Test["Case_UnsubscribeButtonAllPAramsTest_" .. tostring(buttonArray[i])] = function(self)
 			      local CorIdUnSubscribeButton = self.mobileSession:SendRPC("UnsubscribeButton",
 			        {
-			          buttonName = ButtonArray[i]
+			          buttonName = buttonArray[i]
 			        })
 
 
 			       if self.isMediaApplication == true then
 				      	--expect Buttons.OnButtonSubscription
-				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = ButtonArray[i], isSubscribed = false, appID = self.applications[applicationName]})
+				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = buttonArray[i], isSubscribed = false, appID = self.applications[applicationName]})
 
 				      	--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(CorIdUnSubscribeButton, { success = true, resultCode = "SUCCESS"})
 
-				      	EXPECT_NOTIFICATION("OnHashChange") 
+				      	EXPECT_NOTIFICATION("OnHashChange")
 				  else
-				  	if 
-				  		ButtonArray[i] == "SEEKLEFT" or 
-				  		ButtonArray[i] == "SEEKRIGHT" or
-				  		ButtonArray[i] == "TUNEUP" or
-				  		ButtonArray[i] == "TUNEDOWN" then
+				  	if
+				  		buttonArray[i] == "SEEKLEFT" or
+				  		buttonArray[i] == "SEEKRIGHT" or
+				  		buttonArray[i] == "TUNEUP" or
+				  		buttonArray[i] == "TUNEDOWN" then
 					  		--mobile side: expect SubscribeButton response
 					      	self.mobileSession:ExpectResponse(CorIdUnSubscribeButton, { success = false, resultCode = "IGNORED"})
 
@@ -6878,47 +6536,47 @@ end
 					      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
 					      		:Times(0)
 
-					      	DelayedExp(1000)
-				  	else 
+					      	commonTestCases:DelayedExp(1000)
+				  	else
 				  		--expect Buttons.OnButtonSubscription
-				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = ButtonArray[i], isSubscribed = false, appID = self.applications[applicationName]})
+				      	EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {name = buttonArray[i], isSubscribed = false, appID = self.applications[applicationName]})
 
 				  		--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(CorIdUnSubscribeButton, { success = true, resultCode = "SUCCESS"})
 
-				      	EXPECT_NOTIFICATION("OnHashChange") 
+				      	EXPECT_NOTIFICATION("OnHashChange")
 				  	end
-				  end                              
+				  end
 
 			    end
 		  	end
 	---------------------------------------------------------------------------------------------
 
-		-- Description: UnsubscribeButton: Missing mandatory 
+		-- Description: UnsubscribeButton: Missing mandatory
 		    function Test:Case_UnsubscribeButtonMissingMandatoryTest()
-		          
+
 		      --mobile side: sending UnsubscribeButton request
 		      local CorIdUnSubscribeButton = self.mobileSession:SendRPC("UnsubscribeButton", {})
 
 		      --mobile side: expect UnsubscribeButton response
 		      EXPECT_RESPONSE(CorIdUnSubscribeButton, { success = false, resultCode = "INVALID_DATA"})
-		            
+
 		      --mobile side: expect OnHashChange notification is not send to mobile
 		      EXPECT_NOTIFICATION("OnHashChange")
-		      :Times(0)      
+		      :Times(0)
 
-			  DelayedExp(1000)
-		    end  
+			  commonTestCases:DelayedExp(1000)
+		    end
 	---------------------------------------------------------------------------------------------
-	
+
 		-- Description:UnsubscribeButton: Unsubscribe not subscribed
-			for i=1,#ButtonArray do
-		        Test["UnsubscribeButton_resultCode_IGNORED_" .. tostring(ButtonArray[i]).."_IGNORED"] = function(self)
-		        
+			for i=1,#buttonArray do
+		        Test["UnsubscribeButton_resultCode_IGNORED_" .. tostring(buttonArray[i]).."_IGNORED"] = function(self)
+
 		          --mobile side: sending UnsubscribeButton request
 		          local cid = self.mobileSession:SendRPC("UnsubscribeButton",
 		            {
-		              buttonName = ButtonArray[i]
+		              buttonName = buttonArray[i]
 		            }
 		          )
 
@@ -6928,14 +6586,14 @@ end
 
 		          --mobile side: expect UnsubscribeButton response
 		          EXPECT_RESPONSE(cid, {success = false, resultCode = "IGNORED"})
-		          
+
 		          EXPECT_NOTIFICATION("OnHashChange")
 		          :Times(0)
-				  
-		          DelayedExp(1000)
+
+		          commonTestCases:DelayedExp(1000)
 		        end
-		        
-		      end 
+
+		      end
 
 	--End Test suit UnsubscribeButton
 ---------------------------------------------------------------------------------------------
@@ -6945,12 +6603,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------XVII. PERFORMAUDIOPASSTHRU TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** XVII. PERFORMAUDIOPASSTHRU TEST BLOCK ******************************")
-	end
+  testBlock("PERFORMAUDIOPASSTHRU")
 
 	--Begin Test suit PerformAudioPassThru
-	
+
 	--Description:
 		--request is sent with all parameters
         --request is sent with only mandatory parameter
@@ -6967,14 +6623,14 @@ end
 			-- 6. bitsPerSample: type="BitsPerSample" mandatory="true"
 			-- 7. audioType: type="AudioType" mandatory="true"
 			-- 8. muteAudio: type="Boolean" mandatory="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283513799
 
 	---------------------------------------------------------------------------------------------
 
-	    -- Description: All parameters 
+	    -- Description: All parameters
 	      function Test:Case_PerformAudioPassThruAllParTest()
 	        local CorIdPerformAudioPassThruAppParVD= self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -6998,7 +6654,7 @@ end
 	        EXPECT_HMICALL("TTS.Speak",
 	          {
 	            speakType = "AUDIO_PASS_THRU",
-	            ttsChunks = { { text = "Makeyourchoise", type = "TEXT" } }, 
+	            ttsChunks = { { text = "Makeyourchoise", type = "TEXT" } },
 	      	  appID = self.applications[applicationName]
 	          })
 	          :Do(function(_,data)
@@ -7017,16 +6673,16 @@ end
 	          end)
 
 	        -- hmi expects UI.PerformAudioPassThru request
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	          {
 	            appID = self.applications[applicationName],
-	            audioPassThruDisplayTexts = {     
+	            audioPassThruDisplayTexts = {
 	                                            {fieldName = "audioPassThruDisplayText1", fieldText = "DisplayText1"},
 	                                            {fieldName = "audioPassThruDisplayText2", fieldText = "DisplayText2"},
 	                                        },
 	            maxDuration = 2000,
 	            muteAudio = true
-	            
+
 	          })
 	          :Do(function(_,data)
 	            local function UIPerformAoudioResponce()
@@ -7036,30 +6692,30 @@ end
 	          RUN_AFTER(UIPerformAoudioResponce, 1500)
 	        end)
 
-	        if 
+	        if
 	          self.appHMITypes["NAVIGATION"] == true or
 	          self.appHMITypes["COMMUNICATION"] == true or
 	          self.isMediaApplication == true then
 	            --mobile side: expect OnHMIStatus notification
-	            EXPECT_NOTIFICATION("OnHMIStatus", 
+	            EXPECT_NOTIFICATION("OnHMIStatus",
 	              {hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN"},
-	              {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"}) 
+	              {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 	            :Times(2)
 	        else
 	          EXPECT_NOTIFICATION("OnHMIStatus")
 	            :Times(0)
 	        end
 
-	        self.mobileSession:ExpectResponse(CorIdPerformAudioPassThruAppParVD, { success = true, resultCode = "SUCCESS", 
+	        self.mobileSession:ExpectResponse(CorIdPerformAudioPassThruAppParVD, { success = true, resultCode = "SUCCESS",
 	           })
 
-	        DelayedExp(1500)
+	        commonTestCases:DelayedExp(1500)
 
 	      end
 
 	---------------------------------------------------------------------------------------------
 
-	    -- Description: Only mandatory 
+	    -- Description: Only mandatory
 	      function Test:Case_PerfAudioPassThruOnlyMandatoryTest()
 	        local CorIdPerfAudioPassThruOnlyMandatoryVD= self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -7069,24 +6725,24 @@ end
 	            audioType = "PCM"
 	          })
 
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	          {
 	            appID = self.applications[applicationName],
 	            maxDuration = 2000,
 	            muteAudio = true
-	            
+
 	          })
 	          :Do(function(_,data)
 	            self.hmiConnection:SendResponse(data.id, "UI.PerformAudioPassThru", "SUCCESS", {})
 	          end)
 
-	        self.mobileSession:ExpectResponse(CorIdPerfAudioPassThruOnlyMandatoryVD, { success = true, resultCode = "SUCCESS", 
+	        self.mobileSession:ExpectResponse(CorIdPerfAudioPassThruOnlyMandatoryVD, { success = true, resultCode = "SUCCESS",
 	           })
 	      end
 
 	---------------------------------------------------------------------------------------------
 
-	    -- Description: Missing samplingRate 
+	    -- Description: Missing samplingRate
 	      function Test:Case_PerfAudioPassThruMissMandatoryTest()
 
 	        local SentParams = {
@@ -7106,11 +6762,11 @@ end
 
 	        }
 
-	        InvalidDataAPI(self, "PerformAudioPassThru", SentParams)
+	        invalidDataAPI(self, "PerformAudioPassThru", SentParams)
 
 	      end
 
-	      -- Missing maxDuration 
+	      -- Missing maxDuration
 	        function Test:Case_PerformAudioPassThruMisMaxDurTest()
 	          local SentParams = {
 	            initialPrompt = {
@@ -7129,13 +6785,13 @@ end
 
 	          }
 
-	          InvalidDataAPI(self, "PerformAudioPassThru", SentParams)
+	          invalidDataAPI(self, "PerformAudioPassThru", SentParams)
 
 	      end
 
   ---------------------------------------------------------------------------------------------
 
-    -- Description: Missing bitsPerSample 
+    -- Description: Missing bitsPerSample
       function Test:Case_PerformAudioPassThruMisbPerSamTest()
 
         local SentParams = {
@@ -7144,7 +6800,7 @@ end
                                 text = "Makeyourchoise",
                                 type = "TEXT",
                               },
-    
+
                            },
           audioPassThruDisplayText1 = "DisplayText1",
           audioPassThruDisplayText2 = "DisplayText2",
@@ -7155,13 +6811,13 @@ end
 
         }
 
-        InvalidDataAPI(self, "PerformAudioPassThru", SentParams)
+        invalidDataAPI(self, "PerformAudioPassThru", SentParams)
 
       end
 
   ---------------------------------------------------------------------------------------------
 
-    -- Description:Missing audioType 
+    -- Description:Missing audioType
       function Test:Case_PerformAudioPassThruMisAudTypeTest()
         local SentParams = {
           initialPrompt = {
@@ -7169,7 +6825,7 @@ end
                                 text = "Makeyourchoise",
                                 type = "TEXT",
                               },
-    
+
                            },
           audioPassThruDisplayText1 = "DisplayText1",
           audioPassThruDisplayText2 = "DisplayText2",
@@ -7180,13 +6836,13 @@ end
 
         }
 
-        InvalidDataAPI(self, "PerformAudioPassThru", SentParams)
+        invalidDataAPI(self, "PerformAudioPassThru", SentParams)
 
       end
 
 	---------------------------------------------------------------------------------------------
 
-	    -- Description: when another PerformAudioPassThru is active 
+	    -- Description: when another PerformAudioPassThru is active
 	      function Test:Case_PerfAudioPassThruAnotherIsActiveTest()
 	        local CorId1 = self.mobileSession:SendRPC("PerformAudioPassThru",
 	        {
@@ -7197,18 +6853,18 @@ end
 	        })
 
 	        local PerfID
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	        {
 	          appID = self.applications[applicationName],
 	          maxDuration = 2000,
 	          muteAudio = true
-	          
+
 	        },
 	        {
 	          appID = self.applications[applicationName],
 	          maxDuration = 5000,
 	          muteAudio = false
-	          
+
 	        })
 	          :Do(function(exp,data)
 	            if exp.occurences == 1 then
@@ -7221,14 +6877,14 @@ end
 	                    muteAudio = false
 	                  })
 
-	              EXPECT_RESPONSE(CorId2, 
+	              EXPECT_RESPONSE(CorId2,
 	                { success = false, resultCode = "REJECTED"})
 
 	              PerfID = data.id
 	            elseif exp.occurences == 2 then
 	              self.hmiConnection:SendError(data.id, "UI.PerformAudioPassThru", "REJECTED", "There is already active PerformAudioPassThru")
 
-	          function resultSuccess ()
+	          	local function resultSuccess ()
 	              self.hmiConnection:SendResponse(PerfID, "UI.PerformAudioPassThru", "SUCCESS", {})
 	            end
 
@@ -7239,26 +6895,25 @@ end
 	          end)
 	          :Times(2)
 
-	         
+
 	      -- HMI side waits for responce OnRecordStart notification
 	         EXPECT_HMINOTIFICATION ("UI.OnRecordStart", {appID = self.applications[applicationName]})
 	          :Times(2)
 
 
 	      -- mobile waits for responce OnAudioPassThru notification
-	      --[[TODO:uncomment after implementation from APPLINK-22712 will be available
 	         EXPECT_NOTIFICATION ("OnAudioPassThru")
-	         :Times (Between(1,2))]]
+	         :Times(Between(1,2))
 
-	        EXPECT_RESPONSE(CorId1, 
+	        EXPECT_RESPONSE(CorId1,
 	          { success = true, resultCode = "SUCCESS"})
 
 
 	      end
 
 	---------------------------------------------------------------------------------------------
-  
-	    -- Description: different speechCapabilities : TEXT 
+
+	    -- Description: different speechCapabilities : TEXT
 	      function Test:Case_PerformAudioPassThruTEXTTest()
 	        local CorIdPerformAudioPassThruTEXTVD= self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -7284,7 +6939,7 @@ end
 	        EXPECT_HMICALL("TTS.Speak",
 	          {
 	            speakType = "AUDIO_PASS_THRU",
-	            ttsChunks = { { text = "Makeyourchoise", type = "TEXT" } }, 
+	            ttsChunks = { { text = "Makeyourchoise", type = "TEXT" } },
 	            appID = self.applications[applicationName]
 	          })
 	          :Do(function(_,data)
@@ -7296,17 +6951,17 @@ end
 	            self.hmiConnection:SendNotification("TTS.Stopped")
 	          end)
 
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	          {
 	            appID = self.applications[applicationName],
-	            audioPassThruDisplayTexts = {     
+	            audioPassThruDisplayTexts = {
 	                                            {fieldName = "audioPassThruDisplayText1", fieldText = "DisplayText1"},
 	                                            {fieldName = "audioPassThruDisplayText2", fieldText = "DisplayText2"},
 
 	                                        },
 	            maxDuration = 2000,
 	            muteAudio = true
-	            
+
 	          })
 	          :Do(function(_,data)
 	            local function UIPerformAoudioResponce()
@@ -7316,14 +6971,14 @@ end
 	            RUN_AFTER(UIPerformAoudioResponce, 1500)
 	          end)
 
-	        if 
+	        if
 	          self.appHMITypes["NAVIGATION"] == true or
 	          self.appHMITypes["COMMUNICATION"] == true or
 	          self.isMediaApplication == true then
 	            --mobile side: expect OnHMIStatus notification
-	            EXPECT_NOTIFICATION("OnHMIStatus", 
+	            EXPECT_NOTIFICATION("OnHMIStatus",
 	              {hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN"},
-	              {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"}) 
+	              {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 	            :Times(2)
 	        else
 	          EXPECT_NOTIFICATION("OnHMIStatus")
@@ -7331,14 +6986,14 @@ end
 	        end
 
 	        self.mobileSession:ExpectResponse(CorIdPerformAudioPassThruTEXTVD, { success = true, resultCode = "SUCCESS"})
-	  	   
-	        DelayedExp(1500)
+
+	        commonTestCases:DelayedExp(1500)
 
 	     end
 
 	---------------------------------------------------------------------------------------------
-  
-	    -- Description: different speechCapabilities : PRE_RECORDED 
+
+	    -- Description: different speechCapabilities : PRE_RECORDED
 	      function Test:Case_PerformAudioPassThruPRERECORDEDTest()
 	        local CorIdPerformAudioPassThruPRERECORDEDVD= self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -7360,15 +7015,15 @@ end
 	          })
 
 	        --hmi side: expect for TTS.Speak
-	        EXPECT_HMICALL("TTS.Speak", 
-	                          { 
-	                            ttsChunks = 
-	                              { 
-	                                
-	                                { 
+	        EXPECT_HMICALL("TTS.Speak",
+	                          {
+	                            ttsChunks =
+	                              {
+
+	                                {
 	                                  text = "Makeyourchoise",
 	                                  type = "PRE_RECORDED"
-	                                  }, 
+	                                  },
 	                              }
 
 	                          })
@@ -7379,17 +7034,17 @@ end
 	          end)
 
 	        --hmi side: expect for UI.PerformAudioPassThru
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	          {
 	            appID = self.applications[applicationName],
-	            audioPassThruDisplayTexts = {     
+	            audioPassThruDisplayTexts = {
 	                                            {fieldName = "audioPassThruDisplayText1", fieldText = "DisplayText1"},
 	                                            {fieldName = "audioPassThruDisplayText2", fieldText = "DisplayText2"},
 
 	                                        },
 	            maxDuration = 2000,
 	            muteAudio = true
-	            
+
 	          })
 	          :Do(function(_,data)
 	            self.hmiConnection:SendResponse(data.id, "UI.PerformAudioPassThru", "SUCCESS", {})
@@ -7400,8 +7055,8 @@ end
 	      end
 
   	---------------------------------------------------------------------------------------------
-  
-	    -- Description: different speechCapabilities : SAPI_PHONEMES 
+
+	    -- Description: different speechCapabilities : SAPI_PHONEMES
 	      function Test:Case_PerformAudioPassThruSAPIPHONTest()
 	        local CorIdPerformAudioPassThruSAPIPHONVD= self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -7423,15 +7078,15 @@ end
 	          })
 
 	        --hmi side: expect for TTS.Speak
-	        EXPECT_HMICALL("TTS.Speak", 
-	                          { 
-	                            ttsChunks = 
-	                              { 
-	                                
-	                                { 
+	        EXPECT_HMICALL("TTS.Speak",
+	                          {
+	                            ttsChunks =
+	                              {
+
+	                                {
 	                                  text = "Makeyourchoise",
 	                                  type = "SAPI_PHONEMES"
-	                                  }, 
+	                                  },
 	                              }
 
 	                          })
@@ -7439,30 +7094,30 @@ end
 	          self.hmiConnection:SendResponse(data.id, "TTS.Speak", "UNSUPPORTED_RESOURCE", { })
 	        end)
 
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	          {
 	            appID = self.applications[applicationName],
-	            audioPassThruDisplayTexts = {     
+	            audioPassThruDisplayTexts = {
 	                                            {fieldName = "audioPassThruDisplayText1", fieldText = "DisplayText1"},
 	                                            {fieldName = "audioPassThruDisplayText2", fieldText = "DisplayText2"},
 
 	                                        },
 	            maxDuration = 2000,
 	            muteAudio = true
-	            
+
 	          })
 	          :Do(function(_,data)
 	            self.hmiConnection:SendResponse(data.id, "UI.PerformAudioPassThru", "SUCCESS", {})
 	          end)
 
-	        self.mobileSession:ExpectResponse(CorIdPerformAudioPassThruSAPIPHONVD, { success = true, resultCode = "WARNINGS", 
+	        self.mobileSession:ExpectResponse(CorIdPerformAudioPassThruSAPIPHONVD, { success = true, resultCode = "WARNINGS",
 	           })
 
 	      end
 
  	---------------------------------------------------------------------------------------------
-  
-	    -- Description: different speechCapabilities : LHPLUS_PHONEMES 
+
+	    -- Description: different speechCapabilities : LHPLUS_PHONEMES
 	      function Test:Case_PerformAudioPassThruLHPLUSPHONTest()
 	        local CorIdPerformAudioPassThruLHPLUSPHONVD= self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -7484,15 +7139,15 @@ end
 	          })
 
 	        --hmi side: expect for TTS.Speak
-	        EXPECT_HMICALL("TTS.Speak", 
-	                          { 
-	                            ttsChunks = 
-	                              { 
-	                                
-	                                { 
+	        EXPECT_HMICALL("TTS.Speak",
+	                          {
+	                            ttsChunks =
+	                              {
+
+	                                {
 	                                  text = "Makeyourchoise",
 	                                  type = "LHPLUS_PHONEMES"
-	                                  }, 
+	                                  },
 	                              }
 
 	                          })
@@ -7501,17 +7156,17 @@ end
 	          end)
 
 	        -- hmi expects UI.PerformAudioPassThru request
-	        EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	        EXPECT_HMICALL("UI.PerformAudioPassThru",
 	          {
 	            appID = self.applications[applicationName],
-	            audioPassThruDisplayTexts = {     
+	            audioPassThruDisplayTexts = {
 	                                            {fieldName = "audioPassThruDisplayText1", fieldText = "DisplayText1"},
 	                                            {fieldName = "audioPassThruDisplayText2", fieldText = "DisplayText2"},
 
 	                                        },
 	            maxDuration = 2000,
 	            muteAudio = true
-	            
+
 	          })
 	          :Do(function(_,data)
 	            self.hmiConnection:SendResponse(data.id, "UI.PerformAudioPassThru", "SUCCESS", {})
@@ -7522,8 +7177,8 @@ end
 	      end
 
   	---------------------------------------------------------------------------------------------
-  
-	    -- Description: different speechCapabilities : SILENCE 
+
+	    -- Description: different speechCapabilities : SILENCE
 	      function Test:Case_PerformAudioPassThruSILENCETest()
 	        local CorIdPerformAudioPassThruLSILENCEVD = self.mobileSession:SendRPC("PerformAudioPassThru",
 	          {
@@ -7542,17 +7197,17 @@ end
 	            audioType = "PCM",
 	            muteAudio =  true
 	          })
-	       
+
 	        --hmi side: expect for TTS.Speak
-	        EXPECT_HMICALL("TTS.Speak", 
-	                          { 
-	                            ttsChunks = 
-	                              { 
-	                                
-	                                { 
+	        EXPECT_HMICALL("TTS.Speak",
+	                          {
+	                            ttsChunks =
+	                              {
+
+	                                {
 	                                  text = "Makeyourchoise",
 	                                  type = "SILENCE"
-	                                  }, 
+	                                  },
 	                              }
 
 
@@ -7563,22 +7218,22 @@ end
 	          end)
 
 	          -- hmi expects UI.PerformAudioPassThru request
-	          EXPECT_HMICALL("UI.PerformAudioPassThru", 
+	          EXPECT_HMICALL("UI.PerformAudioPassThru",
 	            {
 	              appID = self.applications[applicationName],
-	              audioPassThruDisplayTexts = {     
+	              audioPassThruDisplayTexts = {
 	                                              {fieldName = "audioPassThruDisplayText1", fieldText = "DisplayText1"},
 	                                              {fieldName = "audioPassThruDisplayText2", fieldText = "DisplayText2"},
 
 	                                          },
 	              maxDuration = 2000,
 	              muteAudio = true
-	              
+
 	            })
 	            :Do(function(_,data)
 	              self.hmiConnection:SendResponse(data.id, "UI.PerformAudioPassThru", "SUCCESS", {})
 	            end)
-	        
+
 	        self.mobileSession:ExpectResponse(CorIdPerformAudioPassThruLSILENCEVD, { success = true, resultCode = "WARNINGS"})
 
 	      end
@@ -7590,26 +7245,24 @@ end
 ---------------------------------------------------------------------------------------------
 --------------------------XVIII. ENDAUDIOPASSTHRU TEST BLOCK---------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("****************************** XVIII. ENDAUDIOPASSTHRU TEST BLOCK ******************************")
-	end
+  testBlock("ENDAUDIOPASSTHRU")
 
 	--Begin Test suit EndAudioPassThru
-	
+
 	--Description:
 		--processing request during PerformAudioPassThru
 		--processing request when no active PerformAudioPassThru
 
 		--List of parameters in the request:
 			-- request have no params in request
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283514248
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: Positive case 
+		-- Description: Positive case
 		  function Test:Case_EndAudioPassThruTest()
 
 		    local CorIdEndAudioPassThruVD = self.mobileSession:SendRPC("PerformAudioPassThru",
@@ -7636,7 +7289,7 @@ end
 		    EXPECT_HMICALL("TTS.Speak",
 		      {
 		        speakType = "AUDIO_PASS_THRU",
-		        ttsChunks = { { text = "Makeyourchoise", type = "TEXT" } }, 
+		        ttsChunks = { { text = "Makeyourchoise", type = "TEXT" } },
 		        appID = self.applications[applicationName]
 		      })
 		      :Do(function(_,data)
@@ -7652,52 +7305,52 @@ end
 		      end)
 
 
-		      local uiPerformID
+
 		      --hmi side: expect UI.PerformAudioPassThru request
 		      EXPECT_HMICALL("UI.PerformAudioPassThru")
-		      :Do(function(_,data)  
+		      :Do(function(_, data)
 
 		        self.hmiConnection:SendNotification("UI.OnSystemContext",{ appID = self.applications[applicationName], systemContext = "HMI_OBSCURED" })
 
-		        uiPerformID = data.id
+		        local uiPerformID = data.id
 
 		        local cidEndAudioPassThru = self.mobileSession:SendRPC("EndAudioPassThru", {})
-		        
+
 		        EXPECT_HMICALL("UI.EndAudioPassThru")
-		          :Do(function(_,data)
+		          :Do(function(_, data2)
 		            --hmi side: sending UI.EndAudioPassThru response
-		            self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-		            
+		            self.hmiConnection:SendResponse(data2.id, data2.method, "SUCCESS", {})
+
 		            --hmi side: sending UI.PerformAudioPassThru response
 		            self.hmiConnection:SendResponse(uiPerformID, "UI.PerformAudioPassThru", "SUCCESS", {})
-		            
+
 		            self.hmiConnection:SendNotification("UI.OnSystemContext",{ appID = self.applications[applicationName], systemContext = "MAIN" })
-		            
+
 		          end)
-		        
+
 		        --mobile side: expect EndAudioPassThru response
 		        EXPECT_RESPONSE(cidEndAudioPassThru, { success = true, resultCode = "SUCCESS" })
 		      end)
 
-		    if 
+		    if
 		      self.appHMITypes["NAVIGATION"] == true or
 		      self.appHMITypes["COMMUNICATION"] == true or
 		      self.isMediaApplication == true then
 		        --mobile side: expect OnHMIStatus notification
-		        EXPECT_NOTIFICATION("OnHMIStatus", 
+		        EXPECT_NOTIFICATION("OnHMIStatus",
 		          {hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN"},
 		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"},
 		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED"},
 		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 		        :Times(4)
 		    else
-		      EXPECT_NOTIFICATION("OnHMIStatus", 
+		      EXPECT_NOTIFICATION("OnHMIStatus",
 		          {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "HMI_OBSCURED"},
 		          {hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
 		        :Times(2)
 
-		      DelayedExp(1000)
-		    end          
+		      commonTestCases:DelayedExp(1000)
+		    end
 		    --mobile side: expect EndAudioPassThru response
 
 		    self.mobileSession:ExpectResponse(CorIdEndAudioPassThruVD, { success = true, resultCode = "SUCCESS"})
@@ -7706,17 +7359,17 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-	  	-- Description: No active PerformAudioPassThru 
+	  	-- Description: No active PerformAudioPassThru
 		   function Test:Case_EndAudioPassThruNoActivePAPTTest()
 
 		      local cidEndAudioPassThru = self.mobileSession:SendRPC("EndAudioPassThru", {})
-		            
+
 		      EXPECT_HMICALL("UI.EndAudioPassThru")
 		      :Do(function(_,data)
 		        --hmi side: sending UI.EndAudioPassThru response
 		        self.hmiConnection:SendError(data.id, data.method, "REJECTED", "EndAudioPassThru is rejected")
 		      end)
-		     
+
 		      EXPECT_RESPONSE(cidEndAudioPassThru, { success = false, resultCode = "REJECTED", info = "EndAudioPassThru is rejected"})
 
 		    end
@@ -7729,12 +7382,10 @@ end
 ---------------------------------------------------------------------------------------------
 -------------XIX. SUBSCRIBEVEHICLEDATA AND UNSUBSCRIBEVEHICLEDATA TEST BLOCK-----------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("********* XIX. SUBSCRIBEVEHICLEDATA AND UNSUBSCRIBEVEHICLEDATA TEST BLOCK *********")
-	end
+  testBlock("SUBSCRIBEVEHICLEDATA AND UNSUBSCRIBEVEHICLEDATA")
 
 	--Begin Test suit SubscribeVehicleData and UnsubscribeVehicleData
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with already subscribed data
@@ -7762,9 +7413,9 @@ end
 			-- 17. engineTorque : type="Bollean", mandatory ="false"
 			-- 18. accPedalPosition : type="Bollean", mandatory ="false"
 			-- 18. steeringWheelAngle : type="Bollean", mandatory ="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283509393
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283510165
 
@@ -7792,15 +7443,10 @@ end
 		        headLampStatus = true,
 		        engineTorque = true,
 		        accPedalPosition = true,
-		        steeringWheelAngle = true,
-		        eCallInfo = true,
-		        airbagStatus = true,
-		        emergencyEvent = true,
-		        clusterModeStatus = true,
-		        myKey = true
+		        steeringWheelAngle = true
 		      })
 
-		    EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData", 
+		    EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData",
 		      {
 		        gps = true,
 		        speed = true,
@@ -7820,19 +7466,14 @@ end
 		        headLampStatus = true,
 		        engineTorque = true,
 		        accPedalPosition = true,
-		        steeringWheelAngle = true,
-		        eCallInfo = true,
-		        airbagStatus = true,
-		        emergencyEvent = true,
-		        clusterModeStatus = true,
-		        myKey = true
+		        steeringWheelAngle = true
 		      })
 		      :Do(function(_,data)
-		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.SubscribeVehicleData", "SUCCESS", 
+		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.SubscribeVehicleData", "SUCCESS",
 		          {gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"},
-		          speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"}, 
-		          rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"}, 
-		          fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"}, 
+		          speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"},
+		          rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"},
+		          fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"},
 		          fuelLevel_State = {dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "SUCCESS"},
 		          instantFuelConsumption = {dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "SUCCESS"},
 		          externalTemperature = {dataType = "VEHICLEDATA_EXTERNTEMP", resultCode = "SUCCESS"},
@@ -7847,20 +7488,15 @@ end
 		          headLampStatus = {dataType = "VEHICLEDATA_HEADLAMPSTATUS", resultCode = "SUCCESS"},
 		          engineTorque = {dataType = "VEHICLEDATA_ENGINETORQUE", resultCode = "SUCCESS"},
 		          accPedalPosition = {dataType = "VEHICLEDATA_ACCPEDAL", resultCode = "SUCCESS"},
-		          steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"},
-		          eCallInfo = {dataType = "VEHICLEDATA_ECALLINFO", resultCode = "SUCCESS"},
-		          airbagStatus = {dataType = "VEHICLEDATA_AIRBAGSTATUS", resultCode = "SUCCESS"},
-		          emergencyEvent = {dataType = "VEHICLEDATA_EMERGENCYEVENT", resultCode = "SUCCESS"},
-		          clusterModes = {dataType = "VEHICLEDATA_CLUSTERMODESTATUS", resultCode = "SUCCESS"},
-		          myKey = {dataType = "VEHICLEDATA_MYKEY", resultCode = "SUCCESS"}
+		          steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"}
 		        })
 		      end)
 
-		    self.mobileSession:ExpectResponse(CorIdSubscribeVD, { success = true, resultCode = "SUCCESS", 
-		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"}, 
+		    self.mobileSession:ExpectResponse(CorIdSubscribeVD, { success = true, resultCode = "SUCCESS",
+		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"},
 		      speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"},
-		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"}, 
-		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"}, 
+		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"},
+		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"},
 		      fuelLevel_State = {dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "SUCCESS"},
 		      instantFuelConsumption = {dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "SUCCESS"},
 		      externalTemperature = {dataType = "VEHICLEDATA_EXTERNTEMP", resultCode = "SUCCESS"},
@@ -7875,12 +7511,7 @@ end
 		      headLampStatus = {dataType = "VEHICLEDATA_HEADLAMPSTATUS", resultCode = "SUCCESS"},
 		      engineTorque = {dataType = "VEHICLEDATA_ENGINETORQUE", resultCode = "SUCCESS"},
 		      accPedalPosition = {dataType = "VEHICLEDATA_ACCPEDAL", resultCode = "SUCCESS"},
-		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"},
-		      eCallInfo = {dataType = "VEHICLEDATA_ECALLINFO", resultCode = "SUCCESS"},
-		      airbagStatus = {dataType = "VEHICLEDATA_AIRBAGSTATUS", resultCode = "SUCCESS"},
-		      emergencyEvent = {dataType = "VEHICLEDATA_EMERGENCYEVENT", resultCode = "SUCCESS"},
-		      clusterModes = {dataType = "VEHICLEDATA_CLUSTERMODESTATUS", resultCode = "SUCCESS"},
-		      myKey = {dataType = "VEHICLEDATA_MYKEY", resultCode = "SUCCESS"}
+		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"}
 		    })
 
 		  end
@@ -7909,19 +7540,14 @@ end
 		        headLampStatus = true,
 		        engineTorque = true,
 		        accPedalPosition = true,
-		        steeringWheelAngle = true,
-		        eCallInfo = true,
-		        airbagStatus = true,
-		        emergencyEvent = true,
-		        clusterModeStatus = true,
-		        myKey = true
+		        steeringWheelAngle = true
 		      })
 
-		    self.mobileSession:ExpectResponse(CorIdSubscribeAlreadySubsVD, { success = false, resultCode = "IGNORED", 
-		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "DATA_ALREADY_SUBSCRIBED"}, 
+		    self.mobileSession:ExpectResponse(CorIdSubscribeAlreadySubsVD, { success = false, resultCode = "IGNORED",
+		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "DATA_ALREADY_SUBSCRIBED"},
 		      speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "DATA_ALREADY_SUBSCRIBED"}, 
-		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "DATA_ALREADY_SUBSCRIBED"}, 
+		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "DATA_ALREADY_SUBSCRIBED"},
+		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "DATA_ALREADY_SUBSCRIBED"},
 		      fuelLevel_State = {dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "DATA_ALREADY_SUBSCRIBED"},
 		      instantFuelConsumption = {dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "DATA_ALREADY_SUBSCRIBED"},
 		      externalTemperature = {dataType = "VEHICLEDATA_EXTERNTEMP", resultCode = "DATA_ALREADY_SUBSCRIBED"},
@@ -7936,12 +7562,7 @@ end
 		      headLampStatus = {dataType = "VEHICLEDATA_HEADLAMPSTATUS", resultCode = "DATA_ALREADY_SUBSCRIBED"},
 		      engineTorque = {dataType = "VEHICLEDATA_ENGINETORQUE", resultCode = "DATA_ALREADY_SUBSCRIBED"},
 		      accPedalPosition = {dataType = "VEHICLEDATA_ACCPEDAL", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      eCallInfo = {dataType = "VEHICLEDATA_ECALLINFO", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      airbagStatus = {dataType = "VEHICLEDATA_AIRBAGSTATUS", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      emergencyEvent = {dataType = "VEHICLEDATA_EMERGENCYEVENT", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      clusterModes = {dataType = "VEHICLEDATA_CLUSTERMODESTATUS", resultCode = "DATA_ALREADY_SUBSCRIBED"},
-		      myKey = {dataType = "VEHICLEDATA_MYKEY", resultCode = "DATA_ALREADY_SUBSCRIBED"}
+		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "DATA_ALREADY_SUBSCRIBED"}
 		    })
 
 		  end
@@ -7970,15 +7591,10 @@ end
 		        headLampStatus = true,
 		        engineTorque = true,
 		        accPedalPosition = true,
-		        steeringWheelAngle = true,
-		        eCallInfo = true,
-		        airbagStatus = true,
-		        emergencyEvent = true,
-		        clusterModeStatus = true,
-		        myKey = true
+		        steeringWheelAngle = true
 		      })
 
-		    EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData", 
+		    EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData",
 		      {
 		        gps = true,
 		        speed = true,
@@ -7998,20 +7614,15 @@ end
 		        headLampStatus = true,
 		        engineTorque = true,
 		        accPedalPosition = true,
-		        steeringWheelAngle = true,
-		        eCallInfo = true,
-		        airbagStatus = true,
-		        emergencyEvent = true,
-		        clusterModeStatus = true,
-		        myKey = true
-		        
+		        steeringWheelAngle = true
+
 		      })
 		    :Do(function(_,data)
-		      self.hmiConnection:SendResponse(data.id, "VehicleInfo.UnsubscribeVehicleData", "SUCCESS", 
+		      self.hmiConnection:SendResponse(data.id, "VehicleInfo.UnsubscribeVehicleData", "SUCCESS",
 		        {gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"},
-		        speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"}, 
-		        rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"}, 
-		        fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"}, 
+		        speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"},
+		        rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"},
+		        fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"},
 		        fuelLevel_State = {dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "SUCCESS"},
 		        instantFuelConsumption = {dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "SUCCESS"},
 		        externalTemperature = {dataType = "VEHICLEDATA_EXTERNTEMP", resultCode = "SUCCESS"},
@@ -8026,20 +7637,15 @@ end
 		        headLampStatus = {dataType = "VEHICLEDATA_HEADLAMPSTATUS", resultCode = "SUCCESS"},
 		        engineTorque = {dataType = "VEHICLEDATA_ENGINETORQUE", resultCode = "SUCCESS"},
 		        accPedalPosition = {dataType = "VEHICLEDATA_ACCPEDAL", resultCode = "SUCCESS"},
-		        steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"},
-		        eCallInfo = {dataType = "VEHICLEDATA_ECALLINFO", resultCode = "SUCCESS"},
-		        airbagStatus = {dataType = "VEHICLEDATA_AIRBAGSTATUS", resultCode = "SUCCESS"},
-		        emergencyEvent = {dataType = "VEHICLEDATA_EMERGENCYEVENT", resultCode = "SUCCESS"},
-		        clusterModes = {dataType = "VEHICLEDATA_CLUSTERMODESTATUS", resultCode = "SUCCESS"},
-		        myKey = {dataType = "VEHICLEDATA_MYKEY", resultCode = "SUCCESS"},
+		        steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"}
 		      })
 		    end)
 
-		    self.mobileSession:ExpectResponse(CorIdUnsubscribeVD, { success = true, resultCode = "SUCCESS", 
-		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"}, 
+		    self.mobileSession:ExpectResponse(CorIdUnsubscribeVD, { success = true, resultCode = "SUCCESS",
+		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS"},
 		      speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"},
-		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"}, 
-		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"}, 
+		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "SUCCESS"},
+		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS"},
 		      fuelLevel_State = {dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "SUCCESS"},
 		      instantFuelConsumption = {dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "SUCCESS"},
 		      externalTemperature = {dataType = "VEHICLEDATA_EXTERNTEMP", resultCode = "SUCCESS"},
@@ -8054,12 +7660,7 @@ end
 		      headLampStatus = {dataType = "VEHICLEDATA_HEADLAMPSTATUS", resultCode = "SUCCESS"},
 		      engineTorque = {dataType = "VEHICLEDATA_ENGINETORQUE", resultCode = "SUCCESS"},
 		      accPedalPosition = {dataType = "VEHICLEDATA_ACCPEDAL", resultCode = "SUCCESS"},
-		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"},
-		      eCallInfo = {dataType = "VEHICLEDATA_ECALLINFO", resultCode = "SUCCESS"},
-		      airbagStatus = {dataType = "VEHICLEDATA_AIRBAGSTATUS", resultCode = "SUCCESS"},
-		      emergencyEvent = {dataType = "VEHICLEDATA_EMERGENCYEVENT", resultCode = "SUCCESS"},
-		      clusterModes = {dataType = "VEHICLEDATA_CLUSTERMODESTATUS", resultCode = "SUCCESS"},
-		      myKey = {dataType = "VEHICLEDATA_MYKEY", resultCode = "SUCCESS"}
+		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "SUCCESS"}
 		    })
 
  	 	end
@@ -8070,7 +7671,7 @@ end
 		  function Test:Case_UnsubscribeVehicleDataNotSubscribedTest()
 		    local CorIdUnsubscribeNotSubscribedVD = self.mobileSession:SendRPC("UnsubscribeVehicleData",
 		    {
-		      gps = true,	
+		      gps = true,
 		      speed = true,
 		      rpm = true,
 		      fuelLevel = true,
@@ -8088,20 +7689,15 @@ end
 		      headLampStatus = true,
 		      engineTorque = true,
 		      accPedalPosition = true,
-		      steeringWheelAngle = true,
-		      eCallInfo = true,
-		      airbagStatus = true,
-		      emergencyEvent = true,
-		      clusterModeStatus = true,
-		      myKey = true
+		      steeringWheelAngle = true
 		    })
 
 
-		    self.mobileSession:ExpectResponse(CorIdUnsubscribeNotSubscribedVD, { success = false, resultCode = "IGNORED", 
-		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "DATA_NOT_SUBSCRIBED"}, 
+		    self.mobileSession:ExpectResponse(CorIdUnsubscribeNotSubscribedVD, { success = false, resultCode = "IGNORED",
+		      gps = {dataType = "VEHICLEDATA_GPS", resultCode = "DATA_NOT_SUBSCRIBED"},
 		      speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "DATA_NOT_SUBSCRIBED"}, 
-		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "DATA_NOT_SUBSCRIBED"}, 
+		      rpm = {dataType = "VEHICLEDATA_RPM", resultCode = "DATA_NOT_SUBSCRIBED"},
+		      fuelLevel = {dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "DATA_NOT_SUBSCRIBED"},
 		      fuelLevel_State = {dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "DATA_NOT_SUBSCRIBED"},
 		      instantFuelConsumption = {dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "DATA_NOT_SUBSCRIBED"},
 		      externalTemperature = {dataType = "VEHICLEDATA_EXTERNTEMP", resultCode = "DATA_NOT_SUBSCRIBED"},
@@ -8116,12 +7712,7 @@ end
 		      headLampStatus = {dataType = "VEHICLEDATA_HEADLAMPSTATUS", resultCode = "DATA_NOT_SUBSCRIBED"},
 		      engineTorque = {dataType = "VEHICLEDATA_ENGINETORQUE", resultCode = "DATA_NOT_SUBSCRIBED"},
 		      accPedalPosition = {dataType = "VEHICLEDATA_ACCPEDAL", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      eCallInfo = {dataType = "VEHICLEDATA_ECALLINFO", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      airbagStatus = {dataType = "VEHICLEDATA_AIRBAGSTATUS", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      emergencyEvent = {dataType = "VEHICLEDATA_EMERGENCYEVENT", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      clusterModes = {dataType = "VEHICLEDATA_CLUSTERMODESTATUS", resultCode = "DATA_NOT_SUBSCRIBED"},
-		      myKey = {dataType = "VEHICLEDATA_MYKEY", resultCode = "DATA_NOT_SUBSCRIBED"}
+		      steeringWheelAngle = {dataType = "VEHICLEDATA_STEERINGWHEEL", resultCode = "DATA_NOT_SUBSCRIBED"}
 		    })
 
 
@@ -8137,12 +7728,12 @@ end
 		        speed = true,
 		      })
 
-		    EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData", 
+		    EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData",
 		      {
 		        speed = true,
 		      })
 		      :Do(function(_,data)
-		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.SubscribeVehicleData", "SUCCESS", 
+		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.SubscribeVehicleData", "SUCCESS",
 		          {speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"}})
 		      end)
 
@@ -8155,7 +7746,7 @@ end
 		      end
 		    end)
 
-		    self.mobileSession:ExpectResponse(CorIdSubscribeVehicleData_OneFalseVD, { success = true, resultCode = "SUCCESS", 
+		    self.mobileSession:ExpectResponse(CorIdSubscribeVehicleData_OneFalseVD, { success = true, resultCode = "SUCCESS",
 		      speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"}})
 
 		  end
@@ -8169,12 +7760,12 @@ end
 		      speed = true,
 		    })
 
-		    EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData", 
+		    EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData",
 		      {
 		        speed = true,
 		      })
 		      :Do(function(_,data)
-		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.UnsubscribeVehicleData", "SUCCESS", 
+		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.UnsubscribeVehicleData", "SUCCESS",
 		        {speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"}})
 		      end)
 		      :ValidIf(function(_,data)
@@ -8186,7 +7777,7 @@ end
 		        end
 		      end)
 
-		    self.mobileSession:ExpectResponse(CorIdUnubscribeVehicleData_OneFalseVD, { success = true, resultCode = "SUCCESS", 
+		    self.mobileSession:ExpectResponse(CorIdUnubscribeVehicleData_OneFalseVD, { success = true, resultCode = "SUCCESS",
 		      speed = {dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS"}})
 
 		  end
@@ -8194,14 +7785,14 @@ end
 
 	---------------------------------------------------------------------------------------------
   		-- Description: Missing mandatory
-		  function Test:Case_SubscribeVehicleDataMissingMandatoryTest()
-		    InvalidDataAPI(self, "SubscribeVehicleData", {})
+		  function Test:Case_SubscribeVehicleDataInvalidParameterTypeTest()
+		    invalidDataAPI(self, "SubscribeVehicleData", {rpm = "invalid_type"})
 		  end
 
 	---------------------------------------------------------------------------------------------
  		-- Description: Missing mandatory
-		  function Test:Case_UnsubscribeVehicleDataMissingMandatoryTest()
-		    InvalidDataAPI(self, "UnsubscribeVehicleData", {})
+		  function Test:Case_UnsubscribeVehicleDataInvalidParameterTypeTest()
+		    invalidDataAPI(self, "UnsubscribeVehicleData", {rpm = "invalid_type"})
 		  end
 
 	--End Test suit SubscribeVehicleData and UnsubscribeVehicleData
@@ -8211,12 +7802,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XX. GETVEHICLEDATA TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XX. GETVEHICLEDATA TEST BLOCK *****************************")
-	end
+  testBlock("GETVEHICLEDATA")
 
 	--Begin Test suit GetVehicleData
-	
+
 	--Description:
 		--request is sent with all params are available
 		--request is sent with all params are not available
@@ -8243,14 +7832,14 @@ end
 			-- 17. engineTorque : type="Bollean", mandatory ="false"
 			-- 18. accPedalPosition : type="Bollean", mandatory ="false"
 			-- 18. steeringWheelAngle : type="Bollean", mandatory ="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283512375
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All parameters are available 
+		-- Description: All parameters are available
 		  function Test:Case_GetVehicleDataTest()
 		    local CorIdGetVehicleDataVD = self.mobileSession:SendRPC("GetVehicleData",
 		    {
@@ -8272,17 +7861,10 @@ end
 		      headLampStatus = true,
 		      engineTorque = true,
 		      accPedalPosition = true,
-		      steeringWheelAngle = true,
-		      eCallInfo = true,
-		      airbagStatus = true,
-		      emergencyEvent = true,
-		      clusterModeStatus = true,
-		      myKey = true
-
-
+		      steeringWheelAngle = true
 		    })
 
-		    EXPECT_HMICALL("VehicleInfo.GetVehicleData", 
+		    EXPECT_HMICALL("VehicleInfo.GetVehicleData",
 		      {
 		        gps = true,
 		        speed = true,
@@ -8302,105 +7884,59 @@ end
 		        headLampStatus = true,
 		        engineTorque = true,
 		        accPedalPosition = true,
-		        steeringWheelAngle = true,
-		        eCallInfo = true,
-		        airbagStatus = true,
-		        emergencyEvent = true,
-		        clusterModeStatus = true,
-		        myKey = true
-
+		        steeringWheelAngle = true
 		      })
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetVehicleData", "SUCCESS",
-		          {gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"}, 
-		          speed = 120.10, 
-		          rpm = 10000, 
+		          {gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"},
+		          speed = 120.10,
+		          rpm = 10000,
 		          fuelLevel = 58,
-		          fuelLevel_State = NORMAL,
+		          fuelLevel_State = "NORMAL",
 		          instantFuelConsumption = 18000,
 		          externalTemperature = 23,
-		          prndl = DRIVE,
-		          tirePressure = LOW,
+		          prndl = "DRIVE",
+		          tirePressure = {leftFront = {status = "NORMAL"}, rightFront = {status = "LOW"}},
 		          odometer = 250000,
-		          beltStatus = YES,
+		          beltStatus = {driverBeltDeployed = "YES", passengerBeltDeployed = "NO"},
 		          bodyInformation = {parkBrakeActive = false, ignitionStableStatus = "IGNITION_SWITCH_STABLE", ignitionStatus = "RUN", driverDoorAjar = true, passengerDoorAjar = true, rearLeftDoorAjar = true, rearRightDoorAjar = true},
 		          deviceStatus = {voiceRecOn = false, btIconOn = true, callActive = false, battLevelStatus = "FOUR_LEVEL_BARS", signalLevelStatus = "THREE_LEVEL_BARS"},
-		          driverBraking = NO_EVENT,
-		          wiperStatus = AUTO_HIGH, 
+		          driverBraking = "NO_EVENT",
+		          wiperStatus = "AUTO_HIGH",
 		          headLampStatus = {lowBeamsOn = false, highBeamsOn = true, ambientLightSensorStatus = "DAY"},
 		          engineTorque = 1000,
-		          accPedalPosition = 58.4, 
-		          steeringWheelAngle = -158.3,
-		          eCallInfo = {eCallNotificationStatus = "NORMAL", auxECallNotificationStatus = "NOT_USED", eCallConfirmationStatus = "NORMAL"},
-		          airbagStatus = {driverAirbagDeployed = "YES",
-		                          driverSideAirbagDeployed = "YES",
-		                      driverCurtainAirbagDeployed = "NO_EVENT",
-		                      passengerAirbagDeployed = "NO_EVENT",
-		                      passengerCurtainAirbagDeployed = "NO_EVENT",
-		                      driverKneeAirbagDeployed = "NO_EVENT",
-		                      passengerSideAirbagDeployed = "NO_EVENT",
-		                      passengerKneeAirbagDeployed = "NO_EVENT"},
-		        -- TODO: update after resolving APPLINK-11178
-		          --[==[emergencyEvent = {emergencyEventType = "NO_EVENT", fuelCutoffStatus = "NORMAL_OPERATION", rolloverEvent = "NO_EVENT", maximumChangeVelocity = 120, multipleEvents = "NO_EVENT"},--]==]
-		          clusterModeStatus = {powerModeActive = true,
-		                               powerModeQualificationStatus = "POWER_MODE_OK",
-		                           carModeStatus = "NORMAL",
-		                           powerModeStatus = "IGNITION_ON_2"},
-		          myKey = {e911Override = "NO_DATA_EXISTS"}
-
+		          accPedalPosition = 58.4,
+		          steeringWheelAngle = -158.3
 		        })
 
-		      
+
 		      end)
 
-
 		    self.mobileSession:ExpectResponse(CorIdGetVehicleDataVD, { success = true, resultCode = "SUCCESS",
-		      gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"}, 
-		      speed = 120.1, 
-		      rpm = 10000, 
-		      fuelLevel = 58, 
-		      fuelLevel_State = NORMAL,
+		      gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"},
+		      speed = 120.1,
+		      rpm = 10000,
+		      fuelLevel = 58,
+		      fuelLevel_State = "NORMAL",
 		      instantFuelConsumption = 18000,
 		      externalTemperature = 23,
-		      prndl = DRIVE,
-		      tirePressure = LOW,
+		      prndl = "DRIVE",
+		      tirePressure = {leftFront = {status = "NORMAL"}, rightFront = {status = "LOW"}},
 		      odometer = 250000,
-		      beltStatus = YES,
+		      beltStatus = {driverBeltDeployed = "YES", passengerBeltDeployed = "NO"},
 		      bodyInformation = {parkBrakeActive = false, ignitionStableStatus = "IGNITION_SWITCH_STABLE", ignitionStatus = "RUN", driverDoorAjar = true, passengerDoorAjar = true, rearLeftDoorAjar = true, rearRightDoorAjar = true},
 		      deviceStatus = {voiceRecOn = false, btIconOn = true, callActive = false, battLevelStatus = "FOUR_LEVEL_BARS", signalLevelStatus = "THREE_LEVEL_BARS"},
-		      driverBraking = NO_EVENT,
-		      wiperStatus = AUTO_HIGH, 
+		      driverBraking = "NO_EVENT",
+		      wiperStatus = "AUTO_HIGH",
 		      headLampStatus = {lowBeamsOn = false, highBeamsOn = true, ambientLightSensorStatus = "DAY"},
 		      engineTorque = 1000,
 		      accPedalPosition = 58.4,
-		      steeringWheelAngle = -158.3,
-		      eCallInfo = {eCallNotificationStatus = "NORMAL", auxECallNotificationStatus = "NOT_USED", eCallConfirmationStatus = "NORMAL"},
-		      airbagStatus = {
-		                      driverAirbagDeployed = "YES",
-		                      driverSideAirbagDeployed = "YES",
-		                      driverCurtainAirbagDeployed = "NO_EVENT",
-		                      passengerAirbagDeployed = "NO_EVENT",
-		                      passengerCurtainAirbagDeployed = "NO_EVENT",
-		                      driverKneeAirbagDeployed = "NO_EVENT",
-		                      passengerSideAirbagDeployed = "NO_EVENT",
-		                      passengerKneeAirbagDeployed = "NO_EVENT"
-		                    },
-		      -- TODO: update after resolving APPLINK-11178
-		        --[==[emergencyEvent = {emergencyEventType = "NO_EVENT", fuelCutoffStatus = "NORMAL_OPERATION", rolloverEvent = "NO_EVENT", maximumChangeVelocity = 120, multipleEvents = "NO_EVENT"},--]==]
-		      clusterModeStatus = {
-		                          powerModeActive = true,
-		                           
-		                          powerModeQualificationStatus = "POWER_MODE_OK",
-		                          carModeStatus = "NORMAL",
-		                          powerModeStatus = "IGNITION_ON_2"
-		                         },
-		      myKey = {e911Override = "NO_DATA_EXISTS"}
-
+		      steeringWheelAngle = -158.3
 		    })
 
-		    DelayedExp(500)
+		    commonTestCases:DelayedExp(500)
 		  end
-    
+
 	---------------------------------------------------------------------------------------------
 
 	  	-- Description: Parameters are not available: rpm
@@ -8408,15 +7944,13 @@ end
 		      local CorIdGetVehicleDatarpmNotAvailVD= self.mobileSession:SendRPC("GetVehicleData",
 		        {
 		          gps = true,
-		          rpm = true,
-		        
+		          rpm = true
 		        })
 
-		      EXPECT_HMICALL("VehicleInfo.GetVehicleData", 
+		      EXPECT_HMICALL("VehicleInfo.GetVehicleData",
 		        {
 		          gps = true,
-		          rpm = true,
-		        
+		          rpm = true
 		        })
 		        :Do(function(_,data)
 		          self.hmiConnection:SendError(data.id, "VehicleInfo.GetVehicleData", "DATA_NOT_AVAILABLE","Error Message")
@@ -8424,8 +7958,7 @@ end
 
 		      self.mobileSession:ExpectResponse(CorIdGetVehicleDatarpmNotAvailVD, { success = false, resultCode = "VEHICLE_DATA_NOT_AVAILABLE", info = "Error Message"})
 
-		      DelayedExp(500)
-		    
+		      commonTestCases:DelayedExp(500)
 		  	end
 
   	---------------------------------------------------------------------------------------------
@@ -8435,15 +7968,13 @@ end
 		      local CorIdGetVehicleDataExtTempNotAvailVD= self.mobileSession:SendRPC("GetVehicleData",
 		        {
 		          gps = true,
-		          externalTemperature = true,
-		        
+		          externalTemperature = true
 		        })
 
-		      EXPECT_HMICALL("VehicleInfo.GetVehicleData", 
+		      EXPECT_HMICALL("VehicleInfo.GetVehicleData",
 		        {
 		          gps = true,
-		          externalTemperature = true,
-		        
+		          externalTemperature = true
 		        })
 		        :Do(function(_,data)
 		          self.hmiConnection:SendError(data.id, "VehicleInfo.GetVehicleData", "DATA_NOT_AVAILABLE", "Error Message")
@@ -8451,24 +7982,23 @@ end
 
 		      self.mobileSession:ExpectResponse(CorIdGetVehicleDataExtTempNotAvailVD, { success = false, resultCode = "VEHICLE_DATA_NOT_AVAILABLE", info = "Error Message"})
 
-		      DelayedExp(500)
-
+		      commonTestCases:DelayedExp(500)
 		    end
 
 	---------------------------------------------------------------------------------------------
 
-	 	-- Description: Missing parameters 
+	 	-- Description: Missing parameters
 		    function Test:Case_GetVehicleDataMissingParamsTest()
-		      InvalidDataAPI(self,"GetVehicleData", {} )
-		      DelayedExp(500)
+		      invalidDataAPI(self,"GetVehicleData", {} )
+		      commonTestCases:DelayedExp(500)
 		    end
 
 	---------------------------------------------------------------------------------------------
 
   		-- Description: Parameter value = false. Only one sent parameter
 		    function Test:Case_GetVehicleDataOneParamSentTest()
-		      InvalidDataAPI(self,"GetVehicleData", { fuelLevel = false } )
-		      DelayedExp(500)
+		      invalidDataAPI(self,"GetVehicleData", { fuelLevel = false } )
+		      commonTestCases:DelayedExp(500)
 		    end
 
   ---------------------------------------------------------------------------------------------
@@ -8479,20 +8009,19 @@ end
 	        {
 	          gps = true,
 	          speed = true,
-	          fuelLevel = false,
+	          fuelLevel = false
 	        })
 
-	      EXPECT_HMICALL("VehicleInfo.GetVehicleData", 
+	      EXPECT_HMICALL("VehicleInfo.GetVehicleData",
 	        {
 	          gps = true,
-	          speed = true,
-	            
+	          speed = true
 	        })
 	        :Do(function(_,data)
 	          self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetVehicleData", "SUCCESS",
 	            {
-	             gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"}, 
-	             speed = 120.10      
+	             gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"},
+	             speed = 120.10
 	            })
 	        end)
 	        :ValidIf(function(_,data)
@@ -8503,11 +8032,10 @@ end
 	            return true
 	          end
 	        end)
-	    
-	      self.mobileSession:ExpectResponse(CorIdOneParamFalseVD, { success = true, resultCode = "SUCCESS",
-	        gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"}, 
-	        speed = 120.1})
 
+	      self.mobileSession:ExpectResponse(CorIdOneParamFalseVD, { success = true, resultCode = "SUCCESS",
+	        gps = {longitudeDegrees = 20.1, latitudeDegrees = -11.9, dimension = "2D"},
+	        speed = 120.1})
 	    end
 
 	--End Test suit GetVehicleData
@@ -8518,12 +8046,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXI. READDID TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXI. READDID TEST BLOCK *****************************")
-	end
+  testBlock("READDID")
 
 	--Begin Test suit ReadDID
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with missing mandatory parameters: ecuName, didLocation, all
@@ -8531,32 +8057,31 @@ end
 		--List of parameters in the request:
 			-- 1. ecuName : type="Integer" minvalue="0" maxvalue="65535" mandatory="true"
 			-- 2. didLocation : type="Integer" minvalue="0" maxvalue="65535" minsize="1" maxsize="1000" array="true" mandatory="true"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=284918853
 
 	---------------------------------------------------------------------------------------------
 
-		--Description: All parameters 
+		--Description: All parameters
 		  function Test:Case_ReadDIDAllParamsTest()
 		    local CorIdReadDIDAllParamsVD= self.mobileSession:SendRPC("ReadDID",
-		        {ecuName = 2000, 
-		        didLocation = 
+		        {ecuName = 2000,
+		        didLocation =
 		          {
 		             35135
 		          }
-		      
 		      })
 
-		    EXPECT_HMICALL("VehicleInfo.ReadDID", 
-		        {ecuName = 2000, 
-		        didLocation = 
+		    EXPECT_HMICALL("VehicleInfo.ReadDID",
+		        {ecuName = 2000,
+		        didLocation =
 		          {
 		             35135
 		          },
 		          appID = self.applications[applicationName]
-		      
+
 		      })
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "VehicleInfo.ReadDID","SUCCESS", {didResult = {{data = "123", didLocation = 35135, resultCode = "SUCCESS"}}})
@@ -8565,28 +8090,28 @@ end
 		    EXPECT_RESPONSE(CorIdReadDIDAllParamsVD, {success = true, resultCode = "SUCCESS", didResult = {{data = "123", didLocation = 35135, resultCode = "SUCCESS"}}})
 
 		   end
- 
+
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory : Missing ecuName 
+  		-- Description: Missing mandatory : Missing ecuName
 		    function Test:Case_ReadDIDMissingecuNameTest()
 		      local SentParams = {didLocation = {35135}}
-		      InvalidDataAPI(self, "ReadDID", SentParams )
+		      invalidDataAPI(self, "ReadDID", SentParams )
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory : Missing didLocation 
+  		-- Description: Missing mandatory : Missing didLocation
 		    function Test:Case_ReadDIDMissingdidLocationTest()
 		      local SentParams = {ecuName = 2000}
-		      InvalidDataAPI(self, "ReadDID", SentParams )
+		      invalidDataAPI(self, "ReadDID", SentParams )
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory : Missing all 
+  		-- Description: Missing mandatory : Missing all
 		    function Test:Case_ReadDIDAllMissingTest()
-		      InvalidDataAPI(self, "ReadDID", {} )
+		      invalidDataAPI(self, "ReadDID", {} )
 		    end
 
 	--End Test suit ReadDID
@@ -8597,12 +8122,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXII. GETDTCS TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXII. GETDTCS TEST BLOCK *****************************")
-	end
+  testBlock("GETDTCS")
 
 	--Begin Test suit GetDTCs
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with missing mandatory parameters: ecuName, all
@@ -8610,42 +8133,42 @@ end
 		--List of parameters in the request:
 			-- 1. ecuName : type="Integer" minvalue="0" maxvalue="65535" mandatory="true"
 			-- 2. dtcMask : type="Integer" minvalue="0" maxvalue="255" mandatory="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=284919487
 
 	---------------------------------------------------------------------------------------------
-		-- Description: All parameters 
+		-- Description: All parameters
 		    function Test:Case_GetDTCsAllPAramsTest()
 		      local CorIdGetDTCsAllParamsVD= self.mobileSession:SendRPC("GetDTCs",
 		          {
-		            ecuName = 2000, 
+		            ecuName = 2000,
 		            dtcMask = 125
 		          })
 
-		        EXPECT_HMICALL("VehicleInfo.GetDTCs", 
-		          {ecuName = 2000, 
+		        EXPECT_HMICALL("VehicleInfo.GetDTCs",
+		          {ecuName = 2000,
 		          dtcMask = 125,
 		          appID = self.applications[applicationName]
 		        })
 		          :Do(function(_,data)
-		                  self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetDTCs","SUCCESS", 
+		                  self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetDTCs","SUCCESS",
 		                    {
-		                      ecuHeader = 35843,      
-		                      dtc = 
+		                      ecuHeader = 35843,
+		                      dtc =
 		                      {
 		                       "qwertyuio"
 		                      }
 		                    })
 		          end)
 
-		      self.mobileSession:ExpectResponse(CorIdGetDTCsAllParamsVD, 
-		            { 
-		              success = true, 
+		      self.mobileSession:ExpectResponse(CorIdGetDTCsAllParamsVD,
+		            {
+		              success = true,
 		              resultCode = "SUCCESS",
-		              ecuHeader = 35843,        
-		              dtc = 
+		              ecuHeader = 35843,
+		              dtc =
 		              {
 		               "qwertyuio"
 		              }
@@ -8657,9 +8180,9 @@ end
 		    function Test:Case_GetDTCsOnlyMandatoryTest()
 		      local CorIdGetDTCsOnlyMandatoryVD= self.mobileSession:SendRPC("GetDTCs", {ecuName = 2000})
 
-		      EXPECT_HMICALL("VehicleInfo.GetDTCs", 
+		      EXPECT_HMICALL("VehicleInfo.GetDTCs",
 		          {
-		            ecuName = 2000, 
+		            ecuName = 2000,
 		            appID = self.applications[applicationName]
 		          })
 		        :Do(function(_,data)
@@ -8673,13 +8196,13 @@ end
 	---------------------------------------------------------------------------------------------
   		-- Description: Missing mandatory: Missing ecuName
 		    function Test:Case_GetDTCsMissingecuNameTest()
-		      InvalidDataAPI(self, "GetDTCs", {dtcMask = 125})
+		      invalidDataAPI(self, "GetDTCs", {dtcMask = 125})
 		    end
 
   	---------------------------------------------------------------------------------------------
   		-- Description: Missing mandatory: Missing all
     		function Test:Case_GetDTCsMissingAllTest()
-      			InvalidDataAPI(self, "GetDTCs", {})
+      			invalidDataAPI(self, "GetDTCs", {})
 			end
 
 	--End Test suit GetDTCs
@@ -8689,12 +8212,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXIII. SCROLLABLEMESSAGE TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXIII. SCROLLABLEMESSAGE TEST BLOCK *****************************")
-	end
+  testBlock("SCROLLABLEMESSAGE")
 
 	--Begin Test suit ScrollableMessage
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with only mandatory
@@ -8705,8 +8226,8 @@ end
 			-- 1. scrollableMessageBody : type="String" maxlength="500"
 			-- 2. timeout : type="Integer" minvalue="1000" maxvalue="65535" defvalue="30000" mandatory="false"
 			-- 3. softButtons : type="SoftButton" minsize="0" maxsize="8" array="true" mandatory="false"
-			
-		--Requirement id in Jira 
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=282669644
 
 	---------------------------------------------------------------------------------------------
@@ -8716,76 +8237,66 @@ end
 		      {
 		        scrollableMessageBody = "messageBody",
 		        timeout = 3000,
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                image = 
-		                  {
-		                    value = "icon.png",
-		                    imageType = "DYNAMIC"
-		                  },
-		    
-		                isHighlighted = true,
-		                softButtonID = 33,  
-		                systemAction = "DEFAULT_ACTION"
-		              },
-		              {
-		                type = "BOTH",
-		                text = "Keep",
-		                image = 
+		                image =
 		                  {
 		                    value = "icon.png",
 		                    imageType = "DYNAMIC"
 		                  },
 
 		                isHighlighted = true,
-		                softButtonID = 33,  
+		                softButtonID = 33,
+		                systemAction = "DEFAULT_ACTION"
+		              },
+		              {
+		                type = "BOTH",
+		                text = "Keep",
+		                image =
+		                  {
+		                    value = "icon.png",
+		                    imageType = "DYNAMIC"
+		                  },
+
+		                isHighlighted = true,
+		                softButtonID = 33,
 		                systemAction = "KEEP_CONTEXT"
 		              }
 		             }
-		      
+
 		      })
 
 		    EXPECT_HMICALL("UI.ScrollableMessage", {
 		        messageText = {fieldName = "scrollableMessageBody", fieldText = "messageBody"},
 		        timeout = 3000,
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-
-
-		                --TODO: Update test after APPLINK-16052 will be fixed
-		                -- image = 
-		                --   {
-
-
-		                --     value = PathToAppFolder .."icon.png",
-		                --     imageType = "DYNAMIC"
-		                --   },
-
+		                image =
+		                  {
+		                    value = pathToAppFolder .."icon.png",
+		                    imageType = "DYNAMIC"
+		                  },
 		                isHighlighted = true,
-		                softButtonID = 33,  
+		                softButtonID = 33,
 		                systemAction = "DEFAULT_ACTION"
 		              },
 
 		              {
 		                type = "BOTH",
 		                text = "Keep",
-		                --TODO: Update test after APPLINK-16052 will be fixed
-		                -- image = 
-		                --   {
-
-
-		                --     value = PathToAppFolder .."icon.png",
-		                --     imageType = "DYNAMIC"
-		                --   },
-
+		                image =
+		                  {
+		                    value = pathToAppFolder .."icon.png",
+		                    imageType = "DYNAMIC"
+		                  },
 		                isHighlighted = true,
-		                softButtonID = 33,  
+		                softButtonID = 33,
 		                systemAction = "KEEP_CONTEXT"
 		              },
 		             },
@@ -8808,7 +8319,7 @@ end
 		      {
 		        scrollableMessageBody = "messageBody",
 		        timeout = 3000,
-		                  
+
 		      })
 
 		    EXPECT_HMICALL("UI.ScrollableMessage", {
@@ -8816,7 +8327,7 @@ end
 
 		        timeout = 3000,
 		        appID = self.applications[applicationName]
-		       
+
 		      })
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "UI.ScrollableMessage", "SUCCESS", {})
@@ -8831,14 +8342,14 @@ end
 
   		-- Description: Missing mandatory: scrollableMessageBody
 		   function Test:Case_ScrollableMessageMissingTest()
-		    InvalidDataAPI(self, "ScrollableMessage", { timeout = 3000 })
+		    invalidDataAPI(self, "ScrollableMessage", { timeout = 3000 })
 		   end
 
   	---------------------------------------------------------------------------------------------
 
   		-- Description: Missing mandatory:  All
 		    function Test:Case_ScrollableMessageMissingMandatoryTest()
-		      InvalidDataAPI(self, "ScrollableMessage", {})
+		      invalidDataAPI(self, "ScrollableMessage", {})
 		    end
 
 	---------------------------------------------------------------------------------------------
@@ -8849,52 +8360,48 @@ end
 		        {
 		          scrollableMessageBody = "messageBody",
 		          timeout = 3000,
-		          softButtons = 
+		          softButtons =
 		              {
 		                {
 		                  type = "BOTH",
 		                  text = "Close",
-		                  image = 
+		                  image =
 		                    {
 		                      value = "icon.png",
 		                      imageType = "DYNAMIC"
 		                    },
 
 		                  isHighlighted = true,
-		                  softButtonID = 33,  
+		                  softButtonID = 33,
 		                  systemAction = "DEFAULT_ACTION"
 		                },
 
 		               }
-		        
+
 		        })
 
-		      EXPECT_HMICALL("UI.ScrollableMessage", 
+		      EXPECT_HMICALL("UI.ScrollableMessage",
 		        {
 		          messageText = {fieldName = "scrollableMessageBody", fieldText = "messageBody"},
 		          timeout = 3000,
-		          softButtons = 
+		          softButtons =
 		              {
 		                {
 		                  type = "BOTH",
 		                  text = "Close",
-		                  --TODO: Update test after APPLINK-16052 will be fixed
-		                  -- image = 
-		                  --   {
-
-
-		                  --     value = PathToAppFolder .."icon.png",
-		                  --     imageType = "DYNAMIC"
-		                  --   },
-
+		                  image =
+		                    {
+		                      value = pathToAppFolder .."icon.png",
+		                      imageType = "DYNAMIC"
+		                    },
 		                  isHighlighted = true,
-		                  softButtonID = 33,  
+		                  softButtonID = 33,
 		                  systemAction = "DEFAULT_ACTION"
 		                 },
 
 		               },
 		          appID = self.applications[applicationName]
-		       
+
 		        })
 		        :Do(function(_,data)
 		          self.hmiConnection:SendResponse(data.id, "UI.ScrollableMessage", "SUCCESS", {})
@@ -8919,50 +8426,49 @@ end
 		      {
 		        scrollableMessageBody = "messageBody",
 		        timeout = 3000,
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                image = 
+		                image =
 		                  {
 		                    value = "icon.png",
 		                    imageType = "STATIC"
 		                  },
 
 		                isHighlighted = true,
-		                softButtonID = 33,  
+		                softButtonID = 33,
 		                systemAction = "KEEP_CONTEXT"
 		              },
 
 		             }
-		      
+
 		      })
 
-		      EXPECT_HMICALL("UI.ScrollableMessage", 
+		      EXPECT_HMICALL("UI.ScrollableMessage",
 		        {
 		          messageText = {fieldName = "scrollableMessageBody", fieldText = "messageBody"},
 		          timeout = 3000,
-		          softButtons = 
+		          softButtons =
 		              {
 		                {
 		                  type = "BOTH",
 		                  text = "Close",
-		                  --TODO: Update test after APPLINK-16052 will be fixed
-		                  -- image = 
-		                  --   {
-		                  --     value = PathToAppFolder .."icon.png",
-		                  --     imageType = "STATIC"
-		                  --   },
+		                  image =
+		                    {
+		                      value = "icon.png",
+		                      imageType = "STATIC"
+		                    },
 
 		                  isHighlighted = true,
-		                  softButtonID = 33,  
+		                  softButtonID = 33,
 		                  systemAction = "KEEP_CONTEXT"
 		                },
 
 		               },
 		          appID = self.applications[applicationName]
-		       
+
 		        })
 		        :Do(function(_,data)
 		          self.hmiConnection:SendError(data.id, "UI.ScrollableMessage", "UNSUPPORTED_RESOURCE", " Error Message ")
@@ -8988,12 +8494,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXIV. SLIDER TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXIV. SLIDER TEST BLOCK *****************************")
-	end
+  testBlock("SLIDER")
 
 	--Begin Test suit Slider
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with only mandatory (and with timeout)
@@ -9007,22 +8511,22 @@ end
 			-- 3. sliderHeader : type="String" maxlength="500" mandatory="true"
 			-- 4. sliderFooter : type="String" maxlength="500"  minsize="1" maxsize="26" array="true" mandatory="false"
 			-- 5. timeout : type="Integer" minvalue="1000" maxvalue="65535" defvalue="10000" mandatory="false"
-			
-		--Requirement id in Jira 
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283508916
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All parameters 
+		-- Description: All parameters
 		  function Test:Case_SliderAllParamsTest()
 		    local CorIdSliderAllParamsVD= self.mobileSession:SendRPC("Slider",
-		        {numTicks = 7, 
+		        {numTicks = 7,
 		        position = 6,
 		        sliderHeader = "sliderHeader",
-		        sliderFooter = 
+		        sliderFooter =
 		        {
 		         "sliderFooter1",
-		         "sliderFooter2", 
+		         "sliderFooter2",
 		         "sliderFooter3",
 		         "sliderFooter4",
 		         "sliderFooter5",
@@ -9035,10 +8539,10 @@ end
 		        {numTicks = 7,
 		        position = 6,
 		        sliderHeader = "sliderHeader",
-		        sliderFooter = 
+		        sliderFooter =
 		        {
 		         "sliderFooter1",
-		         "sliderFooter2", 
+		         "sliderFooter2",
 		         "sliderFooter3",
 		         "sliderFooter4",
 		         "sliderFooter5",
@@ -9063,7 +8567,7 @@ end
 		  function Test:Case_SliderOnlyMandatoryTest()
 		    local CorIdSliderOnlyMandatoryVD= self.mobileSession:SendRPC("Slider",
 		      {
-		        numTicks = 7, 
+		        numTicks = 7,
 		        position = 6,
 		        sliderHeader = "sliderHeader",
 		        timeout = 3000
@@ -9087,14 +8591,14 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory - numTicks 
+  		-- Description: Missing mandatory - numTicks
 		    function Test:Case_SliderMissingnumTicksTest()
 		      local SentParams = {
 		          position = 6,
 		          sliderHeader = "sliderHeader",
 		          sliderFooter = {
 		             "sliderFooter1",
-		             "sliderFooter2", 
+		             "sliderFooter2",
 		             "sliderFooter3",
 		             "sliderFooter4",
 		             "sliderFooter5",
@@ -9104,20 +8608,20 @@ end
 		          timeout = 3000
 		        }
 
-		        InvalidDataAPI(self, "Slider",  SentParams)
+		        invalidDataAPI(self, "Slider",  SentParams)
 
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory - position 
+  		-- Description: Missing mandatory - position
 		    function Test:Case_SliderMissingPositionTest()
 		      local SentParams = {
-		        numTicks = 7, 
+		        numTicks = 7,
 		        sliderHeader = "sliderHeader",
 		        sliderFooter = {
 		           "sliderFooter1",
-		           "sliderFooter2", 
+		           "sliderFooter2",
 		           "sliderFooter3",
 		           "sliderFooter4",
 		           "sliderFooter5",
@@ -9127,21 +8631,21 @@ end
 		        timeout = 3000
 		      }
 
-		      InvalidDataAPI(self, "Slider",  SentParams)
+		      invalidDataAPI(self, "Slider",  SentParams)
 
 		    end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory - sliderHeader 
+  		-- Description: Missing mandatory - sliderHeader
 		    function Test:Case_SliderMissingSliderHeaderTest()
 		      local SentParams = {
-		        numTicks = 7, 
+		        numTicks = 7,
 		        position = 6,
-		        sliderFooter = 
+		        sliderFooter =
 		        {
 		         "sliderFooter1",
-		         "sliderFooter2", 
+		         "sliderFooter2",
 		         "sliderFooter3",
 		         "sliderFooter4",
 		         "sliderFooter5",
@@ -9150,32 +8654,32 @@ end
 		        },
 		        timeout = 3000
 		      }
-		   
 
-		      InvalidDataAPI(self, "Slider",  SentParams)
+
+		      invalidDataAPI(self, "Slider",  SentParams)
 
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory - all 
+  		-- Description: Missing mandatory - all
 		    function Test:Case_SliderMissingAllTest()
-		      InvalidDataAPI(self, "Slider",  {})
+		      invalidDataAPI(self, "Slider",  {})
 	    	end
 
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Position is bigger than numTicks 
+  		-- Description: Position is bigger than numTicks
 		  function Test:Case_SliderPosBiggerthennumTicksTest()
 		    local CorIdSliderPosBiggerthennumTicksVD= self.mobileSession:SendRPC("Slider",
-		      {numTicks = 7, 
+		      {numTicks = 7,
 		      position = 8,
 		      sliderHeader = "sliderHeader",
-		      sliderFooter = 
+		      sliderFooter =
 		      {
 		       "sliderFooter1",
-		       "sliderFooter2", 
+		       "sliderFooter2",
 		       "sliderFooter3",
 		       "sliderFooter4",
 		       "sliderFooter5",
@@ -9184,23 +8688,23 @@ end
 		      },
 		      timeout = 3000})
 
-		  
+
 
 		    self.mobileSession:ExpectResponse(CorIdSliderPosBiggerthennumTicksVD, { success = false, resultCode = "INVALID_DATA"})
 
 		  end
 
 	---------------------------------------------------------------------------------------------
-  		-- Description: Number of dynamic footer elements does not equal with numTicks - Footers is less than numTicks 
+  		-- Description: Number of dynamic footer elements does not equal with numTicks - Footers is less than numTicks
 		    function Test:Case_SliderFooterLessthennumTicksTest()
 		      local CorIdSliderFooterLessthennumTicksVD= self.mobileSession:SendRPC("Slider",
-		        {numTicks = 7, 
+		        {numTicks = 7,
 		        position = 6,
 		        sliderHeader = "sliderHeader",
-		        sliderFooter = 
+		        sliderFooter =
 		        {
 		         "sliderFooter1",
-		         "sliderFooter2", 
+		         "sliderFooter2",
 		         "sliderFooter3",
 		         "sliderFooter4",
 		         "sliderFooter5",
@@ -9214,16 +8718,16 @@ end
 		    end
 
 	---------------------------------------------------------------------------------------------
-  		-- Description: Number of dynamic footer elements does not equal with numTicks - Footers is more than numTicks 
+  		-- Description: Number of dynamic footer elements does not equal with numTicks - Footers is more than numTicks
 		    function Test:Case_SliderFooterMorethennumTicksTest()
 		      local CorIdSliderFooterMorethennumTicksVD= self.mobileSession:SendRPC("Slider",
-		        {numTicks = 7, 
+		        {numTicks = 7,
 		        position = 6,
 		        sliderHeader = "sliderHeader",
-		        sliderFooter = 
+		        sliderFooter =
 		        {
 		         "sliderFooter1",
-		         "sliderFooter2", 
+		         "sliderFooter2",
 		         "sliderFooter3",
 		         "sliderFooter4",
 		         "sliderFooter5",
@@ -9245,12 +8749,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXV. SHOWCONSTANTTBT TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXV. SHOWCONSTANTTBT TEST BLOCK *****************************")
-	end
+  testBlock("SHOWCONSTANTTBT")
 
 	--Begin Test suit ShowConstantTBT
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent without all params
@@ -9269,12 +8771,12 @@ end
 			-- 9. distanceToManeuverScale : type="Float" minvalue="0" maxvalue="1000000000" mandatory="false"
 			-- 10. maneuverComplete : type="Boolean" mandatory="false"
 			-- 11. softButtons : type="SoftButton" minsize="0" maxsize="3" array="true" mandatory="false"
-			
-		--Requirement id in Jira 
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283518855
 
 	---------------------------------------------------------------------------------------------
-		-- Description: All parameters 
+		-- Description: All parameters
 		  function Test:Case_ShowConstantTBTAllParamsTest()
 
 		  	local sentParam = {
@@ -9289,19 +8791,18 @@ end
 		        distanceToManeuver = 50.5,
 		        distanceToManeuverScale = 100,
 		        maneuverComplete = false,
-		        softButtons =     
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                image = 
+		                image =
 		                  {
 		                    value = "icon.png",
 		                    imageType = "DYNAMIC"
 		                  },
-		    
 		                isHighlighted = true,
-		                softButtonID = 44,  
+		                softButtonID = 44,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		            }
@@ -9311,38 +8812,36 @@ end
 			        navigationTexts =
 			        {
 			          {fieldName = "navigationText1", fieldText = "NavigationText1"},
-			          {fieldName = "navigationText2", fieldText = "NavigationText2"},  
+			          {fieldName = "navigationText2", fieldText = "NavigationText2"},
 			          {fieldName = "ETA", fieldText = "12:34"},
 			          {fieldName = "totalDistance", fieldText = "500miles"},
 			        },
 			        turnIcon = {
-			                    value = PathToAppFolder .."icon.png",
+			                    value = pathToAppFolder .."icon.png",
 			                    imageType = "DYNAMIC"
 			                   },
 			        distanceToManeuver = 50.5,
 			        distanceToManeuverScale = 100,
 			        maneuverComplete = false,
-			        softButtons =     
+			        softButtons =
 			          {
 			            {
 			              type = "BOTH",
 			              text = "Close",
-			              --TODO: Update test after APPLINK-16052 will be fixed
-			              -- image = 
-			              --   {
-			              --     value = PathToAppFolder .."icon.png",
-			              --     imageType = "DYNAMIC"
-			              --   },
-
+			              image =
+			                {
+			                  value = pathToAppFolder .."icon.png",
+			                  imageType = "DYNAMIC"
+			                },
 			              isHighlighted = true,
-			              softButtonID = 44,  
+			              softButtonID = 44,
 			              systemAction = "DEFAULT_ACTION"
 			            },
 			          },
 			        appID = self.applications["Test Application"]
 			      }
 
-			if NavigationType then
+			if Test.appHMITypes["NAVIGATION"] then
 				sentParam.timeToDestination = "3hoursleft"
 				sentParam.nextTurnIcon = {
 					                        value = "icon.png",
@@ -9351,13 +8850,13 @@ end
 
 				UIParams.navigationTexts = {
 									          {fieldName = "navigationText1", fieldText = "NavigationText1"},
-									          {fieldName = "navigationText2", fieldText = "NavigationText2"},  
+									          {fieldName = "navigationText2", fieldText = "NavigationText2"},
 									          {fieldName = "ETA", fieldText = "12:34"},
 									          {fieldName = "totalDistance", fieldText = "500miles"},
 									          {fieldName = "timeToDestination", fieldText = "3hoursleft"}
 									        }
 				UIParams.nextTurnIcon = {
-					                        value = PathToAppFolder .."icon.png",
+					                        value = pathToAppFolder .."icon.png",
 					                        imageType = "DYNAMIC"
 				                        }
 
@@ -9376,14 +8875,14 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-	  	-- Description: Without parameters 
+	  	-- Description: Without parameters
 		  function Test:Case_ShowConstantTBTWithoutParamsTest()
-		    InvalidDataAPI(self, "ShowConstantTBT", {})
+		    invalidDataAPI(self, "ShowConstantTBT", {})
 		  end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Empty parameters 
+  		-- Description: Empty parameters
 		  function Test:Case_ShowConstantTBTEmptyParamsTest()
 
 		  	local sentParam = {
@@ -9399,18 +8898,18 @@ end
 			                       value = "icon.png",
 			                       imageType = "DYNAMIC"
 			                       },
-			       softButtons =     
+			       softButtons =
 			           {
 			             {
 			               type = "BOTH",
 			               text = "Close",
-			               image = 
+			               image =
 			                 {
 			                   value = "icon.png",
 			                   imageType = "DYNAMIC"
 			                 },
 			               isHighlighted = true,
-			               softButtonID = 44,  
+			               softButtonID = 44,
 			               systemAction = "DEFAULT_ACTION"
 			             }
 			           }
@@ -9420,43 +8919,41 @@ end
 			       navigationTexts =
 			       {
 			         {fieldName = "navigationText1", fieldText = ""},
-			         {fieldName = "navigationText2", fieldText = ""},  
+			         {fieldName = "navigationText2", fieldText = ""},
 			         {fieldName = "ETA", fieldText = ""},
-			         {fieldName = "totalDistance", fieldText = ""},			        
+			         {fieldName = "totalDistance", fieldText = ""},
 			      },
 			       turnIcon = {
-			                   value = PathToAppFolder .. "icon.png",
+			                   value = pathToAppFolder .. "icon.png",
 			                   imageType = "DYNAMIC"
 			                  },
 			       nextTurnIcon = {
-			                       value = PathToAppFolder .. "icon.png",
+			                       value = pathToAppFolder .. "icon.png",
 			                       imageType = "DYNAMIC"
 			                       },
-			       softButtons =     
+			       softButtons =
 			           {
 			             {
 			               type = "BOTH",
 			               text = "Close",
-			               --TODO: Update test after APPLINK-16052 will be fixed
-			               -- image = 
-			               --   {
-			               --     value = PathToAppFolder .."icon.png",
-			               --     imageType = "DYNAMIC"
-			               --   },
-
+			               image =
+			                 {
+			                   value = pathToAppFolder .."icon.png",
+			                   imageType = "DYNAMIC"
+			                 },
 			               isHighlighted = true,
-			               softButtonID = 44,  
+			               softButtonID = 44,
 			               systemAction = "DEFAULT_ACTION"
 			             },
 			       },
 			       appID = self.applications["Test Application"]
 			      }
 
-			if NavigationType then
+			if Test.appHMITypes["NAVIGATION"] then
 				sentParam.timeToDestination = ""
 				UIParams.navigationTexts = {
 									          {fieldName = "navigationText1", fieldText = ""},
-									          {fieldName = "navigationText2", fieldText = ""},  
+									          {fieldName = "navigationText2", fieldText = ""},
 									          {fieldName = "ETA", fieldText = ""},
 									          {fieldName = "totalDistance", fieldText = ""},
 									          {fieldName = "timeToDestination", fieldText = ""}
@@ -9476,7 +8973,7 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different image types - STATIC 
+  		-- Description: Different image types - STATIC
 		    function Test:Case_ShowConstantTBTSTATICImageTest()
 
 		    	local sentParam = {navigationText1 = "NavigationText1",
@@ -9490,19 +8987,19 @@ end
 			        distanceToManeuver = 50.5,
 			        distanceToManeuverScale = 100,
 			        maneuverComplete = false,
-			        softButtons =     
+			        softButtons =
 			            {
 			              {
 			                type = "BOTH",
 			                text = "Close",
-			                image = 
+			                image =
 			                  {
-			                    value = PathToAppFolder .."icon.png",
+			                    value = pathToAppFolder .."icon.png",
 			                    imageType = "STATIC"
 			                  },
 
 			                isHighlighted = true,
-			                softButtonID = 44,  
+			                softButtonID = 44,
 			                systemAction = "DEFAULT_ACTION"
 			              },
 
@@ -9514,7 +9011,7 @@ end
 			        navigationTexts =
 			        {
 			          {fieldName = "navigationText1", fieldText = "NavigationText1"},
-			          {fieldName = "navigationText2", fieldText = "NavigationText2"},  
+			          {fieldName = "navigationText2", fieldText = "NavigationText2"},
 			          {fieldName = "ETA", fieldText = "12:34"},
 			          {fieldName = "totalDistance", fieldText = "500miles"},
 			       },
@@ -9525,27 +9022,25 @@ end
 			        distanceToManeuver = 50.5,
 			        distanceToManeuverScale = 100,
 			        maneuverComplete = false,
-			        softButtons =     
+			        softButtons =
 			            {
 			              {
 			                type = "BOTH",
 			                text = "Close",
-			                --TODO: Update test after APPLINK-16052 will be fixed
-			                -- image = 
-			                --   {
-			                --     value = PathToAppFolder .."icon.png",
-			                --     imageType = "STATIC"
-			                --   },
-			  
+			                image =
+			                  {
+			                    value = pathToAppFolder .."icon.png",
+			                    imageType = "STATIC"
+			                  },
 			                isHighlighted = true,
-			                softButtonID = 44,  
+			                softButtonID = 44,
 			                systemAction = "DEFAULT_ACTION"
 			              },
 			        },
 			        appID = self.applications[applicationName]
 			      }
 
-			if NavigationType then
+			if Test.appHMITypes["NAVIGATION"] then
 				sentParam.timeToDestination = "3hoursleft"
 				sentParam.nextTurnIcon = {
 					                        value = "icon.png",
@@ -9555,7 +9050,7 @@ end
 
 				UIParams.navigationTexts = {
 									          {fieldName = "navigationText1", fieldText = "NavigationText1"},
-									          {fieldName = "navigationText2", fieldText = "NavigationText2"},  
+									          {fieldName = "navigationText2", fieldText = "NavigationText2"},
 									          {fieldName = "ETA", fieldText = "12:34"},
 									          {fieldName = "totalDistance", fieldText = "500miles"},
 									          {fieldName = "timeToDestination", fieldText = "3hoursleft"}
@@ -9581,12 +9076,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXVI. ALERTMANEUVER TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXVI. ALERTMANEUVER TEST BLOCK *****************************")
-	end
+  testBlock("ALERTMANEUVER")
 
 	--Begin Test suit AlertManeuver
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with missing all parameters
@@ -9597,38 +9090,38 @@ end
 		--List of parameters in the request:
 			-- 1. ttsChunks : type="TTSChunk" minsize="1" maxsize="100" array="true" mandatory="false"
 			-- 2. softButtons : type="SoftButton" minsize="0" maxsize="3" array="true" mandatory="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283513415
 
 	---------------------------------------------------------------------------------------------
 
-	 	-- Description: All parameters 
+	 	-- Description: All parameters
 		  function Test:Case_AlertManeuverAllParamsTest()
 		    local CorIdAlertManeuverAllParamsVD= self.mobileSession:SendRPC("AlertManeuver",
 		        {ttsChunks = {{
 		                      text = "FirstAlert",
 		                      type = "TEXT"
-		                      }, 
+		                      },
 
 		                      {
 		                      text = "SecondAlert",
 		                      type = "TEXT"
-		                      }}, 
-					        softButtons =     
+		                      }},
+					        softButtons =
 					          {
 					            {
 					              type = "BOTH",
 					              text = "Close",
-					              image = 
+					              image =
 					                {
 					                  value = "icon.png",
 					                  imageType = "DYNAMIC"
 					                },
 
 					              isHighlighted = true,
-					              softButtonID = 44,  
+					              softButtonID = 44,
 					              systemAction = "DEFAULT_ACTION"
 					            },
 
@@ -9636,25 +9129,23 @@ end
 		    })
 
 
-		                    
-		     
-		    EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+
+		    EXPECT_HMICALL("Navigation.AlertManeuver",
 		        {
 		        appID = self.applications[applicationName],
-		        softButtons =     
+		        softButtons =
 		          {
 		            {
 		              type = "BOTH",
 		              text = "Close",
-		              --TODO: Update test after APPLINK-16052 will be fixed
-		              -- image = 
-		              --   {
-		              --     value = PathToAppFolder .."icon.png",
-		              --     imageType = "DYNAMIC"
-		              --   },
-
+		              image =
+		                {
+		                  value = pathToAppFolder .."icon.png",
+		                  imageType = "DYNAMIC"
+		                },
 		              isHighlighted = true,
-		              softButtonID = 44,  
+		              softButtonID = 44,
 		              systemAction = "DEFAULT_ACTION"
 		            },
 		          }
@@ -9663,11 +9154,11 @@ end
 		        self.hmiConnection:SendResponse(data.id, "Navigation.AlertManeuver","SUCCESS", {})
 		      end)
 
-		      EXPECT_HMICALL("TTS.Speak", 
-		                      { 
+		      EXPECT_HMICALL("TTS.Speak",
+		                      {
 		                        speakType = "ALERT_MANEUVER",
-		                        ttsChunks = 
-		                          { {text = "FirstAlert", type = "TEXT"}, 
+		                        ttsChunks =
+		                          { {text = "FirstAlert", type = "TEXT"},
 		                            {text = "SecondAlert", type = "TEXT"}},
 		                         appID = self.applications[applicationName]
 
@@ -9681,20 +9172,20 @@ end
 		          self.hmiConnection:SendNotification("TTS.Stopped")
 		        end)
 
-		    if 
+		    if
 		      self.appHMITypes["NAVIGATION"] == true or
 		      self.appHMITypes["COMMUNICATION"] == true or
 		      self.isMediaApplication == true then
 		        --mobile side: expect OnHMIStatus notification
-		        EXPECT_NOTIFICATION("OnHMIStatus", 
+		        EXPECT_NOTIFICATION("OnHMIStatus",
 		          {hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN"},
-		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"}) 
+		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 		        :Times(2)
 		    else
 		      EXPECT_NOTIFICATION("OnHMIStatus")
 		        :Times(0)
 
-		        DelayedExp(1000)
+		        commonTestCases:DelayedExp(1000)
 		    end
 
 		    self.mobileSession:ExpectResponse(CorIdAlertManeuverAllParamsVD, { success = true, resultCode = "SUCCESS"})
@@ -9703,31 +9194,31 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: TTSChunks only 
+  		-- Description: TTSChunks only
 		  function Test:Case_AlertManeuverTTSChunksTest()
 		    local CorIdAlertManeuverTTSChunksVD = self.mobileSession:SendRPC("AlertManeuver",
 		        {ttsChunks = { {
-		                            text = "FirstAlert", 
+		                            text = "FirstAlert",
 		                            type = "TEXT"
-		                          }, 
+		                          },
 		                          {
-		                          text = "SecondAlert", 
+		                          text = "SecondAlert",
 		                          type = "TEXT"
-		                          } 
+		                          }
 		                      },
 		         })
 
-		   
+
 		    EXPECT_HMICALL("Navigation.AlertManeuver", {appID = self.applications[applicationName]})
 		    :Do(function(_,data)
 		      self.hmiConnection:SendResponse(data.id, "Navigation.AlertManeuver","SUCCESS", {})
 		    end)
-		                      
-		        
-		    EXPECT_HMICALL("TTS.Speak", 
-		                      { 
+
+
+		    EXPECT_HMICALL("TTS.Speak",
+		                      {
 		                        speakType = "ALERT_MANEUVER",
-		                        ttsChunks = { {text = "FirstAlert", type = "TEXT"}, 
+		                        ttsChunks = { {text = "FirstAlert", type = "TEXT"},
 		                                      {text = "SecondAlert", type = "TEXT"}}
 
 		                      })
@@ -9741,70 +9232,68 @@ end
 
 		      end)
 
-		    if 
+		    if
 		      self.appHMITypes["NAVIGATION"] == true or
 		      self.appHMITypes["COMMUNICATION"] == true or
 		      self.isMediaApplication == true then
 		        --mobile side: expect OnHMIStatus notification
-		        EXPECT_NOTIFICATION("OnHMIStatus", 
+		        EXPECT_NOTIFICATION("OnHMIStatus",
 		          {hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN"},
-		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"}) 
+		          {hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 		        :Times(2)
 		    else
 		      EXPECT_NOTIFICATION("OnHMIStatus")
 		        :Times(0)
 
-		        DelayedExp(1000)
+		        commonTestCases:DelayedExp(1000)
 		    end
-		                 
+
 		    self.mobileSession:ExpectResponse(CorIdAlertManeuverTTSChunksVD, { success = true, resultCode = "SUCCESS"})
 
 		  end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: SoftButtons only 
+  		-- Description: SoftButtons only
 		  function Test:Case_AlertManeuverSoftButtonsOnlyTest()
 		    local CorIdAlertManeuverSoftButtonsOnlyVD= self.mobileSession:SendRPC("AlertManeuver",
 		       {
-		        softButtons =     
+		        softButtons =
 		          {
 		            {
 		              type = "BOTH",
 		              text = "Close",
-		              image = 
+		              image =
 		                {
 		                  value = "icon.png",
 		                  imageType = "DYNAMIC"
 		                },
 
 		              isHighlighted = true,
-		              softButtonID = 44,  
+		              softButtonID = 44,
 		              systemAction = "DEFAULT_ACTION"
 		            },
 
 		          },
 
 		       })
-		       
 
-		    EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+		    EXPECT_HMICALL("Navigation.AlertManeuver",
 		        {
 		        appID = self.applications[applicationName],
-		        softButtons =     
+		        softButtons =
 		          {
 		            {
 		              type = "BOTH",
 		              text = "Close",
-		              --TODO: Update test after APPLINK-16052 will be fixed
-		              -- image = 
-		              --   {
-		              --     value = PathToAppFolder .."icon.png",
-		              --     imageType = "DYNAMIC"
-		              --   },
-
+		              image =
+		                {
+		                  value = pathToAppFolder .."icon.png",
+		                  imageType = "DYNAMIC"
+		                },
 		              isHighlighted = true,
-		              softButtonID = 44,  
+		              softButtonID = 44,
 		              systemAction = "DEFAULT_ACTION"
 		            },
 		          }
@@ -9817,55 +9306,53 @@ end
 
 		  end
 
-	---------------------------------------------------------------------------------------------  
+	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing parameters 
+  		-- Description: Missing parameters
 		  function Test:Case_AlertManeuverMissingParamsTest()
-		    InvalidDataAPI(self, "AlertManeuver", {})
+		    invalidDataAPI(self, "AlertManeuver", {})
 		  end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different image types - DYNAMIC 
+  		-- Description: Different image types - DYNAMIC
 		    function Test:Case_AlertManeuverDYNAMICImageTest()
 		      local CorIdAlertManeuverDYNAMICImageVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {
-		          softButtons =     
+		          softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                image = 
+		                image =
 		                  {
 		                    value = "icon.png",
 		                    imageType = "DYNAMIC"
 		                  },
-		  
+
 		                isHighlighted = true,
-		                softButtonID = 44,  
+		                softButtonID = 44,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		            }
 		      })
-		      
 
-		      EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+		      EXPECT_HMICALL("Navigation.AlertManeuver",
 		          {
 		          appID = self.applications[applicationName],
-		          softButtons =     
+		          softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                --TODO: Update test after APPLINK-16052 will be fixed
-		                -- image = 
-		                --   {
-		                --     value = PathToAppFolder .."icon.png",
-		                --     imageType = "DYNAMIC"
-		                --   },
-		  
+		                image =
+		                  {
+		                    value = pathToAppFolder .."icon.png",
+		                    imageType = "DYNAMIC"
+		                  },
 		                isHighlighted = true,
-		                softButtonID = 44,  
+		                softButtonID = 44,
 		                systemAction = "DEFAULT_ACTION"
 		              },
 		            }
@@ -9888,45 +9375,43 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different image types - STATIC SB only 
+  		-- Description: Different image types - STATIC SB only
 		    function Test:Case_AlertManeuverSTATICImageTest()
 		      local CorIdAlertManeuverSTATICImageVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {
-		              softButtons =     
+		              softButtons =
 		                {
 		                  {
 		                    type = "BOTH",
 		                    text = "Close",
-		                    image = 
+		                    image =
 		                      {
 		                        value = "icon.png",
 		                        imageType = "STATIC"
 		                      },
 		                    isHighlighted = true,
-		                    softButtonID = 44,  
+		                    softButtonID = 44,
 		                    systemAction = "DEFAULT_ACTION"
 		                  }
 		                }
 		          })
-		                      
 
-		      EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+		      EXPECT_HMICALL("Navigation.AlertManeuver",
 		          {
 		          appID = self.applications[applicationName],
-		          softButtons =     
+		          softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                --TODO: Update test after APPLINK-16052 will be fixed
-		                -- image = 
-		                --   {
-		                --     value = "icon.png",
-		                --     imageType = "STATIC"
-		                --   },
-
+		                image =
+		                  {
+		                    value = "icon.png",
+		                    imageType = "STATIC"
+		                  },
 		                isHighlighted = true,
-		                softButtonID = 44,  
+		                softButtonID = 44,
 		                systemAction = "DEFAULT_ACTION"
 		              },
 		            }
@@ -9949,52 +9434,47 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-	  	-- Description: Different image types - STATIC with TTSChunks 
+	  	-- Description: Different image types - STATIC with TTSChunks
 		    function Test:Case_AlertManeuverSTATICTTSChunksTest()
 		      local CorIdAlertManeuverSTATICTTSChunksVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {ttsChunks = {{
 		                        text = "Alert",
 		                        type = "TEXT"
-		                        }}, 
-		          softButtons =     
+		                        }},
+		          softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                image = 
+		                image =
 		                  {
 		                    value = "icon.png",
 		                    imageType = "STATIC"
 
 		                  },
 		                isHighlighted = true,
-		                softButtonID = 44,  
+		                softButtonID = 44,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		            }
-		        })                  
-		        
+		        })
 
-		      EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+		      EXPECT_HMICALL("Navigation.AlertManeuver",
 		        {
 		          appID = self.applications[applicationName],
-		          softButtons =     
+		          softButtons =
 		            {
 		              {
 		                type = "BOTH",
 		                text = "Close",
-		                --TODO: Update test after APPLINK-16052 will be fixed
-
-
-		                -- image = 
-		                --   {
-		                --     value = "icon.png",
-		                --     imageType = "STATIC"
-
-		                --   },
-
+		                image =
+		                  {
+		                    value = "icon.png",
+		                    imageType = "STATIC"
+		                  },
 		                isHighlighted = true,
-		                softButtonID = 44,  
+		                softButtonID = 44,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		            }
@@ -10012,12 +9492,12 @@ end
 		        end)
 
 
-		      EXPECT_HMICALL("TTS.Speak", 
-		        { 
+		      EXPECT_HMICALL("TTS.Speak",
+		        {
 		          speakType = "ALERT_MANEUVER",
-		          ttsChunks = 
-		            { 
-		              { 
+		          ttsChunks =
+		            {
+		              {
 		                text = "Alert",
 		                type = "TEXT"
 		              },
@@ -10026,36 +9506,36 @@ end
 		        :Do(function(_,data)
 		          self.hmiConnection:SendResponse(data.id, "TTS.Speak", "SUCCESS", { })
 		        end)
-		                 
+
 		      self.mobileSession:ExpectResponse(CorIdAlertManeuverSTATICTTSChunksVD, { success = true, resultCode = "UNSUPPORTED_RESOURCE"})
 
 		    end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different speechCapabilities - TEXT 
+  		-- Description: Different speechCapabilities - TEXT
 		    function Test:Case_AlertManeuverTEXTTest()
 		      local CorIdAlertManeuverTEXTVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {ttsChunks = {
 		                          {
-		                          text = "Alert", 
+		                          text = "Alert",
 		                          type = "TEXT",
-		                          },  
-		                        }, 
+		                          },
+		                        },
 		              })
-		                        
-		       
+
+
 		      EXPECT_HMICALL("Navigation.AlertManeuver", {appID = self.applications[applicationName]})
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "Navigation.AlertManeuver","SUCCESS", {})
 		      end)
 
-		      EXPECT_HMICALL("TTS.Speak", 
-		                { 
+		      EXPECT_HMICALL("TTS.Speak",
+		                {
 		                  speakType = "ALERT_MANEUVER",
-		                  ttsChunks = 
-		                    { 
-		                      { 
+		                  ttsChunks =
+		                    {
+		                      {
 		                       text = "Alert",
 		                       type = "TEXT"
 		                      },
@@ -10064,37 +9544,37 @@ end
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "TTS.Speak", "SUCCESS", { })
 		      end)
-		                   
+
 		      self.mobileSession:ExpectResponse(CorIdAlertManeuverTEXTVD, { success = true, resultCode = "SUCCESS"})
 
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different speechCapabilities - PRE_RECORDED 
+  		-- Description: Different speechCapabilities - PRE_RECORDED
 		    function Test:Case_AlertManeuverPreRecordedTest()
 		      local CorIdAlertManeuverPreRecordedVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {ttsChunks = {
 		                          {
-		                          text = "Alert", 
+		                          text = "Alert",
 		                          type = "PRE_RECORDED",
-		                          },  
-		                        }, 
+		                          },
+		                        },
 		              })
-		                         
+
 		      EXPECT_HMICALL("Navigation.AlertManeuver", {appID = self.applications[applicationName]})
 
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "Navigation.AlertManeuver","SUCCESS", {})
 		      end)
 
-		      EXPECT_HMICALL("TTS.Speak", 
-		                        { 
+		      EXPECT_HMICALL("TTS.Speak",
+		                        {
 		                          speakType = "ALERT_MANEUVER",
-		                          ttsChunks = 
-		                            { 
-		                              
-		                              { 
+		                          ttsChunks =
+		                            {
+
+		                              {
 		                                text = "Alert",
 		                                type = "PRE_RECORDED"
 		                              },
@@ -10103,38 +9583,38 @@ end
 		        :Do(function(_,data)
 		          self.hmiConnection:SendError(data.id, "TTS.Speak", "UNSUPPORTED_RESOURCE", "Error Message")
 		        end)
-		                   
-		     
+
+
 		      self.mobileSession:ExpectResponse(CorIdAlertManeuverPreRecordedVD, { success = true, resultCode = "WARNINGS", info = "Error Message"})
 
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different speechCapabilities - SAPI_PHONEMES 
+  		-- Description: Different speechCapabilities - SAPI_PHONEMES
 		    function Test:Case_AlertManeuverSAPIPhonemsTest()
 		      local CorIdAlertManeuverSAPIPhonemsVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {ttsChunks = {
 		                          {
-		                          text = "Alert", 
+		                          text = "Alert",
 		                          type = "SAPI_PHONEMES",
-		                          },  
-		                        }, 
+		                          },
+		                        },
 		              })
-		                        
-		       
+
+
 		      EXPECT_HMICALL("Navigation.AlertManeuver", { appID = self.applications[applicationName]})
 		        :Do(function(_,data)
 		          self.hmiConnection:SendResponse(data.id, "Navigation.AlertManeuver","SUCCESS", {})
 		        end)
 
-		       EXPECT_HMICALL("TTS.Speak", 
-		                        { 
+		       EXPECT_HMICALL("TTS.Speak",
+		                        {
 		                          speakType = "ALERT_MANEUVER",
-		                          ttsChunks = 
-		                            { 
-		                              
-		                              { 
+		                          ttsChunks =
+		                            {
+
+		                              {
 		                                text = "Alert",
 		                                type = "SAPI_PHONEMES"
 		                              },
@@ -10145,26 +9625,26 @@ end
 		                    self.hmiConnection:SendError(data.id, "TTS.Speak", "UNSUPPORTED_RESOURCE", "Error in speechCapabilities")
 
 		                  end)
-		                   
-		     
+
+
 		        self.mobileSession:ExpectResponse(CorIdAlertManeuverSAPIPhonemsVD, { success = true, resultCode = "WARNINGS", info = "Error in speechCapabilities"})
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different speechCapabilities - LHPLUS_PHONEMES 
+  		-- Description: Different speechCapabilities - LHPLUS_PHONEMES
 		    function Test:Case_AlertManeuverLHPLUSPhonemsTest()
 		      local CorIdAlertManeuverLHPLUSPhonemsVD= self.mobileSession:SendRPC("AlertManeuver",
 		          {ttsChunks = {
 		                          {
-		                          text = "Alert", 
+		                          text = "Alert",
 		                          type = "LHPLUS_PHONEMES",
-		                          },  
-		                        }, 
+		                          },
+		                        },
 		              })
-		                        
-		       
-		      EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+
+		      EXPECT_HMICALL("Navigation.AlertManeuver",
 		          {
 		          appID = self.applications[applicationName]
 		              })
@@ -10174,13 +9654,13 @@ end
 
 		      end)
 
-		       EXPECT_HMICALL("TTS.Speak", 
-		                        { 
+		       EXPECT_HMICALL("TTS.Speak",
+		                        {
 		                          speakType = "ALERT_MANEUVER",
-		                          ttsChunks = 
-		                            { 
-		                              
-		                              { 
+		                          ttsChunks =
+		                            {
+
+		                              {
 		                                text = "Alert",
 		                                type = "LHPLUS_PHONEMES"
 		                              },
@@ -10191,27 +9671,27 @@ end
 		                    self.hmiConnection:SendError(data.id, "TTS.Speak", "UNSUPPORTED_RESOURCE", "Error in speechCapabilities")
 
 		                  end)
-		                   
-		     
+
+
 		        self.mobileSession:ExpectResponse(CorIdAlertManeuverLHPLUSPhonemsVD, { success = true, resultCode = "WARNINGS", info = "Error in speechCapabilities"})
 
 		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different speechCapabilities - SILENCE 
+  		-- Description: Different speechCapabilities - SILENCE
 		    function Test:Case_AlertManeuverSilenceTest()
 		      local CorIdAlertManeuverSilenceVD = self.mobileSession:SendRPC("AlertManeuver",
 		          {ttsChunks = {
 		                          {
-		                          text = "Alert", 
+		                          text = "Alert",
 		                          type = "SILENCE",
-		                          },  
-		                        }, 
+		                          },
+		                        },
 		              })
-		                        
-		       
-		      EXPECT_HMICALL("Navigation.AlertManeuver", 
+
+
+		      EXPECT_HMICALL("Navigation.AlertManeuver",
 		          {
 		          appID = self.applications[applicationName]
 		              })
@@ -10221,13 +9701,13 @@ end
 
 		      end)
 
-		       EXPECT_HMICALL("TTS.Speak", 
-		                        { 
+		       EXPECT_HMICALL("TTS.Speak",
+		                        {
 		                          speakType = "ALERT_MANEUVER",
-		                          ttsChunks = 
-		                            { 
-		                              
-		                              { 
+		                          ttsChunks =
+		                            {
+
+		                              {
 		                                text = "Alert",
 		                                type = "SILENCE"
 		                              },
@@ -10238,8 +9718,8 @@ end
 		                    self.hmiConnection:SendError(data.id, "TTS.Speak", "UNSUPPORTED_RESOURCE", "Error in speechCapabilities")
 
 		                  end)
-		                   
-		     
+
+
 		        self.mobileSession:ExpectResponse(CorIdAlertManeuverSilenceVD, { success = true, resultCode = "WARNINGS", info = "Error in speechCapabilities"})
 
 		    end
@@ -10252,12 +9732,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXVII. UPDATETURNLIST TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXVII. UPDATETURNLIST TEST BLOCK *****************************")
-	end
+  testBlock("UPDATETURNLIST")
 
 	--Begin Test suit UpdateTurnList
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with only mandatory parameters
@@ -10268,73 +9746,69 @@ end
 		--List of parameters in the request:
 			-- 1. turnList : type="Turn" minsize="1" maxsize="100" array="true" mandatory="false"
 			-- 2. softButtons : type="SoftButton" minsize="0" maxsize="1" array="true" mandatory="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286821891
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All parameters 
+		-- Description: All parameters
 			function Test:Case_UpdateTurnListAllParamsTest()
 			    local CorIdUpdateTurnListAllParamsVD = self.mobileSession:SendRPC("UpdateTurnList",
 			    {
 
 			        turnList = {
-			            { 
+			            {
 			              navigationText ="Text",
-			              turnIcon =  
-			                      { 
+			              turnIcon =
+			                      {
 			                      value ="icon.png",
 			                      imageType ="DYNAMIC",
-			                      }, 
+			                      },
 			            }
 			        },
-			        softButtons =  {  
+			        softButtons =  {
 			                  {
 			                    type = "BOTH",
 			                    text = "Close",
-			                    image = 
+			                    image =
 			                      {
 			                        value = "icon.png",
 			                        imageType = "DYNAMIC"
 			                      },
 
 			                    isHighlighted = true,
-			                    softButtonID = 111,  
+			                    softButtonID = 111,
 			                    systemAction = "DEFAULT_ACTION"
 			                  }
 			        }
 			       })
 
-			     EXPECT_HMICALL("Navigation.UpdateTurnList", 
+			     EXPECT_HMICALL("Navigation.UpdateTurnList",
 			      {
-			        --TODO: Update test after APPLINK-16052 will be fixed
-			        --[==[turnList ={
-			           {                   
+			        turnList = {
+			           {
 			              navigationText = {fieldName = "navigationText", fieldText = "Text"},
-			              
+
 			              turnIcon = {
-			                         value = PathToAppFolder .."icon.png", 
+			                         value = pathToAppFolder .."icon.png",
 			                         imageType = "DYNAMIC"
-			                          }, 
+			                          },
 			            }
-			        },--]==]
-			        softButtons =     
+			        },
+			        softButtons =
 			        {
 			          {
 			            type = "BOTH",
 			            text = "Close",
-			            --TODO: Update test after APPLINK-16052 will be fixed
-			            -- image = 
-			            --   {
-
-			            --     value = PathToAppFolder .. "icon.png",
-			            --     imageType = "DYNAMIC"
-			            --   },
-
+			            image =
+			              {
+			                value = pathToAppFolder .. "icon.png",
+			                imageType = "DYNAMIC"
+			              },
 			            isHighlighted = true,
-			            softButtonID = 111,  
+			            softButtonID = 111,
 			            systemAction = "DEFAULT_ACTION"
 			          }
 			        },
@@ -10360,20 +9834,20 @@ end
 			          return true
 			        end
 			      end)
-			    
+
 			    --mobile side: expect UpdateTurnList response
 			    EXPECT_RESPONSE(CorIdUpdateTurnListAllParamsVD, { success = true, resultCode = "SUCCESS" })
 		  	end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Mandatory only - Without navigationText 
+  		-- Description: Mandatory only - Without navigationText
 		    function Test:Case_UTLTextMissedTest()
 		      local CorIdUTLTextMissedVD= self.mobileSession:SendRPC("UpdateTurnList",
 		      {
 		        turnList = {
 		          {
-		             turnIcon = 
+		             turnIcon =
 		                 {
 		                  value = "icon.png",
 		                  imageType = "DYNAMIC"
@@ -10386,7 +9860,7 @@ end
 		            }
 		          }
 		        },
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
@@ -10396,47 +9870,44 @@ end
 		                                 imageType = "DYNAMIC"
 		                        },
 		                isHighlighted = true,
-		                softButtonID = 111,  
+		                softButtonID = 111,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		              }
 		              })
 
 
-		      EXPECT_HMICALL("Navigation.UpdateTurnList", 
+		      EXPECT_HMICALL("Navigation.UpdateTurnList",
 		        {
-		      --TODO: Update test after APPLINK-16052 will be fixed
-		      --[==[turnList = 
+		      turnList =
 		        {
-		           { 
-		              turnIcon = 
+		           {
+		              turnIcon =
 		                         {
-		                           value = PathToAppFolder .."icon.png", 
+		                           value = pathToAppFolder .."icon.png",
 		                           imageType = "DYNAMIC"
 		                         },
 		            },
-		          
+
 		           {
 		              turnIcon = {
-		                           value = PathToAppFolder .."icon.png", 
+		                           value = pathToAppFolder .."icon.png",
 		                           imageType = "DYNAMIC"
 		                         },
 		          },
-		        },--]==]
-		        
-		        softButtons = 
+		        },
+		        softButtons =
 		        {
 		          {
 		              type = "BOTH",
 		              text = "Close",
-		              --TODO: Update test after APPLINK-16052 will be fixed
-		              -- image = 
-		              --   {
-		              --     value = PathToAppFolder .."icon.png",
-		              --     imageType = "DYNAMIC"
-		              --   },
+		              image =
+		                {
+		                  value = pathToAppFolder .."icon.png",
+		                  imageType = "DYNAMIC"
+		                },
 		              isHighlighted = true,
-		              softButtonID = 111,  
+		              softButtonID = 111,
 		              systemAction = "DEFAULT_ACTION"
 		          },
 		        },
@@ -10452,19 +9923,19 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-	  	-- Description: Mandatory only - Without turnIcon 
+	  	-- Description: Mandatory only - Without turnIcon
 		    function Test:Case_UTLturnIconMissedTest()
 		      local CorIdUTLturnIconMissedVD= self.mobileSession:SendRPC("UpdateTurnList",
 		      {
 		        turnList = {
 		          {
-		            navigationText = "Text"        
+		            navigationText = "Text"
 		          },
 		          {
-		            navigationText = "Text2"       
+		            navigationText = "Text2"
 		          }
 		        },
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
@@ -10474,35 +9945,33 @@ end
 		                                 imageType = "DYNAMIC"
 		                        },
 		                isHighlighted = true,
-		                softButtonID = 111,  
+		                softButtonID = 111,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		              }
 		              })
 
 
-		      EXPECT_HMICALL("Navigation.UpdateTurnList", 
+		      EXPECT_HMICALL("Navigation.UpdateTurnList",
 		        {
-		        --TODO: Update test after APPLINK-16052 will be fixed
-		        --turnList = 
-		        --{
-		        --      {fieldName = "navigationText", fieldText = "Text"},          
-		        --      {fieldName = "navigationText", fieldText = "Text2"},
-		        --},
-		        
-		        softButtons = 
+		        turnList =
+		        {
+		             { navigationText = {fieldName = "navigationText", fieldText = "Text"} },
+		             { navigationText = {fieldName = "navigationText", fieldText = "Text2"} }
+		        },
+
+		        softButtons =
 		        {
 		          {
 		              type = "BOTH",
 		              text = "Close",
-		              --TODO: Update test after APPLINK-16052 will be fixed
-		              -- image = 
-		              --   {
-		              --     value = "icon.png",
-		              --     imageType = "DYNAMIC"
-		              --   },
+		              image =
+		                {
+		                  value = pathToAppFolder .. "icon.png",
+		                  imageType = "DYNAMIC"
+		                },
 		              isHighlighted = true,
-		              softButtonID = 111,  
+		              softButtonID = 111,
 		              systemAction = "DEFAULT_ACTION"
 		          },
 		        },
@@ -10518,11 +9987,11 @@ end
 
   	---------------------------------------------------------------------------------------------
 
- 		-- Description: Mandatory only - Without turnList 
+ 		-- Description: Mandatory only - Without turnList
 		    function Test:Case_UTLturnListMissedTest()
 		      local CorIdUTLturnListMissedVD= self.mobileSession:SendRPC("UpdateTurnList",
 		      {
-		           softButtons = 
+		           softButtons =
 		            {
 		              {
 		                type = "BOTH",
@@ -10532,28 +10001,27 @@ end
 		                                 imageType = "DYNAMIC"
 		                        },
 		                isHighlighted = true,
-		                softButtonID = 111,  
+		                softButtonID = 111,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		              }
 		              })
 
-		      EXPECT_HMICALL("Navigation.UpdateTurnList", 
+		      EXPECT_HMICALL("Navigation.UpdateTurnList",
 		        {
-		        
-		        softButtons = 
+
+		        softButtons =
 		        {
 		          {
 		              type = "BOTH",
 		              text = "Close",
-		              --TODO: Update test after APPLINK-16052 will be fixed
-		              -- image = 
-		              --   {
-		              --     value = "icon.png",
-		              --     imageType = "DYNAMIC"
-		              --   },
+		              image =
+		                {
+		                  value = pathToAppFolder .. "icon.png",
+		                  imageType = "DYNAMIC"
+		                },
 		              isHighlighted = true,
-		              softButtonID = 111,  
+		              softButtonID = 111,
 		              systemAction = "DEFAULT_ACTION"
 		          },
 		        },
@@ -10566,11 +10034,11 @@ end
 
 		      self.mobileSession:ExpectResponse(CorIdUTLturnListMissedVD, { success = true, resultCode = "UNSUPPORTED_RESOURCE"})
 
-		    end 
+		    end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Mandatory only - Without softButtons 
+  		-- Description: Mandatory only - Without softButtons
 		    function Test:Case_UTLsoftButtonsMissedTest()
 		      local CorIdUTLsoftButtonsMissedVD= self.mobileSession:SendRPC("UpdateTurnList",
 		      {
@@ -10593,26 +10061,26 @@ end
 		      })
 
 
-		      EXPECT_HMICALL("Navigation.UpdateTurnList", 
+		      EXPECT_HMICALL("Navigation.UpdateTurnList",
 		        {
-		        --TODO: Update test after APPLINK-16052 will be fixed
-		        --turnList = 
-		        --{
-		        --   { 
-		        --      {fieldName = "navigationText", fieldText = "Text"},
-		        --      turnIcon = 
-		        --                 {
-		        --                   value = PathToAppFolder .."icon.png", 
-		        --                   imageType = "DYNAMIC"
-		        --                 },
-		        --    },
-		       
-		        --      {fieldName = "navigationText", fieldText = "Text2"},
-		        --      turnIcon = {
-		        --                   value = PathToAppFolder .."icon.png", 
-		        --                   imageType = "DYNAMIC"
-		        --                 },
-		                  
+		        turnList =
+		        {
+		          {
+		             navigationText = {fieldName = "navigationText", fieldText = "Text"},
+		             turnIcon =
+		                        {
+		                          value = pathToAppFolder .."icon.png",
+		                          imageType = "DYNAMIC"
+		                        }
+		           },
+		           {
+		             navigationText = {fieldName = "navigationText", fieldText = "Text2"},
+		             turnIcon = {
+		                          value = pathToAppFolder .."icon.png",
+		                          imageType = "DYNAMIC"
+		                        }
+		         		}
+		         },
 		        appID = self.applications[applicationName]
 		      })
 
@@ -10629,17 +10097,17 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory 
+  		-- Description: Missing mandatory
 		  function Test:Case_UpdateTurnListMissingMandatoryTest()
 		    local CorIdUpdateTurnListMissingMandatoryVD= self.mobileSession:SendRPC("UpdateTurnList", {})
-		        
-		                    
+
+
 		      self.mobileSession:ExpectResponse(CorIdUpdateTurnListMissingMandatoryVD, { success = false, resultCode = "INVALID_DATA"})
 
 		  end
 
 	---------------------------------------------------------------------------------------------
-  		-- Description: Different image types - DYNAMIC 
+  		-- Description: Different image types - DYNAMIC
 		    function Test:Case_UpdateTurnListDYNAMICTest()
 		      local CorIdUpdateTurnListDYNAMICVD= self.mobileSession:SendRPC("UpdateTurnList",
 		      {
@@ -10659,7 +10127,7 @@ end
 		            }
 		          }
 		        },
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
@@ -10669,49 +10137,45 @@ end
 		                                 imageType = "DYNAMIC"
 		                        },
 		                isHighlighted = true,
-		                softButtonID = 111,  
+		                softButtonID = 111,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		              }
 		              })
 
 
-		      EXPECT_HMICALL("Navigation.UpdateTurnList", 
+		      EXPECT_HMICALL("Navigation.UpdateTurnList",
 		        {
-		        --TODO: Update test after APPLINK-16052 will be fixed
-		        --turnList = 
-		        --{
-		        --   { 
-		        --      {fieldName = "navigationText", fieldText = "Text"},
-		        --      turnIcon = 
-		        --                 {
-		        --                   value = PathToAppFolder .."icon.png", 
-		        --                   imageType = "DYNAMIC"
-		        --                 },
-		        --    },
-		        --  
-		        --   {
-		        --      {fieldName = "navigationText", fieldText = "Text2"},
-		        --      turnIcon = {
-		        --                   value = PathToAppFolder .."icon.png", 
-		        --                   imageType = "DYNAMIC"
-		        --                 },
-		        --  },
-		        --},
-		        
-		        softButtons = 
+		        turnList =
+		        {
+		          {
+		             navigationText = {fieldName = "navigationText", fieldText = "Text"},
+		             turnIcon =
+		                        {
+		                          value = pathToAppFolder .."icon.png",
+		                          imageType = "DYNAMIC"
+		                        }
+		           },
+		          {
+		             navigationText = {fieldName = "navigationText", fieldText = "Text2"},
+		             turnIcon = {
+		                          value = pathToAppFolder .."icon.png",
+		                          imageType = "DYNAMIC"
+		                        }
+		         }
+		        },
+		        softButtons =
 		        {
 		          {
 		              type = "BOTH",
 		              text = "Close",
-		              --TODO: Update test after APPLINK-16052 will be fixed
-		              -- image = 
-		              --   {
-		              --     value = "icon.png",
-		              --     imageType = "DYNAMIC"
-		              --   },
+		              image =
+		                {
+		                  value = pathToAppFolder .. "icon.png",
+		                  imageType = "DYNAMIC"
+		                },
 		              isHighlighted = true,
-		              softButtonID = 111,  
+		              softButtonID = 111,
 		              systemAction = "DEFAULT_ACTION"
 		          },
 		        },
@@ -10721,7 +10185,7 @@ end
 		        self.hmiConnection:SendResponse(data.id, "Navigation.UpdateTurnList", "SUCCESS", {})
 		      end)
 		      :ValidIf(function(_,data)
-		        if 
+		        if
 		           data.params.softButtons[1].image.imageType ~= "DYNAMIC" then
 		           print ("Image type value is " .. tostring(data.params.softButtons[1].image.imageType) .. ". Expected to receive DYNAMIC imageType in softButtons")
 		           return false
@@ -10746,7 +10210,7 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different image types - STATIC 
+  		-- Description: Different image types - STATIC
 		    function Test:Case_UpdateTurnListSTATICTest()
 		      local CorIdUpdateTurnListSTATICVD= self.mobileSession:SendRPC("UpdateTurnList",
 		      {
@@ -10766,7 +10230,7 @@ end
 		            }
 		          }
 		        },
-		        softButtons = 
+		        softButtons =
 		            {
 		              {
 		                type = "BOTH",
@@ -10776,46 +10240,43 @@ end
 		                                 imageType = "STATIC"
 		                        },
 		                isHighlighted = true,
-		                softButtonID = 111,  
+		                softButtonID = 111,
 		                systemAction = "DEFAULT_ACTION"
 		              }
 		              }
 		              })
-		      EXPECT_HMICALL("Navigation.UpdateTurnList", 
+		      EXPECT_HMICALL("Navigation.UpdateTurnList",
 		        {
-		            --TODO: Update test after APPLINK-16052 will be fixed
-		            --turnList = 
-		            --{
-		            --   { 
-		            --      {fieldName = "navigationText", fieldText = "Text"},
-		            --      turnIcon = 
-		            --                 {
-		            --                   value = PathToAppFolder .."icon.png", 
-		            --                   imageType = "STATIC"
-		            --                 },
-		            --    },
-		            --  
-		            --   {
-		            --      {fieldName = "navigationText", fieldText = "Text2"},
-		            --      turnIcon = {
-		            --                   value = PathToAppFolder .."icon.png", 
-		            --                   imageType = "STATIC"
-		            --                 },
-		            --  },
-		            --},
-		          softButtons = 
+		            turnList =
+		            {
+		              {
+		                 navigationText = {fieldName = "navigationText", fieldText = "Text"},
+		                 turnIcon =
+		                            {
+		                              value = "icon.png",
+		                              imageType = "STATIC"
+		                            }
+		               },
+		              {
+		                 navigationText = {fieldName = "navigationText", fieldText = "Text2"},
+		                 turnIcon = {
+		                              value = "icon.png",
+		                              imageType = "STATIC"
+		                            }
+		             }
+		            },
+		          softButtons =
 		          {
 		            {
 		                type = "BOTH",
 		                text = "Close",
-		                --TODO: Update test after APPLINK-16052 will be fixed
-		                -- image = 
-		                --   {
-		                --     value = "icon.png",
-		                --     imageType = "DYNAMIC"
-		                --   },
+		                image =
+		                  {
+		                    value = "icon.png",
+		                    imageType = "STATIC"
+		                  },
 		                isHighlighted = true,
-		                softButtonID = 111,  
+		                softButtonID = 111,
 		                systemAction = "DEFAULT_ACTION"
 		            },
 		          },
@@ -10825,8 +10286,8 @@ end
 		          self.hmiConnection:SendResponse(data.id, "Navigation.UpdateTurnList", "SUCCESS", {})
 		        end)
 
-		        :ValidIf(function(exp,data)
-		          if 
+		        :ValidIf(function(_, data)
+		          if
 		             data.params.softButtons[1].image.imageType ~= "STATIC" then
 		             print ("Image type value is " .. tostring(data.params.softButtons[1].image.imageType) .. ". Expected to receive STATIC imageType in softButtons" )
 		             return false
@@ -10841,7 +10302,7 @@ end
 		          else
 		            return true
 		          end
-		        end) 
+		        end)
 
 		      self.mobileSession:ExpectResponse(CorIdUpdateTurnListSTATICVD, { success = true, resultCode = "SUCCESS"})
 
@@ -10855,12 +10316,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXVIII. SENDLOCATION TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXVIII. SENDLOCATION TEST BLOCK *****************************")
-	end
+  testBlock("SENDLOCATION")
 
 	--Begin Test suit SendLocation
-	
+
 	--Description:
 		--request is sent with all parameters
 		--request is sent with only mandatory
@@ -10876,24 +10335,22 @@ end
 			-- 5. addressLines : type="String" maxlength="500" minsize="0" maxsize="4" array="true" mandatory="false"
 			-- 6. phoneNumber : type="String" maxlength="500" mandatory="false"
 			-- 7. locationImage : type="Image" mandatory="false"
-			
-			
-		--Requirement id in Jira 
-				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286824228
 
-		-- TODO: test should be updated after resolving APPLINK-21336
+
+		--Requirement id in Jira
+				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286824228
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: All parameters 
+  		-- Description: All parameters
 		  function Test:Case_SendLocationAllParamsTest()
 		    local CorIdSendLocationAllParamsVD = self.mobileSession:SendRPC("SendLocation",
 		    {
 		      longitudeDegrees = 1.1,
 		      latitudeDegrees = 1.1,
-		      locationName = "location Name", 
+		      locationName = "location Name",
 		      locationDescription = "LocationDescription",
-		      addressLines = 
+		      addressLines =
 		                   {
 		                   "line1",
 		                   "line2"
@@ -10907,14 +10364,14 @@ end
 
 		        })
 
-		    EXPECT_HMICALL("Navigation.SendLocation", 
+		    EXPECT_HMICALL("Navigation.SendLocation",
 		    {
 		      appID = self.applications[applicationName],
 		      longitudeDegrees = 1.1,
 		      latitudeDegrees = 1.1,
-		      locationName = "location Name", 
+		      locationName = "location Name",
 		      locationDescription = "LocationDescription",
-		      addressLines = 
+		      addressLines =
 		                   {
 		                   "line1",
 		                   "line2"
@@ -10922,7 +10379,7 @@ end
 		      phoneNumber = "phone Number",
 		      locationImage =
 		                     {
-		                      value = PathToAppFolder .."icon.png",
+		                      value = pathToAppFolder .."icon.png",
 		                      imageType = "DYNAMIC"
 		                    }
 		    })
@@ -10936,20 +10393,20 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Only mandatory 
+  		-- Description: Only mandatory
 		  function Test:Case_SendLocationOnlyMandatoryTest()
 		    local CorIdSendLocationOnlyMandatoryVD = self.mobileSession:SendRPC("SendLocation",
 		    {
 		      longitudeDegrees = 1.1,
-		      latitudeDegrees = 1.1, 
+		      latitudeDegrees = 1.1,
 		      })
 
-		    EXPECT_HMICALL("Navigation.SendLocation", 
+		    EXPECT_HMICALL("Navigation.SendLocation",
 		    {
 		      appID = self.applications[applicationName],
 		      longitudeDegrees = 1.1,
 		      latitudeDegrees = 1.1,
-		      
+
 		    })
 		    :Do(function(_,data)
 		      self.hmiConnection:SendResponse(data.id, "Navigation.SendLocation", "SUCCESS", {})
@@ -10961,11 +10418,11 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Mandatory missing - longitudeDegrees 
+  		-- Description: Mandatory missing - longitudeDegrees
 		    function Test:Case_SendLocationMissingLongitudeTest()
 		      local CorIdSendLocationMissingLongitudeVD = self.mobileSession:SendRPC("SendLocation",
 		      {
-		        latitudeDegrees = 1.1, 
+		        latitudeDegrees = 1.1,
 		        })
 
 		      self.mobileSession:ExpectResponse(CorIdSendLocationMissingLongitudeVD, { success = false, resultCode = "INVALID_DATA"})
@@ -10974,7 +10431,7 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-    	-- Description: Mandatory missing - latitudeDegrees 
+    	-- Description: Mandatory missing - latitudeDegrees
 		    function Test:Case_SendLocationMissingLatitudeTest()
 		      local CorIdSendLocationMissingLatitudeVD = self.mobileSession:SendRPC("SendLocation",
 		      {
@@ -10987,7 +10444,7 @@ end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Different image types - DYNAMIC 
+  		-- Description: Different image types - DYNAMIC
 		    function Test:Case_SendLocationDYNAMICTest()
 		      local CorIdSendLocationDYNAMICVD = self.mobileSession:SendRPC("SendLocation",
 		      {
@@ -11001,14 +10458,14 @@ end
 
 		          })
 
-		      EXPECT_HMICALL("Navigation.SendLocation", 
+		      EXPECT_HMICALL("Navigation.SendLocation",
 		      {
 		        appID = self.applications[applicationName],
 		        longitudeDegrees = 1.1,
 		        latitudeDegrees = 1.1,
 		        locationImage =
 		                       {
-		                        value = PathToAppFolder .."icon.png",
+		                        value = pathToAppFolder .."icon.png",
 		                        imageType = "DYNAMIC"
 		                      }
 		      })
@@ -11021,8 +10478,8 @@ end
 		    end
 
   	---------------------------------------------------------------------------------------------
-  
-  		-- Description: Different image types - STATIC 
+
+  		-- Description: Different image types - STATIC
 		    function Test:Case_SendLocationSTATICTest()
 		      local CorIdSendLocationSTATICVD = self.mobileSession:SendRPC("SendLocation",
 		      {
@@ -11036,7 +10493,7 @@ end
 
 		          })
 
-		      EXPECT_HMICALL("Navigation.SendLocation", 
+		      EXPECT_HMICALL("Navigation.SendLocation",
 		        {
 		          appID = self.applications[applicationName],
 		          longitudeDegrees = 1.1,
@@ -11063,20 +10520,18 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXIX. GENERICRESPONSE TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXIX. GENERICRESPONSE TEST BLOCK *****************************")
-	end
+  testBlock("GENERICRESPONSE")
 
 	--Begin Test suit GenericResponse
-	
+
 	--Description:
-		--request is sent 
+		--request is sent
 
 		--List of parameters in the request:
 			-- request has no params
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286825654
 
 	---------------------------------------------------------------------------------------------
@@ -11095,12 +10550,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXX. SETAPPICON TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXX. SETAPPICON TEST BLOCK *****************************")
-	end
+  testBlock("SETAPPICON")
 
 	--Begin Test suit SetAppIcon
-	
+
 	--Description:
 		--request is sent with all parameters
 		--request is sent with missing mandatory parameters
@@ -11108,24 +10561,24 @@ end
 
 		--List of parameters in the request:
 			-- 1. syncFileName :type="String" maxlength="255" mandatory="true"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286823578
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All parameters 
+		-- Description: All parameters
 		  function Test:Case_SetAppIconAllParamsTest()
 		    local CorIdSetAppIconAllParamsVD= self.mobileSession:SendRPC("SetAppIcon",
 		    {
 		        syncFileName = "icon.png"
 		     })
 
-		    EXPECT_HMICALL("UI.SetAppIcon", 
+		    EXPECT_HMICALL("UI.SetAppIcon",
 		     {syncFileName =
 		         {
-		           value = PathToAppFolder .."icon.png",
+		           value = pathToAppFolder .."icon.png",
 		           imageType = "DYNAMIC"
 		          },
 		      })
@@ -11135,20 +10588,20 @@ end
 
 		    self.mobileSession:ExpectResponse(CorIdSetAppIconAllParamsVD, { success = true, resultCode = "SUCCESS"})
 		  end
-  
+
 	---------------------------------------------------------------------------------------------
 
- 		-- Description: Missing mandatory 
+ 		-- Description: Missing mandatory
 		  function Test:Case_SetAppIconMissingMandatoryTest()
 		    local CorIdSetAppIconMissingMandatoryVD = self.mobileSession:SendRPC("SetAppIcon", {})
 
-		    
+
 		    self.mobileSession:ExpectResponse(CorIdSetAppIconMissingMandatoryVD, { success = false, resultCode = "INVALID_DATA"})
 		  end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Image does not exist 
+  		-- Description: Image does not exist
 	      function Test:Case_SetAppIconImageNotexistTest()
 		    local CorIdSetAppIconImageNotexistVD= self.mobileSession:SendRPC("SetAppIcon",
 		    {syncFileName = "aaa.png"})
@@ -11164,47 +10617,45 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXI. SETDISPLAYLAYOUT TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXI. SETDISPLAYLAYOUT TEST BLOCK *****************************")
-	end
+  testBlock("SETDISPLAYLAYOUT")
 
 	--Begin Test suit SetDisplayLayout
-	
+
 	--Description:
 		--request is sent with all parameters
 		--request is sent with missing mandatory parameters
 
 		--List of parameters in the request:
 			-- 1. displayLayout : type="String" maxlength="500" mandatory="true"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286825427
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All parameters 
+		-- Description: All parameters
 		  function Test:Case_SetDisplayLayoutAllParamsTest()
 		    local CorIdSetDisplayLayoutAllParamsVD = self.mobileSession:SendRPC("SetDisplayLayout",
 		    {
 		      displayLayout = "ONSCREEN_PRESETS"
 		    })
-		    
-		    
+
+
 		    EXPECT_HMICALL("UI.SetDisplayLayout",
 		    {
-		      displayLayout = "ONSCREEN_PRESETS", 
+		      displayLayout = "ONSCREEN_PRESETS",
 		      appID = self.applications[applicationName]
 		    })
-		   
-		      :Do(function(_,data)     
-		        self.hmiConnection:SendResponse(data.id, "UI.SetDisplayLayout", "SUCCESS", 
+
+		      :Do(function(_,data)
+		        self.hmiConnection:SendResponse(data.id, "UI.SetDisplayLayout", "SUCCESS",
 		          {
-		            displayCapabilities = 
-		  
+		            displayCapabilities =
+
 		             {
 		                         displayType = "GEN2_8_DMA",
-		                         textFields = 
+		                         textFields =
 		                            {
 		                                    {
 		                                     name = "mainField1",
@@ -11213,25 +10664,25 @@ end
 		                                     rows = 1
 		                                    },
 		                          },
-		                         imageFields = 
+		                         imageFields =
 		                                 {
 		                                    {
 		                                    name = "softButtonImage",
-		                                    imageTypeSupported = 
+		                                    imageTypeSupported =
 		                                                    {
 		                                                    "GRAPHIC_BMP",
 		                                                    "GRAPHIC_JPEG",
 		                                                    "GRAPHIC_PNG"
 		                                                  },
-		                                    imageResolution = 
+		                                    imageResolution =
 		                                                   {
 		                                                   resolutionWidth = 64,
 		                                                   resolutionHeight = 64
 		                                                   }
 		                                    },
-		  
+
 		                                  },
-		                         mediaClockFormats = 
+		                         mediaClockFormats =
 		                                   {
 		                                  "CLOCK1",
 		                                  "CLOCK2",
@@ -11241,21 +10692,21 @@ end
 		                                  "CLOCKTEXT3",
 		                                  "CLOCKTEXT4"
 		                                  },
-		                         imageCapabilities = 
+		                         imageCapabilities =
 		                            {
 		                           "DYNAMIC",
 		                           "STATIC"
 		                            },
 		                         graphicSupported = true,
 		                         templatesAvailable = {"ONSCREEN_PRESETS"},
-		                         screenParams = 
+		                         screenParams =
 		                           {
-		                            resolution = 
+		                            resolution =
 		                              {
 		                               resolutionHeight = 480,
 		                               resolutionWidth = 800
 		                              },
-		                          touchEventAvailable = 
+		                          touchEventAvailable =
 		                              {
 		                               doublePressAvailable = false,
 		                               multiTouchAvailable = true,
@@ -11266,7 +10717,7 @@ end
 		             },
 
 
-		            buttonCapabilities = 
+		            buttonCapabilities =
 		             {
 		                          {
 		                         name = "PRESET_0",
@@ -11275,7 +10726,7 @@ end
 		                         upDownAvailable = true
 		                        },
 		             },
-		            softButtonCapabilities = 
+		            softButtonCapabilities =
 		             {
 		                          {
 		                         shortPressAvailable = true,
@@ -11284,46 +10735,44 @@ end
 		                         imageSupported =true,
 		                          },
 		             },
-		            presetBankCapabilities = 
+		            presetBankCapabilities =
 		              {
 		               onScreenPresetsAvailable = true
-		              }            
+		              }
 		          })
-		      end)          
-		        
+		      end)
+
 		    self.mobileSession:ExpectResponse(CorIdSetDisplayLayoutAllParamsVD, { success = true, resultCode = "SUCCESS",
-		        displayCapabilities = 
+		        displayCapabilities =
 		         {
 		           displayType = "GEN2_8_DMA",
-		           --[[ TODO: update after resolving APPLINK-16052
-		           textFields = 
+		           textFields =
 		              {
 		                      {
 		                       name = "mainField1",
 		                       characterSet = "TYPE2SET",
 		                       width = 500,
 		                       rows = 1
-		                      },
+		                      }
 		            },
-		           imageFields = 
+		           imageFields =
 		                   {
 		                      {
 		                      name = "softButtonImage",
-		                      imageTypeSupported = 
+		                      imageTypeSupported =
 		                                      {
 		                                      "GRAPHIC_BMP",
 		                                      "GRAPHIC_JPEG",
 		                                      "GRAPHIC_PNG"
 		                                    },
-		                      imageResolution = 
+		                      imageResolution =
 		                                     {
 		                                     resolutionWidth = 64,
 		                                     resolutionHeight = 64
 		                                     }
-		                      },
-
-		                    },]]
-		           mediaClockFormats = 
+		                      }
+		                    },
+		           mediaClockFormats =
 		                     {
 		                    "CLOCK1",
 		                    "CLOCK2",
@@ -11334,26 +10783,24 @@ end
 		                    "CLOCKTEXT4"
 		                    },
 		           graphicSupported = true,
-		            --[[ TODO: update after resolving APPLINK-16047
-		           templatesAvailable = { "ONSCREEN_PRESETS" },]]
-		            --[[ TODO: update after resolving APPLINK-16052
-		           screenParams = 
+		           templatesAvailable = { "ONSCREEN_PRESETS" },
+		           screenParams =
 		             {
-		              resolution = 
+		              resolution =
 		                {
 		                 resolutionHeight = 480,
 		                 resolutionWidth = 800
 		                },
-		            touchEventAvailable = 
+		            touchEventAvailable =
 		                {
 		                 doublePressAvailable = false,
 		                 multiTouchAvailable = true,
 		                 pressAvailable = true
-		                },
-		              },]]
+		                }
+		              },
 		           numCustomPresetsAvailable = 10,
 		        },
-		        buttonCapabilities = 
+		        buttonCapabilities =
 		         {
 		                    {
 		                     name = "PRESET_0",
@@ -11362,7 +10809,7 @@ end
 		                     upDownAvailable = true
 		                    },
 		         },
-		        softButtonCapabilities = 
+		        softButtonCapabilities =
 		         {
 		                      {
 		                     shortPressAvailable = true,
@@ -11371,16 +10818,16 @@ end
 		                     imageSupported =true,
 		                      },
 		         },
-		        presetBankCapabilities = 
+		        presetBankCapabilities =
 		          {
 		           onScreenPresetsAvailable = true
-		          }       
+		          }
 		      })
 		  end
 
   	---------------------------------------------------------------------------------------------
 
-  		-- Description: Missing mandatory 
+  		-- Description: Missing mandatory
 		  function Test:Case_SetDisplayLayoutMissingMandatoryTest()
 		    local CorIdSetDisplayLayoutMissingMandatoryVD= self.mobileSession:SendRPC("SetDisplayLayout", {})
 		    self.mobileSession:ExpectResponse(CorIdSetDisplayLayoutMissingMandatoryVD, { success = false, resultCode = "INVALID_DATA"})
@@ -11395,12 +10842,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXII. DELETEFILE TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXII. DELETEFILE TEST BLOCK *****************************")
-	end
+  testBlock("DELETEFILE")
 
 	--Begin Test suit DeleteFile
-	
+
 	--Description:
 		--request is sent with all params
 		--request is sent with missing mandatory parameters
@@ -11408,14 +10853,14 @@ end
 
 		--List of parameters in the request:
 			-- 1. syncFileName : type="String" maxlength="255" mandatory="true"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=285573180
 
 	---------------------------------------------------------------------------------------------
 
-	 	-- DeleteFile: Missing mandatory 
+	 	-- DeleteFile: Missing mandatory
 		  function Test:Case_DeleteFileMissingMandatoryTest()
 		    local CorIdDeleteFileMissingMandatoryVD= self.mobileSession:SendRPC("DeleteFile", {})
 
@@ -11425,44 +10870,44 @@ end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- DeleteFile: Wrong file name 
+  		-- DeleteFile: Wrong file name
 		  function Test:Case_DeleteFileWrongFileNameTest()
 		    local CorIdDeleteFileWrongFileNameVD= self.mobileSession:SendRPC("DeleteFile", {syncFileName = "aaa.png"})
-		    self.mobileSession:ExpectResponse(CorIdDeleteFileWrongFileNameVD, { success = false, resultCode = "INVALID_DATA" })
+		    self.mobileSession:ExpectResponse(CorIdDeleteFileWrongFileNameVD, { success = false, resultCode = "REJECTED" })
 		   end
- 
+
   	---------------------------------------------------------------------------------------------
 
-  		-- DeleteFile: All parameters 
+  		-- DeleteFile: All parameters
 		  function Test:Case_DeleteFileTest()
 		     local CorIdDeleteFileAllParamsVD = self.mobileSession:SendRPC("DeleteFile",
 		      {
 		        syncFileName = "icon.png"
 		      })
-		      
+
 		       --hmi side: expect BasicCommunication.OnFileRemoved request
 		      EXPECT_HMINOTIFICATION("BasicCommunication.OnFileRemoved",
 		      {
-		        fileName = PathToAppFolder .. "icon.png",
+		        fileName = pathToAppFolder .. "icon.png",
 		        fileType = "GRAPHIC_PNG",
 		        appID = self.applications[applicationName],
 		      })
-		      
+
 		        --mobile side: expect DeleteFile response
 		      EXPECT_RESPONSE(CorIdDeleteFileAllParamsVD, { success = true, resultCode = "SUCCESS", info = nil })
 		      :ValidIf (function(_,data)
 		        if data.payload.spaceAvailable == nil then
 		          print (" \27[31m spaceAvailable parameter is missed \27[0m ")
 		          return false
-		        else 
-		          if file_check(PathToAppFolder .. "icon.png") == true then 
+		        else
+		          if file_check(pathToAppFolder .. "icon.png") == true then
 		            print(" \27[31m File is not deleted from storage \27[0m ")
 		            return false
-		          else 
+		          else
 		            return true
-		          end       
+		          end
 		        end
-		      end)      
+		      end)
 		  end
 
 	--End Test suit DeleteFile
@@ -11473,12 +10918,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXIII. RESETGLOBALPROPERTIES TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXIII. RESETGLOBALPROPERTIES TEST BLOCK *****************************")
-	end
+  testBlock("RESETGLOBALPROPERTIES")
 
 	--Begin Test suit ResetGlobalProperties
-	
+
 	--Description:
 		--request is sent with all parameters
 		--request is sent with only mandatory parameters
@@ -11486,17 +10929,17 @@ end
 
 		--List of parameters in the request:
 			-- 1. properties : type="GlobalProperty" minsize="1" maxsize="100" array="true"
-			
-		--Requirement id in Jira 
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=283517498
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All mandatory parameters 
+		-- Description: All mandatory parameters
 		    function Test:Case_ResetGlobalPropertiesAllParamsTest()
 
 		    	local sentParam = {
-			        properties = 
+			        properties =
 			        {
 			        "HELPPROMPT",
 			        "TIMEOUTPROMPT",
@@ -11504,41 +10947,22 @@ end
 			        "VRHELPITEMS",
 			        "MENUNAME",
 			        "MENUICON",
+			        "KEYBOARDPROPERTIES"
 			        }
 			      }
 
-			     local UIParam = {
-					-- TODO: should be updated after resolving CRQ APPLINK-15645
-					        menuTitle = "",
-					        vrHelpTitle = applicationName,
-					--TODO: test should be updated after resolving of CRQ APPLINK-19215
-					        vrHelp = nil
+          local UIParam = { vrHelpTitle = applicationName }
 
-					       }
-				 if NavigationType then
-				 	sentParam.sentParam = {
-									        "HELPPROMPT",
-									        "TIMEOUTPROMPT",
-									        "VRHELPTITLE",
-									        "VRHELPITEMS",
-									        "MENUNAME",
-									        "MENUICON",
-									        "KEYBOARDPROPERTIES"
-									        }
-
-					-- TODO: should be updated after resolving APPLINK-14894
 					UIParam.keyboardProperties = {
 									              language = "EN-US",
 									              keyboardLayout = "QWERTY"
 									            }
-				 end
-
 
 			      local CorIdResetGlobalPropertiesAllParamsVD = self.mobileSession:SendRPC("ResetGlobalProperties", sentParam)
 			      --hmi side: expect TTS.SetGlobalProperties request
 			      EXPECT_HMICALL("TTS.SetGlobalProperties",
-			      { 
-			        helpPrompt = 
+			      {
+			        helpPrompt =
 			        {
 			          {
 			            text = textPromtValue[1],
@@ -11549,7 +10973,7 @@ end
 			            type = "TEXT"
 			          }
 			        },
-			        timeoutPrompt = 
+			        timeoutPrompt =
 			        {
 			          {
 			            text = textPromtValue[1],
@@ -11565,12 +10989,12 @@ end
 			        --hmi side: sending TTS.SetGlobalProperties response
 			        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 			      end)
-			    
+
 
 			      --hmi side: expect UI.SetGlobalProperties request
 			      EXPECT_HMICALL("UI.SetGlobalProperties", UIParam)
-			        
-			      
+
+
 			      :Do(function(_,data)
 			        --hmi side: sending UI.SetGlobalProperties response
 			        self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
@@ -11578,18 +11002,18 @@ end
 
 			      --mobile side: expect SetGlobalProperties response
 			      self.mobileSession:ExpectResponse(CorIdResetGlobalPropertiesAllParamsVD, { success = true, resultCode = "SUCCESS"})
-			          
+
 			      EXPECT_NOTIFICATION("OnHashChange")
 
-		     end   
+		     end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Reset helpPrompt 
+  		-- Description: Reset helpPrompt
 		  function Test:CaseResetGlobalPropertiesHELPPROMPTTest()
 		    local CorIdResetGlobalPropertiesHELPPROMPTVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		                        {
-		                          properties = 
+		                          properties =
 		                          {
 		                            "HELPPROMPT"
 		                          }
@@ -11598,9 +11022,7 @@ end
 		    --hmi side: expect TTS.SetGlobalProperties request
 		    EXPECT_HMICALL("TTS.SetGlobalProperties",
 		            {
-		              --TODO: test should be updated after resolving APPLINK-9734 
-		              --[==[
-		              helpPrompt = 
+		              helpPrompt =
 		              {
 		                {
 		                  type = "TEXT",
@@ -11610,27 +11032,27 @@ end
 		                  type = "TEXT",
 		                  text = textPromtValue[2]
 		                }
-		              }--]==]
+		              }
 		            })
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "TTS.SetGlobalProperties", "SUCCESS", {})
 		      end)
 
-		  
+
 		    --mobile side: expect SetGlobalProperties response
 		    EXPECT_RESPONSE(CorIdResetGlobalPropertiesHELPPROMPTVD, { success = true, resultCode = "SUCCESS"})
-		    
+
 		    EXPECT_NOTIFICATION("OnHashChange")
-		    
+
 		  end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Reset timeoutPrompt 
+  		-- Description: Reset timeoutPrompt
 		    function Test:CaseResetGlobalPropertiesTIMEOUTPROMPTTest()
 		      local CorIDResetGlobalPropertiesTIMEOUTPROMPTVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		      {
-		        properties = 
+		        properties =
 		        {
 		          "TIMEOUTPROMPT"
 		        }
@@ -11638,7 +11060,7 @@ end
 		      --hmi side: expect TTS.SetGlobalProperties request
 		      EXPECT_HMICALL("TTS.SetGlobalProperties",
 		      {
-		        timeoutPrompt = 
+		        timeoutPrompt =
 		        {
 		          {
 		            type = "TEXT",
@@ -11653,42 +11075,37 @@ end
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "TTS.SetGlobalProperties", "SUCCESS", {})
 		      end)
-		    
+
 		      --mobile side: expect SetGlobalProperties response
 		      EXPECT_RESPONSE(CorIDResetGlobalPropertiesTIMEOUTPROMPTVD, { success = true, resultCode = "SUCCESS"})
-		     
+
 		      EXPECT_NOTIFICATION("OnHashChange")
 		    end
 
 	---------------------------------------------------------------------------------------------
 
-  		-- Description: Reset vrHelpTitle 
+  		-- Description: Reset vrHelpTitle
 		    function Test:CaseResetGlobalPropertiesVRHELPTITLETest()
 		      local CorIdResetGlobalPropertiesVRHELPTITLEVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		      {
-		        properties = 
+		        properties =
 		        {
 		          "VRHELPTITLE"
 		        }
-		      })          
+		      })
 
 		      --hmi side: expect UI.SetGlobalProperties request
-		      EXPECT_HMICALL("UI.SetGlobalProperties",
-		      {
-		        vrHelpTitle = applicationName,
-		-- TODO: should be updated after resolving question APPLINK-19215
-		        vrHelp = nil          
-		      })
-		      
+		      EXPECT_HMICALL("UI.SetGlobalProperties", { vrHelpTitle = applicationName })
+
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
 		      end)
-		    
+
 		     --mobile side: expect SetGlobalProperties response
 		      EXPECT_RESPONSE(CorIdResetGlobalPropertiesVRHELPTITLEVD, { success = true, resultCode = "SUCCESS"})
 
 
-		      
+
 		      EXPECT_NOTIFICATION("OnHashChange")
 
 		    end
@@ -11699,29 +11116,24 @@ end
 		  function Test:CaseResetGlobalPropertiesVRHELPITEMSTest()
 		      local CorIdResetGlobalPropertiesVRHELPITEMSVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		      {
-		        properties = 
+		        properties =
 		        {
 		          "VRHELPITEMS"
 		        }
-		      })        
-		    
+		      })
+
 
 		      --hmi side: expect UI.SetGlobalProperties request
-		      EXPECT_HMICALL("UI.SetGlobalProperties",
-		      {
-		        vrHelpTitle = applicationName,
-		-- TODO: should be updated after resolving question APPLINK-19215
-		        vrHelp = nil          
-		      })      
+		      EXPECT_HMICALL("UI.SetGlobalProperties", { vrHelpTitle = applicationName })
 
 		      :Do(function(_,data)
 		         self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
 		      end)
-		   
+
 
 		      --mobile side: expect SetGlobalProperties response
 		      EXPECT_RESPONSE(CorIdResetGlobalPropertiesVRHELPITEMSVD, { success = true, resultCode = "SUCCESS"})
-		      
+
 		      EXPECT_NOTIFICATION("OnHashChange")
 
 
@@ -11733,26 +11145,21 @@ end
 		  function Test:CaseResetGlobalPropertiesMENUNAMETest()
 		    local CorIdResetGlobalPropertiesMENUNAMEVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		    {
-		      properties = 
+		      properties =
 
 		      {
 		        "MENUNAME"
 		      }
 		    })
 		    --hmi side: expect UI.SetGlobalProperties request
-		    EXPECT_HMICALL("UI.SetGlobalProperties",
-		    {
-		-- TODO: should be updated after resolving CRQ APPLINK-15645
-		      menuTitle = ""
-		    })      
-		    :Do(function(_,data)
-		      self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
-
-		    end)
+		    EXPECT_HMICALL("UI.SetGlobalProperties", {})
+		    :Do(function(_, data)
+		      	self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
+		    	end)
 
 		    --mobile side: expect SetGlobalProperties response
 		    EXPECT_RESPONSE(CorIdResetGlobalPropertiesMENUNAMEVD, { success = true, resultCode = "SUCCESS"})
-		    
+
 		    EXPECT_NOTIFICATION("OnHashChange")
 
 		  end
@@ -11763,62 +11170,58 @@ end
 		  function Test:CaseResetGlobalPropertiesMENUICONTest()
 		    local CorIdResetGlobalPropertiesMENUICONVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		    {
-		      properties = 
+		      properties =
 
 		      {
 		        "MENUICON"
 		      }
 		    })
-		-- TODO: should be updated after resolving CRQ APPLINK-15645             
 		    --hmi side: expect UI.SetGlobalProperties request
-		    EXPECT_HMICALL("UI.SetGlobalProperties",
-		    {
-		    })      
-		     :Do(function(_,data)
-		      self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
-		    end)
+		    EXPECT_HMICALL("UI.SetGlobalProperties", {})
+		    :Do(function(_,data)
+		      	self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
+		    	end)
 
 		      --mobile side: expect SetGlobalProperties response
 
 		    EXPECT_RESPONSE(CorIdResetGlobalPropertiesMENUICONVD, { success = true, resultCode = "SUCCESS"})
-		    
+
 		    EXPECT_NOTIFICATION("OnHashChange")
 		  end
 
 	---------------------------------------------------------------------------------------------
-		if NavigationType then
+		if Test.appHMITypes["NAVIGATION"] then
 
-		-- Test case is executed only for navi application	
+		-- Test case is executed only for navi application
   		-- Description: Reset KEYBOARDPROPERTIES
 		  function Test:CaseResetGlobalPropKEYBOARDPROPERTIESTest()
 		      local CorIDResetGlobalPropKEYBOARDPROPERTIESVD = self.mobileSession:SendRPC("ResetGlobalProperties",
 		      {
-		        properties = 
+		        properties =
 		        {
 		          "KEYBOARDPROPERTIES"
 		        }
-		      })         
-		   
-		-- TODO: update after resolving APPLINK-14894 
+		      })
+
 		      EXPECT_HMICALL("UI.SetGlobalProperties",
 		      {
-		        keyboardProperties = 
+		        keyboardProperties =
 		        {
 		          keyboardLayout = "QWERTY",
 		          autoCompleteText = "",
 		          language = "EN-US"
 		        }
 		      })
-		      
+
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "UI.SetGlobalProperties", "SUCCESS", {})
 
 
 		      end)
-		    
+
 		      --mobile side: expect SetGlobalProperties response
 		      EXPECT_RESPONSE(CorIDResetGlobalPropKEYBOARDPROPERTIESVD, { success = true, resultCode = "SUCCESS"})
-		      
+
 		      EXPECT_NOTIFICATION("OnHashChange")
 		  end
 		end
@@ -11831,12 +11234,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXIV. DIALNUMBER TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXIV. DIALNUMBER TEST BLOCK *****************************")
-	end
+  testBlock("DIALNUMBER")
 
 	--Begin Test suit DialNumber
-	
+
 	--Description:
 		--request is sent with all parameters
 		--request is sent with all missing parameters
@@ -11844,24 +11245,24 @@ end
 
 		--List of parameters in the request:
 			-- 1. number : type="String" maxlength="40"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=286821481
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: All mandatory parameters 
+		-- Description: All mandatory parameters
 		  function Test:Case_DialNumberAllMandatoryTest()
 		      local CorIdDialNumberAllMandatoryVD = self.mobileSession:SendRPC("DialNumber",
 		      {number = "#3804567654",
 		       })
 
-		      EXPECT_HMICALL("BasicCommunication.DialNumber", 
+		      EXPECT_HMICALL("BasicCommunication.DialNumber",
 		      {
 		       appID = self.applications[applicationName],
 		       number = "#3804567654",
-		        
+
 		      })
 		      :Do(function(_,data)
 		        self.hmiConnection:SendResponse(data.id, "BasicCommunication.DialNumber", "SUCCESS", {})
@@ -11871,19 +11272,19 @@ end
 
 		  end
 
-	---------------------------------------------------------------------------------------------  
+	---------------------------------------------------------------------------------------------
 
-  		-- Description: All missing 
+  		-- Description: All missing
 		  function Test:Case_DialNumberAllMissingTest()
 		    local CorIdDialNumberAllMissingVD= self.mobileSession:SendRPC("DialNumber", {})
 
 
 		    self.mobileSession:ExpectResponse(CorIdDialNumberAllMissingVD, { success = false, resultCode = "INVALID_DATA"})
 		  end
-   
-	---------------------------------------------------------------------------------------------   
 
-  		-- Description: Empty parameter 
+	---------------------------------------------------------------------------------------------
+
+  		-- Description: Empty parameter
 		  function Test:Case_DialNumberEmptyParameterTest()
 		      local CorIdDialNumberEmptyParameterVD= self.mobileSession:SendRPC("DialNumber", {number = ""})
 
@@ -11899,43 +11300,41 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXV. UNREGISTERAPPINTERFACE TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXV. UNREGISTERAPPINTERFACE TEST BLOCK *****************************")
-	end
+  testBlock("UNREGISTERAPPINTERFACE")
 
 	--Begin Test suit UnregisterAppInterface
-	
+
 	--Description:
 		--request is sent
 		--request is sent when app is not registered
 
 		--List of parameters in the request:
 			-- request has not params
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=280339145
 
 	---------------------------------------------------------------------------------------------
 
-		-- Description: UnregisterAppInterface: Check 
-		  function Test:Case_UnregisterAppInterfaceTest()  
+		-- Description: UnregisterAppInterface: Check
+		  function Test:Case_UnregisterAppInterfaceTest()
 		      local CorIdUnregisterAppInterfaceVD = self.mobileSession:SendRPC("UnregisterAppInterface", {})
 
 		      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {appID = self.applications[applicationName], unexpectedDisconnect = false})
 
-		      --mobile side: UnregisterAppInterface response 
+		      --mobile side: UnregisterAppInterface response
 		      EXPECT_RESPONSE(CorIdUnregisterAppInterfaceVD, { success = true, resultCode = "SUCCESS"})
 
 		  end
 
 	---------------------------------------------------------------------------------------------
-		-- Description: UnregisterAppInterface: App is not registered 
-		  function Test:Case_URAIAppNotRegisteredTest() 
+		-- Description: UnregisterAppInterface: App is not registered
+		  function Test:Case_URAIAppNotRegisteredTest()
 		        local CorIdURAIAppNotRegisteredVD = self.mobileSession:SendRPC("UnregisterAppInterface", {})
 
-		        --mobile side: UnregisterAppInterface response 
-		        EXPECT_RESPONSE("UnregisterAppInterface", {success = false , resultCode = "APPLICATION_NOT_REGISTERED"})
+		        --mobile side: UnregisterAppInterface response
+		        EXPECT_RESPONSE(CorIdURAIAppNotRegisteredVD, {success = false , resultCode = "APPLICATION_NOT_REGISTERED"})
 
 		  end
 
@@ -11947,31 +11346,29 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXVI. REGISTERAPPINTERFACE TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXVI. REGISTERAPPINTERFACE TEST BLOCK *****************************")
-	end
+  testBlock("REGISTERAPPINTERFACE")
 
 	--Begin Test suit RegisterAppInterface
-	
+
 	--Description:
 		-- Wrong language check
-			
-		--Requirement id in Jira 
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=280334511
 
 	---------------------------------------------------------------------------------------------
-		-- Description: Wrong language 
+		-- Description: Wrong language
 		  function Test:Case_RAIWrongLanguageTest()
 
 		  	  local params = config.application1.registerAppInterfaceParams
 		  	  params.languageDesired = "DE-DE"
 
-		      local CorIdWrongLanguageVD = self.mobileSession:SendRPC("RegisterAppInterface", params) 
+		      local CorIdWrongLanguageVD = self.mobileSession:SendRPC("RegisterAppInterface", params)
 
 		      --hmi side: expected  BasicCommunication.OnAppRegistered
-		      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", 
+		      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
 		                {
-		                    application = 
+		                    application =
 		                    {
 		                      appName = params.appName,
 		                      policyAppID = params.appID,
@@ -11982,7 +11379,7 @@ end
 		        :Do (function (_,data)
 			       self.applications[params.appName] = data.params.application.appID
 			    end)
-		      --mobile side: RegisterAppInterface response 
+		      --mobile side: RegisterAppInterface response
 		      EXPECT_RESPONSE(CorIdWrongLanguageVD, { success = true, resultCode = "WRONG_LANGUAGE"})
 
 		    end
@@ -11995,12 +11392,10 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------XXXVII. CHANGEREGISTRATION TEST BLOCK------------------------------
 ---------------------------------------------------------------------------------------------
-	function Test:NewTestBlock()
-		print("***************************** XXXVII. CHANGEREGISTRATION TEST BLOCK *****************************")
-	end
+  testBlock("CHANGEREGISTRATION")
 
 	--Begin Test suit ChangeRegistration
-	
+
 	--Description:
 		--request is sent with all parameters
 		--request is sent with missing mandatory parameters: language, hmiDisplayLanguage, all
@@ -12008,90 +11403,90 @@ end
 		--List of parameters in the request:
 			-- 1. ecuName : type="Integer" minvalue="0" maxvalue="65535" mandatory="true"
 			-- 2. dtcMask : type="Integer" minvalue="0" maxvalue="255" mandatory="false"
-			
-			
-		--Requirement id in Jira 
+
+
+		--Requirement id in Jira
 				-- https://adc.luxoft.com/confluence/pages/viewpage.action?pageId=285574067
 
 	---------------------------------------------------------------------------------------------
-		-- Description: Missing language 
+		-- Description: Missing language
 		  function Test:Case_ChangeRegistrationMissingLangTest()
 		      local CorIdChangeRegistrationMissingLangVD = self.mobileSession:SendRPC("ChangeRegistration",
 		              {
 		                hmiDisplayLanguage ="EN-US",
-		                
-		              }) 
 
-		      --mobile side: ChangeRegistration response 
+		              })
+
+		      --mobile side: ChangeRegistration response
 		      EXPECT_RESPONSE(CorIdChangeRegistrationMissingLangVD, { success = false, resultCode = "INVALID_DATA"})
 
 		  end
 
-	---------------------------------------------------------------------------------------------  
-  		-- Description: Missing hmiDisplayLanguage 
+	---------------------------------------------------------------------------------------------
+  		-- Description: Missing hmiDisplayLanguage
 		  function Test:Case_ChangeRegistrationMisshmiDisplayLangTest()
 		      local CorIdChangeRegistrationMisshmiDisplayLangVD = self.mobileSession:SendRPC("ChangeRegistration",
 		              {
 		                language ="EN-US",
-		                
-		              }) 
-		      
-		      --mobile side: ChangeRegistration response 
+
+		              })
+
+		      --mobile side: ChangeRegistration response
 		      EXPECT_RESPONSE(CorIdChangeRegistrationMisshmiDisplayLangVD, { success = false, resultCode = "INVALID_DATA"})
 
 		  end
 
-	---------------------------------------------------------------------------------------------  
-  		-- Description: Missing mandatory 
+	---------------------------------------------------------------------------------------------
+  		-- Description: Missing mandatory
 		  function Test:Case_changeRegistrationMissingMandatoryTest()
 		    local CorIdhangeRegistrationMissingMandatoryVD = self.mobileSession:SendRPC("ChangeRegistration", {})
-		  
+
 		    --mobile side: expect ChangeRegistration response
 		    EXPECT_RESPONSE(CorIdhangeRegistrationMissingMandatoryVD, { success = false, resultCode = "INVALID_DATA" })
 
 		  end
 
-	---------------------------------------------------------------------------------------------  
-  		-- Description: All parameters 
+	---------------------------------------------------------------------------------------------
+  		-- Description: All parameters
 		  function Test:Case_changeRegistrationAllParamsTest()
 		    local CorIdhangeRegistrationAllParamsVD = self.mobileSession:SendRPC("ChangeRegistration",
-		     { 
+		     {
 		        language = "EN-US",
 		        hmiDisplayLanguage = "EN-US",
 		        appName = "SyncProxyTester",
 		        ttsName = {
-		              { 
+		              {
 		                  text = "SyncProxyTester",
 		                  type = "TEXT"
-		              }, 
+		              },
 		            },
 		        ngnMediaScreenAppName = "SPT",
-		        vrSynonyms = 
-		              { 
+		        vrSynonyms =
+		              {
 		                "VRSyncProxyTester",
-		              }, 
+		              },
 		      })
 
-		      --hmi side: expect UI.ChangeRegistration 
-		      EXPECT_HMICALL("UI.ChangeRegistration", 
-		        {                 
+		      --hmi side: expect UI.ChangeRegistration
+		      EXPECT_HMICALL("UI.ChangeRegistration",
+		        {
 		          appName = "SyncProxyTester",
 		          language = "EN-US",
 		          ngnMediaScreenAppName = "SPT",
 		          appID = self.applications[applicationName]
-		          
+
 		        })
 
 		        :Do(function(_,data)
 		          self.hmiConnection:SendResponse(data.id, "UI.ChangeRegistration", "SUCCESS",{})
 		        end)
-		      
-		        --hmi side: expect VR.ChangeRegistration 
-		        EXPECT_HMICALL("VR.ChangeRegistration", 
-		        { 
+
+		        --hmi side: expect VR.ChangeRegistration
+		        EXPECT_HMICALL("VR.ChangeRegistration",
+		        {
 		          language = "EN-US",
-		          vrSynonyms = 
-		                  { 
+		          vrSynonyms =
+		                  {
 		                    "VRSyncProxyTester",
 		                  },
 
@@ -12101,23 +11496,23 @@ end
 		        :Do(function(_,data)
 		          self.hmiConnection:SendResponse(data.id, "VR.ChangeRegistration", "SUCCESS",{})
 		        end)
-		      
-		        --hmi side: expect TTS.ChangeRegistration 
-		        EXPECT_HMICALL("TTS.ChangeRegistration", 
-		        { 
+
+		        --hmi side: expect TTS.ChangeRegistration
+		        EXPECT_HMICALL("TTS.ChangeRegistration",
+		        {
 		          language = "EN-US",
 		          ttsName =  {
-		              { 
+		              {
 		                  text = "SyncProxyTester",
 		                  type = "TEXT"
-		              }, 
+		              },
 		            },
 		          appID = self.applications[applicationName]
 		        })
 		        :Do(function(_,data)
 		          self.hmiConnection:SendResponse(data.id, "TTS.ChangeRegistration", "SUCCESS",{})
 		        end)
-		      
+
 		        --mobile side: expect ChangeRegistration response
 		        EXPECT_RESPONSE(CorIdhangeRegistrationAllParamsVD, { success = true, resultCode = "SUCCESS" })
 		  end
@@ -12126,23 +11521,12 @@ end
 ---------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------
 
--- Postcondition: restoring sdl_preloaded_pt file
--- TODO: Remove after implementation policy update
-function Test:Postcondition_restoringPreloadedfile()
-	commonSteps:RestoreFileFromAppMainFolder("sdl_preloaded_pt.json")
-end
+--[[ Postconditions ]]-------------------------------------------------------------------------------------------------
+	function Test.Postcondition_stopSDL()
+	  StopSDL()
+	end
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	function Test.Postcondition_restoringPreloadedfile()
+		commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
+	end
+-----------------------------------------------------------------------------------------------------------------------
