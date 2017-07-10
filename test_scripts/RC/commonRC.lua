@@ -17,6 +17,8 @@ local json = require("modules/json")
 
 --[[ Local Variables ]]
 local ptu_table = {}
+local radioControlCapabilities;
+local climateControlCapabilities;
 
 --[[ Local Functions ]]
 local function insertFunctions()
@@ -29,6 +31,66 @@ local function insertFunctions()
 end
 
 insertFunctions()
+
+local function initRandom()
+  math.randomseed( os.time() )
+  math.random()
+  math.random()
+  math.random()
+end
+
+local function generateRandomValue(base)
+  if type(base) == "table" then
+    if base.values then
+      return base.values[math.random(#base.values)]
+    else
+      return math.random(base.min, base.max)
+    end
+  else
+    return error("Incorrect parameter, table expected")
+  end
+
+end
+
+local function generateRadioControlCapabilities()
+  return {
+      name = "Radio control module",
+      radioEnableAvailable = generateRandomValue({values = {true, false}}),
+      radioBandAvailable = generateRandomValue({values = {true, false}}),
+      radioFrequencyAvailable = generateRandomValue({values = {true, false}}),
+      hdChannelAvailable = generateRandomValue({values = {true, false}}),
+      rdsDataAvailable = generateRandomValue({values = {true, false}}),
+      availableHDsAvailable = generateRandomValue({values = {true, false}}),
+      stateAvailable = generateRandomValue({values = {true, false}}),
+      signalStrengthAvailable = generateRandomValue({values = {true, false}}),
+      signalChangeThresholdAvailable = generateRandomValue({values = {true, false}})
+    }
+end
+
+local function generateClimateControlCapabilities()
+  return {
+      name = "Climate control module",
+      fanSpeedAvailable = generateRandomValue({values = {true, false}}),
+      desiredTemperatureAvailable = generateRandomValue({values = {true, false}}),
+      acEnableAvailable = generateRandomValue({values = {true, false}}),
+      acMaxEnableAvailable = generateRandomValue({values = {true, false}}),
+      circulateAirEnableAvailable = generateRandomValue({values = {true, false}}),
+      autoModeEnableAvailable = generateRandomValue({values = {true, false}}),
+      dualModeEnableAvailable = generateRandomValue({values = {true, false}}),
+      defrostZoneAvailable = generateRandomValue({values = {true, false}}),
+      defrostZone = generateRandomValue({values = {"FRONT", "REAR", "ALL", "NONE"}}),
+      ventilationModeAvailable = generateRandomValue({values = {true, false}}),
+      ventilationMode = generateRandomValue({values = {"UPPER", "LOWER", "BOTH", "NONE"}})
+    }
+end
+
+local function initCommonRC()
+  initRandom()
+  radioControlCapabilities = generateRadioControlCapabilities()
+  climateControlCapabilities = generateClimateControlCapabilities()
+end
+
+initCommonRC()
 
 local function initHMI(self)
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(self, "HMI initialization")
@@ -291,35 +353,11 @@ function commonRC.getRadioControlData()
 end
 
 function commonRC.getClimateControlCapabilities()
-  return {
-      name = "Climate control module",
-      fanSpeedAvailable = true,
-      desiredTemperatureAvailable = true,
-      acEnableAvailable = true,
-      acMaxEnableAvailable = true,
-      circulateAirEnableAvailable = true,
-      autoModeEnableAvailable = true,
-      dualModeEnableAvailable = true,
-      defrostZoneAvailable = true,
-      defrostZone = { "ALL" },
-      ventilationModeAvailable = true,
-      ventilationMode = { "BOTH" }
-    }
+  return climateControlCapabilities
 end
 
 function commonRC.getRadioControlCapabilities()
-  return {
-      name = "Radio control module",
-      radioEnableAvailable = true,
-      radioBandAvailable = true,
-      radioFrequencyAvailable = true,
-      hdChannelAvailable = true,
-      rdsDataAvailable = true,
-      availableHDsAvailable = true,
-      stateAvailable = true,
-      signalStrengthAvailable = true,
-      signalChangeThresholdAvailable = true
-    }
+  return radioControlCapabilities
 end
 
 function commonRC.getInteriorVehicleDataCapabilities(module_types)
