@@ -11,3 +11,8 @@
 ./test_scripts/RC/GetInteriorVehicleDataCapabilities/011.lua
 ./test_scripts/RC/GetInteriorVehicleDataCapabilities/012.lua
 ./test_scripts/RC/GetInteriorVehicleDataCapabilities/013.lua
+./test_scripts/RC/GetInteriorVehicleDataCapabilities/014.lua
+./test_scripts/RC/GetInteriorVehicleDataCapabilities/015.lua
+./test_scripts/RC/GetInteriorVehicleDataCapabilities/016.lua
+./test_scripts/RC/GetInteriorVehicleDataCapabilities/017.lua
+./test_scripts/RC/GetInteriorVehicleDataCapabilities/018.lua
