@@ -10,6 +10,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 config.application2.registerAppInterfaceParams.appHMIType = nil
 
 --[[ Required Shared libraries ]]
+local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local mobile_session = require("mobile_session")
@@ -18,7 +19,10 @@ local json = require("modules/json")
 --[[ Local Variables ]]
 local ptu_table = {}
 local radioControlCapabilities;
-local climateControlCapabilities;
+local climateControlCapabilities
+
+local backupedFiles = {}
+local createdFiles = {}
 
 --[[ Local Functions ]]
 local function insertFunctions()
@@ -234,6 +238,41 @@ function commonRC.preconditions()
   commonSteps:DeleteLogsFiles()
 end
 
+function commonRC.prepareInteriorVehicleDataCapabilitiesJson(IVDCapabilitiesTable, IVDCapabilitiesFileName)
+  -- Validation check
+  if not IVDCapabilitiesTable.interiorVehicleDataCapabilities then IVDCapabilitiesTable = nil end
+  if not IVDCapabilitiesFileName or type(IVDCapabilitiesFileName) ~= "string" then IVDCapabilitiesFileName = "IVDCapabilities.json" end
+
+  commonPreconditions:BackupFile("smartDeviceLink.ini")
+  table.insert(backupedFiles, "smartDeviceLink.ini")
+  local isBackuped = false
+  local sdlPath = commonPreconditions:GetPathToSDL()
+  local IVDCapabilitiesFilePath = commonFunctions:pathJoin(sdlPath, "plugins/" .. IVDCapabilitiesFileName)
+  commonFunctions:write_parameter_to_smart_device_link_ini("InteriorVDCapabilitiesFile", "./plugins/" .. IVDCapabilitiesFileName)
+
+  if commonFunctions:File_exists(IVDCapabilitiesFilePath) then
+    commonPreconditions:BackupFile("plugins/" .. IVDCapabilitiesFileName)
+    table.insert(backupedFiles, "plugins/" .. IVDCapabilitiesFileName)
+    isBackuped = true
+  end
+
+  if IVDCapabilitiesTable then
+    tableToJsonFile(IVDCapabilitiesTable, IVDCapabilitiesFilePath)
+    if not isBackuped then
+      table.insert(createdFiles, IVDCapabilitiesFilePath)
+    end
+  end
+end
+
+function commonRC.restoreInteriorVehicleDataCapabilitiesJson()
+  for _,fileName in pairs(backupedFiles) do
+    commonPreconditions:RestoreFile(fileName)
+  end
+  for _,fileName in pairs(createdFiles) do
+    os.execute( " rm -f " .. fileName)
+  end
+end
+
 function commonRC.start(self)
   self:runSDL()
   commonFunctions:waitForSDLStart(self)
@@ -300,6 +339,7 @@ function commonRC.rai_n(id, self)
 end
 
 function commonRC.postconditions()
+  commonRC.restoreInteriorVehicleDataCapabilitiesJson()
   StopSDL()
 end
 

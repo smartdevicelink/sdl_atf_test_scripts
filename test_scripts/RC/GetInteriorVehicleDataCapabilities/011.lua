@@ -7,6 +7,10 @@ local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
+--[[ Local Variables ]]
+local interiorVehicleDataCapabilitiesTable = {
+	interiorVehicleDataCapabilities = commonRC.getInteriorVehicleDataCapabilities({"RADIO", "CLIMATE"})
+}
 --[[ Local Functions ]]
 local function step(module_types, self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleDataCapabilities", {
@@ -23,7 +27,11 @@ local function step(module_types, self)
 			-- 	})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
+	EXPECT_RESPONSE(cid, {
+		success = true,
+		resultCode = "SUCCESS",
+		interiorVehicleDataCapabilities = commonRC.getInteriorVehicleDataCapabilities(module_types)
+	})
 
 	commonTestCases:DelayedExp(11000)
 end
@@ -31,6 +39,7 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
+runner.Step("Prepare InteriorVehicleDataCapabilities.json", commonRC.prepareInteriorVehicleDataCapabilitiesJson, {interiorVehicleDataCapabilitiesTable})
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test")

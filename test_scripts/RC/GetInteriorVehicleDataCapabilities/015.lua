@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: GetInteriorVehicleDataCapabilities
--- Script: 012
+-- Script: 015
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
@@ -8,8 +8,32 @@ local runner = require('user_modules/script_runner')
 
 --[[ Local Variables ]]
 local interiorVehicleDataCapabilitiesTable = {
-	interiorVehicleDataCapabilities = commonRC.getInteriorVehicleDataCapabilities({"RADIO", "CLIMATE"})
+	interiorVehicleDataCapabilities = {
+		climateVehicleCapabilities = {
+			circulateAirEnableAvailable = false,
+      defrostZone = "ALL",
+      defrostZoneAvailable = true,
+      desiredTemperatureAvailable = false,
+      dualModeEnableAvailable = true,
+      fanSpeedAvailable = false,
+      name =  "Climate control module",
+      fake_param = "bad param", -- fake param
+		},
+		radioControlCapabilities = {
+      availableHDsAvailable = false,
+      hdChannelAvailable = true,
+      name = "Radio control module",
+      radioBandAvailable = 128.3, -- wrong type
+      radioEnableAvailable = false,
+      radioFrequencyAvailable = false,
+      rdsDataAvailable = false,
+      signalChangeThresholdAvailable = "true", -- wrong type
+      signalStrengthAvailable = false,
+      stateAvailable = false
+    }
+	}
 }
+
 --[[ Local Functions ]]
 local function step(module_types, self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleDataCapabilities", {
@@ -21,16 +45,10 @@ local function step(module_types, self)
 			moduleTypes = module_types
 		})
 	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-					interiorVehicleDataCapabilities = "fake_value"
-				})
+		self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Read only parameters")
 	end)
 
-	EXPECT_RESPONSE(cid, {
-		success = true,
-		resultCode = "SUCCESS",
-		interiorVehicleDataCapabilities = commonRC.getInteriorVehicleDataCapabilities(module_types)
-	})
+	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 --[[ Scenario ]]

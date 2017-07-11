@@ -1,15 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: GetInteriorVehicleDataCapabilities
--- Script: 012
+-- Script: 014
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
 
---[[ Local Variables ]]
-local interiorVehicleDataCapabilitiesTable = {
-	interiorVehicleDataCapabilities = commonRC.getInteriorVehicleDataCapabilities({"RADIO", "CLIMATE"})
-}
 --[[ Local Functions ]]
 local function step(module_types, self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleDataCapabilities", {
@@ -21,22 +17,16 @@ local function step(module_types, self)
 			moduleTypes = module_types
 		})
 	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-					interiorVehicleDataCapabilities = "fake_value"
-				})
+		self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Read only parameters")
 	end)
 
-	EXPECT_RESPONSE(cid, {
-		success = true,
-		resultCode = "SUCCESS",
-		interiorVehicleDataCapabilities = commonRC.getInteriorVehicleDataCapabilities(module_types)
-	})
+	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Prepare InteriorVehicleDataCapabilities.json", commonRC.prepareInteriorVehicleDataCapabilitiesJson, {interiorVehicleDataCapabilitiesTable})
+runner.Step("Remove InteriorVehicleDataCapabilities.json", commonRC.prepareInteriorVehicleDataCapabilitiesJson)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test")
