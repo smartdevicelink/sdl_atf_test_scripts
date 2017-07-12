@@ -364,7 +364,7 @@ function commonRC.rai_n(id, self)
 end
 
 function commonRC.postconditions()
-  -- commonRC.restoreInteriorVehicleDataCapabilitiesJson()
+  commonRC.restoreInteriorVehicleDataCapabilitiesJson()
   StopSDL()
 end
 
