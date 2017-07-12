@@ -43,55 +43,80 @@ local function initRandom()
   math.random()
 end
 
-local function generateRandomValue(base)
-  if type(base) == "table" then
-    if base.values then
-      return base.values[math.random(#base.values)]
-    else
-      return math.random(base.min, base.max)
-    end
-  else
-    return error("Incorrect parameter, table expected")
-  end
+local function generateRandomValueFromList(list)
+  return list[math.random(#list)]
+end
 
+local function generateRandomValueFromIntInterval(min, max)
+  return math.random(min, max)
+end
+
+local function generateRandomArrayFromList(list, isValUnique, min, max)
+    max = max or min
+    if max < min then
+      min, max = max, min
+    end
+
+    local isVariableLength = true
+    if min == max then isVariableLength = false end
+    local values = {table.unpack(list)}
+
+    local count = min
+    if count > #values and isValUnique and not isVariableLength then
+      return error("Random array with " .. min .. " unique elements can not be generated from current list")
+    end
+
+    if isVariableLength then
+      count = math.random(min, max)
+    end
+
+    local result = {}
+    for _ = 1, count do
+      local randVal = math.random(#values)
+      table.insert(result, values[randVal])
+      if isValUnique then
+        table.remove(values, randVal)
+      end
+    end
+    return result
 end
 
 local function generateRadioControlCapabilities()
   return {
       name = "Radio control module",
-      radioEnableAvailable = generateRandomValue({values = {true, false}}),
-      radioBandAvailable = generateRandomValue({values = {true, false}}),
-      radioFrequencyAvailable = generateRandomValue({values = {true, false}}),
-      hdChannelAvailable = generateRandomValue({values = {true, false}}),
-      rdsDataAvailable = generateRandomValue({values = {true, false}}),
-      availableHDsAvailable = generateRandomValue({values = {true, false}}),
-      stateAvailable = generateRandomValue({values = {true, false}}),
-      signalStrengthAvailable = generateRandomValue({values = {true, false}}),
-      signalChangeThresholdAvailable = generateRandomValue({values = {true, false}})
+      radioEnableAvailable = generateRandomValueFromList({true, false}),
+      radioBandAvailable = generateRandomValueFromList({true, false}),
+      radioFrequencyAvailable = generateRandomValueFromList({true, false}),
+      hdChannelAvailable = generateRandomValueFromList({true, false}),
+      rdsDataAvailable = generateRandomValueFromList({true, false}),
+      availableHDsAvailable = generateRandomValueFromList({true, false}),
+      stateAvailable = generateRandomValueFromList({true, false}),
+      signalStrengthAvailable = generateRandomValueFromList({true, false}),
+      signalChangeThresholdAvailable = generateRandomValueFromList({true, false})
     }
 end
 
 local function generateClimateControlCapabilities()
   return {
       name = "Climate control module",
-      fanSpeedAvailable = generateRandomValue({values = {true, false}}),
-      desiredTemperatureAvailable = generateRandomValue({values = {true, false}}),
-      acEnableAvailable = generateRandomValue({values = {true, false}}),
-      acMaxEnableAvailable = generateRandomValue({values = {true, false}}),
-      circulateAirEnableAvailable = generateRandomValue({values = {true, false}}),
-      autoModeEnableAvailable = generateRandomValue({values = {true, false}}),
-      dualModeEnableAvailable = generateRandomValue({values = {true, false}}),
-      defrostZoneAvailable = generateRandomValue({values = {true, false}}),
-      defrostZone = generateRandomValue({values = {"FRONT", "REAR", "ALL", "NONE"}}),
-      ventilationModeAvailable = generateRandomValue({values = {true, false}}),
-      ventilationMode = generateRandomValue({values = {"UPPER", "LOWER", "BOTH", "NONE"}})
+      fanSpeedAvailable = generateRandomValueFromList({true, false}),
+      desiredTemperatureAvailable = generateRandomValueFromList({true, false}),
+      acEnableAvailable = generateRandomValueFromList({true, false}),
+      acMaxEnableAvailable = generateRandomValueFromList({true, false}),
+      circulateAirEnableAvailable = generateRandomValueFromList({true, false}),
+      autoModeEnableAvailable = generateRandomValueFromList({true, false}),
+      dualModeEnableAvailable = generateRandomValueFromList({true, false}),
+      defrostZoneAvailable = generateRandomValueFromList({true, false}),
+      defrostZone = generateRandomArrayFromList({"FRONT", "REAR", "ALL", "NONE"}, true, 1, 4),
+      ventilationModeAvailable = generateRandomValueFromList({true, false}),
+      ventilationMode = generateRandomArrayFromList({"UPPER", "LOWER", "BOTH", "NONE"}, true, 1, 4)
     }
 end
 
 local function initCommonRC()
   initRandom()
-  radioControlCapabilities = generateRadioControlCapabilities()
-  climateControlCapabilities = generateClimateControlCapabilities()
+  radioControlCapabilities = {generateRadioControlCapabilities()}
+  climateControlCapabilities = {generateClimateControlCapabilities()}
 end
 
 initCommonRC()
@@ -339,7 +364,7 @@ function commonRC.rai_n(id, self)
 end
 
 function commonRC.postconditions()
-  commonRC.restoreInteriorVehicleDataCapabilitiesJson()
+  -- commonRC.restoreInteriorVehicleDataCapabilitiesJson()
   StopSDL()
 end
 
