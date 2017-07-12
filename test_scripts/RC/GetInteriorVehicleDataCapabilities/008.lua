@@ -5,6 +5,7 @@
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
+local json = require('modules/json')
 
 --[[ Local Functions ]]
 local function step(module_types, self)
@@ -30,7 +31,7 @@ local function step(module_types, self)
 end
 
 local function ptu_update_func(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { }
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = json.EMPTY_ARRAY
 end
 
 --[[ Scenario ]]
