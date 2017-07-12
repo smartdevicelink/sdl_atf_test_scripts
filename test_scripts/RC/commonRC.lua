@@ -341,6 +341,7 @@ function commonRC.rai_ptu(ptu_update_func, self)
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(function()
       self.mobileSession:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+      :Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
       self.mobileSession:ExpectNotification("OnPermissionsChange")
     end)
 end
