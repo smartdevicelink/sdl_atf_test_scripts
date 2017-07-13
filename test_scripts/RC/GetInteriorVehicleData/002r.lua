@@ -11,8 +11,7 @@ local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Radio Module"
+			moduleType = "RADIO"
 		},
 		-- subscribe = true
 	})

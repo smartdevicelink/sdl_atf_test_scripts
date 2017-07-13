@@ -10,8 +10,7 @@ local runner = require('user_modules/script_runner')
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = true
 	})
@@ -19,8 +18,7 @@ local function step1(self)
 	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
 		appID = self.applications["Test Application"],
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = true
 	})
@@ -28,7 +26,6 @@ local function step1(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = {
 					moduleType = "CLIMATE",
-					moduleName = "Module Climate",
 					climateControlData = commonRC.getClimateControlData()
 				},
 				isSubscribed = true
@@ -39,7 +36,6 @@ local function step1(self)
 				isSubscribed = true,
 				moduleData = {
 					moduleType = "CLIMATE",
-					moduleName = "Module Climate",
 					climateControlData = commonRC.getClimateControlData()
 				}
 			})
@@ -48,8 +44,7 @@ end
 local function step2(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = true
 	})
@@ -57,8 +52,7 @@ local function step2(self)
 	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
 		appID = self.applications["Test Application"],
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = true
 	})
@@ -67,7 +61,6 @@ local function step2(self)
 				isSubscribed = true,
 				moduleData = {
 					moduleType = "RADIO",
-					moduleName = "Module Radio",
 					radioControlData = commonRC.getRadioControlData()
 				}
 			})
@@ -77,7 +70,6 @@ local function step2(self)
 			isSubscribed = true,
 			moduleData = {
 				moduleType = "RADIO",
-				moduleName = "Module Radio",
 				radioControlData = commonRC.getRadioControlData()
 			}
 		})

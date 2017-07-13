@@ -14,8 +14,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		-- subscribe = true
 	})
@@ -31,8 +30,7 @@ end
 local function step2(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		-- subscribe = true
 	})

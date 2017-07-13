@@ -11,8 +11,7 @@ local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = true
 	})
@@ -20,8 +19,7 @@ local function step1(self)
 	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
 		appID = self.applications["Test Application"],
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = true
 	})
@@ -37,8 +35,7 @@ end
 local function step2(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = true
 	})
@@ -46,8 +43,7 @@ local function step2(self)
 	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
 		appID = self.applications["Test Application"],
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = true
 	})

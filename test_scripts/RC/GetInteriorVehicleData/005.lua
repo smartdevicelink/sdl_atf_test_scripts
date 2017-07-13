@@ -10,8 +10,7 @@ local runner = require('user_modules/script_runner')
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDecription =	{ -- invalid name of parameter
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = true
 	})
@@ -25,8 +24,7 @@ end
 local function step2(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDscription =	{ -- invalid name of parameter
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = true
 	})
@@ -40,8 +38,7 @@ end
 local function step3(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = 17 -- invalid type of parameter
 	})
@@ -55,8 +52,7 @@ end
 local function step4(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = 21 -- invalid type of parameter
 	})
@@ -71,7 +67,6 @@ local function step5(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			-- moduleType = "CLIMATE", --  mandatory parameter absent
-			moduleName = "Module Climate"
 		},
 		subscribe = true
 	})
@@ -86,7 +81,6 @@ local function step6(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			-- moduleType = "RADIO",   --  mandatory parameter absent
-			moduleName = "Module Radio"
 		},
 		subscribe = true
 	})
@@ -101,7 +95,6 @@ local function step7(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			moduleType = "CLIMATE",
-			moduleName = "Module Climate",
 			fakeParam = 7
 		},
 		subscribe = true
@@ -110,8 +103,7 @@ local function step7(self)
 	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
 		appID = self.applications["Test Application"],
 		moduleDescription =	{
-			moduleType = "CLIMATE",
-			moduleName = "Module Climate"
+			moduleType = "CLIMATE"
 		},
 		subscribe = true
 	})
@@ -119,7 +111,6 @@ local function step7(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = {
 					moduleType = "CLIMATE",
-					moduleName = "Module Climate",
 					climateControlData = commonRC.getClimateControlData()
 				},
 				isSubscribed = true
@@ -130,7 +121,6 @@ local function step7(self)
 				isSubscribed = true,
 				moduleData = {
 					moduleType = "CLIMATE",
-					moduleName = "Module Climate",
 					climateControlData = commonRC.getClimateControlData()
 				}
 			})
@@ -140,7 +130,6 @@ local function step8(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			moduleType = "RADIO",
-			moduleName = "Module Radio",
 			fakeParam = 7
 		},
 		subscribe = true
@@ -149,8 +138,7 @@ local function step8(self)
 	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
 		appID = self.applications["Test Application"],
 		moduleDescription =	{
-			moduleType = "RADIO",
-			moduleName = "Module Radio"
+			moduleType = "RADIO"
 		},
 		subscribe = true
 	})
@@ -159,7 +147,6 @@ local function step8(self)
 				isSubscribed = true,
 				moduleData = {
 					moduleType = "RADIO",
-					moduleName = "Module Radio",
 					radioControlData = commonRC.getRadioControlData()
 				}
 			})
@@ -169,7 +156,6 @@ local function step8(self)
 			isSubscribed = true,
 			moduleData = {
 				moduleType = "RADIO",
-				moduleName = "Module Radio",
 				radioControlData = commonRC.getRadioControlData()
 			}
 		})
