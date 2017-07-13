@@ -197,7 +197,19 @@ local function updatePTU(tbl)
       rpcs = {
         GetInteriorVehicleDataCapabilities = {
           hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-        }
+        },
+        GetInteriorVehicleData = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+        },
+        SetInteriorVehicleData = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+        },
+        ButtonPress = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+        },
+        OnInteriorVehicleData = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+        },
       }
     }
 end

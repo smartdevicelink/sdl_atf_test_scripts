@@ -15,9 +15,9 @@ local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			moduleType = "CLIMATE",
-			moduleZone = commonRC.getInteriorZone()
+			moduleName = "Module Climate"
 		},
-		subscribe = true
+		-- subscribe = true
 	})
 
 	EXPECT_HMICALL("RC.GetInteriorVehicleData")
@@ -32,9 +32,9 @@ local function step2(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			moduleType = "RADIO",
-			moduleZone = commonRC.getInteriorZone()
+			moduleName = "Module Radio"
 		},
-		subscribe = true
+		-- subscribe = true
 	})
 
 	EXPECT_HMICALL("RC.GetInteriorVehicleData")
