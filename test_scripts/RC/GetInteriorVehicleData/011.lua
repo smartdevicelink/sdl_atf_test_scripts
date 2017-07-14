@@ -7,14 +7,15 @@ local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
 
 --[[ Local Functions ]]
-local function getModuleControlData(moduleType)
+local function getModuleData(moduleType)
 	if moduleType == "CLIMATE" then
-		return commonRC.getClimateControlData()
+		return {moduleType = moduleType, climateControlData = commonRC.getClimateControlData()}
 	end
-		return commonRC.getRadioControlData()
+	return {moduleType = moduleType, radioControlData = commonRC.getRadioControlData()}
 end
 
 local function subscribeToModule(pModuleType, self)
+
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 		moduleDescription =	{
 			moduleType = pModuleType
@@ -31,19 +32,13 @@ local function subscribeToModule(pModuleType, self)
 	})
   :Do(function(_, data)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-				moduleData = {
-					moduleType = pModuleType,
-					climateControlData = getModuleControlData(pModuleType)
-				},
+				moduleData = getModuleData(pModuleType),
 				isSubscribed = true
 			})
 	end)
 
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
- 				moduleData = {
-					moduleType = pModuleType,
-					climateControlData = getModuleControlData(pModuleType)
-				},
+ 				moduleData = getModuleData(pModuleType),
 				isSubscribed = true
 			})
 end
@@ -65,20 +60,14 @@ local function step(pModuleType, isSubscriptionActive, pSubscribe, self)
 	})
   :Do(function(_, data)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-				moduleData = {
-					moduleType = pModuleType,
-					climateControlData = getModuleControlData(pModuleType)
-				},
+				moduleData = getModuleData(pModuleType),
 				-- no isSubscribed parameter
 			})
 	end)
 
 	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
 				isSubscribed = isSubscriptionActive, -- return current value of subscription
- 				moduleData = {
-					moduleType = pModuleType,
-					climateControlData = getModuleControlData(pModuleType)
-				}
+ 				moduleData = getModuleData(pModuleType)
 			})
 end
 
