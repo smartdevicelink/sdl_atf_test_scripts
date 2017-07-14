@@ -32,7 +32,7 @@ local function step1(self)
 			})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
 end
 
 local function step2(self)
@@ -60,7 +60,7 @@ local function step2(self)
 			})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
 end
 
 local function step3(self)
@@ -88,7 +88,7 @@ local function step3(self)
 			})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
 end
 
 local function step4(self)
@@ -116,7 +116,7 @@ local function step4(self)
 			})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+	EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
 end
 
 --[[ Scenario ]]
