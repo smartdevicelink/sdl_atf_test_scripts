@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: GetInteriorVehicleData
--- Script: 006
+-- Script: 007
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
@@ -25,7 +25,7 @@ local function step1(self)
   	:Do(function(_, data)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = {
-					moduleType = "CLIMATE"
+					moduleType = "CLIMATE",
 					climateControlData = commonRC.getClimateControlData()
 				},
 				isSubscribed = "yes" -- invalid type of parameter
@@ -54,7 +54,7 @@ local function step2(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				isSubscribed = "yes", -- invalid type of parameter
 				moduleData = {
-					moduleType = "RADIO"
+					moduleType = "RADIO",
 					radioControlData = commonRC.getRadioControlData()
 				}
 			})
