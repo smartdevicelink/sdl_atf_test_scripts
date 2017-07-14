@@ -1,4 +1,7 @@
 ./test_scripts/RC/ButtonPress/001.lua
-./test_scripts/RC/ButtonPress/001b.lua
 ./test_scripts/RC/ButtonPress/002r.lua
 ./test_scripts/RC/ButtonPress/002c.lua
+./test_scripts/RC/ButtonPress/003.lua
+./test_scripts/RC/ButtonPress/004.lua
+./test_scripts/RC/ButtonPress/005.lua
+./test_scripts/RC/ButtonPress/006.lua

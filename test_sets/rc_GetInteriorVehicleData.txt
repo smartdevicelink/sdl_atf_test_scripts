@@ -6,3 +6,8 @@
 ./test_scripts/RC/GetInteriorVehicleData/005.lua
 ./test_scripts/RC/GetInteriorVehicleData/006.lua
 ./test_scripts/RC/GetInteriorVehicleData/007.lua
+./test_scripts/RC/GetInteriorVehicleData/008.lua
+./test_scripts/RC/GetInteriorVehicleData/009.lua
+./test_scripts/RC/GetInteriorVehicleData/010.lua
+./test_scripts/RC/GetInteriorVehicleData/011.lua
+./test_scripts/RC/GetInteriorVehicleData/012.lua

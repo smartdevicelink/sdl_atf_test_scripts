@@ -12,7 +12,6 @@ local function step1(self)
 	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
 			moduleDescription =	{
 				moduleType = "RADIO",
-				moduleZone = commonRC.getInteriorZone()
 			},
 			subscribe = true
 		})
@@ -21,7 +20,6 @@ local function step1(self)
 			appID = self.applications["Test Application"],
 			moduleDescription =	{
 				moduleType = "RADIO",
-				moduleZone = commonRC.getInteriorZone()
 			},
 			subscribe = true
 		})
@@ -30,7 +28,6 @@ local function step1(self)
 					isSubscribed = true,
 					moduleData = {
 						moduleType = "RADIO",
-						moduleZone = commonRC.getInteriorZone(),
 						radioControlData = commonRC.getRadioControlData()
 					}
 				})
@@ -43,7 +40,6 @@ local function step2(self)
  	self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
 			moduleData = {
 	      moduleType = "CLIMATE",
-	      moduleZone = commonRC.getInteriorZone(),
 	      radioControlData = commonRC.getClimateControlData()
 	    }
 	  })
