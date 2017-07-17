@@ -430,6 +430,58 @@ function commonRC.getRadioControlData()
     }
 end
 
+function commonRC.getModuleControlData(module_type)
+  local out = { moduleType = module_type }
+  if module_type == "CLIMATE" then
+    out.climateControlData = commonRC.getClimateControlData()
+  elseif module_type == "RADIO" then
+    out.radioControlData = commonRC.getRadioControlData()
+  end
+  return out
+end
+
+function commonRC.getAnotherModuleControlData(module_type)
+  local out = { moduleType = module_type }
+  local climateControlData = {
+    fanSpeed = 50,
+    currentTemp = 86,
+    desiredTemp = 75,
+    temperatureUnit = "FAHRENHEIT",
+    acEnable = true,
+    circulateAirEnable = true,
+    autoModeEnable = true,
+    defrostZone = "FRONT",
+    dualModeEnable = true
+  }
+  local radioControlData = {
+    frequencyInteger = 1,
+    frequencyFraction = 2,
+    band = "AM",
+    rdsData = {
+        PS = "ps",
+        RT = "rt",
+        CT = "123456789012345678901234",
+        PI = "pi",
+        PTY = 2,
+        TP = false,
+        TA = true,
+        REG = "US"
+      },
+    availableHDs = 1,
+    hdChannel = 1,
+    signalStrength = 5,
+    signalChangeThreshold = 20,
+    radioEnable = true,
+    state = "ACQUIRING"
+  }
+  if module_type == "CLIMATE" then
+    out.climateControlData = climateControlData
+  elseif module_type == "RADIO" then
+    out.radioControlData = radioControlData
+  end
+  return out
+end
+
 function commonRC.getClimateControlCapabilities()
   return climateControlCapabilities
 end
@@ -465,14 +517,6 @@ function commonRC.getMobileSession(self, id)
     return self.mobileSession2
   end
   return self.mobileSession
-end
-
-function commonRC.consent(self)
-  EXPECT_HMICALL("RC.GetInteriorVehicleDataConsent")
-  :Times(1)
-  :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { allowed = true })
-    end)
 end
 
 return commonRC
