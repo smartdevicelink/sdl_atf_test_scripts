@@ -81,8 +81,8 @@ local function step3(self)
   	:Do(function(_, data)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = {
-					moduleType = "CLIMATE"
-					-- climateControlData = commonRC.getClimateControlData() -- missing mandatory parameter
+					-- moduleType = "CLIMATE" -- missing mandatory parameter
+					climateControlData = commonRC.getClimateControlData()
 				},
 				isSubscribed = true
 			})
@@ -110,8 +110,8 @@ local function step4(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				isSubscribed = true,
 				moduleData = {
-					moduleType = "RADIO"
-					-- radioControlData = commonRC.getRadioControlData() -- missing mandatory parameter
+					-- moduleType = "RADIO" -- missing mandatory parameter
+					radioControlData = commonRC.getRadioControlData()
 				}
 			})
 	end)
