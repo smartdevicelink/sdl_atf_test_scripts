@@ -1,7 +1,7 @@
-./test_scripts/RC/ButtonPress/001.lua
-./test_scripts/RC/ButtonPress/002r.lua
-./test_scripts/RC/ButtonPress/002c.lua
-./test_scripts/RC/ButtonPress/003.lua
-./test_scripts/RC/ButtonPress/004.lua
-./test_scripts/RC/ButtonPress/005.lua
-./test_scripts/RC/ButtonPress/006.lua
+./test_scripts/RC/OnInteriorVehicleData/001.lua
+./test_scripts/RC/OnInteriorVehicleData/002r.lua
+./test_scripts/RC/OnInteriorVehicleData/002c.lua
+./test_scripts/RC/OnInteriorVehicleData/003.lua
+./test_scripts/RC/OnInteriorVehicleData/004.lua
+./test_scripts/RC/OnInteriorVehicleData/005.lua
+./test_scripts/RC/OnInteriorVehicleData/006.lua
