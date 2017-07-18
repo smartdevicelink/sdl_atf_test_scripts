@@ -254,53 +254,49 @@ function commonRC.postconditions()
   StopSDL()
 end
 
-function commonRC.getInteriorZone()
-  return {
-      col = 0,
-      row = 0,
-      level = 0,
-      colspan = 2,
-      rowspan = 2,
-      levelspan = 1
-    }
-end
-
 function commonRC.getClimateControlData()
   return {
-      fanSpeed = 50,
-      currentTemp = 30,
-      desiredTemp = 24,
-      temperatureUnit = "CELSIUS",
-      acEnable = true,
-      circulateAirEnable = true,
-      autoModeEnable = true,
-      defrostZone = "FRONT",
-      dualModeEnable = true
-    }
+    fanSpeed = 50,
+    currentTemperature = {
+      unit = "FAHRENHEIT",
+      value = 20.1
+    },
+    desiredTemperature = {
+      unit = "CELSIUS",
+      value = 10.5
+    },
+    acEnable = true,
+    circulateAirEnable = true,
+    autoModeEnable = true,
+    defrostZone = "FRONT",
+    dualModeEnable = true,
+    acMaxEnable = true,
+    ventilationMode = "BOTH"
+  }
 end
 
 function commonRC.getRadioControlData()
   return {
-      frequencyInteger = 1,
-      frequencyFraction = 2,
-      band = "AM",
-      rdsData = {
-          PS = "ps",
-          RT = "rt",
-          CT = "123456789012345678901234",
-          PI = "pi",
-          PTY = 1,
-          TP = false,
-          TA = true,
-          REG = "US"
-        },
-      availableHDs = 1,
-      hdChannel = 1,
-      signalStrength = 5,
-      signalChangeThreshold = 10,
-      radioEnable = true,
-      state = "ACQUIRING"
-    }
+    frequencyInteger = 1,
+    frequencyFraction = 2,
+    band = "AM",
+    rdsData = {
+      PS = "ps",
+      RT = "rt",
+      CT = "123456789012345678901234",
+      PI = "pi",
+      PTY = 1,
+      TP = false,
+      TA = true,
+      REG = "US"
+    },
+    availableHDs = 1,
+    hdChannel = 1,
+    signalStrength = 5,
+    signalChangeThreshold = 10,
+    radioEnable = true,
+    state = "ACQUIRING"
+  }
 end
 
 function commonRC.getModuleControlData(module_type)
@@ -316,30 +312,37 @@ end
 function commonRC.getAnotherModuleControlData(module_type)
   local out = { moduleType = module_type }
   local climateControlData = {
-    fanSpeed = 50,
-    currentTemp = 86,
-    desiredTemp = 75,
-    temperatureUnit = "FAHRENHEIT",
-    acEnable = true,
-    circulateAirEnable = true,
+    fanSpeed = 65,
+    currentTemperature = {
+      unit = "FAHRENHEIT",
+      value = 44.3
+    },
+    desiredTemperature = {
+      unit = "CELSIUS",
+      value = 22.6
+    },
+    acEnable = false,
+    circulateAirEnable = false,
     autoModeEnable = true,
-    defrostZone = "FRONT",
-    dualModeEnable = true
+    defrostZone = "ALL",
+    dualModeEnable = true,
+    acMaxEnable = false,
+    ventilationMode = "UPPER"
   }
   local radioControlData = {
     frequencyInteger = 1,
     frequencyFraction = 2,
     band = "AM",
     rdsData = {
-        PS = "ps",
-        RT = "rt",
-        CT = "123456789012345678901234",
-        PI = "pi",
-        PTY = 2,
-        TP = false,
-        TA = true,
-        REG = "US"
-      },
+      PS = "ps",
+      RT = "rt",
+      CT = "123456789012345678901234",
+      PI = "pi",
+      PTY = 2,
+      TP = false,
+      TA = true,
+      REG = "US"
+    },
     availableHDs = 1,
     hdChannel = 1,
     signalStrength = 5,
