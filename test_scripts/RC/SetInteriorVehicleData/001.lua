@@ -11,7 +11,6 @@ local function step1(self)
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = {
 			moduleType = "CLIMATE",
-			moduleZone = commonRC.getInteriorZone(),
 			climateControlData = commonRC.getClimateControlData()
 		}
 	})
@@ -20,7 +19,6 @@ local function step1(self)
 		appID = self.applications["Test Application"],
 		moduleData = {
 			moduleType = "CLIMATE",
-			moduleZone = commonRC.getInteriorZone(),
 			climateControlData = commonRC.getClimateControlData()
 		}
 	})
@@ -28,7 +26,6 @@ local function step1(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = {
 					moduleType = "CLIMATE",
-					moduleZone = commonRC.getInteriorZone(),
 					climateControlData = commonRC.getClimateControlData()
 				}
 			})
@@ -41,7 +38,6 @@ local function step2(self)
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = {
 			moduleType = "RADIO",
-			moduleZone = commonRC.getInteriorZone(),
 			radioControlData = commonRC.getRadioControlData()
 		}
 	})
@@ -50,7 +46,6 @@ local function step2(self)
 		appID = self.applications["Test Application"],
 		moduleData = {
 			moduleType = "RADIO",
-			moduleZone = commonRC.getInteriorZone(),
 			radioControlData = commonRC.getRadioControlData()
 		}
 	})
@@ -58,7 +53,6 @@ local function step2(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = {
 					moduleType = "RADIO",
-					moduleZone = commonRC.getInteriorZone(),
 					radioControlData = commonRC.getRadioControlData()
 				}
 			})
