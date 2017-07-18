@@ -8,76 +8,37 @@ local runner = require('user_modules/script_runner')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Valiables ]]
-local climateControlData = {
-    fanSpeed = 50,
-    currentTemp = 86,
-    desiredTemp = 75,
-    temperatureUnit = "FAHRENHEIT",
-    acEnable = true,
-    circulateAirEnable = true,
-    autoModeEnable = true,
-    defrostZone = "FRONT",
-    dualModeEnable = true
-}
-
-local radioControlData = {
-    frequencyInteger = 1,
-    frequencyFraction = 2,
-    band = "AM",
-    rdsData = {
-        PS = "ps",
-        RT = "rt",
-        CT = "123456789012345678901234",
-        PI = "pi",
-        PTY = 2,
-        TP = false,
-        TA = true,
-        REG = "US"
-      },
-    availableHDs = 1,
-    hdChannel = 1,
-    signalStrength = 5,
-    signalChangeThreshold = 20,
-    radioEnable = true,
-    state = "ACQUIRING"
-}
+local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
-local function getModuleData(moduleType, moduleControlData)
-    if moduleType == "CLIMATE" then
-        return {moduleType = moduleType, climateControlData = moduleControlData or commonRC.getClimateControlData()}
-    end
-    return {moduleType = moduleType, radioControlData = moduleControlData or commonRC.getRadioControlData()}
-end
-
 local function subscriptionToModule(pModuleType, self)
-	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-		moduleDescription =	{
-			moduleType = pModuleType
-		},
-		subscribe = true
-	})
+  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = true
+  })
 
-	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-		appID = self.applications["Test Application"],
-		moduleDescription =	{
-			moduleType = pModuleType
-		},
-		subscribe = true
-	})
+  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = true
+  })
   :Do(function(_, _)
-		-- no response from HMI
-	end)
+    -- no response from HMI
+  end)
 
-	   EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
 
-    commonTestCases:DelayedExp(11000)
+  commonTestCases:DelayedExp(11000)
 end
 
-local function stepUnsubscribed(pModuleType, pModuleControlData, self)
-    self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-            moduleData = getModuleData(pModuleType, pModuleControlData)
-      })
+local function isUnsubscribed(pModuleType, self)
+  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
 
   EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
   commonTestCases:DelayedExp(commonRC.timeout)
@@ -88,10 +49,13 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
+
 runner.Title("Test")
-runner.Step("Subscribe app to CLIMATE (no response from HMI)", subscriptionToModule, {"CLIMATE"})
-runner.Step("Send notification OnInteriorVehicleData_CLIMATE. App is not subscribed", stepUnsubscribed, {"CLIMATE", climateControlData})
-runner.Step("Subscribe app to RADIO (no responsefrom HMI)", subscriptionToModule, {"RADIO"})
-runner.Step("Send notification OnInteriorVehicleData RADIO. App is not subscribed", stepUnsubscribed, {"RADIO", radioControlData})
+
+for _, mod in pairs(modules) do
+  runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", isUnsubscribed, { mod })
+end
+
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

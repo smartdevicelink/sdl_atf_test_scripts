@@ -31,19 +31,18 @@ local function subscriptionToModule(pModuleType, self)
         moduleData = commonRC.getModuleControlData(pModuleType),
         isSubscribed = false -- not subscribe
       })
-  end)
+    end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
-      moduleData = commonRC.getModuleControlData(pModuleType),
-      isSubscribed = false
-    })
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = false
+  })
 end
-
 
 local function isUnsubscribed(pModuleType, self)
   self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-      moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-    })
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
 
   EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
   commonTestCases:DelayedExp(commonRC.timeout)
@@ -59,7 +58,7 @@ runner.Title("Test")
 
 for _, mod in pairs(modules) do
   runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App subscribed", isUnsubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", isUnsubscribed, { mod })
 end
 
 runner.Title("Postconditions")

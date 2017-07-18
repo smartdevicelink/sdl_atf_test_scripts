@@ -12,41 +12,41 @@ local mod = "CLIMATE"
 
 --[[ Local Functions ]]
 local function subscriptionToModule(self)
-	local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-			moduleDescription =	{
-				moduleType = mod,
-			},
-			subscribe = true
-		})
+  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+    moduleDescription = {
+      moduleType = mod,
+    },
+    subscribe = true
+  })
 
-	EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-			appID = self.applications["Test Application"],
-			moduleDescription =	{
-				moduleType = mod,
-			},
-			subscribe = true
-		})
+  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = mod,
+    },
+    subscribe = true
+  })
   :Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-					isSubscribed = true,
-					moduleData = commonRC.getModuleControlData(mod)
-				})
-	end)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        isSubscribed = true,
+        moduleData = commonRC.getModuleControlData(mod)
+      })
+  end)
 
-	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS", isSubscribed = true })
+  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS", isSubscribed = true })
 end
 
 local function isUnsubscribed(pModuleType, self)
- 	self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-			moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-	  })
+  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
 
   EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
   commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function ptu_update_func(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { mod }
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { mod }
 end
 
 --[[ Scenario ]]

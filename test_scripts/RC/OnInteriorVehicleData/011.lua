@@ -9,56 +9,56 @@ local runner = require('user_modules/script_runner')
 --[[ Local Variables ]]
 local modules = { "CLIMATE" , "RADIO" }
 local error_codes = {
-    { name = "GENERIC_ERROR", id = 22 },
-    { name = "INVALID_DATA", id = 11 },
-    { name = "OUT_OF_MEMORY", id = 17 },
-    { name = "REJECTED", id = 4 }
-  }
+  { name = "GENERIC_ERROR", id = 22 },
+  { name = "INVALID_DATA", id = 11 },
+  { name = "OUT_OF_MEMORY", id = 17 },
+  { name = "REJECTED", id = 4 }
+}
 
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-      moduleDescription = {
+    moduleDescription = {
         moduleType = pModuleType
       },
-      subscribe = true
-    })
+    subscribe = true
+  })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-      appID = self.applications["Test Application"],
-      moduleDescription = {
-        moduleType = pModuleType
-      },
-      subscribe = true
-    })
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = true
+  })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-          moduleData = commonRC.getModuleControlData(pModuleType),
-          isSubscribed = true
-        })
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = true
+      })
     end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
-      moduleData = commonRC.getModuleControlData(pModuleType),
-      isSubscribed = true
-    })
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = true
+  })
 end
 
 local function unSubscriptionToModule(pModuleType, pResultCodeName, pResultCodeId, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-      moduleDescription = {
-        moduleType = pModuleType
-      },
-      subscribe = false
-    })
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = false
+  })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-      appID = self.applications["Test Application"],
-      moduleDescription = {
-        moduleType = pModuleType
-      },
-      subscribe = false
-    })
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = false
+  })
   :Do(function(_, data)
       self.hmiConnection:Send('{"error":{"data":{"method":"' .. data.method .. '"},"params":{"isSubscribed":false},'
         .. '"message":"error message","code":' .. pResultCodeId .. '},"jsonrpc":"2.0","id":' .. data.id .. '}')
@@ -69,12 +69,12 @@ end
 
 local function isSubscribed(pModuleType, self)
   self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-      moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-    })
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
 
   EXPECT_NOTIFICATION("OnInteriorVehicleData", {
-      moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-    })
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
 end
 
 --[[ Scenario ]]

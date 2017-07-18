@@ -13,30 +13,30 @@ local modules = { "CLIMATE" , "RADIO" }
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType, pSubscribe, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-      moduleDescription = {
-        moduleType = pModuleType
-      },
-      subscribe = pSubscribe
-    })
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = pSubscribe
+  })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-      appID = self.applications["Test Application"],
-      moduleDescription = {
-        moduleType = pModuleType
-      },
-      subscribe = pSubscribe
-    })
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = pSubscribe
+  })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-          moduleData = commonRC.getModuleControlData(pModuleType),
-          isSubscribed = pSubscribe
-        })
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = pSubscribe
+      })
     end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
-      moduleData = commonRC.getModuleControlData(pModuleType),
-      isSubscribed = pSubscribe
-    })
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = pSubscribe
+  })
 end
 
 local function isSubscribed(pModuleType, self)
@@ -51,8 +51,8 @@ end
 
 local function isUnsubscribed(pModuleType, self)
   self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-      moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-    })
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
 
   EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
   commonTestCases:DelayedExp(commonRC.timeout)
@@ -68,12 +68,12 @@ runner.Title("Test")
 
 for _, mod in pairs(modules) do
   runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod, true })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App subscribed", isSubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", isSubscribed, { mod })
 end
 
 for _, mod in pairs(modules) do
   runner.Step("Unsubscribe app to " .. mod, subscriptionToModule, { mod, false })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App unsubscribed", isUnsubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is unsubscribed", isUnsubscribed, { mod })
 end
 
 runner.Title("Postconditions")
