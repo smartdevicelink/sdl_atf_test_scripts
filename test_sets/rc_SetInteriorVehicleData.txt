@@ -2,3 +2,6 @@
 ./test_scripts/RC/SetInteriorVehicleData/002c.lua
 ./test_scripts/RC/SetInteriorVehicleData/002r.lua
 ./test_scripts/RC/SetInteriorVehicleData/003.lua
+./test_scripts/RC/SetInteriorVehicleData/006.lua
+./test_scripts/RC/SetInteriorVehicleData/007.lua
+./test_scripts/RC/SetInteriorVehicleData/008.lua
