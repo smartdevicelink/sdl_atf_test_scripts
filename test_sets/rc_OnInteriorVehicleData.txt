@@ -14,3 +14,4 @@
 ./test_scripts/RC/OnInteriorVehicleData/012r.lua
 ./test_scripts/RC/OnInteriorVehicleData/013c.lua
 ./test_scripts/RC/OnInteriorVehicleData/013r.lua
+./test_scripts/RC/OnInteriorVehicleData/014.lua
