@@ -254,106 +254,96 @@ function commonRC.postconditions()
   StopSDL()
 end
 
-function commonRC.getClimateControlData()
-  return {
-    fanSpeed = 50,
-    currentTemperature = {
-      unit = "FAHRENHEIT",
-      value = 20.1
-    },
-    desiredTemperature = {
-      unit = "CELSIUS",
-      value = 10.5
-    },
-    acEnable = true,
-    circulateAirEnable = true,
-    autoModeEnable = true,
-    defrostZone = "FRONT",
-    dualModeEnable = true,
-    acMaxEnable = true,
-    ventilationMode = "BOTH"
-  }
-end
-
-function commonRC.getRadioControlData()
-  return {
-    frequencyInteger = 1,
-    frequencyFraction = 2,
-    band = "AM",
-    rdsData = {
-      PS = "ps",
-      RT = "rt",
-      CT = "123456789012345678901234",
-      PI = "pi",
-      PTY = 1,
-      TP = false,
-      TA = true,
-      REG = "US"
-    },
-    availableHDs = 1,
-    hdChannel = 1,
-    signalStrength = 5,
-    signalChangeThreshold = 10,
-    radioEnable = true,
-    state = "ACQUIRING"
-  }
-end
-
 function commonRC.getModuleControlData(module_type)
   local out = { moduleType = module_type }
   if module_type == "CLIMATE" then
-    out.climateControlData = commonRC.getClimateControlData()
+    out.climateControlData = {
+      fanSpeed = 50,
+      currentTemperature = {
+        unit = "FAHRENHEIT",
+        value = 20.1
+      },
+      desiredTemperature = {
+        unit = "CELSIUS",
+        value = 10.5
+      },
+      acEnable = true,
+      circulateAirEnable = true,
+      autoModeEnable = true,
+      defrostZone = "FRONT",
+      dualModeEnable = true,
+      acMaxEnable = true,
+      ventilationMode = "BOTH"
+    }
   elseif module_type == "RADIO" then
-    out.radioControlData = commonRC.getRadioControlData()
+    out.radioControlData = {
+      frequencyInteger = 1,
+      frequencyFraction = 2,
+      band = "AM",
+      rdsData = {
+        PS = "ps",
+        RT = "rt",
+        CT = "123456789012345678901234",
+        PI = "pi",
+        PTY = 1,
+        TP = false,
+        TA = true,
+        REG = "US"
+      },
+      availableHDs = 1,
+      hdChannel = 1,
+      signalStrength = 5,
+      signalChangeThreshold = 10,
+      radioEnable = true,
+      state = "ACQUIRING"
+    }
   end
   return out
 end
 
 function commonRC.getAnotherModuleControlData(module_type)
   local out = { moduleType = module_type }
-  local climateControlData = {
-    fanSpeed = 65,
-    currentTemperature = {
-      unit = "FAHRENHEIT",
-      value = 44.3
-    },
-    desiredTemperature = {
-      unit = "CELSIUS",
-      value = 22.6
-    },
-    acEnable = false,
-    circulateAirEnable = false,
-    autoModeEnable = true,
-    defrostZone = "ALL",
-    dualModeEnable = true,
-    acMaxEnable = false,
-    ventilationMode = "UPPER"
-  }
-  local radioControlData = {
-    frequencyInteger = 1,
-    frequencyFraction = 2,
-    band = "AM",
-    rdsData = {
-      PS = "ps",
-      RT = "rt",
-      CT = "123456789012345678901234",
-      PI = "pi",
-      PTY = 2,
-      TP = false,
-      TA = true,
-      REG = "US"
-    },
-    availableHDs = 1,
-    hdChannel = 1,
-    signalStrength = 5,
-    signalChangeThreshold = 20,
-    radioEnable = true,
-    state = "ACQUIRING"
-  }
   if module_type == "CLIMATE" then
-    out.climateControlData = climateControlData
+    out.climateControlData = {
+      fanSpeed = 65,
+      currentTemperature = {
+        unit = "FAHRENHEIT",
+        value = 44.3
+      },
+      desiredTemperature = {
+        unit = "CELSIUS",
+        value = 22.6
+      },
+      acEnable = false,
+      circulateAirEnable = false,
+      autoModeEnable = true,
+      defrostZone = "ALL",
+      dualModeEnable = true,
+      acMaxEnable = false,
+      ventilationMode = "UPPER"
+    }
   elseif module_type == "RADIO" then
-    out.radioControlData = radioControlData
+    out.radioControlData = {
+      frequencyInteger = 1,
+      frequencyFraction = 2,
+      band = "AM",
+      rdsData = {
+        PS = "ps",
+        RT = "rt",
+        CT = "123456789012345678901234",
+        PI = "pi",
+        PTY = 2,
+        TP = false,
+        TA = true,
+        REG = "US"
+      },
+      availableHDs = 1,
+      hdChannel = 1,
+      signalStrength = 5,
+      signalChangeThreshold = 20,
+      radioEnable = true,
+      state = "ACQUIRING"
+    }
   end
   return out
 end
