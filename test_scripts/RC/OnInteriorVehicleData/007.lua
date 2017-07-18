@@ -1,11 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: OnInteriorVehicleData
--- Script: 006
+-- Script: 007
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Valiables ]]
 local modules = { "CLIMATE", "RADIO" }
@@ -26,13 +25,14 @@ local function subscriptionToModule(pModuleType, self)
     },
     subscribe = true
   })
-  :Do(function(_, _)
-      -- no response from HMI
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        moduleData = 123, -- invalid data
+        isSubscribed = true
+      })
     end)
 
   EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
-
-  commonTestCases:DelayedExp(11000)
 end
 
 --[[ Scenario ]]

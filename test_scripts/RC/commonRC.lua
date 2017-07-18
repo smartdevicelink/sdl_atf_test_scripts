@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
--- Common module
+-- RC common module
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
@@ -13,6 +12,7 @@ config.application2.registerAppInterfaceParams.appHMIType = nil
 local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
 
@@ -45,10 +45,6 @@ end
 
 local function generateRandomValueFromList(list)
   return list[math.random(#list)]
-end
-
-local function generateRandomValueFromIntInterval(min, max)
-  return math.random(min, max)
 end
 
 local function generateRandomArrayFromList(list, isValUnique, min, max)
@@ -430,6 +426,58 @@ function commonRC.getRadioControlData()
     }
 end
 
+function commonRC.getModuleControlData(module_type)
+  local out = { moduleType = module_type }
+  if module_type == "CLIMATE" then
+    out.climateControlData = commonRC.getClimateControlData()
+  elseif module_type == "RADIO" then
+    out.radioControlData = commonRC.getRadioControlData()
+  end
+  return out
+end
+
+function commonRC.getAnotherModuleControlData(module_type)
+  local out = { moduleType = module_type }
+  local climateControlData = {
+    fanSpeed = 50,
+    currentTemp = 86,
+    desiredTemp = 75,
+    temperatureUnit = "FAHRENHEIT",
+    acEnable = true,
+    circulateAirEnable = true,
+    autoModeEnable = true,
+    defrostZone = "FRONT",
+    dualModeEnable = true
+  }
+  local radioControlData = {
+    frequencyInteger = 1,
+    frequencyFraction = 2,
+    band = "AM",
+    rdsData = {
+        PS = "ps",
+        RT = "rt",
+        CT = "123456789012345678901234",
+        PI = "pi",
+        PTY = 2,
+        TP = false,
+        TA = true,
+        REG = "US"
+      },
+    availableHDs = 1,
+    hdChannel = 1,
+    signalStrength = 5,
+    signalChangeThreshold = 20,
+    radioEnable = true,
+    state = "ACQUIRING"
+  }
+  if module_type == "CLIMATE" then
+    out.climateControlData = climateControlData
+  elseif module_type == "RADIO" then
+    out.radioControlData = radioControlData
+  end
+  return out
+end
+
 function commonRC.getClimateControlCapabilities()
   return climateControlCapabilities
 end
@@ -467,12 +515,59 @@ function commonRC.getMobileSession(self, id)
   return self.mobileSession
 end
 
-function commonRC.consent(self)
-  EXPECT_HMICALL("RC.GetInteriorVehicleDataConsent")
-  :Times(1)
+local function subscriptionToModule(pModuleType, pSubscribe, self)
+  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = pSubscribe
+  })
+
+  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = pSubscribe
+  })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { allowed = true })
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = pSubscribe
+      })
     end)
+
+  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = pSubscribe
+  })
+end
+
+function commonRC.subscribeToModule(pModuleType, self)
+  subscriptionToModule(pModuleType, true, self)
+end
+
+function commonRC.unSubscribeToModule(pModuleType, self)
+  subscriptionToModule(pModuleType, false, self)
+end
+
+function commonRC.isSubscribed(pModuleType, self)
+  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
+
+  EXPECT_NOTIFICATION("OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
+end
+
+function commonRC.isUnsubscribed(pModuleType, self)
+  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
+
+  EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
+  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 return commonRC
