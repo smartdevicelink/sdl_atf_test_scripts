@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
--- Common module
+-- RC common module
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
@@ -13,6 +12,7 @@ config.application2.registerAppInterfaceParams.appHMIType = nil
 local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
 
@@ -45,10 +45,6 @@ end
 
 local function generateRandomValueFromList(list)
   return list[math.random(#list)]
-end
-
-local function generateRandomValueFromIntInterval(min, max)
-  return math.random(min, max)
 end
 
 local function generateRandomArrayFromList(list, isValUnique, min, max)
@@ -517,6 +513,61 @@ function commonRC.getMobileSession(self, id)
     return self.mobileSession2
   end
   return self.mobileSession
+end
+
+local function subscriptionToModule(pModuleType, pSubscribe, self)
+  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = pSubscribe
+  })
+
+  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = pModuleType
+    },
+    subscribe = pSubscribe
+  })
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = pSubscribe
+      })
+    end)
+
+  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = pSubscribe
+  })
+end
+
+function commonRC.subscribeToModule(pModuleType, self)
+  subscriptionToModule(pModuleType, true, self)
+end
+
+function commonRC.unSubscribeToModule(pModuleType, self)
+  subscriptionToModule(pModuleType, false, self)
+end
+
+function commonRC.isSubscribed(pModuleType, self)
+  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
+
+  EXPECT_NOTIFICATION("OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
+end
+
+function commonRC.isUnsubscribed(pModuleType, self)
+  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  })
+
+  EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
+  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 return commonRC

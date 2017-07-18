@@ -5,3 +5,12 @@
 ./test_scripts/RC/OnInteriorVehicleData/004.lua
 ./test_scripts/RC/OnInteriorVehicleData/005.lua
 ./test_scripts/RC/OnInteriorVehicleData/006.lua
+./test_scripts/RC/OnInteriorVehicleData/007.lua
+./test_scripts/RC/OnInteriorVehicleData/008.lua
+./test_scripts/RC/OnInteriorVehicleData/009.lua
+./test_scripts/RC/OnInteriorVehicleData/010.lua
+./test_scripts/RC/OnInteriorVehicleData/011.lua
+./test_scripts/RC/OnInteriorVehicleData/012c.lua
+./test_scripts/RC/OnInteriorVehicleData/012r.lua
+./test_scripts/RC/OnInteriorVehicleData/013c.lua
+./test_scripts/RC/OnInteriorVehicleData/013r.lua

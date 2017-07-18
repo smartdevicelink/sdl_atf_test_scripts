@@ -3,12 +3,11 @@
 -- Script: 004
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Local Variables ]]
-local modules = { "CLIMATE" , "RADIO" }
+local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType, self)
@@ -39,15 +38,6 @@ local function subscriptionToModule(pModuleType, self)
   })
 end
 
-local function isUnsubscribed(pModuleType, self)
-  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-  })
-
-  EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
-  commonTestCases:DelayedExp(commonRC.timeout)
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
@@ -58,7 +48,7 @@ runner.Title("Test")
 
 for _, mod in pairs(modules) do
   runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", isUnsubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
 end
 
 runner.Title("Postconditions")
