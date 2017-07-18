@@ -9,7 +9,6 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 config.application2.registerAppInterfaceParams.appHMIType = nil
 
 --[[ Required Shared libraries ]]
-local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
@@ -18,11 +17,6 @@ local json = require("modules/json")
 
 --[[ Local Variables ]]
 local ptu_table = {}
-local radioControlCapabilities;
-local climateControlCapabilities
-
-local backupedFiles = {}
-local createdFiles = {}
 
 --[[ Local Functions ]]
 local function insertFunctions()
@@ -35,87 +29,6 @@ local function insertFunctions()
 end
 
 insertFunctions()
-
-local function initRandom()
-  math.randomseed( os.time() )
-  math.random()
-  math.random()
-  math.random()
-end
-
-local function generateRandomValueFromList(list)
-  return list[math.random(#list)]
-end
-
-local function generateRandomArrayFromList(list, isValUnique, min, max)
-    max = max or min
-    if max < min then
-      min, max = max, min
-    end
-
-    local isVariableLength = true
-    if min == max then isVariableLength = false end
-    local values = {table.unpack(list)}
-
-    local count = min
-    if count > #values and isValUnique and not isVariableLength then
-      return error("Random array with " .. min .. " unique elements can not be generated from current list")
-    end
-
-    if isVariableLength then
-      count = math.random(min, max)
-    end
-
-    local result = {}
-    for _ = 1, count do
-      local randVal = math.random(#values)
-      table.insert(result, values[randVal])
-      if isValUnique then
-        table.remove(values, randVal)
-      end
-    end
-    return result
-end
-
-local function generateRadioControlCapabilities()
-  return {
-      name = "Radio control module",
-      radioEnableAvailable = generateRandomValueFromList({true, false}),
-      radioBandAvailable = generateRandomValueFromList({true, false}),
-      radioFrequencyAvailable = generateRandomValueFromList({true, false}),
-      hdChannelAvailable = generateRandomValueFromList({true, false}),
-      rdsDataAvailable = generateRandomValueFromList({true, false}),
-      availableHDsAvailable = generateRandomValueFromList({true, false}),
-      stateAvailable = generateRandomValueFromList({true, false}),
-      signalStrengthAvailable = generateRandomValueFromList({true, false}),
-      signalChangeThresholdAvailable = generateRandomValueFromList({true, false})
-    }
-end
-
-local function generateClimateControlCapabilities()
-  return {
-      name = "Climate control module",
-      fanSpeedAvailable = generateRandomValueFromList({true, false}),
-      desiredTemperatureAvailable = generateRandomValueFromList({true, false}),
-      acEnableAvailable = generateRandomValueFromList({true, false}),
-      acMaxEnableAvailable = generateRandomValueFromList({true, false}),
-      circulateAirEnableAvailable = generateRandomValueFromList({true, false}),
-      autoModeEnableAvailable = generateRandomValueFromList({true, false}),
-      dualModeEnableAvailable = generateRandomValueFromList({true, false}),
-      defrostZoneAvailable = generateRandomValueFromList({true, false}),
-      defrostZone = generateRandomArrayFromList({"FRONT", "REAR", "ALL", "NONE"}, true, 1, 4),
-      ventilationModeAvailable = generateRandomValueFromList({true, false}),
-      ventilationMode = generateRandomArrayFromList({"UPPER", "LOWER", "BOTH", "NONE"}, true, 1, 4)
-    }
-end
-
-local function initCommonRC()
-  initRandom()
-  radioControlCapabilities = {generateRadioControlCapabilities()}
-  climateControlCapabilities = {generateClimateControlCapabilities()}
-end
-
-initCommonRC()
 
 local function initHMI(self)
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(self, "HMI initialization")
@@ -271,41 +184,6 @@ function commonRC.preconditions()
   commonSteps:DeleteLogsFiles()
 end
 
-function commonRC.prepareInteriorVehicleDataCapabilitiesJson(IVDCapabilitiesTable, IVDCapabilitiesFileName)
-  -- Validation check
-  if not IVDCapabilitiesTable.interiorVehicleDataCapabilities then IVDCapabilitiesTable = nil end
-  if not IVDCapabilitiesFileName or type(IVDCapabilitiesFileName) ~= "string" then IVDCapabilitiesFileName = "IVDCapabilities.json" end
-
-  commonPreconditions:BackupFile("smartDeviceLink.ini")
-  table.insert(backupedFiles, "smartDeviceLink.ini")
-  local isBackuped = false
-  local sdlPath = commonPreconditions:GetPathToSDL()
-  local IVDCapabilitiesFilePath = commonFunctions:pathJoin(sdlPath, "plugins/" .. IVDCapabilitiesFileName)
-  commonFunctions:write_parameter_to_smart_device_link_ini("InteriorVDCapabilitiesFile", "./plugins/" .. IVDCapabilitiesFileName)
-
-  if commonFunctions:File_exists(IVDCapabilitiesFilePath) then
-    commonPreconditions:BackupFile("plugins/" .. IVDCapabilitiesFileName)
-    table.insert(backupedFiles, "plugins/" .. IVDCapabilitiesFileName)
-    isBackuped = true
-  end
-
-  if IVDCapabilitiesTable then
-    tableToJsonFile(IVDCapabilitiesTable, IVDCapabilitiesFilePath)
-    if not isBackuped then
-      table.insert(createdFiles, IVDCapabilitiesFilePath)
-    end
-  end
-end
-
-function commonRC.restoreInteriorVehicleDataCapabilitiesJson()
-  for _,fileName in pairs(backupedFiles) do
-    commonPreconditions:RestoreFile(fileName)
-  end
-  for _,fileName in pairs(createdFiles) do
-    os.execute( " rm -f " .. fileName)
-  end
-end
-
 function commonRC.start(self)
   self:runSDL()
   commonFunctions:waitForSDLStart(self)
@@ -373,7 +251,6 @@ function commonRC.rai_n(id, self)
 end
 
 function commonRC.postconditions()
-  commonRC.restoreInteriorVehicleDataCapabilitiesJson()
   StopSDL()
 end
 
@@ -474,29 +351,6 @@ function commonRC.getAnotherModuleControlData(module_type)
     out.climateControlData = climateControlData
   elseif module_type == "RADIO" then
     out.radioControlData = radioControlData
-  end
-  return out
-end
-
-function commonRC.getClimateControlCapabilities()
-  return climateControlCapabilities
-end
-
-function commonRC.getRadioControlCapabilities()
-  return radioControlCapabilities
-end
-
-function commonRC.getInteriorVehicleDataCapabilities(module_types)
-  local out = { }
-  if not module_types then
-    return out
-  end
-  for _, v in pairs(module_types) do
-    if v == "CLIMATE" then
-      out.climateControlCapabilities = commonRC.getClimateControlCapabilities()
-    elseif v == "RADIO" then
-      out.radioControlCapabilities = commonRC.getRadioControlCapabilities()
-    end
   end
   return out
 end
