@@ -9,7 +9,6 @@ local runner = require('user_modules/script_runner')
 --[[ Local Functions ]]
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("ButtonPress",	{
-		zone = commonRC.getInteriorZone(),
 		moduleType = "CLIMATE",
 		buttonName = "AC",
 		buttonPressMode = "SHORT"
@@ -17,7 +16,6 @@ local function step1(self)
 
 	EXPECT_HMICALL("Buttons.ButtonPress",	{
 		appID = self.applications["Test Application"],
-		zone = commonRC.getInteriorZone(),
 		moduleType = "CLIMATE",
 		buttonName = "AC",
 		buttonPressMode = "SHORT"
@@ -31,7 +29,6 @@ end
 
 local function step2(self)
 	local cid = self.mobileSession:SendRPC("ButtonPress",	{
-		zone = commonRC.getInteriorZone(),
 		moduleType = "RADIO",
 		buttonName = "VOLUME_UP",
 		buttonPressMode = "LONG"
@@ -39,7 +36,6 @@ local function step2(self)
 
 	EXPECT_HMICALL("Buttons.ButtonPress",	{
 		appID = self.applications["Test Application"],
-		zone = commonRC.getInteriorZone(),
 		moduleType = "RADIO",
 		buttonName = "VOLUME_UP",
 		buttonPressMode = "LONG"

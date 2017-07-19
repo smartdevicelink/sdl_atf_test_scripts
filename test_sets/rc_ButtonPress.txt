@@ -2,3 +2,4 @@
 ./test_scripts/RC/ButtonPress/002c.lua
 ./test_scripts/RC/ButtonPress/002r.lua
 ./test_scripts/RC/ButtonPress/003.lua
+./test_scripts/RC/ButtonPress/004.lua

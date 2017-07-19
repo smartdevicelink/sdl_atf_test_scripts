@@ -13,7 +13,6 @@ config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 --[[ Local Functions ]]
 local function step1(self)
 	local cid = self.mobileSession:SendRPC("ButtonPress",	{
-		zone = commonRC.getInteriorZone(),
 		moduleType = "CLIMATE",
 		buttonName = "AC",
 		buttonPressMode = "SHORT"
@@ -29,7 +28,6 @@ end
 
 local function step2(self)
 	local cid = self.mobileSession:SendRPC("ButtonPress",	{
-		zone = commonRC.getInteriorZone(),
 		moduleType = "RADIO",
 		buttonName = "VOLUME_UP",
 		buttonPressMode = "LONG"
