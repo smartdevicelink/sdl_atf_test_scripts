@@ -3,3 +3,8 @@
 ./test_scripts/RC/ButtonPress/002r.lua
 ./test_scripts/RC/ButtonPress/003.lua
 ./test_scripts/RC/ButtonPress/004.lua
+./test_scripts/RC/ButtonPress/008.lua
+./test_scripts/RC/ButtonPress/009.lua
+./test_scripts/RC/ButtonPress/010.lua
+./test_scripts/RC/ButtonPress/011.lua
+./test_scripts/RC/ButtonPress/012.lua

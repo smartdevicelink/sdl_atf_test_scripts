@@ -19,17 +19,6 @@ local json = require("modules/json")
 local ptu_table = {}
 
 --[[ Local Functions ]]
-local function insertFunctions()
-  local function_id = require("function_id")
-  function_id["ButtonPress"] = 100015
-  function_id["GetInteriorVehicleDataCapabilities"] = 100016
-  function_id["GetInteriorVehicleData"] = 100017
-  function_id["SetInteriorVehicleData"] = 100018
-  function_id["OnInteriorVehicleData"] = 100019
-end
-
-insertFunctions()
-
 local function initHMI(self)
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(self, "HMI initialization")
   local function registerComponent(name, subscriptions)
@@ -415,6 +404,14 @@ function commonRC.isUnsubscribed(pModuleType, self)
 
   EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
   commonTestCases:DelayedExp(commonRC.timeout)
+end
+
+function commonRC.getButtonNameByModule(pModuleType)
+  if pModuleType == "CLIMATE" then
+    return "FAN_UP"
+  elseif pModuleType == "RADIO" then
+    return "VOLUME_UP"
+  end
 end
 
 return commonRC
