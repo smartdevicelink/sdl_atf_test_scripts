@@ -6,3 +6,5 @@
 ./test_scripts/RC/SetInteriorVehicleData/006.lua
 ./test_scripts/RC/SetInteriorVehicleData/007.lua
 ./test_scripts/RC/SetInteriorVehicleData/008.lua
+./test_scripts/RC/SetInteriorVehicleData/009.lua
+./test_scripts/RC/SetInteriorVehicleData/010.lua
