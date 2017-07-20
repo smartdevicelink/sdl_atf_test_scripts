@@ -5,6 +5,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
@@ -22,6 +23,8 @@ local function invalidParamName(pModuleType, self)
   :Times(0)
 
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+
+  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function invalidParamType(pModuleType, self)
@@ -36,6 +39,8 @@ local function invalidParamType(pModuleType, self)
   :Times(0)
 
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+
+  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function missingMandatoryParam(self)
@@ -50,6 +55,8 @@ local function missingMandatoryParam(self)
   :Times(0)
 
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+
+  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function fakeParam(pModuleType, self)
