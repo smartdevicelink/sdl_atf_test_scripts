@@ -102,7 +102,7 @@ for _, mod in pairs(modules) do
   runner.Step("GetInteriorVehicleData " .. mod .. " fake parameter", fakeParam, { mod })
 end
 
-runner.Step("GetInteriorVehicleData (mandatory parameter absent)", missingMandatoryParam)
+runner.Step("GetInteriorVehicleData mandatory parameter absent", missingMandatoryParam)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
