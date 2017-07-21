@@ -1,5 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app sends valid and allowed by policies GetInteriorvehicleData request
+-- 2) and SDL received GetInteriorVehicledata response with successful result code and current module data from HMI
+-- SDL must:
+-- 1) Transfer GetInteriorVehicleData response with provided from HMI current module data for allowed module and control items
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app sends GetInteriorVehicleData request with valid parameters
+-- 2) and HMI responds with invalid data:
+--    - invalid type of parameter
+--    - missing mandatory parameter
+-- SDL must:
+-- 1) Respond to App with success:false, "GENERIC_ERROR"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

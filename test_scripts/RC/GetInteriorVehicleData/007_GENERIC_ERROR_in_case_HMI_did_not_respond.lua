@@ -1,5 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app sends GetInteriorVehicleData request with valid parameters
+-- 2) and HMI didn't respond within default timeout
+-- SDL must:
+-- 1) Respond to App with success:false, "GENERIC_ERROR"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

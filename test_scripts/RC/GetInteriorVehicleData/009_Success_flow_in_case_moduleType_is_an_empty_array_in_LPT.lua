@@ -1,5 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
+-- Description
+-- In case:
+-- 1) "moduleType" in app's assigned policies has an empty array
+-- 2) and RC app sends GetInteriorVehicleData request with valid parameters
+-- SDL must:
+-- 1) Allow this RPC to be processed
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

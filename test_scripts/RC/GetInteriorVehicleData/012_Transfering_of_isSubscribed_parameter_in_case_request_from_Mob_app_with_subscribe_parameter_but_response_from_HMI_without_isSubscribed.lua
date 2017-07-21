@@ -1,5 +1,11 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app sends valid and allowed by policies GetInteriorVehicleData request with "subscribe" parameter
+-- 2) and SDL received GetInteriorVehicledata response with "resultCode:<any_result>" and without "isSubscribed" parameter from HMI
+-- SDL must:
+-- 1) Transfer GetInteriorVehicleData response with provided from HMI current module data
+-- and with added "isSubscribed: <current_subscription_status>" to the related app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

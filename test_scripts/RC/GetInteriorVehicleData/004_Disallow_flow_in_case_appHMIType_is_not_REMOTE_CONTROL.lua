@@ -1,5 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
+-- Description
+-- In case:
+-- 1) Non remote-control application is registered on SDL
+-- 2) and SDL received GetInteriorVehicleData request from this App
+-- SDL must:
+-- 1) Disallow remote-control RPCs for this app (success:false, "DISALLOWED")
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
