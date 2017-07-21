@@ -112,14 +112,5 @@ radio_params.buttonPressMode = "invalid_name"
 runner.Title("Test - negative, invalid value of buttonPressMode in mobile request")
 runner.Step("ButtonPress_CLIMATE", SendButtonPressNegative, {climate_params})
 runner.Step("ButtonPress_RADIO", SendButtonPressNegative, {radio_params})
-climate_params = reset_climate_params()
-radio_params = reset_radio_params()
-
---[[ Negative Scenario - not matched params in mobile request]]
-climate_params.buttonName = "VOLUME_UP"
-radio_params.buttonName = "AC"
-runner.Title("Test - negative, not matched params in mobile request")
-runner.Step("ButtonPress_CLIMATE", SendButtonPressNegative, {climate_params})
-runner.Step("ButtonPress_RADIO", SendButtonPressNegative, {radio_params})
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
