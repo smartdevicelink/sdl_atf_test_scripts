@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
--- Script: 010
+-- RPC: OnInteriorVehicleData
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -10,10 +9,10 @@ local commonRC = require('test_scripts/RC/commonRC')
 local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
-local function getDataForModule(module_type, self)
+local function subscriptionToModule(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
     moduleDescription = {
-      moduleType = module_type
+      moduleType = pModuleType
     },
     subscribe = true
   })
@@ -21,15 +20,21 @@ local function getDataForModule(module_type, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
     moduleDescription = {
-      moduleType = module_type
+      moduleType = pModuleType
     },
     subscribe = true
   })
   :Do(function(_, data)
-      self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Read only parameters received")
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        -- no isSubscribed parameter
+      })
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = false
+  })
 end
 
 --[[ Scenario ]]
@@ -41,7 +46,8 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, getDataForModule, { mod })
+  runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
 end
 
 runner.Title("Postconditions")

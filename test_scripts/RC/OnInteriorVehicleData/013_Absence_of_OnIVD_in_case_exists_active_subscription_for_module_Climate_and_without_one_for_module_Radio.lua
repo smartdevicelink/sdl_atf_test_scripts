@@ -1,14 +1,13 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: OnInteriorVehicleData
--- Script: 012
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Local Variables ]]
-local mod1 = "RADIO"
-local mod2 = "CLIMATE"
+local mod1 = "CLIMATE"
+local mod2 = "RADIO"
 
 --[[ Scenario ]]
 runner.Title("Preconditions")

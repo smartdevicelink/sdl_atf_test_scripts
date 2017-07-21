@@ -1,11 +1,9 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: GetInteriorVehicleData
--- Script: 009
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
@@ -19,23 +17,25 @@ local function getDataForModule(module_type, self)
     subscribe = true
   })
 
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
-  :Times(0)
+  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+    appID = self.applications["Test Application"],
+    moduleDescription = {
+      moduleType = module_type
+    },
+    subscribe = true
+  })
+  :Do(function(_, data)
+      self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Read only parameters received")
+    end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "DISALLOWED" })
-
-  commonTestCases:DelayedExp(commonRC.timeout)
-end
-
-local function ptu_update_func(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = nil
+  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
+runner.Step("RAI, PTU", commonRC.rai_ptu)
 
 runner.Title("Test")
 

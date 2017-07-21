@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: GetInteriorVehicleData
--- Script: 011
+-- RPC: OnInteriorVehicleData
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -10,12 +9,12 @@ local commonRC = require('test_scripts/RC/commonRC')
 local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, self)
+local function unSubscriptionToModule(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
     moduleDescription = {
       moduleType = pModuleType
     },
-    subscribe = pSubscribe
+    subscribe = false
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
@@ -23,7 +22,7 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, s
     moduleDescription = {
       moduleType = pModuleType
     },
-    subscribe = pSubscribe
+    subscribe = false
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
@@ -33,8 +32,8 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, s
     end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
-    isSubscribed = isSubscriptionActive, -- return current value of subscription
-    moduleData = commonRC.getModuleControlData(pModuleType)
+    moduleData = commonRC.getModuleControlData(pModuleType),
+    isSubscribed = true
   })
 end
 
@@ -44,17 +43,16 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 
+for _, mod in pairs(modules) do
+  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod })
+end
+
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod .. " NoSubscription_subscribe", getDataForModule, { mod, false, true })
-  runner.Step("GetInteriorVehicleData " .. mod .. " NoSubscription_unsubscribe", getDataForModule, { mod, false, false })
-end
-
-for _, mod in pairs(modules) do
-  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule, { mod, true, true })
-  runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_unsubscribe", getDataForModule, { mod, true, false })
+  runner.Step("Subscribe app to " .. mod, unSubscriptionToModule, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App still subscribed", commonRC.isSubscribed, { mod })
 end
 
 runner.Title("Postconditions")

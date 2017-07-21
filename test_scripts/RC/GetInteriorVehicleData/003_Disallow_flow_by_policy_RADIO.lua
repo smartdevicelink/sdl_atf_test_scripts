@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
 -- RPC: GetInteriorVehicleData
--- Script: 002
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -8,7 +7,7 @@ local commonRC = require('test_scripts/RC/commonRC')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
-local mod = "CLIMATE"
+local mod = "RADIO"
 
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, self)
@@ -27,7 +26,7 @@ local function getDataForModule(pModuleType, self)
 end
 
 local function ptu_update_func(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "RADIO" }
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "CLIMATE" }
 end
 
 --[[ Scenario ]]
@@ -41,3 +40,4 @@ runner.Step("GetInteriorVehicleData " .. mod, getDataForModule, { mod })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
+

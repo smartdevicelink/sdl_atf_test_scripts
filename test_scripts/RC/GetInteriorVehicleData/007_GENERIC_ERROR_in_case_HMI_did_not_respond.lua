@@ -1,16 +1,16 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: OnInteriorVehicleData
--- Script: 004
+-- RPC: GetInteriorVehicleData
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
-local function subscriptionToModule(pModuleType, self)
+local function getDataForModule(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
     moduleDescription = {
       moduleType = pModuleType
@@ -25,17 +25,13 @@ local function subscriptionToModule(pModuleType, self)
     },
     subscribe = true
   })
-  :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
-        -- no isSubscribed parameter
-      })
+  :Do(function(_, _)
+    -- HMI does not respond
     end)
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
-    moduleData = commonRC.getModuleControlData(pModuleType),
-    isSubscribed = false
-  })
+  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+
+  commonTestCases:DelayedExp(11000)
 end
 
 --[[ Scenario ]]
@@ -47,8 +43,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
+  runner.Step("GetInteriorVehicleData " .. mod .. " HMI does not respond", getDataForModule, { mod })
 end
 
 runner.Title("Postconditions")
