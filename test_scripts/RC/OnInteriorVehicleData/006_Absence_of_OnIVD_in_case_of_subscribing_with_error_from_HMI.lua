@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: OnInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:true" parameter
+-- 2) and SDL received GetInteriorVehicleData response with "resultCode: <any-erroneous-result>" from HMI
+-- 3) and then SDL received OnInteriorVehicleData notification
+-- SDL must:
+-- 1) Transfer GetInteriorVehicleData response with "resultCode: <any-erroneous-result>" and without "isSubscribed" param to the related app
+-- 2) Does not re-send OnInteriorVehicleData notification to the app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

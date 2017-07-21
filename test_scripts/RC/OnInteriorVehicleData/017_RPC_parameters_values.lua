@@ -1,5 +1,13 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: OnInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app is subscribed to a RC module
+-- 2) and then SDL received OnInteriorVehicleData notification for this module with invalid data
+--    - invalid parameter name
+--    - invalid parameter type
+--    - missing mandatory parameter
+-- SDL must:
+-- 1) Does not re-send OnInteriorVehicleData notification to the related app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

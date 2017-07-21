@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: OnInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app is subscribed to a few RC modules
+-- 2) and then RC app is unsubscribed to one of the module
+-- 3) and then SDL received OnInteriorVehicleData notification for another module
+-- SDL must:
+-- 1) Does not re-send OnInteriorVehicleData notification to the related app for unsubscribed module
+-- 2) Re-send OnInteriorVehicleData notification to the related app for subscribed module
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

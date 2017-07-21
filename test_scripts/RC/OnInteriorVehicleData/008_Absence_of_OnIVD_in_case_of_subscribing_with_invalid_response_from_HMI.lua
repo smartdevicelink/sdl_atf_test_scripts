@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: OnInteriorVehicleData
+-- Description
+-- In case:
+-- 1) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:true" parameter
+-- 2) and HMI responds with invalid data
+-- 3) and then SDL received OnInteriorVehicleData notification
+-- SDL must:
+-- 1) Respond to App with success:false, "GENERIC_ERROR"
+-- 2) Does not re-send OnInteriorVehicleData notification to the app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
