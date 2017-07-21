@@ -32,26 +32,12 @@ local radio_button_names = {
     "REPEAT",
 }
 
-local climate_params = {
-    moduleType = "CLIMATE",
-    buttonName = "AC_MAX",
-    buttonPressMode = "SHORT" -- LONG, SHORT
-}
-
-local radio_params = {
-    moduleType = "RADIO",
-    buttonName = "VOLUME_UP",
-    buttonPressMode = "LONG"
-}
-
-commonRC.timeout = 1000
-
 --[[ Local Functions ]]
-local function reset_climate_params( ... )
+local function reset_climate_params()
     return {moduleType = "CLIMATE", buttonName = "AC", buttonPressMode = "SHORT"}
 end
 
-local function reset_radio_params( ... )
+local function reset_radio_params()
     return {moduleType = "RADIO", buttonName = "VOLUME_UP", buttonPressMode = "SHORT"}
 end
 
@@ -70,8 +56,6 @@ local function SendButtonPressPositive(button_press_params, self)
     end)
 
     EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
-
-    commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function SendButtonPressNegative(button_press_params, self)
@@ -86,7 +70,7 @@ local function SendButtonPressNegative(button_press_params, self)
 end
 
 --[[ Positive Scenario - check all positive climate names params]]
-climate_params = reset_climate_params()
+local climate_params = reset_climate_params()
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
@@ -101,7 +85,7 @@ for _, button_name_value in pairs( climate_button_names ) do
 end
 
 --[[ Positive Scenario - check all positive radio names params]]
-radio_params = reset_radio_params()
+local radio_params = reset_radio_params()
 for _, button_name_value in pairs( radio_button_names ) do
     radio_params.buttonPressMode = "SHORT"
     radio_params.buttonName = button_name_value
