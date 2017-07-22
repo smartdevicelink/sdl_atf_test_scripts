@@ -20,9 +20,7 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function invalidParamName(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDecription =  { -- invalid name of parameter
-      moduleType = pModuleType
-    },
+    modduleType = pModuleType, -- invalid name of parameter
     subscribe = true
   })
 
@@ -36,9 +34,7 @@ end
 
 local function invalidParamType(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = 17 -- invalid type of parameter
   })
 
@@ -52,9 +48,7 @@ end
 
 local function missingMandatoryParam(self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      -- moduleType = "CLIMATE", --  mandatory parameter absent
-    },
+    -- moduleType = "CLIMATE", --  mandatory parameter absent
     subscribe = true
   })
 
@@ -68,18 +62,14 @@ end
 
 local function fakeParam(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType,
-      fakeParam = 7
-    },
+    moduleType = pModuleType,
+    fakeParam = 7,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)

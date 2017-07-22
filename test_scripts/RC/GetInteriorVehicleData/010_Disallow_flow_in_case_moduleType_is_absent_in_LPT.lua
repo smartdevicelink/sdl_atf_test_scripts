@@ -17,9 +17,7 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function getDataForModule(module_type, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = module_type
-    },
+    moduleType = module_type,
     subscribe = true
   })
 

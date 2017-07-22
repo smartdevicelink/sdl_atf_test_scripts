@@ -20,9 +20,7 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    }
+    moduleType = pModuleType
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData")

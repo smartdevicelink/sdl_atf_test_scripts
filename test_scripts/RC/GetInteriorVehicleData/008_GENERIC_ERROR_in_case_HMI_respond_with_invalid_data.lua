@@ -18,17 +18,13 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function invalidParamType(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
@@ -43,17 +39,13 @@ end
 
 local function missingMandatoryParam(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)

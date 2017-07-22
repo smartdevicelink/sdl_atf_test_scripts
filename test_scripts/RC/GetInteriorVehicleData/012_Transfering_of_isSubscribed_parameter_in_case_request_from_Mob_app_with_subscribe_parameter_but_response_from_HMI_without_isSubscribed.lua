@@ -17,17 +17,13 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = pSubscribe
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = pSubscribe
   })
   :Do(function(_, data)
