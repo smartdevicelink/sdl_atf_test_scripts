@@ -19,17 +19,13 @@ local error_codes = { "GENERIC_ERROR", "INVALID_DATA", "OUT_OF_MEMORY", "REJECTE
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType, pResultCode, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)

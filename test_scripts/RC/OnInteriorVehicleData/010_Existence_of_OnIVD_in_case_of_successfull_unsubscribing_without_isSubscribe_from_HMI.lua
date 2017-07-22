@@ -19,17 +19,13 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function unSubscriptionToModule(pModuleType, self)
   local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = false
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleDescription = {
-      moduleType = pModuleType
-    },
+    moduleType = pModuleType,
     subscribe = false
   })
   :Do(function(_, data)
