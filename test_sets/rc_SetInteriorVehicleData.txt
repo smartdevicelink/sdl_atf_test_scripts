@@ -7,4 +7,3 @@
 ./test_scripts/RC/SetInteriorVehicleData/007_Success_flow_in_case_moduleType_is_an_empty_array_in_LPT.lua
 ./test_scripts/RC/SetInteriorVehicleData/008_Disallow_flow_in_case_moduleType_is_absent_in_LPT.lua
 ./test_scripts/RC/SetInteriorVehicleData/009_Cut-off_of_fake_parameters_from_App.lua
-./test_scripts/RC/SetInteriorVehicleData/010_Cut-off_of_fake_parameters_from_HMI.lua
