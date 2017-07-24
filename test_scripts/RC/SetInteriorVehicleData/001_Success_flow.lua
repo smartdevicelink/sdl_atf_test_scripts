@@ -2,7 +2,7 @@
 -- Description
 -- In case:
 -- 1) Application is registered with REMOTE_CONTROL appHMIType
--- 2) and sends valid SetInteriorVehicleData RPC with <"moduleType"> and "<*ControlData>" parameters
+-- 2) and sends valid SetInteriorVehicleData RPC with valid parameters
 -- SDL must:
 -- 1) Transfer this request to HMI
 -- 2) Respond with <result_code> received from HMI
