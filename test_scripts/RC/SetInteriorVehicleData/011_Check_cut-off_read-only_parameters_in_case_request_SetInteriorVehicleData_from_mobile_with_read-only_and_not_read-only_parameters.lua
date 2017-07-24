@@ -55,11 +55,11 @@ local function setVehicleData(pModuleType, self)
 		end)
 	:ValidIf(function(_, data)
 			local isFalse = false
-			for k1, _ in pairs(getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))) do
-				for k2, _ in pairs(getModuleParams(data.params.moduleData)) do
-					if k1 == k2 then
+			for param_readonly, _ in pairs(getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))) do
+				for param_actual, _ in pairs(getModuleParams(data.params.moduleData)) do
+					if param_readonly == param_actual then
 						isFalse = true
-						commonFunctions:userPrint(36, "Unexpected read-only parameter: " .. k1)
+						commonFunctions:userPrint(36, "Unexpected read-only parameter: " .. param_readonly)
 					end
 				end
 			end
