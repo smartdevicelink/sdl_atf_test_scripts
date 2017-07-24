@@ -22,6 +22,15 @@ local module_data_climate = {
 	}
 }
 
+local read_only_radio_params = {
+	rdsData = {PS = "103.2FM"},
+	availableHDs = 2,
+	signalStrength = 70,
+	signalChangeThreshold = 50,
+	radioEnable = true,
+	state = "ACQUIRED"
+}
+
 --[[ Local Functions ]]
 local function setVehicleData(module_data, self)
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = module_data})
@@ -39,5 +48,14 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test: SDL respond with READ_ONLY if SetInteriorVehicleData is sent with read_only params")
 runner.Step("Send SetInteriorVehicleData with currentTemperature only", setVehicleData, { module_data_climate })
+
+for k, v in pairs( read_only_radio_params ) do
+	local module_data_radio = {
+		moduleType = "RADIO",
+		radioControlData = {[k] = v}
+	}
+	runner.Step("Send SetInteriorVehicleData with " .. tostring( k ) .. " only", setVehicleData, { module_data_radio })
+end
+
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
