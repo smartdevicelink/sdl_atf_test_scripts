@@ -1,6 +1,13 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: SetInteriorVehicleData
--- Script: 006
+-- Description
+-- In case:
+-- 1) RC app sends SetInteriorVehicleData request with invalid parameters
+--    - invalid parameter name
+--    - invalid parameter type
+--    - missing mandatory parameter
+-- SDL must:
+-- 1) Do not transfer request to HMI
+-- 2) Respond with success:false, "INVALID_DATA"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

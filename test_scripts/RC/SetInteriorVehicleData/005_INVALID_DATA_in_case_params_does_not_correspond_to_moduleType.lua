@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: SetInteriorVehicleData
--- Script: 004
+-- Description #1
+-- In case:
+-- 1) Application registered with REMOTE_CONTROL AppHMIType and sends SetInteriorVehicleData RPC
+-- 2) (with "climateControlData" and RADIO moduleType) OR (with "radioControlData" and CLIMATE moduleType)
+-- SDL must:
+-- 1) Respond with "resultCode: INVALID_DATA, success: false" to this mobile app, not transferring this RPC to the vehicle
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

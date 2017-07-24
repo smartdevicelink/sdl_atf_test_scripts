@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: SetInteriorVehicleData
--- Script: 009
+-- Description
+-- In case:
+-- 1) Mobile app send SetInteriorVehicleData with moduleType that matches with controlData structure
+-- 2) and control data structure has fake parameters (in this case related to another module or unknown)
+-- SDL must:
+-- 1) Cut off these parameters and forward to HMI only parameters of controlData that are related to requested moduleType
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

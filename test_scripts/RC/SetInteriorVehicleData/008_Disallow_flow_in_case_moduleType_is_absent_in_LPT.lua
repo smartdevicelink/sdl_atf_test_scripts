@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: SetInteriorVehicleData
--- Script: 008
+-- Description
+-- In case:
+-- 1) "moduleType" does not exist in app's assigned policies
+-- 2) and RC app sends SetInteriorVehicleData request with valid parameters
+-- SDL must:
+-- 1) Disallow this RPC to be processed (success:false, "DISALLOWED")
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
