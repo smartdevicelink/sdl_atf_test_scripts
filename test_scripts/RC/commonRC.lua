@@ -410,4 +410,35 @@ function commonRC.getButtonNameByModule(pModuleType)
   end
 end
 
+function commonRC.getReadOnlyParamsByModule(pModuleType)
+  local out = { moduleType = pModuleType }
+  if pModuleType == "CLIMATE" then
+    out.climateControlData = {
+      currentTemperature = {
+        unit = "FAHRENHEIT",
+        value = 32.6
+      }
+    }
+  elseif pModuleType == "RADIO" then
+    out.radioControlData = {
+      rdsData = {
+        PS = "ps",
+        RT = "rt",
+        CT = "123456789012345678901234",
+        PI = "pi",
+        PTY = 2,
+        TP = false,
+        TA = true,
+        REG = "US"
+      },
+      availableHDs = 2,
+      signalStrength = 4,
+      signalChangeThreshold = 22,
+      radioEnable = true,
+      state = "MULTICAST"
+    }
+  end
+  return out
+end
+
 return commonRC
