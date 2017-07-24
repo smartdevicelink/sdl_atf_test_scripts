@@ -32,6 +32,7 @@ local function setVehicleData(pModuleType, self)
 			if data.payload.moduleData.fakeParam then
 				return false, 'Fake parameter is not cut-off ("fakeParam":' .. tostring(data.payload.moduleData.fakeParam) .. ")"
 			end
+			return true
 		end)
 end
 
