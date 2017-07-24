@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: SetInteriorVehicleData
 -- Description
 -- In case:
 -- 1) application sends valid SetInteriorVehicleData with just read-only parameters in "climateControlData" struct for muduleType: CLIMATE,
+-- OR
 -- 2) application sends valid SetInteriorVehicleData with just read-only parameters in "radioControlData" struct for muduleType: RADIO
 -- SDL must
 -- respond with "resultCode: READ_ONLY, success:false" to this application and do not process this RPC.
