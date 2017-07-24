@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: ButtonPress
--- Script: 005
+-- Description
+-- In case:
+-- 1) RC app sends ButtonPress request with invalid parameters
+-- SDL must:
+-- 1) Do not transfer request to HMI
+-- 2) Respond with success:false, "INVALID_DATA"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')

@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: ButtonPress
--- Script: 003
+-- Description
+-- In case:
+-- 1) Non remote-control application is registered on SDL
+-- 2) and SDL received ButtonPress request from this App
+-- SDL must:
+-- 1) Disallow remote-control RPCs for this app (success:false, "DISALLOWED")
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')

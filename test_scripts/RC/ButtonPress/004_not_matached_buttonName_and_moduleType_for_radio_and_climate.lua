@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: ButtonPress
--- Script: 004
+-- Description
+-- In case:
+-- 1) Application registered with REMOTE_CONTROL AppHMIType sends ButtonPress RPC
+-- 2) (with <climate-related-buttons> and RADIO moduleType) OR (with <radio-related-buttons> and CLIMATE moduleType)
+-- SDL must:
+-- 1) Respond with "resultCode: INVALID_DATA, success: false" to this mobile app, not transferring this RPC to the vehicle
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')

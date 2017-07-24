@@ -1,6 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: ButtonPress
--- Script: 012
+-- In case:
+-- 1) RC app sends ButtonPress request with valid parameters
+-- 2) and SDL gets response (resultCode: READ_ONLY) from HMI
+-- SDL must:
+-- 1) Respond to App with success:false, "GENERIC_ERROR"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

@@ -1,6 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: ButtonPress
--- Script: 002
+-- Description
+-- In case:
+-- 1) "moduleType" in app's assigned policies has one or more valid values
+-- 2) and SDL received ButtonPress request from App with moduleType not in list
+-- SDL must:
+-- 1) Disallow app's remote-control RPCs for this module (success:false, "DISALLOWED")
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')

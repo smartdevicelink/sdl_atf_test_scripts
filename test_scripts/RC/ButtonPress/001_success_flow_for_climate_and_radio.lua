@@ -1,6 +1,11 @@
 ---------------------------------------------------------------------------------------------------
--- RPC: ButtonPress
--- Script: 001
+-- Description
+-- In case:
+-- 1) Application is registered with REMOTE_CONTROL appHMIType
+-- 2) and sends valid ButtonPress RPC with valid parameters
+-- SDL must:
+-- 1) Transfer this request to HMI
+-- 2) Respond with <result_code> received from HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
