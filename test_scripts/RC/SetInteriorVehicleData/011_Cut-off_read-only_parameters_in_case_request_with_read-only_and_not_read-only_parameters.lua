@@ -15,15 +15,6 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
 
---[[ Local Functions ]]
-local function getNonReadOnlyParams(pModuleType)
-	if pModuleType == "CLIMATE" then
-		return { fanSpeed = 55 }
-	elseif pModuleType == "RADIO" then
-		return { band = "FM" }
-	end
-end
-
 local function getModuleParams(pModuleData)
 	if pModuleData.climateControlData then
 		return pModuleData.climateControlData
@@ -32,11 +23,29 @@ local function getModuleParams(pModuleData)
 	end
 end
 
-local function setVehicleData(pModuleType, self)
+local function getNonReadOnlyParams(pModuleType)
+	local params_all = getModuleParams(commonRC.getModuleControlData(pModuleType))
+	local params_read_only = getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))
+	local params_settable = { }
+	for p, v in pairs(params_all) do
+		local isSettable = true
+		for p_read_only, _ in pairs(params_read_only) do
+			if p == p_read_only then
+				isSettable = false
+			end
+		end
+		if isSettable then
+			params_settable[p] = v
+		end
+	end
+	return params_settable
+end
+
+local function setVehicleData(pModuleType, pParams, self)
 	local moduleDataReadOnly = commonRC.getReadOnlyParamsByModule(pModuleType)
 	local moduleDataCombined = commonFunctions:cloneTable(moduleDataReadOnly)
 
-	for k, v in pairs(getNonReadOnlyParams(pModuleType)) do
+	for k, v in pairs(pParams) do
 		getModuleParams(moduleDataCombined)[k] = v
 	end
 
@@ -80,8 +89,16 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 
 runner.Title("Test")
 
+-- one settable parameter
 for _, mod in pairs(modules) do
-  runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
+	for param, value in pairs(getNonReadOnlyParams(mod)) do
+	  runner.Step("SetInteriorVehicleData " .. mod .. "_one_settable_param_" .. param, setVehicleData, { mod, { [param] = value } })
+	end
+end
+
+-- all settable parameters
+for _, mod in pairs(modules) do
+	runner.Step("SetInteriorVehicleData " .. mod .. "_all_settable_params", setVehicleData, { mod, getNonReadOnlyParams(mod) })
 end
 
 runner.Title("Postconditions")
