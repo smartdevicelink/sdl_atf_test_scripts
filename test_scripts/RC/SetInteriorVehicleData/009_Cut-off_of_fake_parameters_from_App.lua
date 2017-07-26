@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) Mobile app send SetInteriorVehicleData with moduleType that matches with controlData structure
 -- 2) and control data structure has fake parameters (in this case related to another module or unknown)

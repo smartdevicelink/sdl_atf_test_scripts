@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+-- Requirement summary:
+-- [SDL_RC] Button press event emulation Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app sends ButtonPress request with valid parameters
 -- 2) and SDL gets response (resultCode: READ_ONLY) from HMI

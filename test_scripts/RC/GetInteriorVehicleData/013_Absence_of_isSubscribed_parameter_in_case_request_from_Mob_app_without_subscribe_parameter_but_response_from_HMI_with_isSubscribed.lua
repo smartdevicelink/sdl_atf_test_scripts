@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Current module status data GetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app sends valid and allowed by policies GetInteriorvehicleData request without "subscribe" parameter
 -- 2) and SDL received GetInteriorVehicledata response with "resultCode:<any_result>" and with "isSubscribed" parameter from HMI

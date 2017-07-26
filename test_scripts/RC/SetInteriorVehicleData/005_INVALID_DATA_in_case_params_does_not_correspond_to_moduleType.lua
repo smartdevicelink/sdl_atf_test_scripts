@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description #1
+-- Requirement summary:
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) Application registered with REMOTE_CONTROL AppHMIType and sends SetInteriorVehicleData RPC
 -- 2) (with "climateControlData" and RADIO moduleType) OR (with "radioControlData" and CLIMATE moduleType)

@@ -1,5 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Button press event emulation Requirement
+-- [SDL_RC] Policy support of basic RC functionality Requirement
+--
+-- Description:
 -- In case:
 -- 1) "moduleType" in app's assigned policies has an empty array
 -- 2) and RC app sends ButtonPress request with valid parameters

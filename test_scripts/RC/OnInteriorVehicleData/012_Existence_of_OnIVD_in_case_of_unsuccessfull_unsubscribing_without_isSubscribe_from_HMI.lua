@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Unsubscribe from RC module change notifications Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app is subscribed to "<moduleType_value>"
 -- 2) and RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:false" parameter

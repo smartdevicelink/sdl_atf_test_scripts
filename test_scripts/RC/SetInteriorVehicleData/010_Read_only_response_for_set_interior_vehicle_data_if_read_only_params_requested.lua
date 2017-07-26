@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) application sends valid SetInteriorVehicleData with just read-only parameters in "climateControlData" struct for muduleType: CLIMATE,
 -- OR

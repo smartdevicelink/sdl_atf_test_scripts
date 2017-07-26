@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Button press event emulation Requirement
+--
+-- Description:
 -- In case:
 -- 1) Non remote-control application is registered on SDL
 -- 2) and SDL received ButtonPress request from this App

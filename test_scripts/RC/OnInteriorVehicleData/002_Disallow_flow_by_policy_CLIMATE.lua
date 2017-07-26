@@ -1,5 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Subscribe on RC module change notification Requirement
+-- [SDL_RC] Policy support of basic RC functionality Requirement
+--
+-- Description:
 -- In case:
 -- 1) A set of module(s) is defined in policies for particular RC app
 -- 2) and this RC app is subscribed to one of the module from the list

@@ -1,5 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Subscribe on RC module change notification Requirement
+-- [SDL_RC] Unsubscribe from RC module change notifications Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app is subscribed to one of the RC module
 -- 2) and then SDL received OnInteriorVehicleData notification for another module

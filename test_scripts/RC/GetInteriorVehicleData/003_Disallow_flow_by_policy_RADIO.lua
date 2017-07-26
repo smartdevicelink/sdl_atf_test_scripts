@@ -1,5 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Current module status data GetInteriorVehicleData Requirement
+-- [SDL_RC] Policy support of basic RC functionality Requirement
+--
+-- Description:
 -- In case:
 -- 1) "moduleType" in app's assigned policies has one or more valid values
 -- 2) and SDL received GetInteriorVehicleData request from App with moduleType not in list

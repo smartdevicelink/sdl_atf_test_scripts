@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Unsubscribe from RC module change notifications Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app is subscribed to a few RC modules
 -- 2) and then RC app is unsubscribed to one of the module

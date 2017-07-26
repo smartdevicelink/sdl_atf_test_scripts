@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) Application sends valid SetInteriorVehicleData with read-only parameters
 -- 2) and one or more settable parameters in "radioControlData" struct, for moduleType: RADIO,

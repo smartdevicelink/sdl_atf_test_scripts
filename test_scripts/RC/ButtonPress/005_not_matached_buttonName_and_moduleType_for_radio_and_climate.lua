@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Button press event emulation Requirement
+--
+-- Description:
 -- In case:
 -- 1) Application registered with REMOTE_CONTROL AppHMIType sends ButtonPress RPC
 -- 2) (with <climate-related-buttons> and RADIO moduleType) OR (with <radio-related-buttons> and CLIMATE moduleType)

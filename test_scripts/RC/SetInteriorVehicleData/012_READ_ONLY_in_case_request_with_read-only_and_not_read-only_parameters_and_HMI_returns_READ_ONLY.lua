@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) SDL has sent SetInteriorVehicleData with one or more settable parameters in "moduleData" struct
 -- 2) and HMI responds with "resultCode: READ_ONLY"

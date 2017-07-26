@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Current module status data GetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app sends GetInteriorVehicleData request with valid parameters
 -- 2) and SDL gets response (resultCode: READ_ONLY) from HMI

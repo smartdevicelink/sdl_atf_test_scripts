@@ -1,5 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+-- [SDL_RC] Policy support of basic RC functionality Requirement
+--
+-- Description:
 -- In case:
 -- 1) "moduleType" in app's assigned policies has one or more valid values
 -- 2) and SDL received SetInteriorVehicleData request from App with moduleType not in list

@@ -1,5 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Description
+-- Requirement summary:
+-- [SDL_RC] Current module status data GetInteriorVehicleData Requirement
+--
+-- Description:
 -- In case:
 -- 1) RC app sends GetInteriorVehicleData request with invalid parameters
 --    - invalid parameter name
