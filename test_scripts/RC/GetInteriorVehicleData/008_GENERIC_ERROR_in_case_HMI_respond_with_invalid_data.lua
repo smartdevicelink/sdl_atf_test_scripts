@@ -37,7 +37,7 @@ local function invalidParamType(pModuleType, self)
       })
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
+  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 local function missingMandatoryParam(pModuleType, self)
@@ -60,7 +60,7 @@ local function missingMandatoryParam(pModuleType, self)
       })
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
+  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 --[[ Scenario ]]
