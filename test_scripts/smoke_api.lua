@@ -1222,14 +1222,20 @@ end
 
 function Test:ListFiles()
   local cid = self.mobileSession:SendRPC("ListFiles", {} )
-
   EXPECT_RESPONSE(cid,
     {
       success = true,
       resultCode = "SUCCESS",
-      spaceAvailable = 103878520,
-      filenames = { " SpaceBefore", strMaxLengthFileName255, "icon.png" }
+      spaceAvailable = 103878520
     })
+  :ValidIf(function(_, data)
+    local files_expected = { " SpaceBefore", strMaxLengthFileName255, "icon.png" }
+    if not commonFunctions:is_table_equal(data.payload.filenames, files_expected) then
+        return false, "\nExpected files:\n" .. commonFunctions:convertTableToString(files_expected, 1)
+          .. "\nActual files:\n" .. commonFunctions:convertTableToString(data.payload.filenames, 1)
+      end
+    return true
+    end)
 end
 
 -- End Test case 1.11
