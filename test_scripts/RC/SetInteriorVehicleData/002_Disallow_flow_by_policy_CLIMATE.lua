@@ -17,7 +17,7 @@ local mod = "CLIMATE"
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
-		moduleData = commonRC.getModuleControlData(pModuleType)
+		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData")

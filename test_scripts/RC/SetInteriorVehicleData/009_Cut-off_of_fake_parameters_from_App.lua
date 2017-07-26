@@ -15,7 +15,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
-	local moduleData = commonRC.getModuleControlData(pModuleType)
+	local moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	moduleData.fakeParam = 123
 	self.mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleData
@@ -23,7 +23,7 @@ local function setVehicleData(pModuleType, self)
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
 		appID = self.applications["Test Application"],
-		moduleData = commonRC.getModuleControlData(pModuleType)
+		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 	:ValidIf(function(_, data)
 			if data.params.moduleData.fakeParam then

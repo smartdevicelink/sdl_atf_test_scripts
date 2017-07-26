@@ -23,7 +23,7 @@ local function setVehicleData(pModuleType, self)
     moduleType2 = "CLIMATE"
   end
 
-  local moduleData = commonRC.getModuleControlData(moduleType2)
+  local moduleData = commonRC.getSettableModuleControlData(moduleType2)
   moduleData.moduleType = pModuleType
 
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {

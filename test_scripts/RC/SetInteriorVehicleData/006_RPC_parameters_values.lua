@@ -20,7 +20,7 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function invalidParamName(pModuleType, self)
   local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
-    moduleDData = commonRC.getModuleControlData(pModuleType) -- invalid name of parameter
+    moduleDData = commonRC.getSettableModuleControlData(pModuleType) -- invalid name of parameter
   })
 
   EXPECT_HMICALL("RC.SetInteriorVehicleData", {})
@@ -32,7 +32,7 @@ local function invalidParamName(pModuleType, self)
 end
 
 local function invalidParamType(pModuleType, self)
-  local moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  local moduleData = commonRC.getSettableModuleControlData(pModuleType)
   moduleData.moduleType = {} -- invalid type of parameter
 
   local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
@@ -48,7 +48,7 @@ local function invalidParamType(pModuleType, self)
 end
 
 local function missingMandatoryParam(pModuleType, self)
-  local moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+  local moduleData = commonRC.getSettableModuleControlData(pModuleType)
   moduleData.moduleType = nil -- mandatory parameter missing
 
   local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
@@ -65,17 +65,17 @@ end
 
 local function fakeParam(pModuleType, self)
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
-		moduleData = commonRC.getModuleControlData(pModuleType),
+		moduleData = commonRC.getSettableModuleControlData(pModuleType),
     fakeParam = 6
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
 		appID = self.applications["Test Application"],
-		moduleData = commonRC.getModuleControlData(pModuleType)
+		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 	:Do(function(_, data)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-				moduleData = commonRC.getModuleControlData(pModuleType)
+				moduleData = commonRC.getSettableModuleControlData(pModuleType)
 			})
 		end)
 

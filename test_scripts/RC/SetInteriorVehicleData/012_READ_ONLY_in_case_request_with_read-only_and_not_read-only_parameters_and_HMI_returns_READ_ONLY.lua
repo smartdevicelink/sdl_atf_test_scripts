@@ -16,12 +16,12 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
-		moduleData = commonRC.getModuleControlData(pModuleType)
+		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
 		appID = self.applications["Test Application"],
-		moduleData = commonRC.getModuleControlData(pModuleType)
+		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 	:Do(function(_, data)
 			self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Info message")
