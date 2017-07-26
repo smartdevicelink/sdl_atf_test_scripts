@@ -15,38 +15,12 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
 
-local function getModuleParams(pModuleData)
-	if pModuleData.climateControlData then
-		return pModuleData.climateControlData
-	elseif pModuleData.radioControlData then
-		return pModuleData.radioControlData
-	end
-end
-
-local function getNonReadOnlyParams(pModuleType)
-	local params_all = getModuleParams(commonRC.getModuleControlData(pModuleType))
-	local params_read_only = getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))
-	local params_settable = { }
-	for p, v in pairs(params_all) do
-		local isSettable = true
-		for p_read_only, _ in pairs(params_read_only) do
-			if p == p_read_only then
-				isSettable = false
-			end
-		end
-		if isSettable then
-			params_settable[p] = v
-		end
-	end
-	return params_settable
-end
-
 local function setVehicleData(pModuleType, pParams, self)
 	local moduleDataReadOnly = commonRC.getReadOnlyParamsByModule(pModuleType)
 	local moduleDataCombined = commonFunctions:cloneTable(moduleDataReadOnly)
 
 	for k, v in pairs(pParams) do
-		getModuleParams(moduleDataCombined)[k] = v
+		commonRC.getModuleParams(moduleDataCombined)[k] = v
 	end
 
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
@@ -64,8 +38,8 @@ local function setVehicleData(pModuleType, pParams, self)
 		end)
 	:ValidIf(function(_, data)
 			local isFalse = false
-			for param_readonly, _ in pairs(getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))) do
-				for param_actual, _ in pairs(getModuleParams(data.params.moduleData)) do
+			for param_readonly, _ in pairs(commonRC.getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))) do
+				for param_actual, _ in pairs(commonRC.getModuleParams(data.params.moduleData)) do
 					if param_readonly == param_actual then
 						isFalse = true
 						commonFunctions:userPrint(36, "Unexpected read-only parameter: " .. param_readonly)
@@ -91,14 +65,16 @@ runner.Title("Test")
 
 -- one settable parameter
 for _, mod in pairs(modules) do
-	for param, value in pairs(getNonReadOnlyParams(mod)) do
+	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(mod))
+	for param, value in pairs(settableParams) do
 	  runner.Step("SetInteriorVehicleData " .. mod .. "_one_settable_param_" .. param, setVehicleData, { mod, { [param] = value } })
 	end
 end
 
 -- all settable parameters
 for _, mod in pairs(modules) do
-	runner.Step("SetInteriorVehicleData " .. mod .. "_all_settable_params", setVehicleData, { mod, getNonReadOnlyParams(mod) })
+	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(mod))
+	runner.Step("SetInteriorVehicleData " .. mod .. "_all_settable_params", setVehicleData, { mod, settableParams })
 end
 
 runner.Title("Postconditions")

@@ -441,4 +441,27 @@ function commonRC.getReadOnlyParamsByModule(pModuleType)
   return out
 end
 
+function commonRC.getModuleParams(pModuleData)
+  if pModuleData.moduleType == "CLIMATE" then
+    if not pModuleData.climateControlData then
+      pModuleData.climateControlData = { }
+    end
+    return pModuleData.climateControlData
+  elseif pModuleData.moduleType == "RADIO" then
+    if not pModuleData.radioControlData then
+      pModuleData.radioControlData = { }
+    end
+    return pModuleData.radioControlData
+  end
+end
+
+function commonRC.getSettableModuleControlData(pModuleType)
+  local out = commonRC.getModuleControlData(pModuleType)
+  local params_read_only = commonRC.getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))
+  for p_read_only in pairs(params_read_only) do
+    commonRC.getModuleParams(out)[p_read_only] = nil
+  end
+  return out
+end
+
 return commonRC
