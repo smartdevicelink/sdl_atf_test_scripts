@@ -15,44 +15,54 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
 
-local function setVehicleData(pModuleType, pParams, self)
-	local moduleDataReadOnly = commonRC.getReadOnlyParamsByModule(pModuleType)
-	local moduleDataCombined = commonFunctions:cloneTable(moduleDataReadOnly)
+local function isModuleDataCorrect(pModuleType, actualModuleData)
+	local isFalse = false
+	for param_readonly, _ in pairs(commonRC.getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))) do
+		for param_actual, _ in pairs(commonRC.getModuleParams(actualModuleData)) do
+			if param_readonly == param_actual then
+				isFalse = true
+				commonFunctions:userPrint(36, "Unexpected read-only parameter: " .. param_readonly)
+			end
+		end
+	end
+	if isFalse then
+		return false
+	end
+	return true
+end
 
+local function setVehicleData(pModuleType, pParams, self)
+	local moduleDataCombined = commonRC.getReadOnlyParamsByModule(pModuleType)
+	local moduleDataSettable = { moduleType = pModuleType }
 	for k, v in pairs(pParams) do
 		commonRC.getModuleParams(moduleDataCombined)[k] = v
+		commonRC.getModuleParams(moduleDataSettable)[k] = v
 	end
 
 	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleDataCombined
 	})
 
-	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-		appID = self.applications["Test Application"],
-		moduleData = moduleDataReadOnly
-	})
+	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{ appID = self.applications["Test Application"]	})
 	:Do(function(_, data)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-				moduleData = moduleDataReadOnly
+				moduleData = moduleDataSettable
 			})
 		end)
 	:ValidIf(function(_, data)
-			local isFalse = false
-			for param_readonly, _ in pairs(commonRC.getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))) do
-				for param_actual, _ in pairs(commonRC.getModuleParams(data.params.moduleData)) do
-					if param_readonly == param_actual then
-						isFalse = true
-						commonFunctions:userPrint(36, "Unexpected read-only parameter: " .. param_readonly)
-					end
-				end
-			end
-			if isFalse then
+			if not isModuleDataCorrect(pModuleType, data.params.moduleData) then
 				return false, "Test step failed, see prints"
 			end
 			return true
 		end)
 
 	self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+	:ValidIf(function(_, data)
+			if not isModuleDataCorrect(pModuleType, data.payload.moduleData) then
+				return false, "Test step failed, see prints"
+			end
+			return true
+		end)
 end
 
 --[[ Scenario ]]
