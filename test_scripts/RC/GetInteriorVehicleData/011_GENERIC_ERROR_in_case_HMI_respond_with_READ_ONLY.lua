@@ -26,10 +26,10 @@ local function getDataForModule(module_type, self)
     subscribe = true
   })
   :Do(function(_, data)
-      self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Read only parameters received")
+      self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Info message")
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Info message" })
 end
 
 --[[ Scenario ]]

@@ -24,10 +24,10 @@ local function setVehicleData(pModuleType, self)
 		moduleData = commonRC.getModuleControlData(pModuleType)
 	})
 	:Do(function(_, data)
-			self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Read only parameters received")
+			self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Info message")
 		end)
 
-	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY" })
+	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY", info = "Info message" })
 end
 
 --[[ Scenario ]]
