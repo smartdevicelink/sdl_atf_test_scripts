@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Button press event emulation Requirement
+-- [SDL_RC] Button press event emulation
 --
 -- Description:
 -- In case:

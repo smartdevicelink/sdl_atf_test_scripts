@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Button press event emulation Requirement
--- [SDL_RC] Policy support of basic RC functionality Requirement
+-- [SDL_RC] Button press event emulation
+-- [SDL_RC] Policy support of basic RC functionality
 --
 -- Description:
 -- In case:

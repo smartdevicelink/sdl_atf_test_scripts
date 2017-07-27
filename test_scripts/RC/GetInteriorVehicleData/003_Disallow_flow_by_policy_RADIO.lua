@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Current module status data GetInteriorVehicleData Requirement
--- [SDL_RC] Policy support of basic RC functionality Requirement
+-- [SDL_RC] Current module status data GetInteriorVehicleData
+-- [SDL_RC] Policy support of basic RC functionality
 --
 -- Description:
 -- In case:

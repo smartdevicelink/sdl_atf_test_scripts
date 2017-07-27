@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Subscribe on RC module change notification Requirement
--- [SDL_RC] Unsubscribe from RC module change notifications Requirement
+-- [SDL_RC] Subscribe on RC module change notification
+-- [SDL_RC] Unsubscribe from RC module change notifications
 --
 -- Description:
 -- In case:

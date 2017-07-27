@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Subscribe on RC module change notification Requirement
--- [SDL_RC] Policy support of basic RC functionality Requirement
+-- [SDL_RC] Subscribe on RC module change notification
+-- [SDL_RC] Policy support of basic RC functionality
 --
 -- Description:
 -- In case:

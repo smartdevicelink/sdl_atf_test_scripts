@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Current module status data GetInteriorVehicleData Requirement
+-- [SDL_RC] Current module status data GetInteriorVehicleData
 --
 -- Description:
 -- In case:

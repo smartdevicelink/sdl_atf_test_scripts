@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Subscribe on RC module change notification Requirement
+-- [SDL_RC] Subscribe on RC module change notification
 --
 -- Description:
 -- In case:

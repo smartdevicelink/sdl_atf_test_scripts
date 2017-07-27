@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
--- [SDL_RC] Policy support of basic RC functionality Requirement
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData
+-- [SDL_RC] Policy support of basic RC functionality
 --
 -- Description:
 -- In case:

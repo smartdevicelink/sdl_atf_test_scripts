@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
--- [SDL_RC] Set available control module settings SetInteriorVehicleData Requirement
+-- [SDL_RC] Set available control module settings SetInteriorVehicleData
 --
 -- Description:
 -- In case:
