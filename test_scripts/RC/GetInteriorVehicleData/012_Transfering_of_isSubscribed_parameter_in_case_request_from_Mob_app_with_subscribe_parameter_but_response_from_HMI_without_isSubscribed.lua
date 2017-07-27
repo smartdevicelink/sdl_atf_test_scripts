@@ -24,10 +24,14 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, s
     subscribe = pSubscribe
   })
 
+  local pSubscribeHMI = pSubscribe
+  if (isSubscriptionActive and pSubscribe) or (not isSubscriptionActive and not pSubscribe) then
+    pSubscribeHMI = nil
+  end
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
     moduleType = pModuleType,
-    subscribe = pSubscribe
+    subscribe = pSubscribeHMI
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
