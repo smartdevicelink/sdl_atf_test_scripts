@@ -2,15 +2,15 @@
 -- Requirement summary:
 -- [SDL_RC] Unsubscribe from RC module change notifications
 --
--- Description:
+-- Description: TRS: GetInteriorVehicleData, #11
 -- In case:
 -- 1) RC app is subscribed to "<moduleType_value>"
 -- 2) and RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:false" parameter
 -- 3) and SDL received GetInteriorVehicleData response with "resultCode: <any-erroneous-result>" from HMI
---    and without "isSubscribed" parameter
 -- 4) and then SDL received OnInteriorVehicleData notification
 -- SDL must:
--- 1) Transfer GetInteriorVehicleData response with "resultCode: <any-erroneous-result>" and without "isSubscribed" param to the related app
+-- 1) Transfer GetInteriorVehicleData response with "resultCode: <any-erroneous-result>"
+-- and without "isSubscribed" param to the related app
 -- 2) Re-send OnInteriorVehicleData notification to the app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

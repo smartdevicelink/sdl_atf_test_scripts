@@ -2,7 +2,7 @@
 -- Requirement summary:
 -- [SDL_RC] Subscribe on RC module change notification
 --
--- Description:
+-- Description: TRS: GetInteriorVehicleData, #6
 -- In case:
 -- 1) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:true" parameter
 -- 2) and SDL received GetInteriorVehicleData response without "isSubscribed" parameter, "resultCode: SUCCESS" from HMI

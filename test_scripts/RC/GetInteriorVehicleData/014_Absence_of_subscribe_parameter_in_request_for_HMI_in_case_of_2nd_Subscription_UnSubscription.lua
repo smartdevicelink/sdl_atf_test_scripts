@@ -2,7 +2,7 @@
 -- Requirement summary:
 -- [SDL_RC] Current module status data GetInteriorVehicleData
 --
--- Description #1:
+-- Description: TRS: GetInteriorVehicleData, #12
 -- In case:
 -- 1) RC app is subscribed to "<moduleType_value>"
 -- 2) and sends valid and allowed-by-policies GetInteriorVehicleData request
@@ -12,7 +12,7 @@
 -- 2) not change the subscription status of the app
 -- 3) transfer HMI's response with added "isSubscribed: true" to the app
 --
--- Description #2:
+-- Description: TRS: GetInteriorVehicleData, #13
 -- In case:
 -- 1) RC app is not subscribed to "<moduleType_value>"
 -- 2) and sends valid and allowed-by-policies GetInteriorVehicleData request

@@ -2,13 +2,14 @@
 -- Requirement summary:
 -- [SDL_RC] Current module status data GetInteriorVehicleData
 --
--- Description:
+-- Description: TRS: GetInteriorVehicleData, #2
 -- In case:
--- 1) RC app sends valid and allowed by policies GetInteriorvehicleData request without "subscribe" parameter
--- 2) and SDL received GetInteriorVehicledata response with "resultCode:<any_result>" and with "isSubscribed" parameter from HMI
+-- 1) RC app sends valid and allowed-by-policies GetInteriorVehicleData_request without "subscribe" parameter
+-- 2) and SDL gets GetInteriorVehicleData_response with resultCode: <"any-result">
+-- 3) and with "isSubscribed" parameter from HMI
 -- SDL must:
--- 1) Transfer GetInteriorVehicleData response with provided from HMI current module data
--- and without "isSubscribed" parameter to the related app
+-- 1) transfer GetInteriorVehicleData_response with resultCode: <"any-result">
+-- and without "isSubscribed" param to the related app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

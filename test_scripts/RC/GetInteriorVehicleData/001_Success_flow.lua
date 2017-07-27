@@ -2,12 +2,12 @@
 -- Requirement summary:
 -- [SDL_RC] Current module status data GetInteriorVehicleData
 --
--- Description:
+-- Description: TRS: GetInteriorVehicleData, #3
 -- In case:
--- 1) RC app sends valid and allowed by policies GetInteriorVehicleData request
--- 2) and SDL received response with successful result code and current module data from HMI
+-- 1) RC app sends valid and allowed by policies GetInteriorvehicleData_request
+-- 2) and SDL received GetInteriorVehicledata_response with successful result code and current module data from HMI
 -- SDL must:
--- 1) Transfer GetInteriorVehicleData response with provided from HMI current module data for allowed module and control items
+-- 1) transfer GetInteriorVehicleData_response with provided from HMI current module data for allowed module and control items
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

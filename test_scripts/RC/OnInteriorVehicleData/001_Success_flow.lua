@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 -- Requirement summary:
 -- [SDL_RC] Subscribe on RC module change notification
--- Description:
+--
+-- Description: TRS: GetInteriorVehicleData, #4
 -- In case:
 -- 1) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:true" parameter
 -- 2) and SDL received GetInteriorVehicleData response with "isSubscribed: true", "resultCode: SUCCESS" from HMI
@@ -12,7 +13,8 @@
 -- 3) Re-send OnInteriorVehicleData notification to the related app
 --
 -- [SDL_RC] Unsubscribe from RC module change notifications
--- Description:
+--
+-- Description: TRS: GetInteriorVehicleData, #8
 -- In case:
 -- 1) RC app is subscribed to "<moduleType_value>"
 -- 2) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:false" parameter
