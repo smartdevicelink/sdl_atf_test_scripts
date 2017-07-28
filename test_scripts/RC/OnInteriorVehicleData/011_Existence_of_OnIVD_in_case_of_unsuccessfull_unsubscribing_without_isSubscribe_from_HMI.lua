@@ -39,6 +39,12 @@ local function unSubscriptionToModule(pModuleType, pResultCode, self)
     end)
 
   EXPECT_RESPONSE(cid, { success = false, resultCode = pResultCode })
+  :ValidIf(function(_, data) -- no isSubscribed parameter
+      if data.payload.isSubscribed == nil then
+        return true
+      end
+      return false, 'Parameter "isSubscribed" is transfered to App with value: ' .. tostring(data.payload.isSubscribed)
+    end)
 end
 
 --[[ Scenario ]]
