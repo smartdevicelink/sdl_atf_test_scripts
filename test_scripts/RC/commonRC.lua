@@ -6,7 +6,7 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 config.defaultProtocolVersion = 2
 config.ValidateSchema = false
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
-config.application2.registerAppInterfaceParams.appHMIType = nil
+config.application2.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -82,34 +82,18 @@ end
 
 local function updatePTU(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = {
-      keep_context = false,
-      steal_focus = false,
-      priority = "NONE",
-      default_hmi = "NONE",
-      moduleType = { "RADIO", "CLIMATE" },
-      groups = { "Base-4" },
-      groups_primaryRC = { "Base-4", "RemoteControl" },
-      AppHMIType = { "REMOTE_CONTROL" }
-    }
-  tbl.policy_table.functional_groupings["RemoteControl"] = {
-      rpcs = {
-        GetInteriorVehicleDataCapabilities = {
-          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-        },
-        GetInteriorVehicleData = {
-          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-        },
-        SetInteriorVehicleData = {
-          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-        },
-        ButtonPress = {
-          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-        },
-        OnInteriorVehicleData = {
-          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-        },
-      }
-    }
+    keep_context = false,
+    steal_focus = false,
+    priority = "NONE",
+    default_hmi = "NONE",
+    moduleType = { "RADIO", "CLIMATE" },
+    groups = { "Base-4" },
+    groups_primaryRC = { "Base-4", "RemoteControl" },
+    AppHMIType = { "REMOTE_CONTROL" }
+  }
+  tbl.policy_table.functional_groupings["RemoteControl"].rpcs.OnInteriorVehicleData = {
+    hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+  }
 end
 
 local function jsonFileToTable(file_name)
@@ -237,6 +221,35 @@ function commonRC.rai_n(id, self)
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
         end)
     end)
+end
+
+function commonRC.activate_app(pAppId, self)
+  self, pAppId = commonRC.getSelfAndParams(pAppId, self)
+
+  local pHMIAppId = self.applications["Test Application"]
+  local mobSession = self["mobileSession"]
+  if pAppId and pAppId > 1 then
+    mobSession = self["mobileSession" .. pAppId]
+    pHMIAppId = self.applications[config["application" .. pAppId].registerAppInterfaceParams.appID]
+  end
+  local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
+  EXPECT_HMIRESPONSE(requestId1)
+  :Do(function(_, data1)
+      if data1.result.isSDLAllowed ~= true then
+        local requestId2 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
+          { language = "EN-US", messageCodes = { "DataConsent" } })
+        EXPECT_HMIRESPONSE(requestId2)
+        :Do(function()
+            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+            EXPECT_HMICALL("BasicCommunication.ActivateApp")
+            :Do(function(_, data2)
+                self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
+              end)
+          end)
+      end
+    end)
+  mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
 end
 
 function commonRC.postconditions()
