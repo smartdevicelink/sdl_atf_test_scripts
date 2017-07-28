@@ -447,7 +447,6 @@ function commonRC.getReadOnlyParamsByModule(pModuleType)
       availableHDs = 2,
       signalStrength = 4,
       signalChangeThreshold = 22,
-      radioEnable = true,
       state = "MULTICAST"
     }
   end
