@@ -38,9 +38,15 @@ local function stepSuccessfull(pModuleType, pResultCode, self)
     end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = pResultCode,
-    -- isSubscribed = true,
+    isSubscribed = false,
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
+  -- :ValidIf(function(_, data) -- no isSubscribed parameter
+  --     if data.payload.isSubscribed == nil then
+  --       return true
+  --     end
+  --     return false, 'Parameter "isSubscribed" is transfered to App with value: ' .. tostring(data.payload.isSubscribed)
+  --   end)
 end
 
 local function stepUnsuccessfull(pModuleType, pResultCode, self)

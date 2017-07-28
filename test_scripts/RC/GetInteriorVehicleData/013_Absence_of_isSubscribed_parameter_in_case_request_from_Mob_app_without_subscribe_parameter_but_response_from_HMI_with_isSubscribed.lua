@@ -28,7 +28,6 @@ local function getDataForModule(pModuleType, isSubscriptionActive, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
     moduleType = pModuleType
-    -- no subscribe parameter
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
@@ -36,11 +35,22 @@ local function getDataForModule(pModuleType, isSubscriptionActive, self)
         isSubscribed = isSubscriptionActive -- return current value of subscription
       })
     end)
+  :ValidIf(function(_, data) -- no subscribe parameter
+      if data.params.subscribe == nil then
+        return true
+      end
+      return false, 'Parameter "subscribe" is transfered with to HMI value: ' .. tostring(data.params.subscribe)
+    end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
     moduleData = commonRC.getModuleControlData(pModuleType)
-    -- no isSubscribed parameter
   })
+  :ValidIf(function(_, data) -- no isSubscribed parameter
+      if data.payload.isSubscribed == nil then
+        return true
+      end
+      return false, 'Parameter "isSubscribed" is transfered to App with value: ' .. tostring(data.payload.isSubscribed)
+    end)
 end
 
 --[[ Scenario ]]

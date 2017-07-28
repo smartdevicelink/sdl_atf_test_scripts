@@ -26,19 +26,25 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, s
   })
 
   local pSubscribeHMI = pSubscribe
-  if (isSubscriptionActive and pSubscribe) or (not isSubscriptionActive and not pSubscribe) then
+  if isSubscriptionActive == pSubscribe then
     pSubscribeHMI = nil
   end
+
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = self.applications["Test Application"],
-    moduleType = pModuleType,
-    subscribe = pSubscribeHMI
+    moduleType = pModuleType
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = commonRC.getModuleControlData(pModuleType),
         -- no isSubscribed parameter
       })
+    end)
+  :ValidIf(function(_, data)
+      if data.params.subscribe == pSubscribeHMI then
+        return true
+      end
+      return false, 'Parameter "subscribe" is transfered to HMI with value: ' .. tostring(data.params.subscribe)
     end)
 
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
