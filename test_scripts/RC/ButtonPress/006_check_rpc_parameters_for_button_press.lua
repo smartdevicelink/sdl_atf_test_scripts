@@ -77,12 +77,12 @@ local function SendButtonPressNegative(button_press_params, self)
 end
 
 --[[ Positive Scenario - check all positive climate names params]]
-local climate_params = reset_climate_params()
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 for _, button_name_value in pairs( climate_button_names ) do
+    local climate_params = reset_climate_params()
     climate_params.buttonPressMode = "SHORT"
     climate_params.buttonName = button_name_value
     runner.Title("Test - ButtonPress with buttonName " .. button_name_value)
@@ -92,8 +92,8 @@ for _, button_name_value in pairs( climate_button_names ) do
 end
 
 --[[ Positive Scenario - check all positive radio names params]]
-local radio_params = reset_radio_params()
 for _, button_name_value in pairs( radio_button_names ) do
+    local radio_params = reset_radio_params()
     radio_params.buttonPressMode = "SHORT"
     radio_params.buttonName = button_name_value
     runner.Title("Test - ButtonPress with buttonName " .. button_name_value)
@@ -103,8 +103,8 @@ for _, button_name_value in pairs( radio_button_names ) do
 end
 
 --[[ Negative Scenario - invalid value of buttonName in mobile request]]
-climate_params = reset_climate_params()
-radio_params = reset_radio_params()
+local climate_params = reset_climate_params()
+local radio_params = reset_radio_params()
 climate_params.buttonName = "invalid_name"
 radio_params.buttonName = "invalid_name"
 runner.Title("Test - negative, invalid value of buttonName in mobile request")
