@@ -29,8 +29,8 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
 
 runner.Title("Test")
-runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod })
-runner.Step("OnInteriorVehicleData " .. mod, commonRC.isUnsubscribed, { "RADIO" })
+runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod, 1 })
+runner.Step("OnInteriorVehicleData " .. mod, commonRC.isUnsubscribed, { "RADIO", 1 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

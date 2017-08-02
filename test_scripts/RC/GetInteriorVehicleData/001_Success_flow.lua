@@ -25,7 +25,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod })
+  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod, 1 })
 end
 
 runner.Title("Postconditions")

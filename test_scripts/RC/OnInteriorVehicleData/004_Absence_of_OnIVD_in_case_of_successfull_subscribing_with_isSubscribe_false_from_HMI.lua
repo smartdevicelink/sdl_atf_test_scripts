@@ -53,7 +53,7 @@ runner.Title("Test")
 
 for _, mod in pairs(modules) do
   runner.Step("Subscribe app to " .. mod, subscriptionToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod, 1 })
 end
 
 runner.Title("Postconditions")

@@ -41,13 +41,13 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod })
+  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod, 1 })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod, 1 })
 end
 
 for _, mod in pairs(modules) do
-  runner.Step("Unsubscribe app to " .. mod, commonRC.unSubscribeToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is unsubscribed", commonRC.isUnsubscribed, { mod })
+  runner.Step("Unsubscribe app to " .. mod, commonRC.unSubscribeToModule, { mod, 1 })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is unsubscribed", commonRC.isUnsubscribed, { mod, 1 })
 end
 
 runner.Title("Postconditions")

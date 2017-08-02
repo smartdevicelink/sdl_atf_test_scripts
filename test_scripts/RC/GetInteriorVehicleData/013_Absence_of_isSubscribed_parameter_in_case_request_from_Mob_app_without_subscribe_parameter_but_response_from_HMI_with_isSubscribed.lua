@@ -66,7 +66,7 @@ for _, mod in pairs(modules) do
 end
 
 for _, mod in pairs(modules) do
-  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
+  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod, 1 })
   runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule, { mod, true })
 end
 
