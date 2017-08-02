@@ -26,10 +26,10 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 
 runner.Title("Test")
 
-runner.Step("Subscribe app to " .. mod1, commonRC.subscribeToModule, { mod1 })
-runner.Step("Send notification OnInteriorVehicleData " .. mod1 .. ". App is subscribed", commonRC.isSubscribed, { mod1 })
+runner.Step("Subscribe app to " .. mod1, commonRC.subscribeToModule, { mod1, 1 })
+runner.Step("Send notification OnInteriorVehicleData " .. mod1 .. ". App is subscribed", commonRC.isSubscribed, { mod1, 1 })
 
-runner.Step("Send notification OnInteriorVehicleData " .. mod2 .. ". App is not subscribed", commonRC.isUnsubscribed, { mod2 })
+runner.Step("Send notification OnInteriorVehicleData " .. mod2 .. ". App is not subscribed", commonRC.isUnsubscribed, { mod2, 1 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

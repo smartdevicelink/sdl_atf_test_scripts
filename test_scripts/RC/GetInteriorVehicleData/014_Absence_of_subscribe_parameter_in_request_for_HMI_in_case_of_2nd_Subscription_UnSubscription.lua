@@ -70,23 +70,23 @@ runner.Title("Test")
 for _, mod in pairs(modules) do
   -- app has not subscribed yet
   runner.Step("Unsubscribe app to " .. mod, subscriptionToModule, { mod, false })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod, 1 })
 
   -- subscribe to module 1st time
-  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod })
+  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod, 1 })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod, 1 })
 
   -- subscribe to module 2nd time
   runner.Step("Subscribe 2nd time app to " .. mod, subscriptionToModule, { mod, true })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod, 1 })
 
   -- unsubscribe to module 1st time
-  runner.Step("Unsubscribe app to " .. mod, commonRC.unSubscribeToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
+  runner.Step("Unsubscribe app to " .. mod, commonRC.unSubscribeToModule, { mod, 1 })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod, 1 })
 
   -- unsubscribe to module 2nd time
   runner.Step("Unsubscribe 2nd time app to " .. mod, subscriptionToModule, { mod, false })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod, 1 })
 end
 
 runner.Title("Postconditions")

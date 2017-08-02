@@ -56,7 +56,7 @@ runner.Title("Test")
 for _, mod in pairs(modules) do
   for _, err in pairs(error_codes) do
     runner.Step("Subscribe app to " .. mod .. " (" .. err .. " from HMI)", subscriptionToModule, { mod, err })
-    runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod })
+    runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is not subscribed", commonRC.isUnsubscribed, { mod, 1 })
   end
 end
 

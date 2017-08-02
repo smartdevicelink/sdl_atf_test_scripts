@@ -27,15 +27,15 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 
 for _, mod in pairs(modules) do
-  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod })
+  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod, 1 })
+  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod, 1 })
 end
 
 runner.Title("Test")
 
-runner.Step("Unsubscribe app to " .. mod1, commonRC.unSubscribeToModule, { mod1 })
-runner.Step("Send notification OnInteriorVehicleData " .. mod1 .. ". App is unsubscribed", commonRC.isUnsubscribed, { mod1 })
-runner.Step("Send notification OnInteriorVehicleData " .. mod2 .. ". App is still subscribed", commonRC.isSubscribed, { mod2 })
+runner.Step("Unsubscribe app to " .. mod1, commonRC.unSubscribeToModule, { mod1, 1 })
+runner.Step("Send notification OnInteriorVehicleData " .. mod1 .. ". App is unsubscribed", commonRC.isUnsubscribed, { mod1, 1 })
+runner.Step("Send notification OnInteriorVehicleData " .. mod2 .. ". App is still subscribed", commonRC.isSubscribed, { mod2, 1 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
