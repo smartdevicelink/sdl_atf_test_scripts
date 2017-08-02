@@ -1,0 +1,6 @@
+./test_scripts/RC/OnRemoteControlSettings/008_Allowed_false.lua
+./test_scripts/RC/OnRemoteControlSettings/009_Allowed_true_accessMode_AUTO_ALLOW.lua
+./test_scripts/RC/OnRemoteControlSettings/010_Allowed_true_accessMode_AUTO_DENY.lua
+./test_scripts/RC/OnRemoteControlSettings/011_Allowed_true_accessMode_ASK_DRIVER.lua
+./test_scripts/RC/OnRemoteControlSettings/012_Default_accessMode.lua
+./test_scripts/RC/OnRemoteControlSettings/013_sequence_switches_of_accessMode.lua
