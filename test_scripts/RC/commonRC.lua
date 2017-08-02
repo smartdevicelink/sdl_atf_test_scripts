@@ -17,8 +17,12 @@ local json = require("modules/json")
 
 --[[ Local Variables ]]
 local ptu_table = {}
+local hmiAppIds = {}
 
---[[ Local Functions ]]
+local commonRC = {}
+
+commonRC.timeout = 2000
+
 local function initHMI(self)
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(self, "HMI initialization")
   local function registerComponent(name, subscriptions)
@@ -80,8 +84,8 @@ local function getPTUFromPTS(tbl)
   tbl.policy_table.module_config.preloaded_date = nil
 end
 
-local function updatePTU(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = {
+function commonRC.getRCAppConfig()
+  return {
     keep_context = false,
     steal_focus = false,
     priority = "NONE",
@@ -91,6 +95,10 @@ local function updatePTU(tbl)
     groups_primaryRC = { "Base-4", "RemoteControl" },
     AppHMIType = { "REMOTE_CONTROL" }
   }
+end
+
+local function updatePTU(tbl)
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
   tbl.policy_table.functional_groupings["RemoteControl"].rpcs.OnInteriorVehicleData = {
     hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
   }
@@ -145,12 +153,6 @@ local function ptu(self, ptu_update_func)
   os.remove(ptu_file_name)
 end
 
---[[ Module Functions ]]
-
-local commonRC = {}
-
-commonRC.timeout = 2000
-
 function commonRC.preconditions()
   commonFunctions:SDLForceStop()
   commonSteps:DeletePolicyTable()
@@ -187,7 +189,7 @@ function commonRC.rai_ptu(ptu_update_func, self)
   local corId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(function(_, d1)
-      self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
+      hmiAppIds[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" })
       :Times(3)
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
@@ -212,7 +214,7 @@ function commonRC.rai_n(id, self)
       local corId = self["mobileSession" .. id]:SendRPC("RegisterAppInterface", config["application" .. id].registerAppInterfaceParams)
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
-          self.applications[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
+          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
         end)
       self["mobileSession" .. id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
@@ -226,11 +228,11 @@ end
 function commonRC.activate_app(pAppId, self)
   self, pAppId = commonRC.getSelfAndParams(pAppId, self)
 
-  local pHMIAppId = self.applications["Test Application"]
+  local pHMIAppId = hmiAppIds[config.application1.registerAppInterfaceParams.appID]
   local mobSession = self["mobileSession"]
   if pAppId and pAppId > 1 then
     mobSession = self["mobileSession" .. pAppId]
-    pHMIAppId = self.applications[config["application" .. pAppId].registerAppInterfaceParams.appID]
+    pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
   end
   local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
   EXPECT_HMIRESPONSE(requestId1)
@@ -254,6 +256,13 @@ end
 
 function commonRC.postconditions()
   StopSDL()
+end
+
+function commonRC.getSelfAndParams(param, self)
+  if not self then
+    return param, nil
+  end
+  return self, param
 end
 
 function commonRC.getModuleControlData(module_type)
@@ -350,71 +359,6 @@ function commonRC.getAnotherModuleControlData(module_type)
   return out
 end
 
-function commonRC.getSelfAndParams(param, self)
-  if not self then
-    return param, nil
-  end
-  return self, param
-end
-
-function commonRC.getMobileSession(self, id)
-  if id == 2 then
-    return self.mobileSession2
-  end
-  return self.mobileSession
-end
-
-local function subscriptionToModule(pModuleType, pSubscribe, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
-    moduleType = pModuleType,
-    subscribe = pSubscribe
-  })
-
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
-    moduleType = pModuleType,
-    subscribe = pSubscribe
-  })
-  :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
-        isSubscribed = pSubscribe
-      })
-    end)
-
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
-    moduleData = commonRC.getModuleControlData(pModuleType),
-    isSubscribed = pSubscribe
-  })
-end
-
-function commonRC.subscribeToModule(pModuleType, self)
-  subscriptionToModule(pModuleType, true, self)
-end
-
-function commonRC.unSubscribeToModule(pModuleType, self)
-  subscriptionToModule(pModuleType, false, self)
-end
-
-function commonRC.isSubscribed(pModuleType, self)
-  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-  })
-
-  EXPECT_NOTIFICATION("OnInteriorVehicleData", {
-    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-  })
-end
-
-function commonRC.isUnsubscribed(pModuleType, self)
-  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
-    moduleData = commonRC.getAnotherModuleControlData(pModuleType)
-  })
-
-  EXPECT_NOTIFICATION("OnInteriorVehicleData", {}):Times(0)
-  commonTestCases:DelayedExp(commonRC.timeout)
-end
-
 function commonRC.getButtonNameByModule(pModuleType)
   if pModuleType == "CLIMATE" then
     return "FAN_UP"
@@ -474,6 +418,240 @@ function commonRC.getSettableModuleControlData(pModuleType)
     commonRC.getModuleParams(out)[p_read_only] = nil
   end
   return out
+end
+
+-- RC RPCs structure
+local rcRPCs = {
+  GetInteriorVehicleData = {
+    appEventName = "GetInteriorVehicleData",
+    hmiEventName = "RC.GetInteriorVehicleData",
+    requestParams = function(pModuleType, pSubscribe)
+      return {
+        moduleType = pModuleType,
+        subscribe = pSubscribe
+      }
+    end,
+    hmiRequestParams = function(pModuleType, pAppId, pSubscribe, self)
+      return {
+        appID = commonRC.getHMIAppId(self, pAppId),
+        moduleType = pModuleType,
+        subscribe = pSubscribe
+      }
+    end,
+    hmiResponseParams = function(pModuleType, pSubscribe)
+      return {
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = pSubscribe
+      }
+    end,
+    responseParams = function(success, resultCode, pModuleType, pSubscribe)
+      return {
+        success = success,
+        resultCode = resultCode,
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = pSubscribe
+      }
+    end
+  },
+  SetInteriorVehicleData = {
+    appEventName = "SetInteriorVehicleData",
+    hmiEventName = "RC.SetInteriorVehicleData",
+    requestParams = function(pModuleType)
+      return {
+        moduleData = commonRC.getSettableModuleControlData(pModuleType)
+      }
+    end,
+    hmiRequestParams = function(pModuleType, pAppId, self)
+      return {
+        appID = commonRC.getHMIAppId(self, pAppId),
+        moduleData = commonRC.getSettableModuleControlData(pModuleType)
+      }
+    end,
+    hmiResponseParams = function(pModuleType)
+      return {
+        moduleData = commonRC.getSettableModuleControlData(pModuleType)
+      }
+    end
+  },
+  ButtonPress = {
+    appEventName = "ButtonPress",
+    hmiEventName = "Buttons.ButtonPress",
+    requestParams = function(pModuleType)
+      return {
+        moduleType = pModuleType,
+        buttonName = commonRC.getButtonNameByModule(pModuleType),
+        buttonPressMode = "SHORT"
+      }
+    end,
+    hmiRequestParams = function(pModuleType, pAppId, self)
+      return {
+        appID = commonRC.getHMIAppId(self, pAppId),
+        moduleType = pModuleType,
+        buttonName = commonRC.getButtonNameByModule(pModuleType),
+        buttonPressMode = "SHORT"
+      }
+    end,
+    hmiResponseParams = function()
+      return {}
+    end
+  },
+  GetInteriorVehicleDataConsent = {
+    hmiEventName = "RC.GetInteriorVehicleDataConsent",
+    hmiRequestParams = function(pModuleType, pAppId, self)
+      return {
+        appID = commonRC.getHMIAppId(self, pAppId),
+        moduleType = pModuleType
+      }
+    end,
+    hmiResponseParams = function(pAllowed)
+      return {
+        allowed = pAllowed
+      }
+    end,
+  },
+  OnInteriorVehicleData = {
+    appEventName = "OnInteriorVehicleData",
+    hmiEventName = "RC.OnInteriorVehicleData",
+    hmiResponseParams = function(pModuleType)
+      return {
+        moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+      }
+    end,
+    responseParams = function(pModuleType)
+      return {
+        moduleData = commonRC.getAnotherModuleControlData(pModuleType)
+      }
+    end
+  },
+  OnRemoteControlSettings = {
+    hmiEventName = "RC.OnRemoteControlSettings",
+    hmiResponseParams = function(pAllowed, pAccessMode)
+      return {
+        allowed = pAllowed,
+        accessMode = pAccessMode
+      }
+    end
+  }
+}
+
+function commonRC.getAppEventName(pRPC)
+  return rcRPCs[pRPC].appEventName
+end
+
+function commonRC.getHMIEventName(pRPC)
+  return rcRPCs[pRPC].hmiEventName
+end
+
+function commonRC.getAppRequestParams(pRPC, ...)
+  return rcRPCs[pRPC].requestParams(...)
+end
+
+function commonRC.getAppResponseParams(pRPC, ...)
+  return rcRPCs[pRPC].responseParams(...)
+end
+
+function commonRC.getHMIRequestParams(pRPC, ...)
+  return rcRPCs[pRPC].hmiRequestParams(...)
+end
+
+function commonRC.getHMIResponseParams(pRPC, ...)
+  return rcRPCs[pRPC].hmiResponseParams(...)
+end
+
+function commonRC.subscribeToModule(pModuleType, pAppId, self)
+  self, pAppId = commonRC.getSelfAndParams(pAppId, self)
+  local rpc = "GetInteriorVehicleData"
+  local subscribe = true
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(rpc), commonRC.getAppRequestParams(rpc, pModuleType, subscribe))
+  EXPECT_HMICALL(commonRC.getHMIEventName(rpc), commonRC.getHMIRequestParams(rpc, pModuleType, pAppId, subscribe, self))
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(rpc, pModuleType, subscribe))
+    end)
+  mobSession:ExpectResponse(cid, commonRC.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, subscribe))
+end
+
+function commonRC.unSubscribeToModule(pModuleType, pAppId, self)
+  self, pAppId = commonRC.getSelfAndParams(pAppId, self)
+  local rpc = "GetInteriorVehicleData"
+  local subscribe = false
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(rpc), commonRC.getAppRequestParams(rpc, pModuleType, subscribe))
+  EXPECT_HMICALL(commonRC.getHMIEventName(rpc), commonRC.getHMIRequestParams(rpc, pModuleType, pAppId, subscribe, self))
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(rpc, pModuleType, subscribe))
+    end)
+  mobSession:ExpectResponse(cid, commonRC.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, subscribe))
+end
+
+function commonRC.isSubscribed(pModuleType, pAppId, self)
+  self, pAppId = commonRC.getSelfAndParams(pAppId, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local rpc = "OnInteriorVehicleData"
+  self.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pModuleType))
+  mobSession:ExpectNotification(commonRC.getAppEventName(rpc), commonRC.getAppResponseParams(rpc, pModuleType))
+end
+
+function commonRC.isUnsubscribed(pModuleType, pAppId, self)
+  self, pAppId = commonRC.getSelfAndParams(pAppId, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local rpc = "OnInteriorVehicleData"
+  self.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pModuleType))
+  mobSession:ExpectNotification(commonRC.getAppEventName(rpc), {}):Times(0)
+  commonTestCases:DelayedExp(commonRC.timeout)
+end
+
+function commonRC.getHMIAppId(self, pAppId)
+  if not pAppId then
+    pAppId = 1
+  end
+  return hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
+end
+
+function commonRC.getMobileSession(self, pAppId)
+  if pAppId and pAppId > 1 then
+    return self["mobileSession" .. pAppId]
+  end
+  return self["mobileSession"]
+end
+
+function commonRC.defineRAMode(pAllowed, pAccessMode, self)
+  self, pAccessMode = commonRC.getSelfAndParams(pAccessMode, self)
+  local rpc = "OnRemoteControlSettings"
+  self.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pAllowed, pAccessMode))
+end
+
+function commonRC.rpcDenied(pModuleType, pAppId, pRPC, pResultCode, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
+  EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), {}):Times(0)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = pResultCode })
+  commonTestCases:DelayedExp(commonRC.timeout)
+end
+
+function commonRC.rpcAllowed(pModuleType, pAppId, pRPC, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
+  EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), commonRC.getHMIRequestParams(pRPC, pModuleType, pAppId, self))
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(pRPC, pModuleType))
+    end)
+  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+end
+
+function commonRC.rpcAllowedWithConsent(pModuleType, pAppId, pRPC, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
+  local consentRPC = "GetInteriorVehicleDataConsent"
+  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId, self))
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(consentRPC, true))
+      EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), commonRC.getHMIRequestParams(pRPC, pModuleType, pAppId, self))
+      :Do(function(_, data2)
+          self.hmiConnection:SendResponse(data2.id, data2.method, "SUCCESS", commonRC.getHMIResponseParams(pRPC, pModuleType))
+        end)
+    end)
+  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 return commonRC
