@@ -4,9 +4,16 @@
 --
 -- Description: TRS: OnRemoteControlSettings, #5; TRS: GetInteriorVehicleDataConsent, #3
 -- In case:
---
+-- 1) SDL received OnRemoteControlSettings notification from HMI with "ASK_DRIVER" access mode
+-- 2) and RC application (in HMILevel FULL) requested access to remote control module
+-- that is already allocated to another RC application
+-- 3) and SDL requested user consent from HMI via GetInteriorVehicleDataConsent
+-- 4) and HMI did not respond during default timeout or response is invalid or erroneous
 -- SDL must:
---
+-- 1) respond on control request to RC application with result code GENERIC_ERROR, success:false
+-- 2) not allocate access for remote control module to the requested application
+-- (meaning SDL must leave control of remote control module without changes)
+-- Note: SDL must initiate user prompt in case of consequent control request for the same module from this application
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

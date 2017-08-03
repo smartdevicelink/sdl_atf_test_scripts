@@ -4,9 +4,18 @@
 --
 -- Description: TRS: OnRemoteControlSettings, #5; TRS: GetInteriorVehicleDataConsent, #2
 -- In case:
---
+-- 1) SDL received OnRemoteControlSettings notification from HMI with "ASK_DRIVER" access mode
+-- 2) and RC application (in HMILevel FULL) requested access to remote control module
+-- that is already allocated to another RC application
+-- 3) and SDL requested user consent from HMI via GetInteriorVehicleDataConsent
+-- 4) and user did not provide the answer during default timeout
+-- 5) and SDL received in response from HMI GetInteriorVehicleDataConsent (TIMED_OUT)
 -- SDL must:
---
+-- 1) respond on control request to RC application with result code TIMED_OUT, success:false,
+-- info: "The resource is in use and the driver did not respond in time"
+-- 2) not allocate access for remote control module to the requested application
+-- (meaning SDL must leave control of remote control module without changes)
+-- Note: SDL must initiate user prompt in case of consequent control request for the same module from this application
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

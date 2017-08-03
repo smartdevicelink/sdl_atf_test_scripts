@@ -4,9 +4,14 @@
 --
 -- Description: TRS: OnRemoteControlSettings, #5; TRS: GetInteriorVehicleDataConsent, #1
 -- In case:
---
+-- 1) SDL received OnRemoteControlSettings notification from HMI with "ASK_DRIVER" access mode
+-- 2) and RC application (in HMILevel FULL) requested access to remote control module
+-- that is already allocated to another RC application
+-- 3) and SDL requested user consent from HMI via GetInteriorVehicleDataConsent
+-- 4) and user allowed access to RC module for requested application
 -- SDL must:
---
+-- 1) allocate access to RC module to requested application
+-- 2) process control request from this application
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

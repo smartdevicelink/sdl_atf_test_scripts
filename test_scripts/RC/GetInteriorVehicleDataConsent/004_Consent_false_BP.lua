@@ -4,9 +4,18 @@
 --
 -- Description: TRS: OnRemoteControlSettings, #5; TRS: GetInteriorVehicleDataConsent, #4
 -- In case:
---
+-- 1) SDL received OnRemoteControlSettings notification from HMI with "ASK_DRIVER" access mode
+-- 2) and RC application (in HMILevel FULL) requested access to remote control module
+-- that is already allocated to another RC application
+-- 3) and SDL requested user consent from HMI via GetInteriorVehicleDataConsent
+-- 4) and user disallowed access to RC module for the requested application
 -- SDL must:
---
+-- 1) respond on control request to RC application with result code REJECTED, success:false,
+-- info: "The resource is in use and the driver disallows this remote control RPC"
+-- 2) not allocate access for remote control module to the requested application
+-- (meaning SDL must leave control of remote control module without changes)
+-- Note: All further requests from this application to the same module in case
+-- if it is still under control of another application must be rejected by SDL without initiating consent prompts
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
