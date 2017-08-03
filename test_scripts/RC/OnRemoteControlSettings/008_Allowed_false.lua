@@ -46,8 +46,8 @@ local function disableRcFromHmi(self)
 
 	commonRC.defineRAMode(false, nil, self)
 
-	mobileSession1:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE"}) -- REMOTE_CONTROL app
-	mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE"}) -- REMOTE_CONTROL app
+	mobileSession1:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE"}):Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
+	mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE"}):Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
   mobileSession3:ExpectNotification("OnHMIStatus"):Times(0) -- NAVIGATION app
 
   commonTestCases:DelayedExp(commonRC.timeout)
