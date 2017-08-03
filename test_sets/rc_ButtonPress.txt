@@ -9,3 +9,4 @@
 ./test_scripts/RC/ButtonPress/009_button_press_disallowed_if_moduleType_is_disallowed_by_policies.lua
 ./test_scripts/RC/ButtonPress/010_generic_error_if_no_response_from_hmi.lua
 ./test_scripts/RC/ButtonPress/011_generic_error_if_read_only_response_come_from_hmi.lua
+./test_scripts/RC/ButtonPress/012_generic_error_if_invalid_response_from_hmi.lua
