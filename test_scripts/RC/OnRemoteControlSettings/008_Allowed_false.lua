@@ -73,11 +73,11 @@ for _, mod in pairs(modules) do
   -- Apps are not subscribed from RC modules
   runner.Step("Check App1 is not subscribed on " .. mod, commonRC.isUnsubscribed, { mod, 1 })
   runner.Step("Check App2 is not subscribed on " .. mod, commonRC.isUnsubscribed, { mod, 2 })
-  -- All RC RPCs denied
-  for _, rpc in pairs(rcRpcs) do
-    runner.Step("Check module " .. mod .." App1 " .. rpc .. " denied", commonRC.rpcDenied, { mod, 1, rpc, "DISALLOWED" })
-    runner.Step("Check module " .. mod .." App2 " .. rpc .. " denied", commonRC.rpcDenied, { mod, 2, rpc, "DISALLOWED" })
-  end
+  -- -- All RC RPCs denied - need clarification
+  -- for _, rpc in pairs(rcRpcs) do
+  --   runner.Step("Check module " .. mod .." App1 " .. rpc .. " denied", commonRC.rpcDenied, { mod, 1, rpc, "DISALLOWED" })
+  --   runner.Step("Check module " .. mod .." App2 " .. rpc .. " denied", commonRC.rpcDenied, { mod, 2, rpc, "DISALLOWED" })
+  -- end
 
 end
 
