@@ -9,6 +9,15 @@
 -- SDL must:
 -- 1) store RC state allowed:true and received from HMI internally
 -- 2) allow RC functionality for applications with REMOTE_CONTROL appHMIType
+--
+-- Additional checks:
+-- - Switch RA access mode Default -> ASK_DRIVER
+-- - Switch RA access mode ASK_DRIVER -> AUTO_ALLOW
+-- - Switch RA access mode AUTO_ALLOW -> AUTO_DENY
+-- - Switch RA access mode AUTO_DENY -> ASK_DRIVER
+-- - Switch RA access mode DASK_DRIVER -> AUTO_DENY
+-- - Switch RA access mode AUTO_DENY -> AUTO_ALLOW
+-- - Switch RA access mode AUTO_ALLOW -> ASK_DRIVER
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
