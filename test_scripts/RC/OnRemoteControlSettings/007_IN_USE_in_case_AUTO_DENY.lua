@@ -4,9 +4,13 @@
 --
 -- Description: TRS: OnRemoteControlSettings, #4
 -- In case:
---
+-- 1) SDL received OnRemoteControlSettings notification from HMI with allowed:true
+-- 2) and parameter "accessMode" = "AUTO_DENY"
+-- 3) and RC_module on HMI is alreay in control by RC-application
 -- SDL must:
---
+-- 1) deny access to RC_module for another RC_application in HMILevel FULL after it sends control RPC
+-- (either SetInteriorVehicleData or ButtonPress) for the same RC_module without asking a driver
+-- 2) respond with result code IN_USE, success:false
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
