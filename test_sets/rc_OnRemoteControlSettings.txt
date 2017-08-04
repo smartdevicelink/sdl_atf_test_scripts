@@ -12,3 +12,4 @@
 ./test_scripts/RC/OnRemoteControlSettings/012_Default_accessMode.lua
 ./test_scripts/RC/OnRemoteControlSettings/013_sequence_switches_of_accessMode.lua
 ./test_scripts/RC/OnRemoteControlSettings/014_Invalid_data_from_HMI.lua
+./test_scripts/RC/OnRemoteControlSettings/015_Empty_data_from_HMI.lua

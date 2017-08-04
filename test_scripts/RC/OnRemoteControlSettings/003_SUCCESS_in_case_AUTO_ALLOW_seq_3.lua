@@ -32,8 +32,6 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI1, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("RAI2", commonRC.rai_n, { 2 })
 
--- App's HMI levels: 1 - BACKGROUND, 2 - FULL
-
 runner.Title("Test")
 
 for _, mod in pairs(modules) do

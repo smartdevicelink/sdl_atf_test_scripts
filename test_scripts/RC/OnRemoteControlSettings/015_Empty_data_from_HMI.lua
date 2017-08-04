@@ -50,13 +50,13 @@ for _, mod in pairs(modules) do
   runner.Step("Set RA mode", commonRC.defineRAMode, { true, "AUTO_DENY" })
   runner.Step("Activate App1", commonRC.activate_app, { 1 })
   runner.Step("Send OnRemoteControlSettings with invalid data", setRAMode)
-  runner.Step("App2 SetInteriorVehicleData", commonRC.rpcDenied, { mod, 1, "SetInteriorVehicleData", "IN_USE" })
+  runner.Step("App1 SetInteriorVehicleData", commonRC.rpcDenied, { mod, 1, "SetInteriorVehicleData", "IN_USE" })
 
   runner.Title("RA mode ASK_DRIVER")
   runner.Step("Set RA mode", commonRC.defineRAMode, { true, "ASK_DRIVER" })
   runner.Step("Send OnRemoteControlSettings with invalid data", setRAMode)
-  runner.Step("App2 ButtonPress 1st SUCCESS", commonRC.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
-  runner.Step("App2 ButtonPress 2nd SUCCESS", commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
+  runner.Step("App1 ButtonPress 1st SUCCESS", commonRC.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
+  runner.Step("App1 ButtonPress 2nd SUCCESS", commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
 
   runner.Title("RA mode AUTO_ALLOW")
   runner.Step("Set RA mode", commonRC.defineRAMode, { true, "AUTO_ALLOW" })
