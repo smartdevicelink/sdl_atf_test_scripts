@@ -8,3 +8,4 @@
 ./test_scripts/RC/GetInteriorVehicleDataConsent/008_HMI_no_response_BP.lua
 ./test_scripts/RC/GetInteriorVehicleDataConsent/009_HMI_invalid_response_SIVD.lua
 ./test_scripts/RC/GetInteriorVehicleDataConsent/010_HMI_invalid_response_BP.lua
+./test_scripts/RC/GetInteriorVehicleDataConsent/011_TIMED_OUT_after_default_timeout.lua
