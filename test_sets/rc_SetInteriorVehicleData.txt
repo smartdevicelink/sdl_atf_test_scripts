@@ -12,3 +12,4 @@
 ./test_scripts/RC/SetInteriorVehicleData/012_READ_ONLY_in_case_request_with_read-only_and_not_read-only_parameters_and_HMI_returns_READ_ONLY.lua
 ./test_scripts/RC/SetInteriorVehicleData/013_GENERIC_ERROR_in_case_HMI_did_not_respond.lua
 ./test_scripts/RC/SetInteriorVehicleData/014_GENERIC_ERROR_in_case_HMI_respond_with_invalid_data.lua
+./test_scripts/RC/SetInteriorVehicleData/015_Transfering_of_HMI_resultCode_to_mobile.lua
