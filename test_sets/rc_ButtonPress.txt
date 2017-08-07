@@ -10,3 +10,4 @@
 ./test_scripts/RC/ButtonPress/010_generic_error_if_no_response_from_hmi.lua
 ./test_scripts/RC/ButtonPress/011_generic_error_if_read_only_response_come_from_hmi.lua
 ./test_scripts/RC/ButtonPress/012_generic_error_if_invalid_response_from_hmi.lua
+./test_scripts/RC/ButtonPress/013_Transfering_of_HMI_resultCode_to_mobile.lua
