@@ -225,6 +225,12 @@ function commonRC.rai_n(id, self)
     end)
 end
 
+function commonRC.unregisterApp(pAppId, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC("UnregisterAppInterface",{})
+  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+end
+
 function commonRC.activate_app(pAppId, self)
   self, pAppId = commonRC.getSelfAndParams(pAppId, self)
 
@@ -652,6 +658,29 @@ function commonRC.rpcAllowedWithConsent(pModuleType, pAppId, pRPC, self)
         end)
     end)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+end
+
+function commonRC.rpcRejectWithConsent(pModuleType, pAppId, pRPC, self)
+  local info = "The resource is in use and the driver disallows this remote control RPC"
+  local consentRPC = "GetInteriorVehicleDataConsent"
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
+  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId, self))
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(consentRPC, false))
+      EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
+    end)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED", info = info })
+  commonTestCases:DelayedExp(commonRC.timeout)
+end
+
+function commonRC.rpcRejectWithoutConsent(pModuleType, pAppId, pRPC, self)
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
+  EXPECT_HMICALL(commonRC.getHMIEventName("GetInteriorVehicleDataConsent")):Times(0)
+  EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
+  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 return commonRC
