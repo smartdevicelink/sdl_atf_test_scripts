@@ -13,3 +13,6 @@
 ./test_scripts/RC/OnRemoteControlSettings/013_sequence_switches_of_accessMode.lua
 ./test_scripts/RC/OnRemoteControlSettings/014_Invalid_data_from_HMI.lua
 ./test_scripts/RC/OnRemoteControlSettings/015_Empty_data_from_HMI.lua
+./test_scripts/RC/OnRemoteControlSettings/016_Allow_in_AUTO_ALLOW_deny_in_AUTO_DENY_for_app_with_reject_in_ASK_DRIVER.lua
+./test_scripts/RC/OnRemoteControlSettings/017_Release_resource_on_unregister_app.lua
+./test_scripts/RC/OnRemoteControlSettings/018_Release_resource_and_allow_for_rejected_app_on_unregister_app.lua

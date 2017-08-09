@@ -227,7 +227,9 @@ end
 
 function commonRC.unregisterApp(pAppId, self)
   local mobSession = commonRC.getMobileSession(self, pAppId)
+  local hmiAppId = commonRC.getHMIAppId(self, pAppId)
   local cid = mobSession:SendRPC("UnregisterAppInterface",{})
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = hmiAppId, unexpectedDisconnect = false })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 

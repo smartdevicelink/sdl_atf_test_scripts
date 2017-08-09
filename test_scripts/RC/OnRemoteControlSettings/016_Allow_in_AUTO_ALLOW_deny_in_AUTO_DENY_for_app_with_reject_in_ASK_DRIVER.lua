@@ -52,6 +52,5 @@ runner.Step("Check module CLIMATE App1 SetInteriorVehicleData allowed", commonRC
 runner.Step("Activate App2", commonRC.activate_app, { 2 })
 runner.Step("Check module RADIO App2 SetInteriorVehicleData allowed", commonRC.rpcAllowed, { "RADIO", 2, "SetInteriorVehicleData" })
 
-
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
