@@ -20,7 +20,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
@@ -28,29 +27,6 @@ local modules = { "CLIMATE", "RADIO" }
 --[[ Local Functions ]]
 local function ptu_update_func(tbl)
   tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
-end
-
-local function rpcConsentFalse(pModuleType, pAppId, pRPC, self)
-  local info = "The resource is in use and the driver disallows this remote control RPC"
-  local consentRPC = "GetInteriorVehicleDataConsent"
-  local mobSession = commonRC.getMobileSession(self, pAppId)
-  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
-  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId, self))
-  :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(consentRPC, false))
-      EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
-    end)
-  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED", info = info })
-  commonTestCases:DelayedExp(commonRC.timeout)
-end
-
-local function rpcConsentAbsent(pModuleType, pAppId, pRPC, self)
-  local mobSession = commonRC.getMobileSession(self, pAppId)
-  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
-  EXPECT_HMICALL(commonRC.getHMIEventName("GetInteriorVehicleDataConsent")):Times(0)
-  EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
-  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 --[[ Scenario ]]
@@ -70,9 +46,9 @@ for _, mod in pairs(modules) do
   -- set control for App1
   runner.Step("App1 SetInteriorVehicleData", commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
   -- set control for App2 --> Ask driver --> HMI: allowed:false
-  runner.Step("App2 SetInteriorVehicleData 1st REJECTED", rpcConsentFalse, { mod, 2, "SetInteriorVehicleData" })
-  runner.Step("App2 SetInteriorVehicleData 2nd REJECTED", rpcConsentAbsent, { mod, 2, "SetInteriorVehicleData" })
-  runner.Step("App2 ButtonPress 2nd REJECTED", rpcConsentAbsent, { mod, 2, "ButtonPress" })
+  runner.Step("App2 SetInteriorVehicleData 1st REJECTED", commonRC.rpcRejectWithConsent, { mod, 2, "SetInteriorVehicleData" })
+  runner.Step("App2 SetInteriorVehicleData 2nd REJECTED", commonRC.rpcRejectWithoutConsent, { mod, 2, "SetInteriorVehicleData" })
+  runner.Step("App2 ButtonPress 2nd REJECTED", commonRC.rpcRejectWithoutConsent, { mod, 2, "ButtonPress" })
 end
 
 runner.Title("Postconditions")
