@@ -14,6 +14,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
+local hmi_values = require("user_modules/hmi_values")
 
 --[[ Local Variables ]]
 local ptu_table = {}
@@ -22,6 +23,7 @@ local hmiAppIds = {}
 local commonRC = {}
 
 commonRC.timeout = 2000
+commonRC.DEFAULT = "Default"
 
 local function getPTUFromPTS(tbl)
   tbl.policy_table.consumer_friendly_messages.messages = nil
@@ -633,6 +635,43 @@ function commonRC.rpcRejectWithoutConsent(pModuleType, pAppId, pRPC, self)
   EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
   commonTestCases:DelayedExp(commonRC.timeout)
+end
+
+function commonRC.buildButtonCapability(name, shortPressAvailable, longPressAvailable, upDownAvailable)
+  return hmi_values.createButtonCapability(name, shortPressAvailable, longPressAvailable, upDownAvailable)
+end
+
+function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilities, pButtonCapabilities)
+  local hmiParams = hmi_values.getDefaultHMITable()
+  local capParams = hmiParams.RC.GetCapabilities.params.remoteControlCapability
+
+  hmiParams.RC.IsReady.params.available = true
+
+  if pClimateCapabilities then
+    if pClimateCapabilities ~= commonRC.DEFAULT then
+      capParams.climateControlCapabilities = pClimateCapabilities
+    end
+  else
+    capParams.climateControlCapabilities = nil
+  end
+
+  if pRadioCapabilities then
+    if pClimateCapabilities ~= commonRC.DEFAULT then
+      capParams.radioControlCapabilities = pRadioCapabilities
+    end
+  else
+    capParams.radioControlCapabilities = nil
+  end
+
+  if pButtonCapabilities then
+    if pButtonCapabilities ~= commonRC.DEFAULT then
+      capParams.buttonCapabilities = pButtonCapabilities
+    end
+  else
+    capParams.buttonCapabilities = nil
+  end
+
+  return hmiParams
 end
 
 return commonRC

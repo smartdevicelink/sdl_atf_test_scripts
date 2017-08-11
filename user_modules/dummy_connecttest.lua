@@ -13,6 +13,7 @@ local SDL = require('SDL')
 local exit_codes = require('exit_codes')
 local load_schema = require('load_schema')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local hmi_values = require("user_modules/hmi_values")
 local mob_schema = load_schema.mob_schema
 local hmi_schema = load_schema.hmi_schema
@@ -378,20 +379,25 @@ function module:initHMI_onReady(hmi_table)
       return data.method == name
     end
     local exp = EXPECT_HMIEVENT(event, name)
-    :Times(hmi_table_element.mandatory and 1 or AnyNumber())
+    :Times(hmi_table_element.occurrence or hmi_table_element.mandatory and 1 or AnyNumber())
     :Do(function(_, data)
-      xmlReporter.AddMessage("hmi_connection","SendResponse",
+      if hmi_table_element.occurrence ~= 0 then
+        xmlReporter.AddMessage("hmi_connection","SendResponse",
         {
           ["methodName"] = tostring(name),
           ["mandatory"] = hmi_table_element.mandatory,
           ["params"] = hmi_table_element.params
         })
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+      end
     end)
-    if hmi_table_element.mandatory then
+    if hmi_table_element.occurrence == 0 then
+      commonTestCases:DelayedExp(3000)
+    end
+    if hmi_table_element.mandatory or hmi_table_element.occurrence then
       exp_waiter:AddExpectation(exp)
     end
-    if hmi_table_element.pinned then
+    if hmi_table_element.pinned and hmi_table_element.occurrence ~= 0 then
       exp:Pin()
     end
    return exp
