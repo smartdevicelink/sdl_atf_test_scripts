@@ -1,1 +1,3 @@
 ./test_scripts/RC/Capabilities/001_All_modules_all_params.lua
+./test_scripts/RC/Capabilities/010_Only_CLIMATE_all_params.lua
+./test_scripts/RC/Capabilities/011_Only_RADIO_all_params.lua
