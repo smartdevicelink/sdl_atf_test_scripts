@@ -374,7 +374,6 @@ function module:initHMI_onReady(hmi_table)
 
   local function ExpectRequest(name, hmi_table_element)
     if hmi_table_element.occurrence == 0 then
-      commonFunctions:printTable(hmi_table_element)
       EXPECT_HMICALL(name, hmi_table_element.params)
       :Times(0)
       commonTestCases:DelayedExp(3000)
