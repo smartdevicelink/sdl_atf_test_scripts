@@ -23,57 +23,6 @@ local commonRC = {}
 
 commonRC.timeout = 2000
 
-local function initHMI(self)
-  local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(self, "HMI initialization")
-  local function registerComponent(name, subscriptions)
-    local rid = self.hmiConnection:SendRequest("MB.registerComponent", { componentName = name })
-    local exp = EXPECT_HMIRESPONSE(rid)
-    exp_waiter:AddExpectation(exp)
-    if subscriptions then
-      for _, s in ipairs(subscriptions) do
-        exp:Do(function()
-            rid = self.hmiConnection:SendRequest("MB.subscribeTo", { propertyName = s })
-            exp = EXPECT_HMIRESPONSE(rid)
-            exp_waiter:AddExpectation(exp)
-          end)
-      end
-    end
-  end
-
-  local web_socket_connected_event = EXPECT_HMIEVENT(events.connectedEvent, "Connected websocket")
-  :Do(function()
-      registerComponent("Buttons", {"Buttons.OnButtonSubscription"})
-      registerComponent("TTS")
-      registerComponent("VR")
-      registerComponent("BasicCommunication", {
-          "BasicCommunication.OnPutFile",
-          "SDL.OnStatusUpdate",
-          "SDL.OnAppPermissionChanged",
-          "BasicCommunication.OnSDLPersistenceComplete",
-          "BasicCommunication.OnFileRemoved",
-          "BasicCommunication.OnAppRegistered",
-          "BasicCommunication.OnAppUnregistered",
-          "BasicCommunication.PlayTone",
-          "BasicCommunication.OnSDLClose",
-          "SDL.OnSDLConsentNeeded",
-          "BasicCommunication.OnResumeAudioSource"
-        })
-      registerComponent("UI", {
-          "UI.OnRecordStart"
-        })
-      registerComponent("VehicleInfo")
-      registerComponent("RC")
-      registerComponent("Navigation", {
-          "Navigation.OnAudioDataStreaming",
-          "Navigation.OnVideoDataStreaming"
-        })
-    end)
-  exp_waiter:AddExpectation(web_socket_connected_event)
-
-  self.hmiConnection:Connect()
-  return exp_waiter.expectation
-end
-
 local function getPTUFromPTS(tbl)
   tbl.policy_table.consumer_friendly_messages.messages = nil
   tbl.policy_table.device_data = nil
@@ -159,14 +108,15 @@ function commonRC.preconditions()
   commonSteps:DeleteLogsFiles()
 end
 
-function commonRC.start(self)
+function commonRC.start(pHMIParams, self)
+  self, pHMIParams = commonRC.getSelfAndParams(pHMIParams, self)
   self:runSDL()
   commonFunctions:waitForSDLStart(self)
   :Do(function()
-      initHMI(self)
+      self:initHMI(self)
       :Do(function()
           commonFunctions:userPrint(35, "HMI initialized")
-          self:initHMI_onReady()
+          self:initHMI_onReady(pHMIParams)
           :Do(function()
               commonFunctions:userPrint(35, "HMI is ready")
               self:connectMobile()
