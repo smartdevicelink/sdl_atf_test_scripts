@@ -48,13 +48,23 @@ local function step2(self)
 	commonTestCases:DelayedExp(commonRC.timeout)
 end
 
+local function ptu_update_func(tbl)
+  local appId = config.application1.registerAppInterfaceParams.appID
+  tbl.policy_table.app_policies[appId].moduleType = nil
+  tbl.policy_table.app_policies[appId].groups_primaryRC = nil
+  tbl.policy_table.app_policies[appId].AppHMIType = { "DEFAULT" }
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
+runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
+runner.Step("Activate App", commonRC.activate_app)
+
 runner.Title("Test")
 runner.Step("ButtonPress_CLIMATE", step1)
 runner.Step("ButtonPress_RADIO", step2)
+
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

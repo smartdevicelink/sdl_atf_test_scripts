@@ -81,6 +81,8 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
+runner.Step("Activate App", commonRC.activate_app)
+
 for _, button_name_value in pairs( climate_button_names ) do
     local climate_params = reset_climate_params()
     climate_params.buttonPressMode = "SHORT"

@@ -41,12 +41,6 @@ local function stepSuccessfull(pModuleType, pResultCode, self)
     isSubscribed = false,
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
-  -- :ValidIf(function(_, data) -- no isSubscribed parameter
-  --     if data.payload.isSubscribed == nil then
-  --       return true
-  --     end
-  --     return false, 'Parameter "isSubscribed" is transfered to App with value: ' .. tostring(data.payload.isSubscribed)
-  --   end)
 end
 
 local function stepUnsuccessfull(pModuleType, pResultCode, self)
@@ -72,6 +66,7 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
+runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 

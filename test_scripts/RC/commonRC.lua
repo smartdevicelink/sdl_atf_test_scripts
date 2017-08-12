@@ -50,9 +50,6 @@ end
 
 local function updatePTU(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
-  tbl.policy_table.functional_groupings["RemoteControl"].rpcs.OnInteriorVehicleData = {
-    hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-  }
 end
 
 local function jsonFileToTable(file_name)
@@ -579,6 +576,7 @@ function commonRC.defineRAMode(pAllowed, pAccessMode, self)
   self, pAccessMode = commonRC.getSelfAndParams(pAccessMode, self)
   local rpc = "OnRemoteControlSettings"
   self.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pAllowed, pAccessMode))
+  commonTestCases:DelayedExp(500) -- workaround due to issue with SDL -> redundant OnHMIStatus notification is sent
 end
 
 function commonRC.rpcDenied(pModuleType, pAppId, pRPC, pResultCode, self)

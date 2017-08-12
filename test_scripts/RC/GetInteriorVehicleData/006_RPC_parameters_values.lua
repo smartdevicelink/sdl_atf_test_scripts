@@ -93,6 +93,7 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
+runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 

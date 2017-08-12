@@ -42,18 +42,22 @@ for _,initialAccessMode in pairs(accessModes) do
     for _,appLevel in pairs(HMILevels) do
       runner.Title(initialAccessMode .. " -> Disable RC -> " .. targetAccessMode .. " (" .. appLevel .. ")")
       for _, mod in pairs(modules) do
+        runner.Title("Module: " .. mod)
         runner.Step("Enable RC from HMI with " .. initialAccessMode .." access mode", commonRC.defineRAMode, { true, initialAccessMode })
         runner.Step("Activate App1", commonRC.activate_app)
-        runner.Step("Check module " .. mod .." App1 " .. rcRpcs[1] .. " allowed", commonRC.rpcAllowed, { mod, 1, rcRpcs[1] })
+        runner.Step("Check App1 " .. rcRpcs[1] .. " allowed", commonRC.rpcAllowed, { mod, 1, rcRpcs[1] })
         runner.Step("Disable RC from HMI", commonRC.defineRAMode, { false, initialAccessMode })
         runner.Step("Enable RC from HMI with " .. targetAccessMode .. " access mode", commonRC.defineRAMode, { true, targetAccessMode })
         if appLevel == "FULL" then
           runner.Step("Activate App2", commonRC.activate_app, { 2 })
-          runner.Step("Check module " .. mod .." App2 " .. rcRpcs[2] .. " allowed", commonRC.rpcAllowed, { mod, 2, rcRpcs[2] })
+          runner.Step("Check App2 " .. rcRpcs[2] .. " allowed", commonRC.rpcAllowed, { mod, 2, rcRpcs[2] })
         else
-          runner.Step("Check module " .. mod .." App2 " .. rcRpcs[2] .. " allowed", commonRC.rpcAllowed, { mod, 2, rcRpcs[2] })
+          runner.Step("Activate App2", commonRC.activate_app, { 2 })
+          runner.Step("Activate App1", commonRC.activate_app, { 1 })
+          runner.Step("Check App2 " .. rcRpcs[2] .. " allowed", commonRC.rpcAllowed, { mod, 2, rcRpcs[2] })
           runner.Step("Activate App2", commonRC.activate_app, { 2 })
         end
+        runner.Step("Disable RC from HMI", commonRC.defineRAMode, { false, targetAccessMode })
       end
     end
   end
