@@ -31,7 +31,7 @@ end
 local function rpcHMIRespondAfterDefaultTimeout(self)
   local cid1 = self.mobileSession2:SendRPC(commonRC.getAppEventName(pRPC1), commonRC.getAppRequestParams(pRPC1, pModuleType))
   local consentRPC = "GetInteriorVehicleDataConsent"
-  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, 2, self))
+  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, 2))
   :Do(function(_, data)
       local function hmiRespond()
         self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "info")

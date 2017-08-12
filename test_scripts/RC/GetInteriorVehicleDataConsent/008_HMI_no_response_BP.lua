@@ -32,7 +32,7 @@ local function rpcNoHMIResponse(pModuleType, pAppId, pRPC, self)
   local consentRPC = "GetInteriorVehicleDataConsent"
   local mobSession = commonRC.getMobileSession(self, pAppId)
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
-  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId, self))
+  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId))
   :Do(function(_, _)
       -- HMI does not respond
       EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)

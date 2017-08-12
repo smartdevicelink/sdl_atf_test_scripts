@@ -52,7 +52,7 @@ local function step(pModuleType, pRPC1, pRPC2, self)
       buttonPressMode = "SHORT"
     })
     EXPECT_HMICALL("Buttons.ButtonPress", {
-      appID = commonRC.getHMIAppId(self, 1),
+      appID = commonRC.getHMIAppId(1),
       moduleType = pModuleType,
       buttonName = commonRC.getButtonNameByModule(pModuleType),
       buttonPressMode = "SHORT"

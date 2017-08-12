@@ -32,7 +32,7 @@ local function rpcInvalidHMIResponse(pModuleType, pAppId, pRPC, self)
   local consentRPC = "GetInteriorVehicleDataConsent"
   local mobSession = commonRC.getMobileSession(self, pAppId)
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
-  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId, self))
+  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, pModuleType, pAppId))
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
         allowed = "aaa" -- invalid type of parameter
