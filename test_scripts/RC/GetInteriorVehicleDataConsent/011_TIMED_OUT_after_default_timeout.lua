@@ -50,6 +50,7 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI1, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("RAI2", commonRC.rai_n, { 2 })
+runner.Step("Activate App1", commonRC.activate_app)
 
 runner.Title("Test")
 runner.Step("Set RA mode: ASK_DRIVER", commonRC.defineRAMode, { true, "ASK_DRIVER" })
