@@ -15,6 +15,8 @@ local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
+runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" } })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all CLIMATE RC capabilities), connect Mobile, start Session", commonRC.start,
 	{commonRC.buildHmiRcCapabilities(nil, commonRC.DEFAULT, commonRC.DEFAULT)})
@@ -32,3 +34,4 @@ runner.Step("SetInteriorVehicleData CLIMATE", commonRC.rpcDenied, { "CLIMATE", 1
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
+runner.Step("Restore HMI capabilities file", commonRC.restoreHMICapabilities)

@@ -701,14 +701,16 @@ function commonRC.getButtonIdByName(pArray, pButtonName)
   end
 end
 
-function commonRC.updateDefaultCapabilities(pDisabledModuleType)
+function commonRC.updateDefaultCapabilities(pDisabledModuleTypes)
   local hmiCapabilitiesFile = commonPreconditions:GetPathToSDL()
     .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
   local hmiCapTbl = jsonFileToTable(hmiCapabilitiesFile)
   local rcCapTbl = hmiCapTbl.UI.systemCapabilities.remoteControlCapability
-  local buttonId = commonRC.getButtonIdByName(rcCapTbl.buttonCapabilities, commonRC.getButtonNameByModule(pDisabledModuleType))
-  table.remove(rcCapTbl.buttonCapabilities, buttonId)
-  rcCapTbl[string.lower(pDisabledModuleType) .. "ControlCapabilities"] = nil
+  for _, pDisabledModuleType in pairs(pDisabledModuleTypes) do
+    local buttonId = commonRC.getButtonIdByName(rcCapTbl.buttonCapabilities, commonRC.getButtonNameByModule(pDisabledModuleType))
+    table.remove(rcCapTbl.buttonCapabilities, buttonId)
+    rcCapTbl[string.lower(pDisabledModuleType) .. "ControlCapabilities"] = nil
+  end
   tableToJsonFile(hmiCapTbl, hmiCapabilitiesFile)
 end
 

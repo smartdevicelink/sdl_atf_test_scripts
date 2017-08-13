@@ -11,11 +11,14 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
+
 --[[ Local Variables ]]
 local modules = { "CLIMATE", "RADIO" }
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
+runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" } })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all posible RC capabilities), connect Mobile, start Session", commonRC.start,
 	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, commonRC.DEFAULT)})
@@ -32,3 +35,4 @@ end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
+runner.Step("Restore HMI capabilities file", commonRC.restoreHMICapabilities)
