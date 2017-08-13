@@ -314,6 +314,7 @@ function module.getDefaultHMITable()
         climateControlCapabilities = {
             {
               moduleName = "Climate",
+              currentTemperatureAvailable = true,
               fanSpeedAvailable = true,
               desiredTemperatureAvailable = true,
               acEnableAvailable = true,

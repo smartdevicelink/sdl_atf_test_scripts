@@ -14,13 +14,12 @@ local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Local Variables ]]
-local climate_capabilities =
-{
+local climate_capabilities = {{
   moduleName = "Climate",
   fanSpeedAvailable = true,
   acEnableAvailable = true,
   acMaxEnableAvailable = true
-}
+}}
 local rc_capabilities = commonRC.buildHmiRcCapabilities(climate_capabilities, commonRC.DEFAULT, commonRC.DEFAULT)
 local climate_params =
 {

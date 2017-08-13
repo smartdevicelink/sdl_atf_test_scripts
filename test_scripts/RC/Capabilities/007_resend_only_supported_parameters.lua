@@ -15,7 +15,7 @@ local commonRC = require('test_scripts/RC/commonRC')
 local common_functions = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
-local radio_capabilities = {moduleName = "Radio", radioFrequencyAvailable = true, radioBandAvailable = true}
+local radio_capabilities = {{moduleName = "Radio", radioFrequencyAvailable = true, radioBandAvailable = true}}
 
 local rc_capabilities = commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, radio_capabilities, commonRC.DEFAULT)
 local available_params =

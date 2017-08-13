@@ -15,7 +15,7 @@ local commonRC = require('test_scripts/RC/commonRC')
 local common_functions = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
-local climate_capabilities = {moduleName = "Climate", fanSpeedAvailable = true}
+local climate_capabilities = {{moduleName = "Climate", fanSpeedAvailable = true}}
 local rc_capabilities = commonRC.buildHmiRcCapabilities(climate_capabilities, commonRC.DEFAULT, commonRC.DEFAULT)
 local available_params = {moduleType = "CLIMATE", climateControlData = {fanSpeed = 30}}
 local absent_params = {moduleType = "CLIMATE", climateControlData = {acMaxEnable = true}}
