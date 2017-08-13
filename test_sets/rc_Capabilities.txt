@@ -2,6 +2,5 @@
 ./test_scripts/RC/Capabilities/006_resend_only_supported_parameter_and_reject_others.lua
 ./test_scripts/RC/Capabilities/007_resend_only_supported_parameters.lua
 ./test_scripts/RC/Capabilities/008_reject_request_with_both_supported_and_not_supported_parameters.lua
-./test_scripts/RC/Capabilities/009_reject_request_if_remoteControlCapabilities_parameter_was_absent_in_GetCapabilities.lua
 ./test_scripts/RC/Capabilities/010_Only_CLIMATE_all_params.lua
 ./test_scripts/RC/Capabilities/011_Only_RADIO_all_params.lua
