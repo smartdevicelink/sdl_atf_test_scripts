@@ -37,9 +37,9 @@ runner.Step("RAI2", commonRC.rai_n, { 2 })
 
 runner.Title("Test")
 
-for _,initialAccessMode in pairs(accessModes) do
-  for _,targetAccessMode in pairs(accessModes) do
-    for _,appLevel in pairs(HMILevels) do
+for _, initialAccessMode in pairs(accessModes) do
+  for _, targetAccessMode in pairs(accessModes) do
+    for _, appLevel in pairs(HMILevels) do
       runner.Title(initialAccessMode .. " -> Disable RC -> " .. targetAccessMode .. " (" .. appLevel .. ")")
       for _, mod in pairs(modules) do
         runner.Title("Module: " .. mod)
@@ -57,7 +57,6 @@ for _,initialAccessMode in pairs(accessModes) do
           runner.Step("Check App2 " .. rcRpcs[2] .. " allowed", commonRC.rpcAllowed, { mod, 2, rcRpcs[2] })
           runner.Step("Activate App2", commonRC.activate_app, { 2 })
         end
-        runner.Step("Disable RC from HMI", commonRC.defineRAMode, { false, targetAccessMode })
       end
     end
   end
