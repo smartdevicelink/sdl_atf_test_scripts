@@ -12,6 +12,7 @@ config.application2.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
 local hmi_values = require("user_modules/hmi_values")
@@ -24,6 +25,7 @@ local commonRC = {}
 
 commonRC.timeout = 2000
 commonRC.DEFAULT = "Default"
+commonRC.buttons = { climate = "FAN_UP", radio = "VOLUME_UP" }
 
 local function getPTUFromPTS(tbl)
   tbl.policy_table.consumer_friendly_messages.messages = nil
@@ -317,11 +319,7 @@ function commonRC.getAnotherModuleControlData(module_type)
 end
 
 function commonRC.getButtonNameByModule(pModuleType)
-  if pModuleType == "CLIMATE" then
-    return "FAN_UP"
-  elseif pModuleType == "RADIO" then
-    return "VOLUME_UP"
-  end
+  return commonRC.buttons[string.lower(pModuleType)]
 end
 
 function commonRC.getReadOnlyParamsByModule(pModuleType)
@@ -428,6 +426,13 @@ local rcRPCs = {
       return {
         moduleData = commonRC.getSettableModuleControlData(pModuleType)
       }
+    end,
+    responseParams = function(success, resultCode, pModuleType)
+      return {
+        success = success,
+        resultCode = resultCode,
+        moduleData = commonRC.getSettableModuleControlData(pModuleType)
+      }
     end
   },
   ButtonPress = {
@@ -450,6 +455,12 @@ local rcRPCs = {
     end,
     hmiResponseParams = function()
       return {}
+    end,
+    responseParams = function(success, resultCode)
+      return {
+        success = success,
+        resultCode = resultCode
+      }
     end
   },
   GetInteriorVehicleDataConsent = {
@@ -654,7 +665,7 @@ function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilitie
   end
 
   if pRadioCapabilities then
-    if pClimateCapabilities ~= commonRC.DEFAULT then
+    if pRadioCapabilities ~= commonRC.DEFAULT then
       capParams.radioControlCapabilities = pRadioCapabilities
     end
   else
@@ -670,6 +681,35 @@ function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilitie
   end
 
   return hmiParams
+end
+
+function commonRC.backupHMICapabilities()
+  local hmiCapabilitiesFile = commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
+  commonPreconditions:BackupFile(hmiCapabilitiesFile)
+end
+
+function commonRC.restoreHMICapabilities()
+  local hmiCapabilitiesFile = commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
+  commonPreconditions:RestoreFile(hmiCapabilitiesFile)
+end
+
+function commonRC.getButtonIdByName(pArray, pButtonName)
+  for id, buttonData in pairs(pArray) do
+    if buttonData.name == pButtonName then
+      return id
+    end
+  end
+end
+
+function commonRC.updateDefaultCapabilities(pDisabledModuleType)
+  local hmiCapabilitiesFile = commonPreconditions:GetPathToSDL()
+    .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
+  local hmiCapTbl = jsonFileToTable(hmiCapabilitiesFile)
+  local rcCapTbl = hmiCapTbl.UI.systemCapabilities.remoteControlCapability
+  local buttonId = commonRC.getButtonIdByName(rcCapTbl.buttonCapabilities, commonRC.getButtonNameByModule(pDisabledModuleType))
+  table.remove(rcCapTbl.buttonCapabilities, buttonId)
+  rcCapTbl[string.lower(pDisabledModuleType) .. "ControlCapabilities"] = nil
+  tableToJsonFile(hmiCapTbl, hmiCapabilitiesFile)
 end
 
 return commonRC
