@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/9
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/button_press_emulation.md
+-- Item: Use Case 1: Exceptions: 1.1
+--
 -- Requirement summary:
 -- [SDL_RC] Button press event emulation
 --

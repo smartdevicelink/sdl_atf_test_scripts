@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Item: Use Case 1: Exception 1
+--
 -- Requirement summary:
 -- [SDL_RC] Resource allocation based on access mode
 --

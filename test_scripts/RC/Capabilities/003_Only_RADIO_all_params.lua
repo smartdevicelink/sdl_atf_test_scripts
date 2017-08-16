@@ -1,4 +1,12 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
+-- Item: Use Case 1:Exception 3.1
+--
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
+-- Item: Use Case 1: Exceptions: 5.1
+--
 -- Requirement summary:
 -- [SDL_RC] Capabilities
 --

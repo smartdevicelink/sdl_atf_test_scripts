@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/2
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/current_module_status_data.md
+-- Item: Use Case 1: Exceptions: 5.1
+--
 -- Requirement summary:
 -- [SDL_RC] Current module status data GetInteriorVehicleData
 --

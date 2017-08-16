@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/7
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/Policy_Support_of_basic_RC_functionality.md
+-- Item: Use Case 1: Alternative flow 1
+--
 -- Requirement summary:
 -- [SDL_RC] Set available control module settings SetInteriorVehicleData
 --

@@ -1,4 +1,8 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
+-- Item: Use Case 1: Main Flow
+--
 -- Requirement summary:
 -- [SDL_RC] Capabilities
 --

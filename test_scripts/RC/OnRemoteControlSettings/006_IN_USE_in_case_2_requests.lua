@@ -1,4 +1,16 @@
 ---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Item: Use Case 1: Exception 2
+--
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/9
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/button_press_emulation.md
+-- Item: Use Case 1: Exception 1.5
+--
+-- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
+-- Item: Use Case 1: Exception 6.1
+--
 -- Requirement summary:
 -- [SDL_RC] Resource allocation based on access mode
 --
