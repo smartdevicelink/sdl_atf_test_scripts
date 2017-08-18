@@ -24,6 +24,7 @@ local hmiAppIds = {}
 local commonRC = {}
 
 commonRC.timeout = 2000
+commonRC.minTimeout = 500
 commonRC.DEFAULT = "Default"
 commonRC.buttons = { climate = "FAN_UP", radio = "VOLUME_UP" }
 
@@ -211,6 +212,7 @@ function commonRC.activate_app(pAppId, self)
       end
     end)
   mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
+  commonTestCases:DelayedExp(commonRC.minTimeout)
 end
 
 function commonRC.postconditions()
@@ -587,7 +589,7 @@ function commonRC.defineRAMode(pAllowed, pAccessMode, self)
   self, pAccessMode = commonRC.getSelfAndParams(pAccessMode, self)
   local rpc = "OnRemoteControlSettings"
   self.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pAllowed, pAccessMode))
-  commonTestCases:DelayedExp(500) -- workaround due to issue with SDL -> redundant OnHMIStatus notification is sent
+  commonTestCases:DelayedExp(commonRC.minTimeout) -- workaround due to issue with SDL -> redundant OnHMIStatus notification is sent
 end
 
 function commonRC.rpcDenied(pModuleType, pAppId, pRPC, pResultCode, self)
