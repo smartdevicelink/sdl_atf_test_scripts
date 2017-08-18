@@ -45,8 +45,7 @@ function commonRC.getRCAppConfig()
     priority = "NONE",
     default_hmi = "NONE",
     moduleType = { "RADIO", "CLIMATE" },
-    groups = { "Base-4" },
-    groups_primaryRC = { "Base-4", "RemoteControl" },
+    groups = { "Base-4", "RemoteControl" },
     AppHMIType = { "REMOTE_CONTROL" }
   }
 end
