@@ -854,7 +854,7 @@ end
 --14. Functions for SDL stop
 ---------------------------------------------------------------------------------------------
 function commonFunctions:SDLForceStop(self)
-  os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
+  os.execute("ps aux | grep ./smartDeviceLinkCore | awk '{print $2}' | xargs kill -9")
   commonFunctions:sleep(1)
 end
 
