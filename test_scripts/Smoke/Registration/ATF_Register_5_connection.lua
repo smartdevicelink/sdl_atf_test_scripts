@@ -33,7 +33,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
-local file_connection  = require('file_connection') 
+local file_connection  = require('file_connection')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -41,29 +41,15 @@ require('cardinalities')
 require('user_modules/AppTypes')
 
 -- [[Local variables]]
-local default_app_params1 = config.application1.registerAppInterfaceParams
-local default_app_params2 = config.application2.registerAppInterfaceParams
-local default_app_params3 = config.application3.registerAppInterfaceParams
-local default_app_params4 = config.application4.registerAppInterfaceParams
-local default_app_params5 = config.application5.registerAppInterfaceParams
 local devicePort = 12345
 
---1. Device 1:
-local device1 = "127.0.0.1"
---2. Device 2:
-local device2 = "192.168.100.199"
---3. Device 3:
-local device3 = "10.42.0.1"
---4. Device 4:
-local device4 = "1.0.0.1"
---5. Device 5:
-local device5 = "8.8.8.8"
-
--- Cretion dummy connections for script
-os.execute("ifconfig lo:1 " .. device2)
-os.execute("ifconfig lo:2 " .. device3)
-os.execute("ifconfig lo:3 " .. device4)
-os.execute("ifconfig lo:4 " .. device5)
+local devices = {
+  "127.0.0.1",
+  "192.168.100.199",
+  "10.42.0.1",
+  "1.0.0.1",
+  "8.8.8.8"
+}
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
@@ -82,11 +68,17 @@ local function createConnectionAndRegisterApp(self, device, filename, app)
     local correlationId = self.mobileSession:SendRPC("RegisterAppInterface", app)
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", {application = { appName = app.appName}})
     self.mobileSession:ExpectResponse(correlationId , { success = true, resultCode = "SUCCESS"})
-    self.mobileSession:ExpectNotification("OnHMIStatus",{hmiLevel = "NONE", 
+    self.mobileSession:ExpectNotification("OnHMIStatus",{hmiLevel = "NONE",
           audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"}):Do(function()
-      commonFunctions:userPrint(35, "1st App is successfully registered")
+      commonFunctions:userPrint(35, "App is successfully registered")
     end)
   end)
+end
+
+function Test.CreateDummyConections()
+  for i = 1, 4 do
+    os.execute("ifconfig lo:" .. i .." " .. devices[i + 1])
+  end
 end
 
 function Test:Start_SDL()
@@ -104,30 +96,29 @@ end
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 
-function Test:FirstConnection()
-  createConnectionAndRegisterApp(self, device1, "mobile1.out", default_app_params1)
+for i = 1, 5 do
+  Test["CreateConnection_" .. i] = function(self)
+    local filename = "mobile" .. i .. ".out"
+    local app = config["application"..i].registerAppInterfaceParams
+    createConnectionAndRegisterApp(self, devices[i], filename, app)
+  end
 end
-
-function Test:SecondConnection()
-  createConnectionAndRegisterApp(self, device2, "mobile2.out", default_app_params2)
-end
-
-function Test:ThirdConnection()
-  createConnectionAndRegisterApp(self, device3, "mobile3.out", default_app_params3)
-end
-
-function Test:FourthConnection()
-  createConnectionAndRegisterApp(self, device4, "mobile4.out", default_app_params4)  
-end
-
-function Test:FifthConnection()
-  createConnectionAndRegisterApp(self, device5, "mobile5.out", default_app_params5)  
-end
-
 -- [[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postcondition")
 function Test.Stop_SDL()
   StopSDL()
+end
+
+function Test.ShutDownDummyConnections()
+  for i = 1, 4 do
+    os.execute("ifconfig lo:" .. i .." down")
+  end
+end
+
+function Test.CleanTemporaryFiles()
+  for i = 1, 5 do
+    os.execute("rm -f " .. "mobile" .. i .. ".out")
+  end
 end
 
 return Test
