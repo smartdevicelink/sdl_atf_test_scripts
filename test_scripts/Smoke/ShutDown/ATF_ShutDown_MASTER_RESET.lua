@@ -2,7 +2,7 @@
 --  [Policies] Master Reset
 --
 -- Description:
--- On Master Reset, Policy Manager must revert Local Policy Table 
+-- On Master Reset, Policy Manager must revert Local Policy Table
 -- to the Preload Policy Table.
 --
 -- 1. Used preconditions
@@ -15,12 +15,16 @@
 --
 -- Expected result:
 -- 1. SDL clear all Apps folder, app_info.dat file and shut down
-
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
+local SDL = require('SDL')
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ Local Variables ]]
 -- Hash id of AddCommand before MASTER_RESET
@@ -57,7 +61,7 @@ end
 
 function Test:Activate_App_And_Put_File()
   local function addCommand()
-    local cid = self.mobileSession:SendRPC("AddCommand",{ cmdID = 1005, 
+    local cid = self.mobileSession:SendRPC("AddCommand",{ cmdID = 1005,
                 vrCommands = { "OnlyVRCommand"}
                 })
     EXPECT_HMICALL("VR.AddCommand", {cmdID = 1005, type = "Command",
@@ -89,13 +93,12 @@ end
 commonFunctions:newTestCasesGroup("Check that SDL finish it's work properly by MASTER_RESET")
 
 function Test:ShutDown_MASTER_RESET()
-  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", 
+  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     { reason = "MASTER_RESET" })
   EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "MASTER_RESET" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose"):Do(function ()
-    StopSDL()
-  end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  SDL:DeleteFile()
 end
 
 --- Start SDL again then add mobile connection
@@ -123,7 +126,7 @@ function Test:Check_Application_Not_Resume_When_Register_Again()
     local rai_params =  config.application1.registerAppInterfaceParams
     rai_params.hashID = hash_id
 
-    local cid = self.mobileSession:SendRPC("RegisterAppInterface",rai_params) 
+    local cid = self.mobileSession:SendRPC("RegisterAppInterface",rai_params)
     local on_app_registered = self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "RESUME_FAILED" })
 
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = {appName = default_app_name} })
@@ -132,20 +135,20 @@ function Test:Check_Application_Not_Resume_When_Register_Again()
       self.hmiConnection:SendResponse(data.id, "BasicCommunication.UpdateAppList", "SUCCESS", {})
     end)
 
-    EXPECT_NOTIFICATION("OnHMIStatus", { systemContext = "MAIN", hmiLevel = "NONE", 
+    EXPECT_NOTIFICATION("OnHMIStatus", { systemContext = "MAIN", hmiLevel = "NONE",
       audioStreamingState = "NOT_AUDIBLE"})
 
     on_app_registered:Do(function()
       local cid1 = self.mobileSession:SendRPC("ListFiles", {})
       EXPECT_RESPONSE(cid1, { success = true, resultCode = "SUCCESS" }) :ValidIf (function(_,data)
-        return not data.payload.filenames 
+        return not data.payload.filenames
       end)
       EXPECT_HMICALL("BasicCommunication.ActivateApp"):Times(0)
       EXPECT_HMICALL("VR.AddCommand"):Times(0)
-      StopSDL()
     end)
   end)
-end 
+  commonTestCases:DelayedExp(3000)
+end
 
 -- [[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postcondition")

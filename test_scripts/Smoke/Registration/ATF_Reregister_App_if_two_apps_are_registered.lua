@@ -24,7 +24,9 @@
 --     SDL->appID_1: SUCCESS, success:"true":RegisterAppInterface()
 --  3. SDL assignes HMILevel after application registering:
 --     SDL->appID_1: OnHMIStatus(HMlLevel, audioStreamingState, systemContext)
-
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 -- [[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -62,7 +64,7 @@ function Test:Start_SDL_With_One_Activated_App()
 end
 
 commonSteps:precondition_AddNewSession()
-commonSteps:RegisterTheSecondMediaApp() 
+commonSteps:RegisterTheSecondMediaApp()
 
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
@@ -70,12 +72,12 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:Unregister_App()
   local cid = self.mobileSession:SendRPC("UnregisterAppInterface", default_app_params1)
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false,
                    appID = self.applications[default_app_params1.appName]})
 end
 
 function Test:Reregister_Application()
-  local cid = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params1) 
+  local cid = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params1)
   self.mobileSession:ExpectResponse(cid, { success = true })
 
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = {appName = default_app_params1.appName} })
@@ -84,7 +86,7 @@ function Test:Reregister_Application()
     self.hmiConnection:SendResponse(data.id, "BasicCommunication.UpdateAppList", "SUCCESS", {})
   end)
   EXPECT_NOTIFICATION("OnHMIStatus", { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})
-  EXPECT_NOTIFICATION("OnPermissionsChange", {})  
+  EXPECT_NOTIFICATION("OnPermissionsChange", {})
 end
 
 -- [[ Postconditions ]]

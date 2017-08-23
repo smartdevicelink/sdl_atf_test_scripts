@@ -3,7 +3,7 @@
 --
 --  Description:
 --  Applications of BACKGROUND are not the case of HMILevel resumption in the next ignition cycle.
---  Check that SDL performs app's data resumption and does not resume BACKGROUND HMI level  
+--  Check that SDL performs app's data resumption and does not resume BACKGROUND HMI level
 --  of media after transport unexpected disconnect on mobile side.
 
 --  1.  Used precondition
@@ -18,8 +18,9 @@
 --  Expected behavior:
 --  1. App is unregistered from HMI.
 --     App is registered on HMI, SDL resumes all data and App gets default HMI level NONE.
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application2.registerAppInterfaceParams.isMediaApplication = true
 
@@ -79,17 +80,17 @@ end
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Transport unexpected disconnect. Media app not resume at BACKGROUND level")
 commonSteps:precondition_AddNewSession()
-commonSteps:RegisterTheSecondMediaApp() 
+commonSteps:RegisterTheSecondMediaApp()
 commonSteps:ActivateTheSecondMediaApp()
 
 function Test:Close_Session2()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
     appID = self.applications[default_app_params2.appName]})
   self.mobileSession2:Stop()
 end
 
 function Test:Close_Session1()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
     appID = self.applications[default_app_params1.appName]})
   self.mobileSession:Stop()
 end
@@ -100,9 +101,7 @@ function Test:Register_And_No_Resume_App_BACKGROUND_And_Resumes_Data()
   default_app_params1.hashID = self.currentHashID
   on_rpc_service_started:Do(function()
     commonStepsResumption:Expect_Resumption_Data(default_app_params1)
-    commonStepsResumption:RegisterApp(default_app_params1, commonStepsResumption.ExpectNoResumeApp, true):Do(function()
-      StopSDL()
-    end)
+    commonStepsResumption:RegisterApp(default_app_params1, commonStepsResumption.ExpectNoResumeApp, true)
   end)
 end
 

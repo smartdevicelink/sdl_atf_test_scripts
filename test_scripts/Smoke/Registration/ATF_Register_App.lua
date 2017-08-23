@@ -18,6 +18,9 @@
 --     SDL->appID: SUCCESS, success:"true":RegisterAppInterface()
 --  2. SDL assignes HMILevel after application registering:
 --     SDL->appID: OnHMIStatus(HMlLevel, audioStreamingState, systemContext)
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 -- [[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -68,7 +71,7 @@ function Test:Register_App()
     EXPECT_NOTIFICATION("OnPermissionsChange")
   end)
 end
- 
+
 -- [[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postcondition")
 function Test.Stop_SDL()

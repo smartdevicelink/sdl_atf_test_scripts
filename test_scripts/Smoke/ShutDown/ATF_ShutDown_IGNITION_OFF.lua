@@ -1,28 +1,31 @@
 -- Requirement summary:
--- [Data Resumption]:OnExitAllApplications(IGNITION_OFF) in terms of resumption 
+-- [Data Resumption]:OnExitAllApplications(IGNITION_OFF) in terms of resumption
 --
 -- Description:
--- In case SDL receives OnExitAllApplications(IGNITION_OFF), 
+-- In case SDL receives OnExitAllApplications(IGNITION_OFF),
 -- SDL must clean up any resumption-related data
--- Obtained after OnExitAllApplications( SUSPEND). SDL must stop all its processes, 
+-- Obtained after OnExitAllApplications( SUSPEND). SDL must stop all its processes,
 -- notify HMI via OnSDLClose and shut down.
 --
 -- 1. Used preconditions
 -- HMI is running
 -- One App is registered and activated on HMI
--- 
+--
 -- 2. Performed steps
 -- Perform ignition Off
 -- HMI sends OnExitAllApplications(IGNITION_OFF)
--- 
+--
 -- Expected result:
 -- 1. SDL sends to App OnAppInterfaceUnregistered
 -- 2. SDL sends to HMI OnSDLClose and stops working
-
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local SDL = require('SDL')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -44,7 +47,7 @@ function Test:Start_SDL_With_One_Activated_App()
         self:connectMobile():Do(function ()
           commonFunctions:userPrint(35, "Mobile Connected")
           self:startSession():Do(function ()
-            commonSteps:ActivateAppInSpecificLevel(self, 
+            commonSteps:ActivateAppInSpecificLevel(self,
               self.applications[config.application1.registerAppInterfaceParams.appName])
             EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
           end)
@@ -63,11 +66,9 @@ function Test:ShutDown_IGNITION_OFF()
     self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
       { reason = "IGNITION_OFF" })
     EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
-  end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false }) 
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose"):Do(function ()
-    print("ONSDLClose")
-    StopSDL()
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+    SDL:DeleteFile()
   end)
 end
 

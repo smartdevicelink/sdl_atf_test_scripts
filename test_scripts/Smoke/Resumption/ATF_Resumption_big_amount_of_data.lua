@@ -15,10 +15,11 @@
 --
 --  Expected behavior:
 --  1. App is unregistered successfully.
---     App is registered successfully,  SDL sends OnAppRegistered on HMI with "resumeVrGrammars"=true. 
+--     App is registered successfully,  SDL sends OnAppRegistered on HMI with "resumeVrGrammars"=true.
 --     SDL resumes all app's data and sends BC.ActivateApp to HMI. App gets FULL HMI Level
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 -- [[ Required Shared Libraries ]]
@@ -109,7 +110,7 @@ end
 commonFunctions:newTestCasesGroup("Transport unexpected disconnect. App resume at FULL level")
 
 function Test:Close_Session()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
     appID = self.applications[default_app_params]})
   self.mobileSession:Stop()
 end
@@ -117,10 +118,10 @@ end
 function Test:Register_And_Resume_App_And_Data()
   local mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   local on_rpc_service_started = mobileSession:StartRPC()
-  on_rpc_service_started:Do(function()  
+  on_rpc_service_started:Do(function()
     config.application1.registerAppInterfaceParams.hashID = self.currentHashID
     Test:expect_Resumption_Data()
-    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)   
+    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)
   end)
 end
 
@@ -133,12 +134,12 @@ function Test:expect_Resumption_Data()
     if data.params.menuParams.position == 500 then
       if data.params.appID == default_app_params.hmi_app_id then
         return true
-      else 
+      else
         commonFunctions:userPrint(31, "App is registered with wrong appID " )
         return false
       end
     end
-  end)  
+  end)
   local is_command_received = 20
   local is_choice_received = 20
   local on_vr_commands_added = EXPECT_HMICALL("VR.AddCommand"):Times(40)
@@ -147,10 +148,10 @@ function Test:expect_Resumption_Data()
   end)
   on_vr_commands_added:ValidIf(function(_,data)
     if (data.params.type == "Command" and is_command_received ~= 0) then
-      if (data.params.appID == default_app_params.hmi_app_id) then 
+      if (data.params.appID == default_app_params.hmi_app_id) then
         is_command_received = is_command_received - 1
         return true
-      else 
+      else
         commonFunctions:userPrint(31, "Received the same notification or App is registered with wrong appID")
         return false
       end
@@ -158,7 +159,7 @@ function Test:expect_Resumption_Data()
       if (data.params.appID == default_app_params.hmi_app_id) then
         is_choice_received = is_choice_received - 1
         return true
-      else 
+      else
         commonFunctions:userPrint(31, "Received the same notification or App is registered with wrong appID")
         return false
       end
@@ -173,16 +174,16 @@ function Test:OnCommand()
 end
 
 function Test:PerformInteraction()
-  self.mobileSession:SendRPC("PerformInteraction",{ 
+  self.mobileSession:SendRPC("PerformInteraction",{
                             initialText = "StartPerformInteraction",
-                            initialPrompt = { 
+                            initialPrompt = {
                               { text = "Makeyourchoice", type = "TEXT"}},
                             interactionMode = "BOTH",
                             interactionChoiceSetIDList = { 20 },
                             timeout = 5000
                           })
-  EXPECT_HMICALL("VR.PerformInteraction", {appID = default_app_params.hmi_app_id}):Do(function(_,data)           
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = 20}) 
+  EXPECT_HMICALL("VR.PerformInteraction", {appID = default_app_params.hmi_app_id}):Do(function(_,data)
+    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = 20})
   end)
 end
 

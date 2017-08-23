@@ -3,7 +3,7 @@
 --  [HMILevel Resumption]: Conditions to resume app to FULL in the next ignition cycle.
 
 --  Description:
---  Check that: 
+--  Check that:
 --  1. SDL performs App data resumption in case when media app tries to resume in 3rd ignition cycle.
 --  2. SDL doesn't resumes App to FULL hmi level.
 --
@@ -19,10 +19,8 @@
 --
 --  Expected behavior:
 --  1. In 3rd ignition cycle App is registered and get default HMI level, app data is resumed.
-
-
+---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
---TODO(ilytvynenko): should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
@@ -31,6 +29,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
 local mobile_session = require('mobile_session')
+local SDL = require('SDL')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -42,20 +41,6 @@ local default_app_params = config.application1.registerAppInterfaceParams
 local default_app = nil -- will be initialized after application registration
 
 -- [[ Local Functions ]]
-local function IGNITION_OFF()
-  Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
-    { reason = "SUSPEND" })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
-    Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
-      { reason = "IGNITION_OFF" })
-    EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
-  end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false }) 
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose"):Do(function()
-    StopSDL()
-  end)
-end
-
 local function Start_SDL_And_Add_Mobile_Connection()
   Test:runSDL()
   commonFunctions:waitForSDLStart(Test):Do(function()
@@ -106,7 +91,16 @@ end
 commonFunctions:newTestCasesGroup("SDL should perform data resumption application is registered within 3 ign cycles")
 
 function Test.IGNITION_OFF()
-  IGNITION_OFF()
+  Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+    { reason = "SUSPEND" })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
+    Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+      { reason = "IGNITION_OFF" })
+    EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+    SDL:DeleteFile()
+  end)
 end
 
 function Test.Restart_SDL_And_Add_Mobile_Connection()
@@ -114,7 +108,14 @@ function Test.Restart_SDL_And_Add_Mobile_Connection()
 end
 
 function Test.IGNITION_OFF()
-  IGNITION_OFF()
+  Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+    { reason = "SUSPEND" })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
+    Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+      { reason = "IGNITION_OFF" })
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+    SDL:DeleteFile()
+  end)
 end
 
 function Test.Restart_SDL_And_Add_Mobile_Connection()
@@ -126,10 +127,8 @@ function Test:Register_And_No_Resume_App()
   local on_rpc_service_started = mobile_session1:StartRPC()
   on_rpc_service_started:Do(function()
     default_app_params.hashID = self.currentHashID
-    commonStepsResumption:Expect_Resumption_Data(default_app_params) 
-    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false):Do(function()
-      StopSDL()
-    end)
+    commonStepsResumption:Expect_Resumption_Data(default_app_params)
+    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)
   end)
 end
 

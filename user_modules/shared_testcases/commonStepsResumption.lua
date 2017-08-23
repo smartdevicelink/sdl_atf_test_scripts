@@ -1,5 +1,6 @@
 local commonStepsResumption = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 function commonStepsResumption:AddCommand()
   local cid = Test.mobileSession:SendRPC("AddCommand", { cmdID = 1, vrCommands = {"OnlyVRCommand"}})
@@ -17,7 +18,7 @@ end
 function commonStepsResumption:AddSubMenu()
   local cid = Test.mobileSession:SendRPC("AddSubMenu", { menuID = 1, position = 500,
               menuName = "SubMenu"})
-  local on_hmi_call = EXPECT_HMICALL("UI.AddSubMenu", { menuID = 1, menuParams = 
+  local on_hmi_call = EXPECT_HMICALL("UI.AddSubMenu", { menuID = 1, menuParams =
                               { position = 500, menuName = "SubMenu"}})
   on_hmi_call:Do(function(_, data)
     Test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
@@ -59,36 +60,50 @@ local function CheckTimeBoundaries(time)
         return false
       end
     elseif exp.occurences == 1 then
-      return true 
+      return true
     end
   end
 end
 
 function commonStepsResumption:RegisterApp(app, additional_expectations , resume_vr_grammars)
-  local default_additional_expectations = function (app) 
+  local default_additional_expectations = function (app)
     EXPECT_NOTIFICATION("OnHMIStatus",
       {hmiLevel = "NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE"})
   end
-  if (not additional_expectations) then 
+  if (not additional_expectations) then
     additional_expectations = default_additional_expectations
   end
   local correlation_id = Test.mobileSession:SendRPC("RegisterAppInterface", app)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
-  						{ application = {appName = app.appName}, resumeVrGrammars = resume_vr_grammars}):Do(function (_, data)
+  						{ application = {appName = app.appName } }):Do(function (_, data)
     app.hmi_app_id = data.params.application.appID
   end)
-  Test.mobileSession:ExpectResponse(correlation_id, { success = true})  
+  :ValidIf(function(_, d)
+      local pA = d.params.resumeVrGrammars
+      local pE = resume_vr_grammars
+      if pE == false then
+        if pA == nil or pA == false then
+          return true
+        end
+      else
+        if pA == pE then
+          return true
+        end
+      end
+      return false, "The value of " .. pA ..  " (".. tostring(pA) .. ") is not as expected (" .. pE .. ")"
+    end)
+  Test.mobileSession:ExpectResponse(correlation_id, { success = true})
   local exp = additional_expectations(Test, app)
   return exp
 end
 
 function commonStepsResumption:ExpectResumeAppFULL(app)
   local audio_streaming_state = "AUDIBLE"
-  if(app.isMediaApplication == false) then 
+  if(app.isMediaApplication == false) then
     audio_streaming_state = "NOT_AUDIBLE"
   end
   local time = timestamp()
-  local app_activated = EXPECT_HMICALL("BasicCommunication.ActivateApp", 
+  local app_activated = EXPECT_HMICALL("BasicCommunication.ActivateApp",
                         {appID = Test.applications[app.appName]}):Do(function(_,data)
     Test.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
   end)
@@ -98,15 +113,15 @@ function commonStepsResumption:ExpectResumeAppFULL(app)
     :Do(function(_,data)
       Test.hmiLevel = data.payload.hmiLevel
     end):Times(2)
-  return app_activated 
+  return app_activated
 end
 
 function commonStepsResumption:ExpectResumeAppLIMITED(app)
   local audio_streaming_state = "AUDIBLE"
-  if(app.isMediaApplication == false) then 
+  if(app.isMediaApplication == false) then
     audio_streaming_state = "NOT_AUDIBLE"
   end
-  local time = timestamp() 
+  local time = timestamp()
   local on_audio_source = EXPECT_HMINOTIFICATION("BasicCommunication.OnResumeAudioSource", {appID = Test.applications[app.appName]})
   EXPECT_NOTIFICATION("OnHMIStatus",
     {hmiLevel = "NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE"},
@@ -126,6 +141,7 @@ function commonStepsResumption:ExpectNoResumeApp(app)
   local exp = EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE"})
   EXPECT_HMICALL("BasicCommunication.ActivateApp"):Times(0)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnResumeAudioSource"):Times(0)
+  commonTestCases:DelayedExp(3000)
   return exp
 end
 
@@ -135,15 +151,15 @@ function commonStepsResumption:Expect_Resumption_Data(app)
     Test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS")
   end)
   on_ui_sub_menu_added:ValidIf(function(_,data)
-    if (data.params.menuParams.menuName == "SubMenu" and data.params.menuID == 1) then 
+    if (data.params.menuParams.menuName == "SubMenu" and data.params.menuID == 1) then
       if data.params.appID == app.hmi_app_id then
         return true
-      else 
+      else
         commonFunctions:userPrint(31, "App is registered with wrong appID " )
         return false
       end
     end
-  end)  
+  end)
   local is_command_received = false
   local is_choice_received = false
   local on_vr_commands_added = EXPECT_HMICALL("VR.AddCommand"):Times(2)
@@ -152,10 +168,10 @@ function commonStepsResumption:Expect_Resumption_Data(app)
   end)
   on_vr_commands_added:ValidIf(function(_,data)
     if (data.params.type == "Command" and data.params.cmdID == 1) then
-      if (data.params.appID == app.hmi_app_id and not is_command_received) then 
+      if (data.params.appID == app.hmi_app_id and not is_command_received) then
         is_command_received = true
         return true
-      else 
+      else
         commonFunctions:userPrint(31, "Received the same notification or App is registered with wrong appID")
         return false
       end
@@ -163,7 +179,7 @@ function commonStepsResumption:Expect_Resumption_Data(app)
       if (data.params.appID == app.hmi_app_id and not is_choice_received) then
         is_choice_received = true
         return true
-      else 
+      else
         commonFunctions:userPrint(31, "Received the same notification or App is registered with wrong appID")
         return false
       end
