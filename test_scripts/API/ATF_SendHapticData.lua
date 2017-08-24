@@ -13,26 +13,26 @@ local commonFunctions =
 commonFunctions:newTestCasesGroup("Test suite: Check normal cases")
 
 function Test:SingleSpatialData()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, x = 2.0, y = 3.0, width = 4.0, height = 5.0 } }
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0 } } }
     }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, x = 2.0, y = 3.0, width = 4.0, height = 5.0, } }
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0 } } }
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
@@ -40,28 +40,28 @@ function Test:SingleSpatialData()
 end
 
 function Test:MultiSpatialData()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, x = 2.0, y = 3.0, width = 4.0, height = 5.0     },
-        { id = 2, x = 12.0, y = 13.0, width = 14.0, height = 15.0 } }
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0,  y = 3.0,  width = 4.0,  height = 5.0  } },
+        { id = 2, rect = { x = 12.0, y = 13.0, width = 14.0, height = 15.0 } } }
     }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, x = 2.0, y = 3.0, width = 4.0, height = 5.0     },
-        { id = 2, x = 12.0, y = 13.0, width = 14.0, height = 15.0 } } 
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0     } },
+        { id = 2, rect = { x = 12.0, y = 13.0, width = 14.0, height = 15.0 } } } 
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
@@ -73,24 +73,24 @@ function Test:MaxSpatialData()
   local spatial_data = {}
   for i= 1, 1000 do
     table.insert(spatial_data,
-      {id = i, x = i+2, y=i+3, width=i+4, height=i+5})
+      {id = i, rect = { x = i+2, y=i+3, width=i+4, height=i+5 } })
   end
 
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
-    "SendHapticData", { HapticSpatialData = spatial_data }
+    "SendHapticData", { hapticRectData = spatial_data }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData = spatial_data
+      hapticRectData = spatial_data
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
@@ -98,7 +98,7 @@ function Test:MaxSpatialData()
 end
 
 function Test:NoSpatialData()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData", {}
   )
@@ -111,7 +111,7 @@ function Test:NoSpatialData()
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
@@ -124,26 +124,26 @@ end
 commonFunctions:newTestCasesGroup("Test suite: Check error cases")
 
 function Test:GenericError()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, x = 2.0, y = 3.0, width = 4.0, height = 5.0 } }
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0 } } }
     }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, x = 2.0, y = 3.0, width = 4.0, height = 5.0, } }
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0, } } }
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "GENERIC_ERROR", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
   :ValidIf (function(_,data)
     return true
@@ -151,15 +151,15 @@ function Test:GenericError()
 end
 
 function Test:InvalidDataNonExistId()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
     {
-      HapticSpatialData =
-        { { x = 2.0, y = 3.0, width = 4.0, height = 5.0, } }
+      hapticRectData =
+        { { rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0, } } }
     }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -167,15 +167,15 @@ function Test:InvalidDataNonExistId()
 end
 
 function Test:InvalidDataNonExistX()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
     {
-      HapticSpatialData =
-      { { id = 1, y = 3.0, width = 4.0, height = 5.0, } }
+      hapticRectData =
+      { { id = 1, rect = { y = 3.0, width = 4.0, height = 5.0, } } }
     }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -183,15 +183,15 @@ function Test:InvalidDataNonExistX()
 end
 
 function Test:InvalidDataNonExistY()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 1, x = 2.0, width = 4.0, height = 5.0, } }
-		}
+    {
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, width = 4.0, height = 5.0, } } }
+    }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -199,15 +199,15 @@ function Test:InvalidDataNonExistY()
 end
 
 function Test:InvalidDataNonExistWidth()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 1, x = 2.0, y = 3.0, height = 5.0, } }
-		}
+    {
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, height = 5.0, } } }
+    }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -215,15 +215,15 @@ function Test:InvalidDataNonExistWidth()
 end
 
 function Test:InvalidDataNonExistHeight()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 1, x = 2.0, y = 3.0, width = 4.0, } }
-		}
+    {
+      hapticRectData =
+      { { id = 1, rect = { x = 2.0, y = 3.0, width = 4.0, } } }
+    }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -231,15 +231,15 @@ function Test:InvalidDataNonExistHeight()
 end
 
 function Test:InvalidDataWithUnknowItem()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 1, a = 2.0, y = 3.0, width = 4.0, height = 5.0} }
-		}
+    {
+      hapticRectData =
+      { { id = 1, rect = { a = 2.0, y = 3.0, width = 4.0, height = 5.0 } } }
+    }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -250,14 +250,15 @@ function Test:InvalidDataOverMaxSpatialData()
 
   local spatial_data = {}
   for i= 1, 1001 do
-    table.insert(spatial_data, {id = i, x = i+2, y=i+3, width=i+4, height=i+5})
+    table.insert(spatial_data, {id = i, rect =
+      { x = i+2, y=i+3, width=i+4, height=i+5 } })
   end
 
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
-    "SendHapticData", { HapticSpatialData = spatial_data }
+    "SendHapticData", { hapticRectData = spatial_data }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -265,26 +266,28 @@ function Test:InvalidDataOverMaxSpatialData()
 end
 
 function Test:SingleSpatialDataWithMaxID()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 2000000000, x = 2.0, y = 3.0, width = 4.0, height = 5.0 } }
-		}
+    {
+      hapticRectData =
+      { { id = 2000000000,
+        rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0 } } }
+    }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData =
-			{ { id = 2000000000, x = 2.0, y = 3.0, width = 4.0, height = 5.0, } }
+      hapticRectData =
+      { { id = 2000000000,
+        rect = { x = 2.0, y = 3.0, width = 4.0, height = 5.0, } } }
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
@@ -292,15 +295,16 @@ function Test:SingleSpatialDataWithMaxID()
 end
 
 function Test:InvalidDataOverMaxID()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 2000000001, x = 2.0, y = 3.0, width = 5.0, height = 5.0, } }
-		}
+    {
+      hapticRectData =
+      { { id = 2000000001,
+        rect = { x = 2.0, y = 3.0, width = 5.0, height = 5.0, } } }
+    }
   )
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
   :ValidIf (function(_,data)
     return true
@@ -308,28 +312,28 @@ function Test:InvalidDataOverMaxID()
 end
 
 function Test:SingleSpatialDataWithLargeNumber()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 2000000000, x = 2000000001, y = 2000000002,
-			  width = 2000000003, height = 2000000004 } }
-		}
+    {
+      hapticRectData =
+      { { id = 2000000000, rect = { x = 2000000001, y = 2000000002,
+        width = 2000000003, height = 2000000004 } } }
+    }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData =
-			{ { id = 2000000000, x = 2000000001, y = 2000000002,
-			  width = 2000000003, height = 2000000004, } }
+      hapticRectData =
+      { { id = 2000000000, rect = { x = 2000000001, y = 2000000002,
+        width = 2000000003, height = 2000000004, } } }
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
@@ -337,26 +341,26 @@ function Test:SingleSpatialDataWithLargeNumber()
 end
 
 function Test:SingleSpatialDataWithFloatNumber()
-  -- mobiel side
+  -- mobile side
   local cid = self.mobileSession:SendRPC(
     "SendHapticData",
-		{
-		  HapticSpatialData =
-			{ { id = 1, x = 2.1, y = 3.3, width = 4.7, height = 5.9 } }
-		}
+    {
+      hapticRectData =
+      { { id = 1, rect = { x = 2.1, y = 3.3, width = 4.7, height = 5.9 } } }
+    }
   )
   -- hmi side
   EXPECT_HMICALL(
     "UI.SendHapticData",
     {
-      HapticSpatialData =
-			{ { id = 1, x = 2.1, y = 3.3, width = 4.7, height = 5.9, } }
+      hapticRectData =
+      { { id = 1, rect = { x = 2.1, y = 3.3, width = 4.7, height = 5.9, } } }
     }
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  -- mobiel side
+  -- mobile side
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf (function(_,data)
     return true
