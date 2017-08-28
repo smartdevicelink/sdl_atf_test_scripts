@@ -144,7 +144,7 @@ function Test:expect_Resumption_Data()
   local is_choice_received = 20
   local on_vr_commands_added = EXPECT_HMICALL("VR.AddCommand"):Times(40)
   on_vr_commands_added:Do(function(_,data)
-    Test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS")
+    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS")
   end)
   on_vr_commands_added:ValidIf(function(_,data)
     if (data.params.type == "Command" and is_command_received ~= 0) then

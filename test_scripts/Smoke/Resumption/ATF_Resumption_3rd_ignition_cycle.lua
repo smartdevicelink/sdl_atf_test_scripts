@@ -90,11 +90,11 @@ end
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("SDL should perform data resumption application is registered within 3 ign cycles")
 
-function Test.IGNITION_OFF()
-  Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+function Test:IGNITION_OFF()
+  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     { reason = "SUSPEND" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
-    Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+    self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
       { reason = "IGNITION_OFF" })
     EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
@@ -107,11 +107,11 @@ function Test.Restart_SDL_And_Add_Mobile_Connection()
   Start_SDL_And_Add_Mobile_Connection()
 end
 
-function Test.IGNITION_OFF()
-  Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+function Test:IGNITION_OFF()
+  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     { reason = "SUSPEND" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
-    Test.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
+    self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
       { reason = "IGNITION_OFF" })
     EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
     SDL:DeleteFile()
