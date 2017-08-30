@@ -74,6 +74,14 @@ local function checkIfPTSIsSentAsBinary(bin_data)
 end
 
 local function ptu(self, ptu_update_func)
+  local function getAppsCount()
+    local count = 0
+    for _, _ in pairs(hmiAppIds) do
+      count = count + 1
+    end
+    return count
+  end
+
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
@@ -88,17 +96,29 @@ local function ptu(self, ptu_update_func)
         ptu_update_func(ptu_table)
       end
       tableToJsonFile(ptu_table, ptu_file_name)
-      self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
-      :Do(function(_, d2)
-          checkIfPTSIsSentAsBinary(d2.binaryData)
-          local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, ptu_file_name)
-          EXPECT_HMICALL("BasicCommunication.SystemRequest")
-          :Do(function(_, d3)
-              self.hmiConnection:SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
-              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = policy_file_path .. "/" .. policy_file_name })
-            end)
-          self.mobileSession:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
-        end)
+
+      local event = events.Event()
+      event.matches = function(self, e) return self == e end
+      EXPECT_EVENT(event, "PTU event")
+      :Timeout(11000)
+
+      for id = 1, getAppsCount() do
+        local mobileSession = commonRC.getMobileSession(self, id)
+        mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
+        :Do(function(_, d2)
+            print("App ".. id .. " was used for PTU")
+            RAISE_EVENT(event, event, "PTU event")
+            checkIfPTSIsSentAsBinary(d2.binaryData)
+            local corIdSystemRequest = mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, ptu_file_name)
+            EXPECT_HMICALL("BasicCommunication.SystemRequest")
+            :Do(function(_, d3)
+                self.hmiConnection:SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
+                self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = policy_file_path .. "/" .. policy_file_name })
+              end)
+            mobileSession:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
+          end)
+        :Times(AtMost(1))
+      end
     end)
   os.remove(ptu_file_name)
 end
@@ -155,6 +175,32 @@ function commonRC.rai_ptu(ptu_update_func, self)
       self.mobileSession:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
       :Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
       self.mobileSession:ExpectNotification("OnPermissionsChange")
+    end)
+end
+
+function commonRC.rai_ptu_n(ptu_update_func, id, self)
+  self["mobileSession" .. id] = mobile_session.MobileSession(self, self.mobileConnection)
+  self["mobileSession" .. id]:StartService(7)
+  :Do(function()
+      local corId = self["mobileSession" .. id]:SendRPC("RegisterAppInterface", config["application" .. id].registerAppInterfaceParams)
+      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
+      :Do(function(_, d1)
+          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" })
+          :Times(3)
+          EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+          :Do(function(_, d2)
+              self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
+              ptu_table = jsonFileToTable(d2.params.file)
+              ptu(self, ptu_update_func)
+            end)
+        end)
+      self["mobileSession" .. id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
+          self["mobileSession" .. id]:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          :Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
+          self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+        end)
     end)
 end
 

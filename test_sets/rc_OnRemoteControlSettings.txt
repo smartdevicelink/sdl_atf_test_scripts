@@ -17,3 +17,7 @@
 ./test_scripts/RC/OnRemoteControlSettings/017_Release_resource_on_unregister_app.lua
 ./test_scripts/RC/OnRemoteControlSettings/018_Release_resource_and_allow_for_rejected_app_on_unregister_app.lua
 ./test_scripts/RC/OnRemoteControlSettings/019_Release_resource_on_RC_disable.lua
+./test_scripts/RC/OnRemoteControlSettings/020_Restore_accessMode_after_RC_disable.lua
+./test_scripts/RC/OnRemoteControlSettings/021_Release_resource_on_exit_app.lua
+./test_scripts/RC/OnRemoteControlSettings/022_Release_resource_on_PTU_with_module_disallow.lua
+./test_scripts/RC/OnRemoteControlSettings/023_Release_resource_on_PTU_with_app_revoked.lua
