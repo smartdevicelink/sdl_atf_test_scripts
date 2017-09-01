@@ -21,3 +21,4 @@
 ./test_scripts/RC/OnRemoteControlSettings/021_Release_resource_on_exit_app.lua
 ./test_scripts/RC/OnRemoteControlSettings/022_Release_resource_on_PTU_with_module_disallow.lua
 ./test_scripts/RC/OnRemoteControlSettings/023_Release_resource_on_PTU_with_app_revoked.lua
+./test_scripts/RC/OnRemoteControlSettings/024_Allowed_false_no_PTU.lua
