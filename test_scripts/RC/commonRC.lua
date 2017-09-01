@@ -123,6 +123,11 @@ local function ptu(self, ptu_update_func)
   os.remove(ptu_file_name)
 end
 
+local function allow_sdl(self)
+  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+end
+
 function commonRC.preconditions()
   commonFunctions:SDLForceStop()
   commonSteps:DeletePolicyTable()
@@ -143,6 +148,7 @@ function commonRC.start(pHMIParams, self)
               self:connectMobile()
               :Do(function()
                   commonFunctions:userPrint(35, "Mobile connected")
+                  allow_sdl(self)
                 end)
             end)
         end)
