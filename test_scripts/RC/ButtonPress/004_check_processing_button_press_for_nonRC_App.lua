@@ -54,8 +54,6 @@ end
 
 local function ptu_update_func(tbl)
   local appId = config.application1.registerAppInterfaceParams.appID
-  tbl.policy_table.app_policies[appId].moduleType = nil
-  tbl.policy_table.app_policies[appId].groups_primaryRC = nil
   tbl.policy_table.app_policies[appId].AppHMIType = { "DEFAULT" }
 end
 
