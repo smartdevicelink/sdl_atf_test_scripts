@@ -5,6 +5,8 @@ local isPrintTitle = false
 local title
 local runner = {}
 
+Test.isTest = true
+
 --[ATF]
 local function buildStepName(testStepName)
   if type(testStepName) == "string" and testStepName ~= "" then
@@ -53,7 +55,7 @@ local function extendedAddTestStep(testStepName, testStepImplFunction, paramsTab
   local newTestStepImplFunction = function(self)
       for _, func in pairs(implFunctionsListWithParams) do
         table.insert(func.params, self)
-        func.implFunc(unpack(func.params))
+        func.implFunc(unpack(func.params, 1, table.maxn(func.params)))
       end
     end
   addTestStep(testStepName, newTestStepImplFunction)

@@ -26,7 +26,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function invalidParamName(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     modduleType = pModuleType, -- invalid name of parameter
     subscribe = true
   })
@@ -34,13 +34,13 @@ local function invalidParamName(pModuleType, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 
   commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function invalidParamType(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = 17 -- invalid type of parameter
   })
@@ -48,13 +48,13 @@ local function invalidParamType(pModuleType, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 
   commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function missingMandatoryParam(self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     -- moduleType = "CLIMATE", --  mandatory parameter absent
     subscribe = true
   })
@@ -62,13 +62,13 @@ local function missingMandatoryParam(self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 
   commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function fakeParam(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     fakeParam = 7,
     subscribe = true
@@ -86,7 +86,7 @@ local function fakeParam(pModuleType, self)
       })
     end)
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     isSubscribed = true,
     moduleData = commonRC.getModuleControlData(pModuleType)
   })

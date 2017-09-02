@@ -143,11 +143,6 @@ function commonRC.start(pHMIParams, self)
               self:connectMobile()
               :Do(function()
                   commonFunctions:userPrint(35, "Mobile connected")
-                  self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
-                  self.mobileSession:StartService(7)
-                  :Do(function()
-                      commonFunctions:userPrint(35, "Session started")
-                    end)
                 end)
             end)
         end)
@@ -156,29 +151,12 @@ end
 
 function commonRC.rai_ptu(ptu_update_func, self)
   self, ptu_update_func = commonRC.getSelfAndParams(ptu_update_func, self)
-
-  local corId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
-  :Do(function(_, d1)
-      hmiAppIds[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" })
-      :Times(3)
-      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-      :Do(function(_, d2)
-          self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
-          ptu_table = jsonFileToTable(d2.params.file)
-          ptu(self, ptu_update_func)
-        end)
-    end)
-  self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-  :Do(function()
-      self.mobileSession:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-      :Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
-      self.mobileSession:ExpectNotification("OnPermissionsChange")
-    end)
+  commonRC.rai_ptu_n(1, ptu_update_func, self)
 end
 
-function commonRC.rai_ptu_n(ptu_update_func, id, self)
+function commonRC.rai_ptu_n(id, ptu_update_func, self)
+  self, id, ptu_update_func = commonRC.getSelfAndParams(id, ptu_update_func, self)
+  if not id then id = 1 end
   self["mobileSession" .. id] = mobile_session.MobileSession(self, self.mobileConnection)
   self["mobileSession" .. id]:StartService(7)
   :Do(function()
@@ -205,6 +183,8 @@ function commonRC.rai_ptu_n(ptu_update_func, id, self)
 end
 
 function commonRC.rai_n(id, self)
+  self, id = commonRC.getSelfAndParams(id, self)
+  if not id then id = 1 end
   self["mobileSession" .. id] = mobile_session.MobileSession(self, self.mobileConnection)
   self["mobileSession" .. id]:StartService(7)
   :Do(function()
@@ -232,30 +212,11 @@ end
 
 function commonRC.activate_app(pAppId, self)
   self, pAppId = commonRC.getSelfAndParams(pAppId, self)
-
-  local pHMIAppId = hmiAppIds[config.application1.registerAppInterfaceParams.appID]
-  local mobSession = self["mobileSession"]
-  if pAppId and pAppId > 1 then
-    mobSession = self["mobileSession" .. pAppId]
-    pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
-  end
-  local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
-  EXPECT_HMIRESPONSE(requestId1)
-  :Do(function(_, data1)
-      if data1.result.isSDLAllowed ~= true then
-        local requestId2 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
-          { language = "EN-US", messageCodes = { "DataConsent" } })
-        EXPECT_HMIRESPONSE(requestId2)
-        :Do(function()
-            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
-            EXPECT_HMICALL("BasicCommunication.ActivateApp")
-            :Do(function(_, data2)
-                self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
-              end)
-          end)
-      end
-    end)
+  if not pAppId then pAppId = 1 end
+  local pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
+  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
+  EXPECT_HMIRESPONSE(requestId)
   mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
   commonTestCases:DelayedExp(commonRC.minTimeout)
 end
@@ -264,11 +225,24 @@ function commonRC.postconditions()
   StopSDL()
 end
 
-function commonRC.getSelfAndParams(param, self)
-  if not self then
-    return param, nil
+function commonRC.getSelfAndParams(...)
+  local out = { }
+  local selfIdx = nil
+  for i,v in pairs({...}) do
+    if type(v) == "table" and v.isTest then
+      table.insert(out, v)
+      selfIdx = i
+      break
+    end
   end
-  return self, param
+  local idx = 2
+  for i = 1, table.maxn({...}) do
+    if i ~= selfIdx then
+      out[idx] = ({...})[i]
+      idx = idx + 1
+    end
+  end
+  return table.unpack(out, 1, table.maxn(out))
 end
 
 function commonRC.getModuleControlData(module_type)
@@ -617,17 +591,13 @@ function commonRC.isUnsubscribed(pModuleType, pAppId, self)
 end
 
 function commonRC.getHMIAppId(pAppId)
-  if not pAppId then
-    pAppId = 1
-  end
+  if not pAppId then pAppId = 1 end
   return hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
 end
 
 function commonRC.getMobileSession(self, pAppId)
-  if pAppId and pAppId > 1 then
-    return self["mobileSession" .. pAppId]
-  end
-  return self["mobileSession"]
+  if not pAppId then pAppId = 1 end
+  return self["mobileSession" .. pAppId]
 end
 
 function commonRC.defineRAMode(pAllowed, pAccessMode, self)

@@ -25,7 +25,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function unSubscriptionToModule(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = false
   })
@@ -42,7 +42,7 @@ local function unSubscriptionToModule(pModuleType, self)
       })
     end)
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     moduleData = commonRC.getModuleControlData(pModuleType),
     isSubscribed = true
   })

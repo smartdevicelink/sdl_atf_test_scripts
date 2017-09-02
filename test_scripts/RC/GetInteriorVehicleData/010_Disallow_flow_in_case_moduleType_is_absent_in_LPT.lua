@@ -24,7 +24,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function getDataForModule(module_type, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = module_type,
     subscribe = true
   })
@@ -32,7 +32,7 @@ local function getDataForModule(module_type, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "DISALLOWED" })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 
   commonTestCases:DelayedExp(commonRC.timeout)
 end

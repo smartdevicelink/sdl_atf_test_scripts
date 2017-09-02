@@ -22,7 +22,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("ButtonPress", {
+  local cid = self.mobileSession1:SendRPC("ButtonPress", {
     moduleType = pModuleType,
     buttonName = commonRC.getButtonNameByModule(pModuleType),
     buttonPressMode = "SHORT"
@@ -38,7 +38,7 @@ local function getDataForModule(pModuleType, self)
       self.hmiConnection:Send('{"jsonrpc";"2.0","result":{"cod":0,"method":"Buttons.ButtonPress"},"id":32}')
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]

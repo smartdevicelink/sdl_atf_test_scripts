@@ -25,7 +25,7 @@ local error_codes = { "GENERIC_ERROR", "INVALID_DATA", "OUT_OF_MEMORY", "REJECTE
 
 --[[ Local Functions ]]
 local function stepSuccessfull(pModuleType, pResultCode, self)
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
@@ -39,12 +39,12 @@ local function stepSuccessfull(pModuleType, pResultCode, self)
 			})
 		end)
 
-	self.mobileSession:ExpectResponse(cid,
+	self.mobileSession1:ExpectResponse(cid,
     { success = true, resultCode = pResultCode, moduleData = commonRC.getSettableModuleControlData(pModuleType) })
 end
 
 local function stepUnsuccessfull(pModuleType, pResultCode, self)
-  local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
@@ -56,7 +56,7 @@ local function stepUnsuccessfull(pModuleType, pResultCode, self)
       self.hmiConnection:SendError(data.id, data.method, pResultCode, "Error error")
     end)
 
-  self.mobileSession:ExpectResponse(cid, { success = false, resultCode = pResultCode })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = pResultCode })
 end
 
 --[[ Scenario ]]

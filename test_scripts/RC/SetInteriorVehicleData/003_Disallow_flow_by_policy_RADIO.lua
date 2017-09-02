@@ -24,14 +24,14 @@ local mod = "RADIO"
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
   EXPECT_HMICALL("RC.SetInteriorVehicleData")
   :Times(0)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "DISALLOWED" })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 
   commonTestCases:DelayedExp(commonRC.timeout)
 end

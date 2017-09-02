@@ -27,7 +27,7 @@ local error_codes = { "GENERIC_ERROR", "INVALID_DATA", "OUT_OF_MEMORY", "REJECTE
 
 --[[ Local Functions ]]
 local function unSubscriptionToModule(pModuleType, pResultCode, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = false
   })
@@ -42,7 +42,7 @@ local function unSubscriptionToModule(pModuleType, pResultCode, self)
       -- no isSubscribed parameter
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = pResultCode })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = pResultCode })
   :ValidIf(function(_, data) -- no isSubscribed parameter
       if data.payload.isSubscribed == nil then
         return true

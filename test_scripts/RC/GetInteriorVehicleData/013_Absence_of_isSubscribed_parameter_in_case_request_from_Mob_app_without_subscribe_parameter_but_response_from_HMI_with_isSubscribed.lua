@@ -24,7 +24,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, isSubscriptionActive, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType
     -- no subscribe parameter
   })
@@ -46,7 +46,7 @@ local function getDataForModule(pModuleType, isSubscriptionActive, self)
       return false, 'Parameter "subscribe" is transfered with to HMI value: ' .. tostring(data.params.subscribe)
     end)
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
   :ValidIf(function(_, data) -- no isSubscribed parameter

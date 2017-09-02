@@ -42,7 +42,7 @@ end
 local function step(pModuleType, pRPC1, pRPC2, self)
   local cid1
   if pRPC1 == "SetInteriorVehicleData" then
-    cid1 = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+    cid1 = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
       moduleData = commonRC.getSettableModuleControlData(pModuleType)
     })
     EXPECT_HMICALL("RC.SetInteriorVehicleData", {
@@ -58,7 +58,7 @@ local function step(pModuleType, pRPC1, pRPC2, self)
         RUN_AFTER(hmiRespond, 2000)
       end)
   elseif pRPC1 == "ButtonPress" then
-    cid1 = self.mobileSession:SendRPC("ButtonPress", {
+    cid1 = self.mobileSession1:SendRPC("ButtonPress", {
       moduleType = pModuleType,
       buttonName = commonRC.getButtonNameByModule(pModuleType),
       buttonPressMode = "SHORT"
@@ -76,7 +76,7 @@ local function step(pModuleType, pRPC1, pRPC2, self)
         RUN_AFTER(hmiRespond, 2000)
       end)
   end
-  self.mobileSession:ExpectResponse(cid1, { success = true, resultCode = "SUCCESS" })
+  self.mobileSession1:ExpectResponse(cid1, { success = true, resultCode = "SUCCESS" })
 
   local req2_func = function()
     local cid2

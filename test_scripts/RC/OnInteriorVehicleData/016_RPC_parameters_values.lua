@@ -31,7 +31,7 @@ local function invalidParamName(pModuleType, self)
     modduleData = commonRC.getAnotherModuleControlData(pModuleType) -- invalid name of parameter
   })
 
-  EXPECT_NOTIFICATION("OnInteriorVehicleData")
+  self.mobileSession1:ExpectNotification("OnInteriorVehicleData")
   :Times(0)
 
   commonTestCases:DelayedExp(commonRC.timeout)
@@ -45,7 +45,7 @@ local function invalidParamType(pModuleType, self)
     moduleData = moduleData
   })
 
-  EXPECT_NOTIFICATION("OnInteriorVehicleData")
+  self.mobileSession1:ExpectNotification("OnInteriorVehicleData")
   :Times(0)
 
   commonTestCases:DelayedExp(commonRC.timeout)
@@ -59,7 +59,7 @@ local function missingMandatoryParam(pModuleType, self)
     moduleData = moduleData
   })
 
-  EXPECT_NOTIFICATION("OnInteriorVehicleData")
+  self.mobileSession1:ExpectNotification("OnInteriorVehicleData")
   :Times(0)
 
   commonTestCases:DelayedExp(commonRC.timeout)

@@ -21,7 +21,7 @@ local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 local function step1(self)
-	local cid = self.mobileSession:SendRPC("ButtonPress",	{
+	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
 		moduleType = "CLIMATE",
 		buttonName = "VOLUME_UP",
 		buttonPressMode = "SHORT"
@@ -30,13 +30,13 @@ local function step1(self)
 	EXPECT_HMICALL("Buttons.ButtonPress")
 	:Times(0)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
 
 	commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function step2(self)
-	local cid = self.mobileSession:SendRPC("ButtonPress",	{
+	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
 		moduleType = "RADIO",
 		buttonName = "AC",
 		buttonPressMode = "LONG"
@@ -45,7 +45,7 @@ local function step2(self)
 	EXPECT_HMICALL("Buttons.ButtonPress")
 	:Times(0)
 
-	EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
 
 	commonTestCases:DelayedExp(commonRC.timeout)
 end

@@ -25,7 +25,7 @@ local error_codes = { "GENERIC_ERROR", "INVALID_DATA", "OUT_OF_MEMORY", "REJECTE
 
 --[[ Local Functions ]]
 local function stepSuccessfull(pModuleType, pResultCode, self)
-	local cid = self.mobileSession:SendRPC("ButtonPress", {
+	local cid = self.mobileSession1:SendRPC("ButtonPress", {
     moduleType = pModuleType,
     buttonName = commonRC.getButtonNameByModule(pModuleType),
     buttonPressMode = "SHORT"
@@ -43,11 +43,11 @@ local function stepSuccessfull(pModuleType, pResultCode, self)
 			})
 		end)
 
-	self.mobileSession:ExpectResponse(cid, { success = true, resultCode = pResultCode })
+	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = pResultCode })
 end
 
 local function stepUnsuccessfull(pModuleType, pResultCode, self)
-  local cid = self.mobileSession:SendRPC("ButtonPress", {
+  local cid = self.mobileSession1:SendRPC("ButtonPress", {
     moduleType = pModuleType,
     buttonName = commonRC.getButtonNameByModule(pModuleType),
     buttonPressMode = "SHORT"
@@ -63,7 +63,7 @@ local function stepUnsuccessfull(pModuleType, pResultCode, self)
       self.hmiConnection:SendError(data.id, data.method, pResultCode, "Error error")
     end)
 
-  self.mobileSession:ExpectResponse(cid, { success = false, resultCode = pResultCode })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = pResultCode })
 end
 
 --[[ Scenario ]]

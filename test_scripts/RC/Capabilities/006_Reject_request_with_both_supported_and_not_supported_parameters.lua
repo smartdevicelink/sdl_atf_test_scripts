@@ -39,10 +39,10 @@ local climate_params =
 
 --[[ Local Functions ]]
 local function setVehicleData(params, self)
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = params})
 
 		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+		self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
 end
 
 --[[ Scenario ]]

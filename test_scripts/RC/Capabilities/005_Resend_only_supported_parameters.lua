@@ -31,7 +31,7 @@ local absent_params = {moduleType = "RADIO", radioControlData = {frequencyIntege
 
 --[[ Local Functions ]]
 local function setVehicleData(params, self)
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = params})
 
 	if params.radioControlData.frequencyInteger then
 		EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
@@ -41,10 +41,10 @@ local function setVehicleData(params, self)
 				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
 					moduleData = params})
 			end)
-		self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+		self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 	else
 		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+		self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
         common_functions.DelayedExp(commonRC.timeout)
 	end
 end

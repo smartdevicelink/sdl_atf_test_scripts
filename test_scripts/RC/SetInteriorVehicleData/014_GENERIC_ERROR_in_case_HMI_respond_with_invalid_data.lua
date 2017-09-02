@@ -22,7 +22,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function invalidParamType(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
@@ -39,11 +39,11 @@ local function invalidParamType(pModuleType, self)
       })
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 local function missingMandatoryParam(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
@@ -59,7 +59,7 @@ local function missingMandatoryParam(pModuleType, self)
       })
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR" })
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 --[[ Scenario ]]

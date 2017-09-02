@@ -25,11 +25,11 @@ local module_data_radio = commonRC.getReadOnlyParamsByModule("RADIO")
 
 --[[ Local Functions ]]
 local function setVehicleData(module_data, self)
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = module_data})
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = module_data})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
 
-	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY" })
+	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY" })
 	commonTestCases:DelayedExp(commonRC.timeout)
 end
 

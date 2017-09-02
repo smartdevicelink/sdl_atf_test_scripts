@@ -23,7 +23,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
@@ -35,7 +35,7 @@ local function setVehicleData(pModuleType, self)
     -- HMI does not respond
     end)
 
-  EXPECT_RESPONSE(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 
   commonTestCases:DelayedExp(11000)
 end

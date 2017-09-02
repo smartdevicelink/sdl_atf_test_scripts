@@ -20,7 +20,7 @@ local runner = require('user_modules/script_runner')
 
 --[[ Local Functions ]]
 local function step1(self)
-	local cid = self.mobileSession:SendRPC("ButtonPress",	{
+	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
 		moduleType = "CLIMATE",
 		buttonName = "AC",
 		buttonPressMode = "SHORT"
@@ -36,11 +36,11 @@ local function step1(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 local function step2(self)
-	local cid = self.mobileSession:SendRPC("ButtonPress",	{
+	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
 		moduleType = "RADIO",
 		buttonName = "VOLUME_UP",
 		buttonPressMode = "LONG"
@@ -56,7 +56,7 @@ local function step2(self)
 			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
 
-	EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]

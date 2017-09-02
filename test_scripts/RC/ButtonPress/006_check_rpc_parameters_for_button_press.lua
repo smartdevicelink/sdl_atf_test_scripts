@@ -53,7 +53,7 @@ local function reset_radio_params()
 end
 
 local function SendButtonPressPositive(button_press_params, self)
-    local cid = self.mobileSession:SendRPC("ButtonPress", button_press_params)
+    local cid = self.mobileSession1:SendRPC("ButtonPress", button_press_params)
 
     EXPECT_HMICALL("Buttons.ButtonPress", {
         appID = self.applications["Test Application"],
@@ -66,16 +66,16 @@ local function SendButtonPressPositive(button_press_params, self)
         self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
 
-    EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+    self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 local function SendButtonPressNegative(button_press_params, self)
-    local cid = self.mobileSession:SendRPC("ButtonPress", button_press_params)
+    local cid = self.mobileSession1:SendRPC("ButtonPress", button_press_params)
 
     EXPECT_HMICALL("Buttons.ButtonPress")
     :Times(0)
 
-    EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA" })
+    self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
 
     commonTestCases:DelayedExp(commonRC.timeout)
 end

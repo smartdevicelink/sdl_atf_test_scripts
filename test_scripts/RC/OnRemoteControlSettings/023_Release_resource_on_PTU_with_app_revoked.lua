@@ -20,7 +20,7 @@ local json = require("modules/json")
 
 
 --[[ Local Functions ]]
-local function ptu_update_func_1(tbl)
+local function ptu_update_func(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = json.null
 end
 
@@ -37,7 +37,7 @@ runner.Step("Activate App1", commonRC.activate_app)
 runner.Step("Module RADIO App1 ButtonPress allowed", commonRC.rpcAllowed, { "RADIO", 1, "ButtonPress" })
 runner.Step("Subscribe App1 to RADIO", commonRC.subscribeToModule, { "RADIO", 1 })
 runner.Step("Send notification OnInteriorVehicleData RADIO. App1 is subscribed", commonRC.isSubscribed, { "RADIO", 1 })
-runner.Step("RAI2, PTU App1 permissions revoked", commonRC.rai_ptu_n, { ptu_update_func_1, 2 })
+runner.Step("RAI2, PTU App1 permissions revoked", commonRC.rai_ptu_n, { 2, ptu_update_func })
 runner.Step("Module RADIO App1 SetInteriorVehicleData disallowed", commonRC.rpcDenied, { "RADIO", 1, "SetInteriorVehicleData", "DISALLOWED"})
 runner.Step("Module CLIMATE App1 SetInteriorVehicleData disallowed", commonRC.rpcDenied, { "CLIMATE", 1, "SetInteriorVehicleData", "DISALLOWED"})
 runner.Step("Activate App2", commonRC.activate_app, { 2 })

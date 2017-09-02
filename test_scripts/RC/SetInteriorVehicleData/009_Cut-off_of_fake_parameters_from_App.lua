@@ -24,7 +24,7 @@ local modules = { "CLIMATE", "RADIO" }
 local function setVehicleData(pModuleType, self)
 	local moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	moduleData.fakeParam = 123
-	self.mobileSession:SendRPC("SetInteriorVehicleData", {
+	self.mobileSession1:SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleData
 	})
 

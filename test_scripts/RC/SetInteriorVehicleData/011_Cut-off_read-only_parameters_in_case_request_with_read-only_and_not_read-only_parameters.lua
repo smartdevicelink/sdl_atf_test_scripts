@@ -46,7 +46,7 @@ local function setVehicleData(pModuleType, pParams, self)
 		commonRC.getModuleParams(moduleDataSettable)[k] = v
 	end
 
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleDataCombined
 	})
 
@@ -63,7 +63,7 @@ local function setVehicleData(pModuleType, pParams, self)
 			return true
 		end)
 
-	self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 	:ValidIf(function(_, data)
 			if not isModuleDataCorrect(pModuleType, data.payload.moduleData) then
 				return false, "Test step failed, see prints"

@@ -24,7 +24,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, self)
-  local cid = self.mobileSession:SendRPC("ButtonPress", {
+  local cid = self.mobileSession1:SendRPC("ButtonPress", {
     moduleType = pModuleType,
     buttonName = commonRC.getButtonNameByModule(pModuleType),
     buttonPressMode = "SHORT"
@@ -40,7 +40,7 @@ local function getDataForModule(pModuleType, self)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 local function ptu_update_func(tbl)

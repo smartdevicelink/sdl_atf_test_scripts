@@ -24,7 +24,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
@@ -38,7 +38,7 @@ local function setVehicleData(pModuleType, self)
 			})
 		end)
 
-	self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 local function ptu_update_func(tbl)

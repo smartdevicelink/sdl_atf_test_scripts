@@ -35,7 +35,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType, pSubscribe, self)
-  local cid = self.mobileSession:SendRPC("GetInteriorVehicleData", {
+  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = pSubscribe
   })
@@ -57,7 +57,7 @@ local function subscriptionToModule(pModuleType, pSubscribe, self)
       return false, 'Parameter "subscribe" is transfered to HMI with value: ' .. tostring(data.params.subscribe)
     end)
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS",
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     moduleData = commonRC.getModuleControlData(pModuleType),
     isSubscribed = pSubscribe
   })

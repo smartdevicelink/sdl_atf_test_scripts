@@ -22,7 +22,7 @@ local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType, self)
-	local cid = self.mobileSession:SendRPC("SetInteriorVehicleData", {
+	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
@@ -34,7 +34,7 @@ local function setVehicleData(pModuleType, self)
 			self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Info message")
 		end)
 
-	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY", info = "Info message" })
+	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY", info = "Info message" })
 end
 
 --[[ Scenario ]]
