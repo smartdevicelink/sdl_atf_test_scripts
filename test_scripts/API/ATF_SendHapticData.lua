@@ -33,8 +33,137 @@
 --]]
 
 Test = require('connecttest')
+local mobile_session = require('mobile_session')
 local commonFunctions =
   require('user_modules/shared_testcases/commonFunctions')
+local json = require("modules/json")
+
+--------------------------------------------------------------------------------
+-- PRECONDITIONS
+--------------------------------------------------------------------------------
+commonFunctions:newTestCasesGroup("Preconditions: Change policy table, " ..
+  "restart SDL and activate application ")
+
+function DelayedExp()
+  local event = events.Event()
+  event.matches = function(self, e) return self == e end
+  EXPECT_EVENT(event, "Delayed event")
+  RUN_AFTER(function() RAISE_EVENT(event, event) end, 2000)
+end
+
+function AddHapticGroupToPolicyTable(policyTable)
+  policyTable.functional_groupings.HapticGroup = {}
+  policyTable.functional_groupings.HapticGroup.rpcs = {}
+  policyTable.functional_groupings.HapticGroup.rpcs.
+    OnTouchEvent = {}
+  policyTable.functional_groupings.HapticGroup.rpcs.
+    OnTouchEvent.hmi_levels = {'FULL'}
+  policyTable.functional_groupings.HapticGroup.rpcs.
+    SendHapticData = {}
+  policyTable.functional_groupings.HapticGroup.rpcs.
+    SendHapticData.hmi_levels = {'FULL'}
+  policyTable.app_policies.default.groups = {"Base-4", "HapticGroup"}
+end
+
+local ModifyPolicyTable = AddHapticGroupToPolicyTable
+
+function Test:StopSDLToBackUpPreloadedPt( ... )
+  self.mobileSession:Stop()
+  StopSDL()
+  DelayedExp(1000)
+end
+
+function Test:BackUpPreloadedPt()
+  os.execute('cp ' .. config.pathToSDL .. '/sdl_preloaded_pt.json' .. ' ' ..
+    config.pathToSDL .. '/backup_sdl_preloaded_pt.json')
+  os.execute('rm ' .. config.pathToSDL .. '/storage/policy.sqlite')
+end
+
+function Test:ModifyPreloadedPt()
+  pathToFile = config.pathToSDL .. '/sdl_preloaded_pt.json'
+  local file  = io.open(pathToFile, "r")
+  local json_data = file:read("*all")
+  file:close()
+
+  local data = json.decode(json_data)
+  for k,v in pairs(data.policy_table.functional_groupings) do
+    if (data.policy_table.functional_groupings[k].rpcs == nil) then
+      data.policy_table.functional_groupings[k] = nil
+    else
+      local count = 0
+      for _ in pairs(data.policy_table.functional_groupings[k].rpcs) do
+        count = count + 1
+      end
+      if (count < 30) then
+        data.policy_table.functional_groupings[k] = nil
+      end
+    end
+  end
+  ModifyPolicyTable(data.policy_table)
+  data = json.encode(data)
+
+  file = io.open(pathToFile, "w")
+  file:write(data)
+  file:close()
+end
+
+function Test:Precondition_StartSDL()
+  StartSDL(config.pathToSDL, config.ExitOnCrash)
+  DelayedExp(1000)
+end
+
+function Test:Precondition_InitHMI_1()
+  self:initHMI()
+end
+
+function Test:Precondition_InitHMI_onReady_1()
+  self:initHMI_onReady()
+end
+
+function Test:Precondition_ConnectMobile_1()
+  self:connectMobile()
+end
+
+function Test:Precondition_StartSession_1()
+  self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
+end
+
+function Test:RestorePreloadedPt()
+  os.execute('cp ' .. config.pathToSDL .. '/backup_sdl_preloaded_pt.json' ..
+    ' ' .. config.pathToSDL .. '/sdl_preloaded_pt.json')
+  os.execute('rm ' .. config.pathToSDL .. '/backup_sdl_preloaded_pt.json')
+end
+
+local myAppID = 0
+
+function Test:RegisterApp()
+  self.mobileSession:StartService(7)
+  :Do(function (_, data)
+    -- mobile side
+    local corrID = self.mobileSession:SendRPC("RegisterAppInterface",
+      config.application1.registerAppInterfaceParams)
+
+    -- hmi side
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
+    :Do(function (_, data)
+      myAppID = data.params.application.appID
+    end)
+
+    -- mobile side
+    EXPECT_RESPONSE(corrID, {success = true})
+  end)
+end
+
+function Test:ActivationApp()
+  --hmi side
+  local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp",
+    { appID = myAppID})
+  EXPECT_HMIRESPONSE(requestId)
+
+  --mobile side
+  EXPECT_NOTIFICATION("OnHMIStatus",
+    {hmiLevel = "FULL", systemContext = "MAIN"})
+end
 
 --------------------------------------------------------------------------------
 -- TEST BLOCK I : Check normal cases
