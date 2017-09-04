@@ -29,6 +29,7 @@ local function ptu_update_func(tbl)
     AppHMIType = { "REMOTE_CONTROL" }
   }
   table.insert(tbl.policy_table.functional_groupings.RemoteControl.rpcs.OnInteriorVehicleData.hmi_levels, "NONE")
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
 end
 
 --[[ Scenario ]]
