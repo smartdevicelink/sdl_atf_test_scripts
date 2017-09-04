@@ -262,9 +262,7 @@ function Test:NoSpatialData()
   )
   -- hmi side
   EXPECT_HMICALL(
-    "UI.SendHapticData",
-    {
-    }
+    "UI.SendHapticData"
   )
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
