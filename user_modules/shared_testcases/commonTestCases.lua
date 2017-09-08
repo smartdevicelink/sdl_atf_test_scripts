@@ -84,7 +84,7 @@ function commonTestCases:DelayedExp(time)
   local event = events.Event()
   event.matches = function(self, e) return self == e end
   EXPECT_EVENT(event, "Delayed event")
-  	:Timeout(time+1000)
+  	:Timeout(time+5000)
   RUN_AFTER(function()
               RAISE_EVENT(event, event)
             end, time)
