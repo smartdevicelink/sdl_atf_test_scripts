@@ -22,4 +22,3 @@
 ./test_scripts/Smoke/HeartBeat/ATF_HeartBeat_App_does_not_send_HB_but_respond.lua
 ./test_scripts/Smoke/HeartBeat/ATF_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua
 ./test_scripts/smoke_api.lua
-./test_scripts/ATF_Expanded_smoke_test_Genivi.lua
