@@ -20,7 +20,7 @@ local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/co
 local hmi_values = require('user_modules/hmi_values')
 
 --[[ Local Functions ]]
-local function getHMIParams()
+local function disableGetWayPoints()
   local params = hmi_values.getDefaultHMITable()
   params.UI.GetCapabilities.params.systemCapabilities.navigationCapability.getWayPointsEnabled = false
   return params
@@ -39,7 +39,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonLastMileNavigation.backupHMICapabilities)
 runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start, { getHMIParams() })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start, { disableGetWayPoints() })
 runner.Step("RAI", commonLastMileNavigation.registerAppWithPTU)
 runner.Step("Activate App", commonLastMileNavigation.activateApp)
 

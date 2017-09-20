@@ -17,8 +17,8 @@
 local runner = require('user_modules/script_runner')
 local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
 
-local response1 = {}
-  response1.wayPoints =
+local positiveReponse ={}
+  positiveReponse.wayPoints =
   {{
       coordinate =
       {
@@ -52,7 +52,7 @@ local response1 = {}
       }
   } }
 
-local response2 = {}
+local emptyReponse = {}
 
 --[[ Local Functions ]]
 local function GetWayPoints(self)
@@ -63,8 +63,8 @@ local function GetWayPoints(self)
     wayPointType = "DESTINATION"
   }
 
-  response1.appID = commonLastMileNavigation.getHMIAppId()
-  response2.appID = commonLastMileNavigation.getHMIAppId()
+  positiveReponse.appID = commonLastMileNavigation.getHMIAppId()
+  emptyReponse.appID = commonLastMileNavigation.getHMIAppId()
 
   local cid = self.mobileSession1:SendRPC("GetWayPoints", request1)
 
@@ -78,11 +78,11 @@ local function GetWayPoints(self)
       RUN_AFTER(sendSecondRequest, 1000)
           
       local function sendReponse()
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response1) 
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", positiveReponse) 
       end
       RUN_AFTER(sendReponse, 2000) 
     else
-      self.hmiConnection:SendResponse(data.id, data.method, "IN_USE", response2)
+      self.hmiConnection:SendResponse(data.id, data.method, "IN_USE", emptyReponse)
     end
   end):Times(2)    
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})

@@ -44,7 +44,7 @@ runner.Step("RAI, PTU", commonLastMileNavigation.registerAppWithPTU)
 runner.Step("Activate App", commonLastMileNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("GetWayPoints, wayPointType\"ALL\"", GetWayPoints)
+runner.Step("GetWayPoints, HMI did not respond", GetWayPoints)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonLastMileNavigation.postconditions)

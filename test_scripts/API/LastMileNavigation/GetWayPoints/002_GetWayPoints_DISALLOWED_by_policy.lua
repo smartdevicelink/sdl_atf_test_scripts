@@ -37,7 +37,7 @@ runner.Step("RAI", commonLastMileNavigation.raiN)
 runner.Step("Activate App", commonLastMileNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("GetWayPoints, wayPointType\"ALL\"", GetWayPoints)
+runner.Step("GetWayPoints, DISALLOWED by policy", GetWayPoints)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
