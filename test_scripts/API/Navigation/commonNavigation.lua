@@ -35,7 +35,7 @@ function commonLastMileNavigation.getGetWayPointsConfig()
     steal_focus = false,
     priority = "NONE",
     default_hmi = "NONE",
-    groups = { "Base-4", "GetWayPoints" }
+    groups = { "Base-4", "WayPoints" }
   }
 end
 
@@ -56,6 +56,33 @@ local function jsonFileToTable(pFileName)
   return json.decode(content)
 end
 
+local function tableToJsonFile(pTbl, pFileName)
+  local f = io.open(pFileName, "w")
+  f:write(json.encode(pTbl))
+  f:close()
+end
+
+local function updatePTU(pTbl, pAppId)
+  pTbl.policy_table.functional_groupings["WayPoints"] = {
+    rpcs = {
+      GetWayPoints = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+      },
+      SubscribeWayPoints = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+      },
+      UnsubscribeWayPoints = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+      },
+      OnWayPointChange = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
+      }
+    }
+  }
+  local appID = commonLastMileNavigation.getMobileAppId(pAppId)
+  pTbl.policy_table.app_policies[appID] = commonLastMileNavigation.getGetWayPointsConfig()
+end
+
 local function ptu(pAppId, pPTUpdateFunc, self)
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
@@ -67,27 +94,13 @@ local function ptu(pAppId, pPTUpdateFunc, self)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = pts_file_name })
       getPTUFromPTS(ptu_table)
-       local function updatePTU(tbl)
-        tbl.policy_table.functional_groupings["GetWayPoints"] = {
-          rpcs = {
-            GetWayPoints = {
-               hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" }
-            }
-          }
-        }
-        local appID = commonLastMileNavigation.getMobileAppId(pAppId)
-        tbl.policy_table.app_policies[appID] = commonLastMileNavigation.getGetWayPointsConfig()
-      end
-      updatePTU(ptu_table)
+
+      updatePTU(ptu_table, pAppId)
+
       if pPTUpdateFunc then
         pPTUpdateFunc(ptu_table)
       end
 
-      local function tableToJsonFile(tbl, file_name)
-        local f = io.open(file_name, "w")
-        f:write(json.encode(tbl))
-        f:close()
-      end
       tableToJsonFile(ptu_table, ptu_file_name)
 
       local event = events.Event()
@@ -277,6 +290,32 @@ function commonLastMileNavigation.unregisterApp(pAppId, self)
   local cid = mobSession:SendRPC("UnregisterAppInterface",{})
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = hmiAppId, unexpectedDisconnect = false })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+end
+
+function commonLastMileNavigation.subscribeOnWayPointChange(pAppId, self)
+  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+  local cid = mobSession:SendRPC("SubscribeWayPoints", {})
+  if pAppId == 1 then
+    EXPECT_HMICALL("Navigation.SubscribeWayPoints")
+    :Do(function(_, data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
+  mobSession:ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+  mobSession:ExpectNotification("OnHashChange")
+end
+
+function commonLastMileNavigation.unsubscribeOnWayPointChange(pAppId, self)
+  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+  local cid = mobSession:SendRPC("UnsubscribeWayPoints", {})
+  if pAppId == 1 then
+    EXPECT_HMICALL("Navigation.UnsubscribeWayPoints")
+    :Do(function(_, data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
+  mobSession:ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+  mobSession:ExpectNotification("OnHashChange")
 end
 
 return commonLastMileNavigation
