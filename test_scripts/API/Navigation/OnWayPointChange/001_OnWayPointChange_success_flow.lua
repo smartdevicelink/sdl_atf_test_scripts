@@ -4,14 +4,14 @@
 -- Item: Use Case 1: Main Flow
 --
 -- Requirement summary:
--- [OnWayPointChange] As a mobile application I want to be able to be notified on changes 
+-- [OnWayPointChange] As a mobile application I want to be able to be notified on changes
 -- to Destination or Waypoints based on my subscription
 --
 -- Description:
 -- In case:
 -- 1) SDL and HMI are started, Navi interface and embedded navigation source are available on HMI,
 --    mobile applications are registered on SDL and subscribed on destination and waypoints changes notification
--- 2) Any change in destination or waypoints is registered on HMI (user set new route, canselled the route, 
+-- 2) Any change in destination or waypoints is registered on HMI (user set new route, canselled the route,
 --    arrived at destination point or crossed a waypoint)
 
 -- SDL must:
@@ -19,11 +19,12 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
+local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 
-local notification ={}
-  notification.wayPoints =
-  {{
+--[[ Local Variables ]]
+local notification = {
+  wayPoints = {
+    {
       coordinate =
       {
         latitudeDegrees = 1.1,
@@ -54,25 +55,26 @@ local notification ={}
         thoroughfare = "thoroughfare",
         subThoroughfare = "subThoroughfare"
       }
-  } }
-
+    }
+  }
+}
 
 --[[ Local Functions ]]
-local function OnWayPointChange(self)
-  self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)       
-  self.mobileSession1:ExpectNotification("OnWayPointChange", notification)  
+local function onWayPointChange(self)
+  self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
+  self.mobileSession1:ExpectNotification("OnWayPointChange", notification)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start)
-runner.Step("RAI, PTU", commonLastMileNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonLastMileNavigation.activateApp)
-runner.Step("Subscribe OnWayPointChange", commonLastMileNavigation.subscribeOnWayPointChange, { 1 })
-runner.Title("Test")
+runner.Step("Clean environment", commonNavigation.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
+runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Subscribe OnWayPointChange", commonNavigation.subscribeOnWayPointChange, { 1 })
 
-runner.Step("OnWayPointChange", OnWayPointChange)
+runner.Title("Test")
+runner.Step("OnWayPointChange", onWayPointChange)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
+runner.Step("Stop SDL", commonNavigation.postconditions)
