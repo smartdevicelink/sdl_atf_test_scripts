@@ -12,7 +12,6 @@ local json = require("modules/json")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local Variables ]]
 local ptu_table = {}
@@ -24,8 +23,8 @@ commonLastMileNavigation.timeout = 2000
 commonLastMileNavigation.minTimeout = 500
 commonLastMileNavigation.DEFAULT = "Default"
 
-local function checkIfPTSIsSentAsBinary(bin_data)
-  if not (bin_data ~= nil and string.len(bin_data) > 0) then
+local function checkIfPTSIsSentAsBinary(pBinData)
+  if not (pBinData ~= nil and string.len(pBinData) > 0) then
     commonFunctions:userPrint(31, "PTS was not sent to Mobile in payload of OnSystemRequest")
   end
 end
@@ -40,32 +39,24 @@ function commonLastMileNavigation.getGetWayPointsConfig()
   }
 end
 
-local function getPTUFromPTS(tbl)
-  tbl.policy_table.consumer_friendly_messages.messages = nil
-  tbl.policy_table.device_data = nil
-  tbl.policy_table.module_meta = nil
-  tbl.policy_table.usage_and_error_counts = nil
-  tbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
-  tbl.policy_table.module_config.preloaded_pt = nil
-  tbl.policy_table.module_config.preloaded_date = nil
+local function getPTUFromPTS(pTbl)
+  pTbl.policy_table.consumer_friendly_messages.messages = nil
+  pTbl.policy_table.device_data = nil
+  pTbl.policy_table.module_meta = nil
+  pTbl.policy_table.usage_and_error_counts = nil
+  pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  pTbl.policy_table.module_config.preloaded_pt = nil
+  pTbl.policy_table.module_config.preloaded_date = nil
 end
 
-local function jsonFileToTable(file_name)
-  local f = io.open(file_name, "r")
+local function jsonFileToTable(pFileName)
+  local f = io.open(pFileName, "r")
   local content = f:read("*all")
   f:close()
   return json.decode(content)
 end
 
-local function ptu(self, app_id, ptu_update_func)
-  local function getAppsCount()
-    local count = 0
-    for _ in pairs(hmiAppIds) do
-      count = count + 1
-    end
-    return count
-  end
-
+local function ptu(pAppId, pPTUpdateFunc, self)
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
@@ -73,7 +64,8 @@ local function ptu(self, app_id, ptu_update_func)
   local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
-      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = pts_file_name })
+      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
+        { requestType = "PROPRIETARY", fileName = pts_file_name })
       getPTUFromPTS(ptu_table)
        local function updatePTU(tbl)
         tbl.policy_table.functional_groupings["GetWayPoints"] = {
@@ -83,12 +75,14 @@ local function ptu(self, app_id, ptu_update_func)
             }
           }
         }
-        tbl.policy_table.app_policies[commonLastMileNavigation.getMobileAppId(app_id)] = commonLastMileNavigation.getGetWayPointsConfig()
+        local appID = commonLastMileNavigation.getMobileAppId(pAppId)
+        tbl.policy_table.app_policies[appID] = commonLastMileNavigation.getGetWayPointsConfig()
       end
       updatePTU(ptu_table)
-      if ptu_update_func then
-        ptu_update_func(ptu_table)
+      if pPTUpdateFunc then
+        pPTUpdateFunc(ptu_table)
       end
+
       local function tableToJsonFile(tbl, file_name)
         local f = io.open(file_name, "w")
         f:write(json.encode(tbl))
@@ -101,18 +95,27 @@ local function ptu(self, app_id, ptu_update_func)
       EXPECT_EVENT(event, "PTU event")
       :Timeout(11000)
 
+      local function getAppsCount()
+        local count = 0
+        for _ in pairs(hmiAppIds) do
+          count = count + 1
+        end
+        return count
+      end
       for id = 1, getAppsCount() do
-        local mobileSession = commonLastMileNavigation.getMobileSession(self, id)
+        local mobileSession = commonLastMileNavigation.getMobileSession(id, self)
         mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
         :Do(function(_, d2)
             print("App ".. id .. " was used for PTU")
             RAISE_EVENT(event, event, "PTU event")
             checkIfPTSIsSentAsBinary(d2.binaryData)
-            local corIdSystemRequest = mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, ptu_file_name)
+            local corIdSystemRequest = mobileSession:SendRPC("SystemRequest",
+              { requestType = "PROPRIETARY", fileName = policy_file_name }, ptu_file_name)
             EXPECT_HMICALL("BasicCommunication.SystemRequest")
             :Do(function(_, d3)
                 self.hmiConnection:SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
-                self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = policy_file_path .. "/" .. policy_file_name })
+                self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
+                  { policyfile = policy_file_path .. "/" .. policy_file_name })
               end)
             mobileSession:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
           end)
@@ -134,10 +137,11 @@ function commonLastMileNavigation.activateApp(pAppId, self)
   self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
   if not pAppId then pAppId = 1 end
   local pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
-  local mobSession = commonLastMileNavigation.getMobileSession(self, pAppId)
+  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
   local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
   EXPECT_HMIRESPONSE(requestId)
-  mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
+  mobSession:ExpectNotification("OnHMIStatus",
+    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
   commonTestCases:DelayedExp(commonLastMileNavigation.minTimeout)
 end
 
@@ -167,7 +171,7 @@ function commonLastMileNavigation.getHMIAppId(pAppId)
   return hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
 end
 
-function commonLastMileNavigation.getMobileSession(self, pAppId)
+function commonLastMileNavigation.getMobileSession(pAppId, self)
   if not pAppId then pAppId = 1 end
   return self["mobileSession" .. pAppId]
 end
@@ -185,50 +189,58 @@ function commonLastMileNavigation.postconditions()
   StopSDL()
 end
 
-function commonLastMileNavigation.registerAppWithPTU(id, ptu_update_func, self)
-  self, id, ptu_update_func = commonLastMileNavigation.getSelfAndParams(id, ptu_update_func, self)
-  if not id then id = 1 end
-  self["mobileSession" .. id] = mobile_session.MobileSession(self, self.mobileConnection)
-  self["mobileSession" .. id]:StartService(7)
+function commonLastMileNavigation.registerAppWithPTU(pAppId, pPTUpdateFunc, self)
+  self, pAppId, pPTUpdateFunc = commonLastMileNavigation.getSelfAndParams(pAppId, pPTUpdateFunc, self)
+  if not pAppId then pAppId = 1 end
+  self["mobileSession" .. pAppId] = mobile_session.MobileSession(self, self.mobileConnection)
+  self["mobileSession" .. pAppId]:StartService(7)
   :Do(function()
-      local corId = self["mobileSession" .. id]:SendRPC("RegisterAppInterface", config["application" .. id].registerAppInterfaceParams)
-      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
+      local corId = self["mobileSession" .. pAppId]:SendRPC("RegisterAppInterface",
+        config["application" .. pAppId].registerAppInterfaceParams)
+      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
+        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
-          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
-          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" })
+          hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = d1.params.application.appID
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
+            { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" })
           :Times(3)
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
           :Do(function(_, d2)
               self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
               ptu_table = jsonFileToTable(d2.params.file)
-              ptu(self, id, ptu_update_func)
+              ptu(pAppId, pPTUpdateFunc, self)
             end)
         end)
-      self["mobileSession" .. id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      self["mobileSession" .. pAppId]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
-          self["mobileSession" .. id]:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-          :Times(1)
-          self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          self["mobileSession" .. pAppId]:ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          :Times(AtLeast(1))
+          self["mobileSession" .. pAppId]:ExpectNotification("OnPermissionsChange")
+          :Times(2) -- SDL issue
         end)
     end)
 end
 
-function commonLastMileNavigation.raiN(id, self)
-  self, id = commonLastMileNavigation.getSelfAndParams(id, self)
-  if not id then id = 1 end
-  self["mobileSession" .. id] = mobile_session.MobileSession(self, self.mobileConnection)
-  self["mobileSession" .. id]:StartService(7)
+function commonLastMileNavigation.raiN(pAppId, self)
+  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
+  if not pAppId then pAppId = 1 end
+  self["mobileSession" .. pAppId] = mobile_session.MobileSession(self, self.mobileConnection)
+  self["mobileSession" .. pAppId]:StartService(7)
   :Do(function()
-      local corId = self["mobileSession" .. id]:SendRPC("RegisterAppInterface", config["application" .. id].registerAppInterfaceParams)
-      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
+      local corId = self["mobileSession" .. pAppId]:SendRPC("RegisterAppInterface",
+        config["application" .. pAppId].registerAppInterfaceParams)
+      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
+        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
-          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
+          hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = d1.params.application.appID
         end)
-      self["mobileSession" .. id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      self["mobileSession" .. pAppId]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
-          self["mobileSession" .. id]:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          self["mobileSession" .. pAppId]:ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(1)
-          self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          self["mobileSession" .. pAppId]:ExpectNotification("OnPermissionsChange")
         end)
     end)
 end
@@ -260,21 +272,11 @@ function commonLastMileNavigation.start(pHMIParams, self)
 end
 
 function commonLastMileNavigation.unregisterApp(pAppId, self)
-  local mobSession = commonLastMileNavigation.getMobileSession(self, pAppId)
+  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
   local hmiAppId = commonLastMileNavigation.getHMIAppId(pAppId)
   local cid = mobSession:SendRPC("UnregisterAppInterface",{})
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = hmiAppId, unexpectedDisconnect = false })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-end
-
-function commonLastMileNavigation.backupHMICapabilities()
-  local hmiCapabilitiesFile = commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
-  commonPreconditions:BackupFile(hmiCapabilitiesFile)
-end
-
-function commonLastMileNavigation.restoreHMICapabilities()
-  local hmiCapabilitiesFile = commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
-  commonPreconditions:RestoreFile(hmiCapabilitiesFile)
 end
 
 return commonLastMileNavigation
