@@ -4,7 +4,7 @@
 -- Item: Use Case 1: Main Flow
 --
 -- Requirement summary:
--- [GetWayPoints] As a mobile app I want to send a request to get the details of the destination 
+-- [GetWayPoints] As a mobile app I want to send a request to get the details of the destination
 -- and waypoints set on the system so that I can get last mile connectivity.
 --
 -- Description:
@@ -17,36 +17,43 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
+local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 
 local response = {}
 
 --[[ Local Functions ]]
-local function GetWayPoints(self)
-  local params = { 
+local function getWayPoints(self)
+  local params = {
     wayPointType = "ALL"
   }
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
 
-  response.appID = commonLastMileNavigation.getHMIAppId()
-  EXPECT_HMICALL("Navigation.GetWayPoints", params):ValidIf(function(_, data)
-    return data.params.appID == commonLastMileNavigation.getHMIAppId()
-  end)
+  response.appID = commonNavigation.getHMIAppId()
+  EXPECT_HMICALL("Navigation.GetWayPoints", params)
+  :ValidIf(function(_, data)
+      return data.params.appID == commonNavigation.getHMIAppId()
+    end)
   :Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
-  end)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
+    end)
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  :ValidIf(function(_, data)
+      if data.payload.wayPoints ~= nil then
+        return false, "wayPoints parameter is not expected"
+      end
+      return true
+    end)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start)
-runner.Step("RAI, PTU", commonLastMileNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonLastMileNavigation.activateApp)
+runner.Step("Clean environment", commonNavigation.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
+runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("GetWayPoints, without wayPoints", GetWayPoints)
+runner.Step("GetWayPoints, without wayPoints", getWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
+runner.Step("Stop SDL", commonNavigation.postconditions)

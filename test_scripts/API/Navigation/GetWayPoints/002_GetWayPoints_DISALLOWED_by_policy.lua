@@ -4,7 +4,7 @@
 -- Item: Use Case 1: Exception 2: request is NOT allowed by Policies
 --
 -- Requirement summary:
--- [GetWayPoints] As a mobile app I want to send a request to get the details of the destination 
+-- [GetWayPoints] As a mobile app I want to send a request to get the details of the destination
 -- and waypoints set on the system so that I can get last mile connectivity.
 --
 -- Description:
@@ -16,28 +16,29 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
-
+local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
-local function GetWayPoints(self)
-  local params = { 
+local function getWayPoints(self)
+  local params = {
     wayPointType = "ALL"
   }
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
   EXPECT_HMICALL("Navigation.GetWayPoints", params):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
+  commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start)
-runner.Step("RAI", commonLastMileNavigation.raiN)
-runner.Step("Activate App", commonLastMileNavigation.activateApp)
+runner.Step("Clean environment", commonNavigation.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("RAI", commonNavigation.raiN)
+runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("GetWayPoints, DISALLOWED by policy", GetWayPoints)
+runner.Step("GetWayPoints, DISALLOWED by policy", getWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
+runner.Step("Stop SDL", commonNavigation.postconditions)
