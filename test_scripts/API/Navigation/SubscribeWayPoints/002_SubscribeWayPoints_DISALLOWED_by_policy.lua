@@ -17,26 +17,26 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
+local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
-local function SubscribeWayPoints(self)
-  local cid = self.mobileSession1:SendRPC("SubscribeWayPoints",{})
+local function subscribeWayPoints(self)
+  local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
-  self.mobileSession1:ExpectResponse(cid, {success = false , resultCode = "DISALLOWED"})
-  commonTestCases:DelayedExp(commonLastMileNavigation.timeout)
+  self.mobileSession1:ExpectResponse(cid, { success = false , resultCode = "DISALLOWED" })
+  commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start)
-runner.Step("RAI", commonLastMileNavigation.raiN)
-runner.Step("Activate App", commonLastMileNavigation.activateApp)
+runner.Step("Clean environment", commonNavigation.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("RAI", commonNavigation.raiN)
+runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("SubscribeWayPoints DISALLOWED by policy", SubscribeWayPoints)
+runner.Step("SubscribeWayPoints DISALLOWED by policy", subscribeWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
+runner.Step("Stop SDL", commonNavigation.postconditions)

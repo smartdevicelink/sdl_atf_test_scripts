@@ -17,28 +17,30 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Functions ]]
-local function SubscribeWayPoints(self)
-  local response = { "/   // "}
+local function subscribeWayPoints(self)
   local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
-  EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
+  EXPECT_HMICALL("Navigation.SubscribeWayPoints")
+  :Do(function(_, data)
+      local msg = '{"result":{"method":' .. tostring(data.method) -- method name without quotes
+        .. ',"code":0},"id":' .. tostring(data.id)
+        .. ',"jsonrpc":"2.0"}'
+      self.hmiConnection:Send(msg)
     end)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start)
-runner.Step("RAI, PTU", commonLastMileNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonLastMileNavigation.activateApp)
+runner.Step("Clean environment", commonNavigation.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
+runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("SubscribeWayPoints, HMI respond with invalid data", SubscribeWayPoints)
+runner.Step("SubscribeWayPoints, HMI respond with invalid data", subscribeWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
+runner.Step("Stop SDL", commonNavigation.postconditions)

@@ -12,45 +12,56 @@
 -- 1) Navigation interface is not available on HMI
 --
 -- SDL must:
--- 1) SDL responds UNSUPPORTED_RESOURCE, success:false to mobile app and doesn't subscribe on destination and waypoints change notifications
+-- 1) SDL responds UNSUPPORTED_RESOURCE, success:false to mobile app and doesn't subscribe on destination
+--    and waypoints change notifications
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonLastMileNavigation = require('test_scripts/API/LastMileNavigation/commonLastMileNavigation')
+local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 local hmi_values = require('user_modules/hmi_values')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
+--[[ Local Variables ]]
+local notification = {
+  wayPoints = {
+    {
+      coordinate = {
+        latitudeDegrees = 1.1,
+        longitudeDegrees = 1.1
+      }
+    }
+  }
+}
+
 --[[ Local Functions ]]
-local function disableNavigationIsReadyResponse()
+local function disableNavigationInterface()
   local params = hmi_values.getDefaultHMITable()
   params.Navigation.IsReady.params.available = false
   return params
 end
 
-local function SubscribeWayPoints(self)
-  local cid = self.mobileSession1:SendRPC("SubscribeWayPoints",{})
+local function subscribeWayPoints(self)
+  local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
 end
 
-local function OnWayPointChange(self)
-  self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)       
-  self.mobileSession1:ExpectNotification("OnWayPointChange", notification):Times(0)
-  commonTestCases:DelayedExp(5 * commonLastMileNavigation.timeout)
+local function onWayPointChange(self)
+  self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
+  self.mobileSession1:ExpectNotification("OnWayPointChange"):Times(0)
+  commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Backup HMI capabilities file", commonLastMileNavigation.backupHMICapabilities)
-runner.Step("Clean environment", commonLastMileNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonLastMileNavigation.start, { disableNavigationIsReadyResponse() })
-runner.Step("RAI", commonLastMileNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonLastMileNavigation.activateApp)
+runner.Step("Clean environment", commonNavigation.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start, { disableNavigationInterface() })
+runner.Step("RAI", commonNavigation.registerAppWithPTU)
+runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("SubscribeWayPoints, navigation interface is not available on HMI", SubscribeWayPoints)
-runner.Step("OnWayPointChange to check that app is not subscribed", OnWayPointChange)
+runner.Step("SubscribeWayPoints, navigation interface is not available on HMI", subscribeWayPoints)
+runner.Step("OnWayPointChange to check that app is not subscribed", onWayPointChange)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonLastMileNavigation.postconditions)
-runner.Step("Restore HMI capabilities file", commonLastMileNavigation.restoreHMICapabilities)
+runner.Step("Stop SDL", commonNavigation.postconditions)
