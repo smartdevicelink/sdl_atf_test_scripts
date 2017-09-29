@@ -215,9 +215,9 @@ function commonLastMileNavigation.registerAppWithPTU(pAppId, pPTUpdateFunc, self
       :Do(function()
           self["mobileSession" .. pAppId]:ExpectNotification("OnHMIStatus",
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-          :Times(AtLeast(1))
+          :Times(1)
           self["mobileSession" .. pAppId]:ExpectNotification("OnPermissionsChange")
-          :Times(2) -- SDL issue
+          :Times(AtLeast(1)) -- TODO: Change to exact 1 occurence when SDL issue is fixed
         end)
     end)
 end
