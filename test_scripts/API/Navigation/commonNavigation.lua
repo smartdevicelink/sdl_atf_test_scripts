@@ -364,4 +364,30 @@ function commonLastMileNavigation.IGNITION_OFF(self)
     end)
 end
 
+local notification = {
+  wayPoints = {
+    {
+      coordinate = {
+        latitudeDegrees = 1.1,
+        longitudeDegrees = 1.1
+      }
+    }
+  }
+}
+
+function commonLastMileNavigation.isSubscribed(pAppId, self)
+  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
+  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+  self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
+  mobSession:ExpectNotification("OnWayPointChange", notification)
+end
+
+function commonLastMileNavigation.isUnsubscribed(pAppId, self)
+  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
+  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+  self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
+  mobSession:ExpectNotification("OnWayPointChange"):Times(0)
+  commonTestCases:DelayedExp(commonLastMileNavigation.timeout)
+end
+
 return commonLastMileNavigation
