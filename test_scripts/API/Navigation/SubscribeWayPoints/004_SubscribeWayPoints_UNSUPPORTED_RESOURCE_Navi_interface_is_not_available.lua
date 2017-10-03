@@ -44,6 +44,7 @@ local function subscribeWayPoints(self)
   local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+  commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
 local function onWayPointChange(self)

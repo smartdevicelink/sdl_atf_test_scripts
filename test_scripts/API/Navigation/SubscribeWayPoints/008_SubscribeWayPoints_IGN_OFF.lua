@@ -51,7 +51,7 @@ runner.Title("Test")
 runner.Step("IGNITION_OFF", commonNavigation.IGNITION_OFF)
 
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithTheSameHashId)
+runner.Step("RAI", commonNavigation.registerAppWithTheSameHashId)
 runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Step("OnWayPointChange to check app subscription", onWayPointChange)

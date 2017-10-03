@@ -28,11 +28,15 @@ local function subscribeWayPoints(self)
   commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
+local function ptuUpdateFunc(pTbl)
+  pTbl.policy_table.functional_groupings["WayPoints"].rpcs.SubscribeWayPoints = nil
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonNavigation.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI", commonNavigation.raiN)
+runner.Step("RAI", commonNavigation.registerAppWithPTU, { 1, ptuUpdateFunc })
 runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")

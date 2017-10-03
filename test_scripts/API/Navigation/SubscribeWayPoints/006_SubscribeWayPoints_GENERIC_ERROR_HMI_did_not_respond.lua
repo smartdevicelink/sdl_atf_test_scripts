@@ -28,7 +28,7 @@ local function subscribeWayPoints(self)
      -- HMI does not respond
     end)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
-  commonTestCases:DelayedExp(commonNavigation.timeout)
+  commonTestCases:DelayedExp(11000)
 end
 
 --[[ Scenario ]]
