@@ -42,7 +42,7 @@ runner.Step("Is Subscribed", commonNavigation.isSubscribed)
 
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints", invalidJson)
-runner.Step("Is Subscribed still", commonNavigation.isSubscribed)
+runner.Step("Is still Subscribed", commonNavigation.isSubscribed)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonNavigation.postconditions)

@@ -15,7 +15,7 @@
 --
 -- SDL must:
 -- 1) unsubscribe requesting application from waypoints change notifications
--- 2) not send UnsubscribeWayPoints_reques to HMI
+-- 2) not send UnsubscribeWayPoints_request to HMI
 
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -62,7 +62,7 @@ end
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints App2", unsubscribeWayPointsSecondApp)
 runner.Step("Is Unsubscribed App2", commonNavigation.isUnsubscribed, { 2 })
-runner.Step("Is Subscribed App1 still", commonNavigation.isSubscribed, { 1 })
+runner.Step("Is still Subscribed App1", commonNavigation.isSubscribed, { 1 })
 runner.Step("UnsubscribeWayPoints App1", unsubscribeWayPointsFirstApp)
 runner.Step("Is Unsubscribed App1", commonNavigation.isUnsubscribed, { 1 })
 

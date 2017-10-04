@@ -42,7 +42,7 @@ runner.Title("Test")
 runner.Step("Unexpected disconnect", closeSession)
 runner.Step("RAI", commonNavigation.registerAppWithTheSameHashId)
 runner.Step("Activate App", commonNavigation.activateApp)
-runner.Step("Is Unsubscribed still", commonNavigation.isUnsubscribed)
+runner.Step("Is still Unsubscribed", commonNavigation.isUnsubscribed)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonNavigation.postconditions)

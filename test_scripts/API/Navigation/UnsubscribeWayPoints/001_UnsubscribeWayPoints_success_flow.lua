@@ -4,7 +4,7 @@
 -- Item: Use Case 1: Main Flow
 --
 -- Requirement summary:
--- [UnsubscribeWayPoints] As a mobile app I want to be able to unsubscribes from getting notifications
+-- [UnsubscribeWayPoints] As a mobile app I want to be able to unsubscribe from getting notifications
 -- about any changes to the destination or waypoints.
 --
 -- Description:

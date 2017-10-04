@@ -43,7 +43,7 @@ runner.Step("Is Unsubscribed", commonNavigation.isUnsubscribed)
 
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints for the same app IGNORED", unsubscribeWayPoints)
-runner.Step("Is Unsubscribed still", commonNavigation.isUnsubscribed)
+runner.Step("Is still Unsubscribed", commonNavigation.isUnsubscribed)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonNavigation.postconditions)
