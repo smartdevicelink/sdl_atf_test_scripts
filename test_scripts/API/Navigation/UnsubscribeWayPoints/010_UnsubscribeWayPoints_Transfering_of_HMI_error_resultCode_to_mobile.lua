@@ -21,51 +21,13 @@ local runner = require('user_modules/script_runner')
 local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Variables ]]
-local successResultCodes = {
-  "SUCCESS",
-}
-
-local failureResultCodes = {
-  "INVALID_DATA",
-  "GENERIC_ERROR",
-  "REJECTED",
-  "UNSUPPORTED_RESOURCE",
-  "IGNORED",
-  "DISALLOWED"
-}
-
-local unexpectedResultCodes = {
-  "TIMED_OUT",
-  "IN_USE",
-  "UNSUPPORTED_REQUEST",
-  "ABORTED",
-  "RETRY",
-  "VEHICLE_DATA_NOT_AVAILABLE",
-  "CHAR_LIMIT_EXCEEDED",
-  "INVALID_ID",
-  "DUPLICATE_NAME",
-  "APPLICATION_NOT_REGISTERED",
-  "WRONG_LANGUAGE",
-  "OUT_OF_MEMORY",
-  "TOO_MANY_PENDING_REQUESTS",
-  "TOO_MANY_APPLICATIONS",
-  "APPLICATION_REGISTERED_ALREADY",
-  "WARNINGS",
-  "USER_DISALLOWED",
-  "TRUNCATED_DATA",
-  "UNSUPPORTED_VERSION",
-  "VEHICLE_DATA_NOT_ALLOWED",
-  "FILE_NOT_FOUND",
-  "CANCEL_ROUTE",
-  "SAVED",
-  "INVALID_CERT",
-  "EXPIRED_CERT",
-  "RESUME_FAILED",
-  "DATA_NOT_AVAILABLE",
-  "READ_ONLY"
-}
-
 local isSubscribed = false
+local resultCodes = {
+  success = commonNavigation.getSuccessResultCodes("UnsubscribeWayPoints"),
+  failure = commonNavigation.getFailureResultCodes("UnsubscribeWayPoints"),
+  unexpected = commonNavigation.getUnexpectedResultCodes("UnsubscribeWayPoints"),
+  filtered = commonNavigation.getFilteredResultCodes()
+}
 
 --[[ Local Functions ]]
 local function subscribeWayPoints(self)
@@ -138,19 +100,19 @@ runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
 runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-
+runner.Step("Result Codes", commonNavigation.printResultCodes, { resultCodes })
 runner.Title("Successful codes")
-for _, code in pairs(successResultCodes) do
+for _, code in pairs(resultCodes.success) do
   runner.Step("UnsubscribeWayPoints with " .. code .. " resultCode", unsubscribeWayPointsSuccess, { code })
 end
 
 runner.Title("Erroneous codes")
-for _, code in pairs(failureResultCodes) do
+for _, code in pairs(resultCodes.failure) do
   runner.Step("UnsubscribeWayPoints with " .. code .. " resultCode", unsubscribeWayPointsUnsuccess, { code, false })
 end
 
 runner.Title("Unexpected codes")
-for _, code in pairs(unexpectedResultCodes) do
+for _, code in pairs(resultCodes.unexpected) do
   runner.Step("UnsubscribeWayPoints with " .. code .. " resultCode", unsubscribeWayPointsUnsuccess, { code, true })
 end
 

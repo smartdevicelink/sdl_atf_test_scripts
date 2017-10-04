@@ -14,11 +14,37 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local SDL = require('SDL')
 
+local mobile_api_loader = require("modules/api_loader")
+local mobile_api = mobile_api_loader.init("data/MOBILE_API.xml")
+local mobile_api_schema = mobile_api.interface["Ford Sync RAPI"]
+
+local hmi_api_loader = require("modules/api_loader")
+local hmi_api = hmi_api_loader.init("data/HMI_API.xml")
+local hmi_api_schema = hmi_api.interface["Common"]
+
 --[[ Variables ]]
 local ptu_table = {}
 local hmiAppIds = {}
-
 local commonLastMileNavigation = {}
+
+local successCodes = {
+  "SUCCESS",
+  "WARNINGS",
+  "WRONG_LANGUAGE",
+  "RETRY",
+  "SAVED"
+}
+
+local notification = {
+  wayPoints = {
+    {
+      coordinate = {
+        latitudeDegrees = 1.1,
+        longitudeDegrees = 1.1
+      }
+    }
+  }
+}
 
 commonLastMileNavigation.timeout = 2000
 commonLastMileNavigation.minTimeout = 500
@@ -478,17 +504,6 @@ function commonLastMileNavigation.IGNITION_OFF(self)
     end)
 end
 
-local notification = {
-  wayPoints = {
-    {
-      coordinate = {
-        latitudeDegrees = 1.1,
-        longitudeDegrees = 1.1
-      }
-    }
-  }
-}
-
 --[[ @isSubscribed: OnWayPointChange successful sequence (subscribed)
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
@@ -512,6 +527,121 @@ function commonLastMileNavigation.isUnsubscribed(pAppId, self)
   self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
   mobSession:ExpectNotification("OnWayPointChange"):Times(0)
   commonTestCases:DelayedExp(commonLastMileNavigation.timeout)
+end
+
+--[[ @getMobileResultCodes: get all available result codes from Mobile API
+--! @parameters: none
+--! @return: table with result codes
+--]]
+local function getMobileResultCodes()
+  local out = {}
+  for k in pairs(mobile_api_schema.enum["Result"]) do
+    table.insert(out, k)
+  end
+  return out
+end
+
+--[[ @getExpectedResultCodes: get expected result codes from Mobile API for particular RPC
+--! @parameters:
+--! pFunctionName - name of the RPC
+--! @return: table with result codes
+--]]
+local function getExpectedResultCodes(pFunctionName)
+  return mobile_api_schema.type["response"].functions[pFunctionName].param.resultCode.resultCodes
+end
+
+--[[ @getHMIResultCodes: get all available result codes from HMI API
+--! @parameters: none
+--! @return: table with result codes
+--]]
+local function getHMIResultCodes()
+  local out = {}
+  for k in pairs(hmi_api_schema.enum["Result"]) do
+    table.insert(out, k)
+  end
+  return out
+end
+
+--[[ @isContain: verify if table contans particular value
+--! @parameters:
+--! pTbl - table
+--! pValue - value
+--! @return: true if value is in table, otherwise - false
+--]]
+local function isContain(pTbl, pValue)
+  for _, v in pairs(pTbl) do
+    if v == pValue then return true end
+  end
+  return false
+end
+
+--[[ @getSuccessResultCodes: get success result codes for particular RPC
+--! @parameters:
+--! pFunctionName - name of the RPC
+--! @return: table with result codes
+--]]
+function commonLastMileNavigation.getSuccessResultCodes(pFunctionName)
+  local out = {}
+  for _, v in pairs(getExpectedResultCodes(pFunctionName)) do
+    if isContain(successCodes, v) then table.insert(out, v) end
+  end
+  return out
+end
+
+--[[ @getFailureResultCodes: get failure result codes for particular RPC
+--! @parameters:
+--! pFunctionName - name of the RPC
+--! @return: table with result codes
+--]]
+function commonLastMileNavigation.getFailureResultCodes(pFunctionName)
+  local out = {}
+  for _, v in pairs(getExpectedResultCodes(pFunctionName)) do
+    if not isContain(successCodes, v) then table.insert(out, v) end
+  end
+  return out
+end
+
+--[[ @getUnexpectedResultCodes: get unexpected result codes for particular RPC
+--! @parameters:
+--! pFunctionName - name of the RPC
+--! @return: table with result codes
+--]]
+function commonLastMileNavigation.getUnexpectedResultCodes(pFunctionName)
+  local out = {}
+  for _, v in pairs(getHMIResultCodes()) do
+    if isContain(getMobileResultCodes(), v) then
+      if not isContain(getExpectedResultCodes(pFunctionName), v) then table.insert(out, v) end
+    end
+  end
+  return out
+end
+
+--[[ @getFilteredResultCodes: get filtered result codes for particular RPC
+--! @parameters:
+--! pFunctionName - name of the RPC
+--! @return: table with result codes
+--]]
+function commonLastMileNavigation.getFilteredResultCodes()
+  local out = {}
+  for _, v in pairs(getHMIResultCodes()) do
+    if not isContain(getMobileResultCodes(), v) then table.insert(out, v) end
+  end
+  return out
+end
+
+--[[ @printResultCodes: print result codes split by group
+--! @parameters:
+--! pResultCodes - table with all code groups
+--]]
+function commonLastMileNavigation.printResultCodes(pResultCodes)
+  print("Success:")
+  commonFunctions:printTable(pResultCodes.success)
+  print("Failure:")
+  commonFunctions:printTable(pResultCodes.failure)
+  print("Unexpected:")
+  commonFunctions:printTable(pResultCodes.unexpected)
+  print("Filtered:")
+  commonFunctions:printTable(pResultCodes.filtered)
 end
 
 return commonLastMileNavigation
