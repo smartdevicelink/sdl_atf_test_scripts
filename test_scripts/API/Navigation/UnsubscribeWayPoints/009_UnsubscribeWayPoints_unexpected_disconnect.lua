@@ -22,9 +22,9 @@ local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Functions ]]
 local function closeSession(self)
-  self.hmiConnection:SendNotification("BasicCommunication.OnAppUnregistered",
-    { unexpectedDisconnect = true, appID = commonNavigation.getHMIAppId() })
   self.mobileSession1:Stop()
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
+    { unexpectedDisconnect = true, appID = commonNavigation.getHMIAppId() })
 end
 
 --[[ Scenario ]]

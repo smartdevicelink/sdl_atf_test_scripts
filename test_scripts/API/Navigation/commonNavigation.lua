@@ -202,7 +202,7 @@ function commonLastMileNavigation.activateApp(pAppId, self)
   commonTestCases:DelayedExp(commonLastMileNavigation.minTimeout)
 end
 
---[[ @getSelfAndParams: shifting parameters on order to move self at 1st position
+--[[ @getSelfAndParams: shifting parameters in order to move self at 1st position
 --! @parameters:
 --! ... - various parameters and self
 --! @return: self and other parameters
@@ -251,7 +251,6 @@ end
 --[[ @getMobileAppId: get mobile session
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
---! self - test object
 --! @return: mobile session
 --]]
 function commonLastMileNavigation.getMobileAppId(pAppId)
@@ -274,7 +273,7 @@ function commonLastMileNavigation.postconditions()
   StopSDL()
 end
 
---[[ @registerAppWithPTU: rigister mobile application and perform PTU
+--[[ @registerAppWithPTU: register mobile application and perform PTU
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! pPTUpdateFunc - additional function for update
@@ -313,7 +312,7 @@ function commonLastMileNavigation.registerAppWithPTU(pAppId, pPTUpdateFunc, self
     end)
 end
 
---[[ @raiN: rigister mobile application
+--[[ @raiN: register mobile application
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
@@ -341,7 +340,7 @@ function commonLastMileNavigation.raiN(pAppId, self)
     end)
 end
 
---[[ @raiN: rigister mobile application with the same hash id
+--[[ @registerAppWithTheSameHashId: register mobile application with the same hash id
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
@@ -405,7 +404,7 @@ function commonLastMileNavigation.start(pHMIParams, self)
     end)
 end
 
---[[ @unregisterApp: unrigister mobile application
+--[[ @unregisterApp: unregister mobile application
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! self - test object

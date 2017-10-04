@@ -43,6 +43,7 @@ runner.Step("Is Subscribed", commonNavigation.isSubscribed)
 
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints DISALLOWED by policy", unsubscribeWayPoints)
+runner.Step("Is still Subscribed", commonNavigation.isSubscribed)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonNavigation.postconditions)

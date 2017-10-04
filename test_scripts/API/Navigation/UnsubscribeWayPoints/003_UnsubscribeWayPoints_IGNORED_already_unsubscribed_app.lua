@@ -10,7 +10,7 @@
 -- Description:
 -- In case:
 -- 1) mobile application is already unsubscribed from WayPoints-related parameters
--- 2) and the same mobile application sends UnsubscribeVehicleData_request to SDL
+-- 2) and the same mobile application sends UnsubscribeWayPoints_request to SDL
 --
 -- SDL must:
 -- 1) respond "IGNORED, success:false" to mobile application
