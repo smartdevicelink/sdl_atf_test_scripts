@@ -36,7 +36,7 @@ runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
 runner.Step("Activate App", commonNavigation.activateApp)
 
 runner.Title("Test")
-runner.Step("Subscribe OnWayPointChange", commonNavigation.subscribeWayPoints, { 1 })
+runner.Step("Subscribe OnWayPointChange", commonNavigation.subscribeWayPoints)
 runner.Step("OnWayPointChange emptyNotification", emptyNotification)
 
 runner.Title("Postconditions")

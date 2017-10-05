@@ -71,7 +71,7 @@ runner.Step("Clean environment", commonNavigation.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
 runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
 runner.Step("Activate App", commonNavigation.activateApp)
-runner.Step("Subscribe OnWayPointChange", commonNavigation.subscribeWayPoints, { 1 })
+runner.Step("Subscribe OnWayPointChange", commonNavigation.subscribeWayPoints)
 
 runner.Title("Test")
 runner.Step("OnWayPointChange", onWayPointChange)

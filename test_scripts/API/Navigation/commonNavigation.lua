@@ -449,6 +449,8 @@ end
 --! self - test object
 --]]
 function commonNavigation.subscribeWayPoints(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
+  if not pAppId then pAppId = 1 end
   local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local cid = mobSession:SendRPC("SubscribeWayPoints", {})
   if pAppId == 1 then
@@ -470,6 +472,8 @@ end
 --! self - test object
 --]]
 function commonNavigation.unsubscribeWayPoints(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
+  if not pAppId then pAppId = 1 end
   local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local cid = mobSession:SendRPC("UnsubscribeWayPoints", {})
   if pAppId == 1 then

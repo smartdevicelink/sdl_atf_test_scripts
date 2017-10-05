@@ -123,7 +123,7 @@ runner.Step("RAI2, PTU2", commonNavigation.registerAppWithPTU, { 2 })
 runner.Step("Activate 2nd app", commonNavigation.activateApp, { 2 })
 
 runner.Title("Test")
-runner.Step("First app subscribe OnWayPointChange", commonNavigation.subscribeWayPoints, { 1 })
+runner.Step("First app subscribe OnWayPointChange", commonNavigation.subscribeWayPoints)
 runner.Step("First OnWayPointChange", firstOnWayPointChange)
 runner.Step("Second app subscribe OnWayPointChange", subscribeApp2)
 runner.Step("Second OnWayPointChange to both apps", secondOnWayPointChange)
