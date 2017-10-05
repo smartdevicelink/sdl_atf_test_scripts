@@ -20,21 +20,21 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 local function unsubscribeWayPointsSecondApp(self)
-  local mobSession = commonNavigation.getMobileSession(2, self)
+  local mobSession = common.getMobileSession(2, self)
   local cid = mobSession:SendRPC("UnsubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.UnsubscribeWayPoints"):Times(0)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   mobSession:ExpectNotification("OnHashChange")
-  commonTestCases:DelayedExp(commonNavigation.timeout)
+  commonTestCases:DelayedExp(common.timeout)
 end
 
 local function unsubscribeWayPointsFirstApp(self)
-  local mobSession = commonNavigation.getMobileSession(1, self)
+  local mobSession = common.getMobileSession(1, self)
   local cid = mobSession:SendRPC("UnsubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.UnsubscribeWayPoints")
   :Do(function(_, data)
@@ -46,25 +46,25 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 for i = 1, 2 do
-  runner.Step("RAI, PTU " .. i, commonNavigation.registerAppWithPTU, { i })
-  runner.Step("Activate App " .. i, commonNavigation.activateApp, { i })
+  runner.Step("RAI, PTU " .. i, common.registerAppWithPTU, { i })
+  runner.Step("Activate App " .. i, common.activateApp, { i })
 end
 
 for i = 1, 2 do
-  runner.Step("SubscribeWayPoints, App " .. i, commonNavigation.subscribeWayPoints, { i })
-  runner.Step("Is Subscribed, App " .. i, commonNavigation.isSubscribed, { i })
+  runner.Step("SubscribeWayPoints, App " .. i, common.subscribeWayPoints, { i })
+  runner.Step("Is Subscribed, App " .. i, common.isSubscribed, { i })
 end
 
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints App2", unsubscribeWayPointsSecondApp)
-runner.Step("Is Unsubscribed App2", commonNavigation.isUnsubscribed, { commonNavigation.appId2 })
-runner.Step("Is still Subscribed App1", commonNavigation.isSubscribed, { commonNavigation.appId1 })
+runner.Step("Is Unsubscribed App2", common.isUnsubscribed, { common.appId2 })
+runner.Step("Is still Subscribed App1", common.isSubscribed, { common.appId1 })
 runner.Step("UnsubscribeWayPoints App1", unsubscribeWayPointsFirstApp)
-runner.Step("Is Unsubscribed App1", commonNavigation.isUnsubscribed, { commonNavigation.appId1 })
+runner.Step("Is Unsubscribed App1", common.isUnsubscribed, { common.appId1 })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

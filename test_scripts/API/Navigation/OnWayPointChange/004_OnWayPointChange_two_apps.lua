@@ -21,7 +21,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
@@ -73,24 +73,24 @@ local function onWayPointChangeToOneApp(self)
   self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
   self.mobileSession1:ExpectNotification("OnWayPointChange", notification)
   self.mobileSession2:ExpectNotification("OnWayPointChange"):Times(0)
-  commonTestCases:DelayedExp(commonNavigation.timeout)
+  commonTestCases:DelayedExp(common.timeout)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 for i = 1, 2 do
-  runner.Step("RAI, PTU " .. i, commonNavigation.registerAppWithPTU, { i })
-  runner.Step("Activate App " .. i, commonNavigation.activateApp, { i })
-  runner.Step("Subscribe OnWayPointChange App " .. i, commonNavigation.subscribeWayPoints, { i })
+  runner.Step("RAI, PTU " .. i, common.registerAppWithPTU, { i })
+  runner.Step("Activate App " .. i, common.activateApp, { i })
+  runner.Step("Subscribe OnWayPointChange App " .. i, common.subscribeWayPoints, { i })
 end
 
 runner.Title("Test")
 runner.Step("OnWayPointChange to both apps", onWayPointChangeToBothApps)
-runner.Step("Second app unsubscribe OnWayPointChange", commonNavigation.unsubscribeWayPoints, { commonNavigation.appId2 })
+runner.Step("Second app unsubscribe OnWayPointChange", common.unsubscribeWayPoints, { common.appId2 })
 runner.Step("OnWayPointChange to one app", onWayPointChangeToOneApp)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

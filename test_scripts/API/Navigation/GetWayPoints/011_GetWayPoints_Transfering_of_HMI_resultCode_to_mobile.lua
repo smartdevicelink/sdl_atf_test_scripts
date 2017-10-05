@@ -19,14 +19,14 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Variables ]]
 local resultCodes = {
-  success = commonNavigation.getSuccessResultCodes("GetWayPoints"),
-  failure = commonNavigation.getFailureResultCodes("GetWayPoints"),
-  unexpected = commonNavigation.getUnexpectedResultCodes("GetWayPoints"),
-  filtered = commonNavigation.getFilteredResultCodes()
+  success = common.getSuccessResultCodes("GetWayPoints"),
+  failure = common.getFailureResultCodes("GetWayPoints"),
+  unexpected = common.getUnexpectedResultCodes("GetWayPoints"),
+  filtered = common.getFilteredResultCodes()
 }
 
 local params = {
@@ -51,10 +51,10 @@ local validResponse = {
 local function getWayPointsSuccess(pResultCode, self)
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
 
-  validResponse.appID = commonNavigation.getHMIAppId()
+  validResponse.appID = common.getHMIAppId()
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-      return data.params.appID == commonNavigation.getHMIAppId()
+      return data.params.appID == common.getHMIAppId()
     end)
   :Do(function(_,data)
       self.hmiConnection:SendResponse(data.id, data.method, pResultCode, validResponse)
@@ -67,7 +67,7 @@ local function getWayPointsUnsuccess(pResultCode, isUnsupported, self)
 
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-      return data.params.appID == commonNavigation.getHMIAppId()
+      return data.params.appID == common.getHMIAppId()
     end)
   :Do(function(_,data)
       self.hmiConnection:SendError(data.id, data.method, pResultCode, "Error error")
@@ -89,13 +89,13 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Result Codes", commonNavigation.printResultCodes, { resultCodes })
+runner.Step("Result Codes", common.printResultCodes, { resultCodes })
 runner.Title("Successful codes")
 for _, code in pairs(resultCodes.success) do
   runner.Step("GetWayPoints with " .. code .. " resultCode", getWayPointsSuccess, { code })
@@ -112,4 +112,4 @@ for _, code in pairs(resultCodes.unexpected) do
 end
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

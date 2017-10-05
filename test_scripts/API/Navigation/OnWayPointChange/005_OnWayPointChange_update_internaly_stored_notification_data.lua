@@ -20,7 +20,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Variables ]]
 local firstNotification = {
@@ -103,7 +103,7 @@ local function firstOnWayPointChange(self)
 end
 
 local function subscribeApp2(self)
-  commonNavigation.subscribeWayPoints(2, self)
+  common.subscribeWayPoints(2, self)
   self.mobileSession2:ExpectNotification("OnWayPointChange", firstNotification)
 end
 
@@ -115,19 +115,19 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 for i = 1, 2 do
-  runner.Step("RAI, PTU " .. i, commonNavigation.registerAppWithPTU, { i })
-  runner.Step("Activate App " .. i, commonNavigation.activateApp, { i })
+  runner.Step("RAI, PTU " .. i, common.registerAppWithPTU, { i })
+  runner.Step("Activate App " .. i, common.activateApp, { i })
 end
 
 runner.Title("Test")
-runner.Step("First app subscribe OnWayPointChange", commonNavigation.subscribeWayPoints)
+runner.Step("First app subscribe OnWayPointChange", common.subscribeWayPoints)
 runner.Step("First OnWayPointChange", firstOnWayPointChange)
 runner.Step("Second app subscribe OnWayPointChange", subscribeApp2)
 runner.Step("Second OnWayPointChange to both apps", secondOnWayPointChange)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

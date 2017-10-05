@@ -17,7 +17,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
@@ -29,7 +29,7 @@ local function getWayPoints(self)
 
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-      return data.params.appID == commonNavigation.getHMIAppId()
+      return data.params.appID == common.getHMIAppId()
     end)
   :Do(function()
      -- HMI does not respond
@@ -40,13 +40,13 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetWayPoints, HMI did not respond", getWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

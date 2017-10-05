@@ -18,31 +18,31 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Functions ]]
 local function closeSession(self)
   self.mobileSession1:Stop()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-    { unexpectedDisconnect = true, appID = commonNavigation.getHMIAppId() })
+    { unexpectedDisconnect = true, appID = common.getHMIAppId() })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
-runner.Step("SubscribeWayPoints", commonNavigation.subscribeWayPoints)
-runner.Step("Is Subscribed", commonNavigation.isSubscribed)
-runner.Step("UnsubscribeWayPoints", commonNavigation.unsubscribeWayPoints)
-runner.Step("Is Unsubscribed", commonNavigation.isUnsubscribed)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
+runner.Step("SubscribeWayPoints", common.subscribeWayPoints)
+runner.Step("Is Subscribed", common.isSubscribed)
+runner.Step("UnsubscribeWayPoints", common.unsubscribeWayPoints)
+runner.Step("Is Unsubscribed", common.isUnsubscribed)
 
 runner.Title("Test")
 runner.Step("Unexpected disconnect", closeSession)
-runner.Step("RAI", commonNavigation.registerAppWithTheSameHashId)
-runner.Step("Activate App", commonNavigation.activateApp)
-runner.Step("Is still Unsubscribed", commonNavigation.isUnsubscribed)
+runner.Step("RAI", common.registerAppWithTheSameHashId)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Is still Unsubscribed", common.isUnsubscribed)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

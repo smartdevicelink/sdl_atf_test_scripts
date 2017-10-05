@@ -17,7 +17,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
@@ -25,7 +25,7 @@ local function subscribeWayPoints(self)
   local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false , resultCode = "DISALLOWED" })
-  commonTestCases:DelayedExp(commonNavigation.timeout)
+  commonTestCases:DelayedExp(common.timeout)
 end
 
 local function ptuUpdateFunc(pTbl)
@@ -34,13 +34,13 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI", commonNavigation.registerAppWithPTU, { 1, ptuUpdateFunc })
-runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI", common.registerAppWithPTU, { 1, ptuUpdateFunc })
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("SubscribeWayPoints DISALLOWED by policy", subscribeWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

@@ -19,7 +19,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
@@ -28,21 +28,21 @@ local function invalidJson(self)
   local cid = self.mobileSession1:SendRPC("UnsubscribeWayPoints", params)
   EXPECT_HMICALL("Navigation.UnsubscribeWayPoints"):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-  commonTestCases:DelayedExp(commonNavigation.timeout)
+  commonTestCases:DelayedExp(common.timeout)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
-runner.Step("SubscribeWayPoints", commonNavigation.subscribeWayPoints)
-runner.Step("Is Subscribed", commonNavigation.isSubscribed)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
+runner.Step("SubscribeWayPoints", common.subscribeWayPoints)
+runner.Step("Is Subscribed", common.isSubscribed)
 
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints", invalidJson)
-runner.Step("Is still Subscribed", commonNavigation.isSubscribed)
+runner.Step("Is still Subscribed", common.isSubscribed)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

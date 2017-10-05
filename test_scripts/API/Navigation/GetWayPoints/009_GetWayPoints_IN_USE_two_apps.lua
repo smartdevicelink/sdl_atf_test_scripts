@@ -15,7 +15,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local atf_logger = require("atf_logger")
 
 --[[ Local Variables ]]
@@ -88,14 +88,14 @@ local function getWayPoints(self)
 
         local function sendReponse()
           log("HMI->SDL: 1st response SUCCESS")
-          response.appID = commonNavigation.getHMIAppId(1)
+          response.appID = common.getHMIAppId(1)
           self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
         end
         RUN_AFTER(sendReponse, 2000)
       else
         log("SDL->HMI: 2nd request")
         log("HMI->SDL: 2nd response SUCCESS")
-        response.appID = commonNavigation.getHMIAppId(2)
+        response.appID = common.getHMIAppId(2)
         self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
       end
     end)
@@ -108,16 +108,16 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 for i = 1, 2 do
-  runner.Step("RAI, PTU " .. i, commonNavigation.registerAppWithPTU, { i })
-  runner.Step("Activate App " .. i, commonNavigation.activateApp, { i })
+  runner.Step("RAI, PTU " .. i, common.registerAppWithPTU, { i })
+  runner.Step("Activate App " .. i, common.activateApp, { i })
 end
 
 runner.Title("Test")
 runner.Step("GetWayPoints, SUCCESS for 2nd request during the 1st one is processing on HMI", getWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

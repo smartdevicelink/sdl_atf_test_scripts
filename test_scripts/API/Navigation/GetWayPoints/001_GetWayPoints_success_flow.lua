@@ -19,7 +19,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 local response = {
@@ -97,11 +97,11 @@ local function GetWayPoints(pWayPointType, self)
   }
 
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
-  response.appID = commonNavigation.getHMIAppId()
+  response.appID = common.getHMIAppId()
 
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-      return data.params.appID == commonNavigation.getHMIAppId()
+      return data.params.appID == common.getHMIAppId()
     end)
   :Do(function(_,data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
@@ -131,10 +131,10 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, wayPointType in pairs({ "ALL", "DESTINATION" }) do
@@ -142,4 +142,4 @@ for _, wayPointType in pairs({ "ALL", "DESTINATION" }) do
 end
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

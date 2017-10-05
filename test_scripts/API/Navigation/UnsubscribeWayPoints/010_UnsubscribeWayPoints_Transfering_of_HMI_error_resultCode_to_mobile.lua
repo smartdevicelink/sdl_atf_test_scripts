@@ -18,15 +18,15 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 
 --[[ Local Variables ]]
 local isSubscribed = false
 local resultCodes = {
-  success = commonNavigation.getSuccessResultCodes("UnsubscribeWayPoints"),
-  failure = commonNavigation.getFailureResultCodes("UnsubscribeWayPoints"),
-  unexpected = commonNavigation.getUnexpectedResultCodes("UnsubscribeWayPoints"),
-  filtered = commonNavigation.getFilteredResultCodes()
+  success = common.getSuccessResultCodes("UnsubscribeWayPoints"),
+  failure = common.getFailureResultCodes("UnsubscribeWayPoints"),
+  unexpected = common.getUnexpectedResultCodes("UnsubscribeWayPoints"),
+  filtered = common.getFilteredResultCodes()
 }
 
 --[[ Local Functions ]]
@@ -94,13 +94,13 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Result Codes", commonNavigation.printResultCodes, { resultCodes })
+runner.Step("Result Codes", common.printResultCodes, { resultCodes })
 runner.Title("Successful codes")
 for _, code in pairs(resultCodes.success) do
   runner.Step("UnsubscribeWayPoints with " .. code .. " resultCode", unsubscribeWayPointsSuccess, { code })
@@ -117,4 +117,4 @@ for _, code in pairs(resultCodes.unexpected) do
 end
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)

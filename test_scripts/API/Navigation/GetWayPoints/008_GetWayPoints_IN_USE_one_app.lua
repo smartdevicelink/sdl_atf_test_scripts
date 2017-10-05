@@ -15,7 +15,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonNavigation = require('test_scripts/API/Navigation/commonNavigation')
+local common = require('test_scripts/API/Navigation/commonNavigation')
 local atf_logger = require("atf_logger")
 
 --[[ Local Variables ]]
@@ -71,8 +71,8 @@ local function getWayPoints(self)
     wayPointType = "DESTINATION"
   }
 
-  positiveReponse.appID = commonNavigation.getHMIAppId()
-  emptyReponse.appID = commonNavigation.getHMIAppId()
+  positiveReponse.appID = common.getHMIAppId()
+  emptyReponse.appID = common.getHMIAppId()
 
   log("App->SDL: 1st request")
   local cid = self.mobileSession1:SendRPC("GetWayPoints", request1)
@@ -112,13 +112,13 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonNavigation.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI, PTU", common.registerAppWithPTU)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetWayPoints, IN_USE for 2nd request during the 1st one is processing on HMI", getWayPoints)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonNavigation.postconditions)
+runner.Step("Stop SDL", common.postconditions)
