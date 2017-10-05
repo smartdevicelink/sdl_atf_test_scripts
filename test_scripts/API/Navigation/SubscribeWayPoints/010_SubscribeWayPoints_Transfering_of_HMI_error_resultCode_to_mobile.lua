@@ -82,7 +82,7 @@ local function subscribeWayPointsUnsuccess(pResultCode, isUnsupported, self)
       if isUnsupported then appResultCode = "GENERIC_ERROR" end
       self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = appResultCode })
       :ValidIf(function(_,data)
-          if not data.payload.info then
+          if not isUnsupported and not data.payload.info then
             return false, "SDL doesn't resend info parameter to mobile App"
           end
           return true
