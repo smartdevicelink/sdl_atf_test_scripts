@@ -51,7 +51,7 @@ runner.Step("Clean environment", commonNavigation.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
 runner.Step("RAI, PTU", commonNavigation.registerAppWithPTU)
 runner.Step("Activate App", commonNavigation.activateApp)
-runner.Step("SubscribeWayPoints", commonNavigation.subscribeOnWayPointChange, { 1 })
+runner.Step("SubscribeWayPoints", commonNavigation.subscribeWayPoints, { 1 })
 
 runner.Title("Test")
 runner.Step("Unexpected disconnect", closeSession)

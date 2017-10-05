@@ -443,12 +443,12 @@ function commonNavigation.unregisterApp(pAppId, self)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
---[[ @subscribeOnWayPointChange: SubscribeWayPoints successful sequence
+--[[ @subscribeWayPoints: SubscribeWayPoints successful sequence
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonNavigation.subscribeOnWayPointChange(pAppId, self)
+function commonNavigation.subscribeWayPoints(pAppId, self)
   local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local cid = mobSession:SendRPC("SubscribeWayPoints", {})
   if pAppId == 1 then
@@ -464,12 +464,12 @@ function commonNavigation.subscribeOnWayPointChange(pAppId, self)
     end)
 end
 
---[[ @unsubscribeOnWayPointChange: UnsubscribeWayPoints successful sequence
+--[[ @unsubscribeWayPoints: UnsubscribeWayPoints successful sequence
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonNavigation.unsubscribeOnWayPointChange(pAppId, self)
+function commonNavigation.unsubscribeWayPoints(pAppId, self)
   local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local cid = mobSession:SendRPC("UnsubscribeWayPoints", {})
   if pAppId == 1 then

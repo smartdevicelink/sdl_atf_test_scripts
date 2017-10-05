@@ -55,7 +55,7 @@ for i = 1, 2 do
 end
 
 for i = 1, 2 do
-  runner.Step("SubscribeWayPoints, App " .. i, commonNavigation.subscribeOnWayPointChange, { i })
+  runner.Step("SubscribeWayPoints, App " .. i, commonNavigation.subscribeWayPoints, { i })
   runner.Step("Is Subscribed, App " .. i, commonNavigation.isSubscribed, { i })
 end
 
