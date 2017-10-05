@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- GetWayPoints common module
+-- Navigation common module
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
@@ -25,7 +25,7 @@ local hmi_api_schema = hmi_api.interface["Common"]
 --[[ Variables ]]
 local ptu_table = {}
 local hmiAppIds = {}
-local commonLastMileNavigation = {}
+local commonNavigation = {}
 
 local successCodes = {
   "SUCCESS",
@@ -46,9 +46,9 @@ local notification = {
   }
 }
 
-commonLastMileNavigation.timeout = 2000
-commonLastMileNavigation.minTimeout = 500
-commonLastMileNavigation.DEFAULT = "Default"
+commonNavigation.timeout = 2000
+commonNavigation.minTimeout = 500
+commonNavigation.DEFAULT = "Default"
 
 --[[ Functions ]]
 
@@ -67,7 +67,7 @@ end
 --! @parameters: none
 --! @return: table with configuration
 --]]
-function commonLastMileNavigation.getGetWayPointsConfig()
+function commonNavigation.getGetWayPointsConfig()
   return {
     keep_context = false,
     steal_focus = false,
@@ -137,8 +137,8 @@ local function updatePTU(pTbl, pAppId)
       }
     }
   }
-  local appID = commonLastMileNavigation.getMobileAppId(pAppId)
-  pTbl.policy_table.app_policies[appID] = commonLastMileNavigation.getGetWayPointsConfig()
+  local appID = commonNavigation.getMobileAppId(pAppId)
+  pTbl.policy_table.app_policies[appID] = commonNavigation.getGetWayPointsConfig()
 end
 
 --[[ @ptu: perform policy table update
@@ -180,7 +180,7 @@ local function ptu(pAppId, pPTUpdateFunc, self)
         return count
       end
       for id = 1, getAppsCount() do
-        local mobileSession = commonLastMileNavigation.getMobileSession(id, self)
+        local mobileSession = commonNavigation.getMobileSession(id, self)
         mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
         :Do(function(_, d2)
             print("App ".. id .. " was used for PTU")
@@ -205,7 +205,7 @@ end
 --[[ @preconditions: precondition steps
 --! @parameters: none
 --]]
-function commonLastMileNavigation.preconditions()
+function commonNavigation.preconditions()
   commonFunctions:SDLForceStop()
   commonSteps:DeletePolicyTable()
   commonSteps:DeleteLogsFiles()
@@ -216,16 +216,16 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.activateApp(pAppId, self)
-  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
+function commonNavigation.activateApp(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
   if not pAppId then pAppId = 1 end
   local pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
-  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+  local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
   EXPECT_HMIRESPONSE(requestId)
   mobSession:ExpectNotification("OnHMIStatus",
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-  commonTestCases:DelayedExp(commonLastMileNavigation.minTimeout)
+  commonTestCases:DelayedExp(commonNavigation.minTimeout)
 end
 
 --[[ @getSelfAndParams: shifting parameters in order to move self at 1st position
@@ -233,7 +233,7 @@ end
 --! ... - various parameters and self
 --! @return: self and other parameters
 --]]
-function commonLastMileNavigation.getSelfAndParams(...)
+function commonNavigation.getSelfAndParams(...)
   local out = { }
   local selfIdx = nil
   for i,v in pairs({...}) do
@@ -258,7 +258,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: application identifier
 --]]
-function commonLastMileNavigation.getHMIAppId(pAppId)
+function commonNavigation.getHMIAppId(pAppId)
   if not pAppId then pAppId = 1 end
   return hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
 end
@@ -269,7 +269,7 @@ end
 --! self - test object
 --! @return: mobile session
 --]]
-function commonLastMileNavigation.getMobileSession(pAppId, self)
+function commonNavigation.getMobileSession(pAppId, self)
   if not pAppId then pAppId = 1 end
   return self["mobileSession" .. pAppId]
 end
@@ -279,7 +279,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: mobile session
 --]]
-function commonLastMileNavigation.getMobileAppId(pAppId)
+function commonNavigation.getMobileAppId(pAppId)
   if not pAppId then pAppId = 1 end
   return config["application" .. pAppId].registerAppInterfaceParams.appID
 end
@@ -288,14 +288,14 @@ end
 --! @parameters: none
 --! @return: path to SDL binaries
 --]]
-function commonLastMileNavigation.getPathToSDL()
+function commonNavigation.getPathToSDL()
   return config.pathToSDL
 end
 
 --[[ @postconditions: postcondition steps
 --! @parameters: none
 --]]
-function commonLastMileNavigation.postconditions()
+function commonNavigation.postconditions()
   StopSDL()
 end
 
@@ -305,8 +305,8 @@ end
 --! pPTUpdateFunc - additional function for update
 --! self - test object
 --]]
-function commonLastMileNavigation.registerAppWithPTU(pAppId, pPTUpdateFunc, self)
-  self, pAppId, pPTUpdateFunc = commonLastMileNavigation.getSelfAndParams(pAppId, pPTUpdateFunc, self)
+function commonNavigation.registerAppWithPTU(pAppId, pPTUpdateFunc, self)
+  self, pAppId, pPTUpdateFunc = commonNavigation.getSelfAndParams(pAppId, pPTUpdateFunc, self)
   if not pAppId then pAppId = 1 end
   self["mobileSession" .. pAppId] = mobile_session.MobileSession(self, self.mobileConnection)
   self["mobileSession" .. pAppId]:StartService(7)
@@ -343,8 +343,8 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.raiN(pAppId, self)
-  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
+function commonNavigation.raiN(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
   if not pAppId then pAppId = 1 end
   self["mobileSession" .. pAppId] = mobile_session.MobileSession(self, self.mobileConnection)
   self["mobileSession" .. pAppId]:StartService(7)
@@ -371,8 +371,8 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.registerAppWithTheSameHashId(pAppId, self)
-  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
+function commonNavigation.registerAppWithTheSameHashId(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
   if not pAppId then pAppId = 1 end
   self["mobileSession" .. pAppId] = mobile_session.MobileSession(self, self.mobileConnection)
   self["mobileSession" .. pAppId]:StartService(7)
@@ -409,8 +409,8 @@ end
 --! pHMIParams - table with parameters for HMI initialization
 --! self - test object
 --]]
-function commonLastMileNavigation.start(pHMIParams, self)
-  self, pHMIParams = commonLastMileNavigation.getSelfAndParams(pHMIParams, self)
+function commonNavigation.start(pHMIParams, self)
+  self, pHMIParams = commonNavigation.getSelfAndParams(pHMIParams, self)
   self:runSDL()
   commonFunctions:waitForSDLStart(self)
   :Do(function()
@@ -435,9 +435,9 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.unregisterApp(pAppId, self)
-  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
-  local hmiAppId = commonLastMileNavigation.getHMIAppId(pAppId)
+function commonNavigation.unregisterApp(pAppId, self)
+  local mobSession = commonNavigation.getMobileSession(pAppId, self)
+  local hmiAppId = commonNavigation.getHMIAppId(pAppId)
   local cid = mobSession:SendRPC("UnregisterAppInterface",{})
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = hmiAppId, unexpectedDisconnect = false })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
@@ -448,8 +448,8 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.subscribeOnWayPointChange(pAppId, self)
-  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+function commonNavigation.subscribeOnWayPointChange(pAppId, self)
+  local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local cid = mobSession:SendRPC("SubscribeWayPoints", {})
   if pAppId == 1 then
     EXPECT_HMICALL("Navigation.SubscribeWayPoints")
@@ -469,8 +469,8 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.unsubscribeOnWayPointChange(pAppId, self)
-  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+function commonNavigation.unsubscribeOnWayPointChange(pAppId, self)
+  local mobSession = commonNavigation.getMobileSession(pAppId, self)
   local cid = mobSession:SendRPC("UnsubscribeWayPoints", {})
   if pAppId == 1 then
     EXPECT_HMICALL("Navigation.UnsubscribeWayPoints")
@@ -489,7 +489,7 @@ end
 --! @parameters:
 --! self - test object
 --]]
-function commonLastMileNavigation.IGNITION_OFF(self)
+function commonNavigation.IGNITION_OFF(self)
   self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     { reason = "SUSPEND" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
@@ -509,9 +509,9 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.isSubscribed(pAppId, self)
-  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
-  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+function commonNavigation.isSubscribed(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
+  local mobSession = commonNavigation.getMobileSession(pAppId, self)
   self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
   mobSession:ExpectNotification("OnWayPointChange", notification)
 end
@@ -521,12 +521,12 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! self - test object
 --]]
-function commonLastMileNavigation.isUnsubscribed(pAppId, self)
-  self, pAppId = commonLastMileNavigation.getSelfAndParams(pAppId, self)
-  local mobSession = commonLastMileNavigation.getMobileSession(pAppId, self)
+function commonNavigation.isUnsubscribed(pAppId, self)
+  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
+  local mobSession = commonNavigation.getMobileSession(pAppId, self)
   self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
   mobSession:ExpectNotification("OnWayPointChange"):Times(0)
-  commonTestCases:DelayedExp(commonLastMileNavigation.timeout)
+  commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
 --[[ @getMobileResultCodes: get all available result codes from Mobile API
@@ -580,7 +580,7 @@ end
 --! pFunctionName - name of the RPC
 --! @return: table with result codes
 --]]
-function commonLastMileNavigation.getSuccessResultCodes(pFunctionName)
+function commonNavigation.getSuccessResultCodes(pFunctionName)
   local out = {}
   for _, v in pairs(getExpectedResultCodes(pFunctionName)) do
     if isContain(successCodes, v) then table.insert(out, v) end
@@ -593,7 +593,7 @@ end
 --! pFunctionName - name of the RPC
 --! @return: table with result codes
 --]]
-function commonLastMileNavigation.getFailureResultCodes(pFunctionName)
+function commonNavigation.getFailureResultCodes(pFunctionName)
   local out = {}
   for _, v in pairs(getExpectedResultCodes(pFunctionName)) do
     if not isContain(successCodes, v) then table.insert(out, v) end
@@ -606,7 +606,7 @@ end
 --! pFunctionName - name of the RPC
 --! @return: table with result codes
 --]]
-function commonLastMileNavigation.getUnexpectedResultCodes(pFunctionName)
+function commonNavigation.getUnexpectedResultCodes(pFunctionName)
   local out = {}
   for _, v in pairs(getHMIResultCodes()) do
     if isContain(getMobileResultCodes(), v) then
@@ -621,7 +621,7 @@ end
 --! pFunctionName - name of the RPC
 --! @return: table with result codes
 --]]
-function commonLastMileNavigation.getFilteredResultCodes()
+function commonNavigation.getFilteredResultCodes()
   local out = {}
   for _, v in pairs(getHMIResultCodes()) do
     if not isContain(getMobileResultCodes(), v) then table.insert(out, v) end
@@ -633,7 +633,7 @@ end
 --! @parameters:
 --! pResultCodes - table with all code groups
 --]]
-function commonLastMileNavigation.printResultCodes(pResultCodes)
+function commonNavigation.printResultCodes(pResultCodes)
   print("Success:")
   commonFunctions:printTable(pResultCodes.success)
   print("Failure:")
@@ -644,4 +644,4 @@ function commonLastMileNavigation.printResultCodes(pResultCodes)
   commonFunctions:printTable(pResultCodes.filtered)
 end
 
-return commonLastMileNavigation
+return commonNavigation
