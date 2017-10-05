@@ -110,11 +110,11 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonNavigation.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.start)
-runner.Step("RAI1, PTU", commonNavigation.registerAppWithPTU)
-runner.Step("Activate App", commonNavigation.activateApp)
 
-runner.Step("RAI2, PTU", commonNavigation.registerAppWithPTU, { 2 })
-runner.Step("Activate App2", commonNavigation.activateApp, { 2 })
+for i = 1, 2 do
+  runner.Step("RAI, PTU " .. i, commonNavigation.registerAppWithPTU, { i })
+  runner.Step("Activate App " .. i, commonNavigation.activateApp, { i })
+end
 
 runner.Title("Test")
 runner.Step("GetWayPoints, SUCCESS for 2nd request during the 1st one is processing on HMI", getWayPoints)

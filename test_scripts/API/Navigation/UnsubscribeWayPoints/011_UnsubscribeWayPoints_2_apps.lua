@@ -51,7 +51,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonNavigation.st
 
 for i = 1, 2 do
   runner.Step("RAI, PTU " .. i, commonNavigation.registerAppWithPTU, { i })
-  runner.Step("Activate App" .. i, commonNavigation.activateApp, { i })
+  runner.Step("Activate App " .. i, commonNavigation.activateApp, { i })
 end
 
 for i = 1, 2 do
@@ -61,10 +61,10 @@ end
 
 runner.Title("Test")
 runner.Step("UnsubscribeWayPoints App2", unsubscribeWayPointsSecondApp)
-runner.Step("Is Unsubscribed App2", commonNavigation.isUnsubscribed, { 2 })
-runner.Step("Is still Subscribed App1", commonNavigation.isSubscribed, { 1 })
+runner.Step("Is Unsubscribed App2", commonNavigation.isUnsubscribed, { commonNavigation.appId2 })
+runner.Step("Is still Subscribed App1", commonNavigation.isSubscribed, { commonNavigation.appId1 })
 runner.Step("UnsubscribeWayPoints App1", unsubscribeWayPointsFirstApp)
-runner.Step("Is Unsubscribed App1", commonNavigation.isUnsubscribed, { 1 })
+runner.Step("Is Unsubscribed App1", commonNavigation.isUnsubscribed, { commonNavigation.appId1 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonNavigation.postconditions)

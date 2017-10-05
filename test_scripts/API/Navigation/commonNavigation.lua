@@ -49,6 +49,8 @@ local notification = {
 commonNavigation.timeout = 2000
 commonNavigation.minTimeout = 500
 commonNavigation.DEFAULT = "Default"
+commonNavigation.appId1 = 1
+commonNavigation.appId2 = 2
 
 --[[ Functions ]]
 
