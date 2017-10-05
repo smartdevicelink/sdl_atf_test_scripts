@@ -35,7 +35,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.registerAppWithPTU, { 1, ptuUpdateFunc })
+runner.Step("RAI, PTU", common.registerAppWithPTU, { common.appId1, ptuUpdateFunc })
 runner.Step("Activate App", common.activateApp)
 runner.Step("SubscribeWayPoints", common.subscribeWayPoints)
 runner.Step("Is Subscribed", common.isSubscribed)

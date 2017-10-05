@@ -73,7 +73,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.registerAppWithPTU, { 1, disallowOnWayPointChange })
+runner.Step("RAI, PTU", common.registerAppWithPTU, { common.appId1, disallowOnWayPointChange })
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
