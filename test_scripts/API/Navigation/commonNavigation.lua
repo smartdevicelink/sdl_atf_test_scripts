@@ -22,10 +22,17 @@ local hmi_api_loader = require("modules/api_loader")
 local hmi_api = hmi_api_loader.init("data/HMI_API.xml")
 local hmi_api_schema = hmi_api.interface["Common"]
 
+local commonNavigation = {}
+
+--[[ Constants ]]
+commonNavigation.timeout = 2000
+commonNavigation.minTimeout = 500
+commonNavigation.appId1 = 1
+commonNavigation.appId2 = 2
+
 --[[ Variables ]]
 local ptu_table = {}
 local hmiAppIds = {}
-local commonNavigation = {}
 
 local successCodes = {
   "SUCCESS",
@@ -45,12 +52,6 @@ local notification = {
     }
   }
 }
-
-commonNavigation.timeout = 2000
-commonNavigation.minTimeout = 500
-commonNavigation.DEFAULT = "Default"
-commonNavigation.appId1 = 1
-commonNavigation.appId2 = 2
 
 --[[ Functions ]]
 
@@ -286,14 +287,6 @@ function commonNavigation.getMobileAppId(pAppId)
   return config["application" .. pAppId].registerAppInterfaceParams.appID
 end
 
---[[ @getPathToSDL: get path to SDL binaries
---! @parameters: none
---! @return: path to SDL binaries
---]]
-function commonNavigation.getPathToSDL()
-  return config.pathToSDL
-end
-
 --[[ @postconditions: postcondition steps
 --! @parameters: none
 --]]
@@ -336,34 +329,6 @@ function commonNavigation.registerAppWithPTU(pAppId, pPTUpdateFunc, self)
           :Times(1)
           self["mobileSession" .. pAppId]:ExpectNotification("OnPermissionsChange")
           :Times(AtLeast(1)) -- TODO: Change to exact 1 occurence when SDL issue is fixed
-        end)
-    end)
-end
-
---[[ @raiN: register mobile application
---! @parameters:
---! pAppId - application number (1, 2, etc.)
---! self - test object
---]]
-function commonNavigation.raiN(pAppId, self)
-  self, pAppId = commonNavigation.getSelfAndParams(pAppId, self)
-  if not pAppId then pAppId = 1 end
-  self["mobileSession" .. pAppId] = mobile_session.MobileSession(self, self.mobileConnection)
-  self["mobileSession" .. pAppId]:StartService(7)
-  :Do(function()
-      local corId = self["mobileSession" .. pAppId]:SendRPC("RegisterAppInterface",
-        config["application" .. pAppId].registerAppInterfaceParams)
-      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
-        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
-      :Do(function(_, d1)
-          hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = d1.params.application.appID
-        end)
-      self["mobileSession" .. pAppId]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-      :Do(function()
-          self["mobileSession" .. pAppId]:ExpectNotification("OnHMIStatus",
-            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-          :Times(1)
-          self["mobileSession" .. pAppId]:ExpectNotification("OnPermissionsChange")
         end)
     end)
 end
@@ -430,19 +395,6 @@ function commonNavigation.start(pHMIParams, self)
             end)
         end)
     end)
-end
-
---[[ @unregisterApp: unregister mobile application
---! @parameters:
---! pAppId - application number (1, 2, etc.)
---! self - test object
---]]
-function commonNavigation.unregisterApp(pAppId, self)
-  local mobSession = commonNavigation.getMobileSession(pAppId, self)
-  local hmiAppId = commonNavigation.getHMIAppId(pAppId)
-  local cid = mobSession:SendRPC("UnregisterAppInterface",{})
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = hmiAppId, unexpectedDisconnect = false })
-  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
 --[[ @subscribeWayPoints: SubscribeWayPoints successful sequence
@@ -650,6 +602,9 @@ function commonNavigation.printResultCodes(pResultCodes)
   commonFunctions:printTable(pResultCodes.filtered)
 end
 
+--[[ @DelayedExp: delay test step for default timeout
+--! @parameters: none
+--]]
 function commonNavigation.DelayedExp()
   commonTestCases:DelayedExp(commonNavigation.timeout)
 end

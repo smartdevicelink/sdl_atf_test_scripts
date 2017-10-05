@@ -29,11 +29,15 @@ local function getWayPoints(self)
   common:DelayedExp()
 end
 
+local function ptuUpdateFunc(pTbl)
+  pTbl.policy_table.functional_groupings["WayPoints"].rpcs.GetWayPoints = nil
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI", common.raiN)
+runner.Step("RAI", common.registerAppWithPTU, { 1, ptuUpdateFunc })
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
