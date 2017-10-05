@@ -18,7 +18,6 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
 local hmi_values = require('user_modules/hmi_values')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 local function disableNavigationIsReadyResponse()
@@ -34,7 +33,7 @@ local function getWayPoints(self)
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
   EXPECT_HMICALL("Navigation.GetWayPoints", params):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 --[[ Scenario ]]

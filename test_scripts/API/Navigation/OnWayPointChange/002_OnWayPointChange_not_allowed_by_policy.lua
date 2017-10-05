@@ -19,7 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local notification = {
@@ -67,7 +66,7 @@ end
 local function onWayPointChange(self)
   self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
   self.mobileSession1:ExpectNotification("OnWayPointChange"):Times(0)
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 --[[ Scenario ]]

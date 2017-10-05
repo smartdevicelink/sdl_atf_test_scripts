@@ -19,7 +19,6 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
 local hmi_values = require('user_modules/hmi_values')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local notification = {
@@ -44,13 +43,13 @@ local function subscribeWayPoints(self)
   local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 local function onWayPointChange(self)
   self.hmiConnection:SendNotification("Navigation.OnWayPointChange", notification)
   self.mobileSession1:ExpectNotification("OnWayPointChange"):Times(0)
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 --[[ Scenario ]]

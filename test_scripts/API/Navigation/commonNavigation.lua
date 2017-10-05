@@ -650,4 +650,8 @@ function commonNavigation.printResultCodes(pResultCodes)
   commonFunctions:printTable(pResultCodes.filtered)
 end
 
+function commonNavigation.DelayedExp()
+  commonTestCases:DelayedExp(commonNavigation.timeout)
+end
+
 return commonNavigation

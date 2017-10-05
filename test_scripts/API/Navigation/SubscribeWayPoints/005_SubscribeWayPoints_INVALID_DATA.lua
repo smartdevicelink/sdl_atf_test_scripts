@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 local function invalidJson(self)
@@ -27,7 +26,7 @@ local function invalidJson(self)
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
 
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 --[[ Scenario ]]

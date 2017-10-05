@@ -20,14 +20,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 local function unsubscribeWayPoints(self)
   local cid = self.mobileSession1:SendRPC("UnsubscribeWayPoints", {})
   EXPECT_HMICALL("Navigation.UnsubscribeWayPoints"):Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "IGNORED" })
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 --[[ Scenario ]]

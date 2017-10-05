@@ -21,7 +21,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 local function unsubscribeWayPointsSecondApp(self)
@@ -30,7 +29,7 @@ local function unsubscribeWayPointsSecondApp(self)
   EXPECT_HMICALL("Navigation.UnsubscribeWayPoints"):Times(0)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   mobSession:ExpectNotification("OnHashChange")
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 local function unsubscribeWayPointsFirstApp(self)

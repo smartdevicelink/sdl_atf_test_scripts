@@ -21,7 +21,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local notification = {
@@ -51,7 +50,7 @@ local function subscribeWayPointsSecondApp(self)
   EXPECT_HMICALL("Navigation.SubscribeWayPoints"):Times(0)
   self.mobileSession2:ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
   self.mobileSession2:ExpectNotification("OnHashChange")
-  commonTestCases:DelayedExp(common.timeout)
+  common:DelayedExp()
 end
 
 local function onWayPointChangeToBothApps(self)
