@@ -609,4 +609,19 @@ function commonNavigation.DelayedExp()
   commonTestCases:DelayedExp(commonNavigation.timeout)
 end
 
-return commonNavigation
+--[[ @protect: make table immutable
+--! @parameters:
+--! pTbl - mutable table
+--! @return: immutable table
+--]]
+local function protect(pTbl)
+  local mt = {
+    __index = pTbl,
+    __newindex = function(_, k, v)
+      error("Attempting to change item " .. tostring(k) .. " to " .. tostring(v), 2)
+    end
+  }
+  return setmetatable({}, mt)
+end
+
+return protect(commonNavigation)
