@@ -26,7 +26,7 @@ local resultCodes = {
   success = common.getSuccessResultCodes("SubscribeWayPoints"),
   failure = common.getFailureResultCodes("SubscribeWayPoints"),
   unexpected = common.getUnexpectedResultCodes("SubscribeWayPoints"),
-  filtered = common.getFilteredResultCodes()
+  unmapped = common.getUnmappedResultCodes()
 }
 
 --[[ Local Functions ]]
@@ -55,30 +55,30 @@ local function unsubscribeWayPoints(self)
   return ret
 end
 
-local function subscribeWayPointsSuccess(pResultCode, self)
+local function subscribeWayPointsSuccess(pResultCodeMap, self)
   unsubscribeWayPoints(self)
   :Do(function()
       local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
       EXPECT_HMICALL("Navigation.SubscribeWayPoints")
       :Do(function(_,data)
-          self.hmiConnection:SendResponse(data.id, data.method, pResultCode, {})
+          self.hmiConnection:SendResponse(data.id, data.method, pResultCodeMap.hmi, {})
         end)
-      self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = pResultCode })
+      self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = pResultCodeMap.mobile })
       :Do(function(_, data)
           if data.payload.success then isSubscribed = true end
         end)
     end)
 end
 
-local function subscribeWayPointsUnsuccess(pResultCode, isUnsupported, self)
+local function subscribeWayPointsUnsuccess(pResultCodeMap, isUnsupported, self)
   unsubscribeWayPoints(self)
   :Do(function()
       local cid = self.mobileSession1:SendRPC("SubscribeWayPoints", {})
       EXPECT_HMICALL("Navigation.SubscribeWayPoints")
       :Do(function(_,data)
-          self.hmiConnection:SendError(data.id, data.method, pResultCode, "Error error")
+          self.hmiConnection:SendError(data.id, data.method, pResultCodeMap.hmi, "Error error")
         end)
-      local appResultCode = pResultCode
+      local appResultCode = pResultCodeMap.mobile
       if isUnsupported then appResultCode = "GENERIC_ERROR" end
       self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = appResultCode })
       :ValidIf(function(_,data)
@@ -102,19 +102,25 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Result Codes", common.printResultCodes, { resultCodes })
+
 runner.Title("Successful codes")
-for _, code in pairs(resultCodes.success) do
-  runner.Step("SubscribeWayPoints with " .. code .. " resultCode", subscribeWayPointsSuccess, { code })
+for _, item in pairs(resultCodes.success) do
+  runner.Step("SubscribeWayPoints with " .. item.hmi .. " resultCode", subscribeWayPointsSuccess, { item })
 end
 
 runner.Title("Erroneous codes")
-for _, code in pairs(resultCodes.failure) do
-  runner.Step("SubscribeWayPoints with " .. code .. " resultCode", subscribeWayPointsUnsuccess, { code, false })
+for _, item in pairs(resultCodes.failure) do
+  runner.Step("SubscribeWayPoints with " .. item.hmi .. " resultCode", subscribeWayPointsUnsuccess, { item, false })
 end
 
 runner.Title("Unexpected codes")
-for _, code in pairs(resultCodes.unexpected) do
-  runner.Step("SubscribeWayPoints with " .. code .. " resultCode", subscribeWayPointsUnsuccess, { code, true })
+for _, item in pairs(resultCodes.unexpected) do
+  runner.Step("SubscribeWayPoints with " .. item.hmi .. " resultCode", subscribeWayPointsUnsuccess, { item, true })
+end
+
+runner.Title("Unmapped codes")
+for _, item in pairs(resultCodes.unmapped) do
+  runner.Step("SubscribeWayPoints with " .. item.hmi .. " resultCode", subscribeWayPointsUnsuccess, { item, true })
 end
 
 runner.Title("Postconditions")

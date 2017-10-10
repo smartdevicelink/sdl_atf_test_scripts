@@ -42,6 +42,11 @@ local successCodes = {
   "SAVED"
 }
 
+local nonDirectResultCodes = {
+  { mobile = "APPLICATION_NOT_REGISTERED", hmi = "NO_APPS_REGISTERED" },
+  { mobile = "APPLICATION_NOT_REGISTERED", hmi = "NO_DEVICES_CONNECTED" }
+}
+
 local notification = {
   wayPoints = {
     {
@@ -533,6 +538,44 @@ local function isContain(pTbl, pValue)
   return false
 end
 
+--[[ @getKeysFromItemsTable: extract keys from table of items like { { key1 = value1, key2 = value2 }, ... }
+--! @parameters:
+--! pTbl - table
+--! pKey - key name which going to be extracted from each item
+--! @return: table of keys
+--]]
+local function getKeysFromItemsTable(pTbl, pKey)
+  local out = {}
+  for _, item in pairs(pTbl) do
+    if not isContain(out, item[pKey]) then
+      table.insert(out, item[pKey])
+    end
+  end
+  return out
+end
+
+--[[ @getResultCodesMap: create mapping table of result codes: HMI vs Mobile
+--! @parameters: none
+--! @return: table of items (HMI result code vs Mobile result code)
+--]]
+local function getResultCodesMap()
+  local out = {}
+  for _, v in pairs(getHMIResultCodes()) do
+    if isContain(getMobileResultCodes(), v) then
+      table.insert(out, { mobile = v, hmi = v })
+    elseif isContain(getKeysFromItemsTable(nonDirectResultCodes, "hmi"), v) then
+      for _, item in pairs(nonDirectResultCodes) do
+        if item.hmi == v then
+          table.insert(out, { mobile = item.mobile, hmi = item.hmi })
+        end
+      end
+    else
+      table.insert(out, { mobile = nil, hmi = v })
+    end
+  end
+  return out
+end
+
 --[[ @getSuccessResultCodes: get success result codes for particular RPC
 --! @parameters:
 --! pFunctionName - name of the RPC
@@ -540,8 +583,10 @@ end
 --]]
 function commonNavigation.getSuccessResultCodes(pFunctionName)
   local out = {}
-  for _, v in pairs(getExpectedResultCodes(pFunctionName)) do
-    if isContain(successCodes, v) then table.insert(out, v) end
+  for _, item in pairs(getResultCodesMap()) do
+    if isContain(getExpectedResultCodes(pFunctionName), item.mobile) and isContain(successCodes, item.mobile) then
+      table.insert(out, { mobile = item.mobile, hmi = item.hmi })
+    end
   end
   return out
 end
@@ -553,8 +598,10 @@ end
 --]]
 function commonNavigation.getFailureResultCodes(pFunctionName)
   local out = {}
-  for _, v in pairs(getExpectedResultCodes(pFunctionName)) do
-    if not isContain(successCodes, v) then table.insert(out, v) end
+  for _, item in pairs(getResultCodesMap()) do
+    if isContain(getExpectedResultCodes(pFunctionName), item.mobile) and not isContain(successCodes, item.mobile) then
+      table.insert(out, { mobile = item.mobile, hmi = item.hmi })
+    end
   end
   return out
 end
@@ -566,23 +613,24 @@ end
 --]]
 function commonNavigation.getUnexpectedResultCodes(pFunctionName)
   local out = {}
-  for _, v in pairs(getHMIResultCodes()) do
-    if isContain(getMobileResultCodes(), v) then
-      if not isContain(getExpectedResultCodes(pFunctionName), v) then table.insert(out, v) end
+  for _, item in pairs(getResultCodesMap()) do
+    if item.mobile ~= nil and not isContain(getExpectedResultCodes(pFunctionName), item.mobile) then
+      table.insert(out, { mobile = item.mobile, hmi = item.hmi })
     end
   end
   return out
 end
 
---[[ @getFilteredResultCodes: get filtered result codes for particular RPC
---! @parameters:
---! pFunctionName - name of the RPC
+--[[ @getFilteredResultCodes: get not mapped result codes
+--! @parameters: none
 --! @return: table with result codes
 --]]
-function commonNavigation.getFilteredResultCodes()
+function commonNavigation.getUnmappedResultCodes()
   local out = {}
-  for _, v in pairs(getHMIResultCodes()) do
-    if not isContain(getMobileResultCodes(), v) then table.insert(out, v) end
+  for _, item in pairs(getResultCodesMap()) do
+    if item.mobile == nil then
+      table.insert(out, { mobile = item.mobile, hmi = item.hmi })
+    end
   end
   return out
 end
@@ -592,14 +640,21 @@ end
 --! pResultCodes - table with all code groups
 --]]
 function commonNavigation.printResultCodes(pResultCodes)
+  local function printItem(pItem)
+    for _, v in pairs(pItem) do
+      local msg = v.hmi
+      if v.mobile and v.mobile ~= v.hmi then msg = msg .. "\t" .. v.mobile end
+      print("", msg)
+    end
+  end
   print("Success:")
-  commonFunctions:printTable(pResultCodes.success)
+  printItem(pResultCodes.success)
   print("Failure:")
-  commonFunctions:printTable(pResultCodes.failure)
+  printItem(pResultCodes.failure)
   print("Unexpected:")
-  commonFunctions:printTable(pResultCodes.unexpected)
-  print("Filtered:")
-  commonFunctions:printTable(pResultCodes.filtered)
+  printItem(pResultCodes.unexpected)
+  print("Unmapped:")
+  printItem(pResultCodes.unmapped)
 end
 
 --[[ @DelayedExp: delay test step for default timeout

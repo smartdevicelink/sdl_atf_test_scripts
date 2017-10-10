@@ -26,7 +26,7 @@ local resultCodes = {
   success = common.getSuccessResultCodes("GetWayPoints"),
   failure = common.getFailureResultCodes("GetWayPoints"),
   unexpected = common.getUnexpectedResultCodes("GetWayPoints"),
-  filtered = common.getFilteredResultCodes()
+  unmapped = common.getUnmappedResultCodes()
 }
 
 local params = {
@@ -48,7 +48,7 @@ local validResponse = {
 }
 
 --[[ Local Functions ]]
-local function getWayPointsSuccess(pResultCode, self)
+local function getWayPointsSuccess(pResultCodeMap, self)
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
 
   validResponse.appID = common.getHMIAppId()
@@ -57,12 +57,12 @@ local function getWayPointsSuccess(pResultCode, self)
       return data.params.appID == common.getHMIAppId()
     end)
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, pResultCode, validResponse)
+      self.hmiConnection:SendResponse(data.id, data.method, pResultCodeMap.hmi, validResponse)
     end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = pResultCode })
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = pResultCodeMap.mobile })
 end
 
-local function getWayPointsUnsuccess(pResultCode, isUnsupported, self)
+local function getWayPointsUnsuccess(pResultCodeMap, isUnsupported, self)
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
 
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
@@ -70,11 +70,11 @@ local function getWayPointsUnsuccess(pResultCode, isUnsupported, self)
       return data.params.appID == common.getHMIAppId()
     end)
   :Do(function(_,data)
-      self.hmiConnection:SendError(data.id, data.method, pResultCode, "Error error")
+      self.hmiConnection:SendError(data.id, data.method, pResultCodeMap.hmi, "Error error")
     end)
 
   local appSuccess = false
-  local appResultCode = pResultCode
+  local appResultCode = pResultCodeMap.mobile
   if isUnsupported then
     appResultCode = "GENERIC_ERROR"
   end
@@ -96,19 +96,25 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Result Codes", common.printResultCodes, { resultCodes })
+
 runner.Title("Successful codes")
-for _, code in pairs(resultCodes.success) do
-  runner.Step("GetWayPoints with " .. code .. " resultCode", getWayPointsSuccess, { code })
+for _, item in pairs(resultCodes.success) do
+  runner.Step("GetWayPoints with " .. item.hmi .. " resultCode", getWayPointsSuccess, { item })
 end
 
 runner.Title("Erroneous codes")
-for _, code in pairs(resultCodes.failure) do
-  runner.Step("GetWayPoints with " .. code .. " resultCode", getWayPointsUnsuccess, { code, false })
+for _, item in pairs(resultCodes.failure) do
+  runner.Step("GetWayPoints with " .. item.hmi .. " resultCode", getWayPointsUnsuccess, { item, false })
 end
 
 runner.Title("Unexpected codes")
-for _, code in pairs(resultCodes.unexpected) do
-  runner.Step("GetWayPoints with " .. code .. " resultCode", getWayPointsUnsuccess, { code, true })
+for _, item in pairs(resultCodes.unexpected) do
+  runner.Step("GetWayPoints with " .. item.hmi .. " resultCode", getWayPointsUnsuccess, { item, true })
+end
+
+runner.Title("Unmapped codes")
+for _, item in pairs(resultCodes.unmapped) do
+  runner.Step("GetWayPoints with " .. item.hmi .. " resultCode", getWayPointsUnsuccess, { item, true })
 end
 
 runner.Title("Postconditions")
