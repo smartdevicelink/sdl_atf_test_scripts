@@ -25,8 +25,7 @@ local isSubscribed = false
 local resultCodes = {
   success = common.getSuccessResultCodes("SubscribeWayPoints"),
   failure = common.getFailureResultCodes("SubscribeWayPoints"),
-  unexpected = common.getUnexpectedResultCodes("SubscribeWayPoints"),
-  unmapped = common.getUnmappedResultCodes()
+  unexpected = common.getUnexpectedResultCodes("SubscribeWayPoints")
 }
 
 --[[ Local Functions ]]
@@ -115,11 +114,6 @@ end
 
 runner.Title("Unexpected codes")
 for _, item in pairs(resultCodes.unexpected) do
-  runner.Step("SubscribeWayPoints with " .. item.hmi .. " resultCode", subscribeWayPointsUnsuccess, { item, true })
-end
-
-runner.Title("Unmapped codes")
-for _, item in pairs(resultCodes.unmapped) do
   runner.Step("SubscribeWayPoints with " .. item.hmi .. " resultCode", subscribeWayPointsUnsuccess, { item, true })
 end
 

@@ -25,8 +25,7 @@ local common = require('test_scripts/API/Navigation/commonNavigation')
 local resultCodes = {
   success = common.getSuccessResultCodes("GetWayPoints"),
   failure = common.getFailureResultCodes("GetWayPoints"),
-  unexpected = common.getUnexpectedResultCodes("GetWayPoints"),
-  unmapped = common.getUnmappedResultCodes()
+  unexpected = common.getUnexpectedResultCodes("GetWayPoints")
 }
 
 local params = {
@@ -109,11 +108,6 @@ end
 
 runner.Title("Unexpected codes")
 for _, item in pairs(resultCodes.unexpected) do
-  runner.Step("GetWayPoints with " .. item.hmi .. " resultCode", getWayPointsUnsuccess, { item, true })
-end
-
-runner.Title("Unmapped codes")
-for _, item in pairs(resultCodes.unmapped) do
   runner.Step("GetWayPoints with " .. item.hmi .. " resultCode", getWayPointsUnsuccess, { item, true })
 end
 
