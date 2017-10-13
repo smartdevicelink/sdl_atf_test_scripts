@@ -679,17 +679,7 @@ function Test:ResetGlobalProperties_PositiveCase()
 		--hmi side: expect TTS.SetGlobalProperties request
 		EXPECT_HMICALL("TTS.SetGlobalProperties",
 		{
-			helpPrompt =
-			{
-				{
-					type = "TEXT",
-					text = textPromtValue[1]
-				},
-				{
-					type = "TEXT",
-					text = textPromtValue[2]
-				}
-			},
+			helpPrompt = { },
 			timeoutPrompt =
 			{
 				{
