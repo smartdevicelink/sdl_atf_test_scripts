@@ -12,13 +12,13 @@
 -- 1) HMI needs more time for processing GetWayPoints request and sends OnResetTimeout to SDL
 -- SDL must:
 -- 1) renew the default timeout for the GetWayPoints
-
-
 ---------------------------------------------------------------------------------------------------
+
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
 
+--[[ Local Variables ]]
 local response = {
   wayPoints = {
     {
@@ -65,11 +65,16 @@ local function GetWayPoints(pWayPointType, self)
   response.appID = common.getHMIAppId()
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-    return data.params.appID == common.getHMIAppId()
+    if data.params.appID == common.getHMIAppId() then
+      return true
+    else
+      return false, "Wrong value of appID in HMI request"
+    end
   end)
   :Do(function(_,data)
       local function SendOnResetTimeout()
-        self.hmiConnection:SendNotification("UI.OnResetTimeout", {appID = common.getHMIAppId(), methodName = "Navigation.GetWayPoints"})
+        self.hmiConnection:SendNotification("UI.OnResetTimeout",
+          { appID = common.getHMIAppId(), methodName = "Navigation.GetWayPoints" })
       end
       RUN_AFTER(SendOnResetTimeout, 8000)
       local function sendReponse()
@@ -77,9 +82,9 @@ local function GetWayPoints(pWayPointType, self)
       end
       RUN_AFTER(sendReponse, 15000)
     end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :Timeout(16000)
-e
+end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -89,7 +94,6 @@ runner.Step("RAI, PTU", common.registerAppWithPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-
 for _, wayPointType in pairs({ "ALL", "DESTINATION" }) do
   runner.Step("GetWayPoints OnResetTimeout wayPointType " .. wayPointType, GetWayPoints, { wayPointType })
 end

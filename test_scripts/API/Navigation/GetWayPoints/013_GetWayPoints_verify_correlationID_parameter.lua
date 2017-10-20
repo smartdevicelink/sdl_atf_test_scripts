@@ -13,13 +13,14 @@
 --    Response from HMI contains wrong correlation id
 -- SDL must:
 -- 1) Respond with success = false, resultCode = "GENERIC_ERROR"
-
-
 ---------------------------------------------------------------------------------------------------
+
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 
+--[[ Local Variables ]]
 local response = {
   wayPoints = {
     {
@@ -40,13 +41,24 @@ local function CorrelationIDMissing(pWayPointType, self)
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-    return data.params.appID == common.getHMIAppId()
+    if data.params.appID == common.getHMIAppId() then
+        return true
+      else
+        return false, "Wrong value of appID in HMI request"
+      end
   end)
-  :Do(function(_,data)
+  :Do(function()
     self.hmiConnection:Send('{"jsonrpc":"2.0","result":{"method":"Navigation.GetWayPoints", "code":0}}')
   end)
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
   :Timeout(11000)
+  :ValidIf(function(_,data)
+    if data.payload.wayPoints then
+      return false, "SDL sends wayPoints in error response"
+    else
+      return true
+    end
+  end)
 end
 
 local function CorrelationIDWrongType(pWayPointType, self)
@@ -54,16 +66,28 @@ local function CorrelationIDWrongType(pWayPointType, self)
     wayPointType = pWayPointType
   }
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
-  response.appID = common.getHMIAppId()
+  local lResponse = commonFunctions:cloneTable(response)
+  lResponse.appID = common.getHMIAppId()
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-    return data.params.appID == common.getHMIAppId()
+    if data.params.appID == common.getHMIAppId() then
+      return true
+    else
+      return false, "Wrong value of appID in HMI request"
+    end
   end)
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(tostring(data.id), data.method, "SUCCESS", response)
-    end)
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+    self.hmiConnection:SendResponse(tostring(data.id), data.method, "SUCCESS", lResponse)
+  end)
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
   :Timeout(11000)
+  :ValidIf(function(_,data)
+    if data.payload.wayPoints then
+      return false, "SDL sends wayPoints in error response"
+    else
+      return true
+    end
+  end)
 end
 
 local function CorrelationIDNotExisted(pWayPointType, self)
@@ -71,16 +95,28 @@ local function CorrelationIDNotExisted(pWayPointType, self)
     wayPointType = pWayPointType
   }
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
-  response.appID = common.getHMIAppId()
+  local lResponse = commonFunctions:cloneTable(response)
+  lResponse.appID = common.getHMIAppId()
   EXPECT_HMICALL("Navigation.GetWayPoints", params)
   :ValidIf(function(_, data)
-      return data.params.appID == common.getHMIAppId()
-    end)
+    if data.params.appID == common.getHMIAppId() then
+      return true
+    else
+      return false, "Wrong value of appID in HMI request"
+    end
+  end)
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(999, data.method, "SUCCESS", response)
-    end)
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+    self.hmiConnection:SendResponse(999, data.method, "SUCCESS", lResponse)
+  end)
+  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
   :Timeout(11000)
+  :ValidIf(function(_,data)
+    if data.payload.wayPoints then
+      return false, "SDL sends wayPoints in error response"
+    else
+      return true
+    end
+  end)
 end
 
 --[[ Scenario ]]
@@ -92,9 +128,12 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, wayPointType in pairs({ "ALL", "DESTINATION" }) do
-  runner.Step("GetWayPoints CorrelationIDMissing wayPointType " .. wayPointType, CorrelationIDMissing, { wayPointType })
-  runner.Step("GetWayPoints CorrelationIDWrongType wayPointType " .. wayPointType, CorrelationIDWrongType, { wayPointType })
-  runner.Step("GetWayPoints CorrelationIDNotExisted wayPointType " .. wayPointType, CorrelationIDNotExisted, { wayPointType })
+  runner.Step("GetWayPoints CorrelationIDMissing wayPointType " .. wayPointType, CorrelationIDMissing,
+    { wayPointType })
+  runner.Step("GetWayPoints CorrelationIDWrongType wayPointType " .. wayPointType, CorrelationIDWrongType,
+    { wayPointType })
+  runner.Step("GetWayPoints CorrelationIDNotExisted wayPointType " .. wayPointType, CorrelationIDNotExisted,
+    { wayPointType })
 end
 
 runner.Title("Postconditions")

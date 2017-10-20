@@ -13,18 +13,19 @@
 -- SDL must:
 -- 1) Transfer GetWayPoints_request to HMI
 -- 2) Respond with <resultCode> received from HMI to mobile application
-
 ---------------------------------------------------------------------------------------------------
+
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Navigation/commonNavigation')
 
-local response = { wayPoints = {{}}}
+--[[ Local Variables ]]
+local response = { wayPoints = {{ }}}
 
 --[[ Local Functions ]]
 local function getWayPoints(self)
   local params = {
-    wayPointType = "ALL"
+      wayPointType = "ALL"
   }
   local cid = self.mobileSession1:SendRPC("GetWayPoints", params)
 
@@ -47,7 +48,7 @@ runner.Step("RAI, PTU", common.registerAppWithPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("GetWayPoints, empty wayPoints", getWayPoints)
+runner.Step("GetWayPoints empty wayPoints element", getWayPoints)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
