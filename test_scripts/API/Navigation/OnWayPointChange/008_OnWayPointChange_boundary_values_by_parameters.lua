@@ -27,7 +27,7 @@ local string500char = string.rep("a", 500)
 local string200char = string.rep("a", 200)
 local string50char = string.rep("a", 50)
 local string16char = string.rep("a", 16)
-local minLen = ""
+local minLen = "a"
 local imageTypes = { "DYNAMIC", "STATIC" }
 local LocationDetailsStringParams = {
   "locationName",
@@ -92,7 +92,7 @@ runner.Step("OnWayPointChange_wayPoints_lower_bound_longitudeDegrees" , onWayPoi
     { "coordinate", { latitudeDegrees = 0.1, longitudeDegrees = coordinateParams.longitudeDegrees.lower }})
 for _, value in pairs(imageTypes) do
   runner.Step("OnWayPointChange_wayPoints_lower_bound_locationImage_value_" .. value , onWayPointChange,
-    { "locationImage", { value = "", imageType = value }})
+    { "locationImage", { value = "a", imageType = value }})
 end
 
 runner.Title("Upper bound")
@@ -119,5 +119,5 @@ for _, value in pairs(imageTypes) do
 end
 
 runner.Title("Postconditions")
-runner.Step("Subscribe OnWayPointChange", common.unsubscribeWayPoints)
+runner.Step("Unsubscribe OnWayPointChange", common.unsubscribeWayPoints)
 runner.Step("Stop SDL", common.postconditions)
