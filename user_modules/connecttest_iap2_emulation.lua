@@ -14,6 +14,7 @@
 require("atf.util")
 local Test = require("testbase")
 local SDL = require("SDL")
+local policyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
 
 local websocket = require("websocket_connection")
 local hmi_connection = require("hmi_connection")
@@ -52,6 +53,9 @@ Test.timers = {}
 
 --- Add test step with start SDL
 function Test:RunSDL()
+    print("Updating policy table")
+    policyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/sdl_preloaded_pt_all_allowed.json")
+    print("Policy table updated")
     self:runSDL()
 end
 
@@ -905,6 +909,7 @@ end
 -- @treturn nil The main result. Always nil.
 -- @treturn string Additional information on the main result of stopping SDL
 function StopSDL()
+    policyTable:Restore_preloaded_pt()
     event_dispatcher:ClearEvents()
     Test.expectations_list:Clear()
     return SDL:StopSDL()
