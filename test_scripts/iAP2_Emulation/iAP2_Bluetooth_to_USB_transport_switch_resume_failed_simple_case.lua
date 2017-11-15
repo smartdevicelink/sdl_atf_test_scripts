@@ -181,8 +181,8 @@ end
 
 -- [[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postcondition")
-function Test.Stop_SDL()
-    StopSDL()
+function Test:StopSDL()
+    StopSDLAndRestorePT()
 end
 
 return Test
