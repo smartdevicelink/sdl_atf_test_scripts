@@ -3249,7 +3249,23 @@ local function setGVDResponse(paramsSend)
 			gps =
 				{
 					longitudeDegrees = 25.5,
-					latitudeDegrees = 45.5
+					latitudeDegrees = 45.5,
+					utcYear = 2010,
+					utcMonth = 1,
+					utcDay = 1,
+					utcHours = 2,
+					utcMinutes = 3,
+					utcSeconds = 4,
+					compassDirection = "NORTH",
+					pdop = 1.1,
+					hdop = 2.2,
+					vdop = 3.3,
+					actual = true,
+					satellites = 5,
+					dimension = "NO_FIX",
+					altitude = 4.4,
+					heading = 5.5,
+					speed = 100
 				},
 			speed = 100.5,
 			rpm = 1000,
@@ -3261,10 +3277,30 @@ local function setGVDResponse(paramsSend)
 			prndl="DRIVE",
 			tirePressure={
 					pressureTelltale = "ON",
+					leftFront = { status = "NORMAL" },
+					rightFront = { status = "NORMAL" },
+					leftRear = { status = "NORMAL" },
+					rightRear = { status = "NORMAL" },
+					innerLeftRear = { status = "NORMAL" },
+					innerRightRear = { status = "NORMAL" }
 				},
 			odometer= 8888,
 			beltStatus={
-					driverBeltDeployed = "NOT_SUPPORTED"
+					driverBeltDeployed = "NOT_SUPPORTED",
+					passengerBeltDeployed = "YES",
+					passengerBuckleBelted = "YES",
+					driverBuckleBelted = "YES",
+					leftRow2BuckleBelted = "YES",
+					passengerChildDetected = "YES",
+					rightRow2BuckleBelted = "YES",
+					middleRow2BuckleBelted = "YES",
+					middleRow3BuckleBelted = "YES",
+					leftRow3BuckleBelted = "YES",
+					rightRow3BuckleBelted = "YES",
+					leftRearInflatableBelted = "YES",
+					rightRearInflatableBelted = "YES",
+					middleRow1BeltDeployed = "YES",
+					middleRow1BuckleBelted = "YES"
 				},
 			bodyInformation={
 					parkBrakeActive = true,
@@ -3272,7 +3308,17 @@ local function setGVDResponse(paramsSend)
 					ignitionStatus = "UNKNOWN"
 				},
 			deviceStatus={
-					voiceRecOn = true
+					voiceRecOn = true,
+					btIconOn = true,
+					callActive = true,
+					phoneRoaming = true,
+					textMsgAvailable = true,
+					battLevelStatus = "ONE_LEVEL_BARS",
+					stereoAudioOutputMuted = true,
+					monoAudioOutputMuted = true,
+					signalLevelStatus = "TWO_LEVEL_BARS",
+					primaryAudioSource = "USB",
+					eCallEventActive = true
 				},
 			driverBraking="NOT_SUPPORTED",
 			wiperStatus="MAN_LOW",
