@@ -2,6 +2,7 @@ local module = require("user_modules/dummy_connecttest")
 
 local SDL = require("SDL")
 local policyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
+local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local expectations = require("expectations")
 
 local Expectation = expectations.Expectation
@@ -13,9 +14,10 @@ local Expectation = expectations.Expectation
 -- =========================================================================
 
 function module:RunSDL()
-    print("Updating policy table")
+    print("Setting preloaded policy table")
     policyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/sdl_preloaded_pt_all_allowed.json")
-    print("Policy table updated")
+    print("Setting .ini values")
+    commonFunctions:SetValuesInIniFile("AppTransportChangeTimer%s-=%s-[%d]-%s-\n", "AppTransportChangeTimer", "5000")
     self:runSDL()
 end
 
