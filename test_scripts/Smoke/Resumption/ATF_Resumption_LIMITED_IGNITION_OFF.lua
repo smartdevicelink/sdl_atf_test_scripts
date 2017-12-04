@@ -3,8 +3,8 @@
 --  [HMILevel Resumption]: Conditions to resume app to LIMITED in the next ignition cycle
 --
 --  Description:
---  Any application in LIMITED HMILevel during the time frame of 30 sec (inclusive) before 
---  BC.OnExitAllApplications(SUSPEND) from HMI 
+--  Any application in LIMITED HMILevel during the time frame of 30 sec (inclusive) before
+--  BC.OnExitAllApplications(SUSPEND) from HMI
 --  SDL must resume LIMITED level, send OnResumeAudioSource to each application.
 --
 --  1. Used preconditions
@@ -17,9 +17,8 @@
 --  Expected result:
 --  1. SDL sends to HMI OnSDLClose
 --  2. App is registered, SDL sends OnAppRegistered with the same HMI appID as in last ignition cycle, then sets App to LIMITED HMI level
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
---TODO(ilytvynenko):should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
@@ -28,6 +27,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
 local mobile_session = require('mobile_session')
+local SDL = require('SDL')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -52,7 +52,7 @@ function Test:Start_SDL_With_One_Activated_App()
         self:connectMobile():Do(function ()
           commonFunctions:userPrint(35, "Mobile Connected")
           self:startSession():Do(function ()
-            commonSteps:ActivateAppInSpecificLevel(self, 
+            commonSteps:ActivateAppInSpecificLevel(self,
               self.applications[default_app_params.appName])
             EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
           end)
@@ -73,10 +73,9 @@ function Test:IGNITION_OFF()
       { reason = "IGNITION_OFF" })
     EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
   end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false }) 
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose"):Do(function ()
-    StopSDL()
-  end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  SDL:DeleteFile()
 end
 
 function Test:Restart_SDL_And_Add_Mobile_Connection()

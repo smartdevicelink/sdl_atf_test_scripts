@@ -26,7 +26,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  
+
 TEXT_DEFAULT="\\033[0;39m"
 TEXT_INFO="\\033[1;32m"
 TEXT_ERROR="\\033[1;31m"
@@ -36,7 +36,7 @@ EXIT_WHITESPACES_ERRORS=1
 EXIT_LUACHECK_NOT_FOUND=2
 EXIT_LUA_SCRIPT_HAS_ISSUES=3
 
-GIT_DIFF_CHECK_LIST="/test_scripts/Polices" 
+GIT_DIFF_CHECK_LIST="/test_scripts"
 
 # Check for odd whitespace
 
@@ -59,8 +59,8 @@ LUA_FILES=$(git diff --cached --name-only --diff-filter=ACM -- .$GIT_DIFF_CHECK_
 echo -e $TEXT_INFO "Auto-update lua style with lua-beautifier" $TEXT_DEFAULT
 
 if [ -n "$LUA_FILES" ]; then
-  for lua_file in $LUA_FILES; 
-  do 
+  for lua_file in $LUA_FILES;
+  do
     ./tools/lua-beautifier/beautifier.sh $lua_file
   done
   git add $LUA_FILES
@@ -72,7 +72,7 @@ echo -e $TEXT_INFO "PASSED" $TEXT_DEFAULT
 
 echo -e $TEXT_INFO "Checking lua code with luacheck" $TEXT_DEFAULT
 
-LUA_CHECK=$(command -v luacheck) 
+LUA_CHECK=$(command -v luacheck)
 
 if [ ! -x "$LUA_CHECK" ]; then
   echo -e $TEXT_ERROR "Error: luacheck executable not found." $TEXT_DEFAULT

@@ -15,9 +15,8 @@
 --
 --  Expected behavior:
 --  1. App is successfully registered and receive default HMI level
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
---TODO(ilytvynenko): should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
@@ -26,6 +25,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
 local mobile_session = require('mobile_session')
+local SDL = require('SDL')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -67,7 +67,7 @@ end
 commonFunctions:newTestCasesGroup("App disconnect >30s before BC.OnExitAllApplications(SUSPEND). App not resume")
 
 function Test:Close_Session()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
                         appID = self.applications[default_app_params]})
   self.mobileSession:Stop()
 end
@@ -82,12 +82,9 @@ function Test:IGNITION_OFF()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
     self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
       { reason = "IGNITION_OFF" })
-    EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
   end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false }) 
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose"):Do(function ()
-    StopSDL()
-  end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  SDL:DeleteFile()
 end
 
 function Test:Restart_SDL_And_Add_Mobile_Connection()
@@ -109,9 +106,7 @@ function Test:Register_And_No_Resume_App()
   local mobile_session1 = mobile_session.MobileSession(self, self.mobileConnection)
   local on_rpc_service_started = mobile_session1:StartRPC()
   on_rpc_service_started:Do(function()
-    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false):Do(function ()
-      StopSDL()
-    end)
+    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false)
   end)
 end
 

@@ -12,16 +12,18 @@
 --  Start SPT again, Find Apps
 --
 --  Expected behavior:
---  1. SPT sends UnregisterAppInterface and EndSession to SDL. 
+--  1. SPT sends UnregisterAppInterface and EndSession to SDL.
 --     SPT register in usual way, no resumption occurs
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 -- [[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -85,20 +87,12 @@ commonFunctions:newTestCasesGroup("No resumption if App unregister itself")
 function Test:Unregister_App()
   local cid = self.mobileSession:SendRPC("UnregisterAppInterface", default_app_params)
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false,
                    appID = self.applications[default_app_params]})
 end
 
-function Test:Register_And_No_Resume_App_And_Data()
-  commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false):Do(function()
-    local cid1 = self.mobileSession:SendRPC("ListFiles", {})
-    EXPECT_RESPONSE(cid1, { success = true, resultCode = "SUCCESS" }):ValidIf (function(_,data)
-      return not data.payload.filenames 
-    end)
-    EXPECT_HMICALL("VR.AddCommand"):Times(0)
-  end):Do(function()
-    StopSDL()
-  end)
+function Test:Register_And_No_Resume_App()
+  commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false)
 end
 
 -- [[ Postconditions ]]

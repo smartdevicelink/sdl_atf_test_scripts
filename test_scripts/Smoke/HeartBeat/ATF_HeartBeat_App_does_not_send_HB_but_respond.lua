@@ -2,7 +2,7 @@
 --  [HeartBeat][Genivi]: SDL must track sending of HeartBeat_request from/to mobile app
 --
 --  Description:
---  Check that no heartbeat timeout occurs if App uses v3 protocol version and doesn't send HB to SDL, 
+--  Check that no heartbeat timeout occurs if App uses v3 protocol version and doesn't send HB to SDL,
 --  but response to SDL heartbeat requests in time or less than HB timeout.
 
 --  1. Used precondition
@@ -19,7 +19,7 @@
 --  Expected behavior:
 --  1. App has successfully registered.
 --  2. App is still registered on HU, no unexpected disconnect occurs.
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
 config.defaultProtocolVersion = 3
 config.application1.registerAppInterfaceParams.isMediaApplication = true
@@ -71,13 +71,13 @@ function Test:Start_Session_And_Register_App()
   self.mobileSession.ignoreSDLHeartBeatACK = false
   self.mobileSession:StartRPC():Do(function()
     local correlation_id = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params)
-    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", 
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
       { application = { appName = default_app_params.appName}}):Do(function(_,data)
       default_app_params.hmi_app_id = data.params.application.appID
     end)
     self.mobileSession:ExpectResponse(correlation_id, {success = true, resultCode = "SUCCESS"})
     self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    self.mobileSession:ExpectNotification("OnPermissionsChange", {})  
+    self.mobileSession:ExpectNotification("OnPermissionsChange", {})
   end)
 end
 

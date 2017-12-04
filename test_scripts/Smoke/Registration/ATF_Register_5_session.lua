@@ -9,7 +9,7 @@
 --  1. Used precondition
 --  SDL, HMI are running on system.
 --  Mobile device is connected to system.
---  1 session is added, 1 app is registered. 
+--  1 session is added, 1 app is registered.
 --
 --  2. Performed steps
 --  Add 2 session
@@ -22,11 +22,14 @@
 --  appID_5->RegisterAppInterface(params)
 --
 --  Expected behavior:
---  1. SDL successfully registers all four applications and notifies HMI and mobile 
+--  1. SDL successfully registers all four applications and notifies HMI and mobile
 --     SDL->HMI: OnAppRegistered(params)
---     SDL->appID: SUCCESS, success:"true":RegisterAppInterface() 
+--     SDL->appID: SUCCESS, success:"true":RegisterAppInterface()
 --  2. SDL assignes HMILevel after application registering:
 --     SDL->appID: OnHMIStatus(HMlLevel, audioStreamingState, systemContext)
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 -- [[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -52,7 +55,7 @@ local function startSessionAndRegisterApp(self, app)
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = app.appName}})
     self.mobileSession:ExpectResponse(correlation_id, {success = true, resultCode = "SUCCESS"})
     self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    self.mobileSession:ExpectNotification("OnPermissionsChange", {})  
+    self.mobileSession:ExpectNotification("OnPermissionsChange", {})
   end)
 end
 

@@ -2,7 +2,7 @@
 --  [HMILevel Resumption]: Conditions to resume app to LIMITED after "unexpected disconnect" event.
 --
 --  Description:
---  Check that SDL resumes LIMITED  level of media App and it's data 
+--  Check that SDL resumes LIMITED  level of media App and it's data
 --  after transport unexpected disconnect
 
 --  1. Used precondition
@@ -15,10 +15,11 @@
 --
 --  Expected behavior:
 --  1. App is unregistered from HMI.
---  2. App is registered on HMI, SDL resumes all App's data and sends OnResumeAudioSource to HMI. 
+--  2. App is registered on HMI, SDL resumes all App's data and sends OnResumeAudioSource to HMI.
 --     App gets LIMITED HMI Level
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 -- [[ Required Shared Libraries ]]
@@ -78,7 +79,7 @@ commonFunctions:newTestCasesGroup("Transport unexpected disconnect. App resume a
 commonSteps:ChangeHMIToLimited("Change_app_to_Limited")
 
 function Test:Close_Session()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
                    appID = self.applications[default_app_params]})
   self.mobileSession:Stop()
 end
@@ -86,9 +87,9 @@ end
 function Test:Register_And_Resumes_App_And_Data()
   local mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   local on_rpc_service_started = mobileSession:StartRPC()
-  on_rpc_service_started:Do(function()  
+  on_rpc_service_started:Do(function()
     default_app_params.hashID = self.currentHashID
-    commonStepsResumption:Expect_Resumption_Data(default_app_params)   
+    commonStepsResumption:Expect_Resumption_Data(default_app_params)
     commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppLIMITED, true)
   end)
 end

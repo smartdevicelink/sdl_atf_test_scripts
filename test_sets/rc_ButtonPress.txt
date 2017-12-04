@@ -1,0 +1,13 @@
+./test_scripts/RC/ButtonPress/001_success_flow_for_climate_and_radio.lua
+./test_scripts/RC/ButtonPress/002_disallow_flow_by_policy_for_climate.lua
+./test_scripts/RC/ButtonPress/003_disallow_flow_by_policy_for_radio.lua
+./test_scripts/RC/ButtonPress/004_check_processing_button_press_for_nonRC_App.lua
+./test_scripts/RC/ButtonPress/005_not_matached_buttonName_and_moduleType_for_radio_and_climate.lua
+./test_scripts/RC/ButtonPress/006_check_rpc_parameters_for_button_press.lua
+./test_scripts/RC/ButtonPress/007_button_press_allowed_if_moduleType_is_empty.lua
+./test_scripts/RC/ButtonPress/008_button_press_disallowed_if_moduleType_is_absent.lua
+./test_scripts/RC/ButtonPress/009_button_press_disallowed_if_moduleType_is_disallowed_by_policies.lua
+./test_scripts/RC/ButtonPress/010_generic_error_if_no_response_from_hmi.lua
+./test_scripts/RC/ButtonPress/011_generic_error_if_read_only_response_come_from_hmi.lua
+./test_scripts/RC/ButtonPress/012_generic_error_if_invalid_response_from_hmi.lua
+./test_scripts/RC/ButtonPress/013_Transfering_of_HMI_resultCode_to_mobile.lua
