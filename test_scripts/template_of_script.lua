@@ -1,22 +1,28 @@
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+-- User story: Link to Github
+-- Use case: Link to Github
+--
 -- Requirement summary:
--- Name(s) of requirement that is covered.
+-- Name(s) of requirement that is covered
 -- Name(s) of additional non-functional requirement(s) if applicable
 --
 -- Description:
--- Describe correctly the CASE of requirement that is covered, conditions that will be used.
--- 1. Used preconditions(if applicable)
--- 2. Performed steps
+-- Description of the particular CASE of requirement that is covered
+-- and conditions that will be used
+--
+-- Preconditions: (if applicable)
+--
+-- Steps:
 --
 -- Expected result:
 -- Expected SDL behaviour
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+--[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
 
 --[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
---[[ Required Shared libraries ]]
-local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 
 --[[ Local Variables ]]
 -- if not applicable remove this section
@@ -28,39 +34,29 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 --[[ @Example: the function gets....
 --! @parameters:
 --! func_param ]]
-local function Example(func_param)
+local function preconditions()
   -- body
 end
 
---[[ General Precondition before ATF start ]]
--- General precondition for restoring configuration files of SDL:
-commonFunctions:SDLForceStop()
-
---[[ General Settings for configuration ]]
--- if not applicable remove this section
--- This part is under clarification, based on section for using common functions
-Test = require('connecttest')
-require('user_modules/AppTypes')
-
---[[ Preconditions ]]
--- if not applicable remove this section
-commonFunctions:newTestCasesGroup("Preconditions")
-function Test:Precondition_DESCRIPTION()
+local function postconditions()
   -- body
 end
 
---[[ Test ]]
-commonFunctions:newTestCasesGroup("Test")
--- Each Test will be separate and defined as one or few TestSteps
-function Test:TestStep_DESCRIPTION()
+local function positiveScenario()
   -- body
 end
 
---[[ Postconditions ]]
--- if not applicable remove this section
-commonFunctions:newTestCasesGroup("Postconditions")
-function Test:Postcondition_DESCRIPTION()
+local function negativeScenario()
   -- body
 end
 
-return Test
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment, start SDL, HMI", preconditions)
+
+runner.Title("Test")
+runner.Step("Positive scenario", positiveScenario)
+runner.Step("Negative scenario", negativeScenario)
+
+runner.Title("Postconditions")
+runner.Step("Stop SDL", postconditions)

@@ -23,6 +23,9 @@
 --     SDL->appID: SUCCESS, success:"true":RegisterAppInterface()
 --  3. SDL assignes HMILevel after application registering:
 --     SDL->appID: OnHMIStatus(HMlLevel, audioStreamingState, systemContext)
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 -- [[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -65,7 +68,7 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:Unregister_App()
   local cid = self.mobileSession:SendRPC("UnregisterAppInterface", default_app_params)
   EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false,
                    appID = self.applications[default_app_params.appName]})
 end
 

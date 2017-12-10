@@ -20,7 +20,7 @@
 --  Expected behavior:
 --  1. App has successfully registered.
 --  2. App is disconnected by SDL due to heartbeat timeout occurs.
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
 config.defaultProtocolVersion = 3
 config.application1.registerAppInterfaceParams.isMediaApplication = true
@@ -72,13 +72,13 @@ function Test:Start_Session_And_Register_App()
   self.mobileSession.ignoreSDLHeartBeatACK = false
   self.mobileSession:StartRPC():Do(function()
     local correlation_id = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params)
-    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", 
+    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
       { application = { appName = default_app_params.appName}}):Do(function(_,data)
       default_app_params.hmi_app_id = data.params.application.appID
     end)
     self.mobileSession:ExpectResponse(correlation_id, {success = true, resultCode = "SUCCESS"})
     self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    self.mobileSession:ExpectNotification("OnPermissionsChange", {})  
+    self.mobileSession:ExpectNotification("OnPermissionsChange", {})
   end)
 end
 
@@ -92,12 +92,12 @@ function Test:Register_Second_App_With_HeartBeat()
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = default_app_params2.appName}})
     self.mobileSession1:ExpectResponse(correlation_id, {success = true, resultCode = "SUCCESS"})
     self.mobileSession1:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    self.mobileSession1:ExpectNotification("OnPermissionsChange", {})  
+    self.mobileSession1:ExpectNotification("OnPermissionsChange", {})
   end)
 end
 
 function Test:Wait_15_seconds_And_Verify_OnAppUnregistered()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
     {appID = default_app_params.hmi_app_id, unexpectedDisconnect =  true}):Timeout(15000):Do(function()
     self.mobileSession:StopHeartbeat()
   end)

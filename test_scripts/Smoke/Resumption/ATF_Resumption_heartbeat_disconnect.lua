@@ -17,8 +17,9 @@
 --  Expected behavior:
 --  1. SDL sends OnAppUnregistered to HMI.
 --  2. App is registered and  SDL resumes all App data, sends BC.ActivateApp to HMI, app gets FULL HMI level.
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 3
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 -- [[ Required Shared Libraries ]]
@@ -35,6 +36,12 @@ require('user_modules/AppTypes')
 -- [[Local variables]]
 local default_app_params = config.application1.registerAppInterfaceParams
 
+-- [[Local functions]]
+local function connectMobile(self)
+  self.mobileConnection:Connect()
+  return EXPECT_EVENT(events.connectedEvent, "Connected")
+end
+
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 commonSteps:DeletePolicyTable()
@@ -47,7 +54,7 @@ function Test:StartSDL_With_One_Activated_App()
       commonFunctions:userPrint(35, "HMI initialized")
       self:initHMI_onReady():Do(function ()
         commonFunctions:userPrint(35, "HMI is ready")
-        self:connectMobile():Do(function ()
+        connectMobile(self):Do(function ()
           commonFunctions:userPrint(35, "Mobile Connected")
           self:startSession():Do(function ()
             commonFunctions:userPrint(35, "App is registered")
@@ -76,23 +83,28 @@ end
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Check that SDL perform resumption after heartbeat disconnect")
 
-function Test:Wait_20_sec() 
+function Test:Wait_20_sec()
   self.mobileSession:StopHeartbeat()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {appID = self.applications[default_app_params], unexpectedDisconnect = true })
+  :Timeout(20000)
+  EXPECT_EVENT(events.disconnectedEvent, "Disconnected")
+  :Do(function()
+      print("Disconnected!!!")      
+    end)
   :Timeout(20000)
 end
 
 function Test:Connect_Mobile()
-  self:connectMobile()
+  connectMobile(self)
 end
 
 function Test:Register_And_Resume_App_And_Data()
   local mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   local on_rpc_service_started = mobileSession:StartRPC()
-  on_rpc_service_started:Do(function()  
+  on_rpc_service_started:Do(function()
     default_app_params.hashID = self.currentHashID
     commonStepsResumption:Expect_Resumption_Data(default_app_params)
-    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)      
+    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)
   end)
 end
 

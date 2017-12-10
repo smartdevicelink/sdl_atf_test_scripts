@@ -282,7 +282,7 @@ end
 			commonFunctions:newTestCasesGroup("Test suite: Check type parameter")
 			
 			--1. IsInBoundValues
-			local types = {"BEGIN", "MOVE", "END"}
+			local types = {"BEGIN", "MOVE", "END", "CANCEL"}
 			for i = 1, #types  do
 				Test["OnTouchEvent_type_" .. types[i]] = function(self)
 				
@@ -1199,6 +1199,39 @@ end
 			
 		end		
 
+		--1.1. Click and cancel on navigation
+		function Test:OnTouchEvent_type_BEGIN()
+			print()
+			print("Step 1.1. Click and cancel on navigation area")
+
+			local parameter = {
+							type = "BEGIN",
+							event = { {c = {{x = 1, y = 1}}, id = 0, ts = {900} } }
+						}
+
+			--hmi side: send OnTouchEvent
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter)
+
+			--mobile side: expected OnTouchEvent notification
+			EXPECT_NOTIFICATION("OnTouchEvent", parameter)
+
+		end
+
+		function Test:OnTouchEvent_type_CANCEL()
+
+			local parameter = {
+							type = "CANCEL",
+							event = { {c = {{x = 1, y = 1}}, id = 0, ts = {1000} } }
+						}
+
+			--hmi side: send OnTouchEvent
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter)
+
+			--mobile side: expected OnTouchEvent notification
+			EXPECT_NOTIFICATION("OnTouchEvent", parameter)
+
+		end
+
 
 		--2. Click on navigation area with 2 fingers at the same time
 		function Test:OnTouchEvent_type_BEGIN_2Fingers()
@@ -1249,6 +1282,54 @@ end
 			
 		end		
 
+		--2.1. Click and cancel on navigation area with 2 fingers at the same time
+		function Test:OnTouchEvent_type_BEGIN_2Fingers()
+			print()
+			print("Step 2.1. Click and cancel on navigation area with 2 fingers at the same time")
+
+			local parameter1 = {
+							type = "BEGIN",
+							event = { {c = {{x = 1, y = 1}}, id = 0, ts = {900} } }
+						}
+
+			local parameter2 = {
+							type = "BEGIN",
+							event = { {c = {{x = 2, y = 1}}, id = 1, ts = {900} } }
+						}
+
+			--hmi side: send OnTouchEvent
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter1)
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter2)
+
+
+			--mobile side: expected OnTouchEvent notification
+			EXPECT_NOTIFICATION("OnTouchEvent", parameter1, parameter2)
+			:Times(2)
+
+		end
+
+		function Test:OnTouchEvent_type_CANCEL_2Fingers()
+
+			local parameter1 = {
+							type = "CANCEL",
+							event = { {c = {{x = 1, y = 1}}, id = 0, ts = {900} } }
+						}
+
+			local parameter2 = {
+							type = "CANCEL",
+							event = { {c = {{x = 2, y = 1}}, id = 1, ts = {900} } }
+						}
+
+			--hmi side: send OnTouchEvent
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter1)
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter2)
+
+
+			--mobile side: expected OnTouchEvent notification
+			EXPECT_NOTIFICATION("OnTouchEvent", parameter1, parameter2)
+			:Times(2)
+
+		end
 
 		--3. Move on navigation area with 1 finger
 		function Test:OnTouchEvent_type_BEGIN()
@@ -1523,6 +1604,25 @@ end
 			:Times(0)
 			
 		end		
+
+		function Test:OnTouchEvent_Non_Navi_CANCEL()
+			DelayedExp(2000)
+			local parameter = {
+							type = "CANCEL",
+							event = { {c = {{x = 2, y = 2}}, id = 0, ts = {903} } }
+						}
+
+			--hmi side: send OnTouchEvent
+			self.hmiConnection:SendNotification("UI.OnTouchEvent",	parameter)
+
+			--mobile side: expected OnTouchEvent notification
+			EXPECT_NOTIFICATION("OnTouchEvent", parameter)
+
+			--mobile side: app2 expects notification
+			self.mobileSession2:ExpectNotification("OnTouchEvent", parameter)
+			:Times(0)
+
+		end
 
 		--Postcondition:
 		function Test:Unregister_App2()

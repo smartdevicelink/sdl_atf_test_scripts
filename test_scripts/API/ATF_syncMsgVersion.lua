@@ -128,7 +128,7 @@ end
 
 function SDL_Core.getAPIFileVersion()
   for line in io.lines(sdl_core_config.api_file_path) do 
-    local major, minor = string.match(line, "^%s*<interface%s*name=\"Ford Sync RAPI\"%s*version%s*=%s*\"(%d+).(%d+)\"")
+    local major, minor = string.match(line, "^%s*<interface%s*name=\"SmartDeviceLink RAPI\"%s*version%s*=%s*\"(%d+).(%d+)\"")
       ---"^%s*version%s*=%s*\"4\.0\"")
     if (major ~= nil and minor ~=nil) then  
       return tonumber(major),  tonumber(minor)

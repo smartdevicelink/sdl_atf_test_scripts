@@ -22,14 +22,14 @@
 --     SDL->appID: SUCCESS, success:"true":RegisterAppInterface()
 --  3. SDL assignes HMILevel after application registering:
 --     SDL->appID: OnHMIStatus(HMlLevel, audioStreamingState, systemContext)
-
+---------------------------------------------------------------------------------------------------
+--[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 
 -- [[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
-
-config.defaultProtocolVersion = 2
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -66,7 +66,7 @@ end
 commonFunctions:newTestCasesGroup("Check that it is able to reregister App after disconnect")
 
 function Test:Close_Connection()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
     appID = self.applications[default_app_params.appName]})
   self.mobileSession:Stop()
 end
@@ -75,7 +75,7 @@ function Test:Reregister_Application()
   local mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   local on_rpc_service_started = mobileSession:StartRPC()
   on_rpc_service_started:Do(function()
-    local cid = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params) 
+    local cid = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params)
 
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = {appName = default_app_params.appName} })
     self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})

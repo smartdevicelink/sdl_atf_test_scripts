@@ -130,11 +130,6 @@ function commonFunctions:createMultipleExpectationsWaiter(test, name)
   return exp_waiter
 end
 
-function commonFunctions:userPrint( color, message, delimeter)
-  delimeter = delimeter or "\n"
-  io.write("\27[" .. tostring(color) .. "m" .. tostring(message) .. "\27[0m", delimeter)
-end
-
 --1. Functions for String
 ---------------------------------------------------------------------------------------------
 function commonFunctions:createString(length)
@@ -170,6 +165,28 @@ function commonFunctions:createArrayInteger(size, value)
   end
   return temp
 
+end
+
+function commonFunctions:createArrayEnum(size, value)
+
+  local temp = {}
+  for i = 1, size do
+    table.insert(temp, value)
+  end
+  return temp
+
+end
+
+function commonFunctions:buildColoredString(color, message)
+  if config.color then
+    return "\27[" .. tostring(color) .. "m" .. tostring(message) .. "\27[0m"
+  end
+  return message
+end
+
+function commonFunctions:userPrint( color, message, delimeter)
+  delimeter = delimeter or "\n"
+  io.write(commonFunctions:buildColoredString(color, message), delimeter)
 end
 ---------------------------------------------------------------------------------------------
 
@@ -480,7 +497,6 @@ function commonFunctions:verify_Unsuccess_Case(self, Request, ResultCode)
 
   --mobile side: expect the response
   EXPECT_RESPONSE(cid, { success = false, resultCode = ResultCode })
-  :Timeout(50)
 
   messageflag = true
 end
@@ -854,7 +870,7 @@ end
 --14. Functions for SDL stop
 ---------------------------------------------------------------------------------------------
 function commonFunctions:SDLForceStop(self)
-  os.execute("ps aux | grep smart | awk \'{print $2}\' | xargs kill -9")
+  os.execute("ps aux | grep ./smartDeviceLinkCore | awk '{print $2}' | xargs kill -9")
   commonFunctions:sleep(1)
 end
 

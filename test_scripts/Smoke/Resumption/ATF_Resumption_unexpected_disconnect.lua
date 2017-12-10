@@ -14,10 +14,11 @@
 --
 --  Expected behavior:
 --  1. App is unregistered.
---  2. App is registered successfully, SDL resumes all App data and sends 
+--  2. App is registered successfully, SDL resumes all App data and sends
 --     BC.ActivateApp to HMI. App gets FULL HMI Level.
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
+config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 -- [[ Required Shared Libraries ]]
@@ -76,7 +77,7 @@ end
 commonFunctions:newTestCasesGroup("Transport unexpected disconnect. App resume at FULL level")
 
 function Test:Close_Session()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true, 
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
     appID = self.applications[default_app_params]})
   self.mobileSession:Stop()
 end
@@ -84,9 +85,9 @@ end
 function Test:Register_And_Resume_App_And_Data()
   local mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   local on_rpc_service_started = mobileSession:StartRPC()
-  on_rpc_service_started:Do(function()  
+  on_rpc_service_started:Do(function()
     default_app_params.hashID = self.currentHashID
-    commonStepsResumption:Expect_Resumption_Data(default_app_params)   
+    commonStepsResumption:Expect_Resumption_Data(default_app_params)
     commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)
   end)
 end

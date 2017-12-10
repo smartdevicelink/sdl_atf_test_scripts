@@ -16,7 +16,7 @@
 --  Expected behavior:
 --  1. App has successfully registered.
 --  2. App is still registered, no unexpected disconnect occurs.
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
@@ -72,7 +72,7 @@ function Test:Start_Session_And_Register_App()
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = default_app_params.appName}})
     self.mobileSession:ExpectResponse(correlation_id, {success = true, resultCode = "SUCCESS"})
     self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    self.mobileSession:ExpectNotification("OnPermissionsChange", {})  
+    self.mobileSession:ExpectNotification("OnPermissionsChange", {})
   end)
 end
 

@@ -16,11 +16,10 @@
 --
 --  Expected behavior:
 --  1. SDL sends to HMI OnSDLClose
---  2. App is registered, SDL sends OnAppRegistered with the same HMI appID as in last ignition cycle, 
+--  2. App is registered, SDL sends OnAppRegistered with the same HMI appID as in last ignition cycle,
 --     then sends BasicCommunication.ActivateApp to HMI and after success response from HMI, SDL sends to App OnHMIStatus(FULL)
-
+---------------------------------------------------------------------------------------------------
 --[[ General Precondition before ATF start ]]
---TODO(ilytvynenko): should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
@@ -29,6 +28,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
 local mobile_session = require('mobile_session')
+local SDL = require('SDL')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -77,10 +77,9 @@ function Test:IGNITION_OFF()
       { reason = "IGNITION_OFF" })
     EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
   end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false }) 
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose"):Do(function()
-    StopSDL()
-  end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  SDL:DeleteFile()
 end
 
 function Test:Restart_SDL_And_Add_Mobile_Connection()
