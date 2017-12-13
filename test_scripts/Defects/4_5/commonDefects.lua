@@ -255,4 +255,14 @@ function commonDefect.getMobileSession(self, pAppId)
   return self["mobileSession" .. pAppId]
 end
 
+function commonDefect.putFile(pFileName, self)
+  self, pFileName = commonDefect.getSelfAndParams(pFileName, self)
+  local cid = self.mobileSession1:SendRPC(
+    "PutFile",
+    {syncFileName = pFileName, fileType = "GRAPHIC_PNG", persistentFile = false, systemFile = false},
+  "files/icon.png")
+
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+end
+
 return commonDefect
