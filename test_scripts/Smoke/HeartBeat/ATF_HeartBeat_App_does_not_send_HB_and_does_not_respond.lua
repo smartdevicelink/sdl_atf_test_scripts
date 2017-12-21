@@ -67,6 +67,7 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:Start_Session_And_Register_App()
   self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
+  self.mobileSession.activateHeartbeat = false
   self.mobileSession.sendHeartbeatToSDL = false
   self.mobileSession.answerHeartbeatFromSDL = false
   self.mobileSession.ignoreSDLHeartBeatACK = false
@@ -84,6 +85,7 @@ end
 
 function Test:Register_Second_App_With_HeartBeat()
   self.mobileSession1 = mobile_session.MobileSession(self, self.mobileConnection)
+  self.mobileSession1.activateHeartbeat = true
   self.mobileSession1.sendHeartbeatToSDL = true
   self.mobileSession1.answerHeartbeatFromSDL = true
   self.mobileSession1.ignoreSDLHeartBeatACK = false
