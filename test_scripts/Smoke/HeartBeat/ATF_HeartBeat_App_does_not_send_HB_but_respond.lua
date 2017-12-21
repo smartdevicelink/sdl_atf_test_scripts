@@ -66,9 +66,10 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:Start_Session_And_Register_App()
   self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
+  self.mobileSession.activateHeartbeat = true
   self.mobileSession.sendHeartbeatToSDL = false
   self.mobileSession.answerHeartbeatFromSDL = true
-  self.mobileSession.ignoreSDLHeartBeatACK = false
+  self.mobileSession.ignoreSDLHeartBeatACK = true
   self.mobileSession:StartRPC():Do(function()
     local correlation_id = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params)
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
