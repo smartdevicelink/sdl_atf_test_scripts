@@ -3,11 +3,8 @@ require('atf.util')
 local testCasesForPolicyCeritificates = {}
 
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local json = require('json')
-local events = require('events')
-local Event = events.Event
 
 --[[@update_preloaded_pt: update sdl_preloaded_pt
 ! @parameters:
@@ -65,7 +62,7 @@ function testCasesForPolicyCeritificates.update_preloaded_pt(app_id, include_cer
   file:close()
 end
 
---[[@create_ptu_certificate_exist: creates PTU file:
+--[[@create_ptu_certificate_exist: creates PTU file
 ! ptu_certificate_exist.json: module_config section contains certificate.
 ! @parameters:
 ! include_certificate - true / false: true - certificate will be added in module_config
@@ -109,84 +106,59 @@ function testCasesForPolicyCeritificates.create_ptu_certificate_exist(include_ce
   file:close()
 end
 
---[[@start_service_NACK: send specific protocol message with expected result NACK
+--[[@ptu: perform PTU
 ! @parameters:
-! msg - message with specific service and payload
-! service - protocol service of msg
-! name - protocol name of service for specified msg
+! self - Test module
 ]]
-function testCasesForPolicyCeritificates.start_service_NACK(self, msg, service, name)
-  self.mobileSession:Send(msg)
-
-  local startserviceEvent = Event()
-  startserviceEvent.matches =
-  function(_, data)
-    return ( data.frameType == 0 and data.serviceType == service)
-  end
-
-  self.mobileSession:ExpectEvent(startserviceEvent, "Service "..service..": StartServiceNACK")
-  :ValidIf(function(_, data)
-    if data.frameInfo == 2 then
-      commonFunctions:printError("Service "..service..": StartServiceACK is received")
-      return false
-    elseif data.frameInfo == 3 then
-      print("Service "..service..": "..name.." NACK")
-      return true
-    else
-      commonFunctions:printError("Service "..service..": StartServiceACK/NACK is not received at all.")
-      return false
-    end
-  end)
-
-  commonTestCases:DelayedExp(10000)
+function testCasesForPolicyCeritificates.ptu(self)
+  local SystemFilesPath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
+  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  EXPECT_HMIRESPONSE(RequestId_GetUrls, { result = {code = 0, method = "SDL.GetURLS"}} )
+  :Do(function()
+      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
+        { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })
+      EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY" })
+      :Do(function()
+          local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
+            { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" }, "files/ptu_certificate_exist.json")
+          EXPECT_HMICALL("BasicCommunication.SystemRequest",
+            { requestType = "PROPRIETARY", fileName = SystemFilesPath .. "/PolicyTableUpdate" })
+          :Do(function(_, data)
+              self.hmiConnection:SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
+              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
+                { policyfile = SystemFilesPath .. "/PolicyTableUpdate" })
+            end)
+          EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS" })
+        end)
+    end)
 end
 
---[[@StartService_encryption: send specific service with flag encryption true
-! as result will check received ACK / NACK / No Response for service 0x07
+--[[@getServiceType: returns service type by id
 ! @parameters:
-! service - protocol service of msg
+! id - service id
 ]]
-function testCasesForPolicyCeritificates.StartService_encryption(self,service)
+function testCasesForPolicyCeritificates.getServiceType(id)
+  if id == 0 then return "CONTROL"
+  elseif id == 7 then return "RPC"
+  elseif id == 10 then return "PCM"
+  elseif id == 11 then return "VIDEO"
+  elseif id == 15 then return "BULK_DATA"
+  else return tostring(id) end
+end
 
-  if service ~= 7 and self.mobileSession.sessionId == 0 then error("Session cannot be started") end
-  local startSession =
-  {
-    frameType = 0,
-    serviceType = service,
-    frameInfo = 1,
-    sessionId = self.mobileSession.sessionId,
-    encryption = true
-  }
-  self.mobileSession:Send(startSession)
-
-  -- prepare event to expect
-  local startserviceEvent = Event()
-  startserviceEvent.matches = function(_, data)
-    return data.frameType == 0 and
-    data.serviceType == service and
-    (service == 7 or data.sessionId == self.mobileSession.sessionId) and
-    (data.frameInfo == 2 or -- Start Service ACK
-      data.frameInfo == 3) -- Start Service NACK
-  end
-
-  self.mobileSession:ExpectEvent(startserviceEvent, "StartService ACK")
-  :ValidIf(function(_, data)
-    if ( service == 7 ) then
-      self.mobileSession.sessionId = data.sessionId
-      self.mobileSession.hashCode = data.binaryData
-    end
-
-    if ( data.frameInfo == 2 ) then
-      print("StartServiceACK, encryption: false")
-      if(data.encryption == true) then
-        commonFunctions:printError("Encryption flag should not be set.")
-        return false
-      end
-      return true
-    else
-      return false, "StartService NACK received"
-    end
-  end)
+--[[@getFrameInfo: returns frame info by id
+! @parameters:
+! id - info id
+]]
+function testCasesForPolicyCeritificates.getFrameInfo(id)
+  if id == 0 then return "HEARTBEAT"
+  elseif id == 1 then return "START_SERVICE"
+  elseif id == 2 then return "START_SERVICE_ACK"
+  elseif id == 3 then return "START_SERVICE_NACK"
+  elseif id == 4 then return "END_SERVICE"
+  elseif id == 5 then return "END_SERVICE_ACK"
+  elseif id == 6 then return "END_SERVICE_NACK"
+  else return tostring(id) end
 end
 
 return testCasesForPolicyCeritificates
