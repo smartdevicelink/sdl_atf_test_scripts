@@ -98,7 +98,10 @@ function Test:ShutDown_MASTER_RESET()
   EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "MASTER_RESET" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-  SDL:DeleteFile()
+  :Do(function()
+      SDL:DeleteFile()
+      SDL:StopSDL()
+    end)
 end
 
 --- Start SDL again then add mobile connection

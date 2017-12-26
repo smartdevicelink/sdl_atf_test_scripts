@@ -79,7 +79,10 @@ function Test:IGNITION_OFF()
   end)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-  SDL:DeleteFile()
+  :Do(function()
+      SDL:DeleteFile()
+      SDL:StopSDL()
+    end)
 end
 
 function Test:Restart_SDL_And_Add_Mobile_Connection()

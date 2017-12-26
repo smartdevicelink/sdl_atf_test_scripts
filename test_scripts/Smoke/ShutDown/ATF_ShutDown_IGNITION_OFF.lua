@@ -68,7 +68,10 @@ function Test:ShutDown_IGNITION_OFF()
     EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
     EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-    SDL:DeleteFile()
+    :Do(function()
+        SDL:DeleteFile()
+        SDL:StopSDL()
+      end)
   end)
 end
 
