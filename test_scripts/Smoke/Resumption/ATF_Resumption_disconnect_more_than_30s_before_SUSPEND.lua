@@ -80,12 +80,12 @@ function Test:IGNITION_OFF()
   self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     { reason = "SUSPEND" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
+    SDL:DeleteFile()
     self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
       { reason = "IGNITION_OFF" })
   end)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
   :Do(function()
-      SDL:DeleteFile()
       SDL:StopSDL()
     end)
 end

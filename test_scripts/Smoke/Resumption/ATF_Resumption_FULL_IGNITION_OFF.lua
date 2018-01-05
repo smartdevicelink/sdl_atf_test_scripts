@@ -73,6 +73,7 @@ function Test:IGNITION_OFF()
   self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     { reason = "SUSPEND" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
+    SDL:DeleteFile()
     self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
       { reason = "IGNITION_OFF" })
     EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
@@ -80,7 +81,6 @@ function Test:IGNITION_OFF()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
   :Do(function()
-      SDL:DeleteFile()
       SDL:StopSDL()
     end)
 end
