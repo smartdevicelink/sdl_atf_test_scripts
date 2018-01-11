@@ -257,7 +257,7 @@ local function addRegularFile(self)
 end
 
 local function addApplicationIcon(self)
-  AddFileForApplication(sessionBluetooth, iconFileName, "GRAPHIC_PNG")
+  AddFileForApplication(sessionBluetooth, iconFileName, "GRAPHIC_PNG", self)
   local cid = sessionBluetooth:SendRPC("SetAppIcon", { syncFileName = iconFileName })
   EXPECT_HMICALL("UI.SetAppIcon")
   :Do(function(_, data)
@@ -275,7 +275,7 @@ local function connectUSBDevice(self)
   EXPECT_HMICALL("BasicCommunication.UpdateAppList"):Times(0)
 
   local is_switching_done = false
-  
+
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
     deviceList = {
       {
@@ -287,20 +287,20 @@ local function connectUSBDevice(self)
         id = config.deviceMAC,
         name = common.device.bluetooth.uid,
         transportType = common.device.bluetooth.type
-      }      
+      }
     }
-  }, 
+  },
   {
     deviceList = {
       {
         id = config.deviceMAC,
         name = common.device.usb.uid,
         transportType = common.device.usb.type
-      }      
+      }
     }
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })   
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
 
       if not is_switching_done then
         self:doTransportSwitch(deviceBluetooth)

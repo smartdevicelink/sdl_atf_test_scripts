@@ -3,6 +3,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
+config.zeroOccurrenceTimeout = 1000
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -98,8 +99,8 @@ function module:doTransportSwitch(device)
   local input_signal = "SDL_TRANSPORT_SWITCH"
   input:write(input_signal)
   print("Signal "..input_signal.." sent")
-  input:close()       
-  
+  input:close()
+
   local output = io.open(config.pathToSDL.."/iap_signals_out", "r")
   if not output then print("Output signals channel not opened") return end
   print("Waiting for ACK")
