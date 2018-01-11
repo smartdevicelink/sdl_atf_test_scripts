@@ -99,7 +99,7 @@ local function connectUSBDevice(self)
   EXPECT_HMICALL("BasicCommunication.UpdateAppList"):Times(0)
 
   local is_switching_done = false
-  
+
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
     deviceList = {
       {
@@ -111,24 +111,32 @@ local function connectUSBDevice(self)
         id = config.deviceMAC,
         name = common.device.bluetooth.uid,
         transportType = common.device.bluetooth.type
-      }      
+      }
     }
-  }, 
+  },
   {
     deviceList = {
       {
         id = config.deviceMAC,
         name = common.device.usb.uid,
         transportType = common.device.usb.type
-      }      
+      }
     }
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })   
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
 
       if not is_switching_done then
         self:doTransportSwitch(deviceBluetooth)
         is_switching_done = true
+      else
+        local sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
+        sessionUsb:StartService(7)
+        :Do(function()
+            common.appParams.hashID = "some_wrong_hash_id"
+            local cid = sessionUsb:SendRPC("RegisterAppInterface", common.appParams)
+            sessionUsb:ExpectResponse(cid, { success = true, resultCode = "RESUME_FAILED" })
+          end)
       end
 
       return true
@@ -136,17 +144,10 @@ local function connectUSBDevice(self)
   :Times(2)
 
   self:connectMobile(deviceUsb)
-  :Do(function()
-      local sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
-      sessionUsb:StartService(7)
-      :Do(function()
-          common.appParams.hashID = "some_wrong_hash_id"
-          local cid = sessionUsb:SendRPC("RegisterAppInterface", common.appParams)
-          sessionUsb:ExpectResponse(cid, { success = true, resultCode = "RESUME_FAILED" })
-        end)
-    end)
+
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { isSubscribed = false, name = "PRESET_0" })
-  self:waitForAllEvents(2000, self)
+
+  self:waitForAllEvents(2000)
 end
 
 --[[ Scenario ]]

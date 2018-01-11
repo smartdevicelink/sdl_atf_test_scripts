@@ -305,6 +305,14 @@ local function connectUSBDevice(self)
       if not is_switching_done then
         self:doTransportSwitch(deviceBluetooth)
         is_switching_done = true
+      else
+        local sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
+        sessionUsb:StartService(7)
+        :Do(function()
+            common.appParams.hashID = "some_wrong_hash_id"
+            local cid = sessionUsb:SendRPC("RegisterAppInterface", common.appParams)
+            sessionUsb:ExpectResponse(cid, { success = true, resultCode = "RESUME_FAILED" })
+          end)
       end
 
       return true
@@ -312,15 +320,6 @@ local function connectUSBDevice(self)
   :Times(2)
 
   self:connectMobile(deviceUsb)
-  :Do(function()
-      local sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
-      sessionUsb:StartService(7)
-      :Do(function()
-          common.appParams.hashID = "some_wrong_hash_id"
-          local cid = sessionUsb:SendRPC("RegisterAppInterface", common.appParams)
-          sessionUsb:ExpectResponse(cid, { success = true, resultCode = "RESUME_FAILED" })
-        end)
-    end)
 
   EXPECT_HMICALL("UI.DeleteCommand", { cmdID = 1 })
   :Do(function(_, data)
