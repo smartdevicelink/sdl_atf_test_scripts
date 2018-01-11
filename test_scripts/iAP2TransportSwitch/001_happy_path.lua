@@ -87,24 +87,27 @@ local function connectUSBDevice(self)
         id = config.deviceMAC,
         name = common.device.bluetooth.uid,
         transportType = common.device.bluetooth.type
-      }      
+      }
     }
-  }, 
+  },
   {
     deviceList = {
       {
         id = config.deviceMAC,
         name = common.device.usb.uid,
         transportType = common.device.usb.type
-      }      
+      }
     }
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })   
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
 
       if not is_switching_done then
         self:doTransportSwitch(deviceBluetooth)
         is_switching_done = true
+      else
+        local sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
+        sessionUsb:Start()
       end
 
       return true
@@ -112,10 +115,7 @@ local function connectUSBDevice(self)
   :Times(2)
 
   self:connectMobile(deviceUsb)
-  :Do(function()
-      local sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
-      sessionUsb:Start()
-    end)
+
   self:waitForAllEvents(2000)
 end
 

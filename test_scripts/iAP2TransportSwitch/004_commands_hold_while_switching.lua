@@ -98,7 +98,7 @@ local function connectUSBDevice(self)
   EXPECT_HMICALL("BasicCommunication.UpdateAppList"):Times(0)
 
   local is_switching_done = false
-  
+
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
     deviceList = {
       {
@@ -110,24 +110,26 @@ local function connectUSBDevice(self)
         id = config.deviceMAC,
         name = common.device.bluetooth.uid,
         transportType = common.device.bluetooth.type
-      }      
+      }
     }
-  }, 
+  },
   {
     deviceList = {
       {
         id = config.deviceMAC,
         name = common.device.usb.uid,
         transportType = common.device.usb.type
-      }      
+      }
     }
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })   
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
 
       if not is_switching_done then
         self:doTransportSwitch(deviceBluetooth)
         is_switching_done = true
+      else
+        sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
       end
 
       return true
@@ -135,9 +137,7 @@ local function connectUSBDevice(self)
   :Times(2)
 
   self:connectMobile(deviceUsb)
-  :Do(function()
-      sessionUsb = mobSession.MobileSession(self, deviceUsb, common.appParams)
-    end)
+
   self:waitForAllEvents(1000)
 end
 
