@@ -24,7 +24,7 @@ require('user_modules/AppTypes')
 
 --[[ Local Variables ]]
 local iTimeout = 5000
-local strMaxLengthFileName255 = string.rep("a", 251)  .. ".png" -- set max length file name
+local strMaxLengthFileName242 = string.rep("a", 238)  .. ".png" -- max is 242 since docker limitation
 local textPromtValue = {"Please speak one of the following commands,", "Please say a command,"}
 
 local storagePath = commonPreconditions:GetPathToSDL() .. "storage/" .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
@@ -514,7 +514,7 @@ end
 
 -- 2. PutFiles
 	commonSteps:PutFile("PutFile_action.png", "action.png")
-	commonSteps:PutFile("PutFile_MaxLength_255Characters", strMaxLengthFileName255)
+	commonSteps:PutFile("PutFile_MaxLength_255Characters", strMaxLengthFileName242)
 	commonSteps:PutFile("Putfile_SpaceBefore", " SpaceBefore")
 	commonSteps:PutFile("Putfile_Icon.png", "icon.png")
 
@@ -1219,7 +1219,7 @@ function Test:ListFiles()
       spaceAvailable = 103878520
     })
   :ValidIf(function(_, data)
-    local files_expected = { " SpaceBefore", strMaxLengthFileName255, "icon.png" }
+    local files_expected = { " SpaceBefore", strMaxLengthFileName242, "icon.png" }
     if not commonFunctions:is_table_equal(data.payload.filenames, files_expected) then
         return false, "\nExpected files:\n" .. commonFunctions:convertTableToString(files_expected, 1)
           .. "\nActual files:\n" .. commonFunctions:convertTableToString(data.payload.filenames, 1)
