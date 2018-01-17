@@ -32,50 +32,50 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Local Variables ]]
 local testFileNamesList = {
-	string.rep("a", 251)  .. ".png",
-	" SpaceBefore",
-	"icon.png"
+  string.rep("a", 251) .. ".png",
+  " SpaceBefore",
+  "icon.png"
 }
 
 local putFileParams = {
-	requestParams = {
-	    syncFileName = "",
-	    fileType = "GRAPHIC_PNG",
-	    persistentFile = false,
-	    systemFile = false
-	},
-	filePath = "files/icon.png"
+  requestParams = {
+    syncFileName = "",
+    fileType = "GRAPHIC_PNG",
+    persistentFile = false,
+    systemFile = false
+  },
+  filePath = "files/icon.png"
 }
 
 local requestParams = {}
 
 local responseParams = {
-	success = true,
-    resultCode = "SUCCESS",
-	spaceAvailable = 103878520
+  success = true,
+  resultCode = "SUCCESS",
+  -- spaceAvailable = 103878520 -- disabled due to CI issue
 }
 
 local allParams = {
-	requestParams = requestParams,
-	responseParams = responseParams
+  requestParams = requestParams,
+  responseParams = responseParams
 }
 
 --[[ Local Functions ]]
 local function putFile(fileName, self)
-	putFileParams.requestParams.syncFileName = fileName
-	commonSmoke.putFile(putFileParams, 1, self)
+  putFileParams.requestParams.syncFileName = fileName
+  commonSmoke.putFile(putFileParams, 1, self)
 end
 
 local function listFiles(params, self)
-	local cid = self.mobileSession1:SendRPC("ListFiles", params.requestParams)
+  local cid = self.mobileSession1:SendRPC("ListFiles", params.requestParams)
 
-	self.mobileSession1:ExpectResponse(cid, params.responseParams)
-  	:ValidIf(function(_, data)
-  		if not commonFunctions:is_table_equal(data.payload.filenames, testFileNamesList) then
-        	return false, "\nExpected files:\n" .. commonFunctions:convertTableToString(testFileNamesList, 1)
-          		.. "\nActual files:\n" .. commonFunctions:convertTableToString(data.payload.filenames, 1)
-      	end
-    	return true
+  self.mobileSession1:ExpectResponse(cid, params.responseParams)
+  :ValidIf(function(_, data)
+      if not commonFunctions:is_table_equal(data.payload.filenames, testFileNamesList) then
+        return false, "\nExpected files:\n" .. commonFunctions:convertTableToString(testFileNamesList, 1)
+        .. "\nActual files:\n" .. commonFunctions:convertTableToString(data.payload.filenames, 1)
+      end
+      return true
     end)
 end
 
@@ -86,7 +86,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
 runner.Step("RAI, PTU", commonSmoke.registerApplicationWithPTU)
 runner.Step("Activate App", commonSmoke.activateApp)
 for i, fileName in ipairs(testFileNamesList) do
-	runner.Step("Upload test file #" .. i, putFile, {fileName})
+  runner.Step("Upload test file #" .. i, putFile, {fileName})
 end
 
 runner.Title("Test")
