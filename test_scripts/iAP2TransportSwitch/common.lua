@@ -41,14 +41,34 @@ m.device = {
 
 m.appParams = config["application1"].registerAppInterfaceParams
 
-function module:start()
+function m.getSelfAndParams(...)
+  local out = { }
+  local selfIdx = nil
+  for i,v in pairs({...}) do
+    if type(v) == "table" and v.isTest then
+      table.insert(out, v)
+      selfIdx = i
+      break
+    end
+  end
+  local idx = 2
+  for i = 1, table.maxn({...}) do
+    if i ~= selfIdx then
+      out[idx] = ({...})[i]
+      idx = idx + 1
+    end
+  end
+  return table.unpack(out, 1, table.maxn(out))
+end
+
+function module:start(pHMIParams)
   self:runSDL()
   commonFunctions:waitForSDLStart(self)
   :Do(function()
       self:initHMI(self)
       :Do(function()
           commonFunctions:userPrint(35, "HMI initialized")
-          self:initHMI_onReady()
+          self:initHMI_onReady(pHMIParams)
           :Do(function()
               commonFunctions:userPrint(35, "HMI is ready")
             end)
@@ -129,8 +149,9 @@ function m.postconditions()
   commonPreconditions:RestoreFile(ptFileName)
 end
 
-function m:start()
-  module.start(self)
+function m.start(pHMIParams, self)
+  self, pHMIParams = m.getSelfAndParams(pHMIParams, self)
+  self:start(pHMIParams)
 end
 
 function m.print(pMsg)
