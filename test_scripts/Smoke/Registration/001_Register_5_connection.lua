@@ -37,6 +37,7 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
+local events = require("events")
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')

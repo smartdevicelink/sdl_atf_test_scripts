@@ -3,7 +3,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.mobileHost = "127.0.0.1"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -32,7 +32,7 @@ commonSmoke.minTimeout = 500
 
 local function allowSDL(self)
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+    { allowed = true, source = "GUI", device = { id = commonSmoke.getDeviceMAC(), name = commonSmoke.getDeviceName() }})
 end
 
 local function jsonFileToTable(pFileName)
@@ -128,8 +128,16 @@ function commonSmoke.preconditions()
   commonSteps:DeleteLogsFiles()
 end
 
+function commonSmoke.getDeviceName()
+  return config.mobileHost .. ":" .. config.mobilePort
+end
+
 function commonSmoke.getDeviceMAC()
-  return config.deviceMAC
+  local cmd = "echo -n " .. commonSmoke.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+  return result
 end
 
 function commonSmoke.getPathToSDL()

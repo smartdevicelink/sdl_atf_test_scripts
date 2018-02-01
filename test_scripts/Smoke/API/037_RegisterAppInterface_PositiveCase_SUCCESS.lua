@@ -72,8 +72,8 @@ local function SetNotificationParams()
 	notificationParams.application.hmiDisplayLanguageDesired = requestParams.hmiDisplayLanguageDesired
 	notificationParams.application.appType = requestParams.appHMIType
 	notificationParams.application.deviceInfo = {
-		name = "127.0.0.1",
-		id = config.deviceMAC,
+		name = commonSmoke.getDeviceName(),
+		id = commonSmoke.getDeviceMAC(),
 		transportType = "WIFI",
 		isSDLAllowed = true
 	}

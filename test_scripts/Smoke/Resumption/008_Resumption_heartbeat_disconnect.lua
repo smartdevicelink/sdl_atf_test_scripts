@@ -27,6 +27,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
 local mobile_session = require('mobile_session')
+local events = require("events")
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -89,7 +90,7 @@ function Test:Wait_20_sec()
   :Timeout(20000)
   EXPECT_EVENT(events.disconnectedEvent, "Disconnected")
   :Do(function()
-      print("Disconnected!!!")      
+      print("Disconnected!!!")
     end)
   :Timeout(20000)
 end

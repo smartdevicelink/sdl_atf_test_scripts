@@ -46,7 +46,7 @@ local putFileParams = {
 }
 
 local storagePath = commonPreconditions:GetPathToSDL() .. "storage/" ..
-config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
+config.application1.registerAppInterfaceParams.appID .. "_" .. commonSmoke.getDeviceMAC() .. "/"
 
 local ImageValue = {
   value = storagePath .. "icon.png",
