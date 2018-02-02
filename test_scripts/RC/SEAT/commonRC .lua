@@ -315,7 +315,29 @@ function commonRC.getModuleControlData(module_type)
     }
     elseif module_type == "SEAT" then
       out.seatControlData ={
-      
+      id = "DRIVER",
+      heatingEnabled = true
+      coolingEnabled = true  
+      heatingLevel = 50,
+      coolingLevel = 50,
+      horizontalPosition = 50, 
+      verticalPosition = 50,
+      frontVerticalPosition = 50,
+      backVerticalPosition = 50,
+      backTiltAngle = 50,
+      headSupportHorizontalPosition = 50,
+      headSupportVerticalPosition = 50,
+      massageEnabled = true,
+      massageMode = {
+      massageZone = "LUMBAR",
+      massageMode = "LOW"
+      },
+      massageCushionFirmness = {
+      MassageCushionFirmness = "cushion"
+      },
+      memory = {
+      SeatMemoryAction = "SAVE"
+      },
     }
   end
   return out
@@ -364,6 +386,31 @@ function commonRC.getAnotherModuleControlData(module_type)
       radioEnable = true,
       state = "ACQUIRING"
     }
+    elseif module_type == "SEAT" then
+      out.seatControlData ={
+      id = "FRONT_PASSENGER",
+      heatingEnabled = true
+      coolingEnabled = true  
+      heatingLevel = 50,
+      coolingLevel = 50,
+      horizontalPosition = 50, 
+      verticalPosition = 50,
+      frontVerticalPosition = 50,
+      backVerticalPosition = 50,
+      backTiltAngle = 50,
+      headSupportHorizontalPosition = 50,
+      headSupportVerticalPosition = 50,
+      massageEnabled = true,
+      massageMode = {
+      massageZone = "SEAT_CUSHION",
+      massageMode = "OFF"
+      },
+      massageCushionFirmness = {
+      MassageCushionFirmness = "firmness"
+      },
+      memory = {
+      SeatMemoryAction = "RESTORE"
+      },
   end
   return out
 end
@@ -398,6 +445,19 @@ function commonRC.getReadOnlyParamsByModule(pModuleType)
       signalChangeThreshold = 22,
       state = "MULTICAST"
     }
+    elseif pModuleType == "SEAT" then
+      out.seatControlData = {
+      massageMode = {
+      massageZone = "SEAT_CUSHION",
+      massageMode = "OFF"
+      },
+      massageCushionFirmness = {
+      MassageCushionFirmness = "firmness"
+      },
+      memory = {
+      SeatMemoryAction = "RESTORE"
+      },
+    }
   end
   return out
 end
@@ -413,6 +473,11 @@ function commonRC.getModuleParams(pModuleData)
       pModuleData.radioControlData = { }
     end
     return pModuleData.radioControlData
+    elseif pModuleData.moduleType == "Seat" then
+      if not pModuleData.seatControlData then 
+        pModuleData.seatControlData = { }
+      end
+    end
   end
 end
 
@@ -696,7 +761,7 @@ function commonRC.buildButtonCapability(name, shortPressAvailable, longPressAvai
   return hmi_values.createButtonCapability(name, shortPressAvailable, longPressAvailable, upDownAvailable)
 end
 
-function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilities, pButtonCapabilities)
+function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilities, pSeatCapabilities, pButtonCapabilities)
   local hmiParams = hmi_values.getDefaultHMITable()
   local capParams = hmiParams.RC.GetCapabilities.params.remoteControlCapability
 
@@ -716,6 +781,14 @@ function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilitie
     end
   else
     capParams.radioControlCapabilities = nil
+  end
+
+  if pSeatCapabilities then
+    if pSeatCapabilities ~= commonRC.DEFAULT then
+      capParams.seatControlCapabilities = pSeatCapabilities
+    end
+  else
+    capParams.seatControlCapabilities = nil
   end
 
   if pButtonCapabilities then
