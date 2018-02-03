@@ -390,16 +390,16 @@ function commonRC.getAnotherModuleControlData(module_type)
       out.seatControlData ={
       id = "FRONT_PASSENGER",
       heatingEnabled = true
-      coolingEnabled = true  
-      heatingLevel = 50,
-      coolingLevel = 50,
-      horizontalPosition = 50, 
-      verticalPosition = 50,
-      frontVerticalPosition = 50,
-      backVerticalPosition = 50,
-      backTiltAngle = 50,
-      headSupportHorizontalPosition = 50,
-      headSupportVerticalPosition = 50,
+      coolingEnabled = false  
+      heatingLevel = 75,
+      coolingLevel = 75,
+      horizontalPosition = 75, 
+      verticalPosition = 75,
+      frontVerticalPosition = 75,
+      backVerticalPosition = 75,
+      backTiltAngle = 75,
+      headSupportHorizontalPosition = 75,
+      headSupportVerticalPosition = 75,
       massageEnabled = true,
       massageMode = {
       massageZone = "SEAT_CUSHION",
@@ -472,8 +472,8 @@ function commonRC.getModuleParams(pModuleData)
     if not pModuleData.radioControlData then
       pModuleData.radioControlData = { }
     end
-    return pModuleData.radioControlData
-    elseif pModuleData.moduleType == "Seat" then
+    return pModuleData.seatControlData
+    elseif pModuleData.moduleType == "SEAT" then
       if not pModuleData.seatControlData then 
         pModuleData.seatControlData = { }
       end
