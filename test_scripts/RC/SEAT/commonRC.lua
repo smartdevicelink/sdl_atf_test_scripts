@@ -317,8 +317,8 @@ function commonRC.getModuleControlData(module_type)
       out.seatControlData ={
       id = "DRIVER",
       heatingEnabled = true
-      coolingEnabled = true  
       heatingLevel = 50,
+      coolingEnabled = true
       coolingLevel = 50,
       horizontalPosition = 50, 
       verticalPosition = 50,
@@ -329,14 +329,14 @@ function commonRC.getModuleControlData(module_type)
       headSupportVerticalPosition = 50,
       massageEnabled = true,
       massageMode = {
-      massageZone = "LUMBAR",
-      massageMode = "LOW"
+        massageZone = "LUMBAR",
+        massageMode = "LOW"
       },
       massageCushionFirmness = {
-      MassageCushionFirmness = "cushion"
+        MassageCushionFirmness = "cushion"
       },
       memory = {
-      SeatMemoryAction = "SAVE"
+        SeatMemoryAction = "SAVE"
       },
     }
   end
@@ -392,7 +392,7 @@ function commonRC.getAnotherModuleControlData(module_type)
       heatingEnabled = true
       coolingEnabled = false  
       heatingLevel = 75,
-      coolingLevel = 75,
+      coolingLevel = 0,
       horizontalPosition = 75, 
       verticalPosition = 75,
       frontVerticalPosition = 75,
