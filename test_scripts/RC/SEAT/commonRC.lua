@@ -316,9 +316,9 @@ function commonRC.getModuleControlData(module_type)
     elseif module_type == "SEAT" then
       out.seatControlData ={
       id = "DRIVER",
-      heatingEnabled = true
+      heatingEnabled = true,
+      coolingEnabled = true,
       heatingLevel = 50,
-      coolingEnabled = true
       coolingLevel = 50,
       horizontalPosition = 50, 
       verticalPosition = 50,
@@ -329,11 +329,24 @@ function commonRC.getModuleControlData(module_type)
       headSupportVerticalPosition = 50,
       massageEnabled = true,
       massageMode = {
-        massageZone = "LUMBAR",
-        massageMode = "LOW"
+        {
+          massageZone = "LUMBAR",
+          massageMode = "HIGH"
+        },
+        {
+          massageZone = "SEAT_CUSHION",
+          massageMode = "LOW"
+        }
       },
       massageCushionFirmness = {
-        MassageCushionFirmness = "cushion"
+        {
+          cushion = "TOP_LUMBAR",
+          firmness = 30
+        },
+        {
+          cushion = "BACK_BOLSTERS",
+          firmness = 60
+        }
       },
       memory = {
         SeatMemoryAction = "SAVE"
@@ -402,15 +415,29 @@ function commonRC.getAnotherModuleControlData(module_type)
       headSupportVerticalPosition = 75,
       massageEnabled = true,
       massageMode = {
-      massageZone = "SEAT_CUSHION",
-      massageMode = "OFF"
+        {
+          massageZone = "LUMBAR",
+          massageMode = "OFF"
+        },
+        {
+          massageZone = "SEAT_CUSHION",
+          massageMode = "HIGH"
+        }
       },
       massageCushionFirmness = {
-      MassageCushionFirmness = "firmness"
+        {
+          cushion = "MIDDLE_LUMBAR",
+          firmness = 65
+        },
+        {
+          cushion = "SEAT_BOLSTERS",
+          firmness = 30
+        }
       },
       memory = {
-      SeatMemoryAction = "RESTORE"
+        SeatMemoryAction = "RESTORE"
       },
+    }
   end
   return out
 end
@@ -445,19 +472,27 @@ function commonRC.getReadOnlyParamsByModule(pModuleType)
       signalChangeThreshold = 22,
       state = "MULTICAST"
     }
-    elseif pModuleType == "SEAT" then
-      out.seatControlData = {
+    elseif module_type == "SEAT" then
+      out.seatControlData ={
       massageMode = {
-      massageZone = "SEAT_CUSHION",
-      massageMode = "OFF"
+        {
+          massageZone = "LUMBAR",
+          massageMode = "LOW"
+        },
+        {
+          massageZone = "SEAT_CUSHION",
+          massageMode = "OFF"
+        }
       },
       massageCushionFirmness = {
-      MassageCushionFirmness = "firmness"
+        {
+          cushion = "BOTTOM_LUMBAR",
+          firmness = 65
+        }
       },
       memory = {
-      SeatMemoryAction = "RESTORE"
+        SeatMemoryAction = "NONE"
       },
-    }
   end
   return out
 end
