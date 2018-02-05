@@ -1,0 +1,1 @@
+./test_scripts/Defects/4_5/1211_ATF_Check_count_of_removals_for_bad_behavior_REQUEST_WHILE_IN_NONE_HMI_LEVEL.lua

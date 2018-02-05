@@ -1,0 +1,1 @@
+./test_scripts/Defects/4_5/1206_REQUEST_PTU_Trigger_PTU_failed_previous_IGN_ON.lua

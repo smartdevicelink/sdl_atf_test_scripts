@@ -1,0 +1,4 @@
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_1_navi.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_2_non-navi.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_3_navi_audio.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_4_navi_video.lua

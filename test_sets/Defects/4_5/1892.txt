@@ -1,0 +1,1 @@
+./test_scripts/Defects/4_5/1892_HB_from_SDL_after_receiving_HB_from_mobile.lua
