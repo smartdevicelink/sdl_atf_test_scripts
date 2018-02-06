@@ -26,19 +26,14 @@ runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" } }) --Changed
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI (HMI has all CLIMATE RC capabilities), connect Mobile, start Session", commonRC.start,
+runner.Step("Start SDL, HMI (HMI has all SEAT RC capabilities), connect Mobile, start Session", commonRC.start,
 	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, nil, commonRC.DEFAULT)})
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App1", commonRC.activate_app)
 
 runner.Title("Test")
 
--- CLIMATE RPC is allowed
-runner.Step("GetInteriorVehicleData CLIMATE", commonRC.subscribeToModule, { "CLIMATE", 1 })
-runner.Step("SetInteriorVehicleData CLIMATE", commonRC.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
-runner.Step("GetInteriorVehicleData RADIO", commonRC.subscribeToModule, { "RADIO", 1 })
-runner.Step("SetInteriorVehicleData RADIO", commonRC.rpcAllowed, { "RADIO", 1, "SetInteriorVehicleData" }) --Changed(added 39-40)
--- RADIO PRC is unsupported
+-- SEAT PRC is unsupported
 runner.Step("GetInteriorVehicleData SEAT", commonRC.rpcDenied, { "SEAT", 1, "GetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
 runner.Step("SetInteriorVehicleData SEAT", commonRC.rpcDenied, { "SEAT", 1, "SetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
 

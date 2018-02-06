@@ -67,9 +67,12 @@ runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResourc
 runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "SetInteriorVehicleData" })
 runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "ButtonPress" })
 
-runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" })
+runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "GetInteriorVehicleData" })
+runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "SetInteriorVehicleData" })
+runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "ButtonPress" })
+
+runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" }) --Changed
 runner.Step("SetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "SetInteriorVehicleData" })
-runner.Step("ButtonPress_SUCCESS", rpcSuccess, { enabledModule, "ButtonPress" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

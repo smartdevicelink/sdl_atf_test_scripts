@@ -34,7 +34,6 @@ runner.Title("Test")
 for _, mod in pairs(modules) do
   runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod, 1 })
   runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" }) --Changed
-  runner.Step("ButtonPress " .. mod, commonRC.rpcAllowed, { mod, 1, "ButtonPress" })
 end
 
 runner.Title("Postconditions")

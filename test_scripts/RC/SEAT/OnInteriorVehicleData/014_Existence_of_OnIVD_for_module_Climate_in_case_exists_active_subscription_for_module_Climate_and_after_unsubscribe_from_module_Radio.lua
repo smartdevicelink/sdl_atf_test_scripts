@@ -20,9 +20,10 @@ local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+local modules = { "CLIMATE", "RADIO", "SEAT" } --Changed
 local mod1 = "SEAT"        --Changed
 local mod2 = "CLIMATE"
+local mod3 = "RADIO"
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -41,6 +42,7 @@ runner.Title("Test")
 runner.Step("Unsubscribe app to " .. mod1, commonRC.unSubscribeToModule, { mod1 })
 runner.Step("Send notification OnInteriorVehicleData " .. mod1 .. ". App is unsubscribed", commonRC.isUnsubscribed, { mod1 })
 runner.Step("Send notification OnInteriorVehicleData " .. mod2 .. ". App is still subscribed", commonRC.isSubscribed, { mod2 })
+runner.Step("Send notification OnInteriorVehicleData " .. mod3 .. ". App is still subscribed", commonRC.isSubscribed, { mod2 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

@@ -21,8 +21,8 @@ local commonRC = require('test_scripts/RC/commonRC')
 local hmi_values = require('user_modules/hmi_values')
 
 --[[ Local Variables ]]
-local disabledModule = "CLIMATE" --?
-local disabledModule = "RADIO"   --added
+local disabledModule1 = "CLIMATE" --?
+local disabledModule2 = "RADIO"   --added
 local enabledModule = "SEAT"     --Changed
 
 --[[ Local Functions ]]
@@ -61,7 +61,11 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { g
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
-runner.Title("Test - Module enabled: " .. enabledModule .. ", disabled: " .. disabledModule .. ", disabled: " .. disabledModule) --Changed
+runner.Title("Test - Module enabled: " .. enabledModule .. ", disabled: " .. disabledModule1 .. ", disabled: " .. disabledModule2) --Changed
+
+runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "GetInteriorVehicleData" })
+runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "SetInteriorVehicleData" })
+runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "ButtonPress" })
 
 runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "GetInteriorVehicleData" })
 runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "SetInteriorVehicleData" })
@@ -69,7 +73,6 @@ runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabl
 
 runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" })
 runner.Step("SetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "SetInteriorVehicleData" })
-runner.Step("ButtonPress_SUCCESS", rpcSuccess, { enabledModule, "ButtonPress" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
