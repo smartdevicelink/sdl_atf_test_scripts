@@ -16,6 +16,7 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
 local hmi_values = require("user_modules/hmi_values")
+local events = require("events")
 
 --[[ Local Variables ]]
 local ptu_table = {}
