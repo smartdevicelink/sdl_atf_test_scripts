@@ -8,7 +8,7 @@
 -- Description:
 -- In case:
 -- 1) Application is registered with PROJECTION appHMIType
--- 2) and starts secured video services
+-- 2) and starts secured video and audio services
 -- SDL must:
 -- 1) Start services successful
 ---------------------------------------------------------------------------------------------------
@@ -43,14 +43,11 @@ local function startServiceSecured(pData, serviceId)
   if pData.encryption == true then handshakeOccurences = 1 end
   common.getMobileSession():ExpectHandshakeMessage()
   :Times(handshakeOccurences)
-  common.delayedExp()
 end
 
 --[[ Scenario ]]
-runner.Title("SDL MUST BE CONFIGURED FOR SECURITY")
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Set ForceProtectedService OFF", common.setForceProtectedServiceParam, { "Non" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate with certificate", common.policyTableUpdate, { ptUpdate })
@@ -59,6 +56,8 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 runner.Step("Start secured video service", startServiceSecured,
 	{ { frameInfo = common.frameInfo.START_SERVICE_ACK, encryption = true }, 11 })
+runner.Step("Start secured audio service", startServiceSecured,
+  { { frameInfo = common.frameInfo.START_SERVICE_ACK, encryption = true }, 10 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

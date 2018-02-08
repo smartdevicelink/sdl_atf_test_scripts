@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/PROJECTION/common')
 local runner = require('user_modules/script_runner')
-local test = require("user_modules/dummy_connecttest")
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local events = require('events')
@@ -46,32 +45,32 @@ local function RestoreIniFile()
   commonPreconditions:RestoreFile("smartDeviceLink.ini")
 end
 
-function startService()
-  test.mobileSession1:StartService(11)
+local function startService()
+  common.getMobileSession():StartService(11)
   local EndServiceEvent = events.Event()
   EndServiceEvent.matches =
   function(_, data)
     return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME and
     data.serviceType == constants.SERVICE_TYPE.VIDEO and
-    data.sessionId == test.mobileSession1.sessionId and
+    data.sessionId == common.getMobileSession().sessionId and
     data.frameInfo == constants.FRAME_INFO.END_SERVICE
   end
-  test.mobileSession1:ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
-  :Do(function(_, data)
-    test.mobileSession1:Send({
+  common.getMobileSession():ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
+  :Do(function( )
+    common.getMobileSession():Send({
       frameType = constants.FRAME_TYPE.CONTROL_FRAME,
       serviceType = constants.SERVICE_TYPE.VIDEO,
       frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
     })
   end)
   EXPECT_HMICALL("Navigation.StartStream")
-  :Do(function(exp,data)
-    test.hmiConnection:SendError(data.id, data.method, "REJECTED", "Request is rejected")
+  :Do(function(_, data)
+    common.getHMIConnection():SendError(data.id, data.method, "REJECTED", "Request is rejected")
   end)
   :Times(4)
   EXPECT_HMICALL("Navigation.StopStream")
-  :Do(function(exp,data)
-    test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
 end
 

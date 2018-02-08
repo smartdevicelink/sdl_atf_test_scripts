@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/PROJECTION/common')
 local runner = require('user_modules/script_runner')
-local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -36,7 +35,7 @@ end
 
 local function BringAppToBackground()
 	common.activateApp(2)
-	test.mobileSession1:ExpectNotification("OnHMIStatus",
+	common.getMobileSession():ExpectNotification("OnHMIStatus",
 		{ hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 

@@ -348,38 +348,14 @@ function m.registerApp(pAppId)
         { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
           hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = d1.params.application.appID
-          test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
+          test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate",
+            { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
           :Times(2)
           test.hmiConnection:ExpectRequest("BasicCommunication.PolicyUpdate")
           :Do(function(_, d2)
               test.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
               ptuTable = jsonFileToTable(d2.params.file)
             end)
-        end)
-      mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-      :Do(function()
-          mobSession:ExpectNotification("OnHMIStatus",
-            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-          mobSession:ExpectNotification("OnPermissionsChange")
-        end)
-    end)
-end
-
---[[ @registerAppWOPTU: register mobile application and do not perform PTU
---! @parameters:
---! pAppId - application number (1, 2, etc.)
---]]
-function m.registerAppWOPTU(pAppId)
-  if not pAppId then pAppId = 1 end
-  local mobSession = m.getMobileSession(pAppId)
-  mobSession:StartService(7)
-  :Do(function()
-      local corId = mobSession:SendRPC("RegisterAppInterface",
-        config["application" .. pAppId].registerAppInterfaceParams)
-      test.hmiConnection:ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
-      :Do(function(_, d1)
-          hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = d1.params.application.appID
         end)
       mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
@@ -400,6 +376,10 @@ function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc, pAppId)
   if not pAppId then pAppId = 1 end
   if not pExpNotificationFunc then
     test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
+    test.hmiConnection:ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+    :Do(function(_, data)
+      test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { odometer = 200 })
+    end)
   else
     pExpNotificationFunc()
   end
@@ -548,7 +528,7 @@ local function protect(pTbl)
   return setmetatable({}, mt)
 end
 
---[[ @protect: start audio/video service
+--[[ @protect: startService
 --! @parameters:
 --! pService - service value
 --! pAppId - app id value for session
@@ -559,12 +539,12 @@ function m.startService(pService, pAppId)
   test["mobileSession" .. pAppId]:StartService(pService)
   if pService == 10 then
     EXPECT_HMICALL("Navigation.StartAudioStream")
-    :Do(function(exp,data)
+    :Do(function(_, data)
       test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
     end)
   elseif pService == 11 then
     EXPECT_HMICALL("Navigation.StartStream")
-    :Do(function(exp,data)
+    :Do(function(_, data)
       test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
     end)
   else
@@ -572,7 +552,7 @@ function m.startService(pService, pAppId)
   end
 end
 
---[[ @protect: start audio/video streaming
+--[[ @protect: Start streaming
 --! @parameters:
 --! pService - service value
 --! pFile -file for streaming
@@ -591,7 +571,7 @@ function m.StartStreaming(pService, pFile, pAppId)
   m.delayedExp(3000)
 end
 
---[[ @protect: stop audio/video streaming
+--[[ @protect: Stop streaming
 --! @parameters:
 --! pService - service value
 --! pFile -file for streaming

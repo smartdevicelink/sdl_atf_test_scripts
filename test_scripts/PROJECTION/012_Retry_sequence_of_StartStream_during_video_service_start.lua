@@ -18,7 +18,6 @@ local common = require('test_scripts/PROJECTION/common')
 local runner = require('user_modules/script_runner')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -44,13 +43,13 @@ local function RestoreIniFile()
   commonPreconditions:RestoreFile("smartDeviceLink.ini")
 end
 
-function startService()
-	test.mobileSession1:StartService(11)
+local function startService()
+	common.getMobileSession():StartService(11)
     EXPECT_HMICALL("Navigation.StartStream")
     :Do(function(exp,data)
-    	if 4 == exp.occurences then
-      		test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
-      	end
+      if 4 == exp.occurences then
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
     end)
     :Times(4)
 end

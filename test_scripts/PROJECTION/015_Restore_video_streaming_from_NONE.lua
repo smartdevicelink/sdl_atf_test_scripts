@@ -17,7 +17,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/PROJECTION/common')
 local runner = require('user_modules/script_runner')
-local test = require("user_modules/dummy_connecttest")
 local events = require('events')
 local constants = require('protocol_handler/ford_protocol_constants')
 
@@ -44,33 +43,33 @@ local function EndServiceByUserExit()
 		function(_, data)
 			return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME and
 			data.serviceType == constants.SERVICE_TYPE.VIDEO and
-			data.sessionId == test.mobileSession1.sessionId and
+			data.sessionId == common.getMobileSession().sessionId and
 			data.frameInfo == constants.FRAME_INFO.END_SERVICE
 		end
-	test.mobileSession1:ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
-	:Do(function(_, data)
-		test.mobileSession1:Send({
+	common.getMobileSession():ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
+	:Do(function( )
+		common.getMobileSession():Send({
 		  frameType = constants.FRAME_TYPE.CONTROL_FRAME,
 		  serviceType = constants.SERVICE_TYPE.VIDEO,
 		  frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
 		})
 	end)
-	test.hmiConnection:SendNotification("BasicCommunication.OnExitApplication",
+	common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
 		{ appID = common.getHMIAppId(), reason = "USER_EXIT" })
-	test.mobileSession1:ExpectNotification("OnHMIStatus",
+	common.getMobileSession():ExpectNotification("OnHMIStatus",
 		{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
 	EXPECT_HMICALL("Navigation.StopStream")
-	:Do(function(exp,data)
-		test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	:Do(function(_,data)
+		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
 	EXPECT_HMINOTIFICATION("Navigation.OnVideoDataStreaming", { available = false })
 end
 
 local function RestoreService()
-	test.mobileSession1:StartService(Service)
+	common.getMobileSession():StartService(Service)
 	EXPECT_HMICALL("Navigation.StartStream")
-	:Do(function(exp,data)
-		test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+	:Do(function(_,data)
+		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
 end
 

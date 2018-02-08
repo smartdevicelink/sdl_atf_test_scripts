@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/PROJECTION/common')
 local runner = require('user_modules/script_runner')
-local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -34,8 +33,8 @@ local function ptUpdate(pTbl)
 end
 
 local function bringAppToLimited()
-  test.hmiConnection:SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
-  test.mobileSession1:ExpectNotification("OnHMIStatus",
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
     { systemContext = "MAIN", hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" })
 end
 
