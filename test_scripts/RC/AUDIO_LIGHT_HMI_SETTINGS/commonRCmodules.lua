@@ -425,6 +425,27 @@ function c.rpcDenied(pModuleType, pAppId, pRPC, pResultCode)
   mobSession:ExpectResponse(cid, { success = false, resultCode = pResultCode })
 end
 
+function c.rpcRejectWithConsent(pModuleType, pAppId, pRPC)
+  local info = "The resource is in use and the driver disallows this remote control RPC"
+  local consentRPC = "GetInteriorVehicleDataConsent"
+  local mobSession = c.getMobileSession(pAppId)
+  local cid = mobSession:SendRPC(c.getAppEventName(pRPC), c.getAppRequestParams(pRPC, pModuleType))
+  EXPECT_HMICALL(c.getHMIEventName(consentRPC), c.getHMIRequestParams(consentRPC, pModuleType, pAppId))
+  :Do(function(_, data)
+      test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", c.getHMIResponseParams(consentRPC, false))
+      EXPECT_HMICALL(c.getHMIEventName(pRPC)):Times(0)
+    end)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED", info = info })
+end
+
+function c.rpcRejectWithoutConsent(pModuleType, pAppId, pRPC)
+  local mobSession = c.getMobileSession( pAppId)
+  local cid = mobSession:SendRPC(c.getAppEventName(pRPC), c.getAppRequestParams(pRPC, pModuleType))
+  EXPECT_HMICALL(c.getHMIEventName("GetInteriorVehicleDataConsent")):Times(0)
+  EXPECT_HMICALL(c.getHMIEventName(pRPC)):Times(0)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
+end
+
 function c.postconditions()
   commonRC.postconditions()
 end
