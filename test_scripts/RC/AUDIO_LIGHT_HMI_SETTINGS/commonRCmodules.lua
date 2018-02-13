@@ -20,6 +20,18 @@ function c.start()
   commonRC.start(nil, test)
 end
 
+local function audibleState(pAppId)
+  if not pAppId then pAppId = 1 end
+  local appParams = config["application" .. pAppId].registerAppInterfaceParams
+  local audibleState
+  if appParams.isMediaApplication == true then
+    audibleState = "AUDIBLE"
+  else
+    audibleState = "NOT_AUDIBLE"
+  end
+  return audibleState
+end
+
 function c.AddOnRCStatusToPT(tbl)
   tbl.policy_table.functional_groupings.RemoteControl.rpcs.OnRCStatus = {
     hmi_levels = { "NONE", "BACKGROUND", "FULL", "LIMITED" }
@@ -372,7 +384,12 @@ function c.unSubscribeToModule(pModuleType, pAppId)
 end
 
 function c.activateApp(pAppId)
-  commonRC.activate_app(pAppId, test)
+  if not pAppId then pAppId = 1 end
+  local pHMIAppId = c.getHMIAppId(pAppId)
+  local mobSession = c.getMobileSession(pAppId)
+  local requestId = test.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
+  EXPECT_HMIRESPONSE(requestId)
+  mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = audibleState(), systemContext = "MAIN" })
 end
 
 function c.defineRAMode(pAllowed, pAccessMode)
