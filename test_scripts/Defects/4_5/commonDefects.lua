@@ -347,6 +347,7 @@ function commonDefect.rai_ptu_n(id, ptu_update_func, self)
           :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
           :Times(AtLeast(1))
+          EXPECT_HMICALL("VehicleInfo.GetVehicleData", { odometer = true })
         end)
     end)
 end
@@ -386,6 +387,7 @@ function commonDefect.rai_ptu_n_without_OnPermissionsChange(id, ptu_update_func,
           self["mobileSession" .. id]:ExpectNotification("OnHMIStatus",
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(AtLeast(1))
+          EXPECT_HMICALL("VehicleInfo.GetVehicleData", { odometer = true })
         end)
     end)
 end
