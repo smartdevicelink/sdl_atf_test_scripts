@@ -12,7 +12,7 @@ local sdl = require("SDL")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.mobileHost = "127.0.0.1"
 config.defaultProtocolVersion = 2
 
 --[[ Local Variables ]]
@@ -34,9 +34,25 @@ end
 
 -- Allow device from HMI
 local function allowSDL(self)
+  local function getDeviceName()
+    return config.mobileHost .. ":" .. config.mobilePort
+  end
+  local function getDeviceMAC()
+    local cmd = "echo -n " .. getDeviceName() .. " | sha256sum | awk '{printf $1}'"
+    local handle = io.popen(cmd)
+    local result = handle:read("*a")
+    handle:close()
+    return result
+  end
   -- sending notification OnAllowSDLFunctionality from HMI to allow connected device
-  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
+    allowed = true,
+    source = "GUI",
+    device = {
+      id = getDeviceMAC(),
+      name = getDeviceName()
+    }
+  })
 end
 
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP

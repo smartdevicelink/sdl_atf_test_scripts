@@ -3,7 +3,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 -- define MAC address mobile device
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.mobileHost = "127.0.0.1"
 -- define 2nd version of SDL protocol by default
 config.defaultProtocolVersion = 2
 -- switch off schema validation for output messages against APIs
@@ -155,14 +155,41 @@ local function ptu(self, ptu_update_func)
     end)
 end
 
+--[[ @getDeviceName: provides device name
+--! @parameters: none
+--! @return: device name
+--]]
+function commonDefect.getDeviceName()
+  return config.mobileHost .. ":" .. config.mobilePort
+end
+
+--[[ @getDeviceMAC: provides device MAC address
+--! @parameters: none
+--! @return: device MAC address
+--]]
+function commonDefect.getDeviceMAC()
+  local cmd = "echo -n " .. commonDefect.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+  return result
+end
+
 --[[ @allow_sdl: sequence that allows SDL functionality
 --! @parameters:
 --! self - test object
 --! @return: none
 --]]
-local function allow_sdl(self)
-  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+function commonDefect.allow_sdl(self)
+  -- sending notification OnAllowSDLFunctionality from HMI to allow connected device
+  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
+    allowed = true,
+    source = "GUI",
+    device = {
+      id = commonDefect.getDeviceMAC(),
+      name = commonDefect.getDeviceName()
+    }
+  })
 end
 
 --[[ @preconditions: precondition steps
@@ -193,7 +220,7 @@ function commonDefect.start(self)
               self:connectMobile()
               :Do(function()
                   commonFunctions:userPrint(35, "Mobile connected")
-                  allow_sdl(self)
+                  commonDefect.allow_sdl(self)
                 end)
             end)
         end)
@@ -246,12 +273,12 @@ function commonDefect.ignitionOff(self)
   self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
   :Do(function()
+      sdl:DeleteFile()
       self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "IGNITION_OFF" })
       self.mobileSession1:ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
       EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
       :Do(function()
-          sdl:DeleteFile()
           sdl:StopSDL()
         end)
     end)
@@ -319,6 +346,7 @@ function commonDefect.rai_ptu_n(id, ptu_update_func, self)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          :Times(AtLeast(1))
         end)
     end)
 end
