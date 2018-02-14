@@ -29,7 +29,7 @@ runner.testSettings.isSelfIncluded = false
 local modules = { "CLIMATE", "AUDIO", "LIGHT", "HMI_SETTINGS" }
 
 --[[ Local Functions ]]
-local function ptu_update_func(tbl)
+local function PTUfunc(tbl)
   common.AddOnRCStatusToPT(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = common.getRCAppConfig()
   tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = common.getRCAppConfig()
@@ -39,10 +39,10 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI1, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("Activate App1", common.activate_app)
-runner.Step("RAI2", common.rai_n, { 2 })
-runner.Step("Activate App2", common.activate_app, { 2 })
+runner.Step("RAI1, PTU", common.raiPTUn, { PTUfunc })
+runner.Step("Activate App1", common.activateApp)
+runner.Step("RAI2", common.raiN, { 2 })
+runner.Step("Activate App2", common.activateApp, { 2 })
 
 runner.Title("Test")
 runner.Step("Set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })

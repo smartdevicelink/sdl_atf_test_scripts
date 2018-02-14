@@ -25,7 +25,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local mod = "AUDIO"
 
-local function ptu_update_func(tbl)
+local function PTUfunc(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = common.getRCAppConfig()
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { mod }
 end
@@ -34,8 +34,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("Activate App", common.activate_app)
+runner.Step("RAI, PTU", common.raiPTUn, { PTUfunc })
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetInteriorVehicleData " .. mod, common.subscribeToModule, { mod })
