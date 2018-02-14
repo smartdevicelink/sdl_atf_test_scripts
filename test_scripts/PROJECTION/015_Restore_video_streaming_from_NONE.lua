@@ -30,47 +30,46 @@ local Service = 11
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
-config.defaultProtocolVersion = 3
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
-	pTbl.policy_table.app_policies[common.getAppID()].AppHMIType = { appHMIType }
+  pTbl.policy_table.app_policies[common.getAppID()].AppHMIType = { appHMIType }
 end
 
 local function EndServiceByUserExit()
-	local EndServiceEvent = events.Event()
-	EndServiceEvent.matches =
-		function(_, data)
-			return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME and
-			data.serviceType == constants.SERVICE_TYPE.VIDEO and
-			data.sessionId == common.getMobileSession().sessionId and
-			data.frameInfo == constants.FRAME_INFO.END_SERVICE
-		end
-	common.getMobileSession():ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
-	:Do(function( )
-		common.getMobileSession():Send({
-		  frameType = constants.FRAME_TYPE.CONTROL_FRAME,
-		  serviceType = constants.SERVICE_TYPE.VIDEO,
-		  frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
-		})
-	end)
-	common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
-		{ appID = common.getHMIAppId(), reason = "USER_EXIT" })
-	common.getMobileSession():ExpectNotification("OnHMIStatus",
-		{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
-	EXPECT_HMICALL("Navigation.StopStream")
-	:Do(function(_,data)
-		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
-	EXPECT_HMINOTIFICATION("Navigation.OnVideoDataStreaming", { available = false })
+  local EndServiceEvent = events.Event()
+  EndServiceEvent.matches =
+	function(_, data)
+      return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME and
+      data.serviceType == constants.SERVICE_TYPE.VIDEO and
+      data.sessionId == common.getMobileSession().sessionId and
+      data.frameInfo == constants.FRAME_INFO.END_SERVICE
+	end
+  common.getMobileSession():ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
+  :Do(function( )
+	common.getMobileSession():Send({
+      frameType = constants.FRAME_TYPE.CONTROL_FRAME,
+      serviceType = constants.SERVICE_TYPE.VIDEO,
+      frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
+	})
+  end)
+  common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
+	{ appID = common.getHMIAppId(), reason = "USER_EXIT" })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+	{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
+  EXPECT_HMICALL("Navigation.StopStream")
+  :Do(function(_,data)
+	common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  EXPECT_HMINOTIFICATION("Navigation.OnVideoDataStreaming", { available = false })
 end
 
 local function RestoreService()
-	common.getMobileSession():StartService(Service)
-	EXPECT_HMICALL("Navigation.StartStream")
-	:Do(function(_,data)
-		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
+  common.getMobileSession():StartService(Service)
+  EXPECT_HMICALL("Navigation.StartStream")
+  :Do(function(_,data)
+	common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
 end
 
 --[[ Scenario ]]

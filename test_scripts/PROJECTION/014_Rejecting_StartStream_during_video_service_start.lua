@@ -29,7 +29,6 @@ local appHMIType = "PROJECTION"
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
-config.defaultProtocolVersion = 3
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)

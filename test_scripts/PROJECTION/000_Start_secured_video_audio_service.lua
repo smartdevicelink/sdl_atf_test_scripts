@@ -26,7 +26,6 @@ local appHMIType = "PROJECTION"
 config.application1.registerAppInterfaceParams.appName = "server"
 config.application1.registerAppInterfaceParams.appID = "SPT"
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
-config.defaultProtocolVersion = 3
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)

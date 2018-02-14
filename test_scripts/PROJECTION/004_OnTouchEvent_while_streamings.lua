@@ -23,20 +23,19 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local appHMIType = "PROJECTION"
-local OnTochEventType = {
-	"BEGIN",
-	"MOVE",
-	"END",
-	"CANCEL",
+local OnTouchEventType = {
+  "BEGIN",
+  "MOVE",
+  "END",
+  "CANCEL",
 }
 local NotifParams = {
-	type = "BEGIN",
-	event = { {c = {{x = 1, y = 1}}, id = 1, ts = {1} } }
+  type = "BEGIN",
+  event = { {c = {{x = 1, y = 1}}, id = 1, ts = {1} } }
 }
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
-config.defaultProtocolVersion = 3
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
@@ -45,8 +44,8 @@ local function ptUpdate(pTbl)
 end
 
 local function OnTouchEvent(parameters)
-	common.getHMIConnection():SendNotification("UI.OnTouchEvent",	parameters)
-	common.getMobileSession():ExpectNotification("OnTouchEvent", parameters)
+  common.getHMIConnection():SendNotification("UI.OnTouchEvent",	parameters)
+  common.getMobileSession():ExpectNotification("OnTouchEvent", parameters)
 end
 
 --[[ Scenario ]]
@@ -62,13 +61,13 @@ runner.Step("Start video streaming", common.StartStreaming, { 11, "files/SampleV
 runner.Step("Start audio streaming", common.StartStreaming, { 10, "files/MP3_4555kb.mp3" })
 
 runner.Title("Test")
-for key, value in pairs(OnTochEventType) do
-	local parameters = commonFunctions:cloneTable(NotifParams)
-	parameters.type = value
-	parameters.event[1].c[1].x = parameters.event[1].c[1].x + key
-	parameters.event[1].c[1].y = parameters.event[1].c[1].y + key
-	parameters.event[1].ts[1] = parameters.event[1].ts[1] + key
-	runner.Step("OnTouchEvent with type " .. value, OnTouchEvent, { parameters })
+for key, value in pairs(OnTouchEventType) do
+  local parameters = commonFunctions:cloneTable(NotifParams)
+  parameters.type = value
+  parameters.event[1].c[1].x = parameters.event[1].c[1].x + key
+  parameters.event[1].c[1].y = parameters.event[1].c[1].y + key
+  parameters.event[1].ts[1] = parameters.event[1].ts[1] + key
+  runner.Step("OnTouchEvent with type " .. value, OnTouchEvent, { parameters })
 end
 
 runner.Title("Postconditions")

@@ -2,7 +2,6 @@
 -- Navigation common module
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 3
 
 config.serverCertificatePath = "./files/Security/spt_credential.pem"
@@ -147,12 +146,36 @@ local function ptu(pPTUpdateFunc, pAppId)
     end)
 end
 
+--[[ @getDeviceMAC: get deviceMAC
+--! @parameters: none
+--]]
+function m.getDeviceMAC()
+  local cmd = "echo -n " .. m.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+  return result
+end
+
+--[[ @getDeviceName: get device name
+--! @parameters: none
+--]]
+function m.getDeviceName()
+  return config.mobileHost .. ":" .. config.mobilePort
+end
+
 --[[ @allowSDL: sequence that allows SDL functionality
 --! @parameters: none
 --]]
 local function allowSDL()
-  test.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+  test.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
+    allowed = true,
+    source = "GUI",
+    device = {
+      id = m.getDeviceMAC(),
+      name = m.getDeviceName()
+    }
+  })
 end
 
 --[[ @registerStartSecureServiceFunc: register function to start secure service
@@ -528,7 +551,7 @@ local function protect(pTbl)
   return setmetatable({}, mt)
 end
 
---[[ @protect: startService
+--[[ @startService: start audio/video service
 --! @parameters:
 --! pService - service value
 --! pAppId - app id value for session
@@ -552,7 +575,7 @@ function m.startService(pService, pAppId)
   end
 end
 
---[[ @protect: Start streaming
+--[[ @StartStreaming: Start streaming
 --! @parameters:
 --! pService - service value
 --! pFile -file for streaming
@@ -571,7 +594,7 @@ function m.StartStreaming(pService, pFile, pAppId)
   m.delayedExp(3000)
 end
 
---[[ @protect: Stop streaming
+--[[ @StopStreaming: Stop streaming
 --! @parameters:
 --! pService - service value
 --! pFile -file for streaming
@@ -588,7 +611,7 @@ function m.StopStreaming(pService, pFile, pAppId)
   end
 end
 
---[[ @protect: Rejecting audio/video service start
+--[[ @RejectingServiceStart: Rejecting audio/video service start
 --! @parameters:
 --! pService - service value
 --! pAppId - app id value for session

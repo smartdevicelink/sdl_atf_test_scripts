@@ -26,7 +26,6 @@ local appHMIType = "PROJECTION"
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
 config.application2.registerAppInterfaceParams.appHMIType = { appHMIType }
-config.defaultProtocolVersion = 3
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
@@ -34,9 +33,9 @@ local function ptUpdate(pTbl)
 end
 
 local function BringAppToBackground()
-	common.activateApp(2)
-	common.getMobileSession():ExpectNotification("OnHMIStatus",
-		{ hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+  common.activateApp(2)
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+	{ hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
 --[[ Scenario ]]
