@@ -39,10 +39,10 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI1, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("Activate App1", common.activate_app)
-runner.Step("RAI2", common.rai_n, { 2 })
-runner.Step("Activate App2", common.activate_app, { 2 })
+runner.Step("RAI1, PTU", common.raiPTUn, { ptu_update_func })
+runner.Step("Activate App1", common.activateApp)
+runner.Step("RAI2", common.raiN, { 2 })
+runner.Step("Activate App2", common.activateApp, { 2 })
 
 -- App's HMI levels: 1 - BACKGROUND, 2 - FULL
 

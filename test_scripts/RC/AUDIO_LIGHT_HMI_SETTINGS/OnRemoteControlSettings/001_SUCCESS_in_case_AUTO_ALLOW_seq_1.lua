@@ -39,8 +39,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI1, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("RAI2", common.rai_n, { 2 })
+runner.Step("RAI1, PTU", common.raiPTUn, { ptu_update_func })
+runner.Step("RAI2", common.raiN, { 2 })
 
 runner.Title("Test")
 
@@ -49,12 +49,12 @@ for _, mod in pairs(modules) do
   for i = 1, #access_modes do
     runner.Title("Access mode: " .. tostring(access_modes[i]))
     -- set control for App1
-    runner.Step("Activate App1", common.activate_app)
+    runner.Step("Activate App1", common.activateApp)
     runner.Step("App1 SetInteriorVehicleData", common.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
     -- set RA mode
     runner.Step("Set RA mode", common.defineRAMode, { true, access_modes[i] })
     -- set control for App2 --> Allowed
-    runner.Step("Activate App2", common.activate_app, { 2 })
+    runner.Step("Activate App2", common.activateApp, { 2 })
     runner.Step("App2 SetInteriorVehicleData", common.rpcAllowed, { mod, 2, "SetInteriorVehicleData" })
   end
 end

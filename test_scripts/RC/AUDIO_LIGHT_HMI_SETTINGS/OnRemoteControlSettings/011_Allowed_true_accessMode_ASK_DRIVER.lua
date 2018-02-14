@@ -42,21 +42,21 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI1, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("RAI2", common.rai_n, { 2 })
+runner.Step("RAI1, PTU", common.raiPTUn, { ptu_update_func })
+runner.Step("RAI2", common.raiN, { 2 })
 runner.Step("Disable RC from HMI", disableRcFromHmi)
 
 runner.Title("Test")
 runner.Step("Enable RC from HMI with ASK_DRIVER access mode", common.defineRAMode, { true, "ASK_DRIVER"})
 for _, mod in pairs(modules) do
-  runner.Step("Activate App2", common.activate_app, { 2 })
+  runner.Step("Activate App2", common.activateApp, { 2 })
   runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed", common.rpcAllowed,
     { mod, 2, "SetInteriorVehicleData" })
-  runner.Step("Activate App1", common.activate_app)
+  runner.Step("Activate App1", common.activateApp)
   runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent",
     common.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
-  runner.Step("Activate App2", common.activate_app, { 2 })
-  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent",
+  runner.Step("Activate App2", common.activateApp, { 2 })
+  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed with driver consent",
     common.rpcAllowedWithConsent, { mod, 2, "SetInteriorVehicleData" })
 end
 
