@@ -29,7 +29,6 @@ end
 function c.getRCAppConfig()
   local struct = commonRC.getRCAppConfig()
   struct.moduleType = c.modules
-  struct.moduleType = { "RADIO", "CLIMATE" }
   return struct
 end
 
@@ -39,15 +38,15 @@ local function PTUfunc(tbl)
   tbl.policy_table.app_policies[appId] = c.getRCAppConfig()
 end
 
-function c.rai_ptu_n(ptu_update_func, pAppId)
+function c.raiPTUn(pPTUfunc, pAppId)
   if not pAppId then pAppId = 1 end
-  if not ptu_update_func then
-    ptu_update_func = PTUfunc
+  if not pPTUfunc then
+    pPTUfunc = PTUfunc
   end
-  commonRC.rai_ptu_n(pAppId, ptu_update_func, test)
+  commonRC.rai_ptu_n(pAppId, pPTUfunc, test)
 end
 
-function c.rai_n(pAppId)
+function c.raiN(pAppId)
   commonRC.rai_n(pAppId, test)
 end
 
@@ -357,7 +356,7 @@ function c.unSubscribeToModule(pModuleType, pAppId)
   mobSession:ExpectResponse(cid, c.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, subscribe))
 end
 
-function c.activate_app(pAppId)
+function c.activateApp(pAppId)
   commonRC.activate_app(pAppId, test)
 end
 

@@ -22,7 +22,7 @@ local common = require('test_scripts/RC/AUDIO_LIGHT_HMI_SETTINGS/commonRCmodules
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
-local function ptu_update_func(tbl)
+local function PTUfunc(tbl)
   common.AddOnRCStatusToPT(tbl)
   local appId = config.application1.registerAppInterfaceParams.appID
   tbl.policy_table.app_policies[appId] = common.getRCAppConfig()
@@ -33,8 +33,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("Activate App", common.activate_app)
+runner.Step("RAI, PTU", common.raiPTUn, { PTUfunc })
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, mod in pairs(common.modules) do

@@ -106,7 +106,7 @@ local function ptu(self, ptu_update_func)
       for id = 1, getAppsCount() do
         local mobileSession = commonRC.getMobileSession(self, id)
         mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
-        :Do(function(_, d2)
+        :DoOnce(function(_, d2)
             print("App ".. id .. " was used for PTU")
             RAISE_EVENT(event, event, "PTU event")
             checkIfPTSIsSentAsBinary(d2.binaryData)

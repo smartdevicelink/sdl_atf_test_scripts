@@ -23,8 +23,8 @@ runner.testSettings.isSelfIncluded = false
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.rai_ptu_n)
-runner.Step("Activate App", common.activate_app)
+runner.Step("RAI, PTU", common.raiPTUn)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, mod in pairs(common.modules) do

@@ -26,7 +26,7 @@ local function getDataForModule(pModuleType, self)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 end
 
-local function ptu_update_func(tbl)
+local function PTUfunc(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "CLIMATE" }
 end
 
@@ -34,7 +34,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
+runner.Step("RAI, PTU", commonRC.rai_ptu, { PTUfunc })
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
