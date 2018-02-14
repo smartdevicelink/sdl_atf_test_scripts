@@ -44,7 +44,7 @@ local function ptUpdate(pTbl)
 end
 
 local function OnTouchEvent(parameters)
-  common.getHMIConnection():SendNotification("UI.OnTouchEvent",	parameters)
+  common.getHMIConnection():SendNotification("UI.OnTouchEvent", parameters)
   common.getMobileSession():ExpectNotification("OnTouchEvent", parameters)
 end
 
