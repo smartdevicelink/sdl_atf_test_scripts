@@ -15,21 +15,21 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function getDataForModule(pModuleType)
+  local mobSession = commonRC.getMobileSession()
+  local cid = mobSession:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
+    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = true
   })
@@ -37,9 +37,7 @@ local function getDataForModule(pModuleType, self)
     -- HMI does not respond
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
-
-  commonTestCases:DelayedExp(11000)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]
@@ -50,10 +48,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod .. " HMI does not respond", getDataForModule, { mod })
-end
+runner.Step("GetInteriorVehicleData SEAT HMI does not respond", getDataForModule, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

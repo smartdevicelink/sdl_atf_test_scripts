@@ -15,10 +15,10 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -28,10 +28,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod })
-end
+runner.Step("GetInteriorVehicleData SEAT", commonRC.subscribeToModule, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

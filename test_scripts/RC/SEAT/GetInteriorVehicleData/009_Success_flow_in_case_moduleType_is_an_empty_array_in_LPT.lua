@@ -16,32 +16,33 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 local json = require('modules/json')
 
---[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function getDataForModule(pModuleType)
+  local mobSession = commonRC.getMobileSession()
+  local cid = mobSession:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
+    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+      commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = commonRC.getModuleControlData(pModuleType),
         isSubscribed = true
       })
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     isSubscribed = true,
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
@@ -59,10 +60,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, getDataForModule, { mod })
-end
+runner.Step("GetInteriorVehicleData SEAT", getDataForModule, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

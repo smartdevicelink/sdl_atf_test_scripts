@@ -19,50 +19,43 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function invalidParamName(pModuleType, self)
-  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+local function invalidParamName(pModuleType)
+  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
     modduleData = commonRC.getAnotherModuleControlData(pModuleType) -- invalid name of parameter
   })
 
-  self.mobileSession1:ExpectNotification("OnInteriorVehicleData")
+  commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
-local function invalidParamType(pModuleType, self)
+local function invalidParamType(pModuleType)
   local moduleData = commonRC.getAnotherModuleControlData(pModuleType)
   moduleData.moduleType = {} -- invalid type of parameter
 
-  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
     moduleData = moduleData
   })
 
-  self.mobileSession1:ExpectNotification("OnInteriorVehicleData")
+  commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
-local function missingMandatoryParam(pModuleType, self)
+local function missingMandatoryParam(pModuleType)
   local moduleData = commonRC.getAnotherModuleControlData(pModuleType)
   moduleData.moduleType = nil -- mandatory parameter missing
 
-  self.hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
     moduleData = moduleData
   })
 
-  self.mobileSession1:ExpectNotification("OnInteriorVehicleData")
+  commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 --[[ Scenario ]]
@@ -71,19 +64,13 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
-
-for _, mod in pairs(modules) do
-  runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", commonRC.isSubscribed, { mod })
-end
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Test")
-
-for _, mod in pairs(modules) do
-  runner.Step("OnInteriorVehicleData " .. mod .. " invalid name of parameter", invalidParamName, { mod })
-  runner.Step("OnInteriorVehicleData " .. mod .. " invalid type of parameter", invalidParamType, { mod })
-  runner.Step("OnInteriorVehicleData " .. mod .. " mandatory parameter missing", missingMandatoryParam, { mod })
-end
+runner.Step("OnInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { "SEAT" })
+runner.Step("OnInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { "SEAT" })
+runner.Step("OnInteriorVehicleData SEAT mandatory parameter missing", missingMandatoryParam, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

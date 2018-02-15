@@ -16,15 +16,15 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(module_type, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function getDataForModule(module_type)
+  local mobSession = commonRC.getMobileSession()
+  local cid = mobSession:SendRPC("GetInteriorVehicleData", {
     moduleType = module_type,
     subscribe = true
   })
@@ -32,9 +32,7 @@ local function getDataForModule(module_type, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 end
 
 local function ptu_update_func(tbl)
@@ -49,10 +47,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, getDataForModule, { mod })
-end
+runner.Step("GetInteriorVehicleData SEAT", getDataForModule, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
