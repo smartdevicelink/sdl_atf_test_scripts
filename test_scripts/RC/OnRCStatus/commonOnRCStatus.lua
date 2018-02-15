@@ -14,16 +14,12 @@ local test = require("user_modules/dummy_connecttest")
 local commonOnRCStatus = {}
 commonOnRCStatus.modules = {
   "CLIMATE",
-  "RADIO",
-  "AUDIO",
-  "LIGHT",
-  "HMI_SETTINGS",
-  "SEAT"
+  "RADIO"
 }
 
 function commonOnRCStatus.getRCAppConfig()
   local struct = commonRC.getRCAppConfig()
-  struct.moduleType = { "RADIO", "CLIMATE", "AUDIO", "LIGHT", "HMI_SETTINGS", "SEAT" }
+  struct.moduleType = { "RADIO", "CLIMATE" }
   return struct
 end
 
@@ -119,69 +115,7 @@ function commonOnRCStatus.getHMIAppId(pAppId)
 end
 
 function commonOnRCStatus.getSettableModuleControlData(pModuleType)
-  local struct = {}
-  if "CLIMATE" == pModuleType or
-    "RADIO" == pModuleType then
-    struct = commonRC.getSettableModuleControlData(pModuleType)
-  elseif pModuleType == "SEAT" then
-    struct.moduleType = "SEAT"
-    struct.seatControlData = {
-      id = "DRIVER" ,
-      heatingEnabled = false ,
-      coolingEnabled = true ,
-      heatingLevel = 0 ,
-      coolingLevel = 3 ,
-      horizontalPosition = 10 ,
-      verticalPosition = 10 ,
-      frontVerticalPosition = 10 ,
-      backVerticalPosition = 10 ,
-      backTiltAngle = 10 ,
-      headSupportHorizontalPosition = 50 ,
-      headSupportVerticalPosition = 50 ,
-      massageEnabled = true ,
-      massageMode = {{
-        massageZone = "LUMBAR",
-        massageMode = "LOW"
-      }},
-      massageCushionFirmness = {{
-        cushion = "TOP_LUMBAR",
-        firmness = 10
-      }},
-      memory = {
-        id = 1,
-        label = "first",
-        action = "SAVE"
-      }
-    }
-  elseif "AUDIO" == pModuleType then
-    struct.moduleType = "AUDIO"
-    struct.audioControlData = {
-      source = "CD",
-      keepContext = false,
-      volume = 50,
-      equalizerSettings = {
-        channelId = 10,
-        channelName = "Channel 1",
-        channelSetting = 50 }
-    }
-  elseif "LIGHT" == pModuleType then
-    struct.moduleType = "LIGHT"
-    struct.lightControlData = {
-      lightState = {
-        id = "FRONT_LEFT_HIGH_BEAM",
-        status = "ON",
-        density = 0.2,
-        sRGBColor = "red"
-      }
-    }
-  elseif "HMI_SETTINGS" == pModuleType then
-    struct.moduleType = "HMI_SETTINGS"
-    struct.hmiSettingsControlData = {
-      displayMode = "DAY",
-      temperatureUnit = "CELSIUS",
-      distanceUnit = "KILOMETERS"
-    }
-  end
+  local struct = commonRC.getSettableModuleControlData(pModuleType)
   return struct
 end
 

@@ -17,7 +17,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local ModulesStatus = {
-	freeModules = commonOnRCStatus.ModulesArray({"RADIO", "AUDIO", "LIGHT", "HMI_SETTINGS", "SEAT" }),
+	freeModules = {{ moduleType = "RADIO" }},
 	allocatedModules = {{ moduleType = "CLIMATE" }}}
 
 --[[ Local Functions ]]

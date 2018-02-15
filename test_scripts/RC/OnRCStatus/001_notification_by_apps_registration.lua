@@ -17,11 +17,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local Modules = {
   "CLIMATE",
-  "RADIO",
-  "AUDIO",
-  "LIGHT",
-  "HMI_SETTINGS",
-  "SEAT"
+  "RADIO"
 }
 
 local NotifParams = {freeModules = commonOnRCStatus.ModulesArray(Modules), allocatedModules = { }}
