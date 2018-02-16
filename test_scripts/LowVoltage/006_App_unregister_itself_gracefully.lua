@@ -29,10 +29,6 @@ end
 local function checkResumptionData()
   common.getHMIConnection():ExpectRequest("VR.AddCommand")
   :Times(0)
-  common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateAppList")
-  :Do(function(_, data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
 end
 
 local function checkResumptionHMILevel()

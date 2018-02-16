@@ -78,21 +78,15 @@ runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate for App", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 runner.Step("AddCommand 1 success", processAddCommandSuccessfully, { 1 })
+runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
 
 runner.Title("Test")
 
 runner.Step("AddCommand 2 partial", processAddCommandPartially, { 2 })
 
-runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
-
 runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
 
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
-
--- START: debug
--- runner.Step("Ignition Off", common.ignitionOff)
--- runner.Step("Ignition On", common.start)
--- END
 
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check resumption data and HMI level", common.reRegisterApp, {
