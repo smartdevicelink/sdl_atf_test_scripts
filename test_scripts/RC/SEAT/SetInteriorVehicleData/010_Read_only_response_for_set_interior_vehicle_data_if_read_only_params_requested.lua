@@ -14,19 +14,19 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local module_data_seat = commonRC.getReadOnlyParamsByModule("SEAT") -- Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function setVehicleData(module_data, self)
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = module_data})
+local function setVehicleData(module_data)
+	local mobSession = commonRC.getMobileSession()
+	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = module_data})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
 
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY" })
+	mobileSession:ExpectResponse(cid, { success = false, resultCode = "READ_ONLY" })
 	commonTestCases:DelayedExp(commonRC.timeout)
 end
 

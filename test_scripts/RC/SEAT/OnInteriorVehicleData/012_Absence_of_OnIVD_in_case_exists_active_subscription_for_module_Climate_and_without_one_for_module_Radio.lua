@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
 --[[ Local Variables ]]
 local mod1 = "SEAT"
@@ -31,10 +31,10 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-runner.Step("Subscribe app to " .. mod1, commonRC.subscribeToModule, { mod1 })
-runner.Step("Send notification OnInteriorVehicleData " .. mod1 .. ". App is subscribed", commonRC.isSubscribed, { mod1 })
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
 
-runner.Step("Send notification OnInteriorVehicleData " .. mod2 .. ". App is not subscribed", commonRC.isUnsubscribed, { mod2 })
+runner.Step("Send notification OnInteriorVehicleData RADIO. App is not subscribed", commonRC.isUnsubscribed, { RADIO })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

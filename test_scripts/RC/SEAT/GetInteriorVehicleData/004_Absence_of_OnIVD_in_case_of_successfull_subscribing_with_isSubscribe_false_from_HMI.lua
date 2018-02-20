@@ -25,7 +25,11 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType)
   local mobSession = commonRC.getMobileSession()
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
+=======
+  local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
+>>>>>>> Changes were done to the rc_seat
     moduleType = pModuleType,
     subscribe = true
   })
@@ -36,6 +40,7 @@ local function subscriptionToModule(pModuleType)
     subscribe = true
   })
   :Do(function(_, data)
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
     commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
       moduleData = commonRC.getModuleControlData(pModuleType),
       isSubscribed = false -- not subscribe
@@ -43,6 +48,15 @@ local function subscriptionToModule(pModuleType)
   end)
 
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+=======
+      commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
+        moduleData = commonRC.getModuleControlData(pModuleType),
+        isSubscribed = false -- not subscribe
+      })
+    end)
+
+    mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+>>>>>>> Changes were done to the rc_seat
     moduleData = commonRC.getModuleControlData(pModuleType),
     isSubscribed = false
   })
@@ -56,8 +70,13 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("Subscribe app to SEAT", subscriptionToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })
+=======
+runner.Step("Subscribe app to SEAT", subscriptionToModule, { SEAT })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { SEAT })
+>>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

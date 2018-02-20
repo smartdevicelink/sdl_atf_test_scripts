@@ -26,7 +26,11 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function unSubscriptionToModule(pModuleType)
   local mobSession = commonRC.getMobileSession()
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
+=======
+  local cid = mobileSession1:SendRPC("GetInteriorVehicleData", {
+>>>>>>> Changes were done to the rc_seat
     moduleType = pModuleType,
     subscribe = false
   })
@@ -43,7 +47,11 @@ local function unSubscriptionToModule(pModuleType)
       })
     end)
 
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+=======
+  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+>>>>>>> Changes were done to the rc_seat
     moduleData = commonRC.getModuleControlData(pModuleType),
     isSubscribed = true
   })
@@ -55,6 +63,7 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed,
   { "SEAT" })
@@ -63,6 +72,16 @@ runner.Title("Test")
 runner.Step("Subscribe app to SEAT", unSubscriptionToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App still subscribed", commonRC.isSubscribed,
   { "SEAT" })
+=======
+
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+
+runner.Title("Test")
+
+runner.Step("Subscribe app to SEAT", unSubscriptionToModule, { SEAT })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App still subscribed", commonRC.isSubscribed, { SEAT })
+>>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

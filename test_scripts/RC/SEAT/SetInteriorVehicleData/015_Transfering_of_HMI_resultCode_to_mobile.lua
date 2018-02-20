@@ -16,7 +16,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
 --[[ Local Variables ]]
 local modules = { "SEAT" } --Changed
@@ -24,39 +24,40 @@ local success_codes = { "WARNINGS" }
 local error_codes = { "GENERIC_ERROR", "INVALID_DATA", "OUT_OF_MEMORY", "REJECTED" }
 
 --[[ Local Functions ]]
-local function stepSuccessfull(pModuleType, pResultCode, self)
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
+local function stepSuccessfull(pModuleType, pResultCode)
+  local mobSession = commonRC.getMobileSession()
+	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-		appID = self.applications["Test Application"],
+		appID = commonRC.getHMIAppId(),
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, pResultCode, {
+			commonRC.getHMIconnection():SendResponse(data.id, data.method, pResultCode, {
 				moduleData = commonRC.getSettableModuleControlData(pModuleType)
 			})
 		end)
 
-	self.mobileSession1:ExpectResponse(cid,
+	mobileSession:ExpectResponse(cid,
     { success = true, resultCode = pResultCode, moduleData = commonRC.getSettableModuleControlData(pModuleType) })
 end
 
-local function stepUnsuccessfull(pModuleType, pResultCode, self)
-  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
+local function stepUnsuccessfull(pModuleType, pResultCode)
+  local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
   EXPECT_HMICALL("RC.SetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
+    appID = commonRC.getHMIAppId(),
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
   :Do(function(_, data)
-      self.hmiConnection:SendError(data.id, data.method, pResultCode, "Error error")
+      commonRC.getHMIconnection():SendError(data.id, data.method, pResultCode, "Error error")
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = pResultCode })
+  mobileSession:ExpectResponse(cid, { success = false, resultCode = pResultCode })
 end
 
 --[[ Scenario ]]
@@ -71,14 +72,14 @@ runner.Title("Test")
 for _, mod in pairs(modules) do
   runner.Title("Module: " .. mod)
   for _, code in pairs(success_codes) do
-    runner.Step("SetInteriorVehicleData with " .. code .. " resultCode", stepSuccessfull, { mod, code })
+    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepSuccessfull, { mod, code })
   end
 end
 
 for _, mod in pairs(modules) do
   runner.Title("Module: " .. mod)
   for _, code in pairs(error_codes) do
-    runner.Step("SetInteriorVehicleData with " .. code .. " resultCode", stepUnsuccessfull, { mod, code })
+    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepUnsuccessfull, { mod, code })
   end
 end
 

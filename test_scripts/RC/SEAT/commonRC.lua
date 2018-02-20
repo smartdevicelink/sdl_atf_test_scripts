@@ -16,7 +16,11 @@ local hmi_values = require("user_modules/hmi_values")
 local initialCommon = require('test_scripts/RC/commonRC')
 local test = require("user_modules/dummy_connecttest")
 local json = require("modules/json")
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 
+=======
+ 
+>>>>>>> Changes were done to the rc_seat
 --[[ Local Variables ]]
 local commonRC = {}
 
@@ -46,6 +50,7 @@ end
 
 function commonRC.preconditions()
   initialCommon.preconditions()
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 end
 
 function commonRC.start()
@@ -72,6 +77,34 @@ function commonRC.activate_app(pAppId)
   initialCommon.activate_app(pAppId, test)
 end
 
+=======
+end
+
+function commonRC.start()
+  initialCommon.start(nil, test)
+end
+
+function commonRC.rai_ptu(ptu_update_func)
+  initialCommon.rai_ptu(ptu_update_func, test)
+end
+
+function commonRC.rai_ptu_n(id, ptu_update_func)()
+  initialCommon.rai_ptu_n(id, ptu_update_func, test)
+end
+
+function commonRC.rai_n(id)
+  initialCommon.rai_n(id, test)
+end
+
+function commonRC.unregisterApp(pAppId)
+  initialCommon.unregisterApp(pAppId, test)
+end
+
+function commonRC.activate_app(pAppId)
+  initialCommon.activate_app(pAppId, test)
+end
+
+>>>>>>> Changes were done to the rc_seat
 function commonRC.postconditions()
   initialCommon.postconditions()
 end
@@ -425,7 +458,11 @@ end
 function commonRC.isSubscribed(pModuleType, pAppId)
   local mobSession = commonRC.getMobileSession(pAppId)
   local rpc = "OnInteriorVehicleData"
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   test.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pModuleType))
+=======
+  rest.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pModuleType))
+>>>>>>> Changes were done to the rc_seat
   mobSession:ExpectNotification(commonRC.getAppEventName(rpc), commonRC.getAppResponseParams(rpc, pModuleType))
 end
 
@@ -495,7 +532,11 @@ function commonRC.rpcRejectWithConsent(pModuleType, pAppId, pRPC)
 end
 
 function commonRC.rpcRejectWithoutConsent(pModuleType, pAppId, pRPC)
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local mobSession = commonRC.getMobileSession(pAppId)
+=======
+  local mobSession = commonRC.getMobileSession( pAppId)
+>>>>>>> Changes were done to the rc_seat
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
   EXPECT_HMICALL(commonRC.getHMIEventName("GetInteriorVehicleDataConsent")):Times(0)
   EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)

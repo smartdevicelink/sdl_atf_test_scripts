@@ -16,11 +16,10 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local modules = { "SEAT" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 local function isModuleDataCorrect(pModuleType, actualModuleData)
 	local isFalse = false
@@ -38,7 +37,7 @@ local function isModuleDataCorrect(pModuleType, actualModuleData)
 	return true
 end
 
-local function setVehicleData(pModuleType, pParams, self)
+local function setVehicleData(pModuleType, pParams)
 	local moduleDataCombined = commonRC.getReadOnlyParamsByModule(pModuleType)
 	local moduleDataSettable = { moduleType = pModuleType }
 	for k, v in pairs(pParams) do
@@ -46,13 +45,14 @@ local function setVehicleData(pModuleType, pParams, self)
 		commonRC.getModuleParams(moduleDataSettable)[k] = v
 	end
 
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
+	local mobSession = commonRC.getMobileSession()
+	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleDataCombined
 	})
 
-	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{ appID = self.applications["Test Application"]	})
+	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{ appID = commonRC.getHMIAppId()]	})
 	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+			commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
 				moduleData = moduleDataSettable
 			})
 		end)
@@ -63,7 +63,7 @@ local function setVehicleData(pModuleType, pParams, self)
 			return true
 		end)
 
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+	mobileSessionkj:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 	:ValidIf(function(_, data)
 			if not isModuleDataCorrect(pModuleType, data.payload.moduleData) then
 				return false, "Test step failed, see prints"
@@ -83,16 +83,16 @@ runner.Title("Test")
 
 -- one settable parameter
 for _, mod in pairs(modules) do
-	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(mod))
+	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(SEAT))
 	for param, value in pairs(settableParams) do
-	  runner.Step("SetInteriorVehicleData " .. mod .. "_one_settable_param_" .. param, setVehicleData, { mod, { [param] = value } })
+	  runner.Step("SetInteriorVehicleData SEAT_one_settable_param_" .. param, setVehicleData, { SEAT, { [param] = value } })
 	end
 end
 
 -- all settable parameters
 for _, mod in pairs(modules) do
-	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(mod))
-	runner.Step("SetInteriorVehicleData " .. mod .. "_all_settable_params", setVehicleData, { mod, settableParams })
+	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(SEAT))
+	runner.Step("SetInteriorVehicleData SEAT_all_settable_params", setVehicleData, { SEAT, settableParams })
 end
 
 runner.Title("Postconditions")

@@ -8,32 +8,32 @@
 --
 -- Description:
 -- In case:
--- 1) SDL gets all RC capabilities for SEAT modules through RC.GetCapabilities
+-- 1) SDL gets all RC capabilities for RADIO and CLIMATE modules through RC.GetCapabilities
 -- SDL must:
 -- 1) Send RPC request to HMI and resend HMI answer to Mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Test Configuration ]]
-runner.testSettings.isSelfIncluded = false
+--[[ Local Variables ]]
+local modules = { "RADIO" }
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" } })
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" } })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all posible RC capabilities), connect Mobile, start Session", commonRC.start,
-	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, commonRC.DEFAULT, commonRC.DEFAULT)})
+	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, commonRC.DEFAULT)})
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App1", commonRC.activate_app)
 
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { SEAT, 1 })
-  runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { SEAT, 1, "SetInteriorVehicleData" }) --Changed
+  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod, 1 })
+  runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
 end
 
 runner.Title("Postconditions")

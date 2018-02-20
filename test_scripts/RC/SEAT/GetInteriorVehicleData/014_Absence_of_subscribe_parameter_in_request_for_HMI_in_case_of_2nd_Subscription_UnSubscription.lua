@@ -36,7 +36,11 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function subscriptionToModule(pModuleType, pSubscribe)
   local mobSession = commonRC.getMobileSession()
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
+=======
+  local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
+>>>>>>> Changes were done to the rc_seat
     moduleType = pModuleType,
     subscribe = pSubscribe
   })
@@ -57,7 +61,10 @@ local function subscriptionToModule(pModuleType, pSubscribe)
       end
       return false, 'Parameter "subscribe" is transfered to HMI with value: ' .. tostring(data.params.subscribe)
     end)
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 
+=======
+>>>>>>> Changes were done to the rc_seat
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     moduleData = commonRC.getModuleControlData(pModuleType),
     isSubscribed = pSubscribe
@@ -76,6 +83,7 @@ runner.Title("Test")
 runner.Step("Unsubscribe app to SEAT", subscriptionToModule, { "SEAT", false })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })
 
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 -- subscribe to module 1st time
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
@@ -91,6 +99,27 @@ runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed
 -- unsubscribe to module 2nd time
 runner.Step("Unsubscribe 2nd time app to SEAT", subscriptionToModule, { "SEAT", false })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })
+=======
+  -- app has not subscribed yet
+  runner.Step("Unsubscribe app to SEAT", subscriptionToModule, { SEAT, false })
+  runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { SEAT })
+
+  -- subscribe to module 1st time
+  runner.Step("Subscribe app to SEAt", commonRC.subscribeToModule, { SEAT })
+  runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+
+  -- subscribe to module 2nd time
+  runner.Step("Subscribe 2nd time app to SEAT", subscriptionToModule, { SEAT, true })
+  runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+
+  -- unsubscribe to module 1st time
+  runner.Step("Unsubscribe app to SEAT", commonRC.unSubscribeToModule, { SEAT })
+  runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { SEAT })
+
+  -- unsubscribe to module 2nd time
+  runner.Step("Unsubscribe 2nd time app to SEAT", subscriptionToModule, { SEAT, false })
+  runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { SEAT })
+>>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

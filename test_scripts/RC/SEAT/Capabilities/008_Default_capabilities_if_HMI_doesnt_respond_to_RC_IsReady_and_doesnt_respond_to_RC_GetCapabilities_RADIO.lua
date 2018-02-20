@@ -17,7 +17,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 local hmi_values = require('user_modules/hmi_values')
 
 --[[ Local Variables ]]
@@ -33,21 +33,21 @@ local function getHMIParams()
   return params
 end
 
-local function rpcUnsupportedResource(pModuleType, pRPC, self)
+local function rpcUnsupportedResource(pModuleType, pRPC)
   local pAppId = 1
-  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local mobSession = commonRC.getMobileSession(pAppId)
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
   EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), {}):Times(0)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
 end
 
-local function rpcSuccess(pModuleType, pRPC, self)
+local function rpcSuccess(pModuleType, pRPC)
   local pAppId = 1
   local mobSession = commonRC.getMobileSession(self, pAppId)
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
   EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), commonRC.getHMIRequestParams(pRPC, pModuleType, pAppId))
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(pRPC, pModuleType))
+      commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(pRPC, pModuleType))
     end)
   mobSession:ExpectResponse(cid, commonRC.getAppResponseParams(pRPC, true, "SUCCESS", pModuleType))
 end

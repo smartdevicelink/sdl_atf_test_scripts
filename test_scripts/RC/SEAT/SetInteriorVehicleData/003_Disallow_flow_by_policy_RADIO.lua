@@ -16,28 +16,28 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local mod = "SEAT" --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function setVehicleData(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
+local function setVehicleData(pModuleType)
+	local mobSession = commonRC.getMobileSession()
+  local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
   EXPECT_HMICALL("RC.SetInteriorVehicleData")
   :Times(0)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
+  mobileSession:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 
   commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function ptu_update_func(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "CLIMATE" } --?
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "SEAT" } --?
 end
 
 --[[ Scenario ]]
@@ -48,7 +48,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
+runner.Step("SetInteriorVehicleData SEAT", setVehicleData, { SEAT })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

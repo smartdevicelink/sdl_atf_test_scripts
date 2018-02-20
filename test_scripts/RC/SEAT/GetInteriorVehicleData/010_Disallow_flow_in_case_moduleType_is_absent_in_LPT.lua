@@ -24,7 +24,11 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function getDataForModule(module_type)
   local mobSession = commonRC.getMobileSession()
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
+=======
+  local cid = mobileSession1:SendRPC("GetInteriorVehicleData", {
+>>>>>>> Changes were done to the rc_seat
     moduleType = module_type,
     subscribe = true
   })
@@ -32,7 +36,11 @@ local function getDataForModule(module_type)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   mobSession:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
+=======
+  mobileSession:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
+>>>>>>> Changes were done to the rc_seat
 end
 
 local function ptu_update_func(tbl)
@@ -47,7 +55,11 @@ runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("GetInteriorVehicleData SEAT", getDataForModule, { "SEAT" })
+=======
+runner.Step("GetInteriorVehicleData SEAT, getDataForModule, { SEAT })
+>>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

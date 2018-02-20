@@ -15,7 +15,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 local common_functions = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
@@ -25,26 +25,27 @@ local rc_capabilities = commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, seat_c
 local available_params =
 {
     moduleType = "SEAT",
-    seatControlData = {heatingLevel = 50, coolingLevel = 50, band = "AM"}
+    seatControlData = {heatingLevel = 50, coolingLevel = 50, horizontalPosition = 75}
 }
-local absent_params = {moduleType = "RADIO", radioControlData = {frequencyInteger = 1, frequencyFraction = 2}}
+local absent_params = {moduleType = "SEAT", seatControlData = {heatingLevel = 50, coolingLevel = 50}}
 
 --[[ Local Functions ]]
-local function setVehicleData(params, self)
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = params})
+local function setVehicleData(params)
+	local mobSession = commonRC.getMobileSession()
+	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
 
 	if params.radioControlData.frequencyInteger then
 		EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
             appID = commonRC.getHMIAppId(1),
 			moduleData = params})
 		:Do(function(_, data)
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+				commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
 					moduleData = params})
 			end)
-		self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+		mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 	else
 		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+		mobileSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
         common_functions.DelayedExp(commonRC.timeout)
 	end
 end
@@ -57,10 +58,8 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate_App", commonRC.activate_app)
 
 runner.Title("Test")
-for _, module_name in pairs({"CLIMATE", "RADIO"}) do
-    runner.Step("GetInteriorVehicleData for " .. module_name, commonRC.subscribeToModule, {module_name, 1})
-    runner.Step("ButtonPress for " .. module_name, commonRC.rpcAllowed, {module_name, 1, "ButtonPress"})
-end
+runner.Step("GetInteriorVehicleData for SEAT", commonRC.subscribeToModule, {SEAT, 1})
+
 runner.Step("SetInteriorVehicleData processed for several supported params", setVehicleData, { available_params })
 runner.Step("SetInteriorVehicleData rejected with unsupported parameter", setVehicleData, { absent_params })
 

@@ -23,7 +23,11 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function getDataForModule(module_type)
   local mobSession = commonRC.getMobileSession()
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
+=======
+  local cid = mobileSession1:SendRPC("GetInteriorVehicleData", {
+>>>>>>> Changes were done to the rc_seat
     moduleType = module_type,
     subscribe = true
   })
@@ -36,7 +40,10 @@ local function getDataForModule(module_type)
   :Do(function(_, data)
       commonRC.getHMIconnection():SendError(data.id, data.method, "READ_ONLY", "Info message")
     end)
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 
+=======
+>>>>>>> Changes were done to the rc_seat
   mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Info message" })
 end
 
@@ -48,7 +55,12 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
+<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("GetInteriorVehicleData SEAT", getDataForModule, { "SEAT" })
+=======
+
+runner.Step("GetInteriorVehicleData SEAT", getDataForModule, { SEAT })
+>>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

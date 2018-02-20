@@ -18,14 +18,14 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function setVehicleData(pModuleType, self)
+local function setVehicleData(pModuleType)
+  local mobSession = commonRC.getMobileSession()
   local moduleType2 = nil
   if pModuleType == "SEAT" then --Change
     moduleType2 = "RADIO"
@@ -36,14 +36,14 @@ local function setVehicleData(pModuleType, self)
   local moduleData = commonRC.getSettableModuleControlData(moduleType2)
   moduleData.moduleType = pModuleType
 
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {
+	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleData
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData")
 	:Times(0)
 
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
+	mobileSession:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
 
 	commonTestCases:DelayedExp(commonRC.timeout)
 end
@@ -57,9 +57,7 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
-  runner.Step("SetInteriorVehicleData " .. mod .. "_gets_INVALID_DATA", setVehicleData, { mod })
-end
+runner.Step("SetInteriorVehicleData SEAT_gets_INVALID_DATA", setVehicleData, { SEAT })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
