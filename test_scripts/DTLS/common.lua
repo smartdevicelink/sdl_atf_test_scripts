@@ -11,6 +11,8 @@ config.application1.registerAppInterfaceParams.appID = "SPT"
 local common = require('test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/common')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local json = require("modules/json")
+local constants = require('protocol_handler/ford_protocol_constants')
+constants.FRAME_SIZE["P9"] = 131084 -- add unsupported SDL protocol version
 
 local m = {}
 
@@ -118,8 +120,6 @@ end
 --! pParams - table with parameters (file, isSentDataEncrypted, isUnexpectedFrameInserted, isMalformedFrameInserted)
 --]]
 function m.putFileByFrames(pParams)
-  config.debug = true
-
   msgId = msgId + 1
 
   local putFileParams = {
@@ -262,6 +262,16 @@ local function protect(pTbl)
     end
   }
   return setmetatable({}, mt)
+end
+
+-- Proxies for the inherited functions
+local inheritedFunctions = {
+  "getMobileSession", "getHMIConnection", "preconditions", "start", "registerApp", "policyTableUpdate", "activateApp"
+}
+for _, v in pairs(inheritedFunctions) do
+  m[v] = function(...)
+    return common[v](...)
+  end
 end
 
 return protect(m)
