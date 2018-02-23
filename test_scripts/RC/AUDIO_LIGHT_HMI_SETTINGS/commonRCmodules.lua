@@ -66,8 +66,8 @@ function c.getModuleControlData(pModuleType)
     struct.climateControlData.heatedMirrorsEnable = true
   elseif "RADIO" == pModuleType then
     struct.moduleType = "RADIO"
-    struct.RadioControlData = {}
-    struct.RadioControlData.sisData = {
+    struct.radioControlData = {}
+    struct.radioControlData.sisData = {
       stationShortName = "Name1",
       stationIDNumber = {
         countryCode = 100,
@@ -88,18 +88,27 @@ function c.getModuleControlData(pModuleType)
       keepContext = false,
       volume = 50,
       equalizerSettings = {
-        channelId = 10,
-        channelName = "Channel 1",
-        channelSetting = 50 }
+        {
+          channelId = 10,
+          channelName = "Channel 1",
+          channelSetting = 50
+        }
+      }
     }
   elseif "LIGHT" == pModuleType then
     struct.moduleType = "LIGHT"
     struct.lightControlData = {
       lightState = {
-        id = "FRONT_LEFT_HIGH_BEAM",
-        status = "ON",
-        density = 0.2,
-        sRGBColor = "red"
+        {
+          id = "FRONT_LEFT_HIGH_BEAM",
+          status = "ON",
+          density = 0.2,
+          sRGBColor = {
+            red = 50,
+            green = 150,
+            blue = 200
+          }
+        }
       }
     }
   elseif "HMI_SETTINGS" == pModuleType then
@@ -154,10 +163,16 @@ function c.getAnotherModuleControlData(pModuleType)
     struct.moduleType = "LIGHT"
     struct.lightControlData = {
       lightState = {
-        id = "READING_LIGHTS",
-        status = "ON",
-        density = 0.5,
-        sRGBColor = "blue"
+        {
+          id = "READING_LIGHTS",
+          status = "ON",
+          density = 0.5,
+          sRGBColor = {
+            red = 150,
+            green = 200,
+            blue = 250
+          }
+        }
       }
     }
   elseif "HMI_SETTINGS" == pModuleType then
