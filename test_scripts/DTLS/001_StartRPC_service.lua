@@ -1,5 +1,13 @@
 ---------------------------------------------------------------------------------------------------
--- TBA
+-- In case:
+-- 1) SDL is configured with parameter ‘Protocol = DTLSv1.0’
+-- 2) SDL has up-to-date certificates in Policy Table
+-- 3) And app is configured to use DTLS protocol for communication with SDL
+-- 4) And this app is registered and RPC service is started in unprotected mode
+-- 5) And this app is try to switch RPC service to protected mode
+-- SDL does:
+-- 1) Perform protected service handshake
+-- 2) Reply with StartServiceACK encryption = true
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/DTLS/common')

@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- TBA
+-- In case:
+-- 1) SDL is configured with parameter ‘Protocol = DTLSv1.0’
+-- 2) And app is configured to use DTLS protocol for communication with SDL
+-- 3) And this app is registered and RPC service is started in protected mode
+-- 4) And this app tries to send multi-packet RPC (e.g. PutFile)
+-- 5) And 1st frame is non-encrypted (or encrypted) and other frames are encrypted
+-- SDL does:
+-- 1) Process this RPC successfully in protected mode
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/DTLS/common')
