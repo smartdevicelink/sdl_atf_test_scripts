@@ -276,7 +276,7 @@ function module.getDefaultHMITable()
     params = {
       speechCapabilities = { "TEXT", "PRE_RECORDED" },
       prerecordedSpeechCapabilities = {
-        "HELP_JINGLE", "INITIAL_JINGLE", "LISTEN_JINGLE", "POSITIVE_JINGLE","NEGATIVE_JINGLE"
+        "HELP_JINGLE", "INITIAL_JINGLE", "LISTEN_JINGLE", "POSITIVE_JINGLE", "NEGATIVE_JINGLE"
       }
     },
     mandatory = true,
@@ -331,7 +331,11 @@ function module.getDefaultHMITable()
                 ventilationModeAvailable = true,
                 ventilationMode = {
                   "UPPER", "LOWER", "BOTH", "NONE"
-                }
+                },
+                heatedSteeringWheelAvailable = true,
+                heatedWindshieldAvailable = true,
+                heatedRearWindowAvailable = true,
+                heatedMirrorsAvailable = true
               }
             },
           radioControlCapabilities = {
@@ -345,8 +349,48 @@ function module.getDefaultHMITable()
                 availableHDsAvailable = true,
                 stateAvailable = true,
                 signalStrengthAvailable = true,
-                signalChangeThresholdAvailable = true
+                signalChangeThresholdAvailable = true,
+                sisDataAvailable = true
               }
+            },
+          audioControlCapabilities = {
+              moduleName = "Audio",
+              sourceAvailable = true,
+              volumeAvailable = true,
+              equalizerAvailable = true,
+              equalizerMaxChannelId = 100
+            },
+          hmiSettingsControlCapabilities = {
+              moduleName = "HmiSettings",
+              distanceUnitAvailable = true,
+              temperatureUnitAvailable = true,
+              displayModeUnitAvailable = true
+            },
+          lightControlCapabilities = {
+              moduleName = "Light",
+              supportedLights = (function()
+                local lights = { "FRONT_LEFT_HIGH_BEAM", "FRONT_RIGHT_HIGH_BEAM", "FRONT_LEFT_LOW_BEAM",
+                  "FRONT_RIGHT_LOW_BEAM", "FRONT_LEFT_PARKING_LIGHT", "FRONT_RIGHT_PARKING_LIGHT",
+                  "FRONT_LEFT_FOG_LIGHT", "FRONT_RIGHT_FOG_LIGHT", "FRONT_LEFT_DAYTIME_RUNNING_LIGHT",
+                  "FRONT_RIGHT_DAYTIME_RUNNING_LIGHT", "FRONT_LEFT_TURN_LIGHT", "FRONT_RIGHT_TURN_LIGHT",
+                  "REAR_LEFT_FOG_LIGHT", "REAR_RIGHT_FOG_LIGHT", "REAR_LEFT_TAIL_LIGHT", "REAR_RIGHT_TAIL_LIGHT",
+                  "REAR_LEFT_BREAK_LIGHT", "REAR_RIGHT_BREAK_LIGHT", "REAR_LEFT_TURN_LIGHT", "REAR_RIGHT_TURN_LIGHT",
+                  "REAR_REGISTRATION_PLATE_LIGHT", "HIGH_BEAMS", "LOW_BEAMS", "FOG_LIGHTS", "RUNNING_LIGHTS",
+                  "PARKING_LIGHTS", "BRAKE_LIGHTS", "REAR_REVERSING_LIGHTS", "SIDE_MARKER_LIGHTS", "LEFT_TURN_LIGHTS",
+                  "RIGHT_TURN_LIGHTS", "HAZARD_LIGHTS", "AMBIENT_LIGHTS", "OVERHEAD_LIGHTS", "READING_LIGHTS",
+                  "TRUNK_LIGHTS", "EXTERIOR_FRONT_LIGHTS", "EXTERIOR_REAR_LIGHTS", "EXTERIOR_LEFT_LIGHTS",
+                  "EXTERIOR_RIGHT_LIGHTS" }
+              local out = { }
+              for _, name in pairs(lights) do
+                local item = {
+                  name = name,
+                  densityAvailable = true,
+                  sRGBColorSpaceAvailable = true
+                }
+                table.insert(out, item)
+              end
+              return out
+              end)()
             },
           buttonCapabilities = (function()
             local buttons = {
