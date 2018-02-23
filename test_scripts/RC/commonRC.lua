@@ -16,6 +16,7 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
 local hmi_values = require("user_modules/hmi_values")
+local events = require("events")
 
 --[[ Local Variables ]]
 local ptu_table = {}
@@ -105,7 +106,7 @@ local function ptu(self, ptu_update_func)
       for id = 1, getAppsCount() do
         local mobileSession = commonRC.getMobileSession(self, id)
         mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
-        :Do(function(_, d2)
+        :DoOnce(function(_, d2)
             print("App ".. id .. " was used for PTU")
             RAISE_EVENT(event, event, "PTU event")
             checkIfPTSIsSentAsBinary(d2.binaryData)
@@ -727,7 +728,7 @@ end
 
 function commonRC.updateDefaultCapabilities(pDisabledModuleTypes)
   local hmiCapabilitiesFile = commonPreconditions:GetPathToSDL()
-    .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
+  .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
   local hmiCapTbl = jsonFileToTable(hmiCapabilitiesFile)
   local rcCapTbl = hmiCapTbl.UI.systemCapabilities.remoteControlCapability
   for _, pDisabledModuleType in pairs(pDisabledModuleTypes) do
