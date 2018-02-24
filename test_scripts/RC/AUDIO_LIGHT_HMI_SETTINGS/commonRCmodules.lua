@@ -366,7 +366,8 @@ function c.subscribeToModule(pModuleType, pAppId)
   local cid = mobSession:SendRPC(c.getAppEventName(rpc), c.getAppRequestParams(rpc, pModuleType, subscribe))
   EXPECT_HMICALL(c.getHMIEventName(rpc), c.getHMIRequestParams(rpc, pModuleType, pAppId, subscribe))
   :Do(function(_, data)
-      test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", c.getHMIResponseParams(rpc, pModuleType, subscribe))
+      test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+        c.getHMIResponseParams(rpc, pModuleType, subscribe))
     end)
   mobSession:ExpectResponse(cid, c.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, subscribe))
 end
@@ -378,7 +379,8 @@ function c.unSubscribeToModule(pModuleType, pAppId)
   local cid = mobSession:SendRPC(c.getAppEventName(rpc), c.getAppRequestParams(rpc, pModuleType, subscribe))
   EXPECT_HMICALL(c.getHMIEventName(rpc), c.getHMIRequestParams(rpc, pModuleType, pAppId, subscribe))
   :Do(function(_, data)
-      test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", c.getHMIResponseParams(rpc, pModuleType, subscribe))
+      test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+        c.getHMIResponseParams(rpc, pModuleType, subscribe))
     end)
   mobSession:ExpectResponse(cid, c.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, subscribe))
 end
@@ -389,7 +391,8 @@ function c.activateApp(pAppId)
   local mobSession = c.getMobileSession(pAppId)
   local requestId = test.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
   EXPECT_HMIRESPONSE(requestId)
-  mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = audibleState(), systemContext = "MAIN" })
+  mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = audibleState(),
+    systemContext = "MAIN" })
 end
 
 function c.defineRAMode(pAllowed, pAccessMode)
@@ -461,6 +464,27 @@ function c.rpcRejectWithoutConsent(pModuleType, pAppId, pRPC)
   EXPECT_HMICALL(c.getHMIEventName("GetInteriorVehicleDataConsent")):Times(0)
   EXPECT_HMICALL(c.getHMIEventName(pRPC)):Times(0)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
+end
+
+function c.getReadOnlyRadioParams()
+  local out = { moduleType = "RADIO" }
+    out.radioControlData = {
+        sisData = {
+        stationShortName = "Name2",
+        stationIDNumber = {
+          countryCode = 200,
+          fccFacilityId = 200
+        },
+        stationLongName = "RadioStationLongName2",
+        stationLocation = {
+          longitudeDegrees = 20.1,
+          latitudeDegrees = 20.1,
+          altitudeMeters = 20.1
+        },
+        stationMessage = "station message 2"
+      }
+    }
+  return out
 end
 
 function c.postconditions()

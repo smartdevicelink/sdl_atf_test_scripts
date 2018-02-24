@@ -53,7 +53,7 @@ local function setVehicleData(pSource)
 end
 
 local function BringAppToBACKGROUND()
-  common.activate_app(2)
+  common.activateApp(2)
   common.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
@@ -62,9 +62,9 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU App1", common.rai_ptu_n)
-runner.Step("RAI App2", common.rai_n, {2})
-runner.Step("Activate App1", common.activate_app)
+runner.Step("RAI, PTU App1", common.raiPTUn)
+runner.Step("RAI App2", common.raiN, {2})
+runner.Step("Activate App1", common.activateApp)
 runner.Step("Set App1 to BACKGROUND HMI level", BringAppToBACKGROUND)
 
 runner.Title("Test")

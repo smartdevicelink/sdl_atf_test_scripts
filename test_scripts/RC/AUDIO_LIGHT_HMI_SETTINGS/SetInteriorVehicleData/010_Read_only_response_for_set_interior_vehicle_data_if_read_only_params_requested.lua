@@ -20,7 +20,7 @@ local common = require('test_scripts/RC/AUDIO_LIGHT_HMI_SETTINGS/commonRCmodules
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local module_data_radio = common.getModuleControlData("RADIO")
+local module_data_radio = common.getReadOnlyRadioParams()
 
 --[[ Local Functions ]]
 local function setVehicleData(module_data)
@@ -35,11 +35,11 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.rai_ptu_n)
-runner.Step("Activate App", common.activate_app)
+runner.Step("RAI, PTU", common.raiPTUn)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test: SDL respond with READ_ONLY if SetInteriorVehicleData is sent with read_only params")
-runner.Step("Send SetInteriorVehicleData with sisData", setVehicleData, {module_data_radio})
+runner.Step("Send SetInteriorVehicleData with read only sisData", setVehicleData, {module_data_radio})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

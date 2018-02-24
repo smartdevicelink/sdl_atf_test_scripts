@@ -37,7 +37,7 @@ local function setVehicleData(pModuleType)
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 end
 
-local function ptu_update_func(tbl)
+local function PTUfunc(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = nil
 end
 
@@ -45,8 +45,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.rai_ptu_n, { ptu_update_func })
-runner.Step("Activate App", common.activate_app)
+runner.Step("RAI, PTU", common.raiPTUn, { PTUfunc })
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, mod in pairs(modules) do
