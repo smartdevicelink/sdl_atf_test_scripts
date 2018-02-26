@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/2
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/current_module_status_data.md
--- Item: Use Case 1: Main Flow
---
--- Requirement summary:
--- [SDL_RC] Current module status data GetInteriorVehicleData
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item: 
 --
 -- Description: TRS: GetInteriorVehicleData, #1
 -- In case:
@@ -25,11 +23,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe)
   local mobSession = commonRC.getMobileSession()
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
-=======
-  local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
->>>>>>> Changes were done to the rc_seat
     moduleType = pModuleType,
     subscribe = pSubscribe
   })

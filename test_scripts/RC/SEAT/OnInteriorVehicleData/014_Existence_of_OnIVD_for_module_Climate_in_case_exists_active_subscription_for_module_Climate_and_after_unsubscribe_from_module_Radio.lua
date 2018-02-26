@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/5
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/unsubscribe_from_module_status_change_notification.md
--- Item: Use Case 1: Main Flow
---
--- Requirement summary:
--- [SDL_RC] Unsubscribe from RC module change notifications
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item
 --
 -- Description:
 -- In case:
@@ -20,8 +18,8 @@ local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
 --[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO", "SEAT" } --Changed
-local mod1 = "SEAT"        --Changed
+local modules = { "CLIMATE", "RADIO", "SEAT" }
+local mod1 = "SEAT"        
 local mod2 = "CLIMATE"
 local mod3 = "RADIO"
 

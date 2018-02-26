@@ -1,16 +1,14 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
--- Item: Use Case 1: Main Flow
---
--- Requirement summary:
--- [SDL_RC] Capabilities
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item: 
 --
 -- Description:
 -- In case:
--- 1) SDL gets all RC capabilities for SEAT modules through RC.GetCapabilities
+-- SDL gets all RC capabilities for SEAT modules through RC.GetCapabilities
 -- SDL must:
--- 1) Send RPC request to HMI and resend HMI answer to Mobile app
+-- Send RPC request to HMI and resend HMI answer to Mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -31,10 +29,8 @@ runner.Step("Activate App1", commonRC.activate_app)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { "SEAT", 1 })
-  runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { "SEAT", 1, "SetInteriorVehicleData" })
-end
+runner.Step("GetInteriorVehicleData SEAT", commonRC.subscribeToModule, { "SEAT", 1 })
+runner.Step("SetInteriorVehicleData SEAT", commonRC.rpcAllowed, { "SEAT", 1, "SetInteriorVehicleData" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

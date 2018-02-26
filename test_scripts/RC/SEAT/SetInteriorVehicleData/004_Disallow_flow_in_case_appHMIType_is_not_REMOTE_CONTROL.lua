@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/7
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/Policy_Support_of_basic_RC_functionality.md
--- Item: Use Case 1: Alternative flow 1
---
--- Requirement summary:
--- [SDL_RC] Set available control module settings SetInteriorVehicleData
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item
 --
 -- Description:
 -- In case:

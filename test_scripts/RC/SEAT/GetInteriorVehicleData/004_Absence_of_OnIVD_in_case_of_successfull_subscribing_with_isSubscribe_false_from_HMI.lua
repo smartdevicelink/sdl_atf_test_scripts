@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/4
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/subscription_on_module_status_change_notification.md
--- Use Case 1: Alternative flow 1
---
--- Requirement summary:
--- [SDL_RC] Subscribe on RC module change notification
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item: 
 --
 -- Description: TRS: GetInteriorVehicleData, #5
 -- In case:

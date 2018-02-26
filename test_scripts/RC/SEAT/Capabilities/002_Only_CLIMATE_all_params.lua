@@ -1,14 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
--- Item: Use Case 1:Exception 3.1
---
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
--- Item: Use Case 1: Exceptions: 5.1
---
--- Requirement summary:
--- [SDL_RC] Capabilities
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item: 
 --
 -- Description:
 -- In case:
@@ -24,7 +18,7 @@ local commonRC = require('test_scripts/RC/SEAT/commonRC')
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" } }) --Changed
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" } }) 
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all SEAT RC capabilities), connect Mobile, start Session", commonRC.start,
 	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, nil, commonRC.DEFAULT)})

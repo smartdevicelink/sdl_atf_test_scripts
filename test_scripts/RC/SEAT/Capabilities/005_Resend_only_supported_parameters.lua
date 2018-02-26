@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
--- Item: Use Case 1:Exception 3.3
---
--- Requirement summary:
--- [SDL_RC] Set available control module settings SetInteriorVehicleData
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item
 --
 -- Description:
 -- In case:
@@ -18,10 +16,10 @@ local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
 local common_functions = require('user_modules/shared_testcases/commonTestCases')
 
---[[ Local Variables ]]
-local seat_capabilities = {{moduleName = "Seat", seatHeatingLevelAvailable = true, seatCoolingLevelAvailable = true}}
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
-local rc_capabilities = commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, seat_capabilities, commonRC.DEFAULT)
+local rc_capabilities = commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, seat_capabilities, commonRC.DEFAULT)
 local available_params =
 {
     moduleType = "SEAT",
@@ -32,9 +30,9 @@ local absent_params = {moduleType = "SEAT", seatControlData = {heatingLevel = 50
 --[[ Local Functions ]]
 local function setVehicleData(params)
 	local mobSession = commonRC.getMobileSession()
-	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
+	local cid = mobSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
 
-	if params.radioControlData.frequencyInteger then
+	if params.seatControlData.heatingLevel then
 		EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
             appID = commonRC.getHMIAppId(1),
 			moduleData = params})
@@ -42,10 +40,10 @@ local function setVehicleData(params)
 				commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
 					moduleData = params})
 			end)
-		mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+		mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 	else
 		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		mobileSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+		mobSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
         common_functions.DelayedExp(commonRC.timeout)
 	end
 end

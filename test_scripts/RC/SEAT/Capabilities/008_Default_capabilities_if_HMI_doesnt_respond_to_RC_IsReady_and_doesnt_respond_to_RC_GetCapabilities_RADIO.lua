@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
--- Item: Use Case 1: Exception 2.1
---
--- Requirement summary:
--- [SDL_RC] Capabilities
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item
 --
 -- Description:
 -- In case:
@@ -20,10 +18,8 @@ local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
 local hmi_values = require('user_modules/hmi_values')
 
---[[ Local Variables ]]
-local disabledModule = "CLIMATE" --Changed
-local disabledModule = "RADIO"   --added
-local enabledModule = "SEAT"     --added
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function getHMIParams()
@@ -61,17 +57,9 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { g
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
-runner.Title("Test - Module enabled: " .. enabledModule .. ", disabled: " .. disabledModule .. ", disabled: " .. disabledModule) --Changed
+runner.Title("Test - Module enabled: " .. enabledModule .. ",) 
 
-runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "GetInteriorVehicleData" })
-runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "SetInteriorVehicleData" })
-runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "ButtonPress" })
-
-runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "GetInteriorVehicleData" })
-runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "SetInteriorVehicleData" })
-runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", rpcUnsupportedResource, { disabledModule, "ButtonPress" })
-
-runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" }) --Changed
+runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" }) 
 runner.Step("SetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "SetInteriorVehicleData" })
 
 runner.Title("Postconditions")

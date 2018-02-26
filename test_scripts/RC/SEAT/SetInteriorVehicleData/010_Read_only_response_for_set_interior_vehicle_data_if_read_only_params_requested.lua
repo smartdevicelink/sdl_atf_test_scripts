@@ -1,10 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
--- Item: Use Case 1: Exceptions: 7.1
---
--- Requirement summary:
--- [SDL_RC] Set available control module settings SetInteriorVehicleData
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item
 --
 -- Description:
 -- In case:
@@ -39,7 +37,7 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test: SDL respond with READ_ONLY if SetInteriorVehicleData is sent with read_only params")
 
-for parameter_name, parameter_value in pairs(module_data_seat.seatControlData) do --Changed
+for parameter_name, parameter_value in pairs(module_data_seat.seatControlData) do 
 	local seat_read_only_parameters = {
 		moduleType = module_data_seat.moduleType,
 		seatControlData = {[parameter_name] = parameter_value}

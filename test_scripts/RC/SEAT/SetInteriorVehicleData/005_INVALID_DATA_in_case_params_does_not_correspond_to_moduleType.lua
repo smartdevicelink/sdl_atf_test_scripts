@@ -1,13 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
--- Item: Use Case 1: Exceptions: 2.2
---
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
--- Item: Use Case 1: Use Case 1: Exceptions: 7.3
---
--- Requirement summary:
--- [SDL_RC] Set available control module settings SetInteriorVehicleData
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
+-- User story: 
+-- Use case: 
+-- Item
 --
 -- Description:
 -- In case:
@@ -27,9 +22,9 @@ runner.testSettings.isSelfIncluded = false
 local function setVehicleData(pModuleType)
   local mobSession = commonRC.getMobileSession()
   local moduleType2 = nil
-  if pModuleType == "SEAT" then --Change
+  if pModuleType == "SEAT" then 
     moduleType2 = "RADIO"
-  elseif pModuleType == "RADIO" then  --Changed
+  elseif pModuleType == "RADIO" then 
     moduleType2 = "SEAT"
   end
 
