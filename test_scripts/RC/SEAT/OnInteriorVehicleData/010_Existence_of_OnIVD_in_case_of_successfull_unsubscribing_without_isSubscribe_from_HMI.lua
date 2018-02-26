@@ -56,13 +56,13 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
-runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Test")
 
 runner.Step("Subscribe app to SEAT", unSubscriptionToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App still subscribed", commonRC.isSubscribed, { SEAT })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App still subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

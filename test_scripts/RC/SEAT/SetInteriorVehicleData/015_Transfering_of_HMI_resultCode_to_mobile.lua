@@ -72,14 +72,14 @@ runner.Title("Test")
 for _, mod in pairs(modules) do
   runner.Title("Module: " .. mod)
   for _, code in pairs(success_codes) do
-    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepSuccessfull, { mod, code })
+    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepSuccessfull, { "SEAT", code })
   end
 end
 
 for _, mod in pairs(modules) do
   runner.Title("Module: " .. mod)
   for _, code in pairs(error_codes) do
-    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepUnsuccessfull, { mod, code })
+    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepUnsuccessfull, { "SEAT", code })
   end
 end
 

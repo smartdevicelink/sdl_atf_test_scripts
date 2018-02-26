@@ -28,11 +28,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("GetInteriorVehicleData SEAT", commonRC.subscribeToModule, { "SEAT" })
-=======
-runner.Step("GetInteriorVehicleData SEAT", commonRC.subscribeToModule, { SEAT })
->>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

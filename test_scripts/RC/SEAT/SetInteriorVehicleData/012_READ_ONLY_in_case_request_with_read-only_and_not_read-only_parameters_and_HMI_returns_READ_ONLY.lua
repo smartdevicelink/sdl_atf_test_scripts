@@ -47,7 +47,7 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-runner.Step("SetInteriorVehicleData SEAT", setVehicleData, { SEAT })
+runner.Step("SetInteriorVehicleData SEAT", setVehicleData, { "SEAT" })
 
 
 runner.Title("Postconditions")

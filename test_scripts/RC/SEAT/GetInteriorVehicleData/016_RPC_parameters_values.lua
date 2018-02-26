@@ -30,15 +30,8 @@ local function invalidParamName(pModuleType)
     modduleData = commonRC.getAnotherModuleControlData(pModuleType) -- invalid name of parameter
   })
 
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-=======
-  mobileSession:ExpectNotification("OnInteriorVehicleData")
-  :Times(0)
- 
-  commonTestCases:DelayedExp(commonRC.timeout)
->>>>>>> Changes were done to the rc_seat
 end
 
 local function invalidParamType(pModuleType)
@@ -71,7 +64,6 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
@@ -79,15 +71,6 @@ runner.Title("Test")
 runner.Step("OnInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { "SEAT" })
 runner.Step("OnInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { "SEAT" })
 runner.Step("OnInteriorVehicleData SEAT mandatory parameter missing", missingMandatoryParam, { "SEAT" })
-=======
-runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
-
-runner.Title("Test")
-runner.Step("OnInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { SEAT })
-runner.Step("OnInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { SEAT })
-runner.Step("OnInteriorVehicleData SEAT mandatory parameter missing", missingMandatoryParam, { SEAT })
->>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

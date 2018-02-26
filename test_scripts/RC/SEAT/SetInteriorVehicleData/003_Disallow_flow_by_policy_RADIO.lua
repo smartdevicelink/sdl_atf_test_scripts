@@ -37,7 +37,7 @@ local function setVehicleData(pModuleType)
 end
 
 local function ptu_update_func(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "SEAT" } --?
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "SEAT" } 
 end
 
 --[[ Scenario ]]
@@ -48,7 +48,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu, { ptu_update_func })
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-runner.Step("SetInteriorVehicleData SEAT", setVehicleData, { SEAT })
+runner.Step("SetInteriorVehicleData SEAT", setVehicleData, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

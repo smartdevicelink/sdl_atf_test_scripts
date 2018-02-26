@@ -57,7 +57,7 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-runner.Step("SetInteriorVehicleData SEAT_gets_INVALID_DATA", setVehicleData, { SEAT })
+runner.Step("SetInteriorVehicleData SEAT_gets_INVALID_DATA", setVehicleData, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

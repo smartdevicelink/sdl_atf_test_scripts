@@ -73,13 +73,13 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Test")
 
-runner.Step("OnInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { SEAT })
-runner.Step("OnInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { SEAT })
-runner.Step("OnInteriorVehicleData SEAT mandatory parameter missing", missingMandatoryParam, { SEAT })
+runner.Step("OnInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { "SEAT" })
+runner.Step("OnInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { "SEAT" })
+runner.Step("OnInteriorVehicleData SEAT mandatory parameter missing", missingMandatoryParam, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

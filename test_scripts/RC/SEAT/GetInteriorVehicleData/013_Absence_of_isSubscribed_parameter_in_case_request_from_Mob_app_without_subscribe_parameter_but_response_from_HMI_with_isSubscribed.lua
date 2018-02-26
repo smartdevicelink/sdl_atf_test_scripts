@@ -51,11 +51,7 @@ local function getDataForModule(pModuleType, isSubscriptionActive)
       return false, 'Parameter "subscribe" is transfered with to HMI value: ' .. tostring(data.params.subscribe)
     end)
 
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
-=======
-  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
->>>>>>> Changes were done to the rc_seat
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
   :ValidIf(function(_, data) -- no isSubscribed parameter
@@ -74,15 +70,9 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("GetInteriorVehicleData SEAT NoSubscription", getDataForModule, { "SEAT", false })
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("GetInteriorVehicleData SEAT ActiveSubscription_subscribe", getDataForModule, { "SEAT", true })
-=======
-runner.Step("GetInteriorVehicleData SEAT NoSubscription", getDataForModule, { SEAT, false })
-runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
-runner.Step("GetInteriorVehicleData SEAT ActiveSubscription_subscribe", getDataForModule, { SEAT, true })
->>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

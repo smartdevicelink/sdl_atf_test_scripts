@@ -31,10 +31,10 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
-runner.Step("Send notification OnInteriorVehicleData RADIO. App is not subscribed", commonRC.isUnsubscribed, { RADIO })
+runner.Step("Send notification OnInteriorVehicleData RADIO. App is not subscribed", commonRC.isUnsubscribed, { "RADIO" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

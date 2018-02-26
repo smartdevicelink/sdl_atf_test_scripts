@@ -72,8 +72,8 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType, { SEAT })
-runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam, { SEAT })
+runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType, { "SEAT" })
+runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

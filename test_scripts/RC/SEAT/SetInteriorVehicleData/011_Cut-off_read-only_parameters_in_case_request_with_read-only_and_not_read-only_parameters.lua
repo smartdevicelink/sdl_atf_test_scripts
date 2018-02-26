@@ -83,16 +83,16 @@ runner.Title("Test")
 
 -- one settable parameter
 for _, mod in pairs(modules) do
-	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(SEAT))
+	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData("SEAT"))
 	for param, value in pairs(settableParams) do
-	  runner.Step("SetInteriorVehicleData SEAT_one_settable_param_" .. param, setVehicleData, { SEAT, { [param] = value } })
+	  runner.Step("SetInteriorVehicleData SEAT_one_settable_param_" .. param, setVehicleData, { "SEAT", { [param] = value } })
 	end
 end
 
 -- all settable parameters
 for _, mod in pairs(modules) do
-	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData(SEAT))
-	runner.Step("SetInteriorVehicleData SEAT_all_settable_params", setVehicleData, { SEAT, settableParams })
+	local settableParams = commonRC.getModuleParams(commonRC.getSettableModuleControlData("SEAT"))
+	runner.Step("SetInteriorVehicleData SEAT_all_settable_params", setVehicleData, { "SEAT", settableParams })
 end
 
 runner.Title("Postconditions")

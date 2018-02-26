@@ -58,7 +58,7 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate_App", commonRC.activate_app)
 
 runner.Title("Test")
-runner.Step("GetInteriorVehicleData for SEAT", commonRC.subscribeToModule, {SEAT, 1})
+runner.Step("GetInteriorVehicleData for SEAT", commonRC.subscribeToModule, {"SEAT", 1})
 
 runner.Step("SetInteriorVehicleData processed for several supported params", setVehicleData, { available_params })
 runner.Step("SetInteriorVehicleData rejected with unsupported parameter", setVehicleData, { absent_params })

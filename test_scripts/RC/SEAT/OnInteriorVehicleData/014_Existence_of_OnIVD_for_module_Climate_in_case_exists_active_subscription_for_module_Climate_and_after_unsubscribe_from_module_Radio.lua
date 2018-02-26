@@ -32,15 +32,15 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
-runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { SEAT })
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Test")
 
-runner.Step("Unsubscribe app to SEAT", commonRC.unSubscribeToModule, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData SEAT. App is unsubscribed", commonRC.isUnsubscribed, { SEAT })
-runner.Step("Send notification OnInteriorVehicleData CLIMATE. App is still subscribed", commonRC.isSubscribed, { CLIMATE })
-runner.Step("Send notification OnInteriorVehicleData RADIO. App is still subscribed", commonRC.isSubscribed, { RADIO })
+runner.Step("Unsubscribe app to SEAT", commonRC.unSubscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is unsubscribed", commonRC.isUnsubscribed, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData CLIMATE. App is still subscribed", commonRC.isSubscribed, { "CLIMATE" })
+runner.Step("Send notification OnInteriorVehicleData RADIO. App is still subscribed", commonRC.isSubscribed, { "RADIO" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

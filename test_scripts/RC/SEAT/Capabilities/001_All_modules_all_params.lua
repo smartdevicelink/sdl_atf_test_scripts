@@ -32,8 +32,8 @@ runner.Step("Activate App1", commonRC.activate_app)
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { SEAT, 1 })
-  runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { SEAT, 1, "SetInteriorVehicleData" }) --Changed
+  runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { "SEAT", 1 })
+  runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { "SEAT", 1, "SetInteriorVehicleData" })
 end
 
 runner.Title("Postconditions")

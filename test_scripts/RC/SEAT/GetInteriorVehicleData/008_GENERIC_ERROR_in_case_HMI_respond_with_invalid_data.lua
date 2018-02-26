@@ -25,11 +25,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function invalidParamType(pModuleType)
   local mobSession = commonRC.getMobileSession()
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
-=======
-  local cid = mobileSession1:SendRPC("GetInteriorVehicleData", {
->>>>>>> Changes were done to the rc_seat
     moduleType = pModuleType,
     subscribe = true
   })
@@ -51,21 +47,14 @@ end
 
 local function missingMandatoryParam(pModuleType)
   local mobSession = commonRC.getMobileSession()
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
-=======
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
->>>>>>> Changes were done to the rc_seat
     moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
     appID = commonRC.getHMIAppId(),
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
     moduleType = pModuleType,
-=======
->>>>>>> Changes were done to the rc_seat
     subscribe = true
   })
 
@@ -78,11 +67,7 @@ local function missingMandatoryParam(pModuleType)
       })
     end)
 
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
   mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
-=======
-  mobileSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
->>>>>>> Changes were done to the rc_seat
 end
 
 --[[ Scenario ]]
@@ -93,16 +78,10 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-<<<<<<< 8ac10e1aed2095231a6cb629ea8cf692e92074a9
 runner.Step("GetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType,
   { "SEAT" })
 runner.Step("GetInteriorVehicleData SEAT Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam,
   { "SEAT" })
-=======
-  runner.Step("GetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType, { SEAT })
-  runner.Step("GetInteriorVehicleData SEAT Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam, { SEAT })
-end
->>>>>>> Changes were done to the rc_seat
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

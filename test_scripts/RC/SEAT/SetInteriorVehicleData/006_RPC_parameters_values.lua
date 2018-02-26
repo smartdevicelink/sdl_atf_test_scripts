@@ -98,10 +98,10 @@ runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
 
-runner.Step("SetInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { SEAT })
-runner.Step("SetInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { SEAT })
+runner.Step("SetInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { "SEAT" })
+runner.Step("SetInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { "SEAT" })
 runner.Step("SetInteriorVehicleData SEAT fake parameter", fakeParam, { mod })
-runner.Step("SetInteriorVehicleData SEAT missing mandatory parameter", missingMandatoryParam, { SEAT })
+runner.Step("SetInteriorVehicleData SEAT missing mandatory parameter", missingMandatoryParam, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
