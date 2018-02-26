@@ -1,111 +1,147 @@
-local module = {}
+---------------------------------------------------------------------------------------------------
+-- Utils
+---------------------------------------------------------------------------------------------------
+--[[ General configuration parameters ]]
+config.mobileHost = "127.0.0.1"
 
-local common_functions = require("user_modules/common_functions")
-local api_loader = require("modules/api_loader")
-local mobile_api = api_loader.init("data/MOBILE_API.xml")
-local interface_schema = mobile_api.interface["SmartDeviceLink RAPI"]
+--[[ Required Shared libraries ]]
+local json = require("modules/json")
+local events = require('events')
 
---! @brief Function which returns unordered key set from any table
---! @param table - table from which we are going to get the keys
-function module.GetUnorderedTableKeyset(source_table)
-  local keyset = {}
+--[[ Module ]]
+local m = {}
 
-  for k in pairs(source_table) do
-    table.insert(keyset, k)
-  end
-  return keyset
+--[[ Constants ]]
+m.timeout = 2000
+
+--[[ Functions ]]
+
+--[[ @jsonFileToTable: convert .json file to table
+--! @parameters:
+--! pFileName - file name
+--! @return: table
+--]]
+function m.jsonFileToTable(pFileName)
+  local f = io.open(pFileName, "r")
+  local content = f:read("*all")
+  f:close()
+  return json.decode(content)
 end
 
---! @brief Function converts time in TZ format to epoch seconds
---! @param tz_date - date in TZ format
---! @return value - value in epoch seconds
---! @usage Function usage example: epoch_seconds = module.ConvertTZDateToEpochSeconds("2017-02-13T19:28:19Z")
-function module.ConvertTZDateToEpochSeconds(tz_date)
-  local tz_table = {year = 0, month = 0, day = 0, hour = 0, min = 0, sec = 0}
-  local keyset = {"year", "month", "day", "hour", "min", "sec"}
-  local count = 1
-  for element in string.gmatch(tz_date,'%d+') do
-    tz_table[keyset[count]] = element
-    count = count + 1
-  end
-  return os.time(tz_table)
+--[[ @tableToJsonFile: convert table to .json file
+--! @parameters:
+--! pTbl - table
+--! pFileName - file name
+--! @return: none
+--]]
+function m.tableToJsonFile(pTbl, pFileName)
+  local f = io.open(pFileName, "w")
+  f:write(json.encode(pTbl))
+  f:close()
 end
 
---! @brief Allows to get struct value from any mobile api struct
---! @param struct_name - name of needed struct
---! @param param_name - struct parameter
---! @param value_to_read - value which is needed to be read
---! @usage Function usage example: maxvalueMenuParams = module.GetStructValueFromMobileApi( "MenuParams", "parentID", "maxvalue")
-function module.GetStructValueFromMobileApi(struct_name, param_name, value_to_read)
-  if not interface_schema.struct[struct_name] then
-    common_functions:UserPrint(31, "Struct with name:", " ")
-    common_functions:UserPrint(0, struct_name, " ")
-    common_functions:UserPrint(31, "does not exist")
-    return nil
-  end
-  if not interface_schema.struct[struct_name].param[param_name] then
-    common_functions:UserPrint(31, "Param with name:", " ")
-    common_functions:UserPrint(0, param_name, " ")
-    common_functions:UserPrint(31, "does not exist in structure:", " ")
-    common_functions:UserPrint(0, struct_name)
-    return nil
-  end
-  return interface_schema.struct[struct_name].param[param_name][value_to_read]
+--[[ @readFile: read data from file
+--! @parameters:
+--! pPath - path to file
+-- @return: content of the file
+--]]
+function m.readFile(pPath)
+  local open = io.open
+  local file = open(pPath, "rb")
+  if not file then return nil end
+  local content = file:read "*a"
+  file:close()
+  return content
 end
 
---! @brief Function allows to get an enum from mobile api
---! @param enum_name - enum name which we are going to get
---! @param Function usage example: local sampling_rates = utils.GetEnumFromMobileApi("SamplingRate")
-function module.GetEnumFromMobileApi(enum_name)
-  if not interface_schema.enum[enum_name] then
-    common_functions:UserPrint(31, "Enum with name:", " ")
-    common_functions:UserPrint(0, enum_name, " ")
-    common_functions:UserPrint(31, "does not exist")
-    return nil
+--[[ @cloneTable: clone table
+--! @parameters:
+--! pTbl - table to clone
+--! @return: cloned table
+--]]
+function m.cloneTable(pTbl)
+  if pTbl == nil then
+    return {}
   end
-  return module.GetUnorderedTableKeyset(interface_schema.enum[enum_name])
+  local copy = {}
+  for k, v in pairs(pTbl) do
+    if type(v) == 'table' then
+      v = m:cloneTable(v)
+    end
+    copy[k] = v
+  end
+  return copy
 end
 
---! @brief Function allows to get any enum size(number of elements) from mobile api
---! @param enum_name - enum name which size we are going to get
---! @param Function usage example: maxlength = enum_size = module.GetEnumSizeFromMobileApi("AppInterfaceUnregisteredReason")
-function module.GetEnumSizeFromMobileApi(enum_name)
-  if not interface_schema.enum[enum_name] then
-    common_functions:UserPrint(31, "Enum with name:", " ")
-    common_functions:UserPrint(0, enum_name, " ")
-    common_functions:UserPrint(31, "does not exist")
-    return nil
-  end
-  return #module.GetUnorderedTableKeyset(interface_schema.enum[enum_name])
+--[[ @wait: delay test step for specific timeout
+--! @parameters:
+--! pTimeOut - time to wait in ms
+--! @return: none
+--]]
+function m.wait(pTimeOut)
+  if not pTimeOut then pTimeOut = m.timeout end
+  local event = events.Event()
+  event.matches = function(event1, event2) return event1 == event2 end
+  EXPECT_EVENT(event, "Delayed event")
+  :Timeout(pTimeOut + 60000)
+  RUN_AFTER(function() RAISE_EVENT(event, event) end, pTimeOut)
 end
 
---! @brief Function allows to get value from any mobile api function
---! @param function_type - request, response or notification
---! @param function_name - name of the function
---! @param param_name - function parameter
---! @param value_to_read - value which is needed to be read
---! @param Function usage example: maxlength = module.GetFunctionValueFromMobileApi("request", "Show", "mainField2", "maxlength")
-function module.GetFunctionValueFromMobileApi(function_type, function_name, param_name, value_to_read)
-  if not interface_schema.type[function_type] then
-    common_functions:UserPrint(31, "Function with type:", " ")
-    common_functions:UserPrint(0, function_type, " ")
-    common_functions:UserPrint(31, "does not exist")
-    return nil
-  end
-  if not interface_schema.type[function_type].functions[function_name] then
-    common_functions:UserPrint(31, "Function with name:", " ")
-    common_functions:UserPrint(0, function_name, " ")
-    common_functions:UserPrint(31, "does not exist")
-    return nil
-  end
-  if not interface_schema.type[function_type].functions[function_name].param[param_name] then
-    common_functions:UserPrint(31, "Parameter with name:", " ")
-    common_functions:UserPrint(0, param_name, " ")
-    common_functions:UserPrint(31, "does not exist")
-    return nil
-  end
-  return interface_schema.type[function_type].functions[function_name].param[param_name][value_to_read]
+--[[ @getDeviceName: provide device name
+--! @parameters: none
+--! @return: name of the device
+--]]
+function m.getDeviceName()
+  return config.mobileHost .. ":" .. config.mobilePort
 end
 
-return module
+--[[ @getDeviceMAC: provide device MAC address
+--! @parameters: none
+--! @return: MAC address of the device
+--]]
+function m.getDeviceMAC()
+  local cmd = "echo -n " .. m.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+  return result
+end
 
+--[[ @protect: make table immutable
+--! @parameters:
+--! pTbl - mutable table
+--! @return: immutable table
+--]]
+function m.protect(pTbl)
+  local mt = {
+    __index = pTbl,
+    __newindex = function(_, k, v)
+      error("Attempting to change item " .. tostring(k) .. " to " .. tostring(v), 2)
+    end
+  }
+  return setmetatable({}, mt)
+end
+
+--[[ @inheritObjects: copy objects from source module to target
+-- 'objects' means: tables, functions, fields
+-- Function is useful for 'inheriting' data of one module to another
+--! @parameters:
+--! pTargetObject - target module
+--! pSourceObject - source module
+--! @return: none
+--]]
+function m.inheritObjects(pTargetObject, pSourceObject)
+  for k, v in pairs(pSourceObject) do
+    if type(v) == "table" then
+      pTargetObject[k] = m.cloneTable(v)
+    elseif type(v) == "function" then
+      pTargetObject[k] = function(...)
+        return v(...)
+      end
+    else
+      pTargetObject[k] = v
+    end
+  end
+end
+
+return m
