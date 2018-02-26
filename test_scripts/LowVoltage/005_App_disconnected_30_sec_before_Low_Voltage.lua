@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
---
+-- Test Case #1: Extension 2
+-- In case:
+-- 1) App was in FULL HMI level
+-- 2) App disconnected more than 30 sec before LOW_VOLTAGE
+-- 3) App registers again after WAKE_UP
+-- SDL does:
+-- 1) Resume app data
+-- 2) Not resume app HMI level
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -8,38 +15,13 @@ local runner = require('user_modules/script_runner')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local hashId = { }
-local grammarId = { }
-
 --[[ Local Functions ]]
 local function addResumptionData()
-  local pAppId = 1
-  local cid = common.getMobileSession(pAppId):SendRPC("AddCommand", { cmdID = 1, vrCommands = { "OnlyVRCommand" }})
-  common.getHMIConnection():ExpectRequest("VR.AddCommand")
-  :Do(function(_, data)
-      grammarId[pAppId] = data.params.grammarID
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  common.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
-  :Do(function(_, data)
-      hashId[pAppId] = data.payload.hashID
-    end)
+  common.rpcSend.AddCommand(1)
 end
 
 local function checkResumptionData()
-  local pAppId = 1
-  common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-    cmdID = 1,
-    vrCommands = { "OnlyVRCommand" },
-    type = "Command",
-    grammarID = grammarId[pAppId],
-    appID = common.getHMIAppId(pAppId)
-  })
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
-    end)
+  common.rpcCheck.AddCommand(1)
 end
 
 local function checkResumptionHMILevel()
@@ -84,7 +66,7 @@ runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
 
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check resumption of Data and no resumption of HMI level", common.reRegisterApp, {
-  1, hashId, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 5000
+  1, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 5000
 })
 
 runner.Title("Postconditions")

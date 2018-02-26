@@ -1,5 +1,11 @@
 ---------------------------------------------------------------------------------------------------
---
+-- Test Case #1: Extension 3
+-- In case:
+-- 1) App unregisters itself gracefully before LOW_VOLTAGE
+-- 2) App registers again after WAKE_UP
+-- SDL does:
+-- 1) Not resume app data
+-- 2) Not resume app HMI level
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -8,22 +14,9 @@ local runner = require('user_modules/script_runner')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local hashId = { }
-
 --[[ Local Functions ]]
 local function addResumptionData()
-  local pAppId = 1
-  local cid = common.getMobileSession(pAppId):SendRPC("AddCommand", { cmdID = 1, vrCommands = { "OnlyVRCommand" }})
-  common.getHMIConnection():ExpectRequest("VR.AddCommand")
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  common.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
-  :Do(function(_, data)
-      hashId[pAppId] = data.payload.hashID
-    end)
+  common.rpcSend.AddCommand(1)
 end
 
 local function checkResumptionData()
@@ -67,7 +60,7 @@ runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
 
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check no resumption of Data and no resumption of HMI level", common.reRegisterApp, {
-  1, hashId, checkAppId, checkResumptionData, checkResumptionHMILevel, "RESUME_FAILED", 5000
+  1, checkAppId, checkResumptionData, checkResumptionHMILevel, "RESUME_FAILED", 5000
 })
 
 runner.Title("Postconditions")

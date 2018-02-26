@@ -1,5 +1,26 @@
 ---------------------------------------------------------------------------------------------------
---
+-- In case:
+-- 1) SDL is started (there was no LOW_VOLTAGE signal sent)
+-- 2) There are following app’s in HMI levels:
+-- App1 is in FULL
+-- App2 is in LIMITED
+-- App3 is in BACKGROUND
+-- App4 is in NONE
+-- 3) All apps have some data that can be resumed
+-- 4) SDL get LOW_VOLTAGE signal via mqueue
+-- 5) And then SDL get WAKE_UP signal via mqueue
+-- 6) All apps are registered with the same hashID
+-- SDL does:
+-- 1) after 4th step:
+-- Stop all read write activities
+-- Stop Audio/Video streaming
+-- Ignore all RPCs from mobile side
+-- Ignore all RPCs from HMI side
+-- 2) after 5th step: Start it’s work successfully
+-- 3) after 6th step:
+-- Resume app data for App1, App2, App3 and App4
+-- Resume HMI level for App1, App2, App4
+-- Not resume HMI level for App3
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -8,10 +29,6 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-
---[[ Local Variables ]]
-local hashId = { }
-local grammarId = { }
 
 --[[ Local Functions ]]
 local function checkSDLIgnoresRPCFromMobileSide()
@@ -83,94 +100,20 @@ end
 
 local function addResumptionData(pAppId)
   local f = {}
-  f[1] = function()
-    local cid = common.getMobileSession(1):SendRPC("AddCommand", { cmdID = 1, vrCommands = { "OnlyVRCommand" }})
-    common.getHMIConnection():ExpectRequest("VR.AddCommand")
-    :Do(function(_, data)
-        grammarId[1] = data.params.grammarID
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-      end)
-    common.getMobileSession(1):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    common.getMobileSession(1):ExpectNotification("OnHashChange")
-    :Do(function(_, data)
-        hashId[1] = data.payload.hashID
-      end)
-  end
-  f[2] = function()
-    local cid = common.getMobileSession(2):SendRPC("AddSubMenu", { menuID = 1, position = 500, menuName = "SubMenu" })
-    common.getHMIConnection():ExpectRequest("UI.AddSubMenu")
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-      end)
-    common.getMobileSession(2):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    common.getMobileSession(2):ExpectNotification("OnHashChange")
-    :Do(function(_, data)
-        hashId[2] = data.payload.hashID
-      end)
-  end
-  f[3] = function()
-    local cid = common.getMobileSession(3):SendRPC("CreateInteractionChoiceSet", {
-      interactionChoiceSetID = 1,
-      choiceSet = {
-        { choiceID = 1, menuName = "Choice", vrCommands = { "VrChoice" }}
-      }
-    })
-    common.getHMIConnection():ExpectRequest("VR.AddCommand")
-    :Do(function(_, data)
-        grammarId[3] = data.params.grammarID
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-      end)
-    common.getMobileSession(3):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    common.getMobileSession(3):ExpectNotification("OnHashChange")
-    :Do(function(_, data)
-        hashId[3] = data.payload.hashID
-      end)
-  end
-  f[4] = function() end
-  f[pAppId]()
+  f[1] = common.rpcSend.AddCommand
+  f[2] = common.rpcSend.AddSubMenu
+  f[3] = common.rpcSend.CreateInteractionChoiceSet
+  f[4] = common.rpcSend.NoRPC
+  f[pAppId](pAppId)
 end
 
 local function checkResumptionData(pAppId)
   local f = {}
-  f[1] = function()
-    common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-      cmdID = 1,
-      vrCommands = { "OnlyVRCommand" },
-      type = "Command",
-      grammarID = grammarId[1],
-      appID = common.getHMIAppId(1)
-    })
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
-      end)
-  end
-  f[2] = function()
-    common.getHMIConnection():ExpectRequest("UI.AddSubMenu", {
-      menuID = 1,
-      menuParams = {
-        position = 500,
-        menuName = "SubMenu"
-      },
-      appID = common.getHMIAppId(2)
-    })
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
-      end)
-  end
-  f[3] = function()
-    common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-      cmdID = 1,
-      vrCommands = { "VrChoice" },
-      type = "Choice",
-      grammarID = grammarId[3],
-      appID = common.getHMIAppId(3)
-    })
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
-      end)
-  end
-  f[4] = function() end
-  f[pAppId]()
+  f[1] = common.rpcCheck.AddCommand
+  f[2] = common.rpcCheck.AddSubMenu
+  f[3] = common.rpcCheck.CreateInteractionChoiceSet
+  f[4] = common.rpcCheck.NoRPC
+  f[pAppId](pAppId)
 end
 
 local function checkResumptionHMILevel(pAppId)
@@ -245,7 +188,7 @@ runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
 runner.Step("Re-connect Mobile", common.connectMobile)
 for i = 1, numOfApps do
   runner.Step("Re-register App " .. i .. ", check resumption data and HMI level", common.reRegisterApp, {
-    i, hashId, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 1000
+    i, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 1000
   })
 end
 

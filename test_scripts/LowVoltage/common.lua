@@ -31,6 +31,8 @@ m.appParams = {
   [4] = { appHMIType = "DEFAULT", isMediaApplication = false }
 }
 m.sdlMQ = "SDLMQ"
+m.rpcSend = {}
+m.rpcCheck = {}
 
 for i = 1, 4 do
   config["application" .. i].registerAppInterfaceParams.appHMIType = { m.appParams[i].appHMIType }
@@ -41,6 +43,8 @@ end
 local ptuTable = {}
 local hmiAppIds = {}
 local isMobileConnected = false
+local grammarId = {}
+local hashId = {}
 
 --[[ Functions ]]
 --[[ @execCMD: execute any linux command and return result
@@ -728,12 +732,12 @@ end
 --! pDelay - delay
 --! @return: none
 --]]
-function m.reRegisterApp(pAppId, pHashId, pCheckAppId, pCheckResumptionData, pCheckResumptionHMILevel, pResultCode, pDelay)
+function m.reRegisterApp(pAppId, pCheckAppId, pCheckResumptionData, pCheckResumptionHMILevel, pResultCode, pDelay)
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
       local params = config["application" .. pAppId].registerAppInterfaceParams
-      params.hashID = pHashId[pAppId]
+      params.hashID = hashId[pAppId]
       local corId = mobSession:SendRPC("RegisterAppInterface", params)
       m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered", {
         application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName }
@@ -841,5 +845,93 @@ function m.isSDLStopped()
   end
   m.cprint(35, "SDL stopped")
 end
+
+m.rpcSend.AddCommand = function(pAppId, pCommandId)
+    if not pCommandId then pCommandId = 1 end
+    local cmd = "CMD" .. pCommandId
+    local cid = m.getMobileSession(pAppId):SendRPC("AddCommand", { cmdID = pCommandId, vrCommands = { cmd }})
+    m.getHMIConnection():ExpectRequest("VR.AddCommand")
+    :Do(function(_, data)
+        grammarId[pAppId] = data.params.grammarID
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+    m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+    :Do(function(_, data)
+        hashId[pAppId] = data.payload.hashID
+      end)
+  end
+m.rpcSend.AddSubMenu = function(pAppId)
+    local cid = m.getMobileSession(pAppId):SendRPC("AddSubMenu", { menuID = 1, position = 500, menuName = "SubMenu" })
+    m.getHMIConnection():ExpectRequest("UI.AddSubMenu")
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+    m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+    :Do(function(_, data)
+        hashId[pAppId] = data.payload.hashID
+      end)
+  end
+m.rpcSend.CreateInteractionChoiceSet = function(pAppId)
+    local cid = m.getMobileSession(pAppId):SendRPC("CreateInteractionChoiceSet", {
+      interactionChoiceSetID = 1,
+      choiceSet = {
+        { choiceID = 1, menuName = "Choice", vrCommands = { "VrChoice" }}
+      }
+    })
+    m.getHMIConnection():ExpectRequest("VR.AddCommand")
+    :Do(function(_, data)
+        grammarId[pAppId] = data.params.grammarID
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+    m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+    :Do(function(_, data)
+        hashId[pAppId] = data.payload.hashID
+      end)
+  end
+m.rpcSend.NoRPC = function() end
+
+m.rpcCheck.AddCommand = function(pAppId, pCommandId)
+    if not pCommandId then pCommandId = 1 end
+    local cmd = "CMD" .. pCommandId
+    m.getHMIConnection():ExpectRequest("VR.AddCommand", {
+      cmdID = pCommandId,
+      vrCommands = { cmd },
+      type = "Command",
+      grammarID = grammarId[pAppId],
+      appID = m.getHMIAppId(pAppId)
+    })
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+      end)
+  end
+m.rpcCheck.AddSubMenu = function(pAppId)
+    m.getHMIConnection():ExpectRequest("UI.AddSubMenu", {
+      menuID = 1,
+      menuParams = {
+        position = 500,
+        menuName = "SubMenu"
+      },
+      appID = m.getHMIAppId(pAppId)
+    })
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+      end)
+  end
+m.rpcCheck.CreateInteractionChoiceSet = function(pAppId)
+  m.getHMIConnection():ExpectRequest("VR.AddCommand", {
+      cmdID = 1,
+      vrCommands = { "VrChoice" },
+      type = "Choice",
+      grammarID = grammarId[pAppId],
+      appID = m.getHMIAppId(pAppId)
+    })
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+      end)
+  end
+m.rpcCheck.NoRPC = function() end
 
 return protect(m)
