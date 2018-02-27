@@ -20,7 +20,6 @@ config.application2.registerAppInterfaceParams.appHMIType = { appHMIType[2] }
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
-  pTbl.policy_table.app_policies[common.getAppID(1)].AppHMIType = { appHMIType[1] }
   local filePath = "./files/Security/client_credential.pem"
   local crt = common.readFile(filePath)
   pTbl.policy_table.module_config.certificate = crt

@@ -21,9 +21,7 @@ config.application2.registerAppInterfaceParams.appHMIType = { appHMIType[2] }
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
   pTbl.policy_table.module_config.certificate = nil
-  pTbl.policy_table.app_policies[common.getAppID(1)].AppHMIType = { appHMIType[1] }
-  common.updatePTU(pTbl, 2)
-  pTbl.policy_table.app_policies[common.getAppID(2)].AppHMIType = { appHMIType[2] }
+  pTbl.policy_table.app_policies[common.getAppID(2)] = common.getAppDataForPTU(2)
 end
 
 local function registerApp(pAppId)

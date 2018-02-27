@@ -28,4 +28,8 @@ function m.readFile(pFilePath)
 	return utils.readFile(pFilePath)
 end
 
+function m.getAppID(pAppId)
+  return m.getConfigAppParams(pAppId).appID
+end
+
 return m

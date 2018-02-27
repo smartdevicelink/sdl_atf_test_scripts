@@ -43,20 +43,31 @@ local function getPTUFromPTS(pTbl)
   pTbl.policy_table.module_config.preloaded_date = nil
 end
 
---[[ @updatePTU: update PTU table with additional functional group for Navigation RPCs
+--[[ @getAppDataForPTU: provide application data for PTU
 --! @parameters:
---! pTbl - PTU table
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.updatePTU(pTbl, pAppId)
-  pTbl.policy_table.app_policies[m.getAppID(pAppId)] = {
+function m.getAppDataForPTU(pAppId)
+  return {
     keep_context = false,
     steal_focus = false,
     priority = "NONE",
     default_hmi = "NONE",
-    groups = { "Base-4", "Location-1" }
+    groups = { "Base-4", "Location-1" },
+    AppHMIType = m.getConfigAppParams(pAppId).appHMIType
   }
+end
+
+--[[ @updatePTU: update PTU table with application data
+--! @parameters:
+--! pTbl - PTU table
+--! @return: none
+--]]
+function m.updatePTU(pTbl)
+  for i = 1, m.getAppsCount() do
+    pTbl.policy_table.app_policies[m.getConfigAppParams(i).appID] = m.getAppDataForPTU(i)
+  end
 end
 
 --[[ @ptu: perform policy table update
@@ -65,8 +76,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-local function ptu(pPTUpdateFunc, pAppId)
-  if not pAppId then pAppId = 1 end
+local function ptu(pPTUpdateFunc)
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptu_file_name = os.tmpname()
@@ -77,7 +87,7 @@ local function ptu(pPTUpdateFunc, pAppId)
         { requestType = "PROPRIETARY", fileName = pts_file_name })
       getPTUFromPTS(ptuTable)
 
-      m.updatePTU(ptuTable, pAppId)
+      m.updatePTU(ptuTable)
 
       if pPTUpdateFunc then
         pPTUpdateFunc(ptuTable)
@@ -88,15 +98,7 @@ local function ptu(pPTUpdateFunc, pAppId)
       local event = events.Event()
       event.matches = function(e1, e2) return e1 == e2 end
       EXPECT_EVENT(event, "PTU event")
-
-      local function getAppsCount()
-        local count = 0
-        for _ in pairs(hmiAppIds) do
-          count = count + 1
-        end
-        return count
-      end
-      for id = 1, getAppsCount() do
+      for id = 1, m.getAppsCount() do
         local session = m.getMobileSession(id)
         session:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
         :Do(function()
@@ -132,14 +134,14 @@ local function allowSDL(self)
   })
 end
 
---[[ @getAppID: return 'appID' from configuration file
+--[[ @getConfigAppParams: return app's configuration from defined in config file
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! @return: application identifier from configuration file
 --]]
-function m.getAppID(pAppId)
+function m.getConfigAppParams(pAppId)
   if not pAppId then pAppId = 1 end
-  return config["application" .. pAppId].registerAppInterfaceParams.appID
+  return config["application" .. pAppId].registerAppInterfaceParams
 end
 
 --[[ @preconditions: precondition steps
@@ -159,13 +161,11 @@ end
 --]]
 function m.activateApp(pAppId)
   if not pAppId then pAppId = 1 end
-  local pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
-  local mobSession = m.getMobileSession(pAppId)
-  local requestId = test.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
+  local requestId = test.hmiConnection:SendRequest("SDL.ActivateApp", { appID = m.getHMIAppId(pAppId) })
   test.hmiConnection:ExpectResponse(requestId)
-  mobSession:ExpectNotification("OnHMIStatus",
+  m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-  commonTestCases:DelayedExp(m.minTimeout)
+  utils.wait()
 end
 
 --[[ @getHMIAppId: get HMI application identifier
@@ -175,7 +175,7 @@ end
 --]]
 function m.getHMIAppId(pAppId)
   if not pAppId then pAppId = 1 end
-  return hmiAppIds[m.getAppID(pAppId)]
+  return hmiAppIds[m.getConfigAppParams(pAppId).appID]
 end
 
 --[[ @getMobileSession: get mobile session
@@ -211,12 +211,11 @@ function m.registerApp(pAppId)
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
-      local corId = mobSession:SendRPC("RegisterAppInterface",
-        config["application" .. pAppId].registerAppInterfaceParams)
+      local corId = mobSession:SendRPC("RegisterAppInterface", m.getConfigAppParams(pAppId))
       test.hmiConnection:ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
+        { application = { appName = m.getConfigAppParams(pAppId).appName } })
       :Do(function(_, d1)
-          hmiAppIds[m.getAppID(pAppId)] = d1.params.application.appID
+          hmiAppIds[m.getConfigAppParams(pAppId).appID] = d1.params.application.appID
           test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
           :Times(2)
           test.hmiConnection:ExpectRequest("BasicCommunication.PolicyUpdate")
@@ -244,12 +243,11 @@ function m.registerAppWOPTU(pAppId)
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
-      local corId = mobSession:SendRPC("RegisterAppInterface",
-        config["application" .. pAppId].registerAppInterfaceParams)
+      local corId = mobSession:SendRPC("RegisterAppInterface", m.getConfigAppParams(pAppId))
       test.hmiConnection:ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
+        { application = { appName = m.getConfigAppParams(pAppId).appName } })
       :Do(function(_, d1)
-          hmiAppIds[m.getAppID(pAppId)] = d1.params.application.appID
+          hmiAppIds[m.getConfigAppParams(pAppId).appID] = d1.params.application.appID
         end)
       mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
@@ -263,19 +261,16 @@ end
 --[[ @policyTableUpdate: perform PTU
 --! @parameters:
 --! pPTUpdateFunc - function with additional updates
---! pExpNotificationFunc - function with specific expectations which needs to be done during PTU
---! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc, pAppId)
-  if not pAppId then pAppId = 1 end
-  if not pExpNotificationFunc then
+function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
+  if pExpNotificationFunc then
+    pExpNotificationFunc()
+  else
     test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
     test.hmiConnection:ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-  else
-    pExpNotificationFunc()
   end
-  ptu(pPTUpdateFunc, pAppId)
+  ptu(pPTUpdateFunc)
 end
 
 --[[ @start: starting sequence: starting of SDL, initialization of HMI, connect mobile
@@ -443,6 +438,10 @@ end
 function m.postconditions()
   StopSDL()
   restoreSDLIniParameters()
+end
+
+function m.getAppsCount()
+  return #test.mobileSession
 end
 
 return m
