@@ -33,7 +33,7 @@ local climate_params =
     fanSpeed = 30,
     acEnable = true,
     acMaxEnable = true,
-    circulateAirEnableAvailable = true -- unsupported parameter
+    circulateAirEnable = true -- unsupported parameter
   }
 }
 
