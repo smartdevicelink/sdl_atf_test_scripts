@@ -32,7 +32,7 @@ end
 
 local function wait()
   common.cprint(35, "Wait 31 sec")
-  common.delayedExp(31100)
+  common.wait(31100)
 end
 
 local function checkAppId(pAppId, pData)
@@ -48,7 +48,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile", common.start)
 
 runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate for App", common.policyTableUpdate)
+runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 runner.Step("Add resumption data for App", addResumptionData)
 
@@ -57,6 +57,8 @@ runner.Title("Test")
 runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
 
 runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
+
+runner.Step("Close mobile connection", common.cleanSessions)
 
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
 runner.Step("Wait", wait)

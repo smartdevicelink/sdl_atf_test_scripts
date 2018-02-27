@@ -44,7 +44,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile", common.start)
 
 runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate for App", common.policyTableUpdate)
+runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 runner.Step("Add resumption data for App", addResumptionData)
 
@@ -55,6 +55,8 @@ runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionD
 runner.Step("Unregister App", common.unregisterApp)
 
 runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
+
+runner.Step("Close mobile connection", common.cleanSessions)
 
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
 
