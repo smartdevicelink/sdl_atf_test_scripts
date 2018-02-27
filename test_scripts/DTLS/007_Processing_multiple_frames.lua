@@ -18,7 +18,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Set DTLS protocol in SDL", common.setSDLConfigParameter, { "Protocol", "DTLSv1.0" })
+runner.Step("Set DTLS protocol in SDL", common.setSDLIniParameter, { "Protocol", "DTLSv1.0" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Policy Table Update Certificate", common.policyTableUpdate, { common.ptUpdate })
