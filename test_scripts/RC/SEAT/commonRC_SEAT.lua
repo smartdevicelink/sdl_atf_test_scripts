@@ -127,8 +127,8 @@ function commonRC.getModuleControlData(module_type)
       radioEnable = true,
       state = "ACQUIRING"
     }
-    elseif module_type == "SEAT" then
-      out.seatControlData ={
+  elseif module_type == "SEAT" then
+      out.seatControlData = {
       id = "DRIVER",
       heatingEnabled = true,
       coolingEnabled = true,
@@ -163,8 +163,10 @@ function commonRC.getModuleControlData(module_type)
         }
       },
       memory = {
-        SeatMemoryAction = "SAVE"
-      },
+        id = 1,
+        label = "Label value",
+        action = "SAVE"
+      }
     }
   end
   return out
@@ -213,7 +215,7 @@ function commonRC.getAnotherModuleControlData(module_type)
       radioEnable = true,
       state = "ACQUIRING"
     }
-    elseif module_type == "SEAT" then
+  elseif module_type == "SEAT" then
       out.seatControlData ={
       id = "FRONT_PASSENGER",
       heatingEnabled = true,
@@ -249,8 +251,40 @@ function commonRC.getAnotherModuleControlData(module_type)
         }
       },
       memory = {
-        SeatMemoryAction = "RESTORE"
+        id = 2,
+        label = "Another label value",
+        action = "RESTORE"
+      }
+    }
+  end
+  return out
+end
+
+function commonRC.getReadOnlyParamsByModule(pModuleType)
+  local out = { moduleType = pModuleType }
+  if pModuleType == "CLIMATE" then
+    out.climateControlData = {
+      currentTemperature = {
+        unit = "FAHRENHEIT",
+        value = 32.6
+      }
+    }
+  elseif pModuleType == "RADIO" then
+    out.radioControlData = {
+      rdsData = {
+        PS = "ps",
+        RT = "rt",
+        CT = "123456789012345678901234",
+        PI = "pi",
+        PTY = 2,
+        TP = false,
+        TA = true,
+        REG = "US"
       },
+      availableHDs = 2,
+      signalStrength = 4,
+      signalChangeThreshold = 22,
+      state = "MULTICAST"
     }
   end
   return out
@@ -266,12 +300,22 @@ function commonRC.getModuleParams(pModuleData)
     if not pModuleData.radioControlData then
       pModuleData.radioControlData = { }
     end
-    return pModuleData.seatControlData
+    return pModuleData.radioControlData
   elseif pModuleData.moduleType == "SEAT" then
     if not pModuleData.seatControlData then
       pModuleData.seatControlData = { }
     end
+    return pModuleData.seatControlData
   end
+end
+
+function commonRC.getSettableModuleControlData(pModuleType)
+  local out = commonRC.getModuleControlData(pModuleType)
+  local params_read_only = commonRC.getModuleParams(commonRC.getReadOnlyParamsByModule(pModuleType))
+  for p_read_only in pairs(params_read_only) do
+    commonRC.getModuleParams(out)[p_read_only] = nil
+  end
+  return out
 end
 
 -- RC RPCs structure
