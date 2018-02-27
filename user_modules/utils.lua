@@ -144,4 +144,13 @@ function m.inheritObjects(pTargetObject, pSourceObject)
   end
 end
 
+--[[ @cprint: print color message to console
+--! @parameters:
+--! pColor - color code
+--! pMsg - message
+--]]
+function m.cprint(pColor, pMsg)
+  print("\27[" .. tostring(pColor) .. "m" .. tostring(pMsg) .. "\27[0m")
+end
+
 return m

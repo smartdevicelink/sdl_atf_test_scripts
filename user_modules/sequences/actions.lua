@@ -6,7 +6,6 @@ local mobileSession = require("mobile_session")
 local json = require("modules/json")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local events = require("events")
 local test = require("user_modules/dummy_connecttest")
 local expectations = require('expectations')
@@ -59,42 +58,35 @@ function m.getAppDataForPTU(pAppId)
   }
 end
 
---[[ @updatePTU: update PTU table with application data
+--[[ @policyTableUpdate: perform PTU
 --! @parameters:
---! pTbl - PTU table
+--! pPTUpdateFunc - function with additional updates (optional)
+--! pExpNotificationFunc - function with specific expectations (optional)
 --! @return: none
 --]]
-function m.updatePTU(pTbl)
-  for i = 1, m.getAppsCount() do
-    pTbl.policy_table.app_policies[m.getConfigAppParams(i).appID] = m.getAppDataForPTU(i)
+function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
+  if pExpNotificationFunc then
+    pExpNotificationFunc()
+  else
+    test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
+    test.hmiConnection:ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
   end
-end
-
---[[ @ptu: perform policy table update
---! @parameters:
---! pPTUpdateFunc - additional function for update
---! pAppId - application number (1, 2, etc.)
---! @return: none
---]]
-local function ptu(pPTUpdateFunc)
-  local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
+  local ptsFileName = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
-  local ptu_file_name = os.tmpname()
+  local ptuFileName = os.tmpname()
   local requestId = test.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   test.hmiConnection:ExpectResponse(requestId)
   :Do(function()
       test.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-        { requestType = "PROPRIETARY", fileName = pts_file_name })
+        { requestType = "PROPRIETARY", fileName = ptsFileName })
       getPTUFromPTS(ptuTable)
-
-      m.updatePTU(ptuTable)
-
+      for i = 1, m.getAppsCount() do
+        ptuTable.policy_table.app_policies[m.getConfigAppParams(i).appID] = m.getAppDataForPTU(i)
+      end
       if pPTUpdateFunc then
         pPTUpdateFunc(ptuTable)
       end
-
-      utils.tableToJsonFile(ptuTable, ptu_file_name)
-
+      utils.tableToJsonFile(ptuTable, ptuFileName)
       local event = events.Event()
       event.matches = function(e1, e2) return e1 == e2 end
       EXPECT_EVENT(event, "PTU event")
@@ -102,17 +94,17 @@ local function ptu(pPTUpdateFunc)
         local session = m.getMobileSession(id)
         session:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
         :Do(function()
-            print("App ".. id .. " was used for PTU")
+            utils.cprint(35, "App ".. id .. " was used for PTU")
             RAISE_EVENT(event, event, "PTU event")
             local corIdSystemRequest = session:SendRPC("SystemRequest",
-              { requestType = "PROPRIETARY" }, ptu_file_name)
+              { requestType = "PROPRIETARY" }, ptuFileName)
             EXPECT_HMICALL("BasicCommunication.SystemRequest")
             :Do(function(_, d3)
                 test.hmiConnection:SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
                 test.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = d3.params.fileName })
               end)
             session:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
-            :Do(function() os.remove(ptu_file_name) end)
+            :Do(function() os.remove(ptuFileName) end)
           end)
         :Times(AtMost(1))
       end
@@ -258,21 +250,6 @@ function m.registerAppWOPTU(pAppId)
     end)
 end
 
---[[ @policyTableUpdate: perform PTU
---! @parameters:
---! pPTUpdateFunc - function with additional updates
---! @return: none
---]]
-function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
-  if pExpNotificationFunc then
-    pExpNotificationFunc()
-  else
-    test.hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
-    test.hmiConnection:ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-  end
-  ptu(pPTUpdateFunc)
-end
-
 --[[ @start: starting sequence: starting of SDL, initialization of HMI, connect mobile
 --! @parameters:
 --! pHMIParams - table with parameters for HMI initialization
@@ -284,13 +261,13 @@ function m.start(pHMIParams)
   :Do(function()
       test:initHMI()
       :Do(function()
-          commonFunctions:userPrint(35, "HMI initialized")
+          utils.cprint(35, "HMI initialized")
           test:initHMI_onReady(pHMIParams)
           :Do(function()
-              commonFunctions:userPrint(35, "HMI is ready")
+              utils.cprint(35, "HMI is ready")
               test:connectMobile()
               :Do(function()
-                  commonFunctions:userPrint(35, "Mobile connected")
+                  utils.cprint(35, "Mobile connected")
                   allowSDL(test)
                 end)
             end)
@@ -440,6 +417,10 @@ function m.postconditions()
   restoreSDLIniParameters()
 end
 
+--[[ @getAppsCount: provide count of registered applications
+--! @parameters: none
+--! @return: count of apps
+--]]
 function m.getAppsCount()
   return #test.mobileSession
 end
