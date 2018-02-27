@@ -506,7 +506,7 @@ function commonRC.buildButtonCapability(name, shortPressAvailable, longPressAvai
   return hmi_values.createButtonCapability(name, shortPressAvailable, longPressAvailable, upDownAvailable)
 end
 
-function commonRC.v(pClimateCapabilities, pRadioCapabilities, pSeatCapabilities, pButtonCapabilities)
+function commonRC.buildHmiRcCapabilities(pClimateCapabilities, pRadioCapabilities, pSeatCapabilities, pButtonCapabilities)
   local hmiParams = hmi_values.getDefaultHMITable()
   local capParams = hmiParams.RC.GetCapabilities.params.remoteControlCapability
 

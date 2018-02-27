@@ -57,7 +57,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { g
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
-runner.Title("Test - Module enabled: " .. enabledModule .. ")
+runner.Title("Test - Module enabled: "SEAT")
 
 runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" })
 runner.Step("SetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "SetInteriorVehicleData" })

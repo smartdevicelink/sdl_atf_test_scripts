@@ -44,7 +44,7 @@ function commonRC.getRCAppConfig()
     steal_focus = false,
     priority = "NONE",
     default_hmi = "NONE",
-    moduleType = { "RADIO", "CLIMATE", "SEAT" },
+    moduleType = { "RADIO", "CLIMATE" },
     groups = { "Base-4", "RemoteControl" },
     AppHMIType = { "REMOTE_CONTROL" }
   }
