@@ -39,6 +39,8 @@ Test = require("user_modules/connecttest_resumption")
 require('cardinalities')
 require('user_modules/AppTypes')
 
+local HMIAppID
+
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 
@@ -59,7 +61,7 @@ function Test:RAI()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(
     function(_, d1)
-      self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
+      HMIAppID = d1.params.application.appID
     end)
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(
@@ -74,7 +76,7 @@ end
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:Trigger_getting_device_consent()
-  local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appID] })
+  local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = HMIAppID })
   EXPECT_HMIRESPONSE(requestId1)
   :Do(
     function(_, d1)

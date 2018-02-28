@@ -156,32 +156,26 @@ function Test:TestStep_RegisterNewApp()
 end
 
 function Test:TestStep_ValidateResult()
-  self.mobileSession:ExpectAny()
-  :ValidIf(function(_, _)
-      local pts = json_to_table(policy_file_path .. "/sdl_snapshot.json")
-      local ptu = json_to_table(ptu_file)
-      -- Reconcile expected vs actual
-      ptu.policy_table.module_config.preloaded_pt = false
-      ptu.policy_table.app_policies["0000002"] = "default"
-
-      -- Compare
-      if not is_table_equal(ptu.policy_table.functional_groupings, pts.policy_table.functional_groupings) then
-        return false, "Diffs in functional_groupings\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.functional_groupings, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.functional_groupings, 1)
-      end
-      if not is_table_equal(ptu.policy_table.module_config, pts.policy_table.module_config) then
-        return false, "Diffs in module_config\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.module_config, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.module_config, 1)
-      end
-      -- Section app_policies verified for '0000001' app only
-      if not is_table_equal(ptu.policy_table.app_policies["0000001"], pts.policy_table.app_policies["0000001"]) then
-        return false, "Diffs in app_policies\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.app_policies["0000001"], 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.app_policies["0000001"], 1)
-      end
-      -- Section app_policies verified for '0000002' app only
-      if not is_table_equal(ptu.policy_table.app_policies["0000002"], pts.policy_table.app_policies["0000002"]) then
-        return false, "Diffs in app_policies\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.app_policies["0000002"], 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.app_policies["0000002"], 1)
-      end
-      return true
-    end)
-  :Times(1)
+  local pts = json_to_table(policy_file_path .. "/sdl_snapshot.json")
+  local ptu = json_to_table(ptu_file)
+  -- Reconcile expected vs actual
+  ptu.policy_table.module_config.preloaded_pt = false
+  ptu.policy_table.app_policies["0000002"] = "default"
+  -- Compare
+  if not is_table_equal(ptu.policy_table.functional_groupings, pts.policy_table.functional_groupings) then
+    self:FailTestCase("Diffs in functional_groupings\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.functional_groupings, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.functional_groupings, 1))
+  end
+  if not is_table_equal(ptu.policy_table.module_config, pts.policy_table.module_config) then
+    self:FailTestCase("Diffs in module_config\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.module_config, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.module_config, 1))
+  end
+  -- Section app_policies verified for '0000001' app only
+  if not is_table_equal(ptu.policy_table.app_policies["0000001"], pts.policy_table.app_policies["0000001"]) then
+    self:FailTestCase("Diffs in app_policies\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.app_policies["0000001"], 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.app_policies["0000001"], 1))
+  end
+  -- Section app_policies verified for '0000002' app only
+  if not is_table_equal(ptu.policy_table.app_policies["0000002"], pts.policy_table.app_policies["0000002"]) then
+    self:FailTestCase("Diffs in app_policies\nExpected:\n" .. commonFunctions:convertTableToString(ptu.policy_table.app_policies["0000002"], 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(pts.policy_table.app_policies["0000002"], 1))
+  end
 end
 
 --[[ Postconditions ]]

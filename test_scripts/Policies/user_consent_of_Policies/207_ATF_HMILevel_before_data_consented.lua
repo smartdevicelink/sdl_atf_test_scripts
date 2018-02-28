@@ -74,7 +74,7 @@ function Test:ActivateApp_on_unconsented_device()
           end)
       end
     end)
-  EXPECT_HMICALL("BasicCommunication.ActivateApp",{}) :Times(0)
+  EXPECT_HMICALL("BasicCommunication.ActivateApp",{ level = "NONE" }):Times(1)
   EXPECT_NOTIFICATION("OnHMIStatus", {}):Times(0)
 end
 

@@ -163,7 +163,6 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
                                 end)
                             end)
                         end)
-                      EXPECT_NOTIFICATION("OnPermissionsChange", {})
                     end
                   )
                   :Timeout(500)

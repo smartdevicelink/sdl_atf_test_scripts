@@ -21,8 +21,6 @@
 
 --[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
---Heartbeat is supported after protocolversion 3
---config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -30,11 +28,12 @@ local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
 
+--Heartbeat is supported after protocolversion 3
+config.defaultProtocolVersion = 3
+
 --[[ Local Variables ]]
 local HBTime_max = 0
 local HBTime_min = 0
-
-local eventHB
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -68,24 +67,8 @@ end
 function Test:Precondition_StartSession()
   self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   self.mobileSession.sendHeartbeatToSDL = false
-  self.mobileSession.answerHeartbeatFromSDL = true
-
-  eventHB = events.Event()
-  eventHB.matches = function(_, data)
-    return data.frameType == 0 and
-    (data.serviceType == 0) and
-    (data.frameInfo == 0) --HeartBeat
-  end
-
-  self.mobileSession:StartRPC(function ()
-      self.mobileSession:ExpectEvent(eventHB, "Heartbeat")
-      :Do(function()
-          self.mobileSession:Send(
-            { frameType = constants.FRAME_TYPE.CONTROL_FRAME,
-              serviceType = constants.SERVICE_TYPE.CONTROL,
-              frameInfo = constants.FRAME_INFO.HEARTBEAT_ACK } )
-          end):Times(AnyNumber())
-      end)
+  self.mobileSession.ignoreSDLHeartBeatACK = true
+  self.mobileSession:StartRPC()
 end
 
 function Test:Precondition_RegisterApp()
@@ -100,12 +83,6 @@ function Test:Precondition_RegisterApp()
 end
 
 function Test:Precondition_Activate_Consent_App()
-  self.mobileSession:ExpectEvent(eventHB, "Heartbeat"):Do(function()
-      self.mobileSession:Send(
-        { frameType = constants.FRAME_TYPE.CONTROL_FRAME,
-          serviceType = constants.SERVICE_TYPE.CONTROL,
-          frameInfo = constants.FRAME_INFO.HEARTBEAT_ACK } )
-      end):Times(AnyNumber())
   testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
 end
 
@@ -116,17 +93,10 @@ end
 
 function Test:Precondition_HMI_sends_OnAllowSDLFunctionality()
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = false, source = "GUI"})
-  self.mobileSession:ExpectNotification("OnPermissionsChange")
+  -- self.mobileSession:ExpectNotification("OnPermissionsChange") -- not allowed by Policies
 end
 
 function Test:Precondition_Check_App_PreDataConsent()
-  self.mobileSession:ExpectEvent(eventHB, "Heartbeat"):Do(function()
-      self.mobileSession:Send(
-        { frameType = constants.FRAME_TYPE.CONTROL_FRAME,
-          serviceType = constants.SERVICE_TYPE.CONTROL,
-          frameInfo = constants.FRAME_INFO.HEARTBEAT_ACK } )
-      end):Times(AnyNumber())
-
   local cid = self.mobileSession:SendRPC("AddCommand", {
       cmdID = 1,
       menuParams = { parentID = 0, position = 0, menuName ="Commandpositive1" },
@@ -143,6 +113,14 @@ end
 function Test:TestStep_Get_HeartBeat_Time()
   local time_prev = 0
   local time_now = 0
+
+  local eventHB = events.Event()
+  eventHB.level = 3
+  eventHB.matches = function(_, data)
+    return data.frameType == 0 and
+    (data.serviceType == 0) and
+    (data.frameInfo == 0) --HeartBeat
+  end
 
   self.mobileSession:ExpectEvent(eventHB, "Heartbeat")
   :ValidIf(function()
@@ -173,18 +151,11 @@ function Test:TestStep_Get_HeartBeat_Time()
 end
 
 function Test:TestStep_Check_HB_Time()
-  -- Send request to bind ValidIf for HB time validation
-  self.mobileSession:SendRPC("UnregisterAppInterface", {})
-  EXPECT_RESPONSE("UnregisterAppInterface", {success = true , resultCode = "SUCCESS"})
-  :ValidIf(function()
-      if ( (HBTime_min < 3850) or (HBTime_max > 4150) ) then
-        print("Wrong HearBeat time! Expected: 4000ms, Actual: ["..HBTime_min.." ; "..HBTime_max.."]ms ")
-        return false
-      else
-        print(" HearBeat is in range ["..HBTime_min.." ; "..HBTime_max.."]ms ")
-        return true
-      end
-    end)
+  if ( (HBTime_min < 3850) or (HBTime_max > 4150) ) then
+    self:FailTestCase("Wrong HearBeat time! Expected: 4000ms, Actual: ["..HBTime_min.." ; "..HBTime_max.."]ms ")
+  else
+    print("HearBeat is in range ["..HBTime_min.." ; "..HBTime_max.."]ms ")
+  end
 end
 
 --[[ Postconditions ]]

@@ -127,18 +127,13 @@ function Test:TestStep_RegisterNewApp()
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 
-function Test.TestStep_ValidateResultAfterPTU()
-  EXPECT_ANY()
-  :ValidIf(function(_, _)
-      local r_expected = { "1|TTS1|LABEL|LINE1|LINE2|TEXTBODY|en-us|AppPermissions", "2|TTS2|||||en-us|AppPermissionsHelp" }
-      local query = "select id, tts, label, line1, line2, textBody, language_code, message_type_name from message"
-      local r_actual = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", query)
-      if not is_table_equal(r_expected, r_actual) then
-        return false, "\nExpected:\n" .. commonFunctions:convertTableToString(r_expected, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(r_actual, 1)
-      end
-      return true
-    end)
-  :Times(1)
+function Test:TestStep_ValidateResultAfterPTU()
+  local r_expected = { "1|TTS1|LABEL|LINE1|LINE2|TEXTBODY|en-us|AppPermissions", "2|TTS2|||||en-us|AppPermissionsHelp" }
+  local query = "select id, tts, label, line1, line2, textBody, language_code, message_type_name from message"
+  local r_actual = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", query)
+  if not is_table_equal(r_expected, r_actual) then
+    self:FailTestCase("\nExpected:\n" .. commonFunctions:convertTableToString(r_expected, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(r_actual, 1))
+  end
 end
 
 --[[ Postconditions ]]

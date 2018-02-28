@@ -66,6 +66,7 @@ function Test:RegisterNewApp()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "ABC Application" }})
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   self.mobileSession2:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
 end
 
 function Test:CheckPermissions()
@@ -79,23 +80,7 @@ function Test:CheckPermissions()
 end
 
 function Test:UpdatePolicy()
-  local timeout_after_x_seconds = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("module_config.timeout_after_x_seconds")
-  local seconds_between_retries = {}
-  for i = 1, #testCasesForPolicyTableSnapshot.seconds_between_retries do
-    seconds_between_retries[i] = testCasesForPolicyTableSnapshot.seconds_between_retries[i].value
-  end
-
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate",
-    {
-      file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json",
-      timeout = timeout_after_x_seconds,
-      retry = seconds_between_retries
-    })
-  :Do(function(_,data1)
-      self.hmiConnection:SendResponse(data1.id, data1.method, "SUCCESS", {})
-      testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/appID_Management/ptu_01.json")
-    end)
-  --testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/appID_Management/ptu_01.json")
+  testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/appID_Management/ptu_01.json")
 end
 
 function Test:CheckPermissions()

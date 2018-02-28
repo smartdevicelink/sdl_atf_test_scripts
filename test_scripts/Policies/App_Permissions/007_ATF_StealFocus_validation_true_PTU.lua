@@ -94,37 +94,27 @@ function Test:Precondition_DeactivateApp()
 end
 
 function Test:Preconditions_Update_Policy_With_Steal_Focus_FalseValue_for_Current_App()
+  local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
+    .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
   :Do(function()
-      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-        {
+      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {
           requestType = "PROPRIETARY",
-          fileName = "filename"
+          fileName = pts_file_name
         }
       )
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
       :Do(function()
-          local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
-            {
-              fileName = "PolicyTableUpdate",
-              requestType = "PROPRIETARY"
-            }, "files/ptu_general_steal_focus_true.json")
-          local systemRequestId
+          local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {
+            requestType = "PROPRIETARY" }, "files/ptu_general_steal_focus_true.json")
           EXPECT_HMICALL("BasicCommunication.SystemRequest")
-          :Do(function(_,data)
-              systemRequestId = data.id
-              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
-                {
-                  policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"
-                })
-              local function to_run()
-                self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
-              end
-              RUN_AFTER(to_run, 800)
-              self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
-              EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
+          :Do(function(_, data)
+              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = data.params.fileName })
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
             end)
+          self.mobileSession:ExpectResponse(CorIdSystemRequest, { success = true, resultCode = "SUCCESS" })
         end)
     end)
 end

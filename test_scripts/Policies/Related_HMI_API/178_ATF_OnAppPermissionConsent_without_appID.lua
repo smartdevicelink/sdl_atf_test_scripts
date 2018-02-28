@@ -72,17 +72,19 @@ function Test:TestStep_User_consent_on_activate_app()
               local groups = {}
               if #data.result.allowedFunctions > 0 then
                 for i = 1, #data.result.allowedFunctions do
+                  print(data.result.allowedFunctions[i].name)
                   groups[i] = {
                     name = data.result.allowedFunctions[i].name,
                     id = data.result.allowedFunctions[i].id,
                     allowed = true}
                 end
               end
-              self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", { consentedFunctions = groups, source = "GUI"})
+              self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", {
+                consentedFunctions = groups,
+                source = "GUI",
+                appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+              })
               EXPECT_NOTIFICATION("OnPermissionsChange")
-              :Do(function(_,_)
-
-                end)
             end)
 
         end)
@@ -92,13 +94,12 @@ function Test:TestStep_User_consent_on_activate_app()
 end
 
 function Test:TestStep_check_LocalPT_for_updates()
-  local is_test_fail = false
-  self.hmiConnection:SendRequest("SDL.UpdateSDL", {} )
-
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+  local RequestId = self.hmiConnection:SendRequest("SDL.UpdateSDL", {} )
+  EXPECT_HMIRESPONSE(RequestId, { result = { result = "UPDATE_NEEDED" }})
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})
   :Do(function(_,data)
+      local is_test_fail = false
       local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
       local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
 
