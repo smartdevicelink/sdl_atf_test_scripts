@@ -21,6 +21,7 @@
 ---------------------------------------------------------------------------------------------
 ---[[ General configuration parameters ]]
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -133,8 +134,8 @@ end
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
---TODO(istoimenova): shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
-config.defaultProtocolVersion = 2
+
+
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
 testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/sdl_preloaded_pt_AlertOnlyNotifications_1.json")
 
@@ -176,7 +177,7 @@ function Test:Precondition_IsPermissionsConsentNeeded_false_on_app_activation()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function()
       local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
-      if(app_permission ~= 0) then
+      if(app_permission ~= nil) then
         self:FailTestCase("Consented gropus are assigned to application")
       end
     end)

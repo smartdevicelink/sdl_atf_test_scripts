@@ -3,6 +3,7 @@
 --1. local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 --2. testCasesForPolicyTable:createPolicyTableWithoutAPI()
 ---------------------------------------------------------------------------------------------
+config.defaultProtocolVersion = 2
 
 local testCasesForPolicyTable = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -939,6 +940,7 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
         self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = SystemFilesPath..ptu_file_name})
       end)
       EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+      EXPECT_HMICALL("VehicleInfo.GetVehicleData", { odometer = true })
     end)
   end)
 end
