@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
 -- Item
 --
 -- Description:
@@ -15,9 +15,8 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
---[[ Local Variables ]]
-local mod1 = "SEAT"
-local mod2 = "RADIO"
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -30,7 +29,6 @@ runner.Title("Test")
 
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
-
 runner.Step("Send notification OnInteriorVehicleData RADIO. App is not subscribed", commonRC.isUnsubscribed, { "RADIO" })
 
 runner.Title("Postconditions")

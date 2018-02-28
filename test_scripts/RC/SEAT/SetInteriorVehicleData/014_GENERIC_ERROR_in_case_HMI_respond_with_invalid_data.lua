@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
 -- Item
 --
 -- Description:
@@ -20,7 +20,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function invalidParamType(pModuleType)
-  local mobSession = commonRC.getMobileSession()
+  local mobileSession = commonRC.getMobileSession()
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
@@ -41,7 +41,8 @@ local function invalidParamType(pModuleType)
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
-local function missingMandatoryParam(pModuleType, self)
+local function missingMandatoryParam(pModuleType)
+  local mobileSession = commonRC.getMobileSession()
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
@@ -69,9 +70,10 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType, { "SEAT" })
-runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam, { "SEAT" })
+runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType,
+      { "SEAT" })
+runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam,
+      { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

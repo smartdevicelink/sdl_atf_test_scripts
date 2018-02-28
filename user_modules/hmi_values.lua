@@ -351,7 +351,6 @@ function module.getDefaultHMITable()
             seatControlCapabilities = {
               {
                 moduleName = "Seat",
-                idAvailable = true,
                 heatingEnabledAvailable = true,
                 coolingEnabledAvailable = true,
                 heatingLevelAvailable = true,
@@ -364,20 +363,9 @@ function module.getDefaultHMITable()
                 headSupportHorizontalPositionAvailable = true,
                 headSupportVerticalPositionAvailable = true,
                 massageEnabledAvailable = true,
-                MassageModeDataAvailable = {
-                 massageZone = {
-                 "LUMBAR", "SEAT_CUSHION"
-                  },
-                 massageMode = {
-                 "OFF", "LOW", "HIGH"
-                 },
-                },
-                massageCushionFirmnessAvailable = {
-                "cushion", "firmness"
-                },
-                memoryAvailable = {
-                "SAVE", "RESTORE", "NONE"
-                },
+                massageModeAvailable = true,
+                massageCushionFirmnessAvailable = true,
+                memoryAvailable = true
               },
           buttonCapabilities = (function()
             local buttons = {

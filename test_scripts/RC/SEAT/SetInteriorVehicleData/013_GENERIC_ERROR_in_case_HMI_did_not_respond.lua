@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
 -- Item
 --
 -- Description:
@@ -14,13 +14,14 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType)
-  local mobSession = commonRC.getMobileSession()
+  local mobileSession = commonRC.getMobileSession()
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
@@ -34,7 +35,6 @@ local function setVehicleData(pModuleType)
     end)
 
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
-
   commonTestCases:DelayedExp(11000)
 end
 

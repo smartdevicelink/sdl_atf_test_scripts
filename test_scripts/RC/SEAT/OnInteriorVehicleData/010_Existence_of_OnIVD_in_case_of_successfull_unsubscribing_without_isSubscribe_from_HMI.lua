@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
--- Description: TRS: GetInteriorVehicleData, #10
+-- Description:
 -- In case:
 -- 1) RC app is subscribed to "<moduleType_value>"
 -- 2) and RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:false" parameter
@@ -23,14 +23,14 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function unSubscriptionToModule(pModuleType)
-  local mobSession = commonRC.getMobileSession()
+  local mobileSession = commonRC.getMobileSession()
   local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = false
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = commonRC.getHMIAppId()
+    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = false
   })
@@ -53,13 +53,11 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
-
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Test")
-
-runner.Step("Subscribe app to SEAT", unSubscriptionToModule, { SEAT })
+runner.Step("Subscribe app to SEAT", unSubscriptionToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App still subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Postconditions")

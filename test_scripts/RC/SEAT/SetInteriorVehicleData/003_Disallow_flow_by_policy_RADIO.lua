@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
 -- Item
 --
 -- Description:
@@ -20,21 +20,17 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType)
-	local mobSession = commonRC.getMobileSession()
+	local mobileSession = commonRC.getMobileSession()
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
 
-  EXPECT_HMICALL("RC.SetInteriorVehicleData")
-  :Times(0)
-
+  EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function ptu_update_func(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "SEAT" } 
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].moduleType = { "CLIMATE" }
 end
 
 --[[ Scenario ]]

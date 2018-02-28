@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
 -- Description: TRS: GetInteriorVehicleData, #12
 -- In case:
@@ -72,19 +72,15 @@ runner.Title("Test")
 -- app has not subscribed yet
 runner.Step("Unsubscribe app to SEAT", subscriptionToModule, { "SEAT", false })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })
-
 -- subscribe to module 1st time
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
-
 -- subscribe to module 2nd time
 runner.Step("Subscribe 2nd time app to SEAT", subscriptionToModule, { "SEAT", true })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
-
 -- unsubscribe to module 1st time
 runner.Step("Unsubscribe app to SEAT", commonRC.unSubscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })
-
 -- unsubscribe to module 2nd time
 runner.Step("Unsubscribe 2nd time app to SEAT", subscriptionToModule, { "SEAT", false })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })

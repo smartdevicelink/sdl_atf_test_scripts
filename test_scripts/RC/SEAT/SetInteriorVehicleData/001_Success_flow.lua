@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
 -- Item
 --
 -- Description:
@@ -21,7 +21,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType)
-	local mobSession = commonRC.getMobileSession()
+	local mobileSession = commonRC.getMobileSession()
 	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
@@ -47,7 +47,6 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
 runner.Step("SetInteriorVehicleData SEAT", setVehicleData, { "SEAT" })
 
 runner.Title("Postconditions")

@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
 -- Description:
 -- In case:
@@ -15,22 +15,22 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" } }) 
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI (HMI has all SEAT RC capabilities), connect Mobile, start Session", commonRC.start,
+runner.Step("Start SDL, HMI (HMI has not SEAT RC capabilities), connect Mobile, start Session", commonRC.start,
 	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, nil, commonRC.DEFAULT)})
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App1", commonRC.activate_app)
 
 runner.Title("Test")
-
--- SEAT PRC is unsupported
-runner.Step("GetInteriorVehicleData SEAT", commonRC.rpcDenied, { "SEAT", 1, "GetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
-runner.Step("SetInteriorVehicleData SEAT", commonRC.rpcDenied, { "SEAT", 1, "SetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
+runner.Step("GetInteriorVehicleData SEAT(UNSUPPORTED_RESOURCE)", commonRC.rpcDenied,
+			{ "SEAT", 1, "GetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
+runner.Step("SetInteriorVehicleData SEAT(UNSUPPORTED_RESOURCE)", commonRC.rpcDenied,
+			{ "SEAT", 1, "SetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)
-runner.Step("Restore HMI capabilities file", commonRC.restoreHMICapabilities)

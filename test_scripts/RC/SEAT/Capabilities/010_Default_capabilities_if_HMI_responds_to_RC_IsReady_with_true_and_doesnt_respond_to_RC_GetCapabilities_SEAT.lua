@@ -1,12 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
 -- Description:
 -- In case:
--- HMI didn't respond on RC.IsReady request from SDL
+-- HMI respond with available = true on RC.IsReady request from SDL
 -- and HMI didn't respond on capabilities request from SDL
 --
 -- SDL must:
@@ -21,10 +21,14 @@ local hmi_values = require('user_modules/hmi_values')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+--[[ Local Variables ]]
+local disabledModule = "CLIMATE"
+local enabledModule = "SEAT"
+
 --[[ Local Functions ]]
 local function getHMIParams()
   local params = hmi_values.getDefaultHMITable()
-  params.RC.IsReady = nil
+  params.RC.IsReady.params.available = true
   params.RC.GetCapabilities = nil
   return params
 end
@@ -39,7 +43,7 @@ end
 
 local function rpcSuccess(pModuleType, pRPC)
   local pAppId = 1
-  local mobSession = commonRC.getMobileSession(self, pAppId)
+  local mobSession = commonRC.getMobileSession(pAppId)
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
   EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), commonRC.getHMIRequestParams(pRPC, pModuleType, pAppId))
   :Do(function(_, data)
@@ -57,9 +61,12 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { g
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
-runner.Title("Test - Module enabled: "SEAT",) 
-
-runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" }) 
+runner.Title("Test - Module enabled: " .. enabledModule .. ", disabled: " .. disabledModule)
+runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource,
+      { disabledModule, "GetInteriorVehicleData" })
+runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource,
+      { disabledModule, "SetInteriorVehicleData" })
+runner.Step("GetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "GetInteriorVehicleData" })
 runner.Step("SetInteriorVehicleData_SUCCESS", rpcSuccess, { enabledModule, "SetInteriorVehicleData" })
 
 runner.Title("Postconditions")

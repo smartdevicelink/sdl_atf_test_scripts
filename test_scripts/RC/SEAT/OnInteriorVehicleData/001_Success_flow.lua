@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
--- Description: TRS: GetInteriorVehicleData, #4
+-- Description:
 -- In case:
 -- 1) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:true" parameter
 -- 2) and SDL received GetInteriorVehicleData response with "isSubscribed: true", "resultCode: SUCCESS" from HMI
@@ -14,9 +14,7 @@
 -- 2) Transfer GetInteriorVehicleData response with "isSubscribed: true", "resultCode: SUCCESS", "success:true" to the related app
 -- 3) Re-send OnInteriorVehicleData notification to the related app
 --
--- [SDL_RC] Unsubscribe from RC module change notifications
---
--- Description: TRS: GetInteriorVehicleData, #8
+-- Description:
 -- In case:
 -- 1) RC app is subscribed to "<moduleType_value>"
 -- 2) RC app sends valid and allowed-by-policies GetInteriorVehicleData request with "subscribe:false" parameter
@@ -42,10 +40,10 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-runner.Step("Subscribe app to SEAT, commonRC.subscribeToModule, { "SEAT" })
-runner.Step("Send notification OnInteriorVehicleData "SEAT". App is subscribed", commonRC.isSubscribed, { "SEAT" })
-
+runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
+runner.Step("Unsubscribe app from SEAT", commonRC.unSubscribeToModule, { "SEAT" })
+runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed", commonRC.isUnsubscribed, { "SEAT" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

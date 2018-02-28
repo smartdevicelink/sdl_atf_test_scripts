@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
 -- Description:
 -- In case:
@@ -23,15 +23,11 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function invalidParamName(pModuleType)
-  local mobSession = commonRC.getMobileSession()
-  hmiConnection:SendNotification("RC.OnInteriorVehicleData", {
+  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
     modduleData = commonRC.getAnotherModuleControlData(pModuleType) -- invalid name of parameter
   })
 
-  mobileSession:ExpectNotification("OnInteriorVehicleData")
-  :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData"):Times(0)
 end
 
 local function invalidParamType(pModuleType)
@@ -42,10 +38,7 @@ local function invalidParamType(pModuleType)
     moduleData = moduleData
   })
 
-  mobSession:ExpectNotification("OnInteriorVehicleData")
-  :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData"):Times(0)
 end
 
 local function missingMandatoryParam(pModuleType)
@@ -56,10 +49,7 @@ local function missingMandatoryParam(pModuleType)
     moduleData = moduleData
   })
 
-  mobileSession:ExpectNotification("OnInteriorVehicleData")
-  :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData"):Times(0)
 end
 
 --[[ Scenario ]]
@@ -68,12 +58,10 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
-
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 
 runner.Title("Test")
-
 runner.Step("OnInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { "SEAT" })
 runner.Step("OnInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { "SEAT" })
 runner.Step("OnInteriorVehicleData SEAT mandatory parameter missing", missingMandatoryParam, { "SEAT" })

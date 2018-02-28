@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
 -- Item
 --
 -- Description:
@@ -23,55 +23,44 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function invalidParamName(pModuleType)
-  local mobSession = commonRC.getMobileSession()
-  local cid = mobileSession1:SendRPC("SetInteriorVehicleData", {
+  local mobileSession = commonRC.getMobileSession()
+  local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleDData = commonRC.getSettableModuleControlData(pModuleType) -- invalid name of parameter
   })
 
-  EXPECT_HMICALL("RC.SetInteriorVehicleData", {})
-  :Times(0)
-
+  EXPECT_HMICALL("RC.SetInteriorVehicleData", {}):Times(0)
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function invalidParamType(pModuleType)
+  local mobileSession = commonRC.getMobileSession()
   local moduleData = commonRC.getSettableModuleControlData(pModuleType)
   moduleData.moduleType = {} -- invalid type of parameter
-
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     modduleData = moduleData
   })
 
-  EXPECT_HMICALL("RC.SetInteriorVehicleData", {})
-  :Times(0)
-
+  EXPECT_HMICALL("RC.SetInteriorVehicleData", {}):Times(0)
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function missingMandatoryParam(pModuleType)
+  local mobileSession = commonRC.getMobileSession()
   local moduleData = commonRC.getSettableModuleControlData(pModuleType)
   moduleData.moduleType = nil -- mandatory parameter missing
-
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     modduleData = moduleData
   })
 
-  EXPECT_HMICALL("RC.SetInteriorVehicleData", {})
-  :Times(0)
-
+  EXPECT_HMICALL("RC.SetInteriorVehicleData", {}):Times(0)
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function fakeParam(pModuleType)
+  local mobileSession = commonRC.getMobileSession()
 	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType),
-    fakeParam = 6
+    fakeParam = false
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
@@ -83,7 +72,6 @@ local function fakeParam(pModuleType)
 				moduleData = commonRC.getSettableModuleControlData(pModuleType)
 			})
 		end)
-
 	mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
@@ -95,10 +83,9 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
 runner.Step("SetInteriorVehicleData SEAT invalid name of parameter", invalidParamName, { "SEAT" })
 runner.Step("SetInteriorVehicleData SEAT invalid type of parameter", invalidParamType, { "SEAT" })
-runner.Step("SetInteriorVehicleData SEAT fake parameter", fakeParam, { mod })
+runner.Step("SetInteriorVehicleData SEAT fake parameter", fakeParam, { "SEAT" })
 runner.Step("SetInteriorVehicleData SEAT missing mandatory parameter", missingMandatoryParam, { "SEAT" })
 
 runner.Title("Postconditions")

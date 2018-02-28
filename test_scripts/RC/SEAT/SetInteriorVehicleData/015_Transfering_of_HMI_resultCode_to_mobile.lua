@@ -1,8 +1,9 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
+--
 -- Description:
 -- In case:
 -- 1) RC app sends valid and allowed by policies SetInteriorvehicleData request
@@ -15,14 +16,16 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
 --[[ Local Variables ]]
-local modules = { "SEAT" } --Changed
 local success_codes = { "WARNINGS" }
 local error_codes = { "GENERIC_ERROR", "INVALID_DATA", "OUT_OF_MEMORY", "REJECTED" }
 
 --[[ Local Functions ]]
 local function stepSuccessfull(pModuleType, pResultCode)
-  local mobSession = commonRC.getMobileSession()
+  local mobileSession = commonRC.getMobileSession()
 	local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
@@ -42,6 +45,7 @@ local function stepSuccessfull(pModuleType, pResultCode)
 end
 
 local function stepUnsuccessfull(pModuleType, pResultCode)
+  local mobileSession = commonRC.getMobileSession()
   local cid = mobileSession:SendRPC("SetInteriorVehicleData", {
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
@@ -65,19 +69,12 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-
-for _, mod in pairs(modules) do
-  runner.Title("Module: " .. mod)
-  for _, code in pairs(success_codes) do
-    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepSuccessfull, { "SEAT", code })
-  end
+for _, code in pairs(success_codes) do
+  runner.Step("SetInteriorVehicleData with SEAT resultCode", stepSuccessfull, { "SEAT", code })
 end
 
-for _, mod in pairs(modules) do
-  runner.Title("Module: " .. mod)
-  for _, code in pairs(error_codes) do
-    runner.Step("SetInteriorVehicleData with SEAT resultCode", stepUnsuccessfull, { "SEAT", code })
-  end
+for _, code in pairs(error_codes) do
+  runner.Step("SetInteriorVehicleData with SEAT resultCode", stepUnsuccessfull, { "SEAT", code })
 end
 
 runner.Title("Postconditions")

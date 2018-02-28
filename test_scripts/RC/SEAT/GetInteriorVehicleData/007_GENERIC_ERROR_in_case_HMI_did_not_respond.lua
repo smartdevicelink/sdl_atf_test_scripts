@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md 
--- User story: 
--- Use case: 
--- Item: 
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0105-remote-control-seat.md
+-- User story:
+-- Use case:
+-- Item:
 --
 -- Description:
 -- In case:
@@ -33,7 +33,6 @@ local function getDataForModule(pModuleType)
   })
   :Do(function(_, _)
     -- HMI does not respond
-  
     end)
 
   mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})

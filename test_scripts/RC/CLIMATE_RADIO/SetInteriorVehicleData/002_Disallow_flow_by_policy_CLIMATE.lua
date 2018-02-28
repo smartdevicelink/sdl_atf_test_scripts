@@ -17,7 +17,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local mod = "CLIMATE"
@@ -28,12 +27,8 @@ local function setVehicleData(pModuleType, self)
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 
-	EXPECT_HMICALL("RC.SetInteriorVehicleData")
-	:Times(0)
-
+	EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
 	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
-
-	commonTestCases:DelayedExp(commonRC.timeout)
 end
 
 local function ptu_update_func(tbl)
