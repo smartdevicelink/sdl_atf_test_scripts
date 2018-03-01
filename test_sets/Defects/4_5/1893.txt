@@ -1,0 +1,1 @@
+./test_scripts/Defects/4_5/1893_ATF_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua
