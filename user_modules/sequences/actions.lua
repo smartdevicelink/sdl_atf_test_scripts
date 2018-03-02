@@ -362,7 +362,7 @@ function test.hmiConnection:ExpectResponse(pId, ...)
         end
         reporter.AddMessage("EXPECT_HMIRESPONSE", { ["Id"] = data.id, ["Type"] = "EXPECTED_RESULT" }, arguments)
         reporter.AddMessage("EXPECT_HMIRESPONSE", { ["Id"] = data.id, ["Type"] = "AVAILABLE_RESULT" }, data.result)
-        return compareValues(arguments, data.result, "result")
+        return compareValues(arguments, data, "data")
       end)
   end
   ret.event = event
