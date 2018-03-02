@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
---
+-- Test Case #1: Extension 2
+-- In case:
+-- 1) App was in FULL HMI level
+-- 2) App disconnected more than 30 sec before LOW_VOLTAGE
+-- 3) App registers again after WAKE_UP
+-- SDL does:
+-- 1) Resume app data
+-- 2) Not resume app HMI level
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -8,38 +15,13 @@ local runner = require('user_modules/script_runner')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local hashId = { }
-local grammarId = { }
-
 --[[ Local Functions ]]
 local function addResumptionData()
-  local pAppId = 1
-  local cid = common.getMobileSession(pAppId):SendRPC("AddCommand", { cmdID = 1, vrCommands = { "OnlyVRCommand" }})
-  common.getHMIConnection():ExpectRequest("VR.AddCommand")
-  :Do(function(_, data)
-      grammarId[pAppId] = data.params.grammarID
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  common.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
-  :Do(function(_, data)
-      hashId[pAppId] = data.payload.hashID
-    end)
+  common.rpcSend.AddCommand(1)
 end
 
 local function checkResumptionData()
-  local pAppId = 1
-  common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-    cmdID = 1,
-    vrCommands = { "OnlyVRCommand" },
-    type = "Command",
-    grammarID = grammarId[pAppId],
-    appID = common.getHMIAppId(pAppId)
-  })
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
-    end)
+  common.rpcCheck.AddCommand(1)
 end
 
 local function checkResumptionHMILevel()
@@ -51,7 +33,7 @@ end
 
 local function wait()
   common.cprint(35, "Wait 31 sec")
-  common.delayedExp(31100)
+  common.wait(31100)
 end
 
 local function checkAppId(pAppId, pData)
@@ -65,26 +47,21 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile", common.start)
-
 runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate for App", common.policyTableUpdate)
+runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 runner.Step("Add resumption data for App", addResumptionData)
 
 runner.Title("Test")
-
 runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
-
 runner.Step("Unexpectedly disconnect App", common.unexpectedDisconnect)
 runner.Step("Wait", wait)
-
 runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
-
+runner.Step("Close mobile connection", common.cleanSessions)
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
-
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check resumption of Data and no resumption of HMI level", common.reRegisterApp, {
-  1, hashId, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 5000
+  1, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 5000
 })
 
 runner.Title("Postconditions")

@@ -1,5 +1,12 @@
 ---------------------------------------------------------------------------------------------------
---
+-- In case:
+-- 1) SDL is started (there was no LOW_VOLTAGE signal sent)
+-- 2) SDL is in progress of processing some RPC
+-- 3) SDL get LOW_VOLTAGE signal via mqueue
+-- 4) And then SDL get WAKE_UP signal via mqueue
+-- SDL does:
+-- 1) Resume it’s work successfully (as for Resumption)
+-- 2) Discard processing of RPC
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -9,23 +16,11 @@ local runner = require('user_modules/script_runner')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local hashId = { }
-local grammarId
 local addCommandCid = nil
 
 --[[ Local Functions ]]
 local function checkResumptionData()
-  local pCmdId = 1
-  common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-    cmdID = pCmdId,
-    vrCommands = { "CMD" .. pCmdId },
-    type = "Command",
-    grammarID = grammarId,
-    appID = common.getHMIAppId(1)
-  })
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
-    end)
+  common.rpcCheck.AddCommand(1, 1)
   common.getMobileSession():ExpectResponse(addCommandCid)
   :Times(0)
 end
@@ -49,17 +44,7 @@ local function processAddCommandPartially(pCmdId)
 end
 
 local function processAddCommandSuccessfully(pCmdId)
-  local cid = common.getMobileSession():SendRPC("AddCommand", { cmdID = pCmdId, vrCommands = { "CMD" .. pCmdId }})
-  common.getHMIConnection():ExpectRequest("VR.AddCommand")
-  :Do(function(_, data)
-      grammarId = data.params.grammarID
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  common.getMobileSession():ExpectNotification("OnHashChange")
-  :Do(function(_, data)
-      hashId[1] = data.payload.hashID
-    end)
+  common.rpcSend.AddCommand(1, pCmdId)
 end
 
 local function checkAppId(pAppId, pData)
@@ -73,32 +58,21 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile", common.start)
-
 runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate for App", common.policyTableUpdate)
+runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 runner.Step("AddCommand 1 success", processAddCommandSuccessfully, { 1 })
-
-runner.Title("Test")
-
-runner.Step("AddCommand 2 partial", processAddCommandPartially, { 2 })
-
 runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
 
+runner.Title("Test")
+runner.Step("AddCommand 2 partial", processAddCommandPartially, { 2 })
 runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
-
+runner.Step("Close mobile connection", common.cleanSessions)
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
-
--- START: debug
--- runner.Step("Ignition Off", common.ignitionOff)
--- runner.Step("Ignition On", common.start)
--- END
-
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check resumption data and HMI level", common.reRegisterApp, {
-  1, hashId, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 11000
+  1, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 11000
 })
-
 runner.Step("AddCommand 2 success", processAddCommandSuccessfully, { 2 })
 
 runner.Title("Postconditions")
