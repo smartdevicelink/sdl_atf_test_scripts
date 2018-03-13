@@ -8,7 +8,7 @@ config.defaultProtocolVersion = 2
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
-local test = require('user_modules/connecttest_PutFile')
+local test = require("user_modules/dummy_connecttest")
 
 --[[ Module ]]
 local m = actions
@@ -49,15 +49,19 @@ function m.registerApp(pAppId, pIconResumed)
     end)
 end
 
-function m.unregisterAppInterface(pAppId, pIconResumed)
-  local corId = mobileSession:SendRPC("UnregisterAppInterface", { })
+--Description: unregisterAppInterface successfully
+  --pAppId - application number (1, 2, etc.)
+function m.unregisterAppInterface(pAppId)
+  if not pAppId then pAppId = 1 end
+  local mobSession = m.getMobileSession(pAppId)
+  local corId = mobSession:SendRPC("UnregisterAppInterface", { })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-    { appID = getHMIAppId(), unexpectedDisconnect = false })
-  mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS", iconResumed = pIconResumed })
+    { appID = m.getHMIAppId(), unexpectedDisconnect = false })
+  mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 
 --Description: Set all parameter for PutFile
-function m.putFileAllParams()
+local function putFileAllParams()
   local temp = {
     syncFileName ="icon.png",
     fileType ="GRAPHIC_PNG",
@@ -72,23 +76,35 @@ end
 --Description: PutFile successfully
   --paramsSend: Parameters will be sent to SDL
   --file: path to file will be used to send to SDL
-function test:putFile(paramsSend, file)
+  --pAppId - application number (1, 2, etc.)
+function m.putFile(paramsSend, file, pAppId)
+  if paramsSend then
+    paramsSend = paramsSend
+  else paramsSend =  putFileAllParams()
+  end
+  if not pAppId then pAppId = 1 end
+  local mobSession = m.getMobileSession(pAppId)
   local cid
   if file ~= nil then
-    cid = mobileSession:SendRPC("PutFile",paramsSend, file)
+    cid = mobSession:SendRPC("PutFile",paramsSend, file)
   else
-    cid = mobileSession:SendRPC("PutFile",paramsSend, "files/icon.png")
+    cid = mobSession:SendRPC("PutFile",paramsSend, "files/icon.png")
   end
 
-  EXPECT_RESPONSE(cid, { success = true, resultCode = SUCCESS })
+  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-local function setAppIcon(params, self)
-  local cid = self.mobileSession:SendRPC("SetAppIcon", params.requestParams)
-  params.requestUiParams.appID = getHMIAppId()
+--Description: setAppIcon successfully
+  --paramsSend: Parameters will be sent to SDL
+  --pAppId - application number (1, 2, etc.)
+function m.setAppIcon(params, pAppId)
+  if not pAppId then pAppId = 1 end
+  local mobSession = m.getMobileSession(pAppId)
+  local cid = mobSession:SendRPC("SetAppIcon", params.requestParams)
+  params.requestUiParams.appID = m.getHMIAppId()
   EXPECT_HMICALL("UI.SetAppIcon", params.requestUiParams)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-  self.mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
