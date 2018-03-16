@@ -406,6 +406,33 @@ function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc, pAppId)
   ptu(pPTUpdateFunc, pAppId)
 end
 
+--[[ @registerGetSystemTimeNotification: allow automatic answer on SDL's BC.GetSystemTime request with current Date/Time
+--! @parameters: none
+--]]
+local function registerGetSystemTimeNotification()
+  test.hmiConnection:SendNotification("BasicCommunication.OnSystemTimeReady")
+  test.hmiConnection:ExpectRequest("BasicCommunication.GetSystemTime")
+  :Do(function(_, d)
+      local function getSystemTime()
+        local dd = os.date("*t")
+        return {
+          millisecond = 0,
+          second = dd.sec,
+          minute = dd.min,
+          hour = dd.hour,
+          day = dd.day,
+          month = dd.month,
+          year = dd.year,
+          tz_hour = 2,
+          tz_minute = 0
+        }
+      end
+      test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { systemTime = getSystemTime() })
+    end)
+  :Times(AnyNumber())
+  :Pin()
+end
+
 --[[ @start: starting sequence: starting of SDL, initialization of HMI, connect mobile
 --! @parameters:
 --! pHMIParams - table with parameters for HMI initialization
@@ -419,6 +446,7 @@ function m.start(pHMIParams)
           commonFunctions:userPrint(35, "HMI initialized")
           test:initHMI_onReady(pHMIParams)
           :Do(function()
+              registerGetSystemTimeNotification()
               commonFunctions:userPrint(35, "HMI is ready")
               test:connectMobile()
               :Do(function()
