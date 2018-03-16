@@ -21,27 +21,24 @@
 -- SDL->app: OnSystemRequest()
 
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
-local events = require('events')
 
 --[[ Local Variables ]]
 local seconds_between_retries = {1, 1, 1, 1, 1} -- in min
 local timeout_after_x_seconds = 30 -- in sec
 local timeout = {} -- in sec
-timeout[1] = timeout_after_x_seconds
-timeout[2] = timeout[1] + seconds_between_retries[1]
-timeout[3] = timeout[1] + timeout[2] + seconds_between_retries[2]
-timeout[4] = timeout[1] + timeout[3] + seconds_between_retries[3]
-timeout[5] = timeout[1] + timeout[4] + seconds_between_retries[4]
-timeout[6] = timeout[1] + timeout[5] + seconds_between_retries[5]
+timeout[1] = timeout_after_x_seconds -- 30
+timeout[2] = timeout_after_x_seconds + seconds_between_retries[1] -- 30 + 1 = 31
+timeout[3] = timeout_after_x_seconds + seconds_between_retries[2] + timeout[2] -- 30 + 1 + 31 = 62
+timeout[4] = timeout_after_x_seconds + seconds_between_retries[3] + timeout[3] -- 30 + 1 + 62 = 93
+timeout[5] = timeout_after_x_seconds + seconds_between_retries[4] + timeout[4] -- 30 + 1 + 93 = 124
+timeout[6] = timeout_after_x_seconds + seconds_between_retries[5] + timeout[5] -- 30 + 1 + 124 = 155
 
 local onsysrequest_app1 = false
 local onsysrequest_app2 = false
@@ -80,16 +77,6 @@ local function SetRetryValuesInPreloadedFile()
   file:write(data)
   file:close()
 end
-
-local function DelayedExp(time)
-  local event = events.Event()
-  event.matches = function(self, e) return self == e end
-  EXPECT_EVENT(event, "Delayed event")
-  :Timeout(time + 1000)
-  RUN_AFTER(function()
-      RAISE_EVENT(event, event)
-      end, time)
-  end
 
   --[[ Preconditions ]]
   function Test.Precondition_StopSDL()
@@ -136,7 +123,8 @@ local function DelayedExp(time)
 
   --[[ Test ]]
   function Test:TestStep_Register_App_And_Check_Retry_Timeouts()
-    print("Wait retry sequence to elapse: " .. (timeout[1] + timeout[2] + timeout[3] + timeout[4] + timeout[5] + timeout[6]) .. "sec. + 2min tolerance")
+    local totalTimeout = timeout[1] + timeout[2] + timeout[3] + timeout[4] + timeout[5] + timeout[6] + 30
+    print("Wait retry sequence to elapse: " .. totalTimeout .. "sec.")
     local startPTUtime = 0
     local firstTryTime = 0
     local secondTryTime = 0
@@ -164,8 +152,10 @@ local function DelayedExp(time)
           maxNumberRFCOMMPorts = 1
         }
       })
+    EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
     EXPECT_NOTIFICATION("OnSystemRequest")
     :ValidIf(function(exp,data)
+
         if(data.payload.requestType == "HTTP") then
 
           if exp.occurences == 2 then
@@ -173,62 +163,62 @@ local function DelayedExp(time)
             return true
           end
 
-          if exp.occurences == 3 and timeout[2] == (os.time() - startPTUtime) then
+          if exp.occurences == 3 and (os.time() - startPTUtime) >= timeout[1] - 1 and (os.time() - startPTUtime) <= timeout[1] + 1 then
             firstTryTime = os.time()
-            print ("first retry time: " .. timeout[2])
+            print ("first retry time: " .. timeout[1])
             return true
-          elseif exp.occurences == 3 and timeout[2] ~= (os.time() - startPTUtime) then
+          elseif exp.occurences == 3 and timeout[1] ~= (os.time() - startPTUtime) then
             firstTryTime = os.time()
-            print ("Wrong first retry time! Expected: " .. timeout[2] .. " Actual: " .. (os.time() - startPTUtime) )
+            print ("Wrong first retry time! Expected: " .. timeout[1] .. " Actual: " .. (os.time() - startPTUtime) )
             return false
           end
 
-          if exp.occurences == 4 and timeout[3] == (os.time() - firstTryTime) then
+          if exp.occurences == 4 and (os.time() - firstTryTime) >= timeout[2] - 1 and (os.time() - firstTryTime) <= timeout[2] + 1 then
             secondTryTime = os.time()
-            print ("second retry time: " .. timeout[3])
+            print ("second retry time: " .. timeout[2])
             return true
-          elseif exp.occurences == 4 and timeout[3] ~= (os.time() - firstTryTime) then
+          elseif exp.occurences == 4 and timeout[2] ~= (os.time() - firstTryTime) then
             secondTryTime = os.time()
-            print ("Wrong second retry time! Expected: " .. timeout[3] .. " Actual: " .. (os.time() - firstTryTime) )
+            print ("Wrong second retry time! Expected: " .. timeout[2] .. " Actual: " .. (os.time() - firstTryTime) )
             return false
           end
 
-          if exp.occurences == 5 and timeout[4] == (os.time() - secondTryTime) then
+          if exp.occurences == 5 and (os.time() - secondTryTime) >= timeout[3] - 1 and (os.time() - secondTryTime) <= timeout[3] + 1 then
             thirdTryTime = os.time()
-            print ("third retry time: " .. timeout[4])
+            print ("third retry time: " .. timeout[3])
             return true
-          elseif exp.occurences == 5 and timeout[4] ~= (os.time() - secondTryTime) then
+          elseif exp.occurences == 5 and timeout[3] ~= (os.time() - secondTryTime) then
             thirdTryTime = os.time()
-            print ("Wrong third retry time! Expected: " .. timeout[4] .. " Actual: " .. (os.time() - secondTryTime) )
+            print ("Wrong third retry time! Expected: " .. timeout[3] .. " Actual: " .. (os.time() - secondTryTime) )
             return false
           end
 
-          if exp.occurences == 6 and timeout[5] == (os.time() - thirdTryTime) then
+          if exp.occurences == 6 and (os.time() - thirdTryTime) >= timeout[4] - 1 and (os.time() - thirdTryTime) <= timeout[4] + 1 then
             fourthTryTime = os.time()
-            print ("fourth retry time: " .. timeout[5])
+            print ("fourth retry time: " .. timeout[4])
             return true
-          elseif exp.occurences == 6 and timeout[5] ~= (os.time() - thirdTryTime) then
+          elseif exp.occurences == 6 and timeout[4] ~= (os.time() - thirdTryTime) then
             fourthTryTime = os.time()
-            print ("Wrong fourth retry time! Expected: " .. timeout[5] .. " Actual: " .. (os.time() - thirdTryTime) )
+            print ("Wrong fourth retry time! Expected: " .. timeout[4] .. " Actual: " .. (os.time() - thirdTryTime) )
             return false
           end
 
-          if exp.occurences == 7 and timeout[6] == (os.time() - fourthTryTime) then
-            print ("fifth retry time: " .. timeout[6])
+          if exp.occurences == 7 and (os.time() - fourthTryTime) >= timeout[5] - 1 and (os.time() - fourthTryTime) <= timeout[5] + 1 then
+            print ("fifth retry time: " .. timeout[5])
             return true
-          elseif exp.occurences == 7 and timeout[6] ~= (os.time() - fourthTryTime) then
-            print ("Wrong fifth retry time! Expected: " .. timeout[6] .. " Actual: " .. (os.time() - fourthTryTime) )
+          elseif exp.occurences == 7 and timeout[5] ~= (os.time() - fourthTryTime) then
+            print ("Wrong fifth retry time! Expected: " .. timeout[5] .. " Actual: " .. (os.time() - fourthTryTime) )
             return false
           end
+
         end
 
-        return false
+        return true
 
       end)
     :Times(#seconds_between_retries + 2) -- 6 HTTP, 1 LOCK_SCREEN_ICON_URL
-
-    DelayedExp((timeout[1] + timeout[2] + timeout[3] + timeout[4] + timeout[5] + timeout[6])*1000 + 2*60000) --msec
-    EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+    :Timeout(totalTimeout * 1000)
+    commonTestCases:DelayedExp(totalTimeout * 1000)
   end
 
   function Test:TestStep_StartSession2()

@@ -20,15 +20,14 @@
 -- Expected result:
 -- SDL->app: OnSystemRequest ('url', requestType:PROPRIETARY, fileType="JSON", appID)
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local mobile_session = require("mobile_session")
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -85,7 +84,7 @@ function Test:Trigger_getting_device_consent()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(
           function()
-            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(
               function(_, d2)

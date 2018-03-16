@@ -27,9 +27,8 @@
 -- 3. PoliciesManager increments value of <count_of_removals_for_bad_behavior>
 
 -- Thic
-
+---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
 
@@ -38,6 +37,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 local mobile_session = require('mobile_session')
+
 -- local variables
 local count_of_requests = 10
 -- local HMIAppID

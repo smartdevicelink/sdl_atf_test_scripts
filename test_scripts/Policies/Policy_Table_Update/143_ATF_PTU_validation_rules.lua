@@ -27,15 +27,12 @@
 -- SDL->HMI: OnStatusUpdate(UP_TO_DATE)
 -- SDL stops timeout started by OnSystemRequest. No other OnSystemRequest are received.
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --local testCasesForPolicyTableUpdateFile = require('user_modules/shared_testcases/testCasesForPolicyTableUpdateFile')
 
@@ -54,7 +51,7 @@ require('user_modules/AppTypes')
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 --[[ Test ]]
@@ -64,7 +61,7 @@ function Test:TestStep_PTU_validation_rules()
   local endpoints = {}
   is_verification_passed = testCasesForPolicyTableSnapshot:verify_PTS(true,
       {config.application1.registerAppInterfaceParams.appID },
-      {config.deviceMAC},
+      {utils.getDeviceMAC()},
       {""},
       "print")
   for i = 1, #testCasesForPolicyTableSnapshot.pts_endpoints do

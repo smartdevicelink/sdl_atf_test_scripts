@@ -16,17 +16,11 @@
 -- sub-sections of <message code> section which name corresponds to the value of messageCodes param of
 -- SDL.GetUserFriendlyMessage request
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
-
---[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -50,7 +44,7 @@ function Test:GetUserFriendlyMessage_data_consent_prompt()
         { messages = { {messageCode = "DataConsent"}}})
       :Do(function(_,_)
         self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-          {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true}})
+          {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
       end)
     end
   end)

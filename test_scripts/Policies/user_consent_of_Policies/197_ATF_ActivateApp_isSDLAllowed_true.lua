@@ -21,14 +21,13 @@
 -- Expected result:
 -- PoliciesManager must respond with "isSDLAllowed: true" in the response to HMI without consent request
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 -- local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 -- local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
@@ -59,7 +58,7 @@ function Test:ActivateApp1()
         EXPECT_HMIRESPONSE(RequestId1)
         :Do(function(_,_)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_,_data1)
                 self.hmiConnection:SendResponse(_data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})

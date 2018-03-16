@@ -13,9 +13,7 @@
 -- Expected result
 -- SDL must correctly finish the PTU
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -23,6 +21,7 @@ local mobile_session = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local json = require("modules/json")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local app_id = config.application1.registerAppInterfaceParams.appID
@@ -208,7 +207,7 @@ function Test:Activate_App()
         :Do(
           function()
             log("SDL->HMI: RS: SDL.GetUserFriendlyMessage")
-            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             log("HMI->SDL: N: SDL.OnAllowSDLFunctionality")
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(

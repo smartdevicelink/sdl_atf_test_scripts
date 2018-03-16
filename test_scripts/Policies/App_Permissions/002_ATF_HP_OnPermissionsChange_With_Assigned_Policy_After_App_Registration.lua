@@ -17,15 +17,13 @@
 -- 1. SDL -> app: RegisterAppInterface_response
 -- 2. SDL -> app: OnPermissionsChange (<permissions assigned in pre_DataConsent group>)
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 local testCasesForPolicyTableSnapshot = require ('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -34,7 +32,6 @@ commonPreconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnectio
 config.defaultProtocolVersion = 2
 
 --[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 local RPC_BaseBeforeDataConsent = {}
 
 --[[ Local functions ]]
@@ -74,7 +71,7 @@ function Test:Precondition_Connect_device()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
-      deviceList = { { id = config.deviceMAC, name = ServerAddress, transportType = "WIFI", isSDLAllowed = false} } })
+      deviceList = { { id = utils.getDeviceMAC(), name = utils.getDeviceName(), transportType = "WIFI", isSDLAllowed = false} } })
   :Do(function(_,data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
@@ -104,8 +101,8 @@ function Test:Step1_Register_App_And_Check_Its_Permissions_In_OnPermissionsChang
         hmiDisplayLanguageDesired = "EN-US",
         deviceInfo =
         {
-          name = ServerAddress,
-          id = config.deviceMAC,
+          name = utils.getDeviceName(),
+          id = utils.getDeviceMAC(),
           transportType = "WIFI",
           isSDLAllowed = false
     } } })

@@ -13,13 +13,11 @@
 -- Policies Manager must notify HMI about 'user-consent-required' via SDL.OnAppPermissionChanged{appID, appPermissionsConsentNeeded: true} per application in FULL,
 -- that lacks the User`s permissions right after Policies Manager detects the user-unconsented permissions in Local PT
 ---------------------------------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Preconditions ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -30,7 +28,7 @@ require('cardinalities')
 require('user_modules/AppTypes')
 
 function Test:Precondition_Activate_app()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 --[[ Test ]]

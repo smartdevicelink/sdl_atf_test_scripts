@@ -18,15 +18,12 @@
 -- Expected result:
 -- a) SDL send HB with time specified in pre_DataConsent section (4000 ms)
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --Heartbeat is supported after protocolversion 3
 config.defaultProtocolVersion = 3
@@ -83,11 +80,11 @@ function Test:Precondition_RegisterApp()
 end
 
 function Test:Precondition_Activate_Consent_App()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:Precondition_Update_Policy_With_heart_beat_timeout_ms_Param()
-  testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, config.application1.registerAppInterfaceParams.appID, config.deviceMAC,
+  testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, config.application1.registerAppInterfaceParams.appID, utils.getDeviceMAC(),
     self.HMIAppID, nil, nil, "ptu_heart_beat_timeout_ms_app_1234567.json")
 end
 

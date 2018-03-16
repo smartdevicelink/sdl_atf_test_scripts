@@ -10,13 +10,12 @@
 -- In case PoliciesManager receives SDL.OnAllowSDLFunctionality with 'allowed=false' and without 'device' param from HMI, PoliciesManager must record
 -- all of currently registered devices as NOT consented in Local PT ("device_data" - > "<device_id_1>", "<device_id_2>", etc. - >"user_consent_records"- > "device" sub-section).
 ---------------------------------------------------------------------------------------------
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
 local device_consent
@@ -34,7 +33,7 @@ require('user_modules/AppTypes')
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 --[[ Test ]]
@@ -42,7 +41,7 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_Allowed_false_without_device()
 
   device_consent_group = testCasesForPolicyTableSnapshot:get_data_from_PTS("app_policies.device.groups.1")
-  device_consent = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records.device.consent_groups.DataConsent-2")
+  device_consent = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records.device.consent_groups.DataConsent-2")
   if( (device_consent == nil) or (device_consent_group == nil)) then
     self:FailTestCase("Device is not consented after user consent.")
   elseif (device_consent_group ~= "DataConsent-2") then

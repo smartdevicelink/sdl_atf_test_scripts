@@ -27,13 +27,11 @@
 -- PoliciesManager records the consent-related information in "device" subsection of "user_consent_records" subsection
 -- of "<device_identifier>" section of "device_data" section in Local PT.
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -47,15 +45,14 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep1_Device_consent_on_activate_app()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local RequestIdActivate = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
-  EXPECT_HMIRESPONSE(RequestIdActivate, {result = { code = 0, device = { id = config.deviceMAC, name = ServerAddress }, isSDLAllowed = false, method ="SDL.ActivateApp"}})
+  EXPECT_HMIRESPONSE(RequestIdActivate, {result = { code = 0, device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }, isSDLAllowed = false, method ="SDL.ActivateApp"}})
   :Do(function()
       local RequestIdGetMes = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
       EXPECT_HMIRESPONSE(RequestIdGetMes, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function()
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true }})
+            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true }})
         end)
     end)
   EXPECT_HMICALL("BasicCommunication.ActivateApp")
@@ -66,7 +63,7 @@ end
 
 function Test:TestStep2_check_LocalPT_for_consent_storage()
   local test_fail = false
-  local data_consent = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records.device.consent_groups.DataConsent-2")
+  local data_consent = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records.device.consent_groups.DataConsent-2")
   print("data_consent = " ..tostring(data_consent))
 
   if(data_consent ~= true) then

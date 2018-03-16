@@ -22,9 +22,7 @@
 -- Application is unregistered: SDL->appID: OnAppUnregistered(TOO_MANY_REQUESTS)
 -- PoliciesManager increments value of <count_of_removals_for_bad_behavior>
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
 
@@ -33,6 +31,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
+local utils = require ('user_modules/utils')
 
 -- local variables
 local count_of_requests = 10
@@ -63,7 +62,7 @@ function Test:ActivateApp()
         local requestId2 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "DataConsent" } })
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function()
-            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, d2)
                 self.hmiConnection:SendResponse(d2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })

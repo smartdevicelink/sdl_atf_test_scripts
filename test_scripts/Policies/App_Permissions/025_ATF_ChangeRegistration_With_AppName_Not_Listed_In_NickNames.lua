@@ -14,15 +14,14 @@
 -- Expected result:
 -- a) (DISALLOWED, success:false) to this application for ChangeRegistration (not unregister it)
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -144,8 +143,8 @@ function Test:Precondition_Register_App_Activate_And_consent_Device()
         hmiDisplayLanguageDesired = "EN-US",
         deviceInfo =
         {
-          name = "127.0.0.1",
-          id = config.deviceMAC,
+          name = utils.getDeviceName(),
+          id = utils.getDeviceMAC(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
@@ -158,7 +157,7 @@ function Test:Precondition_Register_App_Activate_And_consent_Device()
           local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
           EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
           :Do(function(_,_)
-              self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+              self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
               EXPECT_HMICALL("BasicCommunication.ActivateApp")
               :Do(function(_,data1)
                   self.hmiConnection:SendResponse(data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -167,19 +166,19 @@ function Test:Precondition_Register_App_Activate_And_consent_Device()
             end)
         end)
     end)
-    EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})  
+    EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
 end
 
 --[[ Test ]]
-function Test:TestStep_Send_ChangeRegistration_WithApp_Name_Not_Listed_In_NickNames_DISALLOWED()  
+function Test:TestStep_Send_ChangeRegistration_WithApp_Name_Not_Listed_In_NickNames_DISALLOWED()
   local CorIdChangeRegistration = self.mobileSession:SendRPC("ChangeRegistration",{
     language ="EN-US",
     hmiDisplayLanguage ="EN-US",
     appName ="NameNotListedInNickNames"})
-    EXPECT_RESPONSE(CorIdChangeRegistration, { success = false, resultCode = "DISALLOWED" })  
+    EXPECT_RESPONSE(CorIdChangeRegistration, { success = false, resultCode = "DISALLOWED" })
 end
 
-function Test:TestStep_Ensure_App_Still_Registered_By_Sending_Show()  
+function Test:TestStep_Ensure_App_Still_Registered_By_Sending_Show()
   local CorIdRAI = self.mobileSession:SendRPC("Show",
     {
       mediaClock = "00:00:01",

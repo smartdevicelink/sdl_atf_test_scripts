@@ -3,9 +3,9 @@
 -- [RegisterAppInterface] Nickname validation must be done before duplicate name validation
 --
 -- Description:
--- In case the application sends RegisterAppInterface request with the "appName" value that 
+-- In case the application sends RegisterAppInterface request with the "appName" value that
 -- - is not listed in this app's specific policies
--- - is the same as another already-registered application hasSDL 
+-- - is the same as another already-registered application hasSDL
 -- must: return RegisterAppInterface_response (DISALLOWED, success: false)
 -- 1. Used preconditions:
 -- a) First SDL life cycle with loaded permissions for specific appId and nickname for it
@@ -16,15 +16,14 @@
 -- Expected result:
 -- a) SDL validate nicknames before duplicate name validation and respond for second app RegisterAppInterface_response (DISALLOWED, success: false)
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -132,7 +131,7 @@ function Test:Precondition_Register_New_App_Not_Listad_In_PT()
         maxNumberRFCOMMPorts = 1
       }
     })
-  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})  
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
 end
 
 function Test:Precondition_StartSession_2()
@@ -141,7 +140,7 @@ function Test:Precondition_StartSession_2()
 end
 
 --[[ Test ]]
-function Test:TestStep_Register_DuplicateName_App_Listed_In_PT_But_With_Wrong_NickName_Check_DISALLOWED()    
+function Test:TestStep_Register_DuplicateName_App_Listed_In_PT_But_With_Wrong_NickName_Check_DISALLOWED()
   local CorIdRAI2 = self.mobileSession2:SendRPC("RegisterAppInterface",
     {
       syncMsgVersion =

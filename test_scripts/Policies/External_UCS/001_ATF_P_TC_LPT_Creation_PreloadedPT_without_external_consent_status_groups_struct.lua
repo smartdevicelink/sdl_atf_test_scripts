@@ -24,9 +24,7 @@
 --
 -- Note: Script is designed for EXTERNAL_PROPRIETARY flow
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared Libraries ]]
@@ -35,6 +33,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local sdl = require('SDL')
 local testCasesForExternalUCS = require('user_modules/shared_testcases/testCasesForExternalUCS')
+local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
 local checkedSection = "external_consent_status_groups"
@@ -66,10 +65,10 @@ function Test:CheckPreloadedPT()
   if preloadedTable
   and preloadedTable.policy_table
   and preloadedTable.policy_table.device_data
-  and preloadedTable.policy_table.device_data[config.deviceMAC]
-  and preloadedTable.policy_table.device_data[config.deviceMAC].user_consent_records
+  and preloadedTable.policy_table.device_data[utils.getDeviceMAC()]
+  and preloadedTable.policy_table.device_data[utils.getDeviceMAC()].user_consent_records
   then
-    for _, v in pairs(preloadedTable.policy_table.device_data[config.deviceMAC].user_consent_records) do
+    for _, v in pairs(preloadedTable.policy_table.device_data[utils.getDeviceMAC()].user_consent_records) do
       if v[checkedSection] then
         result = false
       end

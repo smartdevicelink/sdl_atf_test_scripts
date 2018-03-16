@@ -21,7 +21,6 @@
 -- app_1 doesn't take part in PTU (except of the case when app_1 is the only application being run on SDL)
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]

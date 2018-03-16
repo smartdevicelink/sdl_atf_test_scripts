@@ -14,7 +14,6 @@
 -- SDL must continue working
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
@@ -23,6 +22,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local SDL = require('modules/SDL')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -46,7 +46,7 @@ end
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:TestStep_Check_snapshot_created()

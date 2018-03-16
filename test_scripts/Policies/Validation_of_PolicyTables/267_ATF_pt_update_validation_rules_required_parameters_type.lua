@@ -16,12 +16,12 @@
 -- Expected result:
 -- SDL must invalidate this received PolicyTableUpdated and log corresponding error internally
 ---------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicySDLErrorsStops = require ('user_modules/shared_testcases/testCasesForPolicySDLErrorsStops')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -32,7 +32,6 @@ local config = require('config')
 require('cardinalities')
 require('user_modules/AppTypes')
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 --[[ Local Variables ]]
 --local basePtuFile = "files/ptu.json"
@@ -136,7 +135,7 @@ local function activateAppInSpecificLevel(self, HMIAppID, hmi_level)
 
             --hmi side: send request SDL.OnAllowSDLFunctionality
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
 
             --hmi side: expect BasicCommunication.ActivateApp request
             EXPECT_HMICALL("BasicCommunication.ActivateApp")

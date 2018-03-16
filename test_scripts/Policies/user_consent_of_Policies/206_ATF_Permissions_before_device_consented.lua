@@ -29,18 +29,13 @@
 -- HMI->SDL: SDL.ActivateApp{appID}
 -- SDL->HMI: SDL.ActivateApp_response{isSDLAllowed: false, params}
 -------------------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
-
+local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 local pre_dataconsent = "129372391"
 
 --[[ General Precondition before ATF start ]]
@@ -60,7 +55,7 @@ function Test:TestStep1_ActivateApp_on_unconsented_device()
 
   EXPECT_HMIRESPONSE(RequestId,
     {result = { code = 0,
-        device = { id = config.deviceMAC, name = ServerAddress },
+        device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() },
         isAppPermissionsRevoked = false, isAppRevoked = false, isSDLAllowed = false, method ="SDL.ActivateApp"}})
   :Do(function(_,data)
       if data.result.isSDLAllowed ~= false then
@@ -106,7 +101,7 @@ function Test:TestStep4_ActivateApp_again_on_unconsented_device()
   --Device is still not consented, isSDLAllowed should be "false"
   EXPECT_HMIRESPONSE(RequestId,
     {result = { code = 0,
-        device = { id = config.deviceMAC, name = ServerAddress },
+        device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() },
         isAppPermissionsRevoked = false, isAppRevoked = false, isSDLAllowed = false, method ="SDL.ActivateApp"}})
 
   EXPECT_HMICALL("BasicCommunication.ActivateApp") :Times(0)

@@ -14,7 +14,6 @@
 -- Expected result:
 -- SDL must shutdown
 ---------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -36,7 +35,6 @@ end
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.ExitOnCrash = false
 commonSteps:DeleteLogsFileAndPolicyTable()
 

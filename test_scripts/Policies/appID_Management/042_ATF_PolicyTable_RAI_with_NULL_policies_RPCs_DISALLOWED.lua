@@ -12,16 +12,15 @@
 -- 2. MOB-SDL - send the list of RPCs
 -- 3. SDL responce, success = false, resultCode = "DISALLOWED"
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local json = require("modules/json")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local ptu_table
@@ -76,7 +75,7 @@ function Test:ActivateApp()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function()
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+              { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })

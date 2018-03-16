@@ -44,6 +44,7 @@ require('cardinalities')
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
+local utils = require ('user_modules/utils')
 require('user_modules/AppTypes')
 
 --[[ General Precondition before ATF start ]]
@@ -93,7 +94,7 @@ function Test:Precondition_Get_List_Of_Connected_Devices()
       deviceList = {
         {
 
-          name = "127.0.0.1",
+          name = utils.getDeviceName(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
@@ -112,7 +113,7 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
       local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
       EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
-          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = "127.0.0.1"}})
+          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = utils.getDeviceName()}})
           GetCurrentTimeStampDeviceConsent()
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_,data1)

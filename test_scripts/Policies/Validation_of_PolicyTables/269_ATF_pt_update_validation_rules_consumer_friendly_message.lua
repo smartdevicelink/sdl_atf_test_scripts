@@ -16,17 +16,16 @@
 -- Expected result:
 -- In case "en-us" <language> sub-section for at least one <messageCode> is not found in PTUpdate , PoliciesManager must reject PTU and assume it as invalid
 ---------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicySDLErrorsStops = require ('user_modules/shared_testcases/testCasesForPolicySDLErrorsStops')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
@@ -153,7 +152,7 @@ local function activateAppInSpecificLevel(self, HMIAppID, hmi_level)
 
             --hmi side: send request SDL.OnAllowSDLFunctionality
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
 
             --hmi side: expect BasicCommunication.ActivateApp request
             EXPECT_HMICALL("BasicCommunication.ActivateApp")

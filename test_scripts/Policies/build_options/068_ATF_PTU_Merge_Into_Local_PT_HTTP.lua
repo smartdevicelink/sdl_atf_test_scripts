@@ -27,9 +27,7 @@
 -- SDL replaces the following sections of the Local Policy Table with the
 --corresponding sections from PTU: module_config, functional_groupings and app_policies
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
@@ -41,6 +39,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ Local Functions ]]
 local function is_table_equal(t1, t2)
@@ -77,16 +76,15 @@ local ptu
 commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Precondition_ConnectDevice()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
     {
       deviceList = {
         {
-          id = config.deviceMAC,
+          id = utils.getDeviceMAC(),
           isSDLAllowed = true,
-          name = ServerAddress,
+          name = utils.getDeviceName(),
           transportType = "WIFI"
         }
       }
@@ -173,7 +171,7 @@ function Test:TestStep_RegisterNewApp()
         self:FailTestCase("OnSystemRequest, HTTP for app1 is not received.")
       end
     end)
-                
+
   commonTestCases:DelayedExp(10000)
 end
 

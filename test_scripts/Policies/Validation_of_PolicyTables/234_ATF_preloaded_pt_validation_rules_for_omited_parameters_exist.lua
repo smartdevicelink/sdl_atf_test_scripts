@@ -14,7 +14,6 @@
 -- Expected result:
 -- PolicyManager shut SDL down
 ---------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

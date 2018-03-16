@@ -17,14 +17,12 @@
 -- PoliciesManager must respond with 1)"isSDLAllowed:false", 2) "device" param containing the device`s name and ID previously sent by SDL via UpdateDeviceList
 -- in the response to HMI without consent request
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -38,8 +36,8 @@ require('mobile_session')
 
 --[[ Local variables ]]
 local mobile_session = require('mobile_session')
-local device_id = config.deviceMAC
-local server_address = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
+local device_id = utils.getDeviceMAC()
+local server_address = utils.getDeviceName()
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
@@ -50,7 +48,7 @@ function Test:Precondition_UpdateDeviceList_on_device_connect()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
+          id = utils.getDeviceMAC(),
           isSDLAllowed = false,
           name = server_address,
           transportType = "WIFI"
@@ -97,7 +95,7 @@ function Test:ActivateApp_isSDLAllowed_false()
         EXPECT_HMIRESPONSE(RequestId1)
         :Do(function(_,_)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = server_address}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = server_address}})
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_,_data1)
                 self.hmiConnection:SendResponse(_data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})

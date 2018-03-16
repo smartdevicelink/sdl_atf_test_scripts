@@ -12,14 +12,12 @@
 -- On getting SDL.GetListOfPermissions without appID parameter, PoliciesManager must respond with the list of <groupName>s
 -- that have the field "user_consent_prompt" in corresponding <functional grouping> and are assigned to the currently registered applications (section "<appID>" -> "groups")
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ Local Functions ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -35,7 +33,6 @@ require('user_modules/AppTypes')
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_GetListOfPermissions_without_appID()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
 
   --Allow SDL functionality
@@ -46,7 +43,7 @@ function Test:TestStep_GetListOfPermissions_without_appID()
         EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
         :Do(function(_,_)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
           end)
       end
 
@@ -86,7 +83,7 @@ function Test:TestStep_trigger_user_request_update_from_HMI()
 end
 
 function Test:TestStep_verify_PermissionConsent()
-  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.DrivingCharacteristics-3")
+  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.DrivingCharacteristics-3")
   if(app_permission ~= true) then
     self:FailTestCase("DrivingCharacteristics-3 is not assigned to application, real: " ..app_permission)
   end

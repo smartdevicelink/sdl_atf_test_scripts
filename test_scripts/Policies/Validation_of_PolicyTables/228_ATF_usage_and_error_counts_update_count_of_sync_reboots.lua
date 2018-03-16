@@ -14,7 +14,6 @@
 -- Expected result:
 -- SDL must: increment "count_of_sync_reboots" section value of Local Policy Table.
 ---------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -23,7 +22,6 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 Test = require('user_modules/dummy_connecttest')
 local config = require('config')
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 require('user_modules/AppTypes')
 

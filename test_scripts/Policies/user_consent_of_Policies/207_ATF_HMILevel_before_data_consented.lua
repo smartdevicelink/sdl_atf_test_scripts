@@ -27,17 +27,11 @@
 -- HMI->SDL: OnAllowSDLFunctionality {allowed: false, params}
 -- SDL->app: OnPermissionChanged{params}// "pre_DataConsent" sub-section of "app_policies" section of PT, app`s HMI level corresponds to one from "default_hmi" field
 -------------------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
-
---[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -55,7 +49,7 @@ function Test:ActivateApp_on_unconsented_device()
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
   EXPECT_HMIRESPONSE(RequestId,
     {result = { code = 0,
-        device = { id = config.deviceMAC, name = ServerAddress },
+        device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() },
         isAppPermissionsRevoked = false, isAppRevoked = false, isSDLAllowed = false, isPermissionsConsentNeeded = false, method ="SDL.ActivateApp"}})
   :Do(function(_,data)
       --Consent for device is needed
@@ -68,7 +62,7 @@ function Test:ActivateApp_on_unconsented_device()
         :Do(function()
             --Press "NO"on data consent
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = false, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress}})
+              {allowed = false, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
 
             EXPECT_NOTIFICATION("OnPermissionsChange", {}):Times(0)
           end)

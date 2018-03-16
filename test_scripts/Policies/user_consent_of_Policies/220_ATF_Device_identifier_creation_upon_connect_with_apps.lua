@@ -15,15 +15,13 @@
 -- Expected result:
 -- SDL must add new <device identifier> section in "device_data" section
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local mobile_session = require('mobile_session')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
 local pts_json = '/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json'
@@ -47,8 +45,8 @@ function Test:Precondition_Connect_device()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
-          name = "127.0.0.1",
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
@@ -72,8 +70,8 @@ function Test:Precondition_Register_app()
           {
             deviceInfo =
             {
-              name = "127.0.0.1",
-              id = config.deviceMAC,
+              name = utils.getDeviceName(),
+              id = utils.getDeviceMAC(),
               transportType = "WIFI"
             }
           }
@@ -87,7 +85,7 @@ function Test:Precondition_Register_app()
 end
 
 function Test:Precondition_TriggerGettingDeviceConsent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 --[[ Test ]]
@@ -103,7 +101,7 @@ function Test:Check_device_identifier_added_to_lpt()
     local data = json.decode(json_data)
     local deviceIdentificatorInPTS = next(data.policy_table.device_data, nil)
 
-    if (deviceIdentificatorInPTS == config.deviceMAC) then
+    if (deviceIdentificatorInPTS == utils.getDeviceMAC()) then
       commonFunctions:userPrint(33, "device_identifier ".. deviceIdentificatorInPTS.. " section is created")
     else
       self:FailTestCase("Test is FAILED. device_identifier section is not created.")

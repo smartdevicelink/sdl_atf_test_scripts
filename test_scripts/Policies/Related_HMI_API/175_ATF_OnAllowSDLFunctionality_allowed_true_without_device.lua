@@ -11,12 +11,10 @@
 -- SDL->HMI:BC.ActivateApp(params, level: <”default_hmi”-value-from-assigned-policies>)
 -- SDL->app: OnHMIStatus(params, level: <”default_hmi”-value-from-assigned-policies>)
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -42,7 +40,7 @@ function Test:TestStep_RegisterApp_allowed_true_without_device()
       :Do(function(_,_)
 
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
         end)
 
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})

@@ -18,9 +18,7 @@
 -- a) assign "RequestType" field from "default" section of PolicyDataBase to such app
 -- b) copy "RequestType" field from "default" section to "<appID>" section of PolicyDataBase
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -29,6 +27,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
 local config = require('config')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -174,7 +173,7 @@ local function activateApp(self, HMIAppID)
 
             --hmi side: send request SDL.OnAllowSDLFunctionality
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
 
             --hmi side: expect BasicCommunication.ActivateApp request
             EXPECT_HMICALL("BasicCommunication.ActivateApp")

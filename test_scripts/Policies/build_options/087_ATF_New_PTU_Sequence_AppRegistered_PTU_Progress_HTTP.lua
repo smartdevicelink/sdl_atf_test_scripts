@@ -22,14 +22,10 @@
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -- 5. SDL creates the new snapshot and initiates the new PTU for the app_2 Policies obtaining: SDL-> HMI: SDL.PolicyUpdate()//new PTU sequence started
 -------------------------------------------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local mobile_session = require('mobile_session')
-
 
 --[[ Local Functions ]]
 local registerAppInterfaceParams =
@@ -89,7 +85,8 @@ function Test:TestStep_PoliciesManager_changes_UP_TO_DATE()
 
   EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMICALL("BasicCommunication.SystemRequest"):Times(0)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"}, {status = "UPDATING"})
+  :Times(3)
 end
 
 --[[ Postconditions ]]

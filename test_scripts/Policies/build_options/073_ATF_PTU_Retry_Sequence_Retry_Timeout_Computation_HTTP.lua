@@ -29,9 +29,7 @@
 -- t[4] = timeout_after_x_seconds + seconds_between_retries[4] + t[3]
 -- t[5] = timeout_after_x_seconds + seconds_between_retries[5] + t[4]
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]

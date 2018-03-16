@@ -17,9 +17,7 @@
 -- a) PutFile SUCCESS resultCode - memory_kb parameter is ignored for app
 -- b) PutFile OUT_OF_MEMORY resultCode - AppDirectoryQuota applies for app
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.appName = "SPT"
@@ -31,6 +29,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -65,7 +64,7 @@ function Test:TestStep_PredataConsent_Send_PutFile_Bigger_Than_AppDirectoryQuota
 end
 
 function Test:TestStep_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:TestStep_Default_Send_PutFile_Bigger_Than_AppDirectoryQuota_OUT_OF_MEMORY()

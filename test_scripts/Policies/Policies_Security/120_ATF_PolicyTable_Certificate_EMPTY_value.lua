@@ -1,12 +1,11 @@
  -----  Name of requirement that is covered-----
  ----- [Security]: SDL behavior in case 'certificates' field is empty
- ----- Description: 
+ ----- Description:
  ----- Certificate have empty value in sdl_preloaded_pt JSON of module_config section
  ----- Expected result------
  ----- SDL must continue working as assigned.
 -------------------------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2
 
@@ -51,7 +50,7 @@ local function UpdatePreloadedJson_CertificateValue_Empty()
   if data.policy_table.functional_groupings["DataConsent-2"] then
     data.policy_table.functional_groupings["DataConsent-2"] = nil
   end
-  
+
   data.policy_table.module_config.certificate = ""
 
   data = json.encode(data)
@@ -126,6 +125,6 @@ function Test.Postcondition_SDLStop()
 end
 function Test.Postcondition_Restore_preloaded()
   commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
-end 
+end
 
 return Test
