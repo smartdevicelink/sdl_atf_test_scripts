@@ -53,7 +53,6 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_ChangeStatus_Update_Needed()
   local time_update_needed = {}
   local time_system_request = {}
-  local endpoints = { { url = "http://policies.telematics.ford.com/api/policies" } }
   local is_test_fail = false
   local timeout_pts = testCasesForPolicyTableSnapshot:get_data_from_PTS("module_config.timeout_after_x_seconds")
   local seconds_between_retries = {}
@@ -79,7 +78,7 @@ function Test:TestStep_ChangeStatus_Update_Needed()
   end
 
   local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS", urls = endpoints} } )
+  EXPECT_HMIRESPONSE(RequestId_GetUrls)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{ requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })
 

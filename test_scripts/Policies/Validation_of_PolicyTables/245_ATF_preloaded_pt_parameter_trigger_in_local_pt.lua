@@ -139,7 +139,7 @@ function Test:updatePolicyTable(pathToPolicyFile)
 
   local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
 
-  EXPECT_HMIRESPONSE(requestId, {result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {

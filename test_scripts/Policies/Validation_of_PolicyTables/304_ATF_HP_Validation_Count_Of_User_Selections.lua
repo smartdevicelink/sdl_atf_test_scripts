@@ -38,7 +38,7 @@ commonSteps:DeletePolicyTable()
 
 --[[ Local Variables ]]
 local appID = config.application1.registerAppInterfaceParams["appID"]
-local countAppActivation
+local countAppActivation = 0
 
 --[[ Preconditions ]]
 function Test:Precondition_Activate_App_Consent_Device()

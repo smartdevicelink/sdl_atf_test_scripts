@@ -79,7 +79,7 @@ function Test:Precondition_Activate_App_Consent_Device_And_Update_Policy()
       days_after_epoch_prev = getDaysAfterEpochFromPTS(pathToSnapshot)
 
       local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-      EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+      EXPECT_HMIRESPONSE(RequestIdGetURLS)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

@@ -78,7 +78,7 @@ end
 
 function Test:TestStep_PTU_Success()
   local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}} }} )
+  EXPECT_HMIRESPONSE(RequestId_GetUrls)
   :Do(function(_,_)
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
         {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)

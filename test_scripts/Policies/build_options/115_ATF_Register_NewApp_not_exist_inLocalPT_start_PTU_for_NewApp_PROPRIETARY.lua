@@ -95,15 +95,23 @@ function Test:Precondition_RegisterApp_trigger()
 end
 
 function Test:Precondition_PolicyUpdateStarted()
-  local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
 
+  local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
+    result = {
+      code = 0,
+      method = "SDL.GetURLS",
+      urls = {
+        { url = commonFunctions.getURLs("0x07")[1] }
+      }
+    }
+  })
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
-          url = "http://policies.telematics.ford.com/api/policies",
+          url = commonFunctions.getURLs("0x07")[1],
           appID = self.applications ["Test Application"],
           fileName = policy_file_path .. "sdl_snapshot.json"
         }

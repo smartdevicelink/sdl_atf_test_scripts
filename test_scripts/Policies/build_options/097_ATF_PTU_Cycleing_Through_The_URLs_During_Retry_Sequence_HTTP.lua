@@ -28,11 +28,11 @@ local ptu_file = "files/jsons/Policies/build_options/ptu_18269.json"
 local sequence = { }
 local attempts = 16
 local r_expected = {
-  "http://policies.telematics.ford.com/api/policies",
+  commonFunctions.getURLs("0x07")[1],
   "http://policies.domain1.ford.com/api/policies",
   "http://policies.domain2.ford.com/api/policies",
-  "http://policies.domain3.ford.com/api/policies",
-"http://policies.domain4.ford.com/api/policies"}
+  "http://policies.domain3.ford.com/api/policies"
+}
 local r_actual = { }
 
 --[[ Local Functions ]]
@@ -123,7 +123,12 @@ function Test.ShowSequence()
   print("--------------------------------------------------")
 end
 
-for i = 1, 3 do
+-- function Test.print()
+--   print_table(r_expected)
+--   print_table(r_actual)
+-- end
+
+for i = 1, 4 do
   Test["ValidateResult" .. i] = function(self)
     if(r_actual[i] ~= nil) then
       if r_expected[i] ~= r_actual[i] then

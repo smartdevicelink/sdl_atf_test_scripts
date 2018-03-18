@@ -308,7 +308,7 @@ function testCasesForPolicyTable:updatePolicy(PTName, iappID)
     local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
 
     --hmi side: expect SDL.GetURLS response from HMI
-    EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+    EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
         --print("SDL.GetURLS response is received")
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
@@ -408,7 +408,7 @@ function testCasesForPolicyTable:updatePolicyInDifferentSessions(self, PTName, a
     local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
 
     --hmi side: expect SDL.GetURLS response from HMI
-    EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+    EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",

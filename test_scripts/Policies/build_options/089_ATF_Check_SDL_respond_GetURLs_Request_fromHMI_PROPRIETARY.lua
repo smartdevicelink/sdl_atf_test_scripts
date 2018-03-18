@@ -71,7 +71,7 @@ function Test:RegisterApp()
       local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
       EXPECT_HMIRESPONSE(requestId)
       :ValidIf(function(_, d)
-          local r_expected = "http://policies.telematics.ford.com/api/policies"
+          local r_expected = commonFunctions.getURLs("0x07")[1]
           local r_actual = d.result.urls[1].url
           if r_expected ~= r_actual then
             local msg = table.concat({"\nExpected: ", r_expected, "\nActual: ", tostring(r_actual)})

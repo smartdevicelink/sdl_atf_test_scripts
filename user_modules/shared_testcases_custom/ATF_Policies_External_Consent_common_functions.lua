@@ -102,7 +102,7 @@ function external_consent_common_functions:UpdatePolicy(self, json_file_path, in
   --hmi side: sending SDL.GetURLS request
   local request_id_get_urls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   --hmi side: expect SDL.GetURLS response from HMI
-  EXPECT_HMIRESPONSE(request_id_get_urls,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(request_id_get_urls)
   :Do(function(_,data)
     --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {

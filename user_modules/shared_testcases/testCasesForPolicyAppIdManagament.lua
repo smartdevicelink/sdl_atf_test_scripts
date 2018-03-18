@@ -20,17 +20,7 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 function common:updatePolicyTable(test, file)
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
   local requestId = test.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(requestId, {
-      result = {
-        code = 0,
-        method = "SDL.GetURLS",
-        urls = {
-          {
-            url = "http://policies.telematics.ford.com/api/policies"
-          }
-        }
-      }
-    })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
     local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
       .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")

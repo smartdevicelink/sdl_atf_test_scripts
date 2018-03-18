@@ -67,10 +67,10 @@ function Test:Precondition_PolicyUpdateStarted()
 
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   EXPECT_HMIRESPONSE(RequestIdGetURLS)
-  :Do(function(_,_)
+  :Do(function(_, data)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{
           requestType = "PROPRIETARY",
-          url = "http://policies.telematics.ford.com/api/policies",
+          url = data.result.urls[1].url,
           appID = self.applications [config.application1.registerAppInterfaceParams.appName],
           fileName = "sdl_snapshot.json"
         })

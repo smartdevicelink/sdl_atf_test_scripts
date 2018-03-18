@@ -62,11 +62,20 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 commonFunctions:newTestCasesGroup ("Preconditions")
 function Test:Precondition_PolicyUpdateStarted()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}}) :Do(function(_,_)
+  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
+    result = {
+      code = 0,
+      method = "SDL.GetURLS",
+      urls = {
+        { url = commonFunctions.getURLs("0x07")[1] }
+      }
+    }
+  })
+  :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
-          url = "http://policies.telematics.ford.com/api/policies",
+          url = commonFunctions.getURLs("0x07")[1],
           appID = self.applications ["Test Application"],
           fileName = "sdl_snapshot.json"
         })
