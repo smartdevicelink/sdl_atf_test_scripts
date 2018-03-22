@@ -26,7 +26,7 @@ common_functions:RemoveTest("ConnectMobile", Test)
 common_functions:RemoveTest("StartSession", Test)
 common_functions:CheckSdlPath()
 -------------------- Set default settings for ATF script --------------------
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.deviceMAC = "c17d9e6f098bf334afc8862a6cb543a48d85f885d38788b2a818662b239aa6c6"
 config.defaultProtocolVersion = 2
 common_functions:DeleteLogsFileAndPolicyTable()
 if common_functions:IsFileExist("sdl.pid") then
