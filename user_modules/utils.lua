@@ -122,35 +122,83 @@ function m.protect(pTbl)
   return setmetatable({}, mt)
 end
 
---[[ @inheritObjects: copy objects from source module to target
--- 'objects' means: tables, functions, fields
--- Function is useful for 'inheriting' data of one module to another
---! @parameters:
---! pTargetObject - target module
---! pSourceObject - source module
---! @return: none
---]]
-function m.inheritObjects(pTargetObject, pSourceObject)
-  for k, v in pairs(pSourceObject) do
-    if type(v) == "table" then
-      pTargetObject[k] = m.cloneTable(v)
-    elseif type(v) == "function" then
-      pTargetObject[k] = function(...)
-        return v(...)
-      end
-    else
-      pTargetObject[k] = v
-    end
-  end
-end
-
 --[[ @cprint: print color message to console
 --! @parameters:
 --! pColor - color code
 --! pMsg - message
 --]]
-function m.cprint(pColor, pMsg)
-  print("\27[" .. tostring(pColor) .. "m" .. tostring(pMsg) .. "\27[0m")
+function m.cprint(pColor, ...)
+  print("\27[" .. tostring(pColor) .. "m" .. table.concat(table.pack(...), "\t") .. "\27[0m")
+end
+
+--[[ @spairs: sorted iterator, allows to get items from table sorted by key
+-- Usually used as a replacement of standard 'pairs' function
+--! @parameters:
+--! pTbl - table to iterate
+--! @return: iterator
+--]]
+function m.spairs(pTbl)
+  local keys = {}
+  for k in pairs(pTbl) do
+    keys[#keys+1] = k
+  end
+  table.sort(keys, function(a, b) return tostring(a) < tostring(b) end)
+  local i = 0
+  return function()
+    i = i + 1
+    if keys[i] then
+      return keys[i], pTbl[keys[i]]
+    end
+  end
+end
+
+--[[ @tableToString: convert table to string
+--! @parameters:
+--! pTbl - table to convert
+--! @return: string
+--]]
+function m.tableToString(pTbl)
+  local s = ""
+  local function tPrint(tbl, level)
+    if not level then level = 0 end
+    for k, v in m.spairs(tbl) do
+      local indent = string.rep(" ", level * 4)
+      s = s .. indent .. "[" .. k .. "]: "
+      if type(v) == "table" then
+        s = s .. "{\n"
+        tPrint(v, level + 1)
+        s = s .. indent .. "}"
+      elseif type(v) == "string" then
+        s = s .. "'" .. tostring(v) .. "'"
+      else
+        s = s .. tostring(v)
+      end
+      s = s .. "\n"
+    end
+  end
+  tPrint(pTbl)
+  return string.sub(s, 1, string.len(s) - 1)
+end
+
+--[[ @printTable: print table
+--! @parameters:
+--! pColor - color code
+--! pTbl - table to print
+--! @return: none
+--]]
+function m.cprintTable(pColor, pTbl)
+  m.cprint(pColor, string.rep("-", 50))
+  m.cprint(pColor, m.tableToString(pTbl))
+  m.cprint(pColor, string.rep("-", 50))
+end
+
+--[[ @printTable: print table
+--! @parameters:
+--! pTbl - table to print
+--! @return: none
+--]]
+function m.printTable(pTbl)
+  m.cprintTable(39, pTbl)
 end
 
 return m
