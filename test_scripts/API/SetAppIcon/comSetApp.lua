@@ -10,6 +10,8 @@ local actions = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions') --add
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases') --add
 
 --[[ Module ]]
 local m = actions
@@ -24,14 +26,21 @@ local hmiAppIds = {}
 --! pIconResumed - Existence of apps icon at system
 --! @return: none
 --]]
-function m.registerApp(pAppId, pIconResumed, pReconnection)
+function m.registerApp(pAppId, pIconResumed, pReconnection, pIcon)
   if not pAppId then pAppId = 1 end
+  if not pIcon then pIcon = "icon.png" end
   local mobSession = m.getMobileSession(pAppId)
   local function RegisterApp()
     local corId = mobSession:SendRPC("RegisterAppInterface",
         config["application" .. pAppId].registerAppInterfaceParams)
+    local iconValue
+    if pIconResumed == true then
+      iconValue = m.getPathToFileInStorage(pIcon)
+    elseif pIconResumed == false then
+      iconValue = ""
+    end
       test.hmiConnection:ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName } })
+        { application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName, icon = iconValue } })
       :Do(function(_, d1)
           hmiAppIds[m.getAppID(pAppId)] = d1.params.application.appID
         end)
@@ -51,6 +60,19 @@ function m.registerApp(pAppId, pIconResumed, pReconnection)
     end)
   end
 end
+
+--function m.DeleteFile( pIcon, pAppId )
+  --local mobSession = m.getMobileSession(pAppId)
+  --local cid = mobSession:SendRPC("DeleteFile",
+  --{ syncFileName = pIcon })
+  ---EXPECT_HMINOTIFICATION("BasicCommunication.OnFileRemoved",
+    --{
+     --fileName = pIcon,
+     --fileType = "GRAPHIC_PNG",
+     --appID = 1 })
+  --mobSession:ExpectResponse( cid, { success = true, resultCode = "SUCCESS", info = nil })
+--end
+
 
 --Description: unregisterAppInterface successfully
   --pAppId - application number (1, 2, etc.)
@@ -97,6 +119,8 @@ function m.putFile(paramsSend, file, pAppId)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
+
+
 function m.getPathToFileInStorage(fileName)
   return commonPreconditions:GetPathToSDL() .. "storage/"
   .. m.getAppID() .. "_"
@@ -116,6 +140,12 @@ function m.setAppIcon(params, pAppId)
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  :Do(function(_, _)
+    -- HMI does not respond
+    end)
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+
+  commonTestCases:DelayedExp(11000)
 end
 
 function m.connectMobile()
