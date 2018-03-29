@@ -6,7 +6,7 @@
 -- Requirement summary:
 -- TBD
 -- Description:
--- In case:
+-- In case: 
 -- 1) SDL, HMI are started.
 -- 2) App1 set custom icon via putfile and SetAppIcon requests and is re-registered with resuming custom icon( "iconResumed" = true).
 -- 3) Mobile App2 registered.
@@ -43,12 +43,12 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true, true })
+runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("App1 unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true, true })
-runner.Step("App2 registration with iconresumed = false", common.registerApp, { 1, false, true })
+runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true })
+runner.Step("App2 registration with iconresumed = false", common.registerApp, { 1, false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

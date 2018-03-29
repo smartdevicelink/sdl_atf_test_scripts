@@ -11,7 +11,7 @@
 -- 2) Mobile app is registered. Sends  PutFile and invalid SetAppIcon requests.
 -- 3) Mobile App received response SetAppIcon(INVALID_DATA). Custom Icon is not set.
 -- 4) App is re-registered.
--- SDL does:
+-- SDL does: 
 -- 1) Registers an app successfully, responds to RAI with result code "SUCCESS", "iconResumed" = false.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -42,18 +42,18 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true, true })
+runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 
-runner.Step("App2 registration with iconresumed = true", common.registerApp, { 1, true, true })
+runner.Step("App2 registration with iconresumed = true", common.registerApp, { 1, true })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("App1 unregistration", common.unregisterAppInterface, { 1 })
 runner.Step("App2 unregistration", common.unregisterAppInterface, { 1 })
 
-runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true, true })
-runner.Step("App2 registration with iconresumed = true", common.registerApp, { 1, true, true })
+runner.Step("App1 registration with iconresumed = true", common.registerApp, { 1, true })
+runner.Step("App2 registration with iconresumed = true", common.registerApp, { 1, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

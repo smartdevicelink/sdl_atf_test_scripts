@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0041-appicon-resumption.md
--- User story:TBD
+-- User story:TBD 
 -- Use case:TBD
 --
 -- Requirement summary:

@@ -6,7 +6,7 @@
 -- Requirement summary:
 -- TBD
 -- Description:
--- In case:
+-- In case: 
 -- 1) SDL, HMI are started.
 -- 2) Mobile application is registered and sets custom icon via sending PutFile and valid SetAppIcon request.
 -- 3) Remove Icon for mobile app from the file system
@@ -36,30 +36,18 @@ local allParams = {
   requestUiParams = requestUiParams
 }
 
---[[ Local Functions ]]
-local function deleteFile(params)
-	local cid = mobileSession1:SendRPC("DeleteFile", params.requestParams)
-
-	params.responseBcParams.appID = commonSetApp.getHMIAppId()
-	params.responseBcParams.fileName =
-		commonSetApp.getPathToFileInStorage(params.responseBcParams.fileName)
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnFileRemoved", params.responseBcParams)
-
-	mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconresumed = true", common.registerApp, { 1, true, true })
+runner.Step("App registration with iconresumed = true", common.registerApp, { 1, true})
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
-runner.Step("Remove Icon for mobile app from the file system", deleteFile, { "icon.png", 1 })
+runner.Step("Remove Icon for mobile app from the file system", common.deleteFile, { "icon.png", 1 })
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconresumed = false", common.registerApp, { 1, false, false })
+runner.Step("App registration with iconresumed = false", common.registerApp, { 1, false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
