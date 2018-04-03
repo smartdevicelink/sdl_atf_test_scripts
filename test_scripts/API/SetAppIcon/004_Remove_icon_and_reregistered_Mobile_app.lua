@@ -39,7 +39,7 @@ local allParams = {
 }
 
 local function IconRemove(pFile)
-	print(common.getPathToFileInStorage(pFile))
+	os.remove(common.getPathToFileInStorage(pFile))
 end
 
 --[[ Scenario ]]
