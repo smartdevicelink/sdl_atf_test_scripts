@@ -13,7 +13,7 @@
 -- 3) Mobile application is unregistered.
 -- 4) Mobile app is re-registered.
 -- SDL does:
--- 1) SDL respons with result code "SUCCESS" and "iconResumed" = true for RAI request.
+-- 1) SDL respon with result code "SUCCESS" and "iconResumed" = true for RAI request.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
