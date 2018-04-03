@@ -47,7 +47,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file1", common.putFile)
 runner.Step("SetAppIcon1", common.setAppIcon, { allParams } )
 
@@ -55,7 +55,7 @@ runner.Step("Upload icon file2", common.putFile)
 runner.Step("SetAppIcon2", common.setAppIcon, { allParams } )
 
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconResumed = true", common.registerApp, { 1, true })
+runner.Step("App registration with iconResumed = true", common.registerAppWOPTU, { 1, true, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

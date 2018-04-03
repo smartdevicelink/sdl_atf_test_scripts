@@ -9,7 +9,7 @@
 -- Description:
 -- In case:
 -- 1) SDL, HMI are started.
--- 2) SetAppIcon does not exist in app's assigned policies.
+-- 2) SetAppIcon does not exist in app's assigned policies after PTU.
 -- 3) Mobile app is registered. Sends  PutFile and valid SetAppIcon requests.
 -- 4) Mobile app received response SetAppIcon(DISALLOWED)
 -- 5) Mobile app is re-registered.
@@ -19,6 +19,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
+local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,30 +28,21 @@ runner.testSettings.isSelfIncluded = false
 local requestParams = {
   syncFileName = "icon.png"
 }
-local requestUiParams = {
-  syncFileName = {
-    imageType = "DYNAMIC",
-    value = common.getPathToFileInStorage(requestParams.syncFileName)
-  }
-}
-local allParams = {
-  requestParams = requestParams,
-  requestUiParams = requestUiParams
-}
 
 --[[ Local Functions ]]
 local function setAppIcon_DISALLOWED(params)
-  if not pAppId then pAppId = 1 end
-  local mobSession = common.getMobileSession(pAppId)
-  local cid = mobSession:SendRPC("SetAppIcon", params.requestParams)
-  params.requestUiParams.appID = common.getHMIAppId()
-  EXPECT_HMICALL("UI.SetAppIcon", params.requestUiParams)
+  local mobSession = common.getMobileSession()
+  local cid = mobSession:SendRPC("SetAppIcon", params)
+  EXPECT_HMICALL("UI.SetAppIcon")
   :Times(0)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
 end
 
 local function updatePTU(tbl)
-  tbl.policy_table.app_policies[config.application.registerAppInterfaceParams.appID]. ImageFieldName = { "appIcon" }
+  local CustomGroup = commonFunctions:cloneTable(tbl.policy_table.functional_groupings["Base-4"])
+  CustomGroup.rpcs.SetAppIcon = nil
+  tbl.policy_table.functional_groupings.GroupWithoutSetAppIcon = CustomGroup
+  tbl.policy_table.app_policies[common.getConfigAppParams().appID].groups = {"GroupWithoutSetAppIcon"}
 end
 
 --[[ Scenario ]]
@@ -59,11 +51,12 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration", common.registerApp, { 1 })
+runner.Step("PTU without permissions for SetAppIcon", common.policyTableUpdate, { updatePTU })
 runner.Step("Upload icon file", common.putFile)
-runner.Step("Mobile App received response SetAppIcon(DISALLOWED)", setAppIcon_DISALLOWED, { allParams } )
+runner.Step("Mobile App received response SetAppIcon(DISALLOWED)", setAppIcon_DISALLOWED, { requestParams } )
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -19,7 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -30,11 +29,10 @@ local requestParams = {
 }
 
 local function setAppIcon_INVALID_DATA(params)
-  if not pAppId then pAppId = 1 end
-  local mobSession = common.getMobileSession(pAppId)
+  local mobSession = common.getMobileSession()
   local cid = mobSession:SendRPC("SetAppIcon", params)
   EXPECT_HMICALL("UI.SetAppIcon", params.requestUiParams)
-  
+  :Times(0)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
 end
 
@@ -44,11 +42,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("Gets_INVALID_DATA", setAppIcon_INVALID_DATA, { requestParams } )
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

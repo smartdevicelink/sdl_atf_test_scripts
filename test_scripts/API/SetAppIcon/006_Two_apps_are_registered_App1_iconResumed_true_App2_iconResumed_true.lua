@@ -12,7 +12,7 @@
 -- 2) App1 set custom icon via putfile and SetAppIcon requests.
 -- 3) App2 set custom icon via putfile and SetAppIcon requests.
 -- 4) Two app are re-registered.
--- SDL does: 
+-- SDL does:
 -- 1) Registers an App 1 successfully, responds to RAI with result code "SUCCESS", "iconResumed" = true.
 -- 2) Registers an App 2 successfully, responds to RAI with result code "SUCCESS", "iconResumed" = true.
 ---------------------------------------------------------------------------------------------------
@@ -44,19 +44,19 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App1 registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App1 registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 
-runner.Step("App2 registration with iconResumed = false", common.registerApp, { 2, false })
+runner.Step("App2 registration with iconResumed = false", common.registerAppWOPTU, { 2, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 
 runner.Step("App1 unregistration", common.unregisterAppInterface, { 1 })
 runner.Step("App2 unregistration", common.unregisterAppInterface, { 2 })
 
-runner.Step("App1 registration with iconResumed = true", common.registerApp, { 1, true })
-runner.Step("App2 registration with iconResumed = true", common.registerApp, { 2, true })
+runner.Step("App1 registration with iconResumed = true", common.registerAppWOPTU, { 1, true, true })
+runner.Step("App2 registration with iconResumed = true", common.registerAppWOPTU, { 2, true, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

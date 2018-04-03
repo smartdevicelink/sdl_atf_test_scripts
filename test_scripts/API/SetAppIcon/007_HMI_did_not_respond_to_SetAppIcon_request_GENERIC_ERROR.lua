@@ -12,7 +12,7 @@
 -- 2) Mobile app is registered. Sends  PutFile and SetAppIcon requests.
 -- 3) HMI is not respond to SetAppIcon request. Mobile App received response SetAppIcon(GENERIC_ERROR).
 -- 4) App is re-registered.
--- SDL does: 
+-- SDL does:
 -- 1) Registers an app successfully, responds to RAI with result code "SUCCESS", "iconResumed" = false.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -55,11 +55,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("HMI does not respond", setAppIcon_GENERIC_ERROR, { allParams })
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false,true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

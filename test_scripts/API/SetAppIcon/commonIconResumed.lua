@@ -15,17 +15,17 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 local m = actions
 
 --[[ Variables ]]
-local ptuTable = {}
+-- local ptuTable = {}
 local hmiAppIds = {}
 
---[[ @registerApp: register mobile application
+--[[ @registerAppWOPTU: register mobile application
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! pIconResumed - apps icon was resumed at system or is not resumed
 --! pReconnection - re-register mobile application
 --! @return: none
 --]]
-function m.registerApp(pAppId, pIconResumed, pReconnection)
+function m.registerAppWOPTU(pAppId, pIconResumed, pReconnection)
   if not pAppId then pAppId = 1 end
   local mobSession = m.getMobileSession(pAppId)
   local function RegisterApp()

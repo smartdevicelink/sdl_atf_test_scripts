@@ -39,14 +39,12 @@ local allParams = {
 
 --[[ Local Functions ]]
 local function setAppIcon_resultCode_REJECTED(params)
-  if not pAppId then pAppId = 1 end
-  local mobSession = common.getMobileSession(pAppId)
+  local mobSession = common.getMobileSession()
   local cid = mobSession:SendRPC("SetAppIcon", params.requestParams)
   params.requestUiParams.appID = common.getHMIAppId()
   EXPECT_HMICALL("UI.SetAppIcon", params.requestUiParams)
   :Do(function(_,data)
-  	-- sending UI.SetAppIcon response
-  	common.getHMIConnection():SendResponse(data.id, data.method, "REJECTED", {})
+    common.getHMIConnection():SendResponse(data.id, data.method, "REJECTED", {})
   end)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
 end
@@ -57,12 +55,12 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("Mobile App received response SetAppIcon(REJECTED)", setAppIcon_resultCode_REJECTED, { allParams } )
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconResumed = true", common.registerApp, { 1, true })
+runner.Step("App registration with iconResumed = true", common.registerAppWOPTU, { 1, true, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

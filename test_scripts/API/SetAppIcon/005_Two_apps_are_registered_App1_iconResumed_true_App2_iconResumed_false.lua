@@ -7,14 +7,14 @@
 -- TBD
 --
 -- Description:
--- In case: 
+-- In case:
 -- 1) SDL, HMI are started.
 -- 2) App1 set custom icon via putfile and SetAppIcon requests and is re-registered with resuming custom icon( "iconResumed" = true).
 -- 3) Mobile App2 registered.
 -- SDL does:
--- 1) Registers App1 successfully registered and sets its app icon,
+-- 1) Register App1 successfully registered and sets its app icon,
 -- responds to RAI with result code "SUCCESS", "iconResumed" = true
--- 2) Registers an App 2 with default icon, "iconResumed" = false
+-- 2) Register an App 2 with default icon, "iconResumed" = false
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -44,12 +44,12 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App1 registration with iconResumed = false", common.registerApp, { 1, false })
+runner.Step("App1 registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("App1 unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App1 registration with iconResumed = true", common.registerApp, { 1, true })
-runner.Step("App2 registration with iconResumed = false", common.registerApp, { 2, false })
+runner.Step("App1 registration with iconResumed = true", common.registerAppWOPTU, { 1, true, true })
+runner.Step("App2 registration with iconResumed = false", common.registerAppWOPTU, { 2, false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

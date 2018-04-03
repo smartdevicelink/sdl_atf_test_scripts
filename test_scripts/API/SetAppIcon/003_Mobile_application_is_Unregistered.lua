@@ -5,9 +5,9 @@
 --
 -- Requirement summary:
 -- TBD
--- 
+--
 -- Description:
--- In case: 
+-- In case:
 -- 1) SDL, HMI are started.
 -- 2) Mobile application is registered and sets custom icon via sending PutFile and valid SetAppIcon request.
 -- 3) Mobile application is unregistered.
@@ -43,11 +43,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = true", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = true", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("App OnAppUnregistered", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconResumed = true", common.registerApp, { 1, true })
+runner.Step("App registration with iconResumed = true", common.registerAppWOPTU, { 1, true, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
