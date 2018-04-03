@@ -5,18 +5,20 @@
 --
 -- Requirement summary:
 -- TBD
+--
 -- Description:
 -- In case:
 -- 1) SDL, HMI are started.
--- 2) Mobile app is registered. Sends  PutFile and invalid SetAppIcon requests.
--- 3) Mobile App received response SetAppIcon(INVALID_DATA). Custom Icon is not set.
--- 4) App is re-registered.
+-- 2) App1 set custom icon via putfile and SetAppIcon requests.
+-- 3) App2 set custom icon via putfile and SetAppIcon requests.
+-- 4) Two app are re-registered.
 -- SDL does: 
--- 1) Registers an app successfully, responds to RAI with result code "SUCCESS", "iconResumed" = false.
+-- 1) Registers an App 1 successfully, responds to RAI with result code "SUCCESS", "iconResumed" = true.
+-- 2) Registers an App 2 successfully, responds to RAI with result code "SUCCESS", "iconResumed" = true.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/API/SetAppIcon/comSetApp')
+local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -42,18 +44,19 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App1 registration with iconresumed = true", common.registerApp1, { 1, true })
+runner.Step("App1 registration with iconResumed = false", common.registerApp, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 
-runner.Step("App2 registration with iconresumed = true", common.registerApp2, { 1, true })
+runner.Step("App2 registration with iconResumed = false", common.registerApp, { 2, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
-runner.Step("App1 unregistration", common.unregisterAppInterface1, { 1 })
-runner.Step("App2 unregistration", common.unregisterAppInterface2, { 1 })
 
-runner.Step("App1 registration with iconresumed = true", common.registerApp1, { 1, true })
-runner.Step("App2 registration with iconresumed = true", common.registerApp2, { 1, true })
+runner.Step("App1 unregistration", common.unregisterAppInterface, { 1 })
+runner.Step("App2 unregistration", common.unregisterAppInterface, { 2 })
+
+runner.Step("App1 registration with iconResumed = true", common.registerApp, { 1, true })
+runner.Step("App2 registration with iconResumed = true", common.registerApp, { 2, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

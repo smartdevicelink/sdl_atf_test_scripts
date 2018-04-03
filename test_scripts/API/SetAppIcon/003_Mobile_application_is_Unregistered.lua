@@ -5,23 +5,19 @@
 --
 -- Requirement summary:
 -- TBD
+-- 
 -- Description:
--- In case:
+-- In case: 
 -- 1) SDL, HMI are started.
 -- 2) Mobile application is registered and sets custom icon via sending PutFile and valid SetAppIcon request.
--- 3) App re-sets custom icon via sending PutFile and valid SetAppIcon request.
--- 4) App is re-registered.
+-- 3) Mobile application is unregistered.
+-- 4) Mobile app is re-registered.
 -- SDL does:
--- 1) Successfully registers application
--- 2) Successful processes PutFile and SetAppIcon requests.
--- 3) SDL respons with result code "SUCCESS" and "iconResumed" = true for RAI request. Corresponding custom icon is resumed.
+-- 1) SDL respons with result code "SUCCESS" and "iconResumed" = true for RAI request.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/API/SetAppIcon/comSetApp')
-
---[[ Test Configuration ]]
-runner.testSettings.isSelfIncluded = false
+local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -33,7 +29,7 @@ local requestParams = {
 local requestUiParams = {
   syncFileName = {
     imageType = "DYNAMIC",
-    value = common.getPathToFileInStorage(requestParams.syncFileName
+    value = common.getPathToFileInStorage(requestParams.syncFileName)
   }
 }
 local allParams = {
@@ -47,15 +43,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconresumed = false", common.registerApp, { 1, true })
-runner.Step("Upload icon file1", common.putFile)
-runner.Step("SetAppIcon1", common.setAppIcon, { allParams } )
-
-runner.Step("Upload icon file2", common.putFile)
-runner.Step("SetAppIcon2", common.setAppIcon, { allParams } )
-
-runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconresumed = true", common.registerApp, { 1, true })
+runner.Step("App registration with iconResumed = true", common.registerApp, { 1, false })
+runner.Step("Upload icon file", common.putFile)
+runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
+runner.Step("App OnAppUnregistered", common.unregisterAppInterface, { 1 })
+runner.Step("App registration with iconResumed = true", common.registerApp, { 1, true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -5,6 +5,7 @@
 --
 -- Requirement summary:
 -- TBD
+--
 -- Description:
 -- In case:
 -- 1) SDL, HMI are started.
@@ -16,7 +17,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/API/SetAppIcon/comSetApp')
+local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -42,10 +43,9 @@ local function setAppIcon_GENERIC_ERROR(params, pAppId)
   local cid = mobSession:SendRPC("SetAppIcon", params.requestParams)
   params.requestUiParams.appID = common.getHMIAppId()
   EXPECT_HMICALL("UI.SetAppIcon", params.requestUiParams)
-  :Do(function(_, _)
+  :Do(function()
       -- HMI does not respond
     end)
-  
   mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
@@ -55,12 +55,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconresumed = true", common.registerApp, { 1, true })
+runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
 runner.Step("Upload icon file", common.putFile)
-runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("HMI does not respond", setAppIcon_GENERIC_ERROR, { allParams })
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconresumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

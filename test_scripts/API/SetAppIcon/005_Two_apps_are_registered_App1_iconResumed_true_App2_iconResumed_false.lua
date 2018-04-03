@@ -5,6 +5,7 @@
 --
 -- Requirement summary:
 -- TBD
+--
 -- Description:
 -- In case: 
 -- 1) SDL, HMI are started.
@@ -17,7 +18,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/API/SetAppIcon/comSetApp')
+local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -43,12 +44,12 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App1 registration with iconresumed = true", common.registerApp1, { 1, true })
+runner.Step("App1 registration with iconResumed = false", common.registerApp, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
-runner.Step("App1 unregistration", common.unregisterAppInterface1, { 1 })
-runner.Step("App1 registration with iconresumed = true", common.registerApp1, { 1, true })
-runner.Step("App2 registration with iconresumed = false", common.registerApp1, { 1, false })
+runner.Step("App1 unregistration", common.unregisterAppInterface, { 1 })
+runner.Step("App1 registration with iconResumed = true", common.registerApp, { 1, true })
+runner.Step("App2 registration with iconResumed = false", common.registerApp, { 2, false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -5,6 +5,7 @@
 --
 -- Requirement summary:
 -- TBD
+--
 -- Description:
 -- In case:
 -- 1) SDL, HMI are started.
@@ -17,7 +18,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/API/SetAppIcon/comSetApp')
+local common = require('test_scripts/API/SetAppIcon/commonIconResumed')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,7 +30,7 @@ local requestParams = {
 local requestUiParams = {
   syncFileName = {
     imageType = "DYNAMIC",
-    value = common.getPathToFileInStorage(requestParams.syncFileName
+    value = common.getPathToFileInStorage(requestParams.syncFileName)
   }
 }
 local allParams = {
@@ -38,7 +39,7 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function setAppIcon_DISALLOWED(params, pAppId)
+local function setAppIcon_DISALLOWED(params)
   if not pAppId then pAppId = 1 end
   local mobSession = common.getMobileSession(pAppId)
   local cid = mobSession:SendRPC("SetAppIcon", params.requestParams)
@@ -50,6 +51,7 @@ end
 
 local function updatePTU(tbl)
   tbl.policy_table.app_policies[config.application.registerAppInterfaceParams.appID]. ImageFieldName = { "appIcon" }
+end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -57,12 +59,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconresumed = true", common.registerApp, { 1, true })
+runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
 runner.Step("Upload icon file", common.putFile)
-runner.Step("SetAppIcon", setAppIcon, { allParams } )
 runner.Step("Mobile App received response SetAppIcon(DISALLOWED)", setAppIcon_DISALLOWED, { allParams } )
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })
-runner.Step("App registration with iconresumed = false", common.registerApp, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerApp, { 1, false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
