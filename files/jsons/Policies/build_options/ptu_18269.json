@@ -1239,8 +1239,7 @@
                     "0000001": [
                         "http://policies.domain1.ford.com/api/policies",
                         "http://policies.domain2.ford.com/api/policies",
-                        "http://policies.domain3.ford.com/api/policies",
-                        "http://policies.domain4.ford.com/api/policies"
+                        "http://policies.domain3.ford.com/api/policies"
                     ]
                 },
                 "lock_screen_icon_url": {

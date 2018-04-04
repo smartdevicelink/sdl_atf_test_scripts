@@ -44,6 +44,7 @@ require('cardinalities')
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
+local utils = require ('user_modules/utils')
 require('user_modules/AppTypes')
 
 --[[ General Precondition before ATF start ]]
@@ -69,18 +70,32 @@ local function GetCurrentTimeStampGroupConsent()
 end
 
 local function GetDataFromSnapshot(pathToFile)
+  local function getData(pTable, pKey)
+    if pTable then
+      return pTable[pKey]
+    end
+    return nil
+  end
+  local function getTableData(pTable, pKey)
+    if pTable and pTable[pKey] then
+      return next(pTable[pKey], nil)
+    end
+    return nil
+  end
   local file = io.open(pathToFile, "r")
   local json_data = file:read("*all") -- may be abbreviated to "*a";
   file:close()
   local json = require("modules/json")
   local data = json.decode(json_data)
+  local ucr = data.policy_table.device_data[MACHash].user_consent_records
   local res = {
-    deviceConsentTimeStamp = data.policy_table.device_data[MACHash].user_consent_records.device.time_stamp,
-    deviceInput = data.policy_table.device_data[MACHash].user_consent_records.device.input,
-    deviceGroups = next(data.policy_table.device_data[MACHash].user_consent_records.device.consent_groups, nil),
-    inputOfAppIdConsent = data.policy_table.device_data[MACHash].user_consent_records[appID].input,
-    groupUserconsentTimeStamp = data.policy_table.device_data[MACHash].user_consent_records[appID].time_stamp,
-    userConsentGroup = next(data.policy_table.device_data[MACHash].user_consent_records[appID].consent_groups, nil)}
+    deviceConsentTimeStamp = getData(ucr.device, "time_stamp"),
+    deviceInput = getData(ucr.device, "input"),
+    deviceGroups = getTableData(ucr.device, "consent_groups"),
+    inputOfAppIdConsent = getData(ucr[appID], "input"),
+    groupUserconsentTimeStamp = getData(ucr[appID], "time_stamp"),
+    userConsentGroup = getTableData(ucr[appID], "consent_groups")
+  }
   return res
 end
 
@@ -93,7 +108,7 @@ function Test:Precondition_Get_List_Of_Connected_Devices()
       deviceList = {
         {
 
-          name = "127.0.0.1",
+          name = utils.getDeviceName(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
@@ -112,7 +127,7 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
       local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
       EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
-          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = "127.0.0.1"}})
+          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = utils.getDeviceName()}})
           GetCurrentTimeStampDeviceConsent()
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_,data1)
@@ -125,7 +140,7 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,_)
       local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-      EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+      EXPECT_HMIRESPONSE(RequestIdGetURLS)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -163,7 +178,6 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
                                 end)
                             end)
                         end)
-                      EXPECT_NOTIFICATION("OnPermissionsChange", {})
                     end
                   )
                   :Timeout(500)
@@ -191,16 +205,16 @@ function Test:Validate_Snapshot_Values()
         groupUserconsentTimeStamp = consentGroupSystemTimeStamp,
         userConsentGroup = "Location-1"
       }
-
+      local msg = ""
       local result = true
-      for k,v in pairs(valuesFromPTS) do
-        if v ~= verificationValues[k] then
-          -- local stringLog = "Wrong value from snapshot " .. k .. "! Expected: " .. verificationValues[k] .. " Actual: " .. v
-          print("Wrong value from snapshot " .. k .. "! Expected: " .. verificationValues[k] .. " Actual: " .. v)
+      for k, v in pairs(verificationValues) do
+        if v ~= valuesFromPTS[k] then
+          if string.len(msg) > 0 then msg = msg .. "\n" end
+          msg = msg .. "Wrong value from snapshot " .. k .. "! Expected: " .. v .. " Actual: " .. tostring(valuesFromPTS[k])
           result = false
         end
       end
-      return result
+      return result, msg
     end)
 end
 

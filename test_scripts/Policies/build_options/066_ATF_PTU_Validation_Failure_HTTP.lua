@@ -21,7 +21,6 @@
 -- SDL->HMI: OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -126,7 +125,7 @@ function Test:RAI_PTU()
     function(_, d1)
       log("SDL->HMI: N: BC.OnAppRegistered")
       self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UPDATE_NEEDED" })
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
       :Do(
         function(_, d2)
           log("SDL->HMI: N: SDL.OnStatusUpdate", d2.params.status)

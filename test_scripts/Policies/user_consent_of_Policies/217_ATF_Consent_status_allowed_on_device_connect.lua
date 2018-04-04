@@ -14,14 +14,12 @@
 -- SDL/PoliciesManager must provide the device`s DataConsent status (allowed) to HMI upon device`s connection->
 -- SDL must request DataConsent status of the corresponding device from the PoliciesManager
 -------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -69,9 +67,9 @@ function Test:Check_device_connects_as_consented()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
+          id = utils.getDeviceMAC(),
           isSDLAllowed = true,
-          name = "127.0.0.1",
+          name = utils.getDeviceName(),
           transportType = "WIFI"
         }
       }

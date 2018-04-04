@@ -17,13 +17,13 @@
 --     PoliciesManager must validate "appHMIType" sub-section in "<app ID>" and treat it as valid -> PTU is valid
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -61,7 +61,7 @@ function Test:Precondition_Activate_app()
       EXPECT_HMIRESPONSE(RequestIdGetMes)
       :Do(function()
         self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-        {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+        {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
         EXPECT_HMICALL("BasicCommunication.ActivateApp")
         :Do(function(_,data1)
           self.hmiConnection:SendResponse(data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -78,7 +78,7 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Validate_appHMIType_from_appId_upon_PTU()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function(_,data)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
     {

@@ -10,10 +10,7 @@ local json = require("modules/json")
 local atf_logger = require("atf_logger")
 local sdl = require("SDL")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-config.defaultProtocolVersion = 2
+local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
 --[[ Local Variables ]]
 local flowType = {
@@ -36,7 +33,7 @@ end
 local function allowSDL(self)
   -- sending notification OnAllowSDLFunctionality from HMI to allow connected device
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+    { allowed = true, source = "GUI", device = { id = commonSmoke.getDeviceMAC(), name = commonSmoke.getDeviceName() }})
 end
 
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP

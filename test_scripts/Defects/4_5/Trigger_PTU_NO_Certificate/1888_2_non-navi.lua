@@ -20,7 +20,6 @@ config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
   pTbl.policy_table.module_config.certificate = nil
-  pTbl.policy_table.app_policies[common.getAppID()].AppHMIType = { appHMIType }
 end
 
 local function startServiceSecured(pData)

@@ -14,10 +14,7 @@
 -- Expected result:
 -- Policy Manager must clear all user consent records in "user_consent_records" section of the LocalPT, other content of the LocalPT must be unchanged
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
---[[ General Settings for configuration ]]
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
 
@@ -28,6 +25,7 @@ local testCasesForPolicyTableSnapshot = require ('user_modules/shared_testcases/
 local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCasesForPolicyTable')
 local mobile_session = require('mobile_session')
 local sdl = require('SDL')
+local utils = require ('user_modules/utils')
 
 --[[ Local Functions ]]
 
@@ -94,7 +92,7 @@ function Test:Precondition_Activate_app_To_Trigger_PTU()
       EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1", isSDLAllowed = true}})
+            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
 
           local request_id_list_of_permissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", { appID = self.applications[config.application1.registerAppInterfaceParams.appName] })
           EXPECT_HMIRESPONSE(request_id_list_of_permissions)
@@ -194,7 +192,7 @@ function Test:Precondition_Activate_app_To_Trigger_PTU_after_reset()
       EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1", isSDLAllowed = true}})
+            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
 
         end)
     end)
@@ -219,8 +217,8 @@ function Test:Check_no_user_consent_records_in_PT()
     self:FailTestCase(config.pathToSDL .."sdl_preloaded_pt.json ".."is not created")
   else
     testCasesForPolicyTableSnapshot:extract_pts({self.applications[config.application1.registerAppInterfaceParams.appName]})
-    local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
-    local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
+    local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
+    local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
 
     if(app_consent_location == true) then
       commonFunctions:printError("Error: user_consent_records.consent_groups.Location was not reset in LPT")

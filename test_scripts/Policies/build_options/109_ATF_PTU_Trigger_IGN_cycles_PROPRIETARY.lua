@@ -13,9 +13,7 @@
 -- When amount of ignition cycles notified by HMI via BasicCommunication.OnIgnitionCycleOver gets equal to the value of "exchange_after_x_ignition_cycles"
 -- field ("module_config" section) of policies database, SDL must trigger a PolicyTableUpdate sequence
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.application1.registerAppInterfaceParams.appID = "123456"
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 

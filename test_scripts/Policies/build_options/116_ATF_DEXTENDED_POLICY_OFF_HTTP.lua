@@ -12,10 +12,6 @@
 -- The flag EXTENDED_POLICY is set to HTTP
 -- PTU passes successfully
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

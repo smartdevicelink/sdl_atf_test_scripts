@@ -12,9 +12,8 @@
 -- Expected result:
 -- SDL->MOB: BasicCommunication.SystemRequest (<result code from HMI responce)
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local mobile_session = require("mobile_session")
@@ -66,7 +65,15 @@ function Test:TestStep_Update_Policy()
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
 
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
+    result = {
+      code = 0,
+      method = "SDL.GetURLS",
+      urls = {
+        { url = commonFunctions.getURLs("0x07")[1] }
+      }
+    }
+  })
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_path .. "sdl_snapshot.json"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

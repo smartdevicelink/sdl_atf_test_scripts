@@ -1,0 +1,4 @@
+./test_scripts/iAP2TransportSwitch/001_happy_path.lua
+./test_scripts/iAP2TransportSwitch/002_resume_failed_simple_case.lua
+./test_scripts/iAP2TransportSwitch/003_resume_failed_remove_data_check.lua
+./test_scripts/iAP2TransportSwitch/004_commands_hold_while_switching.lua

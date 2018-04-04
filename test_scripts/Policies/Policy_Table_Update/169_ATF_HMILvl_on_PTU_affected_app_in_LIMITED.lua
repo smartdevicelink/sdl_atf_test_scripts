@@ -18,14 +18,12 @@
 -- 3) After PTU OnPermissionsChange is called
 
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local json = require('json')
+
 --[[ Local Variables ]]
 local HMIAppID2
 

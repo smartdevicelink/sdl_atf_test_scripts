@@ -19,38 +19,19 @@
 -- Expected result:
 -- PTU file is deleted
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local testCasesForPolicyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
--- local r_expected = { true, false } -- Expected file is created and then afterwards is deleted
--- local r_actual = { }
-local policy_file_name = "PolicyTableUpdate"
+local policy_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
+  .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
 local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
 local ptu_file = "files/jsons/Policies/Policy_Table_Update/ptu_19168.json"
 
 --[[ Local Functions ]]
--- local function is_table_equal(t1, t2)
---   local ty1 = type(t1)
---   local ty2 = type(t2)
---   if ty1 ~= ty2 then return false end
---   if ty1 ~= 'table' and ty2 ~= 'table' then return t1 == t2 end
---   for k1, v1 in pairs(t1) do
---     local v2 = t2[k1]
---     if v2 == nil or not is_table_equal(v1, v2) then return false end
---   end
---   for k2, v2 in pairs(t2) do
---     local v1 = t1[k2]
---     if v1 == nil or not is_table_equal(v1, v2) then return false end
---   end
---   return true
--- end
-
 local function check_file_exists(name)
   local f = io.open(name, "r")
   if f ~= nil then
@@ -82,7 +63,7 @@ function Test:Precondition_ActivateApp()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function(_, _)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+              { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
@@ -103,23 +84,16 @@ function Test:TestStep_PTU_Success_PTUfile_removed()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
       :Do(function(_, _)
-          local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, ptu_file)
+          local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY" }, ptu_file)
           EXPECT_HMICALL("BasicCommunication.SystemRequest")
           :Do(function(_, data)
-              self.hmiConnection:SendResponse(data.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
-              --table.insert(r_actual, check_file_exists(policy_file_path .. "/" .. policy_file_name))
-              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = policy_file_path .. "/" .. policy_file_name })
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = data.params.fileName })
             end)
           EXPECT_RESPONSE(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
-          :Do(function(_, _)
-              --table.insert(r_actual, check_file_exists(policy_file_path .. "/" .. policy_file_name))
-              requestId = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "StatusUpToDate" } })
-              EXPECT_HMIRESPONSE(requestId)
-            end)
         end)
   end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
   :Do(function(_,data)
     if(data.params.status == "UP_TO_DATE") then
       local result = check_file_exists(policy_file_path .. "/" .. policy_file_name)

@@ -25,9 +25,7 @@
 -- Expected result:
 -- SDL sends to HMI empty array
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 -- ToDo (vvvakulenko): remove after issue "ATF does not stop HB timers by closing session and connection" is resolved
 config.defaultProtocolVersion = 2
 
@@ -36,6 +34,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local utils = require ('user_modules/utils')
 
 --[[Local Variables]]
 local params_invalid_data =
@@ -67,7 +66,7 @@ require('user_modules/AppTypes')
 function Test:Precondition_trigger_getting_device_consent()
   testCasesForPolicyTable:trigger_getting_device_consent(self,
     config.application1.registerAppInterfaceParams.appName,
-    config.deviceMAC)
+    utils.getDeviceMAC())
 end
 
 for i = 1, #params_invalid_data do

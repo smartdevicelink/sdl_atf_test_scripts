@@ -20,7 +20,7 @@
 -- PoliciesManager must apply <functional grouping> only after the User has consented it -> RPC should be allowed
 ---------------------------------------------------------------------------------------------
 ---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -28,6 +28,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
 local allowed_rps = {}
@@ -133,8 +134,8 @@ end
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
---TODO(istoimenova): shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
-config.defaultProtocolVersion = 2
+
+
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
 testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/sdl_preloaded_pt_AlertOnlyNotifications_1.json")
 
@@ -147,7 +148,6 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_IsPermissionsConsentNeeded_false_on_app_activation()
   Get_RPCs()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
 
   --Allow SDL functionality
@@ -158,7 +158,7 @@ function Test:Precondition_IsPermissionsConsentNeeded_false_on_app_activation()
         EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
         :Do(function(_,_)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
           end)
       end
 
@@ -175,8 +175,8 @@ function Test:Precondition_IsPermissionsConsentNeeded_false_on_app_activation()
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function()
-      local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
-      if(app_permission ~= 0) then
+      local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
+      if(app_permission ~= nil) then
         self:FailTestCase("Consented gropus are assigned to application")
       end
     end)
@@ -197,7 +197,7 @@ end
 function Test:Precondition_PTU_user_consent_prompt_present()
   local is_test_passed = true
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{ requestType = "PROPRIETARY", fileName = "filename"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -296,8 +296,8 @@ function Test:Precondition_PTU_user_consent_prompt_present()
 
   function Test.TestStep_verify_PermissionConsent()
     local is_test_passed = true
-    local app_permission_Location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
-    local app_permission_Notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
+    local app_permission_Location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
+    local app_permission_Notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
     if(app_permission_Location ~= nil) then
       commonFunctions:printError("Location-1 is assigned user_consent_records")
       is_test_passed = false

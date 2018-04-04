@@ -17,19 +17,16 @@
 -- Expected result:
 -- Previous version of consumer_friendly_messages.messages section in LPT has to be replaced by a new one.
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local testCasesForPolicyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 --local db_file = config.pathToSDL .. "/" .. commonFunctions:read_parameter_from_smart_device_link_ini("AppStorageFolder") .. "/policy.sqlite"
 local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 local ptu_file = "files/jsons/Policies/Policy_Table_Update/ptu_18192.json"
 
 --[[ Local Functions ]]
@@ -70,7 +67,7 @@ function Test:Precondition_ActivateApp()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function(_, _)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = ServerAddress } })
+              { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
@@ -127,18 +124,13 @@ function Test:TestStep_RegisterNewApp()
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 
-function Test.TestStep_ValidateResultAfterPTU()
-  EXPECT_ANY()
-  :ValidIf(function(_, _)
-      local r_expected = { "1|TTS1|LABEL|LINE1|LINE2|TEXTBODY|en-us|AppPermissions", "2|TTS2|||||en-us|AppPermissionsHelp" }
-      local query = "select id, tts, label, line1, line2, textBody, language_code, message_type_name from message"
-      local r_actual = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", query)
-      if not is_table_equal(r_expected, r_actual) then
-        return false, "\nExpected:\n" .. commonFunctions:convertTableToString(r_expected, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(r_actual, 1)
-      end
-      return true
-    end)
-  :Times(1)
+function Test:TestStep_ValidateResultAfterPTU()
+  local r_expected = { "1|TTS1|LABEL|LINE1|LINE2|TEXTBODY|en-us|AppPermissions", "2|TTS2|||||en-us|AppPermissionsHelp" }
+  local query = "select id, tts, label, line1, line2, textBody, language_code, message_type_name from message"
+  local r_actual = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", query)
+  if not is_table_equal(r_expected, r_actual) then
+    self:FailTestCase("\nExpected:\n" .. commonFunctions:convertTableToString(r_expected, 1) .. "\nActual:\n" .. commonFunctions:convertTableToString(r_actual, 1))
+  end
 end
 
 --[[ Postconditions ]]

@@ -1,0 +1,7 @@
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_1_navi_no_cert_new_app.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_2_navi_no_cert_existing_app.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_3_navi_cert_new_app.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_4_navi_cert_existing_app.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_5_non-navi_no_cert_new_app.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_6_non-navi_no_cert_existing_app.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_7_non-navi_cert_new_app.lua

@@ -23,14 +23,12 @@
 -- 9. HMI->SDL: OnAppPermissionConsent {params}
 -- 10. PoliciesManager: update "<appID>" subsection of "user_consent_records" subsection of "<device_identifier>" section of "device_data" section in Local PT
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -44,7 +42,7 @@ require('user_modules/AppTypes')
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:Precondition_ExitApplication()
@@ -72,17 +70,19 @@ function Test:TestStep_User_consent_on_activate_app()
               local groups = {}
               if #data.result.allowedFunctions > 0 then
                 for i = 1, #data.result.allowedFunctions do
+                  print(data.result.allowedFunctions[i].name)
                   groups[i] = {
                     name = data.result.allowedFunctions[i].name,
                     id = data.result.allowedFunctions[i].id,
                     allowed = true}
                 end
               end
-              self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", { consentedFunctions = groups, source = "GUI"})
+              self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", {
+                consentedFunctions = groups,
+                source = "GUI",
+                appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+              })
               EXPECT_NOTIFICATION("OnPermissionsChange")
-              :Do(function(_,_)
-
-                end)
             end)
 
         end)
@@ -92,15 +92,14 @@ function Test:TestStep_User_consent_on_activate_app()
 end
 
 function Test:TestStep_check_LocalPT_for_updates()
-  local is_test_fail = false
-  self.hmiConnection:SendRequest("SDL.UpdateSDL", {} )
-
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+  local RequestId = self.hmiConnection:SendRequest("SDL.UpdateSDL", {} )
+  EXPECT_HMIRESPONSE(RequestId, { result = { result = "UPDATE_NEEDED" }})
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})
   :Do(function(_,data)
-      local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
-      local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
+      local is_test_fail = false
+      local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
+      local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
 
       if(app_consent_location ~= true) then
         commonFunctions:printError("Error: consent_groups.Location function for appID should be true")

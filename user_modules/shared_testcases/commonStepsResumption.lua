@@ -90,7 +90,7 @@ function commonStepsResumption:RegisterApp(app, additional_expectations , resume
           return true
         end
       end
-      return false, "The value of " .. pA ..  " (".. tostring(pA) .. ") is not as expected (" .. pE .. ")"
+      return false, "The value of " .. pA ..  " (".. tostring(pA) .. ") is not as expected (" .. tostring(pE) .. ")"
     end)
   Test.mobileSession:ExpectResponse(correlation_id, { success = true})
   local exp = additional_expectations(Test, app)

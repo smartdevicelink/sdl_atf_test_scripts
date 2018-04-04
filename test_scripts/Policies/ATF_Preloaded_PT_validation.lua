@@ -23,7 +23,7 @@ local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
-
+local utils = require ('user_modules/utils')
 ---------------------------------------------------------------------------------------------
 ------------------------------------Common Variables-----------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -31,8 +31,7 @@ local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigur
 --Set 2 protocol as default for script:
 config.defaultProtocolVersion = 2
 
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(utils.getDeviceMAC()) .. "/")
 
 ---------------------------------------------------------------------------------------------
 -------------------------------------Common functions-----------------------------------------
@@ -65,7 +64,7 @@ local function WaitForStopSDL(self)
   if status == SDL.RUNNING then
     self:FailTestCase("SDL didn't finish correctly")
     StopSDL()
-  else    
+  else
     userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL stops successfully")
   end
 end
@@ -107,14 +106,14 @@ commonSteps:ActivationApp()
 ---------------------------------------------------------------------------------------------
 --Start Positive cases check.
 	-- Start positive case1.
-	--Description: PTU of registered App is performed using correct file. 
+	--Description: PTU of registered App is performed using correct file.
 	--Verification criteria: Policy update is successfull.
-	
+
 	commonFunctions:newTestCasesGroup("TC01_Case when for PTU is used correct file")
-	
-  
+
+
 	        function Test:PTUSuccessIfPTWithDeviceAndPreDataConsent()
-	
+
 			local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
 				{
 					fileName = "PolicyTableUpdate",
@@ -122,14 +121,14 @@ commonSteps:ActivationApp()
 					appID = iappID
 				},
 			"files/ptu_general.json")
-		
+
 			local systemRequestId
 			--hmi side: expect SystemRequest request
 			EXPECT_HMICALL("BasicCommunication.SystemRequest")
 			:Do(function(_,data)
 				systemRequestId = data.id
 				--print("BasicCommunication.SystemRequest is received")
-			
+
 				--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 				self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 					{
@@ -140,14 +139,14 @@ commonSteps:ActivationApp()
 					--hmi side: sending SystemRequest response
 					self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 				end
-			
+
 				RUN_AFTER(to_run, 500)
 			end)
 
 			--hmi side: expect SDL.OnStatusUpdate
 			EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
 				:ValidIf(function(exp,data)
-					if 
+					if
 						exp.occurences == 1 and
 						data.params.status == "UP_TO_DATE" then
 							return true
@@ -165,8 +164,8 @@ commonSteps:ActivationApp()
 						exp.occurences == 3) and
 						data.params.status == "UP_TO_DATE" then
 							return true
-					else 
-						if 
+					else
+						if
 							exp.occurences == 1 then
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. Expected in first occurrences status 'UP_TO_DATE' or 'UPDATING', 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 						elseif exp.occurences == 2 then
@@ -179,17 +178,17 @@ commonSteps:ActivationApp()
 					end
 				end)
 				:Times(Between(1,3))
-		
+
 			--mobile side: expect SystemRequest response
 			EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 			:Do(function(_,data)
 				--hmi side: sending SDL.GetUserFriendlyMessage request to SDL
 				local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"StatusUpToDate"}})
-			
+
 				--hmi side: expect SDL.GetUserFriendlyMessage response
-				EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage", messages = {{messageCode = "StatusUpToDate"}}}}) 
+				EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage", messages = {{messageCode = "StatusUpToDate"}}}})
 			end)
-	
+
 		end
 	-- End Positive case1.
 --End Positive cases check.
@@ -202,7 +201,7 @@ commonSteps:ActivationApp()
 
 -------------------------------------------------------------------------------------------------------
 	-- Start Negative case1.
-	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with omitted "device" section. 
+	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with omitted "device" section.
 	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull.
 
     commonFunctions:newTestCasesGroup("TC02_Case when in PTU file device section omitted:")
@@ -216,13 +215,13 @@ commonSteps:ActivationApp()
 							appID = iappID
 						},
 					"files/PTU_DeviceSectionMissed.json")
-				
+
 					local systemRequestId
 					--hmi side: expect SystemRequest request
 					EXPECT_HMICALL("BasicCommunication.SystemRequest")
 					:Do(function(_,data)
 						systemRequestId = data.id
-					
+
 						--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 						self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 							{
@@ -233,14 +232,14 @@ commonSteps:ActivationApp()
 							--hmi side: sending SystemRequest response
 							self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 						end
-					
+
 						RUN_AFTER(to_run, 500)
 					end)
 
 					--hmi side: expect SDL.OnStatusUpdate
 					EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 					:ValidIf(function(exp,data)
-							if 
+							if
 								exp.occurences == 1 and
 								data.params.status == "UPDATE_NEEDED" then
 									print ("\27[31m SDL.OnStatusUpdate came with wrong values. PTU file validation failed. Exchange wasn't successful")
@@ -256,20 +255,20 @@ commonSteps:ActivationApp()
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. Exchange should not be successful.Expected in second occurrences status 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 									return false
 							end
-					
+
 						end)
 						:Times(Between(1,2))
-				
+
 					--mobile side: expect SystemRequest response
 					EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 					:Times(0)
-	
+
 	    end
 	-- End Negative case1.
 
 -------------------------------------------
 	-- Start Negative case2.
-	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with incorrect "device" section - uppercase. 
+	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with incorrect "device" section - uppercase.
 	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull.
 
     commonFunctions:newTestCasesGroup("TC03_Case when in PTU file device section incorrect:")
@@ -283,13 +282,13 @@ commonSteps:ActivationApp()
 							appID = iappID
 						},
 					"files/PTU_DeviceSectionUppercase.json")
-				
+
 					local systemRequestId
 					--hmi side: expect SystemRequest request
 					EXPECT_HMICALL("BasicCommunication.SystemRequest")
 					:Do(function(_,data)
 						systemRequestId = data.id
-					
+
 						--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 						self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 							{
@@ -300,14 +299,14 @@ commonSteps:ActivationApp()
 							--hmi side: sending SystemRequest response
 							self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 						end
-					
+
 						RUN_AFTER(to_run, 500)
 					end)
 
 					--hmi side: expect SDL.OnStatusUpdate
 					EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 					:ValidIf(function(exp,data)
-							if 
+							if
 								exp.occurences == 1 and
 								data.params.status == "UPDATE_NEEDED" then
 									print ("\27[31m SDL.OnStatusUpdate came with wrong values. PTU file validation failed. Exchange wasn't successful")
@@ -323,22 +322,22 @@ commonSteps:ActivationApp()
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. Exchange should not be successful.Expected in second occurrences status 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 									return false
 							end
-					
+
 						end)
 						:Times(Between(1,2))
-				
+
 					--mobile side: expect SystemRequest response
 					EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 					:Times(0)
-	
+
 	    end
 	-- End Negative case2.
 
 -------------------------------------------
 	-- Start Negative case3.
-	--Description:SDL starts with valid preloaded_pt. PTU of registered app is performed with omitted "pre_DataConsent" section. 
-	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull. 
-   
+	--Description:SDL starts with valid preloaded_pt. PTU of registered app is performed with omitted "pre_DataConsent" section.
+	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull.
+
     commonFunctions:newTestCasesGroup("TC04_Case when in PTU file pre_DataConsent section omitted:")
 
 	     function Test:PTUFailNoPredataSection()
@@ -350,13 +349,13 @@ commonSteps:ActivationApp()
 							appID = iappID
 						},
 					"files/PTU_PreDataConsentMissed.json")
-				
+
 					local systemRequestId
 					--hmi side: expect SystemRequest request
 					EXPECT_HMICALL("BasicCommunication.SystemRequest")
 					:Do(function(_,data)
 						systemRequestId = data.id
-					
+
 						--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 						self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 							{
@@ -367,14 +366,14 @@ commonSteps:ActivationApp()
 							--hmi side: sending SystemRequest response
 							self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 						end
-					
+
 						RUN_AFTER(to_run, 500)
 					end)
 
 					--hmi side: expect SDL.OnStatusUpdate
 					EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 					:ValidIf(function(exp,data)
-							if 
+							if
 								exp.occurences == 1 and
 								data.params.status == "UPDATE_NEEDED" then
 									print ("\27[31m SDL.OnStatusUpdate came with wrong values. PTU file validation failed. Exchange wasn't successful")
@@ -390,21 +389,21 @@ commonSteps:ActivationApp()
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. Exchange should not be successful.Expected in second occurrences status 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 									return false
 							end
-					
+
 						end)
 						:Times(Between(1,2))
-				
+
 					--mobile side: expect SystemRequest response
 					EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 					:Times(0)
-	
+
 	     end
 	-- End Negative case3.
 
 -------------------------------------------
 
 	-- Start Negative case4.
-	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with incorrect "pre_DataConsent" section - uppercase. 
+	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with incorrect "pre_DataConsent" section - uppercase.
 	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull.
 
     commonFunctions:newTestCasesGroup("TC05_Case when in PTU file pre_DataConsent section incorrect:")
@@ -418,13 +417,13 @@ commonSteps:ActivationApp()
 							appID = iappID
 						},
 					"files/PTU_PreDataSectionUppercase.json")
-				
+
 					local systemRequestId
 					--hmi side: expect SystemRequest request
 					EXPECT_HMICALL("BasicCommunication.SystemRequest")
 					:Do(function(_,data)
 						systemRequestId = data.id
-					
+
 						--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 						self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 							{
@@ -435,14 +434,14 @@ commonSteps:ActivationApp()
 							--hmi side: sending SystemRequest response
 							self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 						end
-					
+
 						RUN_AFTER(to_run, 500)
 					end)
 
 					--hmi side: expect SDL.OnStatusUpdate
 					EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 					:ValidIf(function(exp,data)
-							if 
+							if
 								exp.occurences == 1 and
 								data.params.status == "UPDATE_NEEDED" then
 									print ("\27[31m SDL.OnStatusUpdate came with wrong values. PTU file validation failed. Exchange wasn't successful")
@@ -458,21 +457,21 @@ commonSteps:ActivationApp()
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. Exchange should not be successful.Expected in second occurrences status 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 									return false
 							end
-					
+
 						end)
 						:Times(Between(1,2))
-				
+
 					--mobile side: expect SystemRequest response
 					EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 					:Times(0)
-	
+
 	    end
 	-- End Negative case4.
 
 -------------------------------------------
 	-- Start Negative case5.
-	--Description:SDL starts with valid preloaded_pt. PTU of registered app is performed with omitted "device" and "pre_DataConsent" sections. 
-	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull. 
+	--Description:SDL starts with valid preloaded_pt. PTU of registered app is performed with omitted "device" and "pre_DataConsent" sections.
+	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull.
 
     commonFunctions:newTestCasesGroup("TC06_Case when in PTU file device and pre_DataConsent sections omitted:")
 
@@ -485,13 +484,13 @@ commonSteps:ActivationApp()
 						appID = iappID
 					},
 				"files/PTU_DeviceAndPreDataMissed.json")
-				
+
 				local systemRequestId
 				--hmi side: expect SystemRequest request
 				EXPECT_HMICALL("BasicCommunication.SystemRequest")
 				:Do(function(_,data)
 					systemRequestId = data.id
-					
+
 					--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 					self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 						{
@@ -502,14 +501,14 @@ commonSteps:ActivationApp()
 						--hmi side: sending SystemRequest response
 						self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 					end
-					
+
 					RUN_AFTER(to_run, 500)
 				end)
 
 				--hmi side: expect SDL.OnStatusUpdate
 				EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 				:ValidIf(function(exp,data)
-						if 
+						if
 							exp.occurences == 1 and
 							data.params.status == "UPDATE_NEEDED" then
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. PTU file validation failed. Exchange wasn't successful")
@@ -525,20 +524,20 @@ commonSteps:ActivationApp()
 							print ("\27[31m SDL.OnStatusUpdate came with wrong values. Exchange should not be successful.Expected in second occurrences status 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 								return false
 						end
-					
+
 					end)
 					:Times(Between(1,2))
-				
+
 				--mobile side: expect SystemRequest response
 				EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 				:Times(0)
-	
+
      end
 	-- End Negative case5.
 
 -------------------------------------------
 	-- Start Negative case6.
-	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with incorrect "device" and "pre_DataConsent" sections - uppercase. 
+	--Description:SDL starts with valid preloaded_pt. PTU of registered App is performed with incorrect "device" and "pre_DataConsent" sections - uppercase.
 	--Verification criteria: SDL fails validation of PTU file,  policy update is not successfull.
 
     commonFunctions:newTestCasesGroup("TC07_Case when in PTU device & pre_DataConsent sections incorrect:")
@@ -552,13 +551,13 @@ commonSteps:ActivationApp()
 							appID = iappID
 						},
 					"files/PTU_DeviceAndPreDataUppercase.json")
-				
+
 					local systemRequestId
 					--hmi side: expect SystemRequest request
 					EXPECT_HMICALL("BasicCommunication.SystemRequest")
 					:Do(function(_,data)
 						systemRequestId = data.id
-					
+
 						--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 						self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 							{
@@ -569,14 +568,14 @@ commonSteps:ActivationApp()
 							--hmi side: sending SystemRequest response
 							self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 						end
-					
+
 						RUN_AFTER(to_run, 500)
 					end)
 
 					--hmi side: expect SDL.OnStatusUpdate
 					EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 					:ValidIf(function(exp,data)
-							if 
+							if
 								exp.occurences == 1 and
 								data.params.status == "UPDATE_NEEDED" then
 									print ("\27[31m SDL.OnStatusUpdate came with wrong values. PTU file validation failed. Exchange wasn't successful")
@@ -592,20 +591,20 @@ commonSteps:ActivationApp()
 								print ("\27[31m SDL.OnStatusUpdate came with wrong values. Exchange should not be successful.Expected in second occurrences status 'UPDATE_NEEDED', got '" .. tostring(data.params.status) .. "' \27[0m")
 									return false
 							end
-					
+
 						end)
 						:Times(Between(1,2))
-				
+
 					--mobile side: expect SystemRequest response
 					EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 					:Times(0)
-	
+
 	    end
 	-- End Negative case6.
 
 ------------------------------------------------------------------------------------------------------
 
---"Device" and "pre_DataConsent" section are omitted in sdl_preloaded_pt.json file. 
+--"Device" and "pre_DataConsent" section are omitted in sdl_preloaded_pt.json file.
 
 ------------------------------------------------------------------------------------------------------
 	-- Start Negative case7.
@@ -629,20 +628,20 @@ commonSteps:ActivationApp()
 			    file:close()
 
 			    local json = require("modules/json")
-			   
+
 			    local data = json.decode(json_data)
-			    if data.policy_table.app_policies and 
+			    if data.policy_table.app_policies and
 			   	    data.policy_table.app_policies["device"] ~= nil then
-			   		data.policy_table.app_policies["device"] = nil  
+			   		data.policy_table.app_policies["device"] = nil
 			    end
-		
+
 			    data = json.encode(data)
 
 			    file = io.open(pathToFile, "w")
 			    file:write(data)
 			    file:close()
 			end
-                
+
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
@@ -658,7 +657,7 @@ commonSteps:ActivationApp()
 
 
 
-			function Test:StartSDLWithDeviceInPT()				
+			function Test:StartSDLWithDeviceInPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
   				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
@@ -688,26 +687,26 @@ commonSteps:ActivationApp()
 			    file:close()
 
 			    local json = require("modules/json")
-			   
+
 			    local data = json.decode(json_data)
-			    if data.policy_table.app_policies and 
+			    if data.policy_table.app_policies and
 			   	    data.policy_table.app_policies["device"] ~= nil then
-			   		data.policy_table.app_policies["device"] = data.policy_table.app_policies["Device"]  
+			   		data.policy_table.app_policies["device"] = data.policy_table.app_policies["Device"]
 			    end
-		
+
 			    data = json.encode(data)
 
 			    file = io.open(pathToFile, "w")
 			    file:write(data)
 			    file:close()
 			end
-				
+
 			function Test:IgnitionOnWithEditedPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
 				WaitForStopSDL(self)
 			end
- 		
+
 		--Start Postcondition to case8.
 		commonFunctions:newTestCasesGroup("TC09_Postconditions")
 
@@ -715,14 +714,14 @@ commonSteps:ActivationApp()
 		  		RestorePreloadedPT()
 		   	end
 
-			function Test:StartSDLWithDeviceInPT()				
+			function Test:StartSDLWithDeviceInPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
   				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
 		--end Postcondition to case8.
 	-- End Negative case8.
 
-	-------------------------------------------------------------	
+	-------------------------------------------------------------
 
 	-- Start Negative case9.
 		--Description: Mandatory section "pre_DataConsent" is not present in preloaded_pt
@@ -745,14 +744,14 @@ commonSteps:ActivationApp()
 			    file:close()
 
 			    local json = require("modules/json")
-			   
+
 			    local data = json.decode(json_data)
-			   	if data.policy_table.app_policies and 
+			   	if data.policy_table.app_policies and
 			   		data.policy_table.app_policies["pre_DataConsent"] ~= nil then
 			   		data.policy_table.app_policies["pre_DataConsent"] = nil
-				  
+
 			    end
-		
+
 			    data = json.encode(data)
 
 			    file = io.open(pathToFile, "w")
@@ -765,14 +764,14 @@ commonSteps:ActivationApp()
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
 				WaitForStopSDL(self)
 			end
-	
+
 		--Start Postcondition to case9.
 		commonFunctions:newTestCasesGroup("TC10_Postconditions")
 			function Test:RestorePreloadedJson()
 		  		RestorePreloadedPT()
-		    	end   
+		    	end
 
-			function Test:StartSDLWithPreDataInPT()				
+			function Test:StartSDLWithPreDataInPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
   				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
@@ -801,13 +800,13 @@ commonSteps:ActivationApp()
 			    file:close()
 
 			    local json = require("modules/json")
-			   
+
 			    local data = json.decode(json_data)
-			    if data.policy_table.app_policies and 
+			    if data.policy_table.app_policies and
 			   	    data.policy_table.app_policies["pre_DataConsent"] ~= nil then
-			   		data.policy_table.app_policies["pre_DataConsent"] = data.policy_table.app_policies["Pre_DataConsent"]  
+			   		data.policy_table.app_policies["pre_DataConsent"] = data.policy_table.app_policies["Pre_DataConsent"]
 			    end
-		
+
 			    data = json.encode(data)
 
 			    file = io.open(pathToFile, "w")
@@ -820,7 +819,7 @@ commonSteps:ActivationApp()
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
 				WaitForStopSDL(self)
 			end
- 		
+
 		--Start Postcondition to case10.
 		commonFunctions:newTestCasesGroup("TC11_Postconditions")
 		    	function Test:RestorePreloadedJson()
@@ -857,12 +856,12 @@ commonSteps:ActivationApp()
 			    file:close()
 
 			    local json = require("modules/json")
-			   
+
 			    local data = json.decode(json_data)
-			   		if data.policy_table.app_policies and 
+			   		if data.policy_table.app_policies and
 				   		data.policy_table.app_policies["pre_DataConsent"] ~= nil and data.policy_table.app_policies["device"] ~= nil then
 				   		data.policy_table.app_policies["device"] = nil
-				   		data.policy_table.app_policies["pre_DataConsent"] = nil	  
+				   		data.policy_table.app_policies["pre_DataConsent"] = nil
 				end
 
 			    data = json.encode(data)
@@ -877,14 +876,14 @@ commonSteps:ActivationApp()
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
 				WaitForStopSDL(self)
 			end
-	
+
 		--Start Postcondition to case11.
 		commonFunctions:newTestCasesGroup("TC12_Postconditions")
 			function Test:RestorePreloadedJson()
 		  		RestorePreloadedPT()
-		  	end   
+		  	end
 
-			function Test:StartSDLWithDeviceAndPreDataInPT()				
+			function Test:StartSDLWithDeviceAndPreDataInPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
   				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end
@@ -913,15 +912,15 @@ commonSteps:ActivationApp()
 			    file:close()
 
 			    local json = require("modules/json")
-			   
+
 			    local data = json.decode(json_data)
-			    if data.policy_table.app_policies and 
+			    if data.policy_table.app_policies and
 			   	    data.policy_table.app_policies["pre_DataConsent"] ~= nil and data.policy_table.app_policies["device"] ~= nil then
-			   		data.policy_table.app_policies["pre_DataConsent"] = data.policy_table.app_policies["Pre_DataConsent"]  
-			   		data.policy_table.app_policies["device"] = data.policy_table.app_policies["Device"] 
+			   		data.policy_table.app_policies["pre_DataConsent"] = data.policy_table.app_policies["Pre_DataConsent"]
+			   		data.policy_table.app_policies["device"] = data.policy_table.app_policies["Device"]
 
 			    end
-		
+
 			    data = json.encode(data)
 
 			    file = io.open(pathToFile, "w")
@@ -934,14 +933,14 @@ commonSteps:ActivationApp()
 				userPrint(34, "After IGNON SDL stops since preloaded not valid(see above message)")
 				WaitForStopSDL(self)
 			end
- 
+
 		--Start Postcondition to case12.
 		commonFunctions:newTestCasesGroup("TC13_Postconditions")
 		  	function Test:RestorePreloadedJson()
 		  		RestorePreloadedPT()
 		 	end
 
-			function Test:StartSDLWithDeviceInPT()				
+			function Test:StartSDLWithDeviceInPT()
 				StartSDL(config.pathToSDL, config.ExitOnCrash)
   				userPrint(34, "After correct sdl_preloaded_pt.json restored, SDL starts successfully")
 			end

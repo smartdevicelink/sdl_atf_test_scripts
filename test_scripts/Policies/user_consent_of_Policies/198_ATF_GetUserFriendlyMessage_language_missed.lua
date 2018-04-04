@@ -16,18 +16,14 @@
 -- Expected result:
 -- English ("en-us") prompt must be returned to HMI
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 local language = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("consumer_friendly_messages.messages.DataConsent.languages.en-us.tts")
 local line1 = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("consumer_friendly_messages.messages.DataConsent.languages.en-us.line1")
 local line2 = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("consumer_friendly_messages.messages.DataConsent.languages.en-us.line2")
@@ -65,7 +61,7 @@ function Test:Precondition_Activate_app_EN_US()
         :Do(function(_,_)
             -- Do not allow SDL to have again message GetUserFriendlyMessage
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = false, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = false}})
+              {allowed = false, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = false}})
 
           end)
       end

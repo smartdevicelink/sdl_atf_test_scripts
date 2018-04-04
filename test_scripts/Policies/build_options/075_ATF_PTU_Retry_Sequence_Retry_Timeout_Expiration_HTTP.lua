@@ -24,9 +24,7 @@
 -- Expected result:
 -- Number of retries corresponds to number of elements in 'seconds_between_retries' array
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]

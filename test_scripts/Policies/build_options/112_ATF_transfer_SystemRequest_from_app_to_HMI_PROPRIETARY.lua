@@ -11,10 +11,6 @@
 -- Expected result:
 -- SDL must send BasicCommunication.SystemRequest (<path to UpdatedPT>, PROPRIETARY, params) to HMI
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -42,7 +38,15 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Update_Policy()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
+    result = {
+      code = 0,
+      method = "SDL.GetURLS",
+      urls = {
+        { url = commonFunctions.getURLs("0x07")[1] }
+      }
+    }
+  })
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = testData.fileName})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

@@ -28,14 +28,15 @@
 -- SDL replaces the following sections of the Local Policy Table with the
 --corresponding sections from PTU: module_config, functional_groupings and app_policies
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+--[[ General Settings for configuration ]]
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local mobile_session = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local json = require("modules/json")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local db_file = config.pathToSDL .. "/" .. commonFunctions:read_parameter_from_smart_device_link_ini("AppStorageFolder") .. "/policy.sqlite"
@@ -66,8 +67,8 @@ function Test:ConnectMobile()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
-          name = "127.0.0.1",
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
           transportType = "WIFI"
         }
       }
@@ -91,8 +92,8 @@ function Test:RegisterApp()
       {
         deviceInfo =
         {
-          id = config.deviceMAC,
-          name = "127.0.0.1",
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
           transportType = "WIFI"
         }
       }
@@ -154,15 +155,11 @@ function Test:PerformPTUSuccess()
 end
 
 function Test:ValidateNumberMessages()
-  self.mobileSession:ExpectAny()
-  :ValidIf(function(_, _)
-      r_actual = get_num_records()
-      if r_expected ~= r_actual then
-        return false, "Expected number of records: " .. r_expected .. ", got: " .. r_actual
-      end
-      print("Number of records: " .. r_actual)
-      return true
-    end)
+  r_actual = get_num_records()
+  if r_expected ~= r_actual then
+    self:FailTestCase("Expected number of records: " .. r_expected .. ", got: " .. r_actual)
+  end
+  print("Number of records: " .. r_actual)
 end
 
 --[[ Postconditions ]]

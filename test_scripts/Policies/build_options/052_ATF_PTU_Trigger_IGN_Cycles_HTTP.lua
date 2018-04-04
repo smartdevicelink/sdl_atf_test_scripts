@@ -18,9 +18,7 @@
 -- gets equal to the value of field "exchange_after_x_ignition_cycles" ("module_config" section)
 ----PTU sequence is triggered and SDL sends to HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 Test = require('connecttest')
 
 --[[ Required Shared libraries ]]

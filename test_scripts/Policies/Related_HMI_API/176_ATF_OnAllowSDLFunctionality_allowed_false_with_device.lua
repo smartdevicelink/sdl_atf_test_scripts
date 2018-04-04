@@ -14,16 +14,11 @@
 -- app stays in NONE level on HMI.
 -- HMI->SDL: BasicCommunication.ActivateApp_response
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
-
---[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -48,13 +43,13 @@ function Test:TestStep_RegisterApp_allowed_false_without_device()
       EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = false, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = false}})
+            {allowed = false, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = false}})
         end)
     end)
 
   EXPECT_HMICALL("BasicCommunication.ActivateApp", {appID = self.applications[config.application1.registerAppInterfaceParams.appName], level = "NONE"})
-  :Do(function(_,data) 
-    self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {}) 
+  :Do(function(_,data)
+    self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
   end)
 
   EXPECT_NOTIFICATION("OnHMIStatus"):Times(0)
@@ -64,7 +59,7 @@ function Test:TestStep_CheckDeviceConsentGroup()
   os.execute("sleep 3")
   local result = commonFunctions:is_db_contains(config.pathToSDL.."/storage/policy.sqlite", "SELECT is_consented FROM device_consent_group", {"0"} )
   if(result ~= true) then
-    self:FailTestCase("Error: Value of is_consented on policy DB should be false(0).") 
+    self:FailTestCase("Error: Value of is_consented on policy DB should be false(0).")
   end
 end
 

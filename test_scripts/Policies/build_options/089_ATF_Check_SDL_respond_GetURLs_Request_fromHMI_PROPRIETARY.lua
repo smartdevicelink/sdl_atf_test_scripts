@@ -15,13 +15,11 @@
 -- Expected result:
 -- respond SDL.GetURLs_response (SUCCESS, urls: array(<SDL-chosen appID> + <url from policy database for service 7>)) to HMI
 ---------------------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -41,8 +39,8 @@ function Test:ConnectMobile()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
-          name = "127.0.0.1",
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
           transportType = "WIFI"
         }
       }
@@ -73,7 +71,7 @@ function Test:RegisterApp()
       local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
       EXPECT_HMIRESPONSE(requestId)
       :ValidIf(function(_, d)
-          local r_expected = "http://policies.telematics.ford.com/api/policies"
+          local r_expected = commonFunctions.getURLs("0x07")[1]
           local r_actual = d.result.urls[1].url
           if r_expected ~= r_actual then
             local msg = table.concat({"\nExpected: ", r_expected, "\nActual: ", tostring(r_actual)})

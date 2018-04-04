@@ -19,7 +19,6 @@
 -- app_1 doesn't take part in PTU (except of the case when app_1 is the only application being run on SDL)
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -28,6 +27,7 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local testCasesForPolicyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local hmiLevels = { }
@@ -99,7 +99,7 @@ function Test:TestStep_ActivateApp_2()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function(_, _)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+              { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
           end)
       end
     end)

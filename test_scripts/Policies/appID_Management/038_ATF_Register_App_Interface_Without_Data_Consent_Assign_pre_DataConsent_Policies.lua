@@ -18,13 +18,10 @@
 -- 1. sdl_snapshot is created.
 -- 2. Application is added to policy and assigns pre_DataConsent group
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local utils = require ('user_modules/utils')
 
 --[[ Local Functions ]]
 local function get_permission_code(app_id)

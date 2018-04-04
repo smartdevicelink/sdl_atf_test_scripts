@@ -58,14 +58,6 @@ local function start(self)
     end)
 end
 
--- Allow device from HMI
-local function allowSDL(self)
-  -- sending notification OnAllowSDLFunctionality from HMI to allow connected device
-  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
-      allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" }
-    })
-end
-
 -- Delay without expectation
 -- @tparam number pTime time to wait
 local function delayedExp(pTime, self)
@@ -176,7 +168,7 @@ local function Check_user_consent_records_in_Snapshot(self)
   else
     -- Check presence of consented group for registered appID
     local pts = ptsToTable(pathToPTS)
-    local ucr = pts.policy_table.device_data[config.deviceMAC].user_consent_records
+    local ucr = pts.policy_table.device_data[commonDefects.getDeviceMAC()].user_consent_records
     if not (ucr[config.application1.registerAppInterfaceParams.appID]) then
       commonFunctions:printError("Error: user_consent_records.consent_groups.Location is not present in Snapshot")
       is_test_fail = true
@@ -240,7 +232,7 @@ local function Check_no_user_consent_records_in_Snapshot(self)
   else
     -- Check absence of consented group for registered appID
     local pts = ptsToTable(pathToPTS)
-    local ucr = pts.policy_table.device_data[config.deviceMAC].user_consent_records
+    local ucr = pts.policy_table.device_data[commonDefects.getDeviceMAC()].user_consent_records
     if (ucr[config.application1.registerAppInterfaceParams.appID]) then
       commonFunctions:printError("Error: user_consent_records.consent_groups.Location was not reset in Snapshot")
       is_test_fail = true
@@ -258,7 +250,7 @@ runner.Step("Clean environment", commonDefects.preconditions)
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP
 runner.Step("Start SDL, HMI, connect Mobile", start)
 -- Allow connected device on HMI
-runner.Step("Allow SDL for device", allowSDL)
+runner.Step("Allow SDL for device", commonDefects.allow_sdl)
 -- create mobile session, register application, perform PTU wit PT from ptUpdateFunc
 -- with "Location" group for registered application
 runner.Step("RAI, PTU", commonDefects.rai_ptu, { ptUpdateFunc})
@@ -280,7 +272,7 @@ runner.Step("Start SDL, HMI, connect Mobile", start)
 -- Check absence of records related to consent group and device in LPT after FACTORY_DEFAULTS
 runner.Step("Check_absence_of_user_consent_records_in_LPT", Check_no_user_consent_records_in_LPT)
 -- Make device consent
-runner.Step("Allow SDL for device", allowSDL)
+runner.Step("Allow SDL for device", commonDefects.allow_sdl)
 -- Create session, register application
 runner.Step("RAI", commonDefects.rai_n)
 -- Remove snapshot to make sure that SDL creates new one during PTU, trigger PTU to initiation of snapshot creation

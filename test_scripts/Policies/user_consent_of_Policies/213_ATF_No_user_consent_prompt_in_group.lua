@@ -19,21 +19,18 @@
 -- Expected result:
 -- PoliciesManager must apply such <functional grouping> without asking User`s consent for it
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
---testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/DeviceGroupInPreconsented_preloadedPT.json")
---TODO(istoimenova): shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
-config.defaultProtocolVersion = 2
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -44,7 +41,6 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep1_PTU_lack_of_user_consent_prompt()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
 
   --Allow SDL functionality
@@ -55,7 +51,7 @@ function Test:TestStep1_PTU_lack_of_user_consent_prompt()
         EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
         :Do(function(_,_)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
           end)
       end
 
@@ -67,8 +63,8 @@ function Test:TestStep1_PTU_lack_of_user_consent_prompt()
 end
 
 function Test:TestStep_app_no_consent()
-  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
-  if(app_permission ~= 0) then
+  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
+  if(app_permission ~= nil) then
     self:FailTestCase("Consented gropus are assigned to application")
   end
 end

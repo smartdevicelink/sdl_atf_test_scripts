@@ -2,7 +2,7 @@
 -- RC common module
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
+config.mobileHost = "127.0.0.1"
 config.defaultProtocolVersion = 2
 config.ValidateSchema = false
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
@@ -124,8 +124,26 @@ local function ptu(self, ptu_update_func)
 end
 
 local function allow_sdl(self)
-  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
+    allowed = true,
+    source = "GUI",
+    device = {
+      id = commonRC.getDeviceMAC(),
+      name = commonRC.getDeviceName()
+    }
+  })
+end
+
+function commonRC.getDeviceName()
+  return config.mobileHost .. ":" .. config.mobilePort
+end
+
+function commonRC.getDeviceMAC()
+  local cmd = "echo -n " .. commonRC.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
+  local handle = io.popen(cmd)
+  local result = handle:read("*a")
+  handle:close()
+  return result
 end
 
 function commonRC.preconditions()

@@ -28,16 +28,14 @@
 -- 4. SDL removes 'policyfile' from the directory
 -- 5. SDL->appID_1: onPermissionChange(permisssions)
 -- 6. SDL->HMI: SDL.OnAppPermissionChanged(appID_1, permissions)
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
+---------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local json = require('json')
 local mobile_session = require('mobile_session')
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local HMIAppID

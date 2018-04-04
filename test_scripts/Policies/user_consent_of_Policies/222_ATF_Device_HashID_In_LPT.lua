@@ -6,14 +6,13 @@
 -- Before storing the number in the policy table, Policy manager must hash the number using SHA-256. SDL must store the hashed device identifier
 -- (BTMAC for Bluetoth connection or Serial number of USB connected device) in <device identifier> section of Local Policy Table
 -- 1. Used preconditions:
--- a) Start SDL, HMI and register app via Wifi (MAC address - 127.0.0.1)
+-- a) Start SDL, HMI and register app via Wifi
 -- 2. Performed steps
 -- a) Initiate PTU to verify device hash in policy shapshot
 --
 -- Expected result:
 -- a) Hash of device is present in snapshot
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -21,6 +20,7 @@ config.defaultProtocolVersion = 2
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -52,8 +52,8 @@ function Test:Precondition_Get_List_Of_Connected_Devices()
   {
     deviceList = {
       {
-
-        name = "127.0.0.1",
+        id = utils.getDeviceMAC(),
+        name = utils.getDeviceName(),
         transportType = "WIFI",
         isSDLAllowed = false
       }
@@ -74,7 +74,7 @@ function Test:Initiate_PTU_And_Check_DeviceHashId_In_PTS()
   local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
   EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
   :Do(function(_,_)
-  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = "127.0.0.1"}})
+  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = utils.getDeviceName()}})
   EXPECT_HMICALL("BasicCommunication.ActivateApp")
   :Do(function(_,data1)
   self.hmiConnection:SendResponse(data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})

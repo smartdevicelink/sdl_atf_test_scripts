@@ -17,14 +17,13 @@
  -- SDL->HMI: SDL.OnStatusUpdate(UPDATING)
  -- SDL->HMI: BasicCommunication.PolicyUpdate
  -------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -83,7 +82,7 @@ function Test:Preconditions_ActivateApplication()
          RequestId = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
         EXPECT_HMIRESPONSE(RequestId)
         :Do(function(_,_)
-            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_,_)
                 self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})

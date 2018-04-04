@@ -23,10 +23,6 @@
 -- Status of response: sucess = false, resultCode = "DISALLOWED"
 
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
@@ -34,6 +30,7 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local testCasesForPolicyTableSnapshot = require("user_modules/shared_testcases/testCasesForPolicyTableSnapshot")
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -45,7 +42,7 @@ require("user_modules/AppTypes")
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Pecondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:UpdatePolicy()
@@ -66,6 +63,7 @@ function Test:RegisterNewApp()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "ABC Application" }})
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   self.mobileSession2:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
 end
 
 function Test:CheckPermissions()
@@ -79,23 +77,7 @@ function Test:CheckPermissions()
 end
 
 function Test:UpdatePolicy()
-  local timeout_after_x_seconds = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("module_config.timeout_after_x_seconds")
-  local seconds_between_retries = {}
-  for i = 1, #testCasesForPolicyTableSnapshot.seconds_between_retries do
-    seconds_between_retries[i] = testCasesForPolicyTableSnapshot.seconds_between_retries[i].value
-  end
-
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate",
-    {
-      file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json",
-      timeout = timeout_after_x_seconds,
-      retry = seconds_between_retries
-    })
-  :Do(function(_,data1)
-      self.hmiConnection:SendResponse(data1.id, data1.method, "SUCCESS", {})
-      testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/appID_Management/ptu_01.json")
-    end)
-  --testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/appID_Management/ptu_01.json")
+  testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/appID_Management/ptu_01.json")
 end
 
 function Test:CheckPermissions()

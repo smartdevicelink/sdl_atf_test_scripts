@@ -173,8 +173,8 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect_WithoutOpenConnec
 	local fileContent = f:read("*all")
 	f:close()
 
-	local pattertConnectMobileCall = "function .?module%:ConnectMobile.-connectMobile.-end"
-	local patternStartSessionCall = "function .?module%:StartSession.-startSession.-end"
+	local pattertConnectMobileCall = "function .?Test%:ConnectMobile.-connectMobile.-end"
+	local patternStartSessionCall = "function .?Test%:StartSession.-startSession.-end"
 	local connectMobileCall = fileContent:match(pattertConnectMobileCall)
 	local startSessionCall = fileContent:match(patternStartSessionCall)
 
@@ -209,7 +209,7 @@ function Preconditions:Connecttest_without_ExitBySDLDisconnect_OpenConnection(Fi
 	local fileContent = f:read("*all")
 	f:close()
 
-	local patternStartSessionCall = "function .?module%:StartSession.-startSession.-end"
+	local patternStartSessionCall = "function .?Test%:StartSession.-startSession.-end"
 	local startSessionCall = fileContent:match(patternStartSessionCall)
 
 	if startSessionCall == nil then
@@ -461,7 +461,7 @@ function Preconditions:Connecttest_InitHMI_onReady_call(FileName, createFile)
 	fileContent = f:read("*all")
 	f:close()
 
-  	local pattern1 = "function .?module%:InitHMI_onReady.-initHMI_onReady.-end"
+  	local pattern1 = "function .?Test%:InitHMI_onReady.-initHMI_onReady.-end"
   	local pattern1Result = fileContent:match(pattern1)
 
   	if pattern1Result == nil then

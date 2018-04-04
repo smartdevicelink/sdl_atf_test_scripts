@@ -13,9 +13,7 @@
 -- Expected result:
 -- a) SDL->appID: SUCCESS: RegisterAppInterface()
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
@@ -23,6 +21,7 @@ config.defaultProtocolVersion = 2
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -101,7 +100,7 @@ end
 
 function Test.Postcondition_Restore_preloaded()
   commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
-end 
+end
 
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")

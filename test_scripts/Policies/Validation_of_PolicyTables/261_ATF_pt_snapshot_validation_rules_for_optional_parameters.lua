@@ -13,15 +13,12 @@
 -- Expected result:
 -- SDL must store the PT snapshot with optional parameters and keep running
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start]]
 config.defaultProtocolVersion = 2
@@ -46,7 +43,7 @@ end
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 --[[ Test ]]
@@ -55,7 +52,7 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_CheckPTS()
   local result = testCasesForPolicyTableSnapshot:verify_PTS(true,
             {config.application1.registerAppInterfaceParams.appID},
-            {config.deviceMAC},
+            {utils.getDeviceMAC()},
             {self.applications[config.application1.registerAppInterfaceParams.appName]},
             "print")
    if(result == false) then

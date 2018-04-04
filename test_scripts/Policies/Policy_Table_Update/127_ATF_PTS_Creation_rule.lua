@@ -14,15 +14,12 @@
 -- Expected result:
 -- PTU is requested. PTS is created.
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -40,7 +37,6 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_PTS_Creation_rule()
   local hmi_app1_id = self.applications[config.application1.registerAppInterfaceParams.appName]
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local result = true
 
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
@@ -54,14 +50,14 @@ function Test:TestStep_PTS_Creation_rule()
           testCasesForPolicyTable.time_trigger = timestamp()
 
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true}})
+            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
       end)
 
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" })
       :Do(function(_,data)
         result = testCasesForPolicyTableSnapshot:verify_PTS(true,
           {config.application1.registerAppInterfaceParams.appID},
-          {config.deviceMAC},
+          {utils.getDeviceMAC()},
           {hmi_app1_id},
           "print")
 

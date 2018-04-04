@@ -3,6 +3,7 @@
 --1. local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 --2. testCasesForPolicyTable:createPolicyTableWithoutAPI()
 ---------------------------------------------------------------------------------------------
+config.defaultProtocolVersion = 2
 
 local testCasesForPolicyTable = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -10,6 +11,7 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local json = require('json')
+local utils = require ('user_modules/utils')
 
 --Policy template
 local PolicyTableTemplate = "user_modules/shared_testcases/PolicyTables/DefaultPolicyTableWith_group1.json"
@@ -306,7 +308,7 @@ function testCasesForPolicyTable:updatePolicy(PTName, iappID)
     local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
 
     --hmi side: expect SDL.GetURLS response from HMI
-    EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+    EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
         --print("SDL.GetURLS response is received")
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
@@ -406,7 +408,7 @@ function testCasesForPolicyTable:updatePolicyInDifferentSessions(self, PTName, a
     local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
 
     --hmi side: expect SDL.GetURLS response from HMI
-    EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+    EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
@@ -896,7 +898,7 @@ end
 -- But this should be checked in appropriate scripts
 function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id, device_id, hmi_app_id, ptu_file_path, ptu_file_name, ptu_file)
   if (app_id == nil) then app_id = config.application1.registerAppInterfaceParams.appID end
-  if (device_id == nil) then device_id = config.deviceMAC end
+  if (device_id == nil) then device_id = utils.getDeviceMAC() end
   if (hmi_app_id == nil) then hmi_app_id = self.applications[config.application1.registerAppInterfaceParams.appName] end
   if (ptu_file_path == nil) then ptu_file_path = "files/" end
   if (ptu_file_name == nil) then ptu_file_name = "PolicyTableUpdate" end
@@ -939,6 +941,7 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
         self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = SystemFilesPath..ptu_file_name})
       end)
       EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+      EXPECT_HMICALL("VehicleInfo.GetVehicleData", { odometer = true })
     end)
   end)
 end
@@ -964,7 +967,7 @@ function testCasesForPolicyTable:trigger_user_request_update_from_HMI(self)
   :Do(function(_,data)
     testCasesForPolicyTableSnapshot:verify_PTS(true,
     {config.application1.registerAppInterfaceParams.appID },
-    {config.deviceMAC},
+    {utils.getDeviceMAC()},
     {hmi_app1_id})
 
     local timeout_after_x_seconds = testCasesForPolicyTableSnapshot:get_data_from_PTS("module_config.timeout_after_x_seconds")
@@ -999,7 +1002,6 @@ function testCasesForPolicyTable:trigger_getting_device_consent(self, app_name, 
   testCasesForPolicyTable.time_trigger = 0
   testCasesForPolicyTable.time_onstatusupdate = 0
   testCasesForPolicyTable.time_policyupdate = 0
-  local ServerAddress = "127.0.0.1"--commonSteps:get_data_from_SDL_ini("ServerAddress")
 
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[app_name]})
 
@@ -1013,14 +1015,14 @@ function testCasesForPolicyTable:trigger_getting_device_consent(self, app_name, 
       testCasesForPolicyTable.time_trigger = timestamp()
 
       self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-        {allowed = true, source = "GUI", device = {id = device_ID, name = ServerAddress, isSDLAllowed = true}})
+        {allowed = true, source = "GUI", device = {id = device_ID, name = utils.getDeviceName(), isSDLAllowed = true}})
     end)
 
     EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
     :Do(function(_,data)
       testCasesForPolicyTableSnapshot:verify_PTS(true,
       {config.application1.registerAppInterfaceParams.appID },
-      {config.deviceMAC},
+      {utils.getDeviceMAC()},
       {hmi_app1_id})
 
       local timeout_after_x_seconds = testCasesForPolicyTableSnapshot:get_data_from_PTS("module_config.timeout_after_x_seconds")
@@ -1075,7 +1077,7 @@ function testCasesForPolicyTable:trigger_PTU_user_press_button_HMI(self, execute
   :Do(function(_,data)
     testCasesForPolicyTableSnapshot:verify_PTS(true,
       {config.application1.registerAppInterfaceParams.appID },
-      {config.deviceMAC},
+      {utils.getDeviceMAC()},
       {hmi_app1_id})
 
     local timeout_after_x_seconds = testCasesForPolicyTableSnapshot:get_data_from_PTS("module_config.timeout_after_x_seconds")

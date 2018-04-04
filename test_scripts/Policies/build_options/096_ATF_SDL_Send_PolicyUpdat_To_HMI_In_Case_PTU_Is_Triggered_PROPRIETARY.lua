@@ -15,9 +15,7 @@
 -- Expected result:
 -- a) SDL send BasicCommunication.PolicyUpdate ( <path to SnapshotPolicyTable>, <timeout from policies>, <set of retry timeouts>) to HMI.
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 

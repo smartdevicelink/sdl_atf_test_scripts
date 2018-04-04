@@ -14,14 +14,11 @@
 -- Expected result:
 -- PoliciesManager must initiate getting User`s data consent (that is, User`s permission for using the mobile device`s connection for Policy Table exchange)
 ----------------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Preconditions ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -36,9 +33,8 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:Check_user_data_consent_is_requested()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
-  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { id = config.deviceMAC, name = ServerAddress }, isSDLAllowed = false, isPermissionsConsentNeeded = false, method ="SDL.ActivateApp"}})
+  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }, isSDLAllowed = false, isPermissionsConsentNeeded = false, method ="SDL.ActivateApp"}})
   :Do(function(_,data)
       if data.result.isSDLAllowed ~= false then
         commonFunctions:userPrint(31, "Error: wrong behavior of SDL - device not from LPT, should be consented on HMI")
@@ -47,7 +43,7 @@ function Test:Check_user_data_consent_is_requested()
         EXPECT_HMIRESPONSE(RequestIdGetMes)
         :Do(function()
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
           end)
       end
     end)

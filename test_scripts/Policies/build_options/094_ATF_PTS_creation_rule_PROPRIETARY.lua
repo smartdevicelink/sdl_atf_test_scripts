@@ -14,15 +14,12 @@
 -- Expected result:
 -- PTU is requested. PTS is created.
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -41,7 +38,7 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_PTS_Creation_rule()
   local result = testCasesForPolicyTableSnapshot:verify_PTS(true,
     {config.application1.registerAppInterfaceParams.appID},
-    {config.deviceMAC},
+    {utils.getDeviceMAC()},
     {""},
     "print",
   "PROPRIETARY")

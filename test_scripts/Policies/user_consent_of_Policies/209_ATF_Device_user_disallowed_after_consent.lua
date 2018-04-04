@@ -19,13 +19,11 @@
 -- App must be rolled back to default group
 -- RPC from defult should be allowed
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local testCasesForPolicyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -40,7 +38,7 @@ require("user_modules/AppTypes")
 
 --[[ Precondition ]]
 function Test:Precondition_ActivateRegisteredApp()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:Precondition_Check_App_assigned_BASE4()
@@ -57,7 +55,7 @@ end
 
 function Test:Precondition_Disallow_device()
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    {allowed = false, source = "GUI", device = {id = config.deviceMAC , name = "127.0.0.1"}})
+    {allowed = false, source = "GUI", device = {id = utils.getDeviceMAC() , name = utils.getDeviceName()}})
 end
 
 --[[ Test ]]
@@ -93,7 +91,7 @@ function Test:ActivateApp()
         local requestId2 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "DataConsent" } })
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function(_, _)
-            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+            self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })

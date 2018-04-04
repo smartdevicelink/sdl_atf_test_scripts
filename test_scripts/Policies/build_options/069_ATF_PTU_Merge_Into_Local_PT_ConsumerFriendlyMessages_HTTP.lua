@@ -28,19 +28,15 @@
 --corresponding sections from PTU: module_config, functional_groupings, app_policies
 --and consumer_friendly_messages->'messages'
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 --local db_file = config.pathToSDL .. "/" .. commonFunctions:read_parameter_from_smart_device_link_ini("AppStorageFolder") .. "/policy.sqlite"
 local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 local ptu_file = "files/jsons/Policies/Policy_Table_Update/ptu_18192.json"
 
 --[[ Local Functions ]]
@@ -101,7 +97,7 @@ function Test:Precondition_ActivateApp()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function(_, _)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = ServerAddress } })
+              { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })

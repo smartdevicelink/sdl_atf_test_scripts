@@ -23,9 +23,7 @@
 -- Expected result:
 -- SDL sends to HMI empty array
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 -- ToDo (vvvakulenko): remove after issue "ATF does not stop HB timers by closing session and connection" is resolved
 config.defaultProtocolVersion = 2
 
@@ -34,6 +32,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -49,7 +48,7 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:Precondition_PTU_and_OnAppPermissionConsent_entityType_missing()

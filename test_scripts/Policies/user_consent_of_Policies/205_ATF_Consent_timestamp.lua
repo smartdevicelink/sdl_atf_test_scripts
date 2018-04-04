@@ -17,15 +17,12 @@
 -- Expected result:
 -- PoliciesManager must add a timestamp of user consent for the current mobile device into “time_stamp” field in the format of "<yyyy-mm-dd>T<hh:mm:ss>Z".
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local TimeToCheckSeconds = nil
@@ -56,7 +53,7 @@ require('user_modules/AppTypes')
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
   local CurrentTimeSeconds = assert( io.popen( "date +%H:%M:%S" , 'r'))
   TimeToCheckSeconds = CurrentTimeSeconds:read( '*l' )
 end
@@ -71,7 +68,7 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TimeStamp_in_userConsentRecords_table()
   local errorFlag = false
   local ErrorMessage = ""
-  local TimeStamp_InUserConsentRecordsTable = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..config.deviceMAC..".user_consent_records.device.time_stamp")
+  local TimeStamp_InUserConsentRecordsTable = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records.device.time_stamp")
   if type(TimeStamp_InUserConsentRecordsTable) ~= 'string' then
     self:FailTestCase("TimeStamp in user_consent_records came wrong")
   end

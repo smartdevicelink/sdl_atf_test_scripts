@@ -22,13 +22,10 @@
 -- 4. Status: UPDATING
 -- 6. Status: UP_TO_DATE
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -51,7 +48,7 @@ function Test:Test_1_UPDATE_NEEDED()
         EXPECT_HMIRESPONSE(requestId2)
         :Do(function()
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+              { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
 
             local reqId = self.hmiConnection:SendRequest("SDL.GetStatusUpdate")
             EXPECT_HMIRESPONSE(reqId, { status = "UPDATE_NEEDED" })
@@ -71,7 +68,7 @@ function Test:Test_2_UPDATING()
   local policy_file_name = "PolicyTableUpdate"
   local ptu_file = "files/ptu_general.json"
   local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(requestId, { result = { code = 0, method = "SDL.GetURLS", urls = {{ url = "http://policies.telematics.ford.com/api/policies" }}}})
+  EXPECT_HMIRESPONSE(requestId)
   self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_name})
   EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
   :Do(function()

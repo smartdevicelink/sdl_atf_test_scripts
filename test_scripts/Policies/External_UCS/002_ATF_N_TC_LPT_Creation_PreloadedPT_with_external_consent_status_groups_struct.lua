@@ -29,9 +29,7 @@
 --
 -- Note: Script is designed for EXTERNAL_PROPRIETARY flow
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
 
@@ -42,6 +40,7 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 local sdl = require('SDL')
 local testCasesForExternalUCS = require('user_modules/shared_testcases/testCasesForExternalUCS')
 local testCasesForPolicySDLErrorsStops = require('user_modules/shared_testcases/testCasesForPolicySDLErrorsStops')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
@@ -74,7 +73,7 @@ end
 function Test.UpdatePreloadedPT_Add_section()
   local updateFunc = function(preloadedTable)
     preloadedTable.policy_table.device_data = {
-      [config.deviceMAC] = {
+      [utils.getDeviceMAC()] = {
         user_consent_records = {
           [config.application1.registerAppInterfaceParams.appID] = {
             external_consent_status_groups = {

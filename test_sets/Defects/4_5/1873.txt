@@ -1,0 +1,1 @@
+./test_scripts/Defects/4_5/1873_Parameters_empty_in_policy_table.lua

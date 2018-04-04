@@ -105,7 +105,10 @@ Test["TEST_NAME_OFF".."_Precondition_GetListOfPermissions"] = function(self)
       result = {
         code = 0,
         method = "SDL.GetListOfPermissions",
-        allowedFunctions = {{name = "ConsentGroup001", allowed = nil}},
+        allowedFunctions = {
+          {name = "ConsentGroup001", allowed = nil},
+          {name = "ConsentGroup002", allowed = nil}
+        },
         externalConsentStatus = {}
       }
     })

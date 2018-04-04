@@ -22,7 +22,6 @@ local function ptUpdate(pTbl)
   local filePath = "./files/Security/client_credential.pem"
   local crt = common.readFile(filePath)
   pTbl.policy_table.module_config.certificate = crt
-  pTbl.policy_table.app_policies[common.getAppID()].AppHMIType = { appHMIType }
 end
 
 local function startServiceSecured(pData)

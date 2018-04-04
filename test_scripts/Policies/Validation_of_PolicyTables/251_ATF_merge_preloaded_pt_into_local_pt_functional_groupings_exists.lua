@@ -15,7 +15,6 @@
 -- Expected result:
 -- SDL must leave the "functional_group_name" sectionat LocalPT without changes (with all 3 groups)
 ---------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')

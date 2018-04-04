@@ -13,19 +13,18 @@
 -- Expected result:
 -- SDL must store the PT snapshot as a JSON file which filename and filepath are defined in "PathToSnapshot" parameter of smartDeviceLink.ini file.
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
 Test = require('connecttest')
 local config = require('config')
 require('user_modules/AppTypes')
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 require('cardinalities')
 local mobile_session = require('mobile_session')
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local POLICY_SNAPSHOT_FILE_NAME = "sdl_mega_snapshot.json"
@@ -194,8 +193,8 @@ function Test:Precondition_ActivateApp()
         hmiDisplayLanguageDesired = "EN-US",
         deviceInfo =
         {
-          name = "127.0.0.1",
-          id = config.deviceMAC,
+          name = utils.getDeviceName(),
+          id = utils.getDeviceMAC(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
@@ -212,7 +211,7 @@ function Test:Precondition_ActivateApp()
           local RequestId2 = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
           EXPECT_HMIRESPONSE(RequestId2,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
           :Do(function(_,_)
-              self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = "127.0.0.1"}})
+              self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
               EXPECT_HMICALL("BasicCommunication.ActivateApp")
               :Do(function(_,data2)
                   self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", {})

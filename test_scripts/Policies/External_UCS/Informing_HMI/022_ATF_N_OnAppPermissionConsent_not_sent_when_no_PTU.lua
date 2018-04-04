@@ -22,15 +22,12 @@
 -- PTU is triggered
 -- HMI notification SDL.OnAppPermissionChanged is not sent
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -44,7 +41,7 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_No_PTU_No_OnAppPermissionConsent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
   EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged"):Times(0)
   commonTestCases:DelayedExp(10000)
 end

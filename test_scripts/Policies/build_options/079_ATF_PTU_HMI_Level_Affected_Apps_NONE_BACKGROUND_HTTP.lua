@@ -21,7 +21,6 @@
 -- 1) SDL->appID_2: NONE OnHMIStatus -- should keep last value NONE
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 

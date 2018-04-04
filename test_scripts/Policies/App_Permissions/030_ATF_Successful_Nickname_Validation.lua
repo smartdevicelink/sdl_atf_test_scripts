@@ -5,20 +5,18 @@
 -- Note: SDL must build with EXTENDED_POLICY flag
 --
 -- Description:
--- In case the application sends RegisterAppInterface request with 
+-- In case the application sends RegisterAppInterface request with
 -- a) the "appName" value that is listed in this app's specific policies
 -- b) other valid parameters SDL must: successfully register such application: RegisterAppInterface_response (<applicable resultCode>, success: true)
 -- 1. Used preconditions:
 -- a) First SDL life cycle with loaded permissions for specific appId and nickname
 -- 2. Performed steps
 -- a) Register app with name listed in policy table for this app
--- 
+--
 -- Expected result:
 -- a) RegisterAppInterface_response (<applicable resultCode>, success: true)
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
@@ -27,6 +25,7 @@ config.defaultProtocolVersion = 2
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -62,7 +61,7 @@ local function SetNickNameForSpecificApp()
   file:write(data)
   file:close()
 end
- 
+
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test.Precondition_StopSDL()
@@ -136,14 +135,14 @@ function Test:TestStep_Register_App_With_Name_Listed_In_LPT()
         hmiDisplayLanguageDesired = "EN-US",
         deviceInfo =
         {
-          name = "127.0.0.1",
-          id = config.deviceMAC,
+          name = utils.getDeviceName(),
+          id = utils.getDeviceMAC(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
       }
     })
-  EXPECT_RESPONSE(CorIdRAI, {success = true, resultCode = "SUCCESS"})  
+  EXPECT_RESPONSE(CorIdRAI, {success = true, resultCode = "SUCCESS"})
 end
 
 
@@ -154,4 +153,4 @@ function Test.Postcondition_SDLStop()
 end
 function Test.Postcondition_Restore_preloaded()
   commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
-end 
+end

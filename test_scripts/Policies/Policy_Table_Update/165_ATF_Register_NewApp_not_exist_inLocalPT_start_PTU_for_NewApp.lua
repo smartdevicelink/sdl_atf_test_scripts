@@ -22,7 +22,6 @@
 -------------------------------------------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 
 --[[ Required Shared libraries ]]
@@ -30,6 +29,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ Local Functions ]]
 local registerAppInterfaceParams =
@@ -67,17 +67,17 @@ require("user_modules/AppTypes")
 commonFunctions:newTestCasesGroup ("Preconditions")
 
 function Test:Precondition_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, config.deviceMAC)
+  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
 function Test:Precondition_PolicyUpdateStarted()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
-  :Do(function(_,_)
+  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  :Do(function(_, data)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
-          url = "http://policies.telematics.ford.com/api/policies",
+          url = data.result.urls[1].url,
           appID = self.applications [config.application1.registerAppInterfaceParams.appName],
           fileName = "sdl_snapshot.json"
         })
@@ -167,7 +167,7 @@ end
 function Test:TestStep_Start_New_PolicyUpdate_For_SecondApplication()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {

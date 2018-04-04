@@ -20,14 +20,12 @@
 -- SDL->HMI: BC.UpdateDeviceList(device1, device2)
 -- HMI->SDL: BC.UpdateDeviceList(SUCCESS)
 --------------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -47,7 +45,6 @@ local mobile = require('mobile_connection')
 local events = require('events')
 
 --[[ Local variables ]]
-local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 local deviceMAC2 = "54286cb92365be544aa7008b92854b9648072cf8d8b17b372fd0786bef69d7a2"
 local mobileHost = "1.0.0.1"
 
@@ -61,8 +58,8 @@ function Test:Precondition_Connect_device1()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
-          name = ServerAddress,
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
           transportType = "WIFI",
           isSDLAllowed = false
         }
@@ -131,8 +128,8 @@ function Test:TestStep_Check_two_devices_visible_on_device2_connect()
     {
       deviceList = {
         {
-          id = config.deviceMAC,
-          name = ServerAddress,
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
           transportType = "WIFI",
           isSDLAllowed = false
         },

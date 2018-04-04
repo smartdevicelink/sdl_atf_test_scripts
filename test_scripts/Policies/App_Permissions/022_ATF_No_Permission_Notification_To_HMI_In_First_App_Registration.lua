@@ -14,9 +14,7 @@
 -- No prompts or notification are observed on HMI
 -- Note: Requirement under clarification! Assumed that OnAppPermissionChanged and OnSDLConsentNeeded should not come
 ---------------------------------------------------------------------------------------------
-
 --[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
@@ -25,6 +23,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
+local utils = require ('user_modules/utils')
 
 --[[ General Preconditions before ATF starts ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -80,8 +79,8 @@ function Test:TestStep_Firs_Time_Register_App_And_Check_That_No_Permission_Notif
         hmiDisplayLanguageDesired = "EN-US",
         deviceInfo =
         {
-          name = "127.0.0.1",
-          id = config.deviceMAC,
+          name = utils.getDeviceName(),
+          id = utils.getDeviceMAC(),
           transportType = "WIFI",
           isSDLAllowed = false
         }

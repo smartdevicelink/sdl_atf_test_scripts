@@ -7,7 +7,6 @@
 local commonTestCases = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local policyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local mobile_session = require('mobile_session')
 local events = require('events')
 

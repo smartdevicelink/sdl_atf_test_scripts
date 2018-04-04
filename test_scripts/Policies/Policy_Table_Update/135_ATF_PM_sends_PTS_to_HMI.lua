@@ -14,15 +14,12 @@
 -- Expected result:
 -- SDL->HMI:SDL.PolicyUpdate(file, timeout, retry[])
 ---------------------------------------------------------------------------------------------
-
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -43,7 +40,6 @@ commonFunctions:newTestCasesGroup("Preconditions")
 function Test:TestStep_PolicyManager_sends_PTS_to_HMI()
   local is_test_fail = false
   local hmi_app_id = self.applications[config.application1.registerAppInterfaceParams.appName]
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
 
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
   EXPECT_HMIRESPONSE(RequestId)
@@ -54,13 +50,13 @@ function Test:TestStep_PolicyManager_sends_PTS_to_HMI()
       :Do(function(_,_)
 
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress, isSDLAllowed = true}})
+            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
 
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})
           :Do(function(_,data)
             testCasesForPolicyTableSnapshot:verify_PTS(true,
               {config.application1.registerAppInterfaceParams.appID},
-              {config.deviceMAC},
+              {utils.getDeviceMAC()},
               {hmi_app_id})
 
               local SystemFilesPath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")

@@ -366,7 +366,7 @@ function module:initHMI_onReady(hmi_table)
       return
     end
     local event = events.Event()
-    event.level = 2
+    event.level = 1
     event.matches = function(self, data)
       return data.method == name
     end

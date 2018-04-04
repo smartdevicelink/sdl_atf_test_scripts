@@ -16,12 +16,10 @@
 -- Expected result:
 --     PoliciesManager must validate "default_hmi" sub-section in "default" and treat it as valid -> PTU invalid
 ---------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -36,7 +34,6 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Precondition_Activate_app()
-  local ServerAddress = commonFunctions:read_parameter_from_smart_device_link_ini("ServerAddress")
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
   EXPECT_HMIRESPONSE(RequestId)
   :Do(function(_,data)
@@ -45,7 +42,7 @@ function Test:Precondition_Activate_app()
       EXPECT_HMIRESPONSE(RequestIdGetMes)
       :Do(function()
         self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-          {allowed = true, source = "GUI", device = {id = config.deviceMAC, name = ServerAddress}})
+          {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
         EXPECT_HMICALL("BasicCommunication.ActivateApp")
         :Do(function(_,_data1)
           self.hmiConnection:SendResponse(_data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -61,7 +58,7 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Validate_default_hmi_in_default_upon_PTU()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+  EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function(_,data)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
       { requestType = "PROPRIETARY", fileName = "filename" } )
