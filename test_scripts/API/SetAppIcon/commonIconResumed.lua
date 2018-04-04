@@ -98,9 +98,10 @@ function m.putFile(paramsSend, file, pAppId)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-function m.getPathToFileInStorage(fileName)
+function m.getPathToFileInStorage(fileName, pAppId)
+  if not pAppId then pAppId = 1 end
   return commonPreconditions:GetPathToSDL() .. "storage/"
-  .. m.getConfigAppParams().appID .. "_"
+  .. m.getConfigAppParams( pAppId ).appID .. "_"
   .. utils.getDeviceMAC() .. "/" .. fileName
 end
 

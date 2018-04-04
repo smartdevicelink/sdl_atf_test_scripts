@@ -14,7 +14,7 @@
 -- 4) Remove Icon for mobile app from the file system
 -- 5) Mobile app is re-registered, mobile app is registered.
 -- SDL does:
--- 1) SDL respon with result code "SUCCESS" and "iconResumed" = false for RAI request.
+-- 1) SDL respond with result code "SUCCESS" and "iconResumed" = false for RAI request.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -48,7 +48,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("App registration with iconResumed = true", common.registerAppWOPTU, { 1, false })
+runner.Step("App registration with iconResumed = false", common.registerAppWOPTU, { 1, false })
 runner.Step("Upload icon file", common.putFile)
 runner.Step("SetAppIcon", common.setAppIcon, { allParams } )
 runner.Step("App unregistration", common.unregisterAppInterface, { 1 })

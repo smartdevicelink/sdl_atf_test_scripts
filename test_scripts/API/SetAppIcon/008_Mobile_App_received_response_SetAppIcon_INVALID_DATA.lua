@@ -13,8 +13,8 @@
 -- 3) Mobile App received response SetAppIcon(INVALID_DATA). Custom Icon is not set.
 -- 4) App is re-registered.
 -- SDL does:
--- 1) Successfully registers application.
--- 2) Registers an app successfully, responds to RAI with result code "SUCCESS", "iconResumed" = false.
+-- 1) Successfully register application.
+-- 2) Register an app successfully, respond to RAI with result code "SUCCESS", "iconResumed" = false.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

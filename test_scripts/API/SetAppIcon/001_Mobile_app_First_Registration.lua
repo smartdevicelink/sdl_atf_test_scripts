@@ -11,7 +11,7 @@
 -- 1) SDL, HMI are started.
 -- 2) Mobile app registers first time.
 -- SDL does:
--- 1) Successfully register application and responds with result code "SUCCESS" and "iconResumed" = false" to mobile application.
+-- 1) Successfully register application and respond with result code "SUCCESS" and "iconResumed" = false" to mobile application.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

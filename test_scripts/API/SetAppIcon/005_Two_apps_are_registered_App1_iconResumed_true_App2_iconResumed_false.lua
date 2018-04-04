@@ -13,7 +13,7 @@
 -- 3) Mobile App2 registered.
 -- SDL does:
 -- 1) Register App1 successfully registered and sets its app icon,
--- responds to RAI with result code "SUCCESS", "iconResumed" = true
+-- respond to RAI with result code "SUCCESS", "iconResumed" = true
 -- 2) Register an App 2 with default icon, "iconResumed" = false
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

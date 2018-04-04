@@ -13,7 +13,7 @@
 -- 3) HMI is not respond to SetAppIcon request. Mobile App received response SetAppIcon(GENERIC_ERROR).
 -- 4) App is re-registered.
 -- SDL does:
--- 1) Registers an app successfully, responds to RAI with result code "SUCCESS", "iconResumed" = false.
+-- 1) Register an app successfully, respond to RAI with result code "SUCCESS", "iconResumed" = false.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

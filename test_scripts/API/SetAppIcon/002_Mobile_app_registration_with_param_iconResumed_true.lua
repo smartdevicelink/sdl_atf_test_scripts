@@ -13,9 +13,9 @@
 -- 3) Mobile app is re-registered.
 -- SDL does:
 -- 1) Successfully register application.
--- 2) Successful processes PutFile and SetAppIcon requests.
--- 3) SDL responds with result code "SUCCESS" and "iconResumed" = true for RAI request.
--- 4) SDL sends to HMI OnAppRegistered notification "icon" and notifies that apps icon exists.
+-- 2) Successful process PutFile and SetAppIcon requests.
+-- 3) Respond with result code "SUCCESS" and "iconResumed" = true for RAI request.
+-- 4) Send to HMI OnAppRegistered notification "icon" and notify that apps icon exists.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
