@@ -5,6 +5,7 @@
 local mobileSession = require("mobile_session")
 local json = require("modules/json")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local events = require("events")
 local test = require("user_modules/dummy_connecttest")
@@ -423,6 +424,19 @@ end
 --]]
 function m.getAppsCount()
   return #test.mobileSession
+end
+
+--[[ @getPathToFileInStorage: full path to file in storage folder
+--! @parameters:
+--! @pFileName = file name
+--! @pAppId = application number (1, 2, etc.)
+--! @return: path
+--]]
+function m.getPathToFileInStorage(pFileName, pAppId)
+  if not pAppId then pAppId = 1 end
+  return commonPreconditions:GetPathToSDL() .. "storage/"
+  .. m.getConfigAppParams( pAppId ).appID .. "_"
+  .. utils.getDeviceMAC() .. "/" .. pFileName
 end
 
 return m
