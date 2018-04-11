@@ -8,6 +8,7 @@ local actions = require("user_modules/sequences/actions")
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
+--[[ Variables ]]
 local m = actions
 
 function m.putFileParams()
@@ -22,10 +23,8 @@ function m.CheckSum(pFile)
   local getCRCinHex = 'crc32 ' .. pFile
   local handle = io.popen(getCRCinHex)
   local checkSumHex = handle:read("*a")
-  local CRChexToDec = 'echo $((0x' .. checkSumHex .. '))'
-  handle = io.popen(CRChexToDec)
-  local checkSumDec = handle:read("*a")
   handle:close()
+  local checkSumDec = tonumber(checkSumHex, 16)
   return checkSumDec
 end
 
