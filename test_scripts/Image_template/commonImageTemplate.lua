@@ -88,10 +88,10 @@ local responseUiParamsAlert = {
 	return params
 end
 
-function m.getPathToFileInStorage(fileName)
+function m.getPathToFileInStorage(pFileName)
   return commonPreconditions:GetPathToSDL() .. "storage/"
   .. config["application1"].registerAppInterfaceParams.appID .. "_"
-  .. utils.getDeviceMAC() .. "/" .. fileName
+  .. utils.getDeviceMAC() .. "/" .. pFileName
 end
 
 function m.putFile(pParams)
@@ -104,9 +104,7 @@ end
 
 function m.addCommand(pIsTemplate, pParams)
 	if not pParams then pParams = addCommandParams() end
-	if
-		pIsTemplate == true or
-	 	pIsTemplate == false then
+	if pIsTemplate == true or pIsTemplate == false then
 		pParams.requestParams.cmdIcon.isTemplate = pIsTemplate
 		pParams.responseUiParams.cmdIcon.isTemplate = pIsTemplate
 	end
@@ -119,9 +117,7 @@ function m.addCommand(pIsTemplate, pParams)
 		hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
 	:ValidIf(function(_, data)
-		if
-			not pIsTemplate and
-			data.params.cmdIcon.isTemplate then
+		if pIsTemplate == nil and data.params.cmdIcon.isTemplate then
 			return false, " isTemplate paramter is present in UI.AddCommand, isTemplate was not send in mobile request "
 		end
 		return true
@@ -136,7 +132,7 @@ function m.rpcInvalidData(pIsTemplate, pRpc)
 		params = addCommandParams()
 		params.requestParams.cmdIcon.isTemplate = pIsTemplate
 	else
-		params =  alertParams()
+		params = alertParams()
 		params.requestParams.softButtons[1].image.isTemplate = pIsTemplate
 	end
 	local mobSession = m.getMobileSession()
@@ -146,11 +142,11 @@ function m.rpcInvalidData(pIsTemplate, pRpc)
 	mobSession:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 end
 
-local function sendOnSystemContext(ctx)
+local function sendOnSystemContext(pCtx)
   m.getHMIConnection():SendNotification("UI.OnSystemContext",
 	{
 	  appID = m.getHMIAppId(),
-	  systemContext = ctx
+	  systemContext = pCtx
 	})
 end
 
@@ -174,9 +170,7 @@ function m.alert(pIsTemplate, pParams)
 		RUN_AFTER(alertResponse, responseDelay)
 	end)
 	:ValidIf(function(_, data)
-		if
-			not pIsTemplate and
-			data.params.softButtons[1].image.isTemplate then
+		if pIsTemplate == nil and data.params.softButtons[1].image.isTemplate then
 			return false, " isTemplate paramter is present in UI.Alert, isTemplate was not send in mobile request "
 		end
 		return true
