@@ -28,10 +28,10 @@ local params = common.putFileParams()
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration with iconResumed = false", common.registerApp)
+runner.Step("App registration", common.registerApp)
 
 runner.Title("Test")
-runner.Step("Upload file with correct checksum", common.putFile, {params, usedFile})
+runner.Step("Upload file without checksum", common.putFile, {params, usedFile})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

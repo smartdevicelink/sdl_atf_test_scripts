@@ -8,11 +8,9 @@
 --
 -- Description:
 -- In case:
--- 1. Mobile application sends a PutFile "Multiple Frame" with a known counted checksum to the SDL.
--- 2. Mobile application sends a PutFile "Multiple Frame" with a incorrect counted checksum to the SDL.
+-- 1. Mobile application sends a PutFile "Single Frame" with a negative (not valid) checksum to the SDL.
 -- SDL does:
--- 1. Receive PutFile "Multiple Frame" and verify the counted checksum from the Mobile app and respond with result code "SUCCESS".
--- 2. Receive PutFile "Multiple Frame" and verify the counted checksum from the Mobile app and respond with result code "CORRUPTED_DATA".
+-- 1. SDL receive putfile “Single Frame” and counted checksum from the Mobile app and respond with result code "INVALID_DATA"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -22,18 +20,14 @@ local common = require('test_scripts/API/Expand_PutFile/commonPutFile')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local usedFile = "./files/icon.png"
-
-local paramsCorrSum = common.putFileParams()
-paramsCorrSum.crc = common.CheckSum(usedFile)
+local usedFile = "./files/binaryFile"
 
 local paramsIncorrSum = common.putFileParams()
-paramsIncorrSum.crc = common.CheckSum(usedFile) - 100
+paramsIncorrSum.crc = - common.CheckSum(usedFile)
 
 local corrDataResult = {
   success = false,
-  resultCode = "CORRUPTED_DATA",
-  info = "CRC Check on file failed. File upload has been cancelled, please retry."
+  resultCode = "INVALID_DATA",
 }
 
 --[[ Scenario ]]
@@ -43,8 +37,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration with iconResumed = false", common.registerApp)
 
 runner.Title("Test")
-runner.Step("Upload file with correct checksum", common.putFile, {paramsCorrSum, usedFile})
-runner.Step("Upload file with incorrect checksum", common.putFile, {paramsIncorrSum, usedFile, corrDataResult})
+runner.Step("Upload file with negative checksum", common.putFile, {paramsIncorrSum, usedFile, corrDataResult})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

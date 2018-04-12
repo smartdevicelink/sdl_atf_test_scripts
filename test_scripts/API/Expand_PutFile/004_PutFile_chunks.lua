@@ -43,52 +43,52 @@ local invalidDataResult = {
 }
 
 local msg = {
-	version = config.defaultProtocolVersion,
-    encryption = false,
-    frameType = 0x01,
-    serviceType = 0x07,
-    frameInfo = 0x0,
-    rpcType = 0x0,
-    rpcFunctionId = 32, -- PutFile
-  }
+  version = config.defaultProtocolVersion,
+  encryption = false,
+  frameType = 0x01,
+  serviceType = 0x07,
+  frameInfo = 0x0,
+  rpcType = 0x0,
+  rpcFunctionId = 32, -- PutFile
+}
 
 --[[ Local Functions ]]
 local function PrepareFileForsendingViaChunks()
   local f = assert(io.open(usedFile))
-	local binaryData = f:read("*all")
-	io.close(f)
-	local binaryDataSize = #binaryData
-	frameSize =  binaryDataSize/FramesCount
-	local frames = {}
-	local stringOffset = 0
-	for i = 1, FramesCount do
-		frames[i] = string.sub(binaryData, stringOffset+1, stringOffset+frameSize)
-		stringOffset = i*frameSize
-	end
-	return frames
+  local binaryData = f:read("*all")
+  io.close(f)
+  local binaryDataSize = #binaryData
+  frameSize = binaryDataSize/FramesCount
+  local frames = {}
+  local stringOffset = 0
+  for i = 1, FramesCount do
+    frames[i] = string.sub(binaryData, stringOffset+1, stringOffset+frameSize)
+    stringOffset = i*frameSize
+  end
+  return frames
 end
 
 binaryDataFrames = PrepareFileForsendingViaChunks()
 
 local function getFrameCheckSum(pData)
-	local file = "./files/tmp"
-	local f = io.open(file, "w")
-    f:write(pData)
-    f:close()
-    local crc = common.CheckSum(file)
-    os.remove(file)
-    return crc
+  local file = "./files/tmp"
+  local f = io.open(file, "w")
+  f:write(pData)
+  f:close()
+  local crc = common.CheckSum(file)
+  os.remove(file)
+  return crc
 end
 
 local function PutFile(pParams, pBinaryData, pResult)
-	msgId = msgId + 1
-	correlationId = correlationId + 1
+  msgId = msgId + 1
+  correlationId = correlationId + 1
 
-	msg.sessionId = common.getMobileSession().sessionId
-	msg.messageId = msgId
-	msg.rpcCorrelationId = correlationId
-	msg.payload = json.encode(pParams)
-	msg.binaryData = pBinaryData
+  msg.sessionId = common.getMobileSession().sessionId
+  msg.messageId = msgId
+  msg.rpcCorrelationId = correlationId
+  msg.payload = json.encode(pParams)
+  msg.binaryData = pBinaryData
 
   if not pResult then pResult = { success = true, resultCode = "SUCCESS" } end
   common.getMobileSession():Send(msg)
@@ -96,31 +96,31 @@ local function PutFile(pParams, pBinaryData, pResult)
 end
 
 local function putFileSuccess()
-	local params = common.putFileParams()
-	for i=1,4 do
-		params.crc = getFrameCheckSum(binaryDataFrames[i])
-		params.offset = offsetValue
-		PutFile(params, binaryDataFrames[i])
-		offsetValue = offsetValue + frameSize
-	end
+  local params = common.putFileParams()
+  for i=1,4 do
+    params.crc = getFrameCheckSum(binaryDataFrames[i])
+    params.offset = offsetValue
+    PutFile(params, binaryDataFrames[i])
+    offsetValue = offsetValue + frameSize
+  end
 end
 
 local function putFileCorruptedDate()
-	local params = common.putFileParams()
-	params.crc = getFrameCheckSum(binaryDataFrames[5]) - 100
-	params.offset = offsetValue
-	PutFile(params, binaryDataFrames[5], corrDataResult)
-	offsetValue = offsetValue + frameSize
+  local params = common.putFileParams()
+  params.crc = getFrameCheckSum(binaryDataFrames[5]) - 100
+  params.offset = offsetValue
+  PutFile(params, binaryDataFrames[5], corrDataResult)
+  offsetValue = offsetValue + frameSize
 end
 
 local function putFileInvalidData()
-	local params = common.putFileParams()
-	for i = 6, 10 do
-		params.crc = getFrameCheckSum(binaryDataFrames[i])
-		params.offset = offsetValue
-		PutFile(params, binaryDataFrames[i], invalidDataResult)
-		offsetValue = offsetValue + frameSize
-	end
+  local params = common.putFileParams()
+  for i = 6, 10 do
+    params.crc = getFrameCheckSum(binaryDataFrames[i])
+    params.offset = offsetValue
+    PutFile(params, binaryDataFrames[i], invalidDataResult)
+    offsetValue = offsetValue + frameSize
+  end
 end
 
 --[[ Scenario ]]
