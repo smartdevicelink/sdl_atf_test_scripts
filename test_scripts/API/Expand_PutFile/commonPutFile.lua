@@ -4,6 +4,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
+local utils = require("user_modules/utils")
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
@@ -19,13 +20,21 @@ function m.putFileParams()
   return temp
 end
 
+local function bytesToInt(pStr)
+  local t = { string.byte(pStr, 1, -1) }
+  local n = 0
+  for k = 1, #t do
+    n = n + t[k] * 2 ^ ((k - 1) * 8)
+  end
+  return n
+end
+
 function m.CheckSum(pFile)
-  local getCRCinHex = 'crc32 ' .. pFile
-  local handle = io.popen(getCRCinHex)
-  local checkSumHex = handle:read("*a")
+  local cmd = "cat " .. pFile .. " | gzip -1 | tail -c 8 | head -c 4"
+  local handle = io.popen(cmd)
+  local crc = handle:read("*a")
   handle:close()
-  local checkSumDec = tonumber(checkSumHex, 16)
-  return checkSumDec
+  return bytesToInt(crc)
 end
 
 function m.putFile(pParams, pFile, pResult)
