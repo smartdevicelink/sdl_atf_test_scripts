@@ -9,7 +9,7 @@
 -- Description:
 -- In case:
 -- 1. Mobile application sends file via PutFile chunks
--- 2. SDL process some part of chunks wit success result code
+-- 2. SDL process some part of chunks with success result code
 -- 3. One chunk came with wrong crc value and SDL responds with result code "CORRUPTED_DATA" to mobile app
 -- SDL does:
 -- 1. After response "CORRUPTED_DATA" process all other chunks with resultCode "INVALID_DATA"
@@ -53,22 +53,22 @@ local msg = {
 }
 
 --[[ Local Functions ]]
-local function PrepareFileForsendingViaChunks()
+local function prepareFileForsendingViaChunks()
   local f = assert(io.open(usedFile))
   local binaryData = f:read("*all")
   io.close(f)
   local binaryDataSize = #binaryData
-  frameSize = binaryDataSize/FramesCount
+  frameSize = binaryDataSize / FramesCount
   local frames = {}
   local stringOffset = 0
   for i = 1, FramesCount do
-    frames[i] = string.sub(binaryData, stringOffset+1, stringOffset+frameSize)
+    frames[i] = string.sub(binaryData, stringOffset + 1, stringOffset + frameSize)
     stringOffset = i*frameSize
   end
   return frames
 end
 
-binaryDataFrames = PrepareFileForsendingViaChunks()
+binaryDataFrames = prepareFileForsendingViaChunks()
 
 local function getFrameCheckSum(pData)
   local file = "./files/tmp"
@@ -80,7 +80,7 @@ local function getFrameCheckSum(pData)
   return crc
 end
 
-local function PutFile(pParams, pBinaryData, pResult)
+local function putFile(pParams, pBinaryData, pResult)
   msgId = msgId + 1
   correlationId = correlationId + 1
 
@@ -97,19 +97,19 @@ end
 
 local function putFileSuccess()
   local params = common.putFileParams()
-  for i=1,4 do
+  for i = 1, 4 do
     params.crc = getFrameCheckSum(binaryDataFrames[i])
     params.offset = offsetValue
-    PutFile(params, binaryDataFrames[i])
+    putFile(params, binaryDataFrames[i])
     offsetValue = offsetValue + frameSize
   end
 end
 
-local function putFileCorruptedDate()
+local function putFileCorruptedData()
   local params = common.putFileParams()
   params.crc = getFrameCheckSum(binaryDataFrames[5]) - 100
   params.offset = offsetValue
-  PutFile(params, binaryDataFrames[5], corrDataResult)
+  putFile(params, binaryDataFrames[5], corrDataResult)
   offsetValue = offsetValue + frameSize
 end
 
@@ -118,7 +118,7 @@ local function putFileInvalidData()
   for i = 6, 10 do
     params.crc = getFrameCheckSum(binaryDataFrames[i])
     params.offset = offsetValue
-    PutFile(params, binaryDataFrames[i], invalidDataResult)
+    putFile(params, binaryDataFrames[i], invalidDataResult)
     offsetValue = offsetValue + frameSize
   end
 end
@@ -131,8 +131,8 @@ runner.Step("App registration with iconResumed = false", common.registerApp)
 
 runner.Title("Test")
 runner.Step("Success PutFile with crc", putFileSuccess)
-runner.Step("Corrupted data PutFile with crc", putFileCorruptedDate)
-runner.Step("invalid data PutFile with crc", putFileInvalidData)
+runner.Step("Corrupted data PutFile with crc", putFileCorruptedData)
+runner.Step("Invalid data PutFile with crc", putFileInvalidData)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

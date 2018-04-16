@@ -19,20 +19,19 @@ function m.putFileParams()
   return temp
 end
 
-local function bytesToInt(pStr)
-  local t = { string.byte(pStr, 1, -1) }
-  local n = 0
-  for k = 1, #t do
-    n = n + t[k] * 2 ^ ((k - 1) * 8)
-  end
-  return n
-end
-
 function m.getCheckSum(pFile)
   local cmd = "cat " .. pFile .. " | gzip -1 | tail -c 8 | head -c 4"
   local handle = io.popen(cmd)
   local crc = handle:read("*a")
   handle:close()
+  local function bytesToInt(pStr)
+    local t = { string.byte(pStr, 1, -1) }
+    local n = 0
+    for k = 1, #t do
+      n = n + t[k] * 2 ^ ((k - 1) * 8)
+    end
+    return n
+  end
   return bytesToInt(crc)
 end
 

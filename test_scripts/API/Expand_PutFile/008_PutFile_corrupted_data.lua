@@ -134,7 +134,7 @@ local function putFileByFrames(pParams)
   common.getMobileSession().mobile_session_impl.rpc_services:CheckCorrelationID(msg)
 
   local function replaceChar(pStr, pPos, pChar)
-    return string.sub(pStr, 1, pPos - 1) .. pChar .. string.sub(pStr, pPos + 1, pStr:len())
+    return string.sub(pStr, 1, pPos - 1) .. pChar .. string.sub(pStr, pPos + 1, string.len(pStr))
   end
 
   if pParams.isDataCorrupted == true then
