@@ -170,6 +170,16 @@ function m.getHMIAppId(pAppId)
   return hmiAppIds[m.getConfigAppParams(pAppId).appID]
 end
 
+--[[ @setHMIAppId: set HMI application identifier
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pHMIAppId - HMI app Id
+--! @return: nones
+--]]
+function m.setHMIAppId(pAppId, pHMIAppId)
+  hmiAppIds[m.getConfigAppParams(pAppId).appID] = pHMIAppId
+end
+
 --[[ @getMobileSession: get mobile session
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)

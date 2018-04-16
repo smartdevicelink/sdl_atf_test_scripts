@@ -1,0 +1,9 @@
+./test_scripts/MobileProjection/Phase2/001_audioStreamingState_001-009.lua
+./test_scripts/MobileProjection/Phase2/002_audioStreamingState_010-068.lua
+./test_scripts/MobileProjection/Phase2/003_audioStreamingState_069-103.lua
+./test_scripts/MobileProjection/Phase2/004_audioStreamingState_104-110.lua
+./test_scripts/MobileProjection/Phase2/005_audioStreamingState_111-114.lua
+./test_scripts/MobileProjection/Phase2/006_videoStreamingState_001-006.lua
+./test_scripts/MobileProjection/Phase2/007_videoStreamingState_007-030.lua
+./test_scripts/MobileProjection/Phase2/008_videoStreamingState_031-034.lua
+./test_scripts/MobileProjection/Phase2/009_hmiLevel_001-032.lua
