@@ -25,10 +25,10 @@ runner.testSettings.isSelfIncluded = false
 local usedFile = "./files/binaryFile"
 
 local paramsCorrSum = common.putFileParams()
-paramsCorrSum.crc = common.CheckSum(usedFile)
+paramsCorrSum.crc = common.getCheckSum(usedFile)
 
 local paramsIncorrSum = common.putFileParams()
-paramsIncorrSum.crc = common.CheckSum(usedFile) - 100
+paramsIncorrSum.crc = common.getCheckSum(usedFile) - 100
 
 local corrDataResult = {
   success = false,

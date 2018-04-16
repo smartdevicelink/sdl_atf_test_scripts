@@ -62,7 +62,7 @@ local function putFileByFrames(pParams)
   local putFileParams = {
     syncFileName = "action.png",
     fileType = "GRAPHIC_PNG",
-    crc = common.CheckSum(fileName)
+    crc = common.getCheckSum(fileName)
   }
 
   local correlationId = common.getMobileSession().correlationId + 1

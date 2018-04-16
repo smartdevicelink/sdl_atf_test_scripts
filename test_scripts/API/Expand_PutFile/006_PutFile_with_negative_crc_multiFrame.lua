@@ -23,7 +23,7 @@ runner.testSettings.isSelfIncluded = false
 local usedFile = "./files/icon.png"
 
 local paramsIncorrSum = common.putFileParams()
-paramsIncorrSum.crc = - common.CheckSum(usedFile)
+paramsIncorrSum.crc = - common.getCheckSum(usedFile)
 
 local corrDataResult = {
   success = false,

@@ -75,7 +75,7 @@ local function getFrameCheckSum(pData)
   local f = io.open(file, "w")
   f:write(pData)
   f:close()
-  local crc = common.CheckSum(file)
+  local crc = common.getCheckSum(file)
   os.remove(file)
   return crc
 end

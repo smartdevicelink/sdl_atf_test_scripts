@@ -4,7 +4,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
-local utils = require("user_modules/utils")
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
@@ -29,7 +28,7 @@ local function bytesToInt(pStr)
   return n
 end
 
-function m.CheckSum(pFile)
+function m.getCheckSum(pFile)
   local cmd = "cat " .. pFile .. " | gzip -1 | tail -c 8 | head -c 4"
   local handle = io.popen(cmd)
   local crc = handle:read("*a")
