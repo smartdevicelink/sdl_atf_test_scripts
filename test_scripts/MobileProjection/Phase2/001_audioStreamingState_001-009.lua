@@ -33,7 +33,7 @@ end
 
 --[[ Scenario ]]
 for n, tc in common.spairs(testCases) do
-  runner.Title("TC[" .. common.getTCNum(testCases, n) .. "]: "
+  runner.Title("TC[" .. string.format("%03d", n) .. "]: "
     .. "[hmiType:" .. tc.t .. ", isMedia:" .. tostring(tc.m) .. "]")
   runner.Step("Clean environment", common.preconditions)
   runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)

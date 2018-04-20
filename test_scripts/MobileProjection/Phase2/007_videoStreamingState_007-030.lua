@@ -52,7 +52,7 @@ end
 
 --[[ Scenario ]]
 for n, tc in common.spairs(testCases) do
-  runner.Title("TC[" .. common.getTCNum(testCases, n) .. "]: "
+  runner.Title("TC[" .. string.format("%03d", n) .. "]: "
     .. "App1[hmiType:" .. tc[1].t .. ", isMedia:" .. tostring(tc[1].m) .. "], "
     .. "App2[hmiType:" .. tc[2].t .. ", isMedia:" .. tostring(tc[2].m) .. "]")
   runner.Step("Clean environment", common.preconditions)

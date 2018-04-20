@@ -2,7 +2,7 @@
 -- Common module
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
-config.defaultProtocolVersion = 2
+config.defaultProtocolVersion = 3
 
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
@@ -16,38 +16,11 @@ local m = actions
 m.failedTCs = {}
 
 m.wait = utils.wait
+m.registerApp = m.registerAppWOPTU
 
 function m.setAppConfig(pAppId, pAppHMIType, pIsMedia)
   m.getConfigAppParams(pAppId).appHMIType = { pAppHMIType }
   m.getConfigAppParams(pAppId).isMediaApplication = pIsMedia
-end
-
-function m.registerApp(pAppId)
-  if not pAppId then pAppId = 1 end
-  m.getMobileSession(pAppId):StartService(7)
-  :Do(function()
-      local corId = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface", m.getConfigAppParams(pAppId))
-      m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = m.getConfigAppParams(pAppId).appName } })
-      :Do(function(_, d)
-          m.setHMIAppId(pAppId, d.params.application.appID)
-        end)
-      m.getMobileSession(pAppId):ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-      :Do(function()
-          m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
-            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-        end)
-    end)
-end
-
-function m.unregisterApp(pAppId)
-  if not pAppId then pAppId = 1 end
-  local cid = m.getMobileSession(pAppId):SendRPC("UnregisterAppInterface", {})
-  m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", {
-    unexpectedDisconnect = false,
-    appID = m.getHMIAppId(pAppId)
-  })
 end
 
 function m.cleanSessions()
@@ -82,10 +55,6 @@ function m.spairs(pTbl)
       return keys[i], pTbl[keys[i]]
     end
   end
-end
-
-function m.getTCNum(pTCs, pTC)
-  return string.format("%0" .. string.len(tostring(#pTCs)) .. "d", pTC)
 end
 
 function m.checkAudioSS(pTC, pEvent, pExpAudioSS, pActAudioSS)
@@ -134,7 +103,7 @@ end
 
 function m.printFailedTCs()
   for tc, msg in m.spairs(m.failedTCs) do
-    utils.cprint(35, string.format("%02d", tc), msg)
+    utils.cprint(35, string.format("%03d", tc), msg)
   end
 end
 
