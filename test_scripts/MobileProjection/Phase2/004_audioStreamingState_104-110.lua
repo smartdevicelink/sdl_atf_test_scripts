@@ -10,13 +10,13 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local testCases = {
-  [1] = { t = "NAVIGATION",    m = false },
-  [2] = { t = "NAVIGATION",    m = true },
-  [3] = { t = "COMMUNICATION", m = false },
-  [4] = { t = "COMMUNICATION", m = true },
-  [5] = { t = "PROJECTION",    m = true },
-  [6] = { t = "MEDIA",         m = true },
-  [7] = { t = "DEFAULT",       m = true }
+  [104] = { t = "NAVIGATION",    m = false },
+  [105] = { t = "NAVIGATION",    m = true },
+  [106] = { t = "COMMUNICATION", m = false },
+  [107] = { t = "COMMUNICATION", m = true },
+  [108] = { t = "PROJECTION",    m = true },
+  [109] = { t = "MEDIA",         m = true },
+  [110] = { t = "DEFAULT",       m = true }
 }
 
 --[[ Local Functions ]]

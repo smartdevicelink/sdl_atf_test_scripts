@@ -10,15 +10,15 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local testCases = {
-  [1] = { t = "PROJECTION",    m = false, s = "NOT_AUDIBLE" },
-  [2] = { t = "DEFAULT",       m = false, s = "NOT_AUDIBLE" },
-  [3] = { t = "NAVIGATION",    m = false, s = "AUDIBLE" },
-  [4] = { t = "COMMUNICATION", m = false, s = "AUDIBLE" },
-  [5] = { t = "NAVIGATION",    m = true,  s = "AUDIBLE" },
-  [6] = { t = "COMMUNICATION", m = true,  s = "AUDIBLE" },
-  [7] = { t = "PROJECTION",    m = true,  s = "AUDIBLE" },
-  [8] = { t = "MEDIA",         m = true,  s = "AUDIBLE" },
-  [9] = { t = "DEFAULT",       m = true,  s = "AUDIBLE" }
+  [001] = { t = "PROJECTION",    m = false, s = "NOT_AUDIBLE" },
+  [002] = { t = "DEFAULT",       m = false, s = "NOT_AUDIBLE" },
+  [003] = { t = "NAVIGATION",    m = false, s = "AUDIBLE" },
+  [004] = { t = "COMMUNICATION", m = false, s = "AUDIBLE" },
+  [005] = { t = "NAVIGATION",    m = true,  s = "AUDIBLE" },
+  [006] = { t = "COMMUNICATION", m = true,  s = "AUDIBLE" },
+  [007] = { t = "PROJECTION",    m = true,  s = "AUDIBLE" },
+  [008] = { t = "MEDIA",         m = true,  s = "AUDIBLE" },
+  [009] = { t = "DEFAULT",       m = true,  s = "AUDIBLE" }
 }
 
 --[[ Local Functions ]]

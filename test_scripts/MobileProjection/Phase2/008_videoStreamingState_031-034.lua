@@ -10,10 +10,10 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local testCases = {
-  [1] = { t = "NAVIGATION", m = true,  s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
-  [2] = { t = "NAVIGATION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
-  [3] = { t = "PROJECTION", m = true,  s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
-  [4] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" }
+  [031] = { t = "NAVIGATION", m = true,  s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
+  [032] = { t = "NAVIGATION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
+  [033] = { t = "PROJECTION", m = true,  s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
+  [034] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" }
 }
 
 --[[ Local Functions ]]

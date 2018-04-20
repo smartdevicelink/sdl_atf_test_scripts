@@ -12,10 +12,10 @@ config.defaultProtocolVersion = 3
 
 --[[ Local Variables ]]
 local testCases = {
-  [01] = { [1] = { t = "NAVIGATION", m = false }, [2] = { t = "MEDIA", m = true }, a = 1, s = "ATTENUATED",  mix = true },
-  [02] = { [1] = { t = "NAVIGATION", m = false }, [2] = { t = "MEDIA", m = true }, a = 1, s = "NOT_AUDIBLE", mix = false },
-  [03] = { [1] = { t = "MEDIA", m = true }, [2] = { t = "NAVIGATION", m = false }, a = 2, s = "ATTENUATED",  mix = true },
-  [04] = { [1] = { t = "MEDIA", m = true }, [2] = { t = "NAVIGATION", m = false }, a = 2, s = "NOT_AUDIBLE", mix = false }
+  [111] = { [1] = { t = "NAVIGATION", m = false }, [2] = { t = "MEDIA", m = true }, a = 1, s = "ATTENUATED",  mix = true },
+  [112] = { [1] = { t = "NAVIGATION", m = false }, [2] = { t = "MEDIA", m = true }, a = 1, s = "NOT_AUDIBLE", mix = false },
+  [113] = { [1] = { t = "MEDIA", m = true }, [2] = { t = "NAVIGATION", m = false }, a = 2, s = "ATTENUATED",  mix = true },
+  [114] = { [1] = { t = "MEDIA", m = true }, [2] = { t = "NAVIGATION", m = false }, a = 2, s = "NOT_AUDIBLE", mix = false }
 }
 
 --[[ Local Functions ]]

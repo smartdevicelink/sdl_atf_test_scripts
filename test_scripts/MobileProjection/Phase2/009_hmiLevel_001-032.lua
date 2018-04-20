@@ -44,143 +44,143 @@ end
 
 --[[ Local Variables ]]
 local testCases = {
-  [01] = { t = "MEDIA",      m = true,  s = {
+  [001] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "NOT_STREAMABLE" }
   }},
-  [02] = { t = "PROJECTION", m = false, s = {
+  [002] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "NOT_AUDIBLE", v = "STREAMABLE" }
   }},
-  [03] = { t = "NAVIGATION", m = true,  s = {
+  [003] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "STREAMABLE" }
   }},
-  [04] = { t = "DEFAULT",    m = false, s = {
+  [004] = { t = "DEFAULT",    m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [05] = { t = "MEDIA",      m = true,  s = {
+  [005] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [06] = { t = "PROJECTION", m = false, s = {
+  [006] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [07] = { t = "NAVIGATION", m = true,  s = {
+  [007] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [08] = { t = "MEDIA",      m = true,  s = {
+  [008] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [3] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [09] = { t = "PROJECTION", m = false, s = {
+  [009] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [3] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [10] = { t = "NAVIGATION", m = true,  s = {
+  [010] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "STREAMABLE" },
     [3] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [11] = { t = "MEDIA",      m = true,  s = {
+  [011] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [12] = { t = "PROJECTION", m = false, s = {
+  [012] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [13] = { t = "NAVIGATION", m = true,  s = {
+  [013] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [14] = { t = "DEFAULT",    m = false, s = {
+  [014] = { t = "DEFAULT",    m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [2] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [15] = { t = "MEDIA",      m = true,  s = {
+  [015] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" }
   }},
-  [16] = { t = "PROJECTION", m = false, s = {
+  [016] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" }
   }},
-  [17] = { t = "NAVIGATION", m = true,  s = {
+  [017] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" }
   }},
-  [18] = { t = "DEFAULT",    m = false, s = {
+  [018] = { t = "DEFAULT",    m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [19] = { t = "MEDIA",      m = true,  s = {
+  [019] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [20] = { t = "PROJECTION", m = false, s = {
+  [020] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [21] = { t = "NAVIGATION", m = true,  s = {
+  [021] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [22] = { t = "MEDIA",      m = true,  s = {
+  [022] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [23] = { t = "PROJECTION", m = false, s = {
+  [023] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [24] = { t = "NAVIGATION", m = true,  s = {
+  [024] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [25] = { t = "DEFAULT",    m = false, s = {
+  [025] = { t = "DEFAULT",    m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = exitApp,       l = "NONE",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
   }},
-  [26] = { t = "MEDIA",      m = true,  s = {
+  [026] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [3] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" }
   }},
-  [27] = { t = "PROJECTION", m = false, s = {
+  [027] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [3] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" }
   }},
-  [28] = { t = "NAVIGATION", m = true,  s = {
+  [028] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateApp, l = "LIMITED",    a = "AUDIBLE",     v = "STREAMABLE" },
     [3] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" }
   }},
-  [29] = { t = "MEDIA",      m = true,  s = {
+  [029] = { t = "MEDIA",      m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = activateHMI,   l = "FULL",       a = "AUDIBLE",     v = "NOT_STREAMABLE" }
   }},
-  [30] = { t = "PROJECTION", m = false, s = {
+  [030] = { t = "PROJECTION", m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = activateHMI,   l = "FULL",       a = "NOT_AUDIBLE", v = "STREAMABLE" }
   }},
-  [31] = { t = "NAVIGATION", m = true,  s = {
+  [031] = { t = "NAVIGATION", m = true,  s = {
     [1] = { e = activateApp,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = activateHMI,   l = "FULL",       a = "AUDIBLE",     v = "STREAMABLE" }
   }},
-  [32] = { t = "DEFAULT",    m = false, s = {
+  [032] = { t = "DEFAULT",    m = false, s = {
     [1] = { e = activateApp,   l = "FULL",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [2] = { e = deactivateHMI, l = "BACKGROUND", a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" },
     [3] = { e = activateHMI,   l = "FULL",       a = "NOT_AUDIBLE", v = "NOT_STREAMABLE" }
