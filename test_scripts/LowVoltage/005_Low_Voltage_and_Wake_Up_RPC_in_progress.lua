@@ -1,11 +1,12 @@
 ---------------------------------------------------------------------------------------------------
--- Test Case #1: Extension 1
 -- In case:
--- 1) App was in FULL HMI level before LOW_VOLTAGE
--- 2) App registers 30 sec after WAKE_UP
+-- 1) SDL is started (there was no LOW_VOLTAGE signal sent)
+-- 2) SDL is in progress of processing some RPC
+-- 3) SDL get LOW_VOLTAGE signal via mqueue
+-- 4) And then SDL get WAKE_UP signal via mqueue
 -- SDL does:
--- 1) Resume app data
--- 2) Not resume app HMI level
+-- 1) Resume it’s work successfully (as for Resumption)
+-- 2) Discard processing of RPC
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -14,25 +15,34 @@ local runner = require('user_modules/script_runner')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Functions ]]
-local function addResumptionData()
-  common.rpcSend.AddCommand(1)
-end
+--[[ Local Variables ]]
+local cid = nil
 
+--[[ Local Functions ]]
 local function checkResumptionData()
-  common.rpcCheck.AddCommand(1)
+  common.getMobileSession():ExpectResponse(cid) -- check absence of response
+  :Times(0)
 end
 
 local function checkResumptionHMILevel()
   common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp", { appID = common.getHMIAppId(1) })
-  :Times(0)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, "BasicCommunication.ActivateApp", "SUCCESS", {})
+    end)
   common.getMobileSession():ExpectNotification("OnHMIStatus",
-    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
+    { hmiLevel = "FULL", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE" })
+  :Times(2)
 end
 
-local function wait()
-  common.cprint(35, "Wait 31 sec")
-  common.wait(31100)
+local function processRPCPartially()
+  local params = {
+    mainField1 = "Show Line 1",
+    mainField2 = "Show Line 2",
+    mainField3 = "Show Line 3"
+  }
+  cid = common.getMobileSession():SendRPC("Show", params)
+  EXPECT_HMICALL("UI.Show")
 end
 
 local function checkAppId(pAppId, pData)
@@ -49,17 +59,15 @@ runner.Step("Start SDL, HMI, connect Mobile", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
-runner.Step("Add resumption data for App", addResumptionData)
 
 runner.Title("Test")
-runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
+runner.Step("RPC Show partially", processRPCPartially)
 runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
 runner.Step("Close mobile connection", common.cleanSessions)
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
-runner.Step("Wait", wait)
 runner.Step("Re-connect Mobile", common.connectMobile)
-runner.Step("Re-register App, check resumption of Data and no resumption of HMI level", common.reRegisterApp, {
-  1, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 5000
+runner.Step("Re-register App, check resumption data and HMI level", common.reRegisterApp, {
+  1, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 11000
 })
 
 runner.Title("Postconditions")

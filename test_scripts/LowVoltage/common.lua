@@ -322,16 +322,16 @@ end
 --! @return: none
 --]]
 function m.sendMQLowVoltageSignal()
-  m.sendMQSignal("SDL_LOW_VOLTAGE")
+  m.sendMQSignal("LOW_VOLTAGE")
 end
 
---[[ @sendMQShutDownSignal: send 'SHUT_DOWN' signal to SDL MQ
+--[[ @sendMQIgnitionOffSignal: send 'IGNITION_OFF' signal to SDL MQ
 --! @parameters: none
 --! @return: none
 --]]
-function m.sendMQShutDownSignal()
+function m.sendMQIgnitionOffSignal()
   SDL:DeleteFile()
-  m.sendMQSignal("SHUT_DOWN")
+  m.sendMQSignal("IGNITION_OFF")
   local function toRun()
     SDL:StopSDL()
     waitUntilSDLLoggerIsClosed()

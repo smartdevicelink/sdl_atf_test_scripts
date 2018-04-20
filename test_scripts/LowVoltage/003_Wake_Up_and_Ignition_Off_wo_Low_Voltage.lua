@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 -- In case:
 -- 1) SDL is started (there was no LOW_VOLTAGE signal sent)
--- 2) SDL get SHUT_DOWN or WAKE_UP signal via mqueue
+-- 2) SDL get IGNITION_OFF or WAKE_UP signal via mqueue
 -- SDL does:
 -- 1) Ignore signal WAKE_UP and continue working as usual
--- 2) Process SHUT_DOWN signal and shut down successfully
+-- 2) Process IGNITION_OFF signal and shut down successfully
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/LowVoltage/common')
@@ -35,7 +35,7 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
 runner.Step("AddCommand success", processAddCommandSuccessfully)
-runner.Step("Send SHUT_DOWN signal", common.sendMQShutDownSignal)
+runner.Step("Send IGNITION_OFF signal", common.sendMQIgnitionOffSignal)
 runner.Step("Check SDL stopped", common.isSDLStopped)
 
 runner.Title("Postconditions")

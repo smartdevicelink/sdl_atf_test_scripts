@@ -1,7 +1,5 @@
 ./test_scripts/LowVoltage/001_Low_Voltage_and_Wake_Up.lua
-./test_scripts/LowVoltage/002_Low_Voltage_and_Shut_Down.lua
-./test_scripts/LowVoltage/003_Wake_Up_and_Shut_Down_wo_Low_Voltage.lua
-./test_scripts/LowVoltage/004_App_registered_30_sec_after_Wake_Up.lua
-./test_scripts/LowVoltage/005_App_disconnected_30_sec_before_Low_Voltage.lua
-./test_scripts/LowVoltage/006_App_unregister_itself_gracefully.lua
-./test_scripts/LowVoltage/007_Low_Voltage_and_Wake_Up_RPC_in_progress.lua
+./test_scripts/LowVoltage/002_Low_Voltage_and_Ignition_Off.lua
+./test_scripts/LowVoltage/003_Wake_Up_and_Ignition_Off_wo_Low_Voltage.lua
+./test_scripts/LowVoltage/004_App_unregister_itself_gracefully.lua
+./test_scripts/LowVoltage/005_Low_Voltage_and_Wake_Up_RPC_in_progress.lua
