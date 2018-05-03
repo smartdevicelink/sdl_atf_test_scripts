@@ -425,4 +425,8 @@ function m.getAppsCount()
   return #test.mobileSession
 end
 
+function m.writeHMIappId(pHmiAppId, pAppId)
+  hmiAppIds[m.getConfigAppParams(pAppId).appID] = pHmiAppId
+end
+
 return m
