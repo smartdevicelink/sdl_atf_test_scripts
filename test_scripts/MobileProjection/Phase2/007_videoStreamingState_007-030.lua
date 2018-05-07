@@ -12,7 +12,7 @@ runner.testSettings.isSelfIncluded = false
 local testCases = {
   [007] = { [1] = { t = "NAVIGATION", m = true,  s = "STREAMABLE" },     [2] = { t = "MEDIA",      m = true,  s = "NOT_STREAMABLE" }},
   [008] = { [1] = { t = "NAVIGATION", m = false, s = "STREAMABLE" },     [2] = { t = "MEDIA",      m = true,  s = "NOT_STREAMABLE" }},
-  [009] = { [1] = { t = "PROJECTION", m = false, s = "STREAMABLE" },     [2] = { t = "MEDIA",      m = true,  s = "NOT_STREAMABLE" }},
+  [009] = { [1] = { t = "PROJECTION", m = true,  s = "STREAMABLE" },     [2] = { t = "MEDIA",      m = true,  s = "NOT_STREAMABLE" }},
   [010] = { [1] = { t = "PROJECTION", m = false, s = "STREAMABLE" },     [2] = { t = "MEDIA",      m = true,  s = "NOT_STREAMABLE" }},
   [011] = { [1] = { t = "NAVIGATION", m = true,  s = "STREAMABLE" },     [2] = { t = "DEFAULT",    m = false, s = "NOT_STREAMABLE" }},
   [012] = { [1] = { t = "NAVIGATION", m = false, s = "STREAMABLE" },     [2] = { t = "DEFAULT",    m = false, s = "NOT_STREAMABLE" }},
