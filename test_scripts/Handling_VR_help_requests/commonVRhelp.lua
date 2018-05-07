@@ -22,8 +22,12 @@ m.wait = utils.wait
 
 function m.setGPParams()
   local params = {
-    requestUiParams = m.vrHelp(m.commandArray),
-    requestTtsParams = m.vrHelpPrompt(m.commandArray)
+    requestUiParams = {
+      vrHelp = m.vrHelp(m.commandArray)
+    },
+    requestTtsParams = {
+      helpPrompt = m.vrHelpPrompt(m.commandArray)
+    }
   }
   return params
 end
@@ -151,7 +155,7 @@ function m.setGlobalPropertiesFromSDL(pTST)
       if timeToSetGP > 10500 or
         timeToSetGP < 9500 then
         return false, "SetGlobalProperties request with constracted vrHelp and helpPrompt came not in 10 sec " ..
-        "after activation, actual time -" .. tostring(timeToSetGP)
+        "after activation, actual time is" .. tostring(timeToSetGP)
       end
     end
     return true
