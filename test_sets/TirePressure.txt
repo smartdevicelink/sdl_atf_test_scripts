@@ -1,0 +1,5 @@
+./test_scripts/API/VehicleData/GetVehicleData/001_GetVD_TirePressure_success_flow.lua
+./test_scripts/API/VehicleData/GetVehicleData/002_GetVD_TirePressure_disallowed_by_policies_flow.lua
+./test_scripts/API/VehicleData/GetVehicleData/003_GetVD_TirePressure_low_level.lua
+./test_scripts/API/VehicleData/GetVehicleData/004_GetVD_TirePressure_system_and_sensor_fault.lua
+./test_scripts/API/VehicleData/GetVehicleData/005_GetVD_TirePressure_miss_data.lua
