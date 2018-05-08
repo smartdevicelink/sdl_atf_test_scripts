@@ -7,3 +7,4 @@
 ./test_scripts/MobileProjection/Phase2/007_videoStreamingState_007-030.lua
 ./test_scripts/MobileProjection/Phase2/008_videoStreamingState_031-034.lua
 ./test_scripts/MobileProjection/Phase2/009_hmiLevel_001-032.lua
+./test_scripts/MobileProjection/Phase2/010_single_app_audio_and_video_streaming.lua
