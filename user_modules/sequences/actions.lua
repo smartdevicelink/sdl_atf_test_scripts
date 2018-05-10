@@ -425,7 +425,13 @@ function m.getAppsCount()
   return #test.mobileSession
 end
 
-function m.writeHMIappId(pHmiAppId, pAppId)
+--[[ @setHMIAppId: Write custom HMI appID in array
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pHmiAppId - HMI appId value
+--! @return: none
+--]]
+function m.setHMIAppId(pAppId, pHmiAppId)
   hmiAppIds[m.getConfigAppParams(pAppId).appID] = pHmiAppId
 end
 

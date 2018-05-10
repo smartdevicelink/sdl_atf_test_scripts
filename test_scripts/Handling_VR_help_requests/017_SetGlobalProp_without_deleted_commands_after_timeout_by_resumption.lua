@@ -23,7 +23,7 @@ local common = require('test_scripts/Handling_VR_help_requests/commonVRhelp')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function deleteCommandParams()
+local function getDeleteCommandParams()
   local out = {
     cmdID = 1
   }
@@ -38,11 +38,11 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("Pin OnHashChange", common.pinOnHashChange)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.addCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
 
 runner.Title("Test")
-runner.Step("Delete command1", common.deleteCommand, { deleteCommandParams(), true })
+runner.Step("Delete command1", common.deleteCommand, { getDeleteCommandParams(), true })
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
   { 1, common.resumptionLevelFull, common.resumptionDataAddCommands })

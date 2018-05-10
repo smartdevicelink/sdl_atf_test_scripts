@@ -17,6 +17,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Handling_VR_help_requests/commonVRhelp')
+local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -36,6 +37,8 @@ local commandWithtVr = {
   }
 }
 
+local uiCommandArray = { { cmdID = commandWithtVr.cmdID }, { cmdID = commandWithoutVr.cmdID } }
+
 --[[ Local Functions ]]
 local function resumptionLevelLimited()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnResumeAudioSource",
@@ -52,6 +55,43 @@ local function resumptionLevelLimited()
     end
   end)
   :Times(2)
+end
+
+local function resumptionDataAddCommands()
+  EXPECT_HMICALL("VR.AddCommand")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    for _, value in pairs(common.commandArray) do
+      if data.params.cmdID == value.cmdID then
+        local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrCommands, value.vrCommand)
+        local Msg = ""
+        if vrCommandCompareResult == false then
+          Msg = "vrCommands in received VR.AddCommand are not match to expected result.\n" ..
+          "Actual result:" .. common.tableToString(data.params.vrCommands) .. "\n" ..
+          "Expected result:" .. common.tableToString(value.vrCommand) .."\n"
+        end
+        return vrCommandCompareResult, Msg
+      end
+    end
+    return true
+  end)
+  :Times(#common.commandArray)
+  EXPECT_HMICALL("UI.AddCommand")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    for k, value in pairs(uiCommandArray) do
+      if data.params.cmdID == value.cmdID then
+        return true
+      elseif data.params.cmdID ~= value.cmdID and k == #uiCommandArray then
+        return false, "Received cmdID in UI.AddCommand was not added previously before resumption"
+      end
+    end
+  end)
+  :Times(#uiCommandArray)
 end
 
 local function deactivateAppToLimited()
@@ -72,10 +112,9 @@ runner.Step("Bring app to LIMITED HMI level", deactivateAppToLimited)
 runner.Title("Test")
 runner.Step("AddCommand with vr command", common.addCommand, { commandWithtVr })
 runner.Step("AddCommand without vr command", common.addCommand, { commandWithoutVr })
-runner.Title("Test")
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
-  { 1, resumptionLevelLimited, common.resumptionDataAddCommands })
+  { 1, resumptionLevelLimited, resumptionDataAddCommands })
 runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
 	{ true })
 

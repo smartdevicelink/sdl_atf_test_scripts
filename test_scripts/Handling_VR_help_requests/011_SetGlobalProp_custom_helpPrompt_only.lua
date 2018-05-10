@@ -29,7 +29,7 @@ SetGPParamsWithHelpPromptOnly.requestParams.vrHelp = nil
 
 --[[ Local Functions ]]
 local function SetGlobalPropertiesFromSDL()
-  local params = common.setGPParams()
+  local params = common.getGPParams()
   local hmiConnection = common.getHMIConnection()
   EXPECT_HMICALL("UI.SetGlobalProperties", params.requestUiParams)
   :Do(function(_,data)
@@ -40,8 +40,8 @@ local function SetGlobalPropertiesFromSDL()
 end
 
 local function SetGlobalPropertiesFromSDLbyAddingCommand()
-  common.addCommand(common.addCommandParams(4))
-  local params = common.setGPParams()
+  common.addCommand(common.getAddCommandParams(4))
+  local params = common.getGPParams()
   local hmiConnection = common.getHMIConnection()
   EXPECT_HMICALL("UI.SetGlobalProperties", params.requestUiParams)
   :Do(function(_,data)
@@ -58,7 +58,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.addCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
 
 runner.Title("Test")

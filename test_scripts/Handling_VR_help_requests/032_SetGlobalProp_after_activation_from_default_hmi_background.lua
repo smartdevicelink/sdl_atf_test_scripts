@@ -35,7 +35,7 @@ local function registerAppWOPTU()
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
       { application = { appName = common.getConfigAppParams(2).appName } })
     :Do(function(_, data)
-      common.writeHMIappId(data.params.application.appID, 2)
+      common.setHMIAppId(2, data.params.application.appID)
     end)
     mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
     :Do(function()
@@ -56,7 +56,7 @@ runner.Title("Test")
 runner.Step("App2 registration", registerAppWOPTU)
 runner.Step("App2 activation", common.activateApp, { 2 })
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.addCommandParams(i), 2 })
+  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i), 2 })
 end
 runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
 	{ true })

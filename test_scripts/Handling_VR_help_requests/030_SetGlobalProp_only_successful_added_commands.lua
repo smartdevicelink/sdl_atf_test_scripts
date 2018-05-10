@@ -49,11 +49,11 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.addCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
 
 runner.Title("Test")
-runner.Step("Rejected adding Command4", rejectedAddCommand, { common.addCommandParams(4) })
+runner.Step("Rejected adding Command4", rejectedAddCommand, { common.getAddCommandParams(4) })
 runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
 	{ true })
 
