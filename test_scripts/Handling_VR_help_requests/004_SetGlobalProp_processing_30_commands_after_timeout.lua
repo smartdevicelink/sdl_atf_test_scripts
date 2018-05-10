@@ -36,10 +36,10 @@ for i = 1,3 do
 end
 runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
   { true })
-for i = 4, 34 do
+for i = 4, 33 do
   runner.Step("SetGlobalProperties from SDL after added command" ..i, common.addCommandWithSetGP, { i })
 end
-runner.Step("Absence SetGlobalProperties from SDL after adding 35 command", common.addCommandWithoutSetGP, { 35 })
+runner.Step("Absence SetGlobalProperties from SDL after adding 35 command", common.addCommandWithoutSetGP, { 34 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
