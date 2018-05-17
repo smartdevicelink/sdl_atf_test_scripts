@@ -12,10 +12,46 @@ config.defaultProtocolVersion = 3
 
 --[[ Local Variables ]]
 local testCases = {
-  [111] = { [1] = { t = "NAVIGATION", m = false }, [2] = { t = "MEDIA", m = true }, a = 1, s = "ATTENUATED",  mix = true },
-  [112] = { [1] = { t = "NAVIGATION", m = false }, [2] = { t = "MEDIA", m = true }, a = 1, s = "NOT_AUDIBLE", mix = false },
-  [113] = { [1] = { t = "MEDIA", m = true }, [2] = { t = "NAVIGATION", m = false }, a = 2, s = "ATTENUATED",  mix = true },
-  [114] = { [1] = { t = "MEDIA", m = true }, [2] = { t = "NAVIGATION", m = false }, a = 2, s = "NOT_AUDIBLE", mix = false }
+  [111] = {
+    [1] = { t = "NAVIGATION", m = false },
+    [2] = { t = "MEDIA",      m = true },
+    a = 1, s = "ATTENUATED", mix = true
+  },
+  [112] = {
+    [1] = { t = "NAVIGATION", m = false },
+    [2] = { t = "MEDIA",      m = true },
+    a = 1, s = "NOT_AUDIBLE", mix = false
+  },
+  [113] = {
+    [1] = { t = "MEDIA",      m = true },
+    [2] = { t = "NAVIGATION", m = false },
+    a = 2, s = "ATTENUATED", mix = true
+  },
+  [114] = {
+    [1] = { t = "MEDIA",      m = true },
+    [2] = { t = "NAVIGATION", m = false },
+    a = 2, s = "NOT_AUDIBLE", mix = false
+  },
+  [115] = {
+    [1] = { t = "NAVIGATION",    m = false },
+    [2] = { t = "COMMUNICATION", m = true },
+    a = 1, s = "ATTENUATED",  mix = true
+  },
+  [116] = {
+    [1] = { t = "NAVIGATION",    m = false },
+    [2] = { t = "COMMUNICATION", m = true },
+    a = 1, s = "NOT_AUDIBLE", mix = false
+  },
+  [117] = {
+    [1] = { t = "COMMUNICATION", m = true },
+    [2] = { t = "NAVIGATION",    m = false },
+    a = 2, s = "ATTENUATED",  mix = true
+  },
+  [118] = {
+    [1] = { t = "COMMUNICATION", m = true },
+    [2] = { t = "NAVIGATION",    m = false },
+    a = 2, s = "NOT_AUDIBLE", mix = false
+  }
 }
 
 --[[ Local Functions ]]
@@ -31,8 +67,8 @@ local function appStartStreaming(pTC, pStreamingAppId, pAudioSSApp)
       common.getHMIConnection():ExpectRequest("Navigation.StartAudioStream")
       :Do(function(_, data)
           common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-          common.getMobileSession(pStreamingAppId):StartStreaming(10,"files/Kalimba.mp3")
-          EXPECT_HMINOTIFICATION("Navigation.OnAudioDataStreaming", {available = true})
+          common.getMobileSession(pStreamingAppId):StartStreaming(10, "files/MP3_1140kb.mp3")
+          common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = true })
         end)
     end)
   local notStreamingAppId
@@ -41,7 +77,7 @@ local function appStartStreaming(pTC, pStreamingAppId, pAudioSSApp)
   :Times(0)
   common.getMobileSession(notStreamingAppId):ExpectNotification("OnHMIStatus")
   :ValidIf(function(_, data)
-      common.getMobileSession(pStreamingAppId):StopStreaming("files/Kalimba.mp3")
+      common.getMobileSession(pStreamingAppId):StopStreaming("files/MP3_1140kb.mp3")
       return common.checkAudioSS(pTC, "App" .. notStreamingAppId, pAudioSSApp, data.payload.audioStreamingState)
     end)
 end

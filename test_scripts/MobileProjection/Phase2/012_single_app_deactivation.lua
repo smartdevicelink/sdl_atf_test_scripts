@@ -11,8 +11,7 @@ config.defaultProtocolVersion = 3
 
 --[[ Local Variables ]]
 local testCases = {
-  [001] = { t = "PROJECTION", m = true },
-  [002] = { t = "NAVIGATION", m = true },
+  [001] = { t = "PROJECTION", m = true }
 }
 
 --[[ Local Functions ]]
@@ -26,8 +25,6 @@ local function appStartAudioStreaming()
           common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = true })
         end)
     end)
-  common.getMobileSession():ExpectNotification("OnHMIStatus")
-  :Times(0)
 end
 
 local function appStartVideoStreaming()
@@ -40,15 +37,16 @@ local function appStartVideoStreaming()
           common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = true })
         end)
     end)
-  common.getMobileSession():ExpectNotification("OnHMIStatus")
-  :Times(0)
 end
 
-local function appStopStreaming()
-  common.getMobileSession():StopStreaming("files/MP3_1140kb.mp3")
-  common.getMobileSession():StopStreaming("files/MP3_4555kb.mp3")
-  common.getMobileSession():ExpectNotification("OnHMIStatus")
-  :Times(0)
+local function deactivateApp()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnHMIStatus", {
+    hmiLevel = "LIMITED",
+    systemContext = "MAIN",
+    audioStreamingState = "AUDIBLE",
+    videoStreamingState = "STREAMABLE"
+  })
 end
 
 --[[ Scenario ]]
@@ -62,7 +60,7 @@ for n, tc in common.spairs(testCases) do
   runner.Step("Activate App", common.activateApp, { 1 })
   runner.Step("App starts Audio streaming", appStartAudioStreaming)
   runner.Step("App starts Video streaming", appStartVideoStreaming)
-  runner.Step("App stops streaming", appStopStreaming)
+  runner.Step("Deactivate App", deactivateApp)
   runner.Step("Clean sessions", common.cleanSessions)
   runner.Step("Stop SDL", common.postconditions)
 end

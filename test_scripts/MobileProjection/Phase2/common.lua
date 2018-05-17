@@ -15,6 +15,7 @@ local m = actions
 m.failedTCs = {}
 
 m.wait = utils.wait
+m.cloneTable = utils.cloneTable
 m.registerApp = m.registerAppWOPTU
 
 function m.activateApp(pAppId)

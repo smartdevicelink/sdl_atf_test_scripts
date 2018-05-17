@@ -11,23 +11,19 @@ config.defaultProtocolVersion = 3
 
 --[[ Local Variables ]]
 local testCases = {
-  [001] = { t = "PROJECTION", m = true },
-  [002] = { t = "NAVIGATION", m = true },
+  [001] = { t = "PROJECTION", m = false }
 }
 
 --[[ Local Functions ]]
-local function appStartAudioStreaming()
-  common.getMobileSession():StartService(10)
-  :Do(function()
-      common.getHMIConnection():ExpectRequest("Navigation.StartAudioStream")
-      :Do(function(_, data)
-          common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-          common.getMobileSession():StartStreaming(10,"files/MP3_1140kb.mp3")
-          common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = true })
-        end)
-    end)
-  common.getMobileSession():ExpectNotification("OnHMIStatus")
-  :Times(0)
+local function activateApp()
+  local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
+  common.getHMIConnection():ExpectResponse(requestId)
+  common.getMobileSession():ExpectNotification("OnHMIStatus", {
+    hmiLevel = "FULL",
+    systemContext = "MAIN",
+    audioStreamingState = "NOT_AUDIBLE",
+    videoStreamingState = "STREAMABLE"
+  })
 end
 
 local function appStartVideoStreaming()
@@ -36,7 +32,7 @@ local function appStartVideoStreaming()
       common.getHMIConnection():ExpectRequest("Navigation.StartStream")
       :Do(function(_, data)
           common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-          common.getMobileSession():StartStreaming(11, "files/MP3_4555kb.mp3")
+          common.getMobileSession():StartStreaming(11, "files/MP3_1140kb.mp3")
           common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = true })
         end)
     end)
@@ -46,7 +42,6 @@ end
 
 local function appStopStreaming()
   common.getMobileSession():StopStreaming("files/MP3_1140kb.mp3")
-  common.getMobileSession():StopStreaming("files/MP3_4555kb.mp3")
   common.getMobileSession():ExpectNotification("OnHMIStatus")
   :Times(0)
 end
@@ -59,8 +54,7 @@ for n, tc in common.spairs(testCases) do
   runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   runner.Step("Set App Config", common.setAppConfig, { 1, tc.t, tc.m })
   runner.Step("Register App", common.registerApp, { 1 })
-  runner.Step("Activate App", common.activateApp, { 1 })
-  runner.Step("App starts Audio streaming", appStartAudioStreaming)
+  runner.Step("Activate App", activateApp)
   runner.Step("App starts Video streaming", appStartVideoStreaming)
   runner.Step("App stops streaming", appStopStreaming)
   runner.Step("Clean sessions", common.cleanSessions)

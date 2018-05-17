@@ -13,7 +13,11 @@ local testCases = {
   [031] = { t = "NAVIGATION", m = true,  s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
   [032] = { t = "NAVIGATION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
   [033] = { t = "PROJECTION", m = true,  s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
-  [034] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" }
+  [034] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "DEACTIVATE_HMI" },
+  [035] = { t = "NAVIGATION", m = true,  s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
+  [036] = { t = "NAVIGATION", m = false, s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
+  [037] = { t = "PROJECTION", m = true,  s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
+  [038] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" }
 }
 
 --[[ Local Functions ]]
