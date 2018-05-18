@@ -17,7 +17,11 @@ local testCases = {
   [035] = { t = "NAVIGATION", m = true,  s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
   [036] = { t = "NAVIGATION", m = false, s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
   [037] = { t = "PROJECTION", m = true,  s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
-  [038] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" }
+  [038] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "AUDIO_SOURCE" },
+  [039] = { t = "NAVIGATION", m = true,  s = "NOT_STREAMABLE", e = "EMBEDDED_NAVI" },
+  [040] = { t = "NAVIGATION", m = false, s = "NOT_STREAMABLE", e = "EMBEDDED_NAVI" },
+  [041] = { t = "PROJECTION", m = true,  s = "NOT_STREAMABLE", e = "EMBEDDED_NAVI" },
+  [042] = { t = "PROJECTION", m = false, s = "NOT_STREAMABLE", e = "EMBEDDED_NAVI" }
 }
 
 --[[ Local Functions ]]

@@ -5,7 +5,7 @@
 ./test_scripts/MobileProjection/Phase2/005_audioStreamingState_111-118.lua
 ./test_scripts/MobileProjection/Phase2/006_videoStreamingState_001-006.lua
 ./test_scripts/MobileProjection/Phase2/007_videoStreamingState_007-030.lua
-./test_scripts/MobileProjection/Phase2/008_videoStreamingState_031-038.lua
+./test_scripts/MobileProjection/Phase2/008_videoStreamingState_031-042.lua
 ./test_scripts/MobileProjection/Phase2/009_hmiLevel_001-032.lua
 ./test_scripts/MobileProjection/Phase2/010_single_app_audio_and_video_streaming.lua
 ./test_scripts/MobileProjection/Phase2/011_single_app_video_streaming.lua
@@ -17,3 +17,4 @@
 ./test_scripts/MobileProjection/Phase2/017_two_apps_and_one_app_exits.lua
 ./test_scripts/MobileProjection/Phase2/018_two_apps_and_one_app_unregister.lua
 ./test_scripts/MobileProjection/Phase2/019_SDL_stop_audio_video.lua
+./test_scripts/MobileProjection/Phase2/020_different_types_apps_interactions.lua
