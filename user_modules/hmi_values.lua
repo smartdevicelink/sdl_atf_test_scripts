@@ -357,6 +357,7 @@ function module.getDefaultHMITable()
               {
                 moduleName = "Audio",
                 sourceAvailable = true,
+                keepContextAvailable = true,
                 volumeAvailable = true,
                 equalizerAvailable = true,
                 equalizerMaxChannelId = 100
