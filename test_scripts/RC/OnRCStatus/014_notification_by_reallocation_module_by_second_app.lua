@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to rc registered apps and to HMI
--- in case app2 tries allocate allocated module by app1
+-- Description:
+-- In case:
+-- 1) RC app1 and RC app2 are registered
+-- 2) Module_1 is allocated by app1
+-- 3) App2 allocates the allocated module_1 by app1
+-- SDL must:
+-- 1) Send OnRCStatus notifications to RC apps and to HMI by app2 tries allocate the allocated module by app1
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

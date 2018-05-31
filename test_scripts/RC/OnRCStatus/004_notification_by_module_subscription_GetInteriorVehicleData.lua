@@ -5,8 +5,12 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall not send OnRCStatus notifications to rc registered app
--- by allocation module via GetInteriorVehicleData
+-- Description:
+-- In case:
+-- 1) RC application is registered
+-- 2) Mobile application subscribes to module via GetInteriorVehicleData
+-- SDL must:
+-- 1) Not send OnRCStatus notification to RC application by module subscribing
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

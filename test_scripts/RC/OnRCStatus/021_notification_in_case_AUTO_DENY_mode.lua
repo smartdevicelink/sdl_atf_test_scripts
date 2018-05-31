@@ -5,9 +5,15 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall not send OnRCStatus notifications to rc registered apps and to HMI
--- in case HMI responds with IN_USE result code to allocation request from second app
--- because of HMI access mode is AUTO_DENY
+-- Description:
+-- In case:
+-- 1) HMI access mode is AUTO_DENY
+-- 2) RC app1 and RC app2 are regisered
+-- 3) App1 allocates module_1
+-- 4) App2 tries allocate the module_1
+-- SDL must:
+-- 1) Respond with IN_USE result code to app2
+-- 2) Not send OnRCStatus notifications to RC registered apps and to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

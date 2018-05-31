@@ -5,7 +5,11 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to all registered mobile applications and the HMI
+-- Description:
+-- In case:
+-- 1) RC app1 and RC app2 are registered
+-- SDL must:
+-- 1) Send OnRCStatus notifications to all registered mobile applications and the HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

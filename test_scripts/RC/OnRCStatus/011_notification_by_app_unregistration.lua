@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to registered mobile application and to the HMI by
--- app unregistration with allocated module.
+-- Description:
+-- In case:
+-- 1) RC app1 and app2 are registered
+-- 2) App1 allocates module
+-- 3) App1 is unregistered
+-- SDL must:
+-- 1) send OnRCStatus notification to registered app2 and to the HMI by app1 unregistration with allocated module.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

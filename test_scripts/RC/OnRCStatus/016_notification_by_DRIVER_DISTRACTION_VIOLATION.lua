@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to rc registered app and to HMI
--- in case app deallocates module by performing DRIVER_DISTRACTION_VIOLATION form HMI
+-- Description:
+-- In case:
+-- 1) RC app is registered
+-- 2) App allocates module
+-- 3) DRIVER_DISTRACTION_VIOLATION is performed from HMI
+-- SDL must:
+-- 1) Send OnRCStatus notifications to RC app and to HMI by app deallocates module by performing DRIVER_DISTRACTION_VIOLATION form HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

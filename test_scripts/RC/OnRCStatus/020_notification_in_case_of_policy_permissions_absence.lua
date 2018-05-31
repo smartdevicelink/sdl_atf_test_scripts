@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall not send OnRCStatus notifications to rc registered app
--- in case application has not permissions for OnRCStatus
+-- Description:
+-- In case:
+-- 1) RC app is registered
+-- 2) App has not permissions for OnRCStatus
+-- 3) App allocates module
+-- SDL must:
+-- 1) Not send OnRCStatus notifications to app and the HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

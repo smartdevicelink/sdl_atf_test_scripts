@@ -5,7 +5,11 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall not send OnRCStatus notifications to not rc registered app
+-- Description:
+-- In case:
+-- 1) Not RC application is registered
+-- SDL must:
+-- 1) Not send OnRCStatus notification to not RC registered application
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

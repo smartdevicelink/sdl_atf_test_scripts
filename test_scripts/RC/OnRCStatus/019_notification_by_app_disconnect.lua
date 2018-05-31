@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to rc registered app
--- in case application deallocates module by unexpected disconnect
+-- Description:
+-- In case:
+-- 1) RC app1 and app2 are registered
+-- 2) App1 allocates module
+-- 3) App1 is disconnected
+-- SDL must:
+-- 1) Send OnRCStatus notification to registered app2 and to the HMI by app1 unexpected disconnect
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

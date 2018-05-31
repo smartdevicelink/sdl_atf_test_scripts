@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall not send OnRCStatus notifications to rc registered app and HMI
--- in case application tries allocate already allocated module
+-- Description:
+-- In case:
+-- 1) RC app is registered
+-- 2) Module_1 is allocated by app
+-- 3) App tries allocate already allocated module_1
+-- SDL must:
+-- 1) Not send OnRCStatus notifications to RC app and HMI by second allocation attempt
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

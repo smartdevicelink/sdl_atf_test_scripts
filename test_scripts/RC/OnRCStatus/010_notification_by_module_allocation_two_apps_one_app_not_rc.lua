@@ -7,6 +7,12 @@
 --
 -- Description: SDL shall send OnRCStatus notifications to rc registered apps
 -- by allocation module via SetInteriorVehicleData
+-- In case:
+-- 1) RC app1 is registered
+-- 2) Non-RC app2 is registered
+-- 3) App1 allocates module via SetInteriorVehicleData
+-- SDL must:
+-- 1) Send OnRCStatus notification to RC app1 only by module allocation via SetInteriorVehicleData
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

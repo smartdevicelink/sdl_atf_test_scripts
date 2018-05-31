@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to rc registered apps
--- by allocation module via ButtonPress
+-- Description:
+-- In case:
+-- 1) RC app1 is registered
+-- 2) RC app2 is registered
+-- 3) Mobile applications allocate module via ButtonPress one by one
+-- SDL must:
+-- 1) Send OnRCStatus notification to RC applications by module allocation via ButtonPress
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

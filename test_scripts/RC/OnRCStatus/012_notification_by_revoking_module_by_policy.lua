@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to registered mobile application and to the HMI by
--- policy update, allocated module is revoked in update
+-- Description:
+-- In case:
+-- 1) RC app is registered
+-- 2) App allocates module
+-- 3) PTU for app is performed with revoking of allocated module
+-- SDL must:
+-- 1) send OnRCStatus notifications to mobile app and to the HMI by PTU with revoking of allocated module
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

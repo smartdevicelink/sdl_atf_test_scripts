@@ -5,8 +5,14 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to rc registered apps and to HMI
--- in case HMI sends SUCCESS resultCode to RC.GetInteriorVehicleDataConsent
+-- Description:
+-- 1) RC app1 and app2 are registered
+-- 2) AccessMode is ASK_DRIVER on HMI
+-- 3) Module_1 is allocated by app1
+-- 4) App2 tries to allocate module_1
+-- 5) SDL requests RC.GetInteriorVehicleDataConsent and HMI sends SUCCESS resultCode to RC.GetInteriorVehicleDataConsent
+-- SDL must:
+-- 1) Send OnRCStatus notification to RC applications by accepting RC.GetInteriorVehicleDataConsent
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

@@ -5,8 +5,13 @@
 -- Requirement summary:
 -- [SDL_RC] TBD
 --
--- Description: SDL shall send OnRCStatus notifications to rc registered app
--- by allocation module via SetInteriorVehicleData
+-- Description:
+-- In case:
+-- 1) RC app is registered
+-- 2) App allocates module
+-- 3) USER_EXIT is performed from HMI
+-- SDL must:
+-- 1) Send OnRCStatus notifications to RC app and to HMI by app deallocates module by performing USER_EXIT form HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
