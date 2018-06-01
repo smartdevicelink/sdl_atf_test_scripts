@@ -7,9 +7,9 @@
 --
 -- Description:
 -- In case:
--- 1) Not RC application is registered
+-- 1) Non-RC application is registered
 -- SDL must:
--- 1) Not send OnRCStatus notification to not RC registered application
+-- 1) Not send OnRCStatus notification to non-RC registered application
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
