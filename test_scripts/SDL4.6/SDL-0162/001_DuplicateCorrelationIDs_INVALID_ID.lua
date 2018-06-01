@@ -1,17 +1,24 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0147-template-color-scheme.md
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0162-define-handling-of-duplicate-correlation-ids.md
 --
 -- Description:
--- SDL Core should track the number of attempted SetDisplayLayout requests with the current template and REJECT 
--- any beyond the first with the reason "Using SetDisplayLayout to change the color scheme may only be done once.
--- However, The color scheme can be changed if the layout is also changed.
+-- SDL Core should reject any messages with the same correlation ID as a pending request while 
+-- still managing the original valid message.
 --
--- Preconditions: Send SetDisplayLayout with a layout and a color scheme.
+-- Preconditions: Register and activate app
 --
--- Steps: Send additional SetDisplayLayout with a different layout and a different color scheme.
+-- Steps:
+--   1. Send an Mobile RPC to Core which has a corresponding HMI RPC
+--   2. Send another Mobile RPC with the same correlation ID before a response is received from the
+--      HMI for the original message
 --
 -- Expected result: 
--- SDL Core returns SUCCESS
+-- SDL Core returns INVALID_ID for the second RPC
+--
+--   3. Send an HMI response to the first message
+--
+-- Expected result:
+-- SDL Core returns SUCCESS for the original RPC
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
