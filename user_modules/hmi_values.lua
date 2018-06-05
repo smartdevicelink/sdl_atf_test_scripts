@@ -382,12 +382,15 @@ function module.getDefaultHMITable()
                   "PARKING_LIGHTS", "BRAKE_LIGHTS", "REAR_REVERSING_LIGHTS", "SIDE_MARKER_LIGHTS", "LEFT_TURN_LIGHTS",
                   "RIGHT_TURN_LIGHTS", "HAZARD_LIGHTS", "AMBIENT_LIGHTS", "OVERHEAD_LIGHTS", "READING_LIGHTS",
                   "TRUNK_LIGHTS", "EXTERIOR_FRONT_LIGHTS", "EXTERIOR_REAR_LIGHTS", "EXTERIOR_LEFT_LIGHTS",
-                  "EXTERIOR_RIGHT_LIGHTS" }
+                  "EXTERIOR_RIGHT_LIGHTS", "REAR_CARGO_LIGHTS", "REAR_TRUCK_BED_LIGHTS", "REAR_TRAILER_LIGHTS",
+                  "LEFT_SPOT_LIGHTS", "RIGHT_SPOT_LIGHTS", "LEFT_PUDDLE_LIGHTS", "RIGHT_PUDDLE_LIGHTS",
+                  "EXTERIOR_ALL_LIGHTS" }
               local out = { }
               for _, name in pairs(lights) do
                 local item = {
                   name = name,
                   densityAvailable = true,
+                  statusAvailable = true,
                   sRGBColorSpaceAvailable = true
                 }
                 table.insert(out, item)
