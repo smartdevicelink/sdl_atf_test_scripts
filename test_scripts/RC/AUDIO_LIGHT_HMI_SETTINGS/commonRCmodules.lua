@@ -26,6 +26,21 @@ c.backupHMICapabilities = commonRC.backupHMICapabilities
 c.restoreHMICapabilities = commonRC.restoreHMICapabilities
 c.DEFAULT = commonRC.DEFAULT
 
+c.LightsNameList = { "FRONT_LEFT_HIGH_BEAM", "FRONT_RIGHT_HIGH_BEAM", "FRONT_LEFT_LOW_BEAM",
+  "FRONT_RIGHT_LOW_BEAM", "FRONT_LEFT_PARKING_LIGHT", "FRONT_RIGHT_PARKING_LIGHT",
+  "FRONT_LEFT_FOG_LIGHT", "FRONT_RIGHT_FOG_LIGHT", "FRONT_LEFT_DAYTIME_RUNNING_LIGHT",
+  "FRONT_RIGHT_DAYTIME_RUNNING_LIGHT", "FRONT_LEFT_TURN_LIGHT", "FRONT_RIGHT_TURN_LIGHT",
+  "REAR_LEFT_FOG_LIGHT", "REAR_RIGHT_FOG_LIGHT", "REAR_LEFT_TAIL_LIGHT", "REAR_RIGHT_TAIL_LIGHT",
+  "REAR_LEFT_BREAK_LIGHT", "REAR_RIGHT_BREAK_LIGHT", "REAR_LEFT_TURN_LIGHT", "REAR_RIGHT_TURN_LIGHT",
+  "REAR_REGISTRATION_PLATE_LIGHT", "HIGH_BEAMS", "LOW_BEAMS", "FOG_LIGHTS", "RUNNING_LIGHTS",
+  "PARKING_LIGHTS", "BRAKE_LIGHTS", "REAR_REVERSING_LIGHTS", "SIDE_MARKER_LIGHTS", "LEFT_TURN_LIGHTS",
+  "RIGHT_TURN_LIGHTS", "HAZARD_LIGHTS", "AMBIENT_LIGHTS", "OVERHEAD_LIGHTS", "READING_LIGHTS",
+  "TRUNK_LIGHTS", "EXTERIOR_FRONT_LIGHTS", "EXTERIOR_REAR_LIGHTS", "EXTERIOR_LEFT_LIGHTS",
+  "EXTERIOR_RIGHT_LIGHTS", "REAR_CARGO_LIGHTS", "REAR_TRUCK_BED_LIGHTS", "REAR_TRAILER_LIGHTS",
+  "LEFT_SPOT_LIGHTS", "RIGHT_SPOT_LIGHTS", "LEFT_PUDDLE_LIGHTS", "RIGHT_PUDDLE_LIGHTS",
+  "EXTERIOR_ALL_LIGHTS" }
+  c.readOnlyLightStatus = { "RAMP_UP", "RAMP_DOWN", "UNKNOWN", "INVALID" }
+
 function c.preconditions()
   commonRC.preconditions()
 end
@@ -620,6 +635,14 @@ function c.getModuleControlDataForResponse(pModuleType)
     moduleData.audioControlData.keepContext = nil
   end
   return moduleData
+end
+
+function c.rpcUnsuccessResultCode(pAppId, pRPC, pRequestParams, pResult)
+  local mobSession = c.getMobileSession(pAppId)
+  local cid = mobSession:SendRPC(c.getAppEventName(pRPC), pRequestParams)
+  EXPECT_HMICALL(c.getHMIEventName(pRPC))
+  :Times(0)
+  mobSession:ExpectResponse(cid, pResult)
 end
 
 return c
