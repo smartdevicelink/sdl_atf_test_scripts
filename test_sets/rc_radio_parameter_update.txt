@@ -1,0 +1,12 @@
+./test_scripts/RC/CLIMATE_RADIO/GetSystemCapability/001_Success_flow.lua
+./test_scripts/RC/CLIMATE_RADIO/GetInteriorVehicleData/001_Success_flow.lua
+./test_scripts/RC/CLIMATE_RADIO/OnInteriorVehicleData/001_Success_flow.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/001_Success_flow.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/016_UNSUPPORTED_RESOURCE_hdRadioEnableAvailable_false.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/017_UNSUPPORTED_RESOURCE_hdRadioEnableAvailable_omitted.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/018_Success_flow_band_setting.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/019_UNSUPPORTED_RESOURCE_siriusxmRadioAvailable_false.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/020_UNSUPPORTED_RESOURCE_siriusxmRadioAvailable_omitted.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/021_INVALID_DATA_in_case_invalid_data_in_hdRadioEnable.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/022_availableHDs_hdChannel_upper_bound.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/023_availableHDs_hdChannel_out_of_upper_bound.lua

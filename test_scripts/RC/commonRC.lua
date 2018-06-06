@@ -311,7 +311,8 @@ function commonRC.getModuleControlData(module_type)
       signalStrength = 5,
       signalChangeThreshold = 10,
       radioEnable = true,
-      state = "ACQUIRING"
+      state = "ACQUIRING",
+      hdRadioEnable = true
     }
   end
   return out
@@ -358,7 +359,8 @@ function commonRC.getAnotherModuleControlData(module_type)
       signalStrength = 5,
       signalChangeThreshold = 20,
       radioEnable = true,
-      state = "ACQUIRING"
+      state = "ACQUIRING",
+      hdRadioEnable = false
     }
   end
   return out
