@@ -1,6 +1,6 @@
 ./test_scripts/RC/OnRCStatus/001_notification_by_apps_registration.lua
 ./test_scripts/RC/OnRCStatus/002_notification_by_rc_functionality_disallowed_on_hmi.lua
-./test_scripts/RC/OnRCStatus/003_registration_not_rc_app.lua
+./test_scripts/RC/OnRCStatus/003_registration_non_rc_app.lua
 ./test_scripts/RC/OnRCStatus/004_notification_by_module_subscription_GetInteriorVehicleData.lua
 ./test_scripts/RC/OnRCStatus/005_notification_by_module_allocation_ButtonPress.lua
 ./test_scripts/RC/OnRCStatus/006_notification_by_module_allocation_SetInteriorVehicleData.lua
