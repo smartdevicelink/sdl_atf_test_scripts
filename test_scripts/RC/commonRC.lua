@@ -17,6 +17,7 @@ local mobile_session = require("mobile_session")
 local json = require("modules/json")
 local hmi_values = require("user_modules/hmi_values")
 local events = require("events")
+local utils = require('user_modules/utils')
 
 --[[ Local Variables ]]
 local ptu_table = {}
@@ -39,20 +40,28 @@ local function getPTUFromPTS(tbl)
   tbl.policy_table.module_config.preloaded_date = nil
 end
 
-function commonRC.getRCAppConfig()
-  return {
-    keep_context = false,
-    steal_focus = false,
-    priority = "NONE",
-    default_hmi = "NONE",
-    moduleType = { "RADIO", "CLIMATE" },
-    groups = { "Base-4", "RemoteControl" },
-    AppHMIType = { "REMOTE_CONTROL" }
-  }
+function commonRC.getRCAppConfig(tbl)
+  if tbl then
+    local out = utils.cloneTable(tbl.policy_table.app_policies.default)
+    out.moduleType = { "RADIO", "CLIMATE" }
+    out.groups = { "Base-4", "RemoteControl" }
+    out.AppHMIType = { "REMOTE_CONTROL" }
+    return out
+  else
+    return {
+      keep_context = false,
+      steal_focus = false,
+      priority = "NONE",
+      default_hmi = "NONE",
+      moduleType = { "RADIO", "CLIMATE" },
+      groups = { "Base-4", "RemoteControl" },
+      AppHMIType = { "REMOTE_CONTROL" }
+    }
+  end
 end
 
 local function updatePTU(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig(tbl)
 end
 
 function commonRC.jsonFileToTable(file_name)

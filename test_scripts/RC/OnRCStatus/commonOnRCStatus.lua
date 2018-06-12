@@ -35,7 +35,7 @@ local function updatePreloadedPT(pCountOfRCApps)
   }
   for i = 1, pCountOfRCApps do
     local appId = config["application" .. i].registerAppInterfaceParams.appID
-    preloadedTable.policy_table.app_policies[appId] = commonRC.getRCAppConfig()
+    preloadedTable.policy_table.app_policies[appId] = commonRC.getRCAppConfig(preloadedTable)
     preloadedTable.policy_table.app_policies[appId].AppHMIType = nil
   end
   commonRC.tableToJsonFile(preloadedTable, preloadedFile)

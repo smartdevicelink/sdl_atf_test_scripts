@@ -26,10 +26,10 @@ config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 --[[ Local Functions ]]
 local function pTUfunc(tbl)
   local appId1 = config.application1.registerAppInterfaceParams.appID
-  tbl.policy_table.app_policies[appId1] = common.getRCAppConfig()
+  tbl.policy_table.app_policies[appId1] = common.getRCAppConfig(tbl)
   tbl.policy_table.app_policies[appId1].moduleType = { "RADIO" }
   local appId2 = config.application2.registerAppInterfaceParams.appID
-  tbl.policy_table.app_policies[appId2] = common.getRCAppConfig()
+  tbl.policy_table.app_policies[appId2] = common.getRCAppConfig(tbl)
 end
 
 local function alocateModule(pModuleType)
