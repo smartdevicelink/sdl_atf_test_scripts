@@ -184,6 +184,7 @@ end
 
 --[[ @removeSnapshotAndTriggerPTUFromHMI: Remove snapshot and trigger PTU from HMI for creation new snapshot,
 --! check absence of unknown parameters in snapshot
+--! invalid PTU after cutting of unknown values
 --! @parameters:
 --! self - test object
 --! @return: none
@@ -210,9 +211,8 @@ local function removeSnapshotAndTriggerPTUFromHMI(self)
     end)
   -- Sending OnPolicyUpdate notification form HMI
   self.hmiConnection:SendNotification("SDL.OnPolicyUpdate", { })
-  -- Expect OnStatusUpdate notifications on HMI side
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
-  :Times(2)
+  -- PTU with invalid PT after cutting of unknown values
+  commonDefects.unsuccessfulPTU(ptuUpdateFuncNotValid, self)
 end
 
 --[[ @DisallowedRPC: Unsuccessful processing of API with Disallowed status
@@ -248,8 +248,8 @@ runner.Step("Check applying of PT by processing GetVehicleData", SuccessfulProce
 runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC,
   { "SubscribeVehicleData", { gps = true }, "VehicleInfo" })
 
-runner.Step("Remove Snapshot and trigger PTU, check new created PTS", removeSnapshotAndTriggerPTUFromHMI)
-runner.Step("Invalid_PTU_after_cutting_of_unknown_values", commonDefects.unsuccessfulPTU, { ptuUpdateFuncNotValid })
+runner.Step("Remove Snapshot, created new PTS, invalid PTU after cutting of unknown values",
+  removeSnapshotAndTriggerPTUFromHMI)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonDefects.postconditions)
