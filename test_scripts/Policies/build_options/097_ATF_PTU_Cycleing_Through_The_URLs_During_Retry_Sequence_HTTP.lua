@@ -22,9 +22,29 @@
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require("user_modules/utils")
+local actions = require("user_modules/sequences/actions")
+local json = require("modules/json")
 
---[[ Local Variables ]]
-local ptu_file = "files/jsons/Policies/build_options/ptu_18269.json"
+local ptu_table = utils.jsonFileToTable(commonPreconditions:GetPathToSDL() .. "sdl_preloaded_pt.json")
+ptu_table.policy_table.module_config.preloaded_pt = nil
+ptu_table.policy_table.consumer_friendly_messages = nil
+ptu_table.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+ptu_table.policy_table.module_config.preloaded_date = nil
+ptu_table.policy_table.module_config.timeout_after_x_seconds = 10
+ptu_table.policy_table.module_config.seconds_between_retries = { 1, 5, 10, 15, 20 }
+ptu_table.policy_table.module_config.endpoints["0x07"] = {
+  default = { "http://policies.telematics.ford.com/api/policies" },
+  [actions.getConfigAppParams(1).appID] = {
+    "http://policies.domain1.ford.com/api/policies",
+    "http://policies.domain2.ford.com/api/policies",
+    "http://policies.domain3.ford.com/api/policies"
+  }
+}
+
+local ptu_file = os.tmpname()
+utils.tableToJsonFile(ptu_table, ptu_file)
 local sequence = { }
 local attempts = 16
 local r_expected = {
@@ -74,11 +94,18 @@ commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Update_LPT()
   local policy_file_name = "PolicyTableUpdate"
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
   local corId = self.mobileSession:SendRPC("SystemRequest", { requestType = "HTTP", fileName = policy_file_name }, ptu_file)
   EXPECT_RESPONSE(corId, { success = true, resultCode = "SUCCESS" })
 end
 
---[[ Test ]]
+function Test:ActivateApp()
+  local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
+  EXPECT_HMIRESPONSE(RequestId)
+  EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
+end
+
+-- [[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:StartNewMobileSession()
@@ -122,11 +149,6 @@ function Test.ShowSequence()
   end
   print("--------------------------------------------------")
 end
-
--- function Test.print()
---   print_table(r_expected)
---   print_table(r_actual)
--- end
 
 for i = 1, 4 do
   Test["ValidateResult" .. i] = function(self)
