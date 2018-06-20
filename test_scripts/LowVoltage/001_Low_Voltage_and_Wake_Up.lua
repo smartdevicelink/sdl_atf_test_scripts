@@ -7,8 +7,8 @@
 -- App3 is in BACKGROUND
 -- App4 is in NONE
 -- 3) All apps have some data that can be resumed
--- 4) SDL get LOW_VOLTAGE signal via mqueue
--- 5) And then SDL get WAKE_UP signal via mqueue
+-- 4) SDL get LOW_VOLTAGE signal
+-- 5) And then SDL get WAKE_UP signal
 -- 6) All apps are registered with the same hashID
 -- SDL does:
 -- 1) after 4th step:
@@ -107,11 +107,11 @@ end
 
 runner.Title("Test")
 runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
-runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
+runner.Step("Send LOW_VOLTAGE signal", common.sendLowVoltageSignal)
 runner.Step("Check SDL Ignores RPCs from Mobile side", checkSDLIgnoresRPCFromMobileSide)
 runner.Step("Check SDL Ignores RPCs from HMI side", checkSDLIgnoresRPCFromHMISide)
 runner.Step("Close mobile connection", common.cleanSessions)
-runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
+runner.Step("Send WAKE_UP signal", common.sendWakeUpSignal)
 runner.Step("Re-connect Mobile", common.connectMobile)
 for i = 1, numOfApps do
   runner.Step("Re-register App " .. i .. ", check resumption data and HMI level", common.reRegisterApp, {

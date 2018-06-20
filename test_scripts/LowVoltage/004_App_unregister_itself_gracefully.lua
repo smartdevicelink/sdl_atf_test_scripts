@@ -50,9 +50,9 @@ runner.Step("Add resumption data for App", addResumptionData)
 runner.Title("Test")
 runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
 runner.Step("Unregister App", common.unregisterApp)
-runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
+runner.Step("Send LOW_VOLTAGE signal", common.sendLowVoltageSignal)
 runner.Step("Close mobile connection", common.cleanSessions)
-runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
+runner.Step("Send WAKE_UP signal", common.sendWakeUpSignal)
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check no resumption of Data and no resumption of HMI level", common.reRegisterApp, {
   1, checkAppId, checkResumptionData, checkResumptionHMILevel, "RESUME_FAILED", 5000

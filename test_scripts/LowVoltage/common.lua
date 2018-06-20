@@ -12,7 +12,6 @@ local test = require('user_modules/dummy_connecttest')
 local expectations = require('expectations')
 local Expectation = expectations.Expectation
 local SDL = require('SDL')
-local mq = require('mq')
 local utils = require("user_modules/utils")
 local actions = require("user_modules/sequences/actions")
 
@@ -29,9 +28,15 @@ m.appParams = {
   [3] = { appHMIType = "DEFAULT", isMediaApplication = false },
   [4] = { appHMIType = "DEFAULT", isMediaApplication = false }
 }
-m.sdlMQ = "SDLMQ"
+
 m.rpcSend = {}
 m.rpcCheck = {}
+
+m.signal = {
+  LOW_VOLTAGE = 35,
+  WAKE_UP = 36,
+  IGNITION_OFF = 37
+}
 
 for i = 1, 4 do
   config["application" .. i].registerAppInterfaceParams.appHMIType = { m.appParams[i].appHMIType }
@@ -163,89 +168,15 @@ function m.unregisterApp(pAppId)
   })
 end
 
---[[ @createMQ: create SDL MQ
---! @parameters: none
---! @return: none
---]]
-function m.createMQ()
-  local queue = mq.create("/" .. m.sdlMQ, "rw", "rw-rw----")
-  if queue == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be created")
-    return
-  else
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' created successfully")
-  end
-end
-
---[[ @sendMQSignal: send MQ signal
+--[[ @sendSignal: send signal
 --! @parameters:
 --! pSignal - signal
 --! @return: none
 --]]
-function m.sendMQSignal(pSignal)
-  local queue = mq.open("/" .. m.sdlMQ, "rw")
-  if queue == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be opened")
-    return
-  else
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' opened successfully")
-  end
-  local result = mq.send(queue, pSignal)
-  if result == nil then
-    utils.cprint(35, "Signal '" .. pSignal .. "' was not sent")
-    return
-  else
-    utils.cprint(35, "Signal '" .. pSignal .. "' was sent successfully")
-  end
-  result = mq.close(queue)
-  if result == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be closed")
-    return
-  else
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' closed successfully")
-  end
-end
-
---[[ @deleteMQ: delete SDL MQ
---! @parameters: none
---! @return: none
---]]
-function m.deleteMQ()
-  local result = mq.unlink("/" .. m.sdlMQ)
-  if result == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be deleted")
-    return
-  else
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' deleted successfully")
-  end
-end
-
---[[ @receiveMQSignal: receive MQ signal
---! @parameters: none
---! @return: none
---]]
-function m.receiveMQSignal()
-  local queue = mq.open("/" .. m.sdlMQ, "rw")
-  if queue == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be opened")
-    return
-  else
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' opened successfully")
-  end
-  local msg = mq.receive(queue)
-  if msg == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be read")
-    return
-  else
-    utils.cprint(35, "Signal '" .. msg .. "' received successfully")
-  end
-  local result = mq.close(queue)
-  if result == nil then
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' can't be closed")
-    return
-  else
-    utils.cprint(35, "Queue '" .. m.sdlMQ .. "' closed successfully")
-  end
+function m.sendSignal(pSignal)
+  local cmd = "ps -ef | grep smartDeviceLinkCore | grep -v grep | awk '{print $2}' | xargs kill -" .. m.signal[pSignal]
+  utils.cprint(35, "Sending signal '" .. pSignal .. "'")
+  execCMD(cmd)
 end
 
 --[[ @connectMobile: connect mobile device
@@ -280,12 +211,6 @@ function m.reRegisterApp(pAppId, pCheckAppId, pCheckResumptionData, pCheckResump
       m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered", {
         application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName }
       })
-      :Do(function()
-          m.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate")
-          :Times(0)
-          m.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-          :Times(0)
-        end)
       :ValidIf(function(_, data)
           return pCheckAppId(pAppId, data)
         end)
@@ -317,21 +242,21 @@ local function waitUntilSDLLoggerIsClosed()
   os.execute("sleep 1")
 end
 
---[[ @sendMQLowVoltageSignal: send 'SDL_LOW_VOLTAGE' signal to SDL MQ
+--[[ @sendLowVoltageSignal: send 'SDL_LOW_VOLTAGE' signal
 --! @parameters: none
 --! @return: none
 --]]
-function m.sendMQLowVoltageSignal()
-  m.sendMQSignal("LOW_VOLTAGE")
+function m.sendLowVoltageSignal()
+  m.sendSignal("LOW_VOLTAGE")
 end
 
---[[ @sendMQIgnitionOffSignal: send 'IGNITION_OFF' signal to SDL MQ
+--[[ @sendIgnitionOffSignal: send 'IGNITION_OFF' signal
 --! @parameters: none
 --! @return: none
 --]]
-function m.sendMQIgnitionOffSignal()
+function m.sendIgnitionOffSignal()
   SDL:DeleteFile()
-  m.sendMQSignal("IGNITION_OFF")
+  m.sendSignal("IGNITION_OFF")
   local function toRun()
     SDL:StopSDL()
     waitUntilSDLLoggerIsClosed()
@@ -340,12 +265,12 @@ function m.sendMQIgnitionOffSignal()
   utils.wait()
 end
 
---[[ @sendMQWakeUpSignal: send 'WAKE_UP' signal to SDL MQ
+--[[ @sendWakeUpSignal: send 'WAKE_UP' signal
 --! @parameters: none
 --! @return: none
 --]]
-function m.sendMQWakeUpSignal()
-  m.sendMQSignal("WAKE_UP")
+function m.sendWakeUpSignal()
+  m.sendSignal("WAKE_UP")
   utils.wait()
 end
 

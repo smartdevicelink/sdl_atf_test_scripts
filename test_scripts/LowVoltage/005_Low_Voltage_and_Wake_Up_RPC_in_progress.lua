@@ -2,8 +2,8 @@
 -- In case:
 -- 1) SDL is started (there was no LOW_VOLTAGE signal sent)
 -- 2) SDL is in progress of processing some RPC
--- 3) SDL get LOW_VOLTAGE signal via mqueue
--- 4) And then SDL get WAKE_UP signal via mqueue
+-- 3) SDL get LOW_VOLTAGE signal
+-- 4) And then SDL get WAKE_UP signal
 -- SDL does:
 -- 1) Resume it’s work successfully (as for Resumption)
 -- 2) Discard processing of RPC
@@ -62,9 +62,9 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("RPC Show partially", processRPCPartially)
-runner.Step("Send LOW_VOLTAGE signal", common.sendMQLowVoltageSignal)
+runner.Step("Send LOW_VOLTAGE signal", common.sendLowVoltageSignal)
 runner.Step("Close mobile connection", common.cleanSessions)
-runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
+runner.Step("Send WAKE_UP signal", common.sendWakeUpSignal)
 runner.Step("Re-connect Mobile", common.connectMobile)
 runner.Step("Re-register App, check resumption data and HMI level", common.reRegisterApp, {
   1, checkAppId, checkResumptionData, checkResumptionHMILevel, "SUCCESS", 11000

@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- In case:
 -- 1) SDL is started (there was no LOW_VOLTAGE signal sent)
--- 2) SDL get IGNITION_OFF or WAKE_UP signal via mqueue
+-- 2) SDL get IGNITION_OFF or WAKE_UP signal
 -- SDL does:
 -- 1) Ignore signal WAKE_UP and continue working as usual
 -- 2) Process IGNITION_OFF signal and shut down successfully
@@ -33,9 +33,9 @@ runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Send WAKE_UP signal", common.sendMQWakeUpSignal)
+runner.Step("Send WAKE_UP signal", common.sendWakeUpSignal)
 runner.Step("AddCommand success", processAddCommandSuccessfully)
-runner.Step("Send IGNITION_OFF signal", common.sendMQIgnitionOffSignal)
+runner.Step("Send IGNITION_OFF signal", common.sendIgnitionOffSignal)
 runner.Step("Check SDL stopped", common.isSDLStopped)
 
 runner.Title("Postconditions")
