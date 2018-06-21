@@ -11,7 +11,7 @@
 -- 2) HMI sends light_value without statusAvailable in capabilities
 -- 3) Application requests SetInteriorVehicleData RPC with light_value
 -- SDL must:
--- 1) respond with result code UNSUPPORTED_RESOURCE, and info="The requested LightName is not supported by the vehicle."
+-- 1) respond with result code UNSUPPORTED_RESOURCE, and info="The requested parameter of the given LightName is not supported by the vehicle."
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -31,8 +31,7 @@ local function removeLightValueFromCapabilities()
   local hmiValues = hmi_values.getDefaultHMITable()
   for key, value in pairs (hmiValues.RC.GetCapabilities.params.remoteControlCapability.lightControlCapabilities.supportedLights) do
     if value.name == lightName then
-      table.remove(hmiValues.RC.GetCapabilities.params.remoteControlCapability.lightControlCapabilities.supportedLights,
-        key)
+      hmiValues.RC.GetCapabilities.params.remoteControlCapability.lightControlCapabilities.supportedLights[key].statusAvailable = nil
      end
   end
   return hmiValues
@@ -56,7 +55,7 @@ local function setInteriorVDunsupportedResource(pSupportedParam)
   local result = {
     success = false,
     resultCode = "UNSUPPORTED_RESOURCE",
-    info = "The requested LightName is not supported by the vehicle."
+    info = "The requested parameter of the given LightName is not supported by the vehicle."
   }
   common.rpcUnsuccessResultCode(1, "SetInteriorVehicleData", requestParams, result )
 end
