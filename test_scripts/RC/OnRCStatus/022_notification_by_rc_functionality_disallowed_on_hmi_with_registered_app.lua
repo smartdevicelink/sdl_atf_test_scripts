@@ -7,9 +7,12 @@
 --
 -- Description:
 -- In case:
--- 1) Non-RC application is registered
+-- 1) RC functionality is allowed on HMI
+-- 2) RC application is registered
+-- 3) RC functionality is disallowed on HMI
 -- SDL must:
--- 1) Not send OnRCStatus notification to non-RC registered application
+-- 1) Send OnRCStatus notification with allowed = false to registered mobile application and
+-- not send to the HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -18,14 +21,11 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ General configuration parameters ]]
-config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
-
 --[[ Local Functions ]]
-local function registerNonRCApp()
-  common.rai_n()
-  common.getMobileSession():ExpectNotification("OnRCStatus")
-  :Times(0)
+local function disableRCFromHMI()
+  common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
+  common.getMobileSession():ExpectNotification("OnRCStatus",
+	{ allowed = false, freeModules = {}, allocatedModules = {} })
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
   :Times(0)
 end
@@ -34,9 +34,10 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("OnRCStatus notification by app registration", common.registerRCApplication, { 1 , true })
 
 runner.Title("Test")
-runner.Step("Registration non-RC application", registerNonRCApp)
+runner.Step("RC functionality is disallowed from HMI", disableRCFromHMI)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

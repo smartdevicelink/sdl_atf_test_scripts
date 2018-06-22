@@ -97,17 +97,27 @@ function m.getHMIAppIdsRC()
   return out
 end
 
-function m.registerRCApplication(pAppId)
+function m.registerRCApplication(pAppId, pAllowed)
   if not pAppId then pAppId = 1 end
-  local pModuleStatus = {
-    freeModules = m.getModulesArray(m.getAllModules()),
+  if pAllowed == nil then pAllowed = true end
+  local freeModulesArray = {}
+  if true == pAllowed then
+    freeModulesArray = m.getModulesArray(m.getAllModules())
+  end
+  local pModuleStatusForApp = {
+    freeModules = freeModulesArray,
+    allocatedModules = { },
+    allowed = pAllowed
+  }
+  local pModuleStatusForHMI = {
+    freeModules = freeModulesArray,
     allocatedModules = { }
   }
   commonRC.rai_n(pAppId, test)
   for i = 1, pAppId do
-    m.validateOnRCStatusForApp(i, pModuleStatus)
+    m.validateOnRCStatusForApp(i, pModuleStatusForApp, pAllowed)
   end
-  m.validateOnRCStatusForHMI(pAppId, { pModuleStatus })
+  m.validateOnRCStatusForHMI(pAppId, { pModuleStatusForHMI })
 end
 
 function m.raiPTU_n(ptu_update_func, pAppId)
@@ -245,7 +255,8 @@ function m.sortModules(pModulesArray)
   table.sort(pModulesArray, f)
 end
 
-function m.validateOnRCStatusForApp(pAppId, pExpData)
+function m.validateOnRCStatusForApp(pAppId, pExpData, isAllowedExpected)
+  if isAllowedExpected == nil then isAllowedExpected = false end
   m.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
   :ValidIf(function(_, d)
       m.sortModules(pExpData.freeModules)
@@ -254,6 +265,13 @@ function m.validateOnRCStatusForApp(pAppId, pExpData)
       m.sortModules(d.payload.allocatedModules)
       return compareValues(pExpData, d.payload, "payload")
     end)
+  :ValidIf(function(_, d)
+    if d.payload.allowed ~= nil and
+       isAllowedExpected == false then
+      return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
+    end
+    return true
+  end)
 end
 
 function m.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
@@ -278,6 +296,12 @@ function m.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
         return compareValues(pExpData[AnotherApp], d.params, "params")
       end
     end)
+  :ValidIf(function(_, d)
+    if d.params.allowed ~= nil then
+      return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
+    end
+    return true
+  end)
   :ValidIf(function(e, d)
       if e.occurences == 1 then
         usedHmiAppIds = {}

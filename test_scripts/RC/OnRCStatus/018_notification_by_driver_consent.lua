@@ -52,7 +52,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Set AccessMode ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
 runner.Step("Register RC application 1", common.registerRCApplication, { 1 })
 runner.Step("Activate App 1", common.activateApp, { 1 })
-runner.Step("Register RC application 1", common.registerRCApplication, { 2 })
+runner.Step("Register RC application 2", common.registerRCApplication, { 2 })
 runner.Step("Activate App 2", common.activateApp, { 2 })
 
 runner.Title("Test")
