@@ -24,7 +24,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local freeModules = common.getAllModules()
 local allocatedModules = {
-	[1] = {}
+  [1] = {}
 }
 
 --[[ General configuration parameters ]]
@@ -32,12 +32,12 @@ config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Functions ]]
 local function alocateModule(pModuleType)
-	local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
-	common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.validateOnRCStatusForApp(1, pModuleStatus)
-	common.validateOnRCStatusForHMI(1, { pModuleStatus })
-	common.getMobileSession(2):ExpectNotification("OnRCStatus")
-	:Times(0)
+  local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
+  common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
+  common.validateOnRCStatusForApp(1, pModuleStatus)
+  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.getMobileSession(2):ExpectNotification("OnRCStatus")
+  :Times(0)
 end
 
 --[[ Scenario ]]
@@ -50,7 +50,7 @@ runner.Step("Register non-RC application 2", common.rai_n, { 2 })
 
 runner.Title("Test")
 for _, mod in pairs(common.getModules()) do
-	runner.Step("Allocation of module " .. mod, alocateModule, { mod })
+  runner.Step("Allocation of module " .. mod, alocateModule, { mod })
 end
 
 runner.Title("Postconditions")
