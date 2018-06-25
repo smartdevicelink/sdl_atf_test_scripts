@@ -11,7 +11,8 @@
 -- 2) RC application is registered
 -- 3) RC functionality is allowed on HMI
 -- SDL must:
--- 1) Send OnRCStatus notification with allowed = true to registered mobile application and the HMI
+-- 1) Send OnRCStatus notification with allowed = true to registered mobile application and
+-- not send to the HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -36,7 +37,7 @@ local function registerRCAppRCDisallowed()
   }
 
   commonRC.rai_n(1, test)
-  common.validateOnRCStatusForApp(1, pModuleStatusForApp, false)
+  common.validateOnRCStatusForApp(1, pModuleStatusForApp, true)
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
   :Times(0)
 end
@@ -48,7 +49,7 @@ local function enableRCFromHMI()
     allowed = true
   }
   common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
-  common.validateOnRCStatusForApp(1, pModuleStatus)
+  common.validateOnRCStatusForApp(1, pModuleStatus, true)
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
   :Times(0)
 end

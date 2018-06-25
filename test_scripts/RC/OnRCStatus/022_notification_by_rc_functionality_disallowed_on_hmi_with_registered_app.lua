@@ -11,7 +11,8 @@
 -- 2) RC application is registered
 -- 3) RC functionality is disallowed on HMI
 -- SDL must:
--- 1) Send OnRCStatus notification with allowed = false to registered mobile application and the HMI
+-- 1) Send OnRCStatus notification with allowed = false to registered mobile application and
+-- not send to the HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

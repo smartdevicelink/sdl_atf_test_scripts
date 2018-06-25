@@ -255,7 +255,8 @@ function m.sortModules(pModulesArray)
   table.sort(pModulesArray, f)
 end
 
-function m.validateOnRCStatusForApp(pAppId, pExpData, pAllowed)
+function m.validateOnRCStatusForApp(pAppId, pExpData, isAllowedExpected)
+  if isAllowedExpected == nil then isAllowedExpected = false end
   m.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
   :ValidIf(function(_, d)
       m.sortModules(pExpData.freeModules)
@@ -265,7 +266,8 @@ function m.validateOnRCStatusForApp(pAppId, pExpData, pAllowed)
       return compareValues(pExpData, d.payload, "payload")
     end)
   :ValidIf(function(_, d)
-    if d.payload.allowed and false == pAllowed then
+    if d.payload.allowed ~= nil and
+       isAllowedExpected == false then
       return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
     end
     return true
@@ -295,7 +297,7 @@ function m.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
       end
     end)
   :ValidIf(function(_, d)
-    if d.params.allowed then
+    if d.params.allowed ~= nil then
       return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
     end
     return true
