@@ -52,6 +52,13 @@ local function checkAppId(pAppId, pData)
   return true
 end
 
+local function sendIgnitionOffSignal()
+  common.getMobileSession():ExpectAny():Times(0)
+  common.getHMIConnection():ExpectAny():Times(0)
+  common.sendIgnitionOffSignal()
+  common.wait(2000)
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -70,7 +77,7 @@ runner.Title("Test")
 runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
 runner.Step("Send LOW_VOLTAGE signal", common.sendLowVoltageSignal)
 runner.Step("Close mobile connection", common.cleanSessions)
-runner.Step("Send IGNITION_OFF signal", common.sendIgnitionOffSignal)
+runner.Step("Send IGNITION_OFF signal", sendIgnitionOffSignal)
 runner.Step("Ignition On", common.start)
 for i = 1, numOfApps do
   runner.Step("Re-register App " .. i .. ", check resumption data and HMI level", common.reRegisterApp, {
