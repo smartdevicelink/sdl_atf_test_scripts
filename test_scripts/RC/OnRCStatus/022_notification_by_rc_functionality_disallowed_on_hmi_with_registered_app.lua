@@ -30,7 +30,11 @@ local function disableRCFromHMI()
   common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
   common.getMobileSession(1):ExpectNotification("OnRCStatus",
 	{ allowed = false, freeModules = {}, allocatedModules = {} })
-  EXPECT_HMINOTIFICATION("RC.OnRCStatus", {allocatedModules = {}, freeModules = common.getAllModules()})
+  local pModuleStatusHMI = {
+    freeModules = common.getModulesArray(common.getAllModules()),
+    allocatedModules = { }
+  }
+  common.validateOnRCStatusForHMI(1, { pModuleStatusHMI })
   common.getMobileSession(2):ExpectNotification("OnRCStatus")
   :Times(0)
 end

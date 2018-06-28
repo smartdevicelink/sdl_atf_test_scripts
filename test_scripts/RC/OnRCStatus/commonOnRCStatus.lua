@@ -97,10 +97,9 @@ function m.getHMIAppIdsRC()
   return out
 end
 
-function m.registerRCApplication(pAppId, pAllowed, pCountOfRCApps)
+function m.registerRCApplication(pAppId, pAllowed)
   if not pAppId then pAppId = 1 end
   if pAllowed == nil then pAllowed = true end
-  if not pCountOfRCApps then pCountOfRCApps = pAppId end
   local freeModulesArray = {}
   if true == pAllowed then
     freeModulesArray = m.getModulesArray(m.getAllModules())
@@ -110,15 +109,10 @@ function m.registerRCApplication(pAppId, pAllowed, pCountOfRCApps)
     allocatedModules = { },
     allowed = pAllowed
   }
-  local pModuleStatusForHMI = {
-    freeModules = freeModulesArray,
-    allocatedModules = { }
-  }
   commonRC.rai_n(pAppId, test)
-  for i = 1, pAppId do
-    m.validateOnRCStatusForApp(i, pModuleStatusForApp, pAllowed)
-  end
-  m.validateOnRCStatusForHMI(pCountOfRCApps, { pModuleStatusForHMI })
+  m.validateOnRCStatusForApp(pAppId, pModuleStatusForApp, pAllowed)
+  EXPECT_HMICALL("RC.OnRCStatus")
+  :Times(0)
 end
 
 function m.raiPTU_n(ptu_update_func, pAppId)

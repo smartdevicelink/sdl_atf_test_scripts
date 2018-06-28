@@ -24,15 +24,15 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
-config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
-config.application3.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
+config.application2.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
+config.application3.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 -- [[ Local Functions]]
 local function registerRCapp()
-	common.registerRCApplication(3, true, 2)
+	common.registerRCApplication(2)
 	common.getMobileSession(1):ExpectNotification("OnRCStatus")
 	:Times(0)
-	common.getMobileSession(2):ExpectNotification("OnRCStatus")
+	common.getMobileSession(3):ExpectNotification("OnRCStatus")
 	:Times(0)
 end
 
@@ -43,7 +43,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
 runner.Step("RC app1 registration", common.registerRCApplication, { 1 })
-runner.Step("Non-RC app2 registration", common.registerNonRCApp, { 2 })
+runner.Step("Non-RC app2 registration", common.registerNonRCApp, { 3 })
 runner.Step("RC app3 registration", registerRCapp)
 
 runner.Title("Postconditions")

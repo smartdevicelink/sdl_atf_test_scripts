@@ -54,11 +54,8 @@ local function registerApp()
   common.raiPTU_n(pTUfunc, 1)
   common.getMobileSession(1):ExpectNotification("OnRCStatus")
   :Times(0)
-  local pModuleStatus = {
-	  freeModules = common.getModulesArray(freeModules),
-	  allocatedModules = common.getModulesArray(allocatedModules[1])
-  }
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  EXPECT_HMICALL("RC.OnRCStatus")
+  :Times(0)
 end
 
 --[[ Scenario ]]

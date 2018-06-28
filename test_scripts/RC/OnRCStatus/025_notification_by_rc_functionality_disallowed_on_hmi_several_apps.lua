@@ -24,8 +24,8 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
-config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
-config.application3.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
+config.application2.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
+config.application3.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 -- [[ Local Functions]]
 local function registerAppOnRCStatusAllowFalse(pAppId)
@@ -37,10 +37,10 @@ local function registerAppOnRCStatusAllowFalse(pAppId)
 end
 
 local function registerRCapp()
-	registerAppOnRCStatusAllowFalse(3)
+	registerAppOnRCStatusAllowFalse(2)
 	common.getMobileSession(1):ExpectNotification("OnRCStatus")
 	:Times(0)
-	common.getMobileSession(2):ExpectNotification("OnRCStatus")
+	common.getMobileSession(3):ExpectNotification("OnRCStatus")
 	:Times(0)
 end
 
@@ -55,7 +55,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RC functionality is disallowed from HMI", disableRCFromHMI)
 runner.Step("RC app1 registration", registerAppOnRCStatusAllowFalse, { 1 })
-runner.Step("Non-RC app2 registration", common.registerNonRCApp, { 2 })
+runner.Step("Non-RC app2 registration", common.registerNonRCApp, { 3 })
 
 runner.Title("Test")
 runner.Step("Register RC app3 with OnRCStatus(allowed=false)", registerRCapp)

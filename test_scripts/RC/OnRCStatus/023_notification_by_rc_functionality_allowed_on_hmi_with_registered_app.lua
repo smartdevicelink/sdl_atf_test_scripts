@@ -52,9 +52,13 @@ local function enableRCFromHMI()
     allocatedModules = { },
     allowed = true
   }
+  local pModuleStatusHMI = {
+    freeModules = common.getModulesArray(common.getAllModules()),
+    allocatedModules = { }
+  }
   common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
   common.validateOnRCStatusForApp(1, pModuleStatus, true)
-  EXPECT_HMINOTIFICATION("RC.OnRCStatus", {allocatedModules = {}, freeModules = common.getAllModules()})
+  common.validateOnRCStatusForHMI(1, { pModuleStatusHMI })
   common.getMobileSession(2):ExpectNotification("OnRCStatus")
   :Times(0)
 end
