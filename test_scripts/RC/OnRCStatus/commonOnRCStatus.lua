@@ -97,9 +97,10 @@ function m.getHMIAppIdsRC()
   return out
 end
 
-function m.registerRCApplication(pAppId, pAllowed)
+function m.registerRCApplication(pAppId, pAllowed, pCountOfRCApps)
   if not pAppId then pAppId = 1 end
   if pAllowed == nil then pAllowed = true end
+  if not pCountOfRCApps then pCountOfRCApps = pAppId end
   local freeModulesArray = {}
   if true == pAllowed then
     freeModulesArray = m.getModulesArray(m.getAllModules())
@@ -117,7 +118,7 @@ function m.registerRCApplication(pAppId, pAllowed)
   for i = 1, pAppId do
     m.validateOnRCStatusForApp(i, pModuleStatusForApp, pAllowed)
   end
-  m.validateOnRCStatusForHMI(pAppId, { pModuleStatusForHMI })
+  m.validateOnRCStatusForHMI(pCountOfRCApps, { pModuleStatusForHMI })
 end
 
 function m.raiPTU_n(ptu_update_func, pAppId)
@@ -328,5 +329,13 @@ function m.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
 end
 
 m.wait = utils.wait
+
+function m.registerNonRCApp(pAppId)
+  m.rai_n(pAppId)
+  m.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
+  :Times(0)
+  EXPECT_HMINOTIFICATION("RC.OnRCStatus")
+  :Times(0)
+end
 
 return m

@@ -8,11 +8,13 @@
 -- Description:
 -- In case:
 -- 1) RC functionality is disallowed on HMI
--- 2) RC application is registered
--- 3) RC functionality is allowed on HMI
+-- 2) RC app1 is registered
+-- 3) Non-RC app2 is registered
+-- 4) RC functionality is allowed on HMI
 -- SDL must:
--- 1) Send OnRCStatus notification with allowed = true to registered mobile application and
--- not send to the HMI
+-- 1) send an OnRCStatus notification to the HMI (allocatedModules=[], freeModules=[x,y,z])
+-- 2) send OnRCStatus notifications to the already registered RC apps (allowed=true, allocatedModules=[], freeModules=[x,y,z])
+-- 3) not send OnRCStatus notifications to the already registered non-RC apps
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -22,6 +24,8 @@ local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
+config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Functions ]]
 local function disableRCFromHMI()
@@ -50,7 +54,8 @@ local function enableRCFromHMI()
   }
   common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
   common.validateOnRCStatusForApp(1, pModuleStatus, true)
-  EXPECT_HMINOTIFICATION("RC.OnRCStatus")
+  EXPECT_HMINOTIFICATION("RC.OnRCStatus", {allocatedModules = {}, freeModules = common.getAllModules()})
+  common.getMobileSession(2):ExpectNotification("OnRCStatus")
   :Times(0)
 end
 
@@ -60,6 +65,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RC functionality is disallowed from HMI", disableRCFromHMI)
 runner.Step("RC app registration", registerRCAppRCDisallowed)
+runner.Step("Non-RC app1 registration", common.registerNonRCApp, { 2 })
 
 runner.Title("Test")
 runner.Step("RC functionality is allowed from HMI", enableRCFromHMI)
