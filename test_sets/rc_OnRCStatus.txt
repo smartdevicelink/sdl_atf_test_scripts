@@ -21,3 +21,7 @@
 ./test_scripts/RC/OnRCStatus/021_notification_in_case_AUTO_DENY_mode.lua
 ./test_scripts/RC/OnRCStatus/022_notification_by_rc_functionality_disallowed_on_hmi_with_registered_app.lua
 ./test_scripts/RC/OnRCStatus/023_notification_by_rc_functionality_allowed_on_hmi_with_registered_app.lua
+./test_scripts/RC/OnRCStatus/024_notification_by_apps_registration_several_apps.lua
+./test_scripts/RC/OnRCStatus/025_notification_by_rc_functionality_disallowed_on_hmi_sevaral_apps.lua
+./test_scripts/RC/OnRCStatus/026_registration_non_rc_app_several_apps.lua
+./test_scripts/RC/OnRCStatus/027_registration_non_rc_app_several_apps_rc_disallowed.lua

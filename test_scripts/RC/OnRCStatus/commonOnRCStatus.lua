@@ -109,15 +109,10 @@ function m.registerRCApplication(pAppId, pAllowed)
     allocatedModules = { },
     allowed = pAllowed
   }
-  local pModuleStatusForHMI = {
-    freeModules = freeModulesArray,
-    allocatedModules = { }
-  }
   commonRC.rai_n(pAppId, test)
-  for i = 1, pAppId do
-    m.validateOnRCStatusForApp(i, pModuleStatusForApp, pAllowed)
-  end
-  m.validateOnRCStatusForHMI(pAppId, { pModuleStatusForHMI })
+  m.validateOnRCStatusForApp(pAppId, pModuleStatusForApp, pAllowed)
+  EXPECT_HMICALL("RC.OnRCStatus")
+  :Times(0)
 end
 
 function m.raiPTU_n(ptu_update_func, pAppId)
@@ -328,5 +323,13 @@ function m.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
 end
 
 m.wait = utils.wait
+
+function m.registerNonRCApp(pAppId)
+  m.rai_n(pAppId)
+  m.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
+  :Times(0)
+  EXPECT_HMINOTIFICATION("RC.OnRCStatus")
+  :Times(0)
+end
 
 return m
