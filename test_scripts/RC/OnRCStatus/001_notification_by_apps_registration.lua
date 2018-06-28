@@ -9,7 +9,7 @@
 -- In case:
 -- 1) RC app1 and RC app2 are registered
 -- SDL must:
--- 1) Send OnRCStatus notifications to all registered mobile applications and the HMI with allowed = true
+-- 1) Send OnRCStatus notifications to registered mobile application with allowed = true
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
