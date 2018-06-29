@@ -25,3 +25,4 @@
 ./test_scripts/RC/OnRCStatus/025_notification_by_rc_functionality_disallowed_on_hmi_several_apps.lua
 ./test_scripts/RC/OnRCStatus/026_registration_non_rc_app_several_apps.lua
 ./test_scripts/RC/OnRCStatus/027_registration_non_rc_app_several_apps_rc_disallowed.lua
+./test_scripts/RC/OnRCStatus/028_notification_by_rc_functionality_disallowed_on_hmi_with_allocated_resource.lua
