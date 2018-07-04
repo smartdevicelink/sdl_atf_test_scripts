@@ -61,6 +61,7 @@ runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
+runner.Step("Wait until Resumption Data is stored" , common.waitUntilResumptionDataIsStored)
 runner.Step("RPC Show partially", processRPCPartially)
 runner.Step("Send LOW_VOLTAGE signal", common.sendLowVoltageSignal)
 runner.Step("Close mobile connection", common.cleanSessions)

@@ -3,6 +3,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
+config.ExitOnCrash = false
 
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -23,8 +24,8 @@ m.wait = utils.wait
 
 --[[ Constants ]]
 m.appParams = {
-  [1] = { appHMIType = "MEDIA", isMediaApplication = false },
-  [2] = { appHMIType = "DEFAULT", isMediaApplication = true },
+  [1] = { appHMIType = "DEFAULT", isMediaApplication = false },
+  [2] = { appHMIType = "MEDIA", isMediaApplication = true },
   [3] = { appHMIType = "DEFAULT", isMediaApplication = false },
   [4] = { appHMIType = "DEFAULT", isMediaApplication = false }
 }
@@ -44,7 +45,6 @@ for i = 1, 4 do
 end
 
 --[[ Variables ]]
-local isMobileConnected = false
 local grammarId = {}
 local hashId = {}
 local origGetMobileSession = actions.getMobileSession
@@ -121,21 +121,11 @@ end
 --! @return: none
 --]]
 function m.cleanSessions()
-  if isMobileConnected == true then
-    EXPECT_EVENT(events.disconnectedEvent, "Disconnected")
-    :Do(function()
-        isMobileConnected = false
-        utils.cprint(35, "Mobile disconnected")
-      end)
+  for i = 1, m.getAppsCount() do
+    test.mobileSession[i] = nil
+    utils.cprint(35, "Mobile session " .. i .. " deleted")
   end
-  local function toRun()
-    for i = 1, m.getAppsCount() do
-      test.mobileSession[i] = nil
-      utils.cprint(35, "Mobile session " .. i .. " deleted")
-    end
-    test.mobileConnection:Close()
-  end
-  RUN_AFTER(toRun, 1000)
+  test.mobileConnection:Close()
   utils.wait()
 end
 
@@ -248,6 +238,7 @@ end
 --]]
 function m.sendLowVoltageSignal()
   m.sendSignal("LOW_VOLTAGE")
+  m.wait()
 end
 
 --[[ @sendIgnitionOffSignal: send 'IGNITION_OFF' signal
@@ -255,14 +246,17 @@ end
 --! @return: none
 --]]
 function m.sendIgnitionOffSignal()
-  SDL:DeleteFile()
   m.sendSignal("IGNITION_OFF")
-  local function toRun()
-    SDL:StopSDL()
-    waitUntilSDLLoggerIsClosed()
+  os.execute("sleep 1")
+  local count = 0
+  while SDL:CheckStatusSDL() == SDL.RUNNING do
+    count = count + 1
+    if count == 10 then
+      SDL:StopSDL()
+      waitUntilSDLLoggerIsClosed()
+    end
+    os.execute("sleep 1")
   end
-  RUN_AFTER(toRun, 1000)
-  utils.wait()
 end
 
 --[[ @sendWakeUpSignal: send 'WAKE_UP' signal
@@ -280,12 +274,14 @@ end
 --]]
 function m.waitUntilResumptionDataIsStored()
   utils.cprint(35, "Wait ...")
+  local timeoutToSafe = commonFunctions:read_parameter_from_smart_device_link_ini("AppSavePersistentDataTimeout")
   local fileName = commonPreconditions:GetPathToSDL()
     .. commonFunctions:read_parameter_from_smart_device_link_ini("AppInfoStorage")
   local function isFileExist()
     local f = io.open(fileName, "r")
     if f ~= nil then
       io.close(f)
+      m.wait(timeoutToSafe + 1000)
       return true
     else
       return false
@@ -473,6 +469,17 @@ function m.checkResumptionHMILevel(pAppId)
     :Times(1)
   end
   f[pAppId]()
+end
+
+--[[ @deactivateAppToLimited: bring app to LIMITED HMI level
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! @return: none
+--]]
+function m.deactivateAppToLimited(pAppId)
+  m.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", {appID = m.getHMIAppId(pAppId)})
+  m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
+    {hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
 end
 
 return m
