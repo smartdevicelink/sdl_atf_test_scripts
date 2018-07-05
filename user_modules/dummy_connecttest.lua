@@ -339,7 +339,10 @@ function module:initHMI()
           "UI.OnRecordStart"
         })
       registerComponent("VehicleInfo")
-      registerComponent("RC")
+      registerComponent("RC",
+        {
+          "RC.OnRCStatus"
+        })
       registerComponent("Navigation",
         {
           "Navigation.OnAudioDataStreaming",

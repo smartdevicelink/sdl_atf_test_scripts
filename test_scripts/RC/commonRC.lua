@@ -55,14 +55,14 @@ local function updatePTU(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
 end
 
-local function jsonFileToTable(file_name)
+function commonRC.jsonFileToTable(file_name)
   local f = io.open(file_name, "r")
   local content = f:read("*all")
   f:close()
   return json.decode(content)
 end
 
-local function tableToJsonFile(tbl, file_name)
+function commonRC.tableToJsonFile(tbl, file_name)
   local f = io.open(file_name, "w")
   f:write(json.encode(tbl))
   f:close()
@@ -96,7 +96,7 @@ local function ptu(self, ptu_update_func)
       if ptu_update_func then
         ptu_update_func(ptu_table)
       end
-      tableToJsonFile(ptu_table, ptu_file_name)
+      commonRC.tableToJsonFile(ptu_table, ptu_file_name)
 
       local event = events.Event()
       event.matches = function(self, e) return self == e end
@@ -106,7 +106,7 @@ local function ptu(self, ptu_update_func)
       for id = 1, getAppsCount() do
         local mobileSession = commonRC.getMobileSession(self, id)
         mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
-        :Do(function(_, d2)
+        :DoOnce(function(_, d2)
             print("App ".. id .. " was used for PTU")
             RAISE_EVENT(event, event, "PTU event")
             checkIfPTSIsSentAsBinary(d2.binaryData)
@@ -194,7 +194,7 @@ function commonRC.rai_ptu_n(id, ptu_update_func, self)
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
           :Do(function(_, d2)
               self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
-              ptu_table = jsonFileToTable(d2.params.file)
+              ptu_table = commonRC.jsonFileToTable(d2.params.file)
               ptu(self, ptu_update_func)
             end)
         end)
@@ -746,15 +746,24 @@ end
 
 function commonRC.updateDefaultCapabilities(pDisabledModuleTypes)
   local hmiCapabilitiesFile = commonPreconditions:GetPathToSDL()
-    .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
-  local hmiCapTbl = jsonFileToTable(hmiCapabilitiesFile)
+  .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
+  local hmiCapTbl = commonRC.jsonFileToTable(hmiCapabilitiesFile)
   local rcCapTbl = hmiCapTbl.UI.systemCapabilities.remoteControlCapability
   for _, pDisabledModuleType in pairs(pDisabledModuleTypes) do
     local buttonId = commonRC.getButtonIdByName(rcCapTbl.buttonCapabilities, commonRC.getButtonNameByModule(pDisabledModuleType))
     table.remove(rcCapTbl.buttonCapabilities, buttonId)
     rcCapTbl[string.lower(pDisabledModuleType) .. "ControlCapabilities"] = nil
   end
-  tableToJsonFile(hmiCapTbl, hmiCapabilitiesFile)
+  commonRC.tableToJsonFile(hmiCapTbl, hmiCapabilitiesFile)
 end
+
+function commonRC.getHMIAppIds()
+  return hmiAppIds
+end
+
+function commonRC.deleteHMIAppId(pAppId)
+  hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = nil
+end
+
 
 return commonRC
