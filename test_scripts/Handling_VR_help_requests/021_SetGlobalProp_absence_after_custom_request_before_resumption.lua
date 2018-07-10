@@ -46,7 +46,7 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("Pin OnHashChange", common.pinOnHashChange)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.addCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
 runner.Step("Custom SetGlobalProperties from mobile application", common.setGlobalProperties,
   { common.customSetGPParams() })

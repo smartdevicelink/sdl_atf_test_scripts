@@ -32,7 +32,7 @@ runner.Step("App activation", common.activateApp)
 
 runner.Title("Test")
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.addCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
@@ -42,7 +42,7 @@ runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", co
 for i = 4, 33 do
 	runner.Step("SetGlobalProperties from SDL after added command" ..i, common.addCommandWithSetGP, { i })
 end
-runner.Step("Absence SetGlobalProperties from SDL after adding 35 command", common.addCommandWithoutSetGP, { 34 })
+runner.Step("Absence SetGlobalProperties from SDL after adding 34 command", common.addCommandWithoutSetGP, { 34 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

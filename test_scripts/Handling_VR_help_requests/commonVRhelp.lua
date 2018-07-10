@@ -15,12 +15,13 @@ config.defaultProtocolVersion = 2
 --[[ Variables ]]
 local m = actions
 m.commandArray = {}
+m.timeActivation = 0
 
 m.cloneTable = utils.cloneTable
 m.tableToString = utils.tableToString
 m.wait = utils.wait
 
-function m.setGPParams()
+function m.getGPParams()
   local params = {
     requestUiParams = {
       vrHelp = m.vrHelp(m.commandArray)
@@ -56,7 +57,7 @@ function m.customSetGPParams()
   return allParams
 end
 
-function m.addCommandParams(pN)
+function m.getAddCommandParams(pN)
   local out = {
     cmdID = pN,
     vrCommands = { "vrCommand" .. pN},
@@ -92,16 +93,15 @@ function m.addCommand(pParams, pAppId)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
-function m.deleteCommand(pParams, pVRInterface, pAppId)
-  if not pAppId then pAppId = 1 end
-  local mobSession = m.getMobileSession(pAppId)
+function m.deleteCommand(pParams, pIsVRInterfaceEnabled)
+  local mobSession = m.getMobileSession()
   local hmiConnection = m.getHMIConnection()
   local cid = mobSession:SendRPC("DeleteCommand", pParams)
   EXPECT_HMICALL("UI.DeleteCommand")
   :Do(function(_,data)
     hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  if pVRInterface then
+  if pIsVRInterfaceEnabled then
     for k, v in pairs(m.commandArray) do
       if v.cmdID == pParams.cmdID then
         table.remove(m.commandArray, k)
@@ -110,7 +110,7 @@ function m.deleteCommand(pParams, pVRInterface, pAppId)
     local requestVrParams = {
       cmdID = pParams.cmdID,
       type = "Command",
-      appID = m.getHMIAppId(pAppId)
+      appID = m.getHMIAppId()
     }
     EXPECT_HMICALL("VR.DeleteCommand", requestVrParams)
     :Do(function(_,data)
@@ -141,20 +141,19 @@ function m.setGlobalProperties(pParams, pAppId)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
-function m.setGlobalPropertiesFromSDL(pTST)
-  local params = m.setGPParams()
+function m.setGlobalPropertiesFromSDL(pIsCheckOnTimeoutRequied)
+  local params = m.getGPParams()
   local hmiConnection = m.getHMIConnection()
   EXPECT_HMICALL("UI.SetGlobalProperties", params.requestUiParams)
   :Do(function(_,data)
     hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
   :ValidIf(function()
-    if pTST then
+    if pIsCheckOnTimeoutRequied then
       local timeSetGPReg = timestamp()
       local timeToSetGP = timeSetGPReg - m.timeActivation
-      if timeToSetGP > 10500 or
-        timeToSetGP < 9500 then
-        return false, "SetGlobalProperties request with constracted vrHelp and helpPrompt came not in 10 sec " ..
+      if timeToSetGP > 10500 or timeToSetGP < 9500 then
+        return false, "SetGlobalProperties request with constructed vrHelp came not in 10 sec " ..
         "after activation, actual time is" .. tostring(timeToSetGP)
       end
     end
@@ -163,6 +162,17 @@ function m.setGlobalPropertiesFromSDL(pTST)
   EXPECT_HMICALL("TTS.SetGlobalProperties", params.requestTtsParams)
   :Do(function(_,data)
     hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function()
+    if pIsCheckOnTimeoutRequied then
+      local timeSetGPReg = timestamp()
+      local timeToSetGP = timeSetGPReg - m.timeActivation
+      if timeToSetGP > 10500 or timeToSetGP < 9500 then
+        return false, "SetGlobalProperties request with constructed helpPrompt came not in 10 sec " ..
+        "after activation, actual time is" .. tostring(timeToSetGP)
+      end
+    end
+    return true
   end)
 end
 
@@ -180,11 +190,13 @@ end
 
 function m.vrHelp(pCommandArray)
   local out = {}
-  for k, value in pairs(pCommandArray) do
+  local positionValue = 0
+  for _, value in pairs(pCommandArray) do
     for _, sub_v in pairs(value.vrCommand) do
+      positionValue = positionValue + 1
       local item = {
         text = sub_v,
-        position = k
+        position = positionValue
       }
       table.insert(out, item)
     end
@@ -231,12 +243,12 @@ function m.deleteCommandWithoutSetGP(pN)
 end
 
 function m.addCommandWithSetGP(pN)
-  m.addCommand(m.addCommandParams(pN))
+  m.addCommand(m.getAddCommandParams(pN))
   m.setGlobalPropertiesFromSDL()
 end
 
 function m.addCommandWithoutSetGP(pN)
-  m.addCommand(m.addCommandParams(pN))
+  m.addCommand(m.getAddCommandParams(pN))
   m.setGlobalPropertiesDoesNotExpect()
 end
 
@@ -265,7 +277,7 @@ function m.registrationWithResumption(pAppId, pLevelResumpFunc, pDataResump)
     test.hmiConnection:ExpectNotification("BasicCommunication.OnAppRegistered",
       { application = { appName = m.getConfigAppParams(pAppId).appName } })
     :Do(function(_, d1)
-      m.writeHMIappId(d1.params.application.appID, pAppId)
+      m.setHMIAppId(d1.params.application.appID, pAppId)
       pDataResump()
     end)
     mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
@@ -300,10 +312,24 @@ function m.resumptionDataAddCommands()
           "Actual result:" .. m.tableToString(data.params.vrCommands) .. "\n" ..
           "Expected result:" .. m.tableToString(value.vrCommand) .."\n"
         end
-    return vrCommandCompareResult, Msg
-     end
+        return vrCommandCompareResult, Msg
+      end
     end
     return true
+  end)
+  :Times(#m.commandArray)
+  EXPECT_HMICALL("UI.AddCommand")
+  :Do(function(_, data)
+    m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    for k, value in pairs(m.commandArray) do
+      if data.params.cmdID == value.cmdID then
+        return true
+      elseif data.params.cmdID ~= value.cmdID and k == #m.commandArray then
+        return false, "Received cmdID in UI.AddCommand was not added previously before resumption"
+      end
+    end
   end)
   :Times(#m.commandArray)
 end

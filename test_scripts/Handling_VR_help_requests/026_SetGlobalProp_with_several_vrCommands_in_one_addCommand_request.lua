@@ -20,7 +20,7 @@ local common = require('test_scripts/Handling_VR_help_requests/commonVRhelp')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local AddCommandParams = common.addCommandParams(1)
+local AddCommandParams = common.getAddCommandParams(1)
 AddCommandParams.vrCommands = { "Command1_1", "Command2_1", "Command3_1" }
 
 --[[ Scenario ]]
