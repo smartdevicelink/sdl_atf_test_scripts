@@ -12,11 +12,12 @@
 -- 3. Perform session reconnect
 -- SDL does:
 -- 1. resume custom SetGlobalProperties
--- 2. not send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters
+-- 2. not send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters after each resumed command
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Handling_VR_help_requests/commonVRhelp')
+local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -26,7 +27,40 @@ local SetGPParams = common.customSetGPParams()
 
 --[[ Local Functions ]]
 local function resumptionData()
-  common.resumptionDataAddCommands()
+  EXPECT_HMICALL("VR.AddCommand")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    for _, value in pairs(common.commandArray) do
+      if data.params.cmdID == value.cmdID then
+        local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrCommands, value.vrCommand)
+        local Msg = ""
+        if vrCommandCompareResult == false then
+          Msg = "vrCommands in received VR.AddCommand are not match to expected result.\n" ..
+          "Actual result:" .. common.tableToString(data.params.vrCommands) .. "\n" ..
+          "Expected result:" .. common.tableToString(value.vrCommand) .."\n"
+        end
+        return vrCommandCompareResult, Msg
+      end
+    end
+    return true
+  end)
+  :Times(#common.commandArray)
+EXPECT_HMICALL("UI.AddCommand")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    for k, value in pairs(common.commandArray) do
+      if data.params.cmdID == value.cmdID then
+        return true
+      elseif data.params.cmdID ~= value.cmdID and k == #common.commandArray then
+        return false, "Received cmdID in UI.AddCommand was not added previously before resumption"
+      end
+    end
+  end)
+  :Times(#common.commandArray)
   local hmiConnection = common.getHMIConnection()
   EXPECT_HMICALL("UI.SetGlobalProperties", SetGPParams.requestUiParams)
   :Do(function(_,data)

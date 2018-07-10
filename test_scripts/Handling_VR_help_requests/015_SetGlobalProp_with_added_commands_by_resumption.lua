@@ -11,8 +11,8 @@
 -- 2. Perform reopening session
 -- SDL does:
 -- 1. resume HMI level and added before reconnection AddCommands
--- 2. send SetGlobalProperties  with constructed the vrHelp and helpPrompt parameters using added vrCommands
---   when timer times out after resuming HMI level
+-- 2. send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommands
+--   after each resumed command
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -29,15 +29,14 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("Pin OnHashChange", common.pinOnHashChange)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommandWithSetGP, { i })
 end
 
 runner.Title("Test")
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
   { 1, common.resumptionLevelFull, common.resumptionDataAddCommands })
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-  { true })
+runner.Step("Absence of SetGlobalProperties request from SDL", common.setGlobalPropertiesDoesNotExpect)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

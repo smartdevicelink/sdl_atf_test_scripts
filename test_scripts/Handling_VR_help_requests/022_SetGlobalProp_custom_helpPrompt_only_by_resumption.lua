@@ -8,11 +8,11 @@
 -- Description:
 -- In case:
 -- 1. Command1, Command2, Command3 commands with vrCommands are added
--- 2. vrCommands Choice1, Choice2 are added via CreateInterationChoiceSet
--- 3. 10 seconds timer is expired
+-- 2. Perform reconnect
+-- 3. Mobile application sets SetGlobalProperties with custom helpPrompt
+-- 4. Mobile application adds Command4
 -- SDL does:
--- send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommands via AddCommand
--- requests(with type "Command" ).
+-- 1. send SetGlobalProperties with updated value for the vrHelp parameter using added vrCommand
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -21,36 +21,22 @@ local common = require('test_scripts/Handling_VR_help_requests/commonVRhelp')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
--- [[ Local Variables ]]
-local requestParams = {
-  interactionChoiceSetID = 1001,
-  choiceSet = {
-    {
-      choiceID = 1001,
-      menuName ="Choice1001",
-      vrCommands = {
-	    "Choice1001_1", "Choice1001_2"
-      }
-    }
-  }
-}
+--[[ Local Variables ]]
+local SetGPParamsWithHelpPromptOnly = common.customSetGPParams()
+SetGPParamsWithHelpPromptOnly.requestParams.vrHelpTitle = nil
+SetGPParamsWithHelpPromptOnly.requestParams.vrHelp = nil
 
-local responseVrParams = {
-  cmdID = requestParams.interactionChoiceSetID,
-  type = "Choice",
-  vrCommands = requestParams.vrCommands
-}
-
--- [[ Local Functions ]]
-local function createInteractionChoiceSetWithoutSetGP()
-  local mobSession = common.getMobileSession(1)
+--[[ Local Functions ]]
+local function SetGlobalPropertiesFromSDLbyAddingCommand()
+  common.addCommand(common.getAddCommandParams(4))
+  local params = common.getGPParams()
   local hmiConnection = common.getHMIConnection()
-  local cid = mobSession:SendRPC("CreateInteractionChoiceSet", requestParams)
-  EXPECT_HMICALL("VR.AddCommand", responseVrParams)
+  EXPECT_HMICALL("UI.SetGlobalProperties", params.requestUiParams)
   :Do(function(_,data)
     hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
-  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  EXPECT_HMICALL("TTS.SetGlobalProperties")
+  :Times(0)
 end
 
 --[[ Scenario ]]
@@ -58,15 +44,20 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerAppWOPTU)
+runner.Step("Pin OnHashChange", common.pinOnHashChange)
 runner.Step("App activation", common.activateApp)
-
-runner.Title("Test")
 for i = 1,3 do
   runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
-runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSetWithoutSetGP)
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-	{ true })
+runner.Step("App reconnect", common.reconnect)
+runner.Step("App resumption", common.registrationWithResumption,
+  { 1, common.resumptionLevelFull, common.resumptionDataAddCommands })
+
+runner.Title("Test")
+runner.Step("Custom SetGlobalProperties with helpPrompt only from mobile application", common.setGlobalProperties,
+  { SetGPParamsWithHelpPromptOnly })
+runner.Step("SetGlobalProperties with updated value for vrHelp after added command ",
+  SetGlobalPropertiesFromSDLbyAddingCommand)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

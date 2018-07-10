@@ -10,6 +10,7 @@
 -- 1. Command1, Command2, Command3 commands with vrCommands are added
 -- 2. Perform session reconnect
 -- 3. Mobile application sets SetGlobalProperties with custom helpPrompt and vrHelp after resumption
+-- 4. Mobile app adds Command4
 -- SDL does:
 -- not send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters
 ---------------------------------------------------------------------------------------------------
@@ -37,7 +38,8 @@ runner.Step("App resumption", common.registrationWithResumption,
   { 1, common.resumptionLevelFull, common.resumptionDataAddCommands })
 runner.Step("Custom SetGlobalProperties from mobile application", common.setGlobalProperties,
   { common.customSetGPParams() })
-runner.Step("Absence of SetGlobalProperties request from SDL", common.setGlobalPropertiesDoesNotExpect)
+runner.Step("Absence of SetGlobalProperties request from SDL after added command4", common.addCommandWithoutSetGP,
+  { 4 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

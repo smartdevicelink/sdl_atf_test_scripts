@@ -11,8 +11,8 @@
 -- 2. Perform reopening session
 -- SDL does:
 -- 1. resume HMI level and added before reconnection AddCommands
--- 2. send SetGlobalProperties  with constructed the vrHelp and helpPrompt parameters using added vrCommand.
---   when timer times out after resuming HMI level
+-- 2. send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommands
+--   after each resumed command
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -78,6 +78,19 @@ local function resumptionDataAddCommands()
     return true
   end)
   :Times(#common.commandArray)
+  EXPECT_HMICALL("TTS.SetGlobalProperties")
+  :ValidIf(function(_, data)
+    local expectedHelpPrompt = common.vrHelpPrompt(common.commandArray)
+    local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.helpPrompt, expectedHelpPrompt)
+    local Msg = ""
+    if vrCommandCompareResult == false then
+      Msg = "helpPrompt in received TTS.SetGlobalProperties is not match to expected result.\n" ..
+      "Actual result:" .. common.tableToString(data.params.helpPrompt) .. "\n" ..
+      "Expected result:" .. common.tableToString(expectedHelpPrompt) .."\n"
+    end
+    return vrCommandCompareResult, Msg
+  end)
+
   EXPECT_HMICALL("UI.AddCommand")
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -92,6 +105,18 @@ local function resumptionDataAddCommands()
     end
   end)
   :Times(#uiCommandArray)
+  EXPECT_HMICALL("UI.SetGlobalProperties")
+  :ValidIf(function(_, data)
+    local expectedVrHelp = common.vrHelp(common.commandArray)
+    local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrHelp, expectedVrHelp)
+    local Msg = ""
+    if vrCommandCompareResult == false then
+      Msg = "vrHelp in received TTS.SetGlobalProperties is not match to expected result.\n" ..
+      "Actual result:" .. common.tableToString(data.params.vrHelp) .. "\n" ..
+      "Expected result:" .. common.tableToString(expectedVrHelp) .."\n"
+    end
+    return vrCommandCompareResult, Msg
+  end)
 end
 
 local function deactivateAppToLimited()
@@ -110,13 +135,11 @@ runner.Step("App activation", common.activateApp)
 runner.Step("Bring app to LIMITED HMI level", deactivateAppToLimited)
 
 runner.Title("Test")
-runner.Step("AddCommand with vr command", common.addCommand, { commandWithtVr })
-runner.Step("AddCommand without vr command", common.addCommand, { commandWithoutVr })
+runner.Step("AddCommand with vr command", common.addCommandWithSetGP, {nil, commandWithtVr })
+runner.Step("AddCommand without vr command", common.addCommandWithoutSetGP, {nil, commandWithoutVr })
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
   { 1, resumptionLevelLimited, resumptionDataAddCommands })
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-	{ true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

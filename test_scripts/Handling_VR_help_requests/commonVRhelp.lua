@@ -242,13 +242,25 @@ function m.deleteCommandWithoutSetGP(pN)
   m.setGlobalPropertiesDoesNotExpect()
 end
 
-function m.addCommandWithSetGP(pN)
-  m.addCommand(m.getAddCommandParams(pN))
+function m.addCommandWithSetGP(pN, pAddCommandParams)
+  local AddCommandParams
+  if not pAddCommandParams then
+    AddCommandParams = m.getAddCommandParams(pN)
+  else
+    AddCommandParams = pAddCommandParams
+  end
+  m.addCommand(AddCommandParams)
   m.setGlobalPropertiesFromSDL()
 end
 
-function m.addCommandWithoutSetGP(pN)
-  m.addCommand(m.getAddCommandParams(pN))
+function m.addCommandWithoutSetGP(pN, pAddCommandParams)
+  local AddCommandParams
+  if not pAddCommandParams then
+    AddCommandParams = m.getAddCommandParams(pN)
+  else
+    AddCommandParams = pAddCommandParams
+  end
+  m.addCommand(AddCommandParams)
   m.setGlobalPropertiesDoesNotExpect()
 end
 
@@ -318,6 +330,20 @@ function m.resumptionDataAddCommands()
     return true
   end)
   :Times(#m.commandArray)
+
+  EXPECT_HMICALL("TTS.SetGlobalProperties")
+  :ValidIf(function(_, data)
+    local expectedHelpPrompt = m.vrHelpPrompt(m.commandArray)
+    local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.helpPrompt, expectedHelpPrompt)
+    local Msg = ""
+    if vrCommandCompareResult == false then
+      Msg = "helpPrompt in received TTS.SetGlobalProperties is not match to expected result.\n" ..
+      "Actual result:" .. m.tableToString(data.params.helpPrompt) .. "\n" ..
+      "Expected result:" .. m.tableToString(expectedHelpPrompt) .."\n"
+    end
+    return vrCommandCompareResult, Msg
+  end)
+
   EXPECT_HMICALL("UI.AddCommand")
   :Do(function(_, data)
     m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -332,6 +358,19 @@ function m.resumptionDataAddCommands()
     end
   end)
   :Times(#m.commandArray)
+
+  EXPECT_HMICALL("UI.SetGlobalProperties")
+  :ValidIf(function(_, data)
+    local expectedVrHelp = m.vrHelp(m.commandArray)
+    local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrHelp, expectedVrHelp)
+    local Msg = ""
+    if vrCommandCompareResult == false then
+      Msg = "vrHelp in received TTS.SetGlobalProperties is not match to expected result.\n" ..
+      "Actual result:" .. m.tableToString(data.params.vrHelp) .. "\n" ..
+      "Expected result:" .. m.tableToString(expectedVrHelp) .."\n"
+    end
+    return vrCommandCompareResult, Msg
+  end)
 end
 
 function m.resumptionLevelFull()

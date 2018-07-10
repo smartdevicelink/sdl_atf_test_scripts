@@ -12,7 +12,7 @@
 -- 3. Perform session reconnect
 -- SDL does:
 -- send SetGlobalProperties  with constructed the vrHelp and helpPrompt parameters using added vrCommands via AddCommand
--- requests(with type "Command") after resumption in 10 seconds after FULL hmi level
+-- requests(with type "Command") after each resumed AddCommad
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -56,6 +56,7 @@ local function createInteractionChoiceSetWithoutSetGP()
       hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  common.setGlobalPropertiesDoesNotExpect()
 end
 
 local function resumptionDataAddCommands()
@@ -79,6 +80,30 @@ local function resumptionDataAddCommands()
     return true
   end)
   :Times(#commandArrayResumption)
+  EXPECT_HMICALL("TTS.SetGlobalProperties")
+  :ValidIf(function(_, data)
+    local expectedHelpPrompt = common.vrHelpPrompt(common.commandArray)
+    local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.helpPrompt, expectedHelpPrompt)
+    local Msg = ""
+    if vrCommandCompareResult == false then
+      Msg = "helpPrompt in received TTS.SetGlobalProperties is not match to expected result.\n" ..
+      "Actual result:" .. common.tableToString(data.params.helpPrompt) .. "\n" ..
+      "Expected result:" .. common.tableToString(expectedHelpPrompt) .."\n"
+    end
+    return vrCommandCompareResult, Msg
+  end)
+  EXPECT_HMICALL("UI.SetGlobalProperties")
+  :ValidIf(function(_, data)
+    local expectedVrHelp = common.vrHelp(common.commandArray)
+    local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrHelp, expectedVrHelp)
+    local Msg = ""
+    if vrCommandCompareResult == false then
+      Msg = "vrHelp in received TTS.SetGlobalProperties is not match to expected result.\n" ..
+      "Actual result:" .. common.tableToString(data.params.vrHelp) .. "\n" ..
+      "Expected result:" .. common.tableToString(expectedVrHelp) .."\n"
+    end
+    return vrCommandCompareResult, Msg
+  end)
 end
 
 --[[ Scenario ]]
@@ -91,14 +116,12 @@ runner.Step("App activation", common.activateApp)
 
 runner.Title("Test")
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommandWithSetGP, { i })
 end
 runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSetWithoutSetGP)
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
   { 1, common.resumptionLevelFull, resumptionDataAddCommands })
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-	{ true })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

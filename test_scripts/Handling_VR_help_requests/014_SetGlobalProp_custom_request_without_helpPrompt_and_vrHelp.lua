@@ -9,7 +9,7 @@
 -- In case:
 -- 1. Command1, Command2, Command3 commands with vrCommands are added
 -- 2. Mobile application sets SetGlobalProperties without helpPrompt and vrHelp
--- 3. 10 seconds timer is expired
+-- 3. Mobile app adds Command4
 -- SDL does:
 -- send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommand.
 ---------------------------------------------------------------------------------------------------
@@ -37,14 +37,13 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommandWithSetGP, { i })
 end
 
 runner.Title("Test")
 runner.Step("Custom SetGlobalProperties from mobile application without helpPrompt and vrHelp",
   common.setGlobalProperties, { setGPParams })
-runner.Step("SetGlobalProperties request from SDL with constructed the vrHelp and helpPrompt",
-  common.setGlobalPropertiesFromSDL, { true })
+runner.Step("SetGlobalProperties by adding AddCommand4", common.addCommandWithSetGP, { 4 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

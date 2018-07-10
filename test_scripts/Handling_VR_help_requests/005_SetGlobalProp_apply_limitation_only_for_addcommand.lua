@@ -7,13 +7,11 @@
 --
 -- Description:
 -- In case:
--- 1. Command1, Command2, Command3 commands with vrCommands are added
--- 2. 10 seconds timer is expired
--- 3. SDL sends SetGlobalProperties  with constructed the vrHelp and helpPrompt parameters using added vrCommand.
--- 4. Mobile application sets 30 command one by one
--- 5. Mobile application sets 31 command
+-- 1. Mobile application sets 30 command one by one
+-- 2.Mobile application deletes 10 command one by one
+-- 3. Mobile application sets 31 command
 -- SDL does:
--- send SetGlobalProperties with full list of command values for vrHelp and helpPrompt parameters after each added command
+-- send SetGlobalProperties  with update for vrHelp and helpPrompt parameters after each added and deleted command
 -- not send SetGlobalProperties after added 31 command
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -31,15 +29,13 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("App activation", common.activateApp)
 
 runner.Title("Test")
-for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
-end
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-  { true })
-for i = 4, 33 do
+for i = 1, 30 do
   runner.Step("SetGlobalProperties from SDL after added command" ..i, common.addCommandWithSetGP, { i })
 end
-runner.Step("Absence SetGlobalProperties from SDL after adding 34 command", common.addCommandWithoutSetGP, { 34 })
+for i = 1, 10 do
+  runner.Step("SetGlobalProperties from SDL after deleted command" ..i, common.deleteCommandWithSetGP, { i })
+end
+runner.Step("Absence SetGlobalProperties from SDL after adding 34 command", common.addCommandWithoutSetGP, { 31 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

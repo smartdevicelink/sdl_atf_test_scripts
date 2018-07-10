@@ -8,12 +8,11 @@
 -- Description:
 -- In case:
 -- 1. Command1, Command2, Command3 commands with vrCommands are added
--- 2. Command1 is deleted by app
--- 3. Perform reopening session
+-- 2. Perform reconnect
+-- 3. Mobile application sets SetGlobalProperties without helpPrompt and vrHelp
+-- 4. Mobile application adds Command4
 -- SDL does:
--- 1. resume HMI level and AddCommands
--- 2. send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommand
---  when timer times out after resuming HMI level
+-- send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommand with type=Command.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -22,13 +21,15 @@ local common = require('test_scripts/Handling_VR_help_requests/commonVRhelp')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Functions ]]
-local function getDeleteCommandParams()
-  local out = {
-    cmdID = 1
+--[[ Local Variables ]]
+local setGPParams = { }
+setGPParams.requestParams = {
+  keyboardProperties = {
+	keyboardLayout = "QWERTY",
+	keypressMode = "SINGLE_KEYPRESS"
   }
-  return out
-end
+}
+setGPParams.requestUiParams = setGPParams.requestParams
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -40,14 +41,14 @@ runner.Step("App activation", common.activateApp)
 for i = 1,3 do
   runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
 end
-
-runner.Title("Test")
-runner.Step("Delete command1", common.deleteCommand, { getDeleteCommandParams(), true })
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
   { 1, common.resumptionLevelFull, common.resumptionDataAddCommands })
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-	{ true })
+
+runner.Title("Test")
+runner.Step("Custom SetGlobalProperties from mobile application without helpPrompt and vrHelp",
+	common.setGlobalProperties, { setGPParams })
+runner.Step("SetGlobalProperties after adding AddCommand4", common.addCommandWithSetGP, { 4 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

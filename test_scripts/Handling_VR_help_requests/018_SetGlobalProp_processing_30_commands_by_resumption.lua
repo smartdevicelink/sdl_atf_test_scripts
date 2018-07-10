@@ -9,11 +9,14 @@
 -- In case:
 -- 1. Command1, Command2, Command3 commands with vrCommands are added
 -- 2. Perform reopening session
+-- 3. Mobile app adds 30 commands after resumption
+-- 3. Mobile app adds 31 command
 -- SDL does:
--- 1. send SetGlobalProperties  with full list of command values  for vrHelp and helpPrompt parameters after each added
---   command after resumption in 10 seconds after FULL hmi level
--- 2. send SetGlobalProperties  with full list of command values for vrHelp and helpPrompt parameters after each added command
--- 3. not send SetGlobalProperties after added 31 command
+-- 1. resume HMI level and AddCommands
+-- 2. send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommand
+--  after each resumed command
+-- 3. send SetGlobalProperties  with full list of command values for vrHelp and helpPrompt parameters after each added command
+-- 4. not send SetGlobalProperties after added 31 command
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -32,13 +35,11 @@ runner.Step("App activation", common.activateApp)
 
 runner.Title("Test")
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommandWithSetGP, { i })
 end
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,
   { 1, common.resumptionLevelFull, common.resumptionDataAddCommands })
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-	{ true })
 for i = 4, 33 do
 	runner.Step("SetGlobalProperties from SDL after added command" ..i, common.addCommandWithSetGP, { i })
 end

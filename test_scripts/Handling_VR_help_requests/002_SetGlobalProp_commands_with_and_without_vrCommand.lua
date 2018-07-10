@@ -8,9 +8,9 @@
 -- Description:
 -- In case:
 -- 1. Command1 with vrCommand and Command2 without vrCommands are added
--- 2. 10 seconds timer is expired
 -- SDL does:
--- send SetGlobalProperties with constructed the vrHelp and helpPrompt parameters using added vrCommand.
+-- send SetGlobalProperties  with constructed the vrHelp and helpPrompt parameters using added vrCommand
+-- only after receiving Command1.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -42,10 +42,8 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("App activation", common.activateApp)
 
 runner.Title("Test")
-runner.Step("AddCommand with vr command", common.addCommand, { commandWithtVr })
-runner.Step("AddCommand without vr command", common.addCommand, { commandWithoutVr })
-runner.Step("SetGlobalProperties with constructed the vrHelp and helpPrompt", common.setGlobalPropertiesFromSDL,
-	{ true })
+runner.Step("SetGlobalProperties after AddCommand with vr command", common.addCommandWithSetGP, { nil, commandWithtVr })
+runner.Step("Absence of SetGlobalProperties after AddCommand without vr command", common.addCommandWithoutSetGP, { nil, commandWithoutVr })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
