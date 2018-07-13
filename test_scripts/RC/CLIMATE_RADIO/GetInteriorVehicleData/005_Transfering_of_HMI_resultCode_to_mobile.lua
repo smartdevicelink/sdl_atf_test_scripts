@@ -30,7 +30,6 @@ local function stepSuccessfull(pModuleType, pResultCode, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })
@@ -54,7 +53,6 @@ local function stepUnsuccessfull(pModuleType, pResultCode, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })

@@ -75,7 +75,6 @@ local function fakeParam(pModuleType, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })

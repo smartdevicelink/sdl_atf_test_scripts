@@ -23,14 +23,13 @@ local commonRC = require('test_scripts/RC/commonRC')
 local modules = { "CLIMATE", "RADIO" }
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, isSubscriptionActive, self)
+local function getDataForModule(pModuleType, isSubscriptionActive, pHMIRequest, self)
   local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType
     -- no subscribe parameter
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType
   })
   :Do(function(_, data)
@@ -45,6 +44,7 @@ local function getDataForModule(pModuleType, isSubscriptionActive, self)
       end
       return false, 'Parameter "subscribe" is transfered with to HMI value: ' .. tostring(data.params.subscribe)
     end)
+  :Times(pHMIRequest)
 
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     moduleData = commonRC.getModuleControlData(pModuleType)
@@ -67,12 +67,12 @@ runner.Step("Activate App", commonRC.activate_app)
 runner.Title("Test")
 
 for _, mod in pairs(modules) do
-  runner.Step("GetInteriorVehicleData " .. mod .. " NoSubscription", getDataForModule, { mod, false })
+  runner.Step("GetInteriorVehicleData " .. mod .. " NoSubscription", getDataForModule, { mod, false, 1 })
 end
 
 for _, mod in pairs(modules) do
   runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule, { mod, true })
+  runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule, { mod, true, 0 })
 end
 
 runner.Title("Postconditions")
