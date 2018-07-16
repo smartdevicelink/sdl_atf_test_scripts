@@ -110,7 +110,7 @@ function m.registerRCApplication(pAppId, pAllowed)
     allowed = pAllowed
   }
   commonRC.rai_n(pAppId, test)
-  m.validateOnRCStatusForApp(pAppId, pModuleStatusForApp, pAllowed)
+  m.validateOnRCStatusForApp(pAppId, pModuleStatusForApp)
   EXPECT_HMICALL("RC.OnRCStatus")
   :Times(0)
 end
@@ -250,23 +250,23 @@ function m.sortModules(pModulesArray)
   table.sort(pModulesArray, f)
 end
 
-function m.validateOnRCStatusForApp(pAppId, pExpData, isAllowedExpected)
-  if isAllowedExpected == nil then isAllowedExpected = false end
-  m.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
-  :ValidIf(function(_, d)
-      m.sortModules(pExpData.freeModules)
-      m.sortModules(pExpData.allocatedModules)
-      m.sortModules(d.payload.freeModules)
-      m.sortModules(d.payload.allocatedModules)
-      return compareValues(pExpData, d.payload, "payload")
-    end)
-  :ValidIf(function(_, d)
-    if d.payload.allowed ~= nil and
-       isAllowedExpected == false then
-      return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
-    end
-    return true
-  end)
+function m.validateOnRCStatusForApp(pAppId, pExpData)
+ local ExpData = utils.cloneTable(pExpData)
+ if ExpData.allowed == nil then ExpData.allowed = true end
+ m.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
+ :ValidIf(function(_, d)
+     m.sortModules(ExpData.freeModules)
+     m.sortModules(ExpData.allocatedModules)
+     m.sortModules(d.payload.freeModules)
+     m.sortModules(d.payload.allocatedModules)
+     return compareValues(ExpData, d.payload, "payload")
+   end)
+ :ValidIf(function(_, d)
+   if d.payload.allowed == nil  then
+     return false, "RC.OnRCStatus notification doesn't contains 'allowed' parameter"
+   end
+   return true
+ end)
 end
 
 function m.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
