@@ -37,6 +37,8 @@ runner.Step("App2 GetInteriorVehicleData with subscribe=true " .. common.modules
   { common.modules[2], true, true, 2 })
 runner.Step("App1 GetInteriorVehicleData with subscribe=false " .. common.modules[1], common.GetInteriorVehicleData,
   { common.modules[1], false, true, 1 })
+  runner.Step("App2 GetInteriorVehicleData without subscribe " .. common.modules[2], common.GetInteriorVehicleData,
+    { common.modules[2], nil, false, 2 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
