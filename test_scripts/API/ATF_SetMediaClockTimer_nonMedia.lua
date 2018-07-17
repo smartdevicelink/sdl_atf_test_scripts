@@ -51,10 +51,12 @@ local arraySoftButtonsParameter = require('user_modules/shared_testcases/testCas
 ---------------------------------------------------------------------------------------------
 
 APIName = "SetMediaClockTimer" -- set request name
-local iTimeout = 5000
+local iTimeout = 6000
 local updateModeNotRequireStartEndTime = {"PAUSE", "RESUME", "CLEAR"}
 local updateMode = {"COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR"}
 local updateModeCountUpDown = {"COUNTUP", "COUNTDOWN"}
+local audioStreamingIndicatorStates={"PLAY_PAUSE","PLAY","PAUSE","STOP"}
+local audioStreamingIndicatorValue = "PLAY_PAUSE";
 local countDown = 0
 local InBound60 = {0, 30, 59}
 local OutBound60 = {-1, 60}
@@ -119,8 +121,7 @@ end
 
 	--2. Update policy to allow request
 	--TODO: Will be updated after policy flow implementation
-	policyTable:precondition_updatePolicy_AllowFunctionInHmiLeves({"BACKGROUND", "FULL", "LIMITED"})
-
+	policyTable:precondition_updatePolicy_AllowFunctionInHmiLeves({"BACKGROUND", "FULL", "LIMITED"},"SetMediaClockTimer_nonMedia")
 
 ---------------------------------------------------------------------------------------------
 -----------------------------------------I TEST BLOCK----------------------------------------
@@ -308,11 +309,16 @@ end
 			--Verification criteria: According to xml tests by Ford team all fake parameters should be ignored by SDL
 
 			--Begin test case CommonRequestCheck.7.1
-			--Description: Check request with fake parameters
+			--Description: Check request with fake parameters and Audio Streaming Indicator
 
 				for i=1,#updateMode do
-					Test["SetMediaClockTimer_FakeParameters_" .. tostring(updateMode[i]).."_REJECTED"] = function(self)
+  					Test["SetMediaClockTimer_FakeParameters_"..tostring(updateMode[i]).."_audioStreamingIndicatorValue_SUCCESS"] = function(self)
 						countDown = 0
+					    	if i < 5 then
+					      		audioStreamingIndicatorValue = audioStreamingIndicatorStates[i]
+					    	else
+					      		audioStreamingIndicatorValue = "PLAY_PAUSE"
+					    	end
 						if updateMode[i] == "COUNTDOWN" then
 							countDown = -1
 						end
@@ -333,7 +339,8 @@ end
 								minutes = 1 + countDown,
 								seconds = 35
 							},
-							updateMode = updateMode[i]
+							updateMode = updateMode[i],
+							audioStreamingIndicator=audioStreamingIndicatorValue
 						})
 
 						--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -395,6 +402,51 @@ end
 			--End test case CommonRequestCheck.7.2
 			-----------------------------------------------------------------------------------------
 
+			--Begin test case CommonRequestCheck.7.3
+			--Description: Check request with parameters of other request
+
+			for i=1,#updateMode do
+			  Test["SetMediaClockTimer_ParametersOfOtherRequest_" .. tostring(updateMode[i]).."_SUCCESS"] = function(self)
+			    countDown = 0
+			    if updateMode[i] == "COUNTDOWN" then
+			      countDown = -1
+			    end
+
+			    --mobile side: sending SetMediaClockTimer request
+			    local cid = self.mobileSession:SendRPC("SetMediaClockTimer",
+			      {
+				syncFileName = "icon.png", --PutFile request
+				startTime =
+				{
+				  hours = 0,
+				  minutes = 1,
+				  seconds = 33
+				},
+				endTime =
+				{
+				  hours = 0,
+				  minutes = 1 + countDown,
+				  seconds = 35
+				},
+				updateMode = updateMode[i],
+				audioStreamingIndicator=audioStreamingIndicatorValue
+			      })
+
+
+				--hmi side: expect absence of UI.SetMediaClockTimer request
+				EXPECT_HMICALL("UI.SetMediaClockTimer")
+				:Timeout(iTimeout)
+				:Times(0)
+				--mobile side: expect SetMediaClockTimer response
+				EXPECT_RESPONSE(cid, { success = false, resultCode = "REJECTED"})
+				:Timeout(iTimeout)
+
+			  end
+			end
+
+			--End test case CommonRequestCheck.7.3
+			-----------------------------------------------------------------------------------------
+
 		--End test case CommonRequestCheck.7
 
 
@@ -419,7 +471,7 @@ end
 					rpcCorrelationId = self.mobileSession.correlationId,
 					-- missing ':' after startTime
 					--payload          = '{"startTime":{"seconds":34,"hours":0,"minutes":12},"endTime":{"seconds":33,"hours":11,"minutes":22},"updateMode":"COUNTUP"}'
-					payload          = '{"startTime" {"seconds":34,"hours":0,"minutes":12},"endTime":{"seconds":33,"hours":11,"minutes":22},"updateMode":"COUNTUP"}'
+      					payload          = '{"startTime" {"seconds":34,"hours":0,"minutes":12},"endTime":{"seconds":33,"hours":11,"minutes":22},"updateMode":"COUNTUP","audioStreamingIndicator":"PLAY_PAUSE"}'
 				}
 				self.mobileSession:Send(msg)
 
@@ -459,7 +511,8 @@ end
 						minutes = 1,
 						seconds = 35
 					},
-					updateMode = "COUNTUP"
+				        updateMode = "COUNTUP",
+				        audioStreamingIndicator="PLAY_PAUSE"
 				})
 
 				--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -479,7 +532,7 @@ end
 							rpcType          = 0,
 							rpcFunctionId    = 15, --SetMediaClockTimerID
 							rpcCorrelationId = cid,
-							payload          = '{"startTime":{"seconds":33,"hours":0,"minutes":1},"endTime":{"seconds":35,"hours":0,"minutes":1},"updateMode":"COUNTUP"}'
+            						payload          = '{"startTime":{"seconds":33,"hours":0,"minutes":1},"endTime":{"seconds":35,"hours":0,"minutes":1},"updateMode":"COUNTUP","audioStreamingIndicator":"PLAY_PAUSE"}'
 						}
 						self.mobileSession:Send(msg)
 					end
@@ -1228,7 +1281,8 @@ end
 									minutes = 1,
 									seconds = 35
 								},
-								updateMode = updateMode[j]
+								updateMode = updateMode[j],
+								audioStreamingIndicator="PLAY_PAUSE"
 							})
 
 							--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -1262,7 +1316,8 @@ end
 									minutes = 1,
 									seconds = 35
 								},
-								updateMode = updateMode[j]
+								updateMode = updateMode[j],
+								audioStreamingIndicator="PLAY_PAUSE"
 							})
 
 							--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -1303,7 +1358,8 @@ end
 									minutes = 1,
 									seconds = 35
 								},
-								updateMode = updateMode[j]
+								updateMode = updateMode[j],
+								audioStreamingIndicator="PLAY_PAUSE"
 							})
 
 							--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -1337,7 +1393,8 @@ end
 									minutes = "",
 									seconds = 35
 								},
-								updateMode = updateMode[j]
+								updateMode = updateMode[j],
+								audioStreamingIndicator="PLAY_PAUSE"
 							})
 
 							--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -1793,6 +1850,40 @@ end
 				--End test case NegativeRequestCheck.3.3
 				-----------------------------------------------------------------------------------------
 
+
+				--Begin test case NegativeRequestCheck.3.4
+				--Description: 4.4. The request with wrong data in "audioStreamingIndicator" parameter (e.g. integer value) is sent , the response with INVALID_DATA result code is returned.
+
+				function Test:SetMediaClockTimer_audioStreamingIndicator_IsInvalidValue_WrongType_INVALID_DATA()
+
+				  --mobile side: sending SetMediaClockTimer request
+				  local cid = self.mobileSession:SendRPC("SetMediaClockTimer",
+				    {
+				      startTime =
+				      {
+					hours = 1,
+					minutes = 1,
+					seconds = 33,
+				      },
+				      endTime =
+				      {
+					hours = 1,
+					minutes = 1,
+					seconds = 35
+				      },
+				      updateMode = "COUNTUP",
+				      audioStreamingIndicator="FAKE"
+				    })
+
+				  --mobile side: expect SetMediaClockTimer response
+				  EXPECT_RESPONSE(cid, { success = false, resultCode = "INVALID_DATA"})
+				    :Timeout(iTimeout)
+
+				end
+
+				--End test case NegativeRequestCheck.3.4
+				-------------------------------------------------------------------------------------------
+
 		--End test case NegativeRequestCheck.3
 
 
@@ -1845,7 +1936,8 @@ end
 
 
 			for j =1, #updateMode do
-				Test["UI_SetMediaClockTimer_resultCode_APPLICATION_NOT_REGISTERED".."_"..tostring(updateMode[j])] = function(self)
+				  for k =1, #audioStreamingIndicatorStates do
+				    Test["UI_SetMediaClockTimer_resultCode_APPLICATION_NOT_REGISTERED".."_"..tostring(updateMode[j]).."_" .. tostring(audioStreamingIndicatorStates[k])] = function(self)
 					countDown = 0
 					if updateMode[j] == "COUNTDOWN" then
 						countDown = -1
@@ -1866,7 +1958,8 @@ end
 							minutes = 1 + countDown,
 							seconds = 35
 						},
-						updateMode = updateMode[j]
+					  	updateMode = updateMode[j],
+					  	audioStreamingIndicator=audioStreamingIndicatorStates[k]
 					})
 
 					--hmi side: expect absence of UI.SetMediaClockTimer request
@@ -1877,7 +1970,7 @@ end
 					--mobile side: expect SetMediaClockTimer response
 					self.mobileSession2:ExpectResponse(cid, { success = false, resultCode = "APPLICATION_NOT_REGISTERED" })
 				end
-
+  			    end
 			end
 
 		--End test case ResultCodeCheck.1
