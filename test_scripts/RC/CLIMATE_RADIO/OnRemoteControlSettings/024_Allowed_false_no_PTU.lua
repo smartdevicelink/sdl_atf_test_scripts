@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/11
 -- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/rc_enabling_disabling.md
--- Item: Use Case 1: Main Flow
+-- Item: Use Case 1: Main Flow (updates https://github.com/smartdevicelink/sdl_core/issues/2173)
 --
 -- Requirement summary:
 -- [SDL_RC] Resource allocation based on access mode
@@ -13,8 +13,7 @@
 -- SDL must:
 -- 1) store RC state allowed:false internally
 -- 2) assign HMILevel none to all registered applications with appHMIType REMOTE_CONTROL
--- and send OnHMIStatus (NONE) to such apps
--- 3) keep all applications with appHMIType REMOTE_CONTROL registered
+-- 3) keep all applications with appHMIType REMOTE_CONTROL registered and in current HMI levels
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -63,12 +62,12 @@ local function activate_app(pAppId, self)
 end
 
 local function disableRCFromHMI(self)
-	commonRC.defineRAMode(false, nil, self)
+  commonRC.defineRAMode(false, nil, self)
 
-	self.mobileSession1:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
-  :Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
-	self.mobileSession2:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
-  :Times(AtLeast(1)) -- issue with SDL --> notification is sent twice
+  self.mobileSession1:ExpectNotification("OnHMIStatus")
+  :Times(0)
+  self.mobileSession2:ExpectNotification("OnHMIStatus")
+  :Times(0)
   self.mobileSession3:ExpectNotification("OnHMIStatus")
   :Times(0)
 
