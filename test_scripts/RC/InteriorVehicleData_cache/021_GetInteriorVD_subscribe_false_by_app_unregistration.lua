@@ -7,10 +7,12 @@
 --
 -- Description:
 -- In case
--- 1. Mobile app is subscribed to module_1
--- 2. Mobile app unregisters
+-- 1. Mobile app1 is subscribed to module_1
+-- 2. Mobile app1 unregisters
+-- 3. Mobile app2 sends GetInteriorVD(module_1, without subscribe)
 -- SDL must
 -- 1. send GetInteriorVD(module_1, subscribe = false) request to HMI
+-- 2. send GetInteriorVD(module_1, without subscribe) request to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -23,15 +25,19 @@ runner.testSettings.isSelfIncluded = false
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("Register app", common.registerAppWOPTU, { 1 })
-runner.Step("Activate app", common.activateApp, { 1 })
+runner.Step("Register app1", common.registerAppWOPTU, { 1 })
+runner.Step("Register app2", common.registerAppWOPTU, { 2 })
+runner.Step("Activate app1", common.activateApp, { 1 })
+runner.Step("Activate app2", common.activateApp, { 2, "NOT_AUDIBLE" })
 
 runner.Title("Test")
 
-runner.Step("GetInteriorVehicleData with subscribe=true " .. common.modules[1], common.GetInteriorVehicleData,
+runner.Step("App1 GetInteriorVehicleData with subscribe=true " .. common.modules[1], common.GetInteriorVehicleData,
   { common.modules[1], true, true, 1 })
-runner.Step("RC.GetInteriorVehicleData with subscribe=false by app unregistration " .. common.modules[1],
+runner.Step("RC.GetInteriorVehicleData with subscribe=false by app1 unregistration " .. common.modules[1],
   common.unregistrationApp, { 1, true, common.modules[1] })
+runner.Step("App2 GetInteriorVehicleData without subscribe to check cache cleaning " .. common.modules[1],
+  common.GetInteriorVehicleData, { common.modules[1], nil, true, 2 })
 
 
 runner.Title("Postconditions")
