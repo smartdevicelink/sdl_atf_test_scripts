@@ -14,6 +14,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local initialCommon = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -52,7 +53,7 @@ local function missingMandatoryParam(pModuleType)
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
   :Do(function(_, data)
-      local moduleData = commonRC.getModuleControlData(pModuleType)
+      local moduleData = initialCommon.getModuleControlData(pModuleType)
       moduleData.moduleType = nil -- missing mandatory parameter
       commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = moduleData

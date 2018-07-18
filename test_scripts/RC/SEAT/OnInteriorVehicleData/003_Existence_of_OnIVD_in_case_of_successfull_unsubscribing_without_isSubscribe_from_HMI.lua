@@ -17,6 +17,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local initialCommon = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -30,19 +31,18 @@ local function unSubscriptionToModule(pModuleType)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = false
   })
   :Do(function(_, data)
       commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = initialCommon.getModuleControlData(pModuleType),
         -- no isSubscribed parameter
       })
     end)
 
   mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
-    moduleData = commonRC.getModuleControlData(pModuleType),
+    moduleData = initialCommon.getModuleControlData(pModuleType),
     isSubscribed = true
   })
 end

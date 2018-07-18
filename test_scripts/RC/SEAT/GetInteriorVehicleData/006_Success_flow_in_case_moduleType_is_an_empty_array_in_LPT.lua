@@ -14,6 +14,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local initialCommon = require('test_scripts/RC/commonRC')
 local json = require('modules/json')
 
 --[[ Test Configuration ]]
@@ -28,20 +29,19 @@ local function getDataForModule(pModuleType)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
       commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = initialCommon.getModuleControlData(pModuleType),
         isSubscribed = true
       })
     end)
 
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     isSubscribed = true,
-    moduleData = commonRC.getModuleControlData(pModuleType)
+    moduleData = initialCommon.getModuleControlData(pModuleType)
   })
 end
 

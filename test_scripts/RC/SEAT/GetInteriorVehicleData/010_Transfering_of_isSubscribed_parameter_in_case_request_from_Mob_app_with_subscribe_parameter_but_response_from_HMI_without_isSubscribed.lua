@@ -16,12 +16,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local initialCommon = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe)
+local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, pHMIrequests)
   local mobSession = commonRC.getMobileSession()
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
@@ -34,12 +35,11 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe)
   end
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType
   })
   :Do(function(_, data)
        commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = initialCommon.getModuleControlData(pModuleType),
         -- no isSubscribed parameter
       })
     end)
@@ -49,10 +49,11 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe)
       end
       return false, 'Parameter "subscribe" is transfered to HMI with value: ' .. tostring(data.params.subscribe)
     end)
+  :Times(pHMIrequests)
 
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     isSubscribed = isSubscriptionActive, -- return current value of subscription
-    moduleData = commonRC.getModuleControlData(pModuleType)
+    moduleData = initialCommon.getModuleControlData(pModuleType)
   })
 end
 
@@ -64,12 +65,12 @@ runner.Step("RAI, PTU", commonRC.rai_ptu)
 runner.Step("Activate App", commonRC.activate_app)
 
 runner.Title("Test")
-runner.Step("GetInteriorVehicleData SEAT NoSubscription_subscribe", getDataForModule, { "SEAT", false, true })
-runner.Step("GetInteriorVehicleData SEAT NoSubscription_unsubscribe", getDataForModule, { "SEAT", false, false })
+runner.Step("GetInteriorVehicleData SEAT NoSubscription_subscribe", getDataForModule, { "SEAT", false, true, 1 })
+runner.Step("GetInteriorVehicleData SEAT NoSubscription_unsubscribe", getDataForModule, { "SEAT", false, false, 1 })
 
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
-runner.Step("GetInteriorVehicleData SEAT ActiveSubscription_subscribe", getDataForModule, { "SEAT", true, true })
-runner.Step("GetInteriorVehicleData SEAT ActiveSubscription_unsubscribe", getDataForModule, { "SEAT", true, false })
+runner.Step("GetInteriorVehicleData SEAT ActiveSubscription_subscribe", getDataForModule, { "SEAT", true, true, 0 })
+runner.Step("GetInteriorVehicleData SEAT ActiveSubscription_unsubscribe", getDataForModule, { "SEAT", true, false, 1 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

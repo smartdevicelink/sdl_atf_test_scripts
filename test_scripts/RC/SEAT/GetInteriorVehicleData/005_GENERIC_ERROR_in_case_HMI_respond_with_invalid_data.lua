@@ -16,6 +16,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local initialCommon = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,13 +30,12 @@ local function invalidParamType(pModuleType)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
       commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = initialCommon.getModuleControlData(pModuleType),
         isSubscribed = "yes" -- invalid type of parameter
       })
     end)
@@ -51,13 +51,12 @@ local function missingMandatoryParam(pModuleType)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     subscribe = true
   })
 
   :Do(function(_, data)
-      local moduleData = commonRC.getModuleControlData(pModuleType)
+      local moduleData = initialCommon.getModuleControlData(pModuleType)
       moduleData.moduleType = nil -- missing mandatory parameter
       commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = moduleData,
