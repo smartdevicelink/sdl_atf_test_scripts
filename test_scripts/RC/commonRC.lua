@@ -443,16 +443,15 @@ local rcRPCs = {
         subscribe = pSubscribe
       }
     end,
-    hmiRequestParams = function(pModuleType, pAppId, pSubscribe)
+    hmiRequestParams = function(pModuleType, _, pSubscribe)
       return {
-        appID = commonRC.getHMIAppId(pAppId),
         moduleType = pModuleType,
         subscribe = pSubscribe
       }
     end,
     hmiResponseParams = function(pModuleType, pSubscribe)
       return {
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = commonRC.actualInteriorDataStateOnHMI[pModuleType],
         isSubscribed = pSubscribe
       }
     end,
@@ -460,7 +459,7 @@ local rcRPCs = {
       return {
         success = success,
         resultCode = resultCode,
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = commonRC.actualInteriorDataStateOnHMI[pModuleType],
         isSubscribed = pSubscribe
       }
     end
@@ -592,6 +591,7 @@ function commonRC.subscribeToModule(pModuleType, pAppId, self)
   EXPECT_HMICALL(commonRC.getHMIEventName(rpc), commonRC.getHMIRequestParams(rpc, pModuleType, pAppId, subscribe))
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(rpc, pModuleType, subscribe))
+      commonRC.setActualInteriorVD(pModuleType, commonRC.getHMIResponseParams(rpc, pModuleType, subscribe).moduleData)
     end)
   mobSession:ExpectResponse(cid, commonRC.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, subscribe))
 end
@@ -614,6 +614,7 @@ function commonRC.isSubscribed(pModuleType, pAppId, self)
   local mobSession = commonRC.getMobileSession(self, pAppId)
   local rpc = "OnInteriorVehicleData"
   self.hmiConnection:SendNotification(commonRC.getHMIEventName(rpc), commonRC.getHMIResponseParams(rpc, pModuleType))
+  commonRC.setActualInteriorVD(pModuleType, commonRC.getHMIResponseParams(rpc, pModuleType).moduleData)
   mobSession:ExpectNotification(commonRC.getAppEventName(rpc), commonRC.getAppResponseParams(rpc, pModuleType))
 end
 
@@ -775,5 +776,29 @@ function commonRC.deleteHMIAppId(pAppId)
   hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID] = nil
 end
 
+commonRC.actualInteriorDataStateOnHMI = {
+  CLIMATE = utils.cloneTable(commonRC.getModuleControlData("CLIMATE")),
+  RADIO = utils.cloneTable(commonRC.getModuleControlData("RADIO"))
+}
+
+function commonRC.setActualInteriorVD(pModuleType, pParams)
+  local moduleParams
+  if pModuleType == "CLIMATE" then
+    moduleParams = "climateControlData"
+  else
+    moduleParams = "radioControlData"
+  end
+  for key, value in pairs(pParams[moduleParams]) do
+    if type(value) ~= "table" then
+      if value ~= commonRC.actualInteriorDataStateOnHMI[pModuleType][moduleParams][key] then
+        commonRC.actualInteriorDataStateOnHMI[pModuleType][moduleParams][key] = value
+      end
+    else
+      if false == commonFunctions:is_table_equal(value, commonRC.actualInteriorDataStateOnHMI[pModuleType][moduleParams][key]) then
+        commonRC.actualInteriorDataStateOnHMI[pModuleType][moduleParams][key] = value
+      end
+    end
+  end
+end
 
 return commonRC

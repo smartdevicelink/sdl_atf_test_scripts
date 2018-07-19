@@ -30,7 +30,6 @@ local function invalidParamType(pModuleType, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })
@@ -51,7 +50,6 @@ local function missingMandatoryParam(pModuleType, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })

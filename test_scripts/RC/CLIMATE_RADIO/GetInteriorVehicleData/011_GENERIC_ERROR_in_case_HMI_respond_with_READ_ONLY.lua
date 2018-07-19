@@ -28,7 +28,6 @@ local function getDataForModule(module_type, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = module_type,
     subscribe = true
   })

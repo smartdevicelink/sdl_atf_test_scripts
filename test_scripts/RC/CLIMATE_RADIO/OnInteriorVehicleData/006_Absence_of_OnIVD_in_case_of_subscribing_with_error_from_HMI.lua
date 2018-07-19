@@ -32,7 +32,6 @@ local function subscriptionToModule(pModuleType, pResultCode, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })

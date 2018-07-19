@@ -41,12 +41,11 @@ local function subscriptionToModule(pModuleType, pSubscribe, self)
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = commonRC.getModuleControlData(pModuleType),
+        moduleData = commonRC.actualInteriorDataStateOnHMI[pModuleType],
         isSubscribed = pSubscribe
       })
     end)
@@ -56,9 +55,10 @@ local function subscriptionToModule(pModuleType, pSubscribe, self)
       end
       return false, 'Parameter "subscribe" is transfered to HMI with value: ' .. tostring(data.params.subscribe)
     end)
+  :Times(AtMost(1))
 
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
-    moduleData = commonRC.getModuleControlData(pModuleType),
+    moduleData = commonRC.actualInteriorDataStateOnHMI[pModuleType],
     isSubscribed = pSubscribe
   })
 end
