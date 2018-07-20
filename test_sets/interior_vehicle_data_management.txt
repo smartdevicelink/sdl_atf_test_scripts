@@ -37,3 +37,4 @@
 ./test_scripts/RC/InteriorVehicleData_cache/036_GetInteriorVD_subscribe_false_by_revoking_module.lua
 ./test_scripts/RC/InteriorVehicleData_cache/037_GetInteriorVD_subscribe_false_without_subscribtion.lua
 ./test_scripts/RC/InteriorVehicleData_cache/038_OnInteriorVD_one_parameter.lua
+./test_scripts/RC/InteriorVehicleData_cache/039_GetInteriorVD_limitation_time_interval.lua
