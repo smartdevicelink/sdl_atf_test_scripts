@@ -1,0 +1,10 @@
+./test_scripts/API/VehicleData/DOP/001_GVD_inbound_max_value_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/002_GVD_outbound_max_value_GENERIC_ERROR.lua
+./test_scripts/API/VehicleData/DOP/003_GVD_missing_one_parameter_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/004_OVD_inbound_max_value_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/005_OVD_outbound_max_value_ignored.lua
+./test_scripts/API/VehicleData/DOP/006_OVD_missing_one_parameter_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/007_GVD_all_parameters_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/008_GVD_missing_all_parameters_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/009_OVD_all_parameters_SUCCESS.lua
+./test_scripts/API/VehicleData/DOP/010_OVD_missing_all_parameters_SUCCESS.lua
