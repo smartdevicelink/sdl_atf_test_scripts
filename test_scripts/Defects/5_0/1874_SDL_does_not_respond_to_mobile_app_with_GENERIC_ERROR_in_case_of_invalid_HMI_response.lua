@@ -24,37 +24,22 @@ local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/commonDefects')
 
 -- [[ Local Variables]]
-local function pTUpdateFunc(tbl)
-  table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups, "DrivingCharacteristics-3")
-end
+local hmiResponseParams = {
+	missingMandatory = { steeringWheelAngle  = 2000, myKey = { fakeValue = "NO_DATA_EXISTS" }},
+	outOfBounds = {steeringWheelAngle = 2001, myKey = { e911Override = "NO_DATA_EXISTS" }},
+	wrongType = {steeringWheelAngle = "10", myKey = { e911Override = "NO_DATA_EXISTS" }}
+}
 
 -- [[ Local Functions ]]
-local function missingMandatoryParam(self)
-	local cid = self.mobileSession1:SendRPC("GetVehicleData", {steeringWheelAngle = true, myKey = true} )
-	EXPECT_HMICALL("VehicleInfo.GetVehicleData", {steeringWheelAngle = true, myKey = true})
-	:Do(function(_, data)
-		self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetVehicleData", "SUCCESS",
-		{ steeringWheelAngle  = 2000, myKey = { fakeValue = "NO_DATA_EXISTS" }} )
-	end)
-	self.mobileSession1:ExpectResponse(cid, {success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
+local function pTUpdateFunc(tbl)
+	table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups, "DrivingCharacteristics-3")
 end
 
-local function paramsOutOfBounds(self)
+local function getVehicleDataGenericError(pHMIresponseParams, self)
 	local cid = self.mobileSession1:SendRPC("GetVehicleData", {steeringWheelAngle = true, myKey = true} )
 	EXPECT_HMICALL("VehicleInfo.GetVehicleData", {steeringWheelAngle = true, myKey = true})
 	:Do(function(_, data)
-		self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetVehicleData", "SUCCESS",
-		{steeringWheelAngle = 2001, myKey = { e911Override = "NO_DATA_EXISTS" }} )
-	end)
-	self.mobileSession1:ExpectResponse(cid, {success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
-end
-
-local function wrongTypeParams(self)
-	local cid = self.mobileSession1:SendRPC("GetVehicleData", {steeringWheelAngle = true, myKey = true} )
-	EXPECT_HMICALL("VehicleInfo.GetVehicleData", {steeringWheelAngle = true, myKey = true})
-	:Do(function(_, data)
-		self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetVehicleData", "SUCCESS",
-		{steeringWheelAngle = "10", myKey = { e911Override = "NO_DATA_EXISTS" }} )
+		self.hmiConnection:SendResponse(data.id, "VehicleInfo.GetVehicleData", "SUCCESS", pHMIresponseParams)
 	end)
 	self.mobileSession1:ExpectResponse(cid, {success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle"})
 end
@@ -67,9 +52,9 @@ runner.Step("App registration, PTU", common.rai_ptu, {pTUpdateFunc})
 runner.Step("Activate App", common.activate_app)
 
 runner.Title("Test")
-runner.Step("GetVehicleData response with mandatory params are missing", missingMandatoryParam)
-runner.Step("GetVehicleData response with params out of bounds", paramsOutOfBounds)
-runner.Step("GetVehicleData response with params of wrong type", wrongTypeParams)
+for key, value in pairs(hmiResponseParams) do
+	runner.Step("GetVehicleData response " .. key, getVehicleDataGenericError, { value })
+end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
