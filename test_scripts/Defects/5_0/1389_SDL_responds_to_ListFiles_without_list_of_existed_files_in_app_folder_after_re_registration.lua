@@ -34,16 +34,17 @@ local putFileParams = {
 	filePath = "files/icon.png"
 }
 
-local requestParams = {}
-
 local responseParams = {
 	success = true,
 	resultCode = "SUCCESS"
 }
 
 local allParams = {
-	requestParams = requestParams,
-	responseParams = responseParams
+	requestParams = {},
+	responseParams = {
+		success = true,
+		resultCode = "SUCCESS"
+   }
 }
 
 --[[ Local Functions ]]
@@ -56,7 +57,7 @@ local function ListFiles(params, self)
 	local cid = self.mobileSession1:SendRPC("ListFiles", params.requestParams)
 	self.mobileSession1:ExpectResponse(cid, params.responseParams )
 	:ValidIf (function(_, data)
-		if data.payload.filenames ~= nil then
+		if data.payload.filenames[1] == "icon.png" then
 			return true
 		else
 			return false, "File is absent in ListFiles"
