@@ -121,6 +121,41 @@ local PerformInteractionRequestParamsBOTH = {
   interactionLayout = "ICON_ONLY"
 }
 
+local PerformInteractionRequestParamsBOTHWithoutTimeout = {
+  initialText = "StartPerformInteraction",
+  initialPrompt = {
+    {
+      text = "Make your choice",
+      type = "TEXT"
+    }
+  },
+  interactionMode = "BOTH",
+  interactionChoiceSetIDList = {100},
+  helpPrompt = {
+    {
+      text = "Help Prompt",
+      type = "TEXT",
+    }
+  },
+  timeoutPrompt = {
+    {
+      text = " Time out ",
+      type = "TEXT",
+    }
+  },
+  vrHelp = {
+    {
+      text = " New VRHelp ",
+      position = 1,
+      image = {
+        value = "icon.png",
+        imageType = "STATIC",
+      }
+    }
+  },
+  interactionLayout = "ICON_ONLY"
+}
+
 local PerformInteractionRequestParamsMANUAL = {
   initialText = "StartPerformInteraction",
   interactionMode = "MANUAL_ONLY",
@@ -316,11 +351,11 @@ local function PerformInteraction(params, self)
     RespTimeout = DefaultTimeout + 2*PIDuration
   end
   local cid = self.mobileSession1:SendRPC("PerformInteraction", params)
+  RequestTime = timestamp()
   EXPECT_HMICALL("VR.PerformInteraction")
   :Do(function(_,data)
       local function RespVR()
         self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-        RequestTime = timestamp()
       end
       RUN_AFTER(RespVR, TimeToResponseForVR)
     end)
@@ -394,6 +429,8 @@ runner.Step("ScrollableMessage_default_timeout", ScrollableMessage,
 runner.Step("CreateInteractionChoiceSet", CreateInteractionChoiceSet)
 runner.Step("PerformInteraction_default_timeout_and_PI_timeout_BOTH", PerformInteraction,
   { PerformInteractionRequestParamsBOTH })
+runner.Step("PerformInteraction_default_timeout_and_PI_default_timeout_BOTH", PerformInteraction,
+  { PerformInteractionRequestParamsBOTHWithoutTimeout })
 runner.Step("PerformInteraction_default_timeout_and_PI_timeout_MANUAL", PerformInteraction,
   { PerformInteractionRequestParamsMANUAL })
 runner.Step("PerformInteraction_timeout_VR", PerformInteractionVR, { PerformInteractionRequestParamsVR })
