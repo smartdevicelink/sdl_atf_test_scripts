@@ -18,6 +18,28 @@ local common = require('user_modules/sequences/actions')
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+-- [[ Local variable ]]
+local gpsData = {
+        longitudeDegrees = 42.5,
+        latitudeDegrees = -83.3,
+        utcYear = 2013,
+        utcMonth = 2,
+        utcDay = 14,
+        utcHours = 13,
+        utcMinutes = 16,
+        utcSeconds = 54,
+        compassDirection = "SOUTHWEST",
+        pdop = 9,
+        hdop = 6.9,
+        vdop = 6.2,
+        actual = false,
+        satellites =  8,
+        dimension = "2D",
+        altitude = 7.7,
+        heading = 173.99,
+        speed = 2.78
+}
+
 --[[ Local Functions ]]
 local function subscribeVehicleData()
     local gpsResponseData = {
@@ -32,9 +54,13 @@ local function subscribeVehicleData()
       common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", gps = gpsResponseData })
 end
 
-function sendOnVehicleData()
-    local gpsData = {}
-    common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = gpsData })
+function sendOnVehicleDataFull(param)
+    common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = param})
+    common.getMobileSession():ExpectNotification("OnVehicleData", { gps = param })
+end
+
+function sendOnVehicleDataEmpty()
+    common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = {} })
     common.getMobileSession():ExpectNotification("OnVehicleData")
     :Times(0)
 end
@@ -49,7 +75,8 @@ runner.Step("Activate App", common.activateApp)
 -- [[ Test ]]
 runner.Title("Test")
 runner.Step("Subscribe GPS VehicleData", subscribeVehicleData)
-runner.Step("Send OnVehicleData with empty structure", sendOnVehicleData)
+runner.Step("Send OnVehicleData with full structure", sendOnVehicleDataFull, { gpsData })
+runner.Step("Send OnVehicleData with empty structure", sendOnVehicleDataEmpty)
 
 
 -- [[ Postconditions ]]
