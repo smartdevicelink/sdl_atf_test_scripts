@@ -40,6 +40,17 @@ local function HBACKFromSDLMsg()
   return HBMsg(255, "HB_ACK")
 end
 
+local function EndSrvcMsg()
+  local event = events.Event()
+  event.matches = function(_, data)
+    return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME and
+    data.serviceType == 7 and data.frameInfo == constants.FRAME_INFO.END_SERVICE
+  end
+  local ret = common.getMobileSession():ExpectEvent(event, "EndService")
+  ret:Do(function() ts_log("SDL->MOB: EndService RPC") end)
+  return ret
+end
+
 local function openConnectionCreateSession()
   local session = common.getMobileSession()
   session.activateHeartbeat = false
@@ -77,6 +88,10 @@ end
 
 local function disconnectDueToHeartbeat()
   local timeout = 16000
+  HBFromSDLMsg()
+  :Timeout(timeout)
+  EndSrvcMsg()
+  :Timeout(timeout)
   common.getMobileConnection():ExpectEvent(events.disconnectedEvent, "Disconnected")
   :Do(function() ts_log("Mobile disconnected") end)
   :Timeout(timeout)
