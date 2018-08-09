@@ -1,0 +1,50 @@
+---------------------------------------------------------------------------------------------------
+-- User story:TBD
+-- Use case:TBD
+--
+-- Requirement summary:
+-- TBD
+--
+-- Description:
+-- SDL is successfully application registrations with supported "type" param for "ttsName"
+-- In case:
+-- 1) The mobile application is registered with supported ttsName types.
+-- SDL does:
+-- 1) Successfully register the mobile application with resultСode: "SUCCESS".
+---------------------------------------------------------------------------------------------------
+--[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
+local common = require('test_scripts/API/Registration/commonRAI')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
+--[[ Local Variables ]]
+local typeParams = {
+  "PRE_RECORDED",
+  "SAPI_PHONEMES",
+  "LHPLUS_PHONEMES",
+  "SILENCE"
+}
+
+--[[ Local Functions ]]
+local function setRAIparams(pType)
+  local params = common.getRequestParams(1)
+  params.ttsName = {{ text = "SyncProxyTester", type = pType}}
+  return params
+end
+
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, init HMI, connect Mobile", common.start)
+
+for _, v in ipairs (typeParams) do
+  runner.Title("Test")
+  runner.Step("Registered with ttsName_type " .. v, common.registerApp, { 1, setRAIparams(v) })
+  runner.Step("Application unregistered", common.unregisterAppInterface)
+  runner.Step("Clean sessions", common.cleanSessions)
+end
+
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)
