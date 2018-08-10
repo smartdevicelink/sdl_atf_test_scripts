@@ -33,7 +33,7 @@ local function dialNumber(pParam)
     common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
     :ValidIf(function(_, data)
         if data.payload.info then
-            return false, "Unexpected parameter in SDL response"
+            return false, "Unexpected parameter 'info' in DialNumber response"
         end
         return true
     end)
