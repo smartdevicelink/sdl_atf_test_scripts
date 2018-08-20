@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -26,14 +26,14 @@ local function rai_ttsNameType_FILE()
         local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface",
         {
             syncMsgVersion = {
-            majorVersion = 3,
+            majorVersion = 5,
             minorVersion = 0 },
             appName = "SyncProxyTester",
             isMediaApplication = true,
             languageDesired = 'EN-US',
             hmiDisplayLanguageDesired = 'EN-US',
             appID = "2",
-            ttsName = {{ text = "4005", type = "FILE"}}
+            ttsName = {{ text = "SyncProxyTester", type = "FILE"}}
         })
         common.getMobileSession():ExpectResponse(CorIdRegister, { success = true, resultCode = "WARNINGS" })
     end)

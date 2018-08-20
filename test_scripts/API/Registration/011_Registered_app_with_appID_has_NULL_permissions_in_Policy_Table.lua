@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -28,13 +28,21 @@ runner.testSettings.isSelfIncluded = false
 local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
 
 --[[ Local Functions ]]
+local function backupPreloadedPT()
+    commonPreconditions:BackupFile(preloadedPT)
+end
+
 local function updatePreloadedPT()
     local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
     local pt = utils.jsonFileToTable(preloadedFile)
     pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
     pt.policy_table.app_policies["0000001"] = json.null
     utils.tableToJsonFile(pt, preloadedFile)
-  end
+end
+
+local function restorePreloadedPT()
+    commonPreconditions:RestoreFile(preloadedPT)
+end
 
 local function rai_appIDNullPermissions()
     common.getMobileSession():StartService(7)
@@ -62,6 +70,7 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Back-up PreloadedPT", backupPreloadedPT)
 runner.Step("Preloaded update", updatePreloadedPT)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
@@ -70,3 +79,4 @@ runner.Step("Application registered with appName which not Listed In NickNames D
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
+runner.Step("Restore PreloadedPT", restorePreloadedPT)

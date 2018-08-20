@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -8,9 +8,9 @@
 --
 -- Description:
 -- In case:
--- 1) The mobile application registered with supported ttsName types.
+-- 1) The mobile application is registered with supported ttsName types.
 -- SDL does:
--- 1) Successfully registers the mobile application with resultСode: "SUCCESS".
+-- 1) Successfully register the mobile application with resultСode: "SUCCESS".
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -21,10 +21,10 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local typeParams = {
-    PRE_RECORDED = "PRE_RECORDED",
-    SAPI_PHONEMES = "SAPI_PHONEMES",
-    LHPLUS_PHONEMES = "LHPLUS_PHONEMES",
-    SILENCE = "SILENCE"
+    "PRE_RECORDED",
+    "SAPI_PHONEMES",
+    "LHPLUS_PHONEMES",
+    "SILENCE"
 }
 
 --[[ Scenario ]]
@@ -32,11 +32,11 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
-for k, v in pairs (typeParams) do
-runner.Title("Test")
-runner.Step("Registered with ttsName_type " .. k, common.registerApp, {v})
-runner.Step("Application unregistered", common.unregisterAppInterface)
-runner.Step("Clean sessions", common.cleanSessions)
+for _, v in ipairs (typeParams) do
+    runner.Title("Test")
+    runner.Step("Registered with ttsName_type " .. _, common.registerApp, { 1, v })
+    runner.Step("Application unregistered", common.unregisterAppInterface)
+    runner.Step("Clean sessions", common.cleanSessions)
 end
 
 runner.Title("Postconditions")

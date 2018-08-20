@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -10,7 +10,7 @@
 -- In case:
 -- 1) Check that SDL returns SDL version in RegisterAppInterface response
 -- SDL does:
--- 1) Does not send GetSystemInfo during register mobile application and returns SDL version in RegisterAppInterface response.
+-- 1) Not send and return SDL version in RegisterAppInterface response.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -34,26 +34,6 @@ local function updateINIFile(pVercions)
     commonFunctions:write_parameter_to_smart_device_link_ini("SDLVersion", pVercions)
 end
 
-local function sdlVersionInRAIResponse(pSDLvercions)
-    common.getMobileSession():StartService(7)
-    :Do(function()
-        local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface",
-        {
-            syncMsgVersion = {
-            majorVersion = 3,
-            minorVersion = 0 },
-            appName = "TestApplication",
-            isMediaApplication = true,
-            languageDesired = 'EN-US',
-            hmiDisplayLanguageDesired = 'EN-US',
-            appID = "1"
-        })
-        EXPECT_HMICALL("BasicCommunication.GetSystemInfo")
-        :Times(0)
-        common.getMobileSession():ExpectResponse(CorIdRegister, { success = true, resultCode = "SUCCESS", sdlVersion = pSDLvercions })
-    end)
-end
-
 --[[ Scenario ]]
 for k, v in pairs (sdlVersionsParams) do
     runner.Title("Preconditions")
@@ -62,10 +42,11 @@ for k, v in pairs (sdlVersionsParams) do
     runner.Title("Test")
     runner.Step("Update .ini file", updateINIFile, { v })
     runner.Step("Start SDL, init HMI, connect Mobile", common.start)
-    runner.Step("systemSoftwareVersion" .. k, sdlVersionInRAIResponse, { v })
+    runner.Step("systemSoftwareVersion " .. k, common.registerApp, { pAppId, pParam, presultParam, v })
     runner.Step("Application unregistered", common.unregisterAppInterface)
     runner.Step("Clean sessions", common.cleanSessions)
 
     runner.Title("Postconditions")
     runner.Step("Stop SDL", common.postconditions)
+    runner.Step("Restore PreloadedPT", common.restorePreloadedPT)
 end

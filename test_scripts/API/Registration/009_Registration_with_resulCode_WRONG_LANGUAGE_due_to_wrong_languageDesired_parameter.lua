@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -8,7 +8,7 @@
 --
 -- Description:
 -- In case:
--- 1) Mobile application is registered with wrong "languageDesired" parameter.
+-- 1) The mobile application is registerы with value for "languageDesired" , which does not match the ones installed on the HMI.
 -- SDL does:
 -- 1) Send the WRONG_LANGUAGE response result code to mobile application.
 ---------------------------------------------------------------------------------------------------
@@ -49,8 +49,8 @@ local function rai_languageDesiredWrong(params)
         local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface",params)
         common.getHMIConnection("BasicCommunication.OnAppRegistered",
         {
-            appName = "SyncProxyTester",
-            isMediaApplication = true,
+            appName = params.appName,
+            isMediaApplication = params.isMediaApplication ,
             hmiDisplayLanguageDesired = 'EN-US',
             appID = "1"
         })

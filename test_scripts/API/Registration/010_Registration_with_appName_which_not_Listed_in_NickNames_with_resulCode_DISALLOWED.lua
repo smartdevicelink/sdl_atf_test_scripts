@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -8,41 +8,36 @@
 --
 -- Description:
 -- In case:
--- 1) Application is tries to registere with appName which not listed in nickNames.
+-- 1) Application is tried to register with appName which not listed in nickNames.
 -- SDL does:
--- 1) Does not registered the application and returnes DISALLOWED response to the applicatin.
+-- 1) Not register and return DISALLOWED response to the applicatin.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Registration/commonRAI')
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require('user_modules/utils')
+local json = require("modules/json")
+local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+--[[ Local Variables ]]
+local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
+
+local pAppId = "1234567"
+local pResultCode = { success = false, resultCode = "DISALLOWED" }
+
 --[[ Local Functions ]]
 local function setNickNameForSpecificApp()
-    local pathToFile = config.pathToSDL .. 'sdl_preloaded_pt.json'
-    local file = io.open(pathToFile, "r")
-    local json_data = file:read("*all")
-    file:close()
-    local json = require("modules/json")
-    local data = json.decode(json_data)
+    local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
+    local pt = utils.jsonFileToTable(preloadedFile)
+    pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
 
-    if data.policy_table.functional_groupings["DataConsent-2"] then
-      data.policy_table.functional_groupings["DataConsent-2"] = nil
-    end
-    data.policy_table.app_policies["1234567"] = {
-          keep_context = false,
-          steal_focus = false,
-          priority = "NONE",
-          default_hmi = "NONE",
-          groups = {"Base-4"},
-          nicknames = {"SPT"}
-        }
-    data = json.encode(data)
-    file = io.open(pathToFile, "w")
-    file:write(data)
-    file:close()
+      pt.policy_table.app_policies["1234567"] = utils.cloneTable(pt.policy_table.app_policies.default)
+    pt.policy_table.app_policies["1234567"].nicknames = { "SPT" }
+    utils.tableToJsonFile(pt, preloadedFile)
   end
 
 local function rai_appNameNotListedInNickNames()

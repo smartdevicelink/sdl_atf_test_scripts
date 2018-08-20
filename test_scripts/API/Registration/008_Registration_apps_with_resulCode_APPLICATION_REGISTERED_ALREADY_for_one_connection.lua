@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -10,7 +10,7 @@
 -- In case:
 -- 1) When two applications are registered with one appID.
 -- SDL does:
--- 1) Sends APPLICATION_REGISTERED_ALREADY code when the app sends RegisterAppInterface within the same connection
+-- 1) Send APPLICATION_REGISTERED_ALREADY code when the app sends RegisterAppInterface within the same connection
 --    after RegisterAppInterface has been already sent and not unregistered yet.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

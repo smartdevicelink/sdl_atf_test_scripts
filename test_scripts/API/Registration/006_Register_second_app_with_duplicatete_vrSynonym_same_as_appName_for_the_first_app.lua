@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -10,7 +10,7 @@
 -- In case:
 -- 1) The second mobile app tries to register when its "vrSynonyms" matches the "appName" for the first app.
 -- SDL does:
--- 1) Does not registered the second mobile app and returnes DUPLICATE_NAME response to the second mobile app.
+-- 1) Not register and return DUPLICATE_NAME response to the second mobile app.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -19,27 +19,8 @@ local common = require('test_scripts/API/Registration/commonRAI')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Functions ]]
-local function duplicateName(pAppId)
-    if not pAppId then pAppId = 2 end
-    common.getMobileSession(pAppId):StartService(7)
-    :Do(function()
-        local CorIdRegister = common.getMobileSession(pAppId):SendRPC("RegisterAppInterface",
-        {
-            syncMsgVersion = {
-            majorVersion = 3,
-            minorVersion = 0 },
-            appName = "SyncProxyTester",
-            isMediaApplication = true,
-            languageDesired = 'EN-US',
-            hmiDisplayLanguageDesired = 'EN-US',
-            appID = "2",
-            vrSynonyms = { "Test Application" },
-            ttsName = {{ text = "text", type = "TEXT"}}
-        })
-        common.getMobileSession(pAppId):ExpectResponse(CorIdRegister, { success = false, resultCode = "DUPLICATE_NAME" })
-    end)
-end
+--[[ Local Variables ]]
+local vrSynonyms = { "Test Application" }
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -48,7 +29,7 @@ runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 runner.Step("App registration", common.registerApp)
 
 runner.Title("Test")
-runner.Step("Second app with a duplicate name vrSynonyms same as the appName for the first app", duplicateName)
+runner.Step("Second app with a duplicate name vrSynonyms same as the appName for the first app", common.duplicateAppName, { pAppId, pAppName, vrSynonyms })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

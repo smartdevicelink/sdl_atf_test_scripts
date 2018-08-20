@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
+-- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -8,9 +8,9 @@
 --
 -- Description:
 -- In case:
--- 1) Application is registered with with conditional params.
+-- 1) Application is registered with conditional params.
 -- SDL does:
--- 1) Successfully registers the mobile application with resultСode: "SUCCESS".
+-- 1) Successfully register the mobile application with resultСode: "SUCCESS".
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
