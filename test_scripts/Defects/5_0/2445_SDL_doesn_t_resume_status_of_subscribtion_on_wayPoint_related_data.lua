@@ -24,6 +24,37 @@ local utils = require("user_modules/utils")
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+local notifParams = {
+    wayPoints =
+    {
+        {
+            coordinate = {
+                latitudeDegrees = -90,
+                longitudeDegrees = -180
+            },
+            locationName = "Ho Chi Minh",
+            addressLines = {"182 Le Dai Hanh"},
+            locationDescription = "Toa nha Flemington",
+            phoneNumber = "1231414",
+            locationImage = {
+                value = common.getPathToFileInStorage("icon.png"),
+                imageType = "DYNAMIC"
+            },
+            searchAddress = {
+                countryName = "aaa",
+                countryCode = "084",
+                postalCode = "test",
+                administrativeArea = "aa",
+                subAdministrativeArea = "a",
+                locality = "a",
+                subLocality = "a",
+                thoroughfare = "a",
+                subThoroughfare = "a"      
+            }
+        }  
+    }
+}
+
 -- [[ Local Functions ]]
 local function cleanSessions()
     for i = 1, common.getAppsCount() do
@@ -63,9 +94,9 @@ local function subscribeWayPoints()
     common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-local function subscribeWayPointsAgain()
-    local cid = common.getMobileSession():SendRPC("SubscribeWayPoints", {})
-    common.getMobileSession():ExpectResponse(cid, { success = false , resultCode = "IGNORED" })
+local function onWayPointChange()
+    common.getHMIConnection():SendNotification("Navigation.OnWayPointChange", notifParams)
+    common.getMobileSession():ExpectNotification("OnWayPointChange", notifParams)
 end
 
 function closeMobileSession()
@@ -84,6 +115,7 @@ runner.Step("Register App", common.registerApp, { 1 })
 runner.Step("RAI, PTU", common.policyTableUpdate, { pTUpdateFunc })
 runner.Step("Activate App", common.activateApp, { 1 })
 runner.Step("SubscribeWayPoints", subscribeWayPoints)
+runner.Step("On Way Point Change", onWayPointChange)
 runner.Step("Close mobile session", closeMobileSession)
 runner.Step("Clean sessions", cleanSessions)
 
@@ -91,7 +123,7 @@ runner.Step("Clean sessions", cleanSessions)
 runner.Title("Test")
 runner.Step("Register App", common.registerAppWOPTU, { 1 })
 runner.Step("Activate App", common.activateApp, { 1 })
-runner.Step("SubscribeWayPoints once again after reregister", subscribeWayPointsAgain)
+runner.Step("On Way Point Change after re-registration", onWayPointChange)
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
