@@ -29,13 +29,13 @@ local function checkResumptionData(pAppId)
   common.subscribeVehicleDataResumption(pAppId)
   common.subscribeWayPointsResumption(pAppId)
   common.getHMIConnection():ExpectRequest("UI.AddCommand",
-    {common.rpcs.addCommand.UI})
+    common.resumptionData[pAppId].addCommand.UI)
   :Do(function(_, data)
       common.sendResponse(data)
     end)
   common.getHMIConnection():ExpectRequest("VR.AddCommand",
-    {common.rpcs.addCommand.VR},
-    {common.rpcs.createIntrerationChoiceSet.VR})
+    common.resumptionData[pAppId].addCommand.VR,
+    common.resumptionData[pAppId].createIntrerationChoiceSet.VR)
   :Do(function(_, data)
       common.sendResponse(data)
     end)
