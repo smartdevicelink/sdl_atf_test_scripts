@@ -235,6 +235,19 @@ m.rpcsRevert = {
             end
           else
             local resetData = {}
+            resetData.appID = m.getHMIAppId(pAppId)
+            resetData.helpPrompt = { }
+            resetData.timeoutPrompt = {}
+            local ttsDelimiter = m.readParameterFromSmartDeviceLinkIni("TTSDelimiter")
+            local helpPromptString = m.readParameterFromSmartDeviceLinkIni("HelpPromt")
+            local helpPromptList = m.splitString(helpPromptString, ttsDelimiter);
+
+            for key,value in pairs(helpPromptList) do
+              resetData.timeoutPrompt[key] = {
+                type = "TEXT",
+                text = value .. ttsDelimiter
+              }
+            end
             if commonFunctions:is_table_equal(data.params, resetData) == true then
               return true
             else
@@ -263,6 +276,10 @@ m.rpcsRevert = {
             end
           else
             local resetData = {}
+            resetData.appID = m.getHMIAppId(pAppId)
+            resetData.keyboardProperties = { autoCompleteText = "", keyboardLayout = "QWERTY", language = "EN-US"}
+            resetData.menuTitle = ""
+            resetData.vrHelpTitle = m.getConfigAppParams(pAppId).appName
             if commonFunctions:is_table_equal(data.params, resetData) == true then
               return true
             else
@@ -368,7 +385,7 @@ end
 --]]
 function m.reRegisterApp(pAppId, pCheckResumptionData, pCheckResumptionHMILevel, pErrorResponceRpc, pErrorResponseInterface, pRAIResponseExp)
   if not pAppId then pAppId = 1 end
-  if not pRAIResponseExp then pRAIResponseExp = 5000 end
+  if not pRAIResponseExp then pRAIResponseExp = 10000 end
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
@@ -830,8 +847,8 @@ end
 --]]
 function m.ignitionOff()
   m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
-      sdl:DeleteFile()
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
+  :Do(function()
       m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
       for i=1, m.getAppsCount() do
         m.getMobileSession(i):ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
@@ -913,133 +930,129 @@ function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
   local revertRpcToUpdate = m.cloneTable(m.removeData)
   revertRpcToUpdate.UnsubscribeWayPoints = nil
 
-  if (pErrorRpc == "addCommand" and pErrorInterface == "VR") or
-  pErrorRpc == "createIntrerationChoiceSet" then
-    revertRpcToUpdate.DeleteVRCommand = nil
+  if pErrorRpc == "addCommand" and pErrorInterface == "VR" then
+    m.removeData.DeleteVRCommand(1, "Choice", 1 )
+  elseif pErrorRpc == "createIntrerationChoiceSet" then
+    m.removeData.DeleteVRCommand(1, "Command", 1 )
   elseif pErrorRpc == "addCommand" and pErrorInterface == "UI" then
     revertRpcToUpdate.DeleteUICommand = nil
   elseif
     pErrorRpc == "addSubMenu" then
       revertRpcToUpdate.DeleteSubMenu = nil
-    elseif
-      pErrorRpc == "subscribeVehicleData" then
-        revertRpcToUpdate.UnsubscribeVehicleData = nil
-      end
+  elseif
+    pErrorRpc == "subscribeVehicleData" then
+      revertRpcToUpdate.UnsubscribeVehicleData = nil
+  end
 
-      for k in pairs(revertRpcToUpdate) do
-        revertRpcToUpdate[k](1)
-      end
+  for k in pairs(revertRpcToUpdate) do
+    revertRpcToUpdate[k](1)
+  end
 
-      m.getHMIConnection():ExpectRequest("VR.AddCommand")
-      :Do(function(_, data)
-          m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
-        end)
-      :Times(4)
+  m.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(4)
 
-      m.getHMIConnection():ExpectRequest("UI.AddCommand")
-      :Do(function(_, data)
-          m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
-        end)
-      :Times(2)
+  m.getHMIConnection():ExpectRequest("UI.AddCommand")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(2)
 
-      m.getHMIConnection():ExpectRequest("UI.AddSubMenu")
-      :Do(function(_, data)
-          m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
-        end)
-      :Times(2)
+  m.getHMIConnection():ExpectRequest("UI.AddSubMenu")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(2)
 
-      m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties")
-      :Do(function(_, data)
-          m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
-        end)
-      :Times(uiSetGPtimes)
+  m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(uiSetGPtimes)
 
-      m.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties")
-      :Do(function(_, data)
-          m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
-        end)
-      :Times(ttsSetGPtimes)
+  m.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(ttsSetGPtimes)
 
-      m.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData")
-      :Do(function(_, data)
-          m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
-        end)
-      :Times(2)
-    end
+  m.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(2)
+end
 
-    --[[ @getErrorResponseStatus: define RPC for sending error response
-    --! @parameters:
-    --! pData - data from received request
-    --! pErrorRpc - RPC name for error response
-    --! pErrorInterface - interface of RPC for error response
-    --! @return: none
-    --]]
-    local function getErrorResponseStatus(pData, pErrorRpc, pErrorInterface)
-      local rpc = m.getRpcName(pErrorRpc, pErrorInterface)
-      if pErrorRpc == "createIntrerationChoiceSet" then rpc = "VR.AddCommand" end
-      if rpc == pData.method then
-        if rpc ~= "VR.AddCommand" and pErrorRpc ~= "setGlobalProperties" then
+--[[ @ isResponseErroneous: define RPC for sending error response
+--! @parameters:
+--! pData - data from received request
+--! pErrorRpc - RPC name for error response
+--! pErrorInterface - interface of RPC for error response
+--! @return: status of error response
+--]]
+local function  isResponseErroneous(pData, pErrorRpc, pErrorInterface)
+  local rpc = m.getRpcName(pErrorRpc, pErrorInterface)
+  if pErrorRpc == "createIntrerationChoiceSet" then rpc = "VR.AddCommand" end
+  if rpc == pData.method then
+    if rpc ~= "VR.AddCommand" and pErrorRpc ~= "setGlobalProperties" then
+      return true
+    elseif pErrorRpc == "createIntrerationChoiceSet" and pData.params.type == "Choice" then
+      return true
+    elseif pErrorRpc == "addCommand" and pData.params.type == "Command" then
+      return true
+    elseif pErrorRpc == "setGlobalProperties" then
+      local helpPromptText = "Help prompt1"
+      local vrHelpTitle ="VR help title1"
+      if pData.method == "TTS.SetGlobalProperties" then
+        if pErrorInterface == "TTS" and pData.params.helpPrompt[1].text == helpPromptText then
           return true
-        elseif pErrorRpc == "createIntrerationChoiceSet" and pData.params.type == "Choice" then
-          m.removeData.DeleteVRCommand(1, "Command", 1 )
-          return true
-        elseif pErrorRpc == "addCommand" and pData.params.type == "Command" then
-          m.removeData.DeleteVRCommand(1, "Choice", 1 )
-          return true
-        elseif pErrorRpc == "setGlobalProperties" then
-          local helpPromptText = "Help prompt1"
-          local vrHelpTitle ="VR help title1"
-          if pData.method == "TTS.SetGlobalProperties" then
-            if pErrorInterface == "TTS" and pData.params.helpPrompt[1].text == helpPromptText then
-              return true
-            end
-          else
-            if pErrorInterface == "UI" and pData.params.vrHelpTitle == vrHelpTitle then
-              return true
-            end
-          end
-        end
-      end
-      return false
-    end
-
-    --[[ @errorResponse: sending error response
-    --! @parameters:
-    --! pData - data from received request
-    --! @return: none
-    --]]
-    function m.errorResponse(pData)
-      m.getHMIConnection():SendError(pData.id, pData.method, "GENERIC_ERROR", "info message")
-    end
-
-    --[[ @sendResponse2Apps: sending error response
-    --! @parameters:
-    --! pData - data from received request
-    --! pErrorRpc - RPC name for error response
-    --! pErrorInterface - interface of RPC for error response
-    --! @return: none
-    --]]
-    function m.sendResponse2Apps(pData, pErrorRpc, pErrorInterface)
-      local function ErrorResp()
-        m.errorResponse(pData)
-      end
-
-      if pData.method == "VehicleInfo.SubscribeVehicleData" then
-        if pErrorRpc == "subscribeVehicleData" and pData.params.gps then
-          RUN_AFTER(ErrorResp, 1500)
-        else
-          m.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", {})
-        end
-      elseif pData.params.appID == m.getHMIAppId(1) then
-        local isErrorResponse = getErrorResponseStatus(pData, pErrorRpc, pErrorInterface)
-        if isErrorResponse == true then
-          RUN_AFTER(ErrorResp, 1500)
-        else
-          m.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", {})
         end
       else
-        m.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", {})
+        if pErrorInterface == "UI" and pData.params.vrHelpTitle == vrHelpTitle then
+          return true
+        end
       end
     end
+  end
+  return false
+end
 
-    return m
+--[[ @errorResponse: sending error response
+--! @parameters:
+--! pData - data from received request
+--! @return: none
+--]]
+function m.errorResponse(pData)
+  m.getHMIConnection():SendError(pData.id, pData.method, "GENERIC_ERROR", "info message")
+end
+
+--[[ @sendResponse2Apps: sending error response
+--! @parameters:
+--! pData - data from received request
+--! pErrorRpc - RPC name for error response
+--! pErrorInterface - interface of RPC for error response
+--! @return: none
+--]]
+function m.sendResponse2Apps(pData, pErrorRpc, pErrorInterface)
+  local function ErrorResp()
+    m.errorResponse(pData)
+  end
+
+  local isErrorResponse = isResponseErroneous(pData, pErrorRpc, pErrorInterface)
+  if pData.method == "VehicleInfo.SubscribeVehicleData" and pErrorRpc == "subscribeVehicleData" and pData.params.gps then
+    RUN_AFTER(ErrorResp, 1500)
+  elseif pData.params.appID == m.getHMIAppId(1) and isErrorResponse == true then
+    RUN_AFTER(ErrorResp, 1500)
+  else
+    m.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", {})
+  end
+end
+
+function m.readParameterFromSmartDeviceLinkIni(paramName)
+  return commonFunctions:read_parameter_from_smart_device_link_ini(paramName)
+end
+
+
+return m

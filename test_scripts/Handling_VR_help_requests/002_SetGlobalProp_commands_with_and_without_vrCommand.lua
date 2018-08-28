@@ -28,7 +28,7 @@ local commandWithoutVr = {
 }
 local commandWithVr = {
   cmdID = 1,
-  vrCommands = { "vrCommand"},
+  vrCommands = { "vrCommand" },
   menuParams = {
     menuName = "commandWithVr"
   }

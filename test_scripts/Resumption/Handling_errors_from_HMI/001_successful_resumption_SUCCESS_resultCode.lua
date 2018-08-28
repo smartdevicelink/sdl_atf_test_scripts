@@ -41,42 +41,42 @@ local function checkResumptionData(pAppId)
     end)
   :Times(2)
 
-  local customButton = 0
-  local buttonSubscribed = 0
+  local isCustomButtonSubscribed = 0
+  local isOkButtonSubscribed = 0
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
   :ValidIf(function(_, data)
       if data.params.name == "CUSTOM_BUTTON" and
-      customButton == 0 then
-        customButton = 1
+      isCustomButtonSubscribed == 0 then
+        isCustomButtonSubscribed = 1
       elseif
         data.params.name == "OK" and
         data.params.isSubscribed == true and
-        buttonSubscribed == 0 then
-          buttonSubscribed = 1
-        else
-          return false, "Came unexpected Buttons.OnButtonSubscription notification"
-        end
-        return true
-      end)
-    :Times(2)
-  end
+        isOkButtonSubscribed == 0 then
+          isOkButtonSubscribed = 1
+      else
+        return false, "Came unexpected Buttons.OnButtonSubscription notification"
+      end
+      return true
+    end)
+  :Times(2)
+end
 
-  --[[ Scenario ]]
-  runner.Title("Preconditions")
-  runner.Step("Clean environment", common.preconditions)
-  runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  runner.Step("Register app", common.registerAppWOPTU)
-  runner.Step("Activate app", common.activateApp)
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register app", common.registerAppWOPTU)
+runner.Step("Activate app", common.activateApp)
 
-  runner.Title("Test")
-  for k in pairs(common.rpcs) do
-    runner.Step("Add " .. k, common[k])
-  end
-  runner.Step("Add buttonSubscription", common.buttonSubscription)
-  runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
-  runner.Step("Connect mobile", common.connectMobile)
-  runner.Step("Reregister App resumption data", common.reRegisterAppSuccess,
-    { 1, checkResumptionData, common.resumptionFullHMILevel})
+runner.Title("Test")
+for k in pairs(common.rpcs) do
+  runner.Step("Add " .. k, common[k])
+end
+runner.Step("Add buttonSubscription", common.buttonSubscription)
+runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
+runner.Step("Connect mobile", common.connectMobile)
+runner.Step("Reregister App resumption data", common.reRegisterAppSuccess,
+  { 1, checkResumptionData, common.resumptionFullHMILevel})
 
-  runner.Title("Postconditions")
-  runner.Step("Stop SDL", common.postconditions)
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)
