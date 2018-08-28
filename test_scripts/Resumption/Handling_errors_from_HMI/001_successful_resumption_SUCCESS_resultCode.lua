@@ -41,18 +41,14 @@ local function checkResumptionData(pAppId)
     end)
   :Times(2)
 
-  local isCustomButtonSubscribed = 0
-  local isOkButtonSubscribed = 0
+  local isCustomButtonSubscribed = false
+  local isOkButtonSubscribed = false
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
   :ValidIf(function(_, data)
-      if data.params.name == "CUSTOM_BUTTON" and
-      isCustomButtonSubscribed == 0 then
-        isCustomButtonSubscribed = 1
-      elseif
-        data.params.name == "OK" and
-        data.params.isSubscribed == true and
-        isOkButtonSubscribed == 0 then
-          isOkButtonSubscribed = 1
+      if data.params.name == "CUSTOM_BUTTON" and isCustomButtonSubscribed == false then
+        isCustomButtonSubscribed = true
+      elseif data.params.name == "OK" and data.params.isSubscribed == true and isOkButtonSubscribed == false then
+        isOkButtonSubscribed = true
       else
         return false, "Came unexpected Buttons.OnButtonSubscription notification"
       end

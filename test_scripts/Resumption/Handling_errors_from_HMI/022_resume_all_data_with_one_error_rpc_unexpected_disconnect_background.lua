@@ -27,15 +27,7 @@ config.application1.registerAppInterfaceParams.isMediaApplication = false
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Common Functions ]]
-local function deactivateAppToBackground()
-  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", {
-      appID = common.getHMIAppId()
-    })
-  common.getMobileSession():ExpectNotification("OnHMIStatus",
-    {hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-end
-
-local function absenceResumptionToBacground()
+local function absenceResumptionToBackground()
   common.getHMIConnection():ExpectRequest("BasicCommunication.OnResumeAudioSource")
   :Times(0)
 
@@ -44,13 +36,6 @@ local function absenceResumptionToBacground()
 
   common.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-end
-
-local function activateApp()
-  local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
-  common.getHMIConnection():ExpectResponse(requestId)
-  common.getMobileSession():ExpectNotification("OnHMIStatus",
-    { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
 --[[ Scenario ]]
@@ -63,15 +48,15 @@ for k, value in pairs(common.rpcs) do
   for _, interface in pairs(value) do
     runner.Title("Rpc " .. k .. " error resultCode to interface " .. interface)
     runner.Step("Register app", common.registerAppWOPTU)
-    runner.Step("Activate app", activateApp)
-    runner.Step("DeactivateA app to background", deactivateAppToBackground)
+    runner.Step("Activate app", common.activateNotAudibleApp)
+    runner.Step("DeactivateA app to background", common.deactivateAppToBackground)
     for rpc in pairs(common.rpcs) do
       runner.Step("Add " .. rpc, common[rpc])
     end
     runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
     runner.Step("Connect mobile", common.connectMobile)
     runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
-      { 1, common.checkResumptionDataWithErrorResponse, absenceResumptionToBacground, k, interface})
+      { 1, common.checkResumptionDataWithErrorResponse, absenceResumptionToBackground, k, interface})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end
 end

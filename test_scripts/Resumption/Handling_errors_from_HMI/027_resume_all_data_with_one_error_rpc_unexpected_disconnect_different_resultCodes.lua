@@ -53,11 +53,11 @@ local function reRegisterApp(pAppId, pErrorCode)
   local mobSession = common.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
-      local params = common.cloneTable(config["application" .. pAppId].registerAppInterfaceParams)
+      local params = common.cloneTable(common.getConfigAppParams(pAppId))
       params.hashID = common.hashId[pAppId]
       local corId = mobSession:SendRPC("RegisterAppInterface", params)
       common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered", {
-          application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName }
+          application = { appName = common.getConfigAppParams(pAppId).appName }
         })
       mobSession:ExpectResponse(corId, { success = true, resultCode = "RESUME_FAILED" })
       :Do(function()

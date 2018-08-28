@@ -13,7 +13,6 @@ local test = require("user_modules/dummy_connecttest")
 local events = require('events')
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local json = require("modules/json")
-local sdl = require("SDL")
 
 --[[ Common Variables ]]
 local m = actions
@@ -100,7 +99,7 @@ end
 --! @parameters:
 --! pRpcName - name of RPC
 --! pInterfaceName - name of RPC interface
---! @return: none
+--! @return: RPC with interface
 --]]
 function m.getRpcName(pRpcName, pInterfaceName)
   local rpcName = pRpcName:gsub("^%l", string.upper)
@@ -221,7 +220,7 @@ m.rpcsRevert = {
     TTS = function(pAppId, pTimes)
       if not pTimes then pTimes = 2 end
       m.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties")
-      :Do(function(data)
+      :Do(function(_, data)
           m.sendResponse(data)
         end)
       :ValidIf(function(exp, data)
@@ -262,7 +261,7 @@ m.rpcsRevert = {
     UI = function(pAppId, pTimes)
       if not pTimes then pTimes = 2 end
       m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties")
-      :Do(function(data)
+      :Do(function(_, data)
           m.sendResponse(data)
         end)
       :ValidIf(function(exp, data)
@@ -389,11 +388,11 @@ function m.reRegisterApp(pAppId, pCheckResumptionData, pCheckResumptionHMILevel,
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
-      local params = m.cloneTable(config["application" .. pAppId].registerAppInterfaceParams)
+      local params = m.cloneTable(m.getConfigAppParams(pAppId))
       params.hashID = m.hashId[pAppId]
       local corId = mobSession:SendRPC("RegisterAppInterface", params)
       m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered", {
-          application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName }
+          application = { appName = m.getConfigAppParams(pAppId).appName }
         })
       mobSession:ExpectResponse(corId, { success = true, resultCode = "RESUME_FAILED" })
       :Do(function()
@@ -417,11 +416,11 @@ function m.reRegisterAppSuccess(pAppId, pCheckResumptionData, pCheckResumptionHM
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
   :Do(function()
-      local params = m.cloneTable(config["application" .. pAppId].registerAppInterfaceParams)
+      local params = m.cloneTable(m.getConfigAppParams(pAppId))
       params.hashID = m.hashId[pAppId]
       local corId = mobSession:SendRPC("RegisterAppInterface", params)
       m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered", {
-          application = { appName = config["application" .. pAppId].registerAppInterfaceParams.appName }
+          application = { appName = m.getConfigAppParams(pAppId).appName }
         })
       mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
@@ -587,6 +586,8 @@ end
 --[[ @subscribeVehicleData: adding subscribeVehicleData
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
+--! pParams - parameters for SubscribeVehicleData mobile request
+--! pHMIrequest - number of expected VI.SubscribeVehicleData HMI requests
 --! @return: none
 --]]
 function m.subscribeVehicleData(pAppId, pParams, pHMIrequest)
@@ -618,6 +619,7 @@ end
 --[[ @subscribeWayPoints: adding subscribeWayPoints
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
+--! pHMIrequest - number of expected Navigation.SubscribeWayPoints HMI requests
 --! @return: none
 --]]
 function m.subscribeWayPoints(pAppId, pHMIrequest)
@@ -1050,9 +1052,48 @@ function m.sendResponse2Apps(pData, pErrorRpc, pErrorInterface)
   end
 end
 
+--[[ @readParameterFromSmartDeviceLinkIni: get parameter value from .ini file
+--! @parameters:
+--! paramName - name of parameter
+--! @return: parameter value
+--]]
 function m.readParameterFromSmartDeviceLinkIni(paramName)
   return commonFunctions:read_parameter_from_smart_device_link_ini(paramName)
 end
 
+--[[ @activateNotAudibleApp: activation of non-media app
+--! @parameters:none
+--! @return: none
+--]]
+function m.activateNotAudibleApp()
+  local requestId = m.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = m.getHMIAppId() })
+  m.getHMIConnection():ExpectResponse(requestId)
+  m.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+end
+
+--[[ @deactivateAppToLimited: deactivate app to LIMITED HMI level
+--! @parameters:none
+--! @return: none
+--]]
+function m.deactivateAppToLimited()
+  m.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", {
+      appID = m.getHMIAppId()
+    })
+  m.getMobileSession():ExpectNotification("OnHMIStatus",
+    {hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
+end
+
+--[[ @deactivateAppToBackground: deactivate app to BACKGROUND HMI level
+--! @parameters:none
+--! @return: none
+--]]
+function m.deactivateAppToBackground()
+  m.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", {
+      appID = m.getHMIAppId()
+    })
+  m.getMobileSession():ExpectNotification("OnHMIStatus",
+    {hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
+end
 
 return m

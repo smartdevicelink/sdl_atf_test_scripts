@@ -25,14 +25,6 @@ local common = require('test_scripts/Resumption/Handling_errors_from_HMI/commonR
 runner.testSettings.isSelfIncluded = false
 
 --[[ Common Functions ]]
-local function deactivateAppToLimited()
-  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", {
-      appID = common.getHMIAppId()
-    })
-  common.getMobileSession():ExpectNotification("OnHMIStatus",
-    {hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
-end
-
 local function resumptionAppToLimited()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnResumeAudioSource", {
       appID = common.getHMIAppId() })
@@ -53,7 +45,7 @@ for k, value in pairs(common.rpcs) do
     runner.Title("Rpc " .. k .. " error resultCode to interface " .. interface)
     runner.Step("Register app", common.registerAppWOPTU)
     runner.Step("Activate app", common.activateApp)
-    runner.Step("DeactivateA app to limited", deactivateAppToLimited)
+    runner.Step("DeactivateA app to limited", common.deactivateAppToLimited)
     for rpc in pairs(common.rpcs) do
       runner.Step("Add " .. rpc, common[rpc])
     end

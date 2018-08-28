@@ -71,54 +71,54 @@ local function checkResumptionDataWithErrorResponse(pAppId, pErrorResponceRpc, p
     end
   end
 
-  local customButton = 0
-  local buttonSubscribed = 0
-  local buttonUnsubscribed = 0
+  local isCustomButtonSubscribed = false
+  local isOkButtonSubscribed = false
+  local isOkButtonUnsubscribed = false
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
   :ValidIf(function(_, data)
       if data.params.name == "CUSTOM_BUTTON" and
-      customButton == 0 then
-        customButton = 1
+      isCustomButtonSubscribed == false then
+        isCustomButtonSubscribed = true
       elseif
         data.params.name == "OK" and
         data.params.isSubscribed == true and
-        buttonSubscribed == 0 then
-          buttonSubscribed = 1
-        elseif
-          data.params.name == "OK" and
-          data.params.isSubscribed == false and
-          buttonUnsubscribed == 0 then
-            buttonUnsubscribed = 1
-          else
-            return false, "Came unexpected Buttons.OnButtonSubscription notification"
-          end
-          return true
-        end)
-      :Times(3)
-    end
-
-    --[[ Scenario ]]
-    runner.Title("Preconditions")
-    runner.Step("Clean environment", common.preconditions)
-    runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-
-    runner.Title("Test")
-    for k, value in pairs(common.rpcs) do
-      for _, interface in pairs(value) do
-        runner.Title("Rpc " .. k .. " error resultCode to interface " .. interface)
-        runner.Step("Register app", common.registerAppWOPTU)
-        runner.Step("Activate app", common.activateApp)
-        for rpc in pairs(common.rpcs) do
-          runner.Step("Add " .. rpc, common[rpc])
-        end
-        runner.Step("Add buttonSubscription", common.buttonSubscription)
-        runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
-        runner.Step("Connect mobile", common.connectMobile)
-        runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
-          { 1, checkResumptionDataWithErrorResponse, common.resumptionFullHMILevel, k, interface})
-        runner.Step("Unregister App", common.unregisterAppInterface)
+        isOkButtonSubscribed == false then
+          isOkButtonSubscribed = true
+      elseif
+        data.params.name == "OK" and
+        data.params.isSubscribed == false and
+        isOkButtonUnsubscribed == false then
+          isOkButtonUnsubscribed = true
+      else
+        return false, "Came unexpected Buttons.OnButtonSubscription notification"
       end
-    end
+      return true
+    end)
+  :Times(3)
+end
 
-    runner.Title("Postconditions")
-    runner.Step("Stop SDL", common.postconditions)
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+
+runner.Title("Test")
+for k, value in pairs(common.rpcs) do
+  for _, interface in pairs(value) do
+    runner.Title("Rpc " .. k .. " error resultCode to interface " .. interface)
+    runner.Step("Register app", common.registerAppWOPTU)
+    runner.Step("Activate app", common.activateApp)
+    for rpc in pairs(common.rpcs) do
+      runner.Step("Add " .. rpc, common[rpc])
+    end
+    runner.Step("Add buttonSubscription", common.buttonSubscription)
+    runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
+    runner.Step("Connect mobile", common.connectMobile)
+    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
+      { 1, checkResumptionDataWithErrorResponse, common.resumptionFullHMILevel, k, interface})
+    runner.Step("Unregister App", common.unregisterAppInterface)
+  end
+end
+
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)
