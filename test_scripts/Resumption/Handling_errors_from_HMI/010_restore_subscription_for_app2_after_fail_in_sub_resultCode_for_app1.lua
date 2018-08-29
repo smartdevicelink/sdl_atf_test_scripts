@@ -11,13 +11,14 @@
 -- 4. App1 and app2 reregister with actual HashId
 -- 5. VehicleInfo.SubscribeVehicleData(data_1, data_2) related to app1 is sent from SDL to HMI during resumption
 -- 6. VehicleInfo.SubscribeVehicleData(data_2, data_3) request is not sent yet for app2
--- 7. HMI responds with error resultCode VehicleInfo.SubscribeVehicleData(data_1, data_2) request
+-- 7. HMI responds with errornous internal resultCode for data_2 to VehicleInfo.SubscribeVehicleData(data_1, data_2)
 -- 8. VehicleInfo.SubscribeVehicleData related to app2 is sent from SDL to HMI during resumption
 -- 9. HMI responds with success to remaining requests
 -- SDL does:
 -- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 3. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)to mobile application app2
+-- 2. remove already restored data from app1
+-- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
+-- 4. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)to mobile application app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -44,7 +45,10 @@ local function checkResumptionData()
   :Do(function(exp, data)
       if exp.occurences == 1 and data.params.gps then
         local function sendResponse()
-          common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "info message")
+          common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+            gps = { dataType = "VEHICLEDATA_GPS" , resultCode = "VEHICLE_DATA_NOT_AVAILABLE" },
+            speed = { dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS" }
+          })
         end
         RUN_AFTER(sendResponse, 300)
       else
@@ -56,8 +60,16 @@ local function checkResumptionData()
     end)
   :Times(2)
 
-  common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData")
-  :Times(0)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { speed = true })
+  :Do(function(_,data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  :ValidIf(function(_, data)
+    if data.params.gps then
+      return false, "VehicleInfo.UnsubscribeVehicleData request contains unexpected 'gps' data"
+    end
+    return true
+  end)
 end
 
 local function onVehicleData()

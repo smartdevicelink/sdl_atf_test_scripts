@@ -5,19 +5,20 @@
 --
 -- Description:
 -- In case:
--- 1. Subscriptions for data_1 and data_2 are added by app1
--- 2. Subscriptions for data_2 and data_3 are added by app2
--- 3. Unexpected disconnect and reconnect are performed
--- 4. App1 and app2 reregister with actual HashId
--- 5. VehicleInfo.SubscribeVehicleData(data_1, data_2) related to app1 is sent from SDL to HMI during resumption
--- 6. VehicleInfo.SubscribeVehicleData(data_2, data_3) request is not sent yet for app2
--- 7. HMI responds with error resultCode VehicleInfo.SubscribeVehicleData(data_1, data_2) request
--- 8. VehicleInfo.SubscribeVehicleData related to app2 is sent from SDL to HMI during resumption
--- 9. HMI responds with success to remaining requests
+-- 1. App1 is subscribed to data_1, data_2
+-- 2. App2 is subscribed to data_1, data_3
+-- 3. Transport disconnect and reconnect are performed
+-- 4. Apps reregister with actual HashId
+-- 5. VehicleInfo.SubscribeVD(data_1, data_2) is sent from SDL to HMI during resumption for app1
+-- 6. SDL starts resume subscription for app2, does not send VehicleInfo.SubscribeVD and waits response to already sent VehicleInfo.SubscribeVD request
+-- 7. HMI responds with errornous internal resultCode for data_1 to VehicleInfo.SubscribeVD(data=1, data_2) request
+-- 8. VehicleInfo.SubscribeVD(data_1, data_3) is sent from SDL to HMI during resumption for app2
+-- 9. HMI responds with success resultCode to VehicleInfo.SubscribeVD(data_1, data_3) request for app2
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 3. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)to mobile application app2
+-- process unsuccess response from HMI
+-- remove restored data for app1
+-- respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to app1
+-- respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -37,16 +38,20 @@ local vehicleDataRpm = {
   requestParams = { rpm = true },
   responseParams = { rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM"} }
 }
-
 -- [[ Local Function ]]
 local function checkResumptionData()
+  local isResponseSent = false
   common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData")
   :Do(function(exp, data)
       if exp.occurences == 1 and data.params.gps then
         local function sendResponse()
-          common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "info message")
+          common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+            gps = { dataType = "VEHICLEDATA_GPS" , resultCode = "VEHICLE_DATA_NOT_AVAILABLE" },
+            speed = { dataType = "VEHICLEDATA_SPEED", resultCode = "SUCCESS" }
+          })
+          isResponseSent = true
         end
-        RUN_AFTER(sendResponse, 300)
+        RUN_AFTER(sendResponse, 1000)
       else
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
           gps = { dataType = "VEHICLEDATA_GPS" , resultCode = "VEHICLE_DATA_NOT_AVAILABLE" },
@@ -54,10 +59,24 @@ local function checkResumptionData()
         })
       end
     end)
+  :ValidIf(function(exp)
+    if exp.occurences == 2 and isResponseSent == false then
+      return false, "VehicleInfo.SubscribeVehicleData request for app2 is received earlier then response for app1 is sent"
+    end
+    return true
+  end)
   :Times(2)
 
-  common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData")
-  :Times(0)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", vehicleDataSpeed.requestParams)
+  :Do(function(_,data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  :ValidIf(function(_, data)
+    if data.params.gps then
+      return false, "VehicleInfo.UnsubscribeVehicleData request contains unexpected 'gps' data"
+    end
+    return true
+  end)
 end
 
 local function onVehicleData()
@@ -93,6 +112,7 @@ runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
 runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
 runner.Step("Reregister Apps resumption ", common.reRegisterApps, { checkResumptionData })
 runner.Step("Check subscriptions for gps", onVehicleData)
+
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

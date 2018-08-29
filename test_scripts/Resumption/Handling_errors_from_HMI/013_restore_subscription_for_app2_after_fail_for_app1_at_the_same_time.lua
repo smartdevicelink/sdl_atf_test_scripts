@@ -9,11 +9,11 @@
 -- 2. App2 is subscribed to data_1
 -- 3. Transport disconnect and reconnect are performed
 -- 4. Apps reregister with actual HashId
--- 5. VehicleInfo.SubscribeVD(data=1) is sent from SDL to HMI during resumption for app1
+-- 5. VehicleInfo.SubscribeVD(data_1) is sent from SDL to HMI during resumption for app1
 -- 6. SDL starts resume subscription for app2, does not send VehicleInfo.SubscribeVD and waits response to already sent VehicleInfo.SubscribeVD request
--- 7. HMI responds with error resultCode to VehicleInfo.SubscribeVD(data=1) request
--- 8. VehicleInfo.SubscribeVD(data=1) is sent from SDL to HMI during resumption for app2
--- 9. HMI responds with successw resultCode to VehicleInfo.SubscribeVD(data=1) request for app2
+-- 7. HMI responds with error resultCode to VehicleInfo.SubscribeVD(data_1) request
+-- 8. VehicleInfo.SubscribeVD(data_1) is sent from SDL to HMI during resumption for app2
+-- 9. HMI responds with successw resultCode to VehicleInfo.SubscribeVD(data_1) request for app2
 -- SDL does:
 -- process unsuccess response from HMI
 -- remove restored data for app1
@@ -41,30 +41,32 @@ local vehicleDataRpm = {
 
 -- [[ Local Function ]]
 local function checkResumptionData()
-  local errorId
-  local successIds = {}
+  local isResponseSent = false
   common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData")
   :Do(function(exp, data)
-      if (exp.occurences == 1 or exp.occurences == 2) and data.params.gps then
-        errorId = data.id
-      else
-        table.insert(successIds, data.id)
-      end
-      if exp.occurences == 3 then
-        common.getHMIConnection():SendError(errorId, data.method, "GENERIC_ERROR", "info message")
-        for _, value in pairs(successIds) do
-          common.getHMIConnection():SendResponse(value, data.method, "SUCCESS", {})
+      if exp.occurences == 1 and data.params.gps then
+        local function sendResponse()
+          common.getHMIConnection():SendResponse(data.id, data.method, "GENERIC_ERROR", "info message")
+          isResponseSent = true
         end
-      elseif exp.occurences == 4 then
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+        RUN_AFTER(sendResponse, 1000)
+      else
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+          gps = { dataType = "VEHICLEDATA_GPS" , resultCode = "VEHICLE_DATA_NOT_AVAILABLE" },
+          rpm = vehicleDataRpm.responseParams.rpm
+        })
       end
     end)
-  :Times(4)
+  :ValidIf(function(exp)
+    if exp.occurences == 2 and isResponseSent == false then
+      return false, "VehicleInfo.SubscribeVehicleData request for app2 is received earlier then response for app1 is sent"
+    end
+    return true
+  end)
+  :Times(2)
 
   common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", vehicleDataSpeed.requestParams)
-  :Do(function(_,data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  :Times(0)
 end
 
 local function onVehicleData()
