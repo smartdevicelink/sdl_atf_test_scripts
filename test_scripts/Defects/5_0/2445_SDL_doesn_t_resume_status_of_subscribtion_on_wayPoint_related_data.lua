@@ -81,7 +81,7 @@ local function pTUpdateFunc(tbl)
         }
     }
     tbl.policy_table.functional_groupings["NewTestCaseGroup"] = OWgroup
-    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups = { "Base-4", "NewTestCaseGroup" }
+    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups = { "Base-4", "NewTestCaseGroup" }
 end
 
 local function subscribeWayPoints()
@@ -99,11 +99,14 @@ local function onWayPointChange()
     common.getMobileSession():ExpectNotification("OnWayPointChange", notifParams)
 end
 
-function closeMobileSession()
+local function closeMobileSession()
     local cid = common.getMobileSession():SendRPC("UnregisterAppInterface", {})
     common.getHMIConnection():ExpectRequest("Navigation.UnsubscribeWayPoints")
     :Do(function(_, data)
         common.getMobileSession():ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+        :Do(function(_, data)
+          common.getMobileSession():Stop()
+        end)
     end)
 end
 
@@ -112,7 +115,7 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp, { 1 })
-runner.Step("RAI, PTU", common.policyTableUpdate, { pTUpdateFunc })
+runner.Step("PTU", common.policyTableUpdate, { pTUpdateFunc })
 runner.Step("Activate App", common.activateApp, { 1 })
 runner.Step("SubscribeWayPoints", subscribeWayPoints)
 runner.Step("On Way Point Change", onWayPointChange)
