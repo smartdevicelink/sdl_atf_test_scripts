@@ -23,7 +23,6 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local resultCodes = {
-  "SUCCESS",
   "TRUNCATED_DATA",
   "DISALLOWED",
   "USER_DISALLOWED",

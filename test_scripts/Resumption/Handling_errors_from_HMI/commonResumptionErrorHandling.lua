@@ -938,11 +938,9 @@ function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
     m.removeData.DeleteVRCommand(1, "Command", 1 )
   elseif pErrorRpc == "addCommand" and pErrorInterface == "UI" then
     revertRpcToUpdate.DeleteUICommand = nil
-  elseif
-    pErrorRpc == "addSubMenu" then
+  elseif pErrorRpc == "addSubMenu" then
       revertRpcToUpdate.DeleteSubMenu = nil
-  elseif
-    pErrorRpc == "subscribeVehicleData" then
+  elseif pErrorRpc == "subscribeVehicleData" then
       revertRpcToUpdate.UnsubscribeVehicleData = nil
   end
 

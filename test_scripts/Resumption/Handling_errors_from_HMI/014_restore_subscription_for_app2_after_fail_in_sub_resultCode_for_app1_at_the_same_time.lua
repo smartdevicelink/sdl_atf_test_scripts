@@ -113,6 +113,5 @@ runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
 runner.Step("Reregister Apps resumption ", common.reRegisterApps, { checkResumptionData })
 runner.Step("Check subscriptions for gps", onVehicleData)
 
-
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
