@@ -1,0 +1,165 @@
+---------------------------------------------------------------------------------------------------
+-- User story: https://github.com/SmartDeviceLink/sdl_core/issues/2482
+--
+-- Description:
+-- UNSUPPORTED_RESOURCE response is received for SetGlobalProperties RPC when KEYPRESS MODE is set to SINGLE_KEYPRESS,
+-- QUEUE_KEYPRESSES or RESEND_CURRENT_ENTRY
+-- Precondition:
+-- Vehicle ignition is ON
+-- SYNC is ON
+-- Device is connected to the SYNC via BT
+-- Autotester is installed and registered to the system
+-- In case:
+-- 1) Launch Emergency on the phone
+-- 2) Select Apps from the status interaction menu
+-- 3) Select Emergency app
+-- 4) Select "send message" and "SetGlobalproperties" ,
+-- 	  edit Keyboard properties "KeypressMode as Single_keyPress" and press ok
+-- 5) Select 'Send Message' in the test app on the phone and
+--    Select CreateInteractionChoiceSet then enter all the details and press OK.
+-- 6) Select 'Send Message' in the test app on the phone and
+--    Select "PerformInteraction", Enter data for Initial TextInitial Prompt:
+--    Interaction Mode: MANUAL_ONLY, Layout: KEYBOARD(as in step 4 KeyPress mode: SINGLE_KEYPRESS )and press OK
+-- 7) Verify the Screen displayed on SYNC
+-- 8) Press on the text box and enter the Single key in the keyboard displayed on the sync
+-- Expected result:
+-- 1) SUCCESS response should be recieved for both SetGlobalProperties and PerformInteraction RPC.
+-- Actual result:
+-- UNSUPPORTED_RESOURCE response is recieved fot SetGlobalProperties.
+---------------------------------------------------------------------------------------------------
+--[[ Required Shared libraries ]]
+local common = require('user_modules/sequences/actions')
+local runner = require('user_modules/script_runner')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
+local keyPressMode = {
+	"SINGLE_KEYPRESS",
+	"QUEUE_KEYPRESSES",
+	"RESEND_CURRENT_ENTRY"
+}
+
+local paramsSetGlobalProp = {
+	helpPrompt = {
+		{
+			text = "Help prompt",
+			type = "TEXT"
+		}
+	},
+	keyboardProperties = {
+		keypressMode = pKeypressMode,
+		limitedCharacterList = {"a"},
+	}
+}
+
+local responseUiParams = {
+	keyboardProperties = paramsSetGlobalProp.keyboardProperties
+}
+
+local responseTtsParams = {
+	helpPrompt = paramsSetGlobalProp.helpPrompt
+}
+
+local performParams = {
+  initialText = "TextInitial",
+  interactionMode = "MANUAL_ONLY",
+  interactionChoiceSetIDList = { 100 },
+  initialPrompt = {
+    { type = "TEXT", text = "pathToFile1" }
+  },
+  helpPrompt = {
+    { type = "TEXT", text = "pathToFile2" }
+  },
+  timeoutPrompt = {
+    { type = "TEXT", text = "pathToFile3" }
+  },
+  interactionLayout = "KEYBOARD"
+}
+
+local performHmiParams = {
+  initialPrompt = {
+    { type = "TEXT", text = "pathToFile1"}
+  },
+  helpPrompt = {
+    { type = "TEXT", text = "pathToFile2"}
+  },
+  timeoutPrompt = {
+    { type = "TEXT", text = "pathToFile3"}
+  }
+}
+
+--[[ Local Functions ]]
+local function setGlobalProperties(pKeypressMode)
+  if not pKeypressMode then pKeypressMode = "SINGLE_KEYPRESS" end
+	local cid = common.getMobileSession():SendRPC("SetGlobalProperties", paramsSetGlobalProp)
+
+	responseUiParams.appID = common.getHMIAppId()
+	EXPECT_HMICALL("UI.SetGlobalProperties", responseUiParams)
+	:Do(function(_,data)
+		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+	end)
+
+	responseTtsParams.appID = common.getHMIAppId()
+	EXPECT_HMICALL("TTS.SetGlobalProperties", responseTtsParams)
+	:Do(function(_,data)
+		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+	end)
+
+	common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+	common.getMobileSession():ExpectNotification("OnHashChange")
+end
+
+local function createInteractionChoiceSet()
+  local choiceParams = {
+    interactionChoiceSetID = 100,
+    choiceSet = {
+      {
+        choiceID = 111,
+        menuName = "Choice111",
+        vrCommands = { "Choice111" }
+      }
+    }
+  }
+  local corId = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", choiceParams)
+  common.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+end
+
+local function sendPerformInteraction_SUCCESS()
+  local corId = common.getMobileSession():SendRPC("PerformInteraction", performParams)
+  common.getHMIConnection():ExpectRequest("UI.PerformInteraction")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  common.getHMIConnection():ExpectRequest("VR.PerformInteraction", {
+    initialPrompt = performHmiParams.initialPrompt,
+    helpPrompt = performHmiParams.helpPrompt,
+    timeoutPrompt = performHmiParams.timeoutPrompt
+  })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+end
+
+
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+
+runner.Title("Test")
+for _, v in ipairs(keyPressMode) do
+	runner.Step("SetGlobalProperties with keypressMode " .. v, setGlobalProperties, { v })
+end
+runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet)
+runner.Step("Send PerformInteraction SUCCESS response", sendPerformInteraction_SUCCESS)
+
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)
