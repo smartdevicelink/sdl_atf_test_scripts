@@ -9,7 +9,7 @@
 -- All SDL data are cleaned and reset.
 ---------------------------------------------------------------------------------------------------
 
--- For useing this script you must set actual path to binary file directory of SDL to 'config.pathToSDL' in cinfig.lua file.
+-- For useing this script you must set actual path to binary file directory of SDL to 'config.pathToSDL' in config.lua file.
 
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -30,16 +30,15 @@ local function HMISendToSDL_MASTER_RESET()
 	common.getMobileSession(2):ExpectNotification("OnAppInterfaceUnregistered", 
           { reason = "MASTER_RESET" })
           :Times(1)
-          :ValidIf(function(_, data)
-          		local app_info_table = utils.jsonFileToTable(config.pathToSDL .. "/app_info.dat")
-				local resume_app_list = app_info_table.resumption.resume_app_list
-				if next(resume_app_list) ~= nil then
-					return true
-				else
-					print("\27[App resumtion data wasn't cleaned.\27[0m")
-					return false
-				end
-          	end)
+		  :ValidIf(function(_, data)
+        		local app_info_table = utils.jsonFileToTable(config.pathToSDL .. "/app_info.dat")
+        		local resumption_data = app_info_table.resumtion
+        		if resumption_data == nil then
+        			return true
+        		else
+        			return false
+        		end
+    		end)
 	common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose",{})
 	:Times(1)
 end
