@@ -2,9 +2,7 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1833
 --
 -- Description:
---
 -- Precondition:
---
 -- In case:
 -- Change HMI to not respond to VR.DeleteCommand
 -- Create Interaction choice set
@@ -122,7 +120,7 @@ runner.Step("Upload icon file", putFile, {putFileParams})
 runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet, {createAllParams})
 
 runner.Title("Test")
-runner.Step("DeleteInteractionChoiceSet Positive Case", deleteInteractionChoiceSet, {deleteAllParams})
+runner.Step("DeleteInteractionChoiceSet", deleteInteractionChoiceSet, {deleteAllParams})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
