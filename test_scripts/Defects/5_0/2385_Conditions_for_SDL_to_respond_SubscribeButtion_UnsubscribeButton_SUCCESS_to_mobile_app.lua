@@ -6,8 +6,8 @@
 -- Precondition:
 --
 -- In case:
--- 1) SDL successfully sends OnButtonSubscription to mqueue
---    and HMI successfully receives/reads OnButtonSubscription from mqueue during < DefaultTimeout >
+-- 1) SDL successfully sends OnButtonSubscription to HMI
+--    and HMI successfully receives OnButtonSubscription during < DefaultTimeout >
 -- Expected result:
 -- 1) SDL must respond SubscribeButton/UnsubscribeButton (SUCCESS) to mobile app
 ---------------------------------------------------------------------------------------------------
