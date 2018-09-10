@@ -106,8 +106,7 @@ local function deleteInteractionChoiceSet(params)
 		-- HMI does not respond
 	end)
 
-	common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "GENERIC_ERROR"})
-	common.getMobileSession():ExpectNotification("OnHashChange")
+	common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]
