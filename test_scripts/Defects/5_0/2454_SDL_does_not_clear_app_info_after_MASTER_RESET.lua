@@ -3,20 +3,19 @@
 --
 -- Reproduction Steps:
 -- HMI and SDL are started.
--- Perform MASTER_RESET
+-- Register and activate Application1.
+-- Register and activate Application2.
+-- From HMI send notification OnExitAllApplication{reason = MASTER_RESET} to SDL.
 
 -- Expected Behavior:
 -- All SDL data are cleaned and reset.
 ---------------------------------------------------------------------------------------------------
 
--- For useing this script you must set actual path to binary file directory of SDL to 'config.pathToSDL' in config.lua file.
-
----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require("user_modules/script_runner")
 local common = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
-local config = require("modules/config")
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -24,23 +23,21 @@ runner.testSettings.isSelfIncluded = false
 local function HMISendToSDL_MASTER_RESET()
 	common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications",
 		  { reason = "MASTER_RESET" })
-	common.getMobileSession(1):ExpectNotification("OnAppInterfaceUnregistered", 
+	common.getMobileSession(1):ExpectNotification("OnAppInterfaceUnregistered",
           { reason = "MASTER_RESET" })
-          :Times(1)
-	common.getMobileSession(2):ExpectNotification("OnAppInterfaceUnregistered", 
+	common.getMobileSession(2):ExpectNotification("OnAppInterfaceUnregistered",
           { reason = "MASTER_RESET" })
-          :Times(1)
-		  :ValidIf(function(_, data)
-        		local app_info_table = utils.jsonFileToTable(config.pathToSDL .. "/app_info.dat")
-        		local resumption_data = app_info_table.resumtion
+		  :ValidIf(function()
+                local app_info_table = utils.jsonFileToTable(commonPreconditions:GetPathToSDL()  .. "/app_info.dat")
+                local resumption_data = app_info_table.resumtion
         		if resumption_data == nil then
         			return true
         		else
+                    print(" \27[36m Resumption data is not cleared after MASTER_RESET \27[0m")
         			return false
         		end
     		end)
 	common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose",{})
-	:Times(1)
 end
 
 --[[ Scenario ]]
