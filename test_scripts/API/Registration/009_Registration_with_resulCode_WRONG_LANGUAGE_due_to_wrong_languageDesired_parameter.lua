@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -15,48 +14,16 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Registration/commonRAI')
+local utils = require("user_modules/utils")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local firstWrongLang = {
-    syncMsgVersion = {
-    majorVersion = 3,
-    minorVersion = 0 },
-    appName = "SyncProxyTester",
-    isMediaApplication = true,
-    appID = "1",
-    languageDesired = "DE-DE",
-    hmiDisplayLanguageDesired = "EN-US"
-}
-
-local secondWrongLang = {
-    syncMsgVersion = {
-    majorVersion = 3,
-    minorVersion = 0 },
-    appName = "SyncProxyTester",
-    isMediaApplication = true,
-    appID = "1",
-    languageDesired = "EN-US",
-    hmiDisplayLanguageDesired = "DE-DE"
-}
-
---[[ Local Functions ]]
-local function rai_languageDesiredWrong(params)
-    common.getMobileSession():StartService(7)
-    :Do(function()
-        local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface",params)
-        common.getHMIConnection("BasicCommunication.OnAppRegistered",
-        {
-            appName = params.appName,
-            isMediaApplication = params.isMediaApplication ,
-            hmiDisplayLanguageDesired = 'EN-US',
-            appID = "1"
-        })
-        common.getMobileSession():ExpectResponse(CorIdRegister, { success = true, resultCode = "WRONG_LANGUAGE" })
-    end)
-end
+local firstWrongLang = utils.cloneTable(common.getRequestParams(1))
+firstWrongLang.languageDesired = "DE-DE"
+local secondWrongLang = utils.cloneTable(common.getRequestParams(1))
+secondWrongLang.hmiDisplayLanguageDesired = "DE-DE"
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -64,10 +31,10 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
 runner.Title("Test")
-runner.Step("RAI_with_wrong_languageDesired_parameter", rai_languageDesiredWrong, { firstWrongLang })
+runner.Step("RAI_with_wrong_languageDesired_parameter", common.registerApp, {1, firstWrongLang, "WRONG_LANGUAGE" })
 runner.Step("Application unregistered", common.unregisterAppInterface)
 runner.Step("Clean sessions", common.cleanSessions)
-runner.Step("RAI_with_wrong_languageDesired_parameter", rai_languageDesiredWrong, { secondWrongLang })
+runner.Step("RAI_with_wrong_hmiDisplayLanguageDesired_parameter", common.registerApp, {1, secondWrongLang, "WRONG_LANGUAGE" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

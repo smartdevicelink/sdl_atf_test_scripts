@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -19,25 +18,9 @@ local common = require('test_scripts/API/Registration/commonRAI')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Functions ]]
-local function rai_ttsNameType_FILE()
-    common.getMobileSession():StartService(7)
-    :Do(function()
-        local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface",
-        {
-            syncMsgVersion = {
-            majorVersion = 5,
-            minorVersion = 0 },
-            appName = "SyncProxyTester",
-            isMediaApplication = true,
-            languageDesired = 'EN-US',
-            hmiDisplayLanguageDesired = 'EN-US',
-            appID = "2",
-            ttsName = {{ text = "SyncProxyTester", type = "FILE"}}
-        })
-        common.getMobileSession():ExpectResponse(CorIdRegister, { success = true, resultCode = "WARNINGS" })
-    end)
-end
+--[[ Local Variables ]]
+local paramsApp1 = common.getRequestParams(1)
+paramsApp1.ttsName = {{ text = "SyncProxyTester", type = "FILE"}}
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -45,7 +28,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
 runner.Title("Test")
-runner.Step("Register_App_with_type_FILE", rai_ttsNameType_FILE)
+runner.Step("Register_App_with_type_FILE", common.registerApp, { 1, paramsApp1, "WARNINGS" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

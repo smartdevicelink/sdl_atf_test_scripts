@@ -16,66 +16,65 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 --[[ Module ]]
 local m = actions
 
-local requestParams = function( pAppId, pParam  )
-if not pAppId then pAppId = 1 end
-if not pParam then pParam =  "TEXT" end
-return {
-    syncMsgVersion = {
-    majorVersion = 3,
-    minorVersion = 0 },
-    appName = "Test Application",
-    appHMIType = {"DEFAULT"},
-    isMediaApplication = true,
-    languageDesired = 'EN-US',
-    hmiDisplayLanguageDesired = 'EN-US',
-    appID = "1",
-    ttsName = {{ text = "SyncProxyTester", type = pParam}},
-    ngnMediaScreenAppName ="SPT",
-    vrSynonyms = { "SyncProxyTester"},
-    deviceInfo = {
-        hardware = "hardware",
-        firmwareRev = "firmwareRev",
-        os = "os",
-        osVersion = "osVersion",
-        carrier = "carrier",
-        maxNumberRFCOMMPorts = 5
-    }
-}
+--[[ @getRequestParams: parameters for RAI request
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! @return: none
+--]]
+function m.getRequestParams(pAppId)
+  local pParams = m.getConfigAppParams(pAppId)
+  pParams.ttsName = {{ text = "SyncProxyTester" .. pAppId, type = "TEXT"}}
+  pParams.ngnMediaScreenAppName ="SPT" .. pAppId
+  pParams.vrSynonyms = { "SyncProxyTester" .. pAppId}
+  return pParams
 end
 
-local onARparams = { application = {
-    appName = "Test Application",
-    ngnMediaScreenAppName ="SPT",
-    policyAppID = "1",
-    hmiDisplayLanguageDesired ="EN-US",
-    isMediaApplication = true,
-    appType = { "DEFAULT"}},
-    ttsName = {{ text = "SyncProxyTester", type = pParam}},
-    vrSynonyms = { "SyncProxyTester"}
-}
-   
+--[[ @getOnAppRegisteredParams: parameters for OnAppRegistered
+--! @parameters:
+--! pParam - params for RAI request
+--! @return: none
+--]]
+local function getOnAppRegisteredParams(pParams)
+  local out = {
+    application = {
+      appName = pParams.appName,
+      ngnMediaScreenAppName = pParams.ngnMediaScreenAppName,
+      policyAppID = pParams.policyAppID,
+      hmiDisplayLanguageDesired = pParams.hmiDisplayLanguageDesired,
+      isMediaApplication = pParams.isMediaApplication,
+      appType = pParams.appType,
+    },
+    ttsName = pParams.ttsName,
+    vrSynonyms = pParams.vrSynonyms
+  }
+  return out
+end
+
 --[[ @registerApp: register mobile application
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
---! pParam - type for ttsName
+--! pParam - params for RAI request
+--! pResultCode - result code in RAI response
+--! pSystemSoftwareVersion - systemSoftwareVersion in RAI response
 --! @return: none
 --]]
-function m.registerApp(pAppId, pParam, presultParam)
-    if not pAppId then pAppId = 1 end
-    if not pParam then pParam =  "TEXT" end
-    if presultParam then presultParam { success = false, resultCode = "SUCCESS" } end
-    m.getMobileSession(pAppId):StartService(7)
-    :Do(function()
-        local CorIdRegister = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface",requestParams())
-        EXPECT_HMICALL("BasicCommunication.GetSystemInfo")
-        :Times(0)
-        m.getHMIConnection(pAppId):ExpectNotification("BasicCommunication.OnAppRegistered", onARparams)
-        m.getMobileSession(pAppId):ExpectResponse(CorIdRegister, presultParam)
-        :Do(function()
-            m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
-            {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+function m.registerApp(pAppId, pParams, pResultCode, pSystemSoftwareVersion)
+  if not pAppId then pAppId = 1 end
+  if not pResultCode then pResultCode = "SUCCESS" end
+  m.getMobileSession(pAppId):StartService(7)
+  :Do(function()
+      local CorIdRegister = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface", pParams)
+      EXPECT_HMICALL("BasicCommunication.GetSystemInfo")
+      :Times(0)
+      m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        getOnAppRegisteredParams(pParams))
+      m.getMobileSession(pAppId):ExpectResponse(CorIdRegister,
+        { success = true, resultCode = pResultCode, systemSoftwareVersion = pSystemSoftwareVersion })
+      :Do(function()
+          m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
+          {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
         end)
-        m.getMobileSession(pAppId):ExpectNotification("OnPermissionsChange")
+      m.getMobileSession(pAppId):ExpectNotification("OnPermissionsChange")
     end)
 end
 
@@ -84,12 +83,12 @@ end
 --! @return: none
 --]]
 function m.unregisterAppInterface()
-    local mobSession = m.getMobileSession()
-    local corId = mobSession:SendRPC("UnregisterAppInterface", { })
-    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {
-      appID = m.getHMIAppId(), unexpectedDisconnect = false
-    })
-    mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+  local mobSession = m.getMobileSession()
+  local corId = mobSession:SendRPC("UnregisterAppInterface", { })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {
+    appID = m.getHMIAppId(), unexpectedDisconnect = false
+  })
+  mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ @cleanSessions: close count of registered applications
@@ -109,36 +108,31 @@ end
 --! @return: none
 --]]
 function m.backupINIFile()
-    commonPreconditions:BackupFile("smartDeviceLink.ini")
+  commonPreconditions:BackupFile("smartDeviceLink.ini")
 end
 
---[[ @restorePreloadedPT: backup SDL .ini file
+--[[ @restoreINIFile: backup SDL .ini file
 --! @parameters: none
 --! @return: none
 --]]
-function m.restorePreloadedPT()
-    commonPreconditions:RestoreFile("smartDeviceLink.ini")
+function m.restoreINIFile()
+  commonPreconditions:RestoreFile("smartDeviceLink.ini")
 end
 
-function m.duplicateAppName (pAppId, pAppName, pVrSynonyms)
-    if not pAppId then pAppId = "2" end
-    if not pAppName then pAppName = "Test Application2" end
-    if not pVrSynonyms then pVrSynonyms = { "SyncProxyTester2"} end
-    m.getMobileSession(pAppId):StartService(7)
-    :Do(function()
-        local CorIdRegister = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface",
-        {
-            syncMsgVersion = {
-            majorVersion = 3,
-            minorVersion = 0 },
-            appName = pAppName,
-            isMediaApplication = true,
-            languageDesired = 'EN-US',
-            hmiDisplayLanguageDesired = 'EN-US',
-            vrSynonyms = pVrSynonyms,
-            appID = pAppId
-        })
-        m.getMobileSession(pAppId):ExpectResponse(CorIdRegister, { success = false, resultCode = "DUPLICATE_NAME" })
+--[[ @unsuccessRAI: unsuccessful RAI
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pParam - params for RAI request
+--! pResultCode - result code in RAI response
+--! @return: none
+--]]
+function m.unsuccessRAI(pAppId, pParams, pResultCode)
+  if not pAppId then pAppId = 2 end
+  m.getMobileSession(pAppId):StartService(7)
+  :Do(function()
+      local CorIdRegister = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface", pParams)
+      m.getMobileSession(pAppId):ExpectResponse(CorIdRegister,
+        { success = false, resultCode = pResultCode })
     end)
 end
 

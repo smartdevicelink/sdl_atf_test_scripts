@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -25,7 +24,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
 runner.Title("Test")
-runner.Step("RAI with conditional params", common.registerApp)
+runner.Step("RAI with conditional params", common.registerApp, {1, common.getRequestParams(1)})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

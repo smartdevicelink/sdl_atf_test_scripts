@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -27,6 +26,13 @@ local typeParams = {
     "SILENCE"
 }
 
+--[[ Local Functions ]]
+local function setRAIparams(pType)
+	local params = common.getRequestParams(1)
+	params.ttsName = {{ text = "SyncProxyTester", type = pType}}
+	return params
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -34,7 +40,7 @@ runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
 for _, v in ipairs (typeParams) do
     runner.Title("Test")
-    runner.Step("Registered with ttsName_type " .. _, common.registerApp, { 1, v })
+    runner.Step("Registered with ttsName_type " .. v, common.registerApp, { 1, setRAIparams(v) })
     runner.Step("Application unregistered", common.unregisterAppInterface)
     runner.Step("Clean sessions", common.cleanSessions)
 end

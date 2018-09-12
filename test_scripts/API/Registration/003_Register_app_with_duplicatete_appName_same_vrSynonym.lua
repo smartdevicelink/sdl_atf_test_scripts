@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -20,16 +19,18 @@ local common = require('test_scripts/API/Registration/commonRAI')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local pAppName = "SyncProxyTester"
+local paramsApp1 = common.getRequestParams(1)
+local paramsApp2 = common.getRequestParams(2)
+paramsApp2.appName = paramsApp1.vrSynonyms[1]
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
-runner.Step("App registration", common.registerApp)
+runner.Step("App1 registration", common.registerApp, { 1, paramsApp1 })
 
 runner.Title("Test")
-runner.Step("App registration with duplicate name", common.duplicateAppName, { pAppId, pAppName })
+runner.Step("App2 registration with duplicate name", common.unsuccessRAI, { 2, paramsApp2, "DUPLICATE_NAME" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

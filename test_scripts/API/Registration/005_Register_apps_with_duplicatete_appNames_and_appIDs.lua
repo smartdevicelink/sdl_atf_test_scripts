@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -20,17 +19,20 @@ local common = require('test_scripts/API/Registration/commonRAI')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local appID = "1"
-local appName = "Test Application"
+local paramsApp1 = common.getRequestParams(1)
+local paramsApp2 = common.getRequestParams(2)
+paramsApp2.appName = paramsApp1.appName
+paramsApp2.appID = paramsApp1.appID
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
-runner.Step("App registration", common.registerApp)
+runner.Step("App registration", common.registerApp, { 1, paramsApp1})
 
 runner.Title("Test")
-runner.Step("Second app with a duplicate appName and appID same as for the firs app", common.duplicateAppName, { appID, appName })
+runner.Step("Second app with a duplicate appName and appID same as for the firs app", common.unsuccessRAI,
+	{ 2, paramsApp2, "DUPLICATE_NAME" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

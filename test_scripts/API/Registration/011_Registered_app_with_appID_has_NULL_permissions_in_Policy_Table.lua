@@ -1,5 +1,4 @@
 ---------------------------------------------------------------------------------------------------
--- Regression check
 -- User story:TBD
 -- Use case:TBD
 --
@@ -20,16 +19,21 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local utils = require('user_modules/utils')
 local json = require("modules/json")
 
-
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
+local paramsApp1 = common.getRequestParams(1)
+paramsApp1.appID = "0000001"
 
 --[[ Local Functions ]]
 local function backupPreloadedPT()
     commonPreconditions:BackupFile(preloadedPT)
+end
+
+local function restorePreloadedPT()
+    commonPreconditions:RestoreFile(preloadedPT)
 end
 
 local function updatePreloadedPT()
@@ -40,33 +44,6 @@ local function updatePreloadedPT()
     utils.tableToJsonFile(pt, preloadedFile)
 end
 
-local function restorePreloadedPT()
-    commonPreconditions:RestoreFile(preloadedPT)
-end
-
-local function rai_appIDNullPermissions()
-    common.getMobileSession():StartService(7)
-    :Do(function()
-        local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface",
-        {
-            syncMsgVersion = {
-            majorVersion = 3,
-            minorVersion = 0 },
-            appName = "TestApplication",
-            isMediaApplication = true,
-            languageDesired = 'EN-US',
-            hmiDisplayLanguageDesired = 'EN-US',
-            appID = "0000001"
-        })
-        common.getMobileSession():ExpectResponse(CorIdRegister, { success = true, resultCode = "SUCCESS" })
-        :Do(function()
-            local corId = common.getMobileSession():SendRPC("UnregisterAppInterface", { })
-
-            common.getMobileSession():ExpectResponse(corId, { success = false, resultCode = "DISALLOWED" })
-        end)
-    end)
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -75,7 +52,8 @@ runner.Step("Preloaded update", updatePreloadedPT)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
 runner.Title("Test")
-runner.Step("Application registered with appName which not Listed In NickNames DISALLOWED", rai_appIDNullPermissions)
+runner.Step("Application registered with appName which not Listed In NickNames DISALLOWED",
+    common.unsuccessRAI, { 1, paramsApp1, "DISALLOWED" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
