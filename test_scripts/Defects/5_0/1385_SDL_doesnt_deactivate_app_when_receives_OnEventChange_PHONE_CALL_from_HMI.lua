@@ -15,7 +15,6 @@
 ---------------------------------------------------------------------------------------------------
 
 -- [[ Required Shared libraries ]]
-local config = require("local_config")
 local runner = require("user_modules/script_runner")
 local common = require("user_modules/sequences/actions")
 local connect = require("user_modules/dummy_connecttest")
@@ -72,13 +71,17 @@ local function sendOnEventChanged(testCase)
     eventName = "PHONE_CALL",
     isActive = true })
   common.getMobileSession():ExpectNotification("OnHMIStatus", cases[testCase][expectedHmiStatus])
-  common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
-    eventName = "PHONE_CALL",
-    isActive = false })
+  :Do(function()
+    common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
+      eventName = "PHONE_CALL",
+      isActive = false })
+    end)
+  common.getMobileSession():ExpectNotification("OnHMIStatus", "FULL")
 end
 
 local function cleanSessions()
   for i = 1, common.getAppsCount() do
+    connect.mobileSession[i]:Stop()
     connect.mobileSession[i] = nil
   end
 end
@@ -88,7 +91,9 @@ local function unregisterApp()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
   { appID = common.getHMIAppId(), unexpectedDisconnect = false })
   common.getMobileSession():ExpectResponse(cid, {success = true, resultCode = "SUCCESS"})
-  cleanSessions()
+  :Do(function()
+    cleanSessions()
+    end)
 end
 
 --[[ Scenario ]]
@@ -98,7 +103,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 for key, value in pairs(cases) do
   runner.Title("TestCase: " .. key)
-  runner.Step("Prepare application config", prepareConfig, { value.params })
+  runner.Step("Prepare application params", prepareConfig, { value.params })
   runner.Step("Register App1", common.registerAppWOPTU, { 1 })
   runner.Step("Activate App1", common.activateApp, { 1 })
 
