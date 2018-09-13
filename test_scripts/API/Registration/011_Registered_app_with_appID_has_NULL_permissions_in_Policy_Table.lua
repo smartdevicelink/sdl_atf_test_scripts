@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- Check that SDL does not the application registration with appID which has "null" permissions in Policy Table.
 -- In case:
 -- 1) Application registered with appID which has "null" permissions in Policy Table.
 -- SDL does:
@@ -44,6 +45,31 @@ local function updatePreloadedPT()
     utils.tableToJsonFile(pt, preloadedFile)
 end
 
+local function registerApp(pParams, pResultCode)
+    common.getMobileSession():StartService(7)
+    :Do(function()
+        local CorIdRegister = common.getMobileSession():SendRPC("RegisterAppInterface", pParams)
+        EXPECT_HMICALL("BasicCommunication.GetSystemInfo")
+        :Times(0)
+        common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+    { application = {
+        appName = pParams.appName,
+        ngnMediaScreenAppName = pParams.ngnMediaScreenAppName,
+        policyAppID = pParams.policyAppID,
+        hmiDisplayLanguageDesired = pParams.hmiDisplayLanguageDesired,
+        isMediaApplication = pParams.isMediaApplication,
+        appType = pParams.appType,
+      } })
+        common.getMobileSession():ExpectResponse(CorIdRegister, { success = true, resultCode = pResultCode })
+        :Do(function()
+            common.getMobileSession():ExpectNotification("OnHMIStatus",
+            {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          end)
+        common.getMobileSession():ExpectNotification("OnPermissionsChange")
+        :Times(0)
+      end)
+  end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -52,8 +78,8 @@ runner.Step("Preloaded update", updatePreloadedPT)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
 
 runner.Title("Test")
-runner.Step("Application registered with appName which not Listed In NickNames DISALLOWED",
-    common.unsuccessRAI, { 1, paramsApp1, "DISALLOWED" })
+runner.Step("Application registered with appID has null permissions in Policy Table",
+    registerApp, { paramsApp1, "SUCCESS" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

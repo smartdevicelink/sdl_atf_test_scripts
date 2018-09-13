@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- Check that SDL does not the application registration with appName which not listed in nickNames.
 -- In case:
 -- 1) Application is tried to register with appName which not listed in nickNames.
 -- SDL does:
@@ -24,8 +25,8 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
-local paramsApp1 = common.getRequestParams(1)
-paramsApp1.appID = "1234567"
+local paramsApp1 = common.getRequestParams()
+paramsApp1.fullAppID = "1234567"
 
 --[[ Local Functions ]]
 local function setNickNameForSpecificApp()

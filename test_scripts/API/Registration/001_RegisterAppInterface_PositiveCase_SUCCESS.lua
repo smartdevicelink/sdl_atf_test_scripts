@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- SDL is successfully application registrations
 -- In case:
 -- 1) Application is registered with conditional params.
 -- SDL does:

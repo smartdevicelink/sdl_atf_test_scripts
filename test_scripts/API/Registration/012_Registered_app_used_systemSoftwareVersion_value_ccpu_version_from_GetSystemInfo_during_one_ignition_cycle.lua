@@ -6,7 +6,7 @@
 -- TBD
 --
 -- Description:
--- Check that SDL request systemSoftwareVersion only once and use this value during ignition cycle.
+-- Check that SDL used for param systemSoftwareVersion value "ccpu_version" from "GetSystemInfo" during one ignition cycle
 -- In case:
 -- 1) SDL, HMI are started.
 -- 2) Mobile application is registered.
@@ -14,6 +14,7 @@
 -- SDL does:
 -- 1) Successfully re-register application.
 -- 2) Not send GetSystemInfo during RegisterAppInterface.
+-- 3) Used for param systemSoftwareVersion value "ccpu_version" from "GetSystemInfo" during one ignition cycle
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -22,6 +23,13 @@ local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+
+--[[ Local Variables ]]
+local pParam = "FORD"
+
+local valueForResponse = {
+    systemSoftwareVersion =  pParam
+}
 
 --[[ Local Functions ]]
 local function getHMIValuesDuringFirstRAI()
@@ -38,10 +46,12 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start, { getHMIValuesDuringFirstRAI () })
 
 runner.Title("Test")
-runner.Step("SystemSoftwareVersion in RAI response during first registration", common.registerApp)
+runner.Step("SystemSoftwareVersion in RAI response during first registration",
+	common.registerApp, { 1, common.getRequestParams(1) })
 runner.Step("Application unregistered", common.unregisterAppInterface)
 runner.Step("Clean sessions", common.cleanSessions)
-runner.Step("SDL used the same value of systemSoftwareVersion", common.registerApp)
+runner.Step("SDL used the same value of systemSoftwareVersion",
+	common.registerApp, { 1, common.getRequestParams(1), _, valueForResponse})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

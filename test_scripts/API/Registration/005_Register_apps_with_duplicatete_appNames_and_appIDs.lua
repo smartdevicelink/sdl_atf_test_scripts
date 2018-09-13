@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- Check that SDL does not application registration with duplicate name with appID same as for app1 
 -- In case:
 -- 1) Second mobile app registers with same appName and appID same as the first mobile app.
 -- SDL does:

@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- Check that SDL respond resultCode "WARNINGS" application registration with "type":"FILE" for "ttsName"
 -- In case:
 -- 1) Mobile application is registered with ttsName: type = FILE
 -- SDL does:
@@ -14,13 +15,18 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Registration/commonRAI')
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require("user_modules/utils")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+local pValue = commonPreconditions:GetPathToSDL() .. "storage/" .. common.getConfigAppParams( pAppId ).appID .. "_"
+.. utils.getDeviceMAC() .. "/SyncProxyTester"
+
 --[[ Local Variables ]]
 local paramsApp1 = common.getRequestParams(1)
-paramsApp1.ttsName = {{ text = "SyncProxyTester", type = "FILE"}}
+paramsApp1.ttsName = {{ text = pValue, type = "FILE"}}
 
 --[[ Scenario ]]
 runner.Title("Preconditions")

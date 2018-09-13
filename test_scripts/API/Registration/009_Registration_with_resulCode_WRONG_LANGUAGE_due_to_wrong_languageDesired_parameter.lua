@@ -6,8 +6,11 @@
 -- TBD
 --
 -- Description:
+-- Check that SDL does not the application registration second with with value for "languageDesired",
+-- which does not match the ones installed on the HMI.
 -- In case:
--- 1) The mobile application is registerы with value for "languageDesired" , which does not match the ones installed on the HMI.
+-- 1) The mobile application is registerы with value for "languageDesired",
+-- which does not match the ones installed on the HMI.
 -- SDL does:
 -- 1) Send the WRONG_LANGUAGE response result code to mobile application.
 ---------------------------------------------------------------------------------------------------
@@ -34,7 +37,8 @@ runner.Title("Test")
 runner.Step("RAI_with_wrong_languageDesired_parameter", common.registerApp, {1, firstWrongLang, "WRONG_LANGUAGE" })
 runner.Step("Application unregistered", common.unregisterAppInterface)
 runner.Step("Clean sessions", common.cleanSessions)
-runner.Step("RAI_with_wrong_hmiDisplayLanguageDesired_parameter", common.registerApp, {1, secondWrongLang, "WRONG_LANGUAGE" })
+runner.Step("RAI_with_wrong_hmiDisplayLanguageDesired_parameter",
+	common.registerApp, {1, secondWrongLang, "WRONG_LANGUAGE" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

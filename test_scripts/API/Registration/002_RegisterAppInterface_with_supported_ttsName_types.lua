@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- SDL is successfully application registrations with supported "type" param for "ttsName"
 -- In case:
 -- 1) The mobile application is registered with supported ttsName types.
 -- SDL does:

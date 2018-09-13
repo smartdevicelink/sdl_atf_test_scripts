@@ -10,8 +10,6 @@ local actions = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local test = require("user_modules/dummy_connecttest")
-local json = require("modules/json")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Module ]]
 local m = actions
@@ -22,6 +20,7 @@ local m = actions
 --! @return: none
 --]]
 function m.getRequestParams(pAppId)
+  if not pAppId then pAppId = 1 end
   local pParams = m.getConfigAppParams(pAppId)
   pParams.ttsName = {{ text = "SyncProxyTester" .. pAppId, type = "TEXT"}}
   pParams.ngnMediaScreenAppName ="SPT" .. pAppId
@@ -55,12 +54,18 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! pParam - params for RAI request
 --! pResultCode - result code in RAI response
---! pSystemSoftwareVersion - systemSoftwareVersion in RAI response
+--! pResponseParams - params for RAI response
 --! @return: none
 --]]
-function m.registerApp(pAppId, pParams, pResultCode, pSystemSoftwareVersion)
+function m.registerApp(pAppId, pParams, pResultCode, pResponseParams)
   if not pAppId then pAppId = 1 end
   if not pResultCode then pResultCode = "SUCCESS" end
+  if not pResponseParams then
+    pResponseParams = { success = true, resultCode = pResultCode }
+  else
+    pResponseParams.success = true
+    pResponseParams.resultCode = pResultCode
+  end
   m.getMobileSession(pAppId):StartService(7)
   :Do(function()
       local CorIdRegister = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface", pParams)
@@ -68,8 +73,7 @@ function m.registerApp(pAppId, pParams, pResultCode, pSystemSoftwareVersion)
       :Times(0)
       m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
         getOnAppRegisteredParams(pParams))
-      m.getMobileSession(pAppId):ExpectResponse(CorIdRegister,
-        { success = true, resultCode = pResultCode, systemSoftwareVersion = pSystemSoftwareVersion })
+      m.getMobileSession(pAppId):ExpectResponse(CorIdRegister, pResponseParams)
       :Do(function()
           m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
           {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })

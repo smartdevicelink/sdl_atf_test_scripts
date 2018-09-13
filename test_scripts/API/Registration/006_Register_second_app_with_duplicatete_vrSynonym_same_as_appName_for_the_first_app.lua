@@ -6,6 +6,7 @@
 -- TBD
 --
 -- Description:
+-- Check that SDL does not application registration with duplicate vrSynonyms with same as for name app1
 -- In case:
 -- 1) The second mobile app tries to register when its "vrSynonyms" matches the "appName" for the first app.
 -- SDL does:
