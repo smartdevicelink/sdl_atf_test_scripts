@@ -22,6 +22,7 @@ local test = require("user_modules/dummy_connecttest")
 local mobile_session = require('mobile_session')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local utils = require("user_modules/utils")
+local events = require("events")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -31,29 +32,25 @@ config.defaultProtocolVersion = 2
 
 --[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
-config.application1.registerAppInterfaceParams.isMediaApplication = true
+config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
-local function closeSession()
+local function closeConnection()
 	common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
 	test.mobileConnection:Close()
 end
 
 local function openConnection()
-	test.mobileSession[1] = mobile_session.MobileSession( test, test.mobileConnection,
-		config.application1.registerAppInterfaceParams)
-		test.mobileConnection:Connect()
-		test.mobileSession[1]:StartRPC()
+	test.mobileConnection:Connect()
+	EXPECT_EVENT(events.connectedEvent, "Connected")
 	:Do(function()
-		commonTestCases:DelayedExp(5000)
-		EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-			{appID = common.getHMIAppId(), unexpectedDisconnect = true}):Times(0)
-	end)
-end
+		utils.cprint(35, "Mobile connected")
+	  end)
+  end
+  
 
 local function cleanSessions()
     for i = 1, common.getAppsCount() do
-      test.mobileSession[i]:Stop()
       test.mobileSession[i] = nil
     end
     utils.wait()
@@ -77,9 +74,9 @@ runner.Step("Activate App", common.activateApp)
 
 -- [[ Test ]]
 runner.Title("Test")
-runner.Step("Application disconnect", closeSession)
-runner.Step("Open session", openConnection)
+runner.Step("Application disconnect", closeConnection)
 runner.Step("Clean session", cleanSessions)
+runner.Step("Open session", openConnection)
 runner.Step("Register App", common.registerAppWOPTU, { 1 })
 runner.Step("Resuming Activation App", checkResumingActivationApp)
 
