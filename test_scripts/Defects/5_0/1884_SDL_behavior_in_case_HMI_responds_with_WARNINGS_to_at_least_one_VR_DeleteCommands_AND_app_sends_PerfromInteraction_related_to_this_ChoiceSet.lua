@@ -24,8 +24,6 @@ local runner = require('user_modules/script_runner')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local grammarIDValue
-
 local requestchoiceParams = {
   interactionChoiceSetID = 1,
   choiceSet = {
@@ -54,7 +52,7 @@ local deleteAllParams = {
 local performParams = {
   initialText = "TextInitial",
   interactionMode = "MANUAL_ONLY",
-  interactionChoiceSetIDList = { 100 },
+  interactionChoiceSetIDList = { 1 },
   initialPrompt = {
     { type = "TEXT", text = "pathToFile1" }
   }
@@ -65,7 +63,7 @@ local function createInteractionChoiceSet()
   local corId = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", requestchoiceParams)
   common.getHMIConnection():ExpectRequest("VR.AddCommand",
     { cmdID = 111, type = "Choice", vrCommands = { "Choice111" } })
-  :Times(1)
+  -- :Times(1)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
@@ -75,10 +73,8 @@ end
 local function deleteInteractionChoiceSet(params)
 	local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
 
-	params.responseVrParams.appID = common.getHMIAppId()
 	EXPECT_HMICALL("VR.DeleteCommand", { cmdID = 111, type = "Choice" })
 	:Do(function(_,data)
-    grammarIDValue = data.params.grammarID
 		common.getHMIConnection():SendResponse(data.id, data.method, "WARNINGS", {})
 	end)
 
@@ -86,11 +82,10 @@ local function deleteInteractionChoiceSet(params)
 	common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-local function sendPerformInteraction_SUCCESS()
+local function sendPerformInteraction()
   local corId = common.getMobileSession():SendRPC("PerformInteraction", performParams)
   common.getMobileSession():ExpectResponse(corId, { success = false, resultCode = "REJECTED" })
 end
-
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -102,7 +97,7 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet)
 runner.Step("DeleteInteractionChoiceSet", deleteInteractionChoiceSet, {deleteAllParams})
-runner.Step("Send PerformInteraction SUCCESS response", sendPerformInteraction_SUCCESS)
+runner.Step("PerformInteraction ", sendPerformInteraction)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
