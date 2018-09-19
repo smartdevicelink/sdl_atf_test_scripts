@@ -15,44 +15,46 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/commonDefects')
+local common = require("user_modules/sequences/actions")
 
 --[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Functions ]]
-local function nonMediaActivateApp(self)
-  local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
-  EXPECT_HMIRESPONSE(requestId)
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
-  { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+local function activateApp()
+  local cid = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
+  common.getHMIConnection():ExpectResponse(cid)
+  common.getMobileSession():ExpectNotification("OnHMIStatus", {
+    hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
+  })
 end
 
-local function onEventChange(self)
-	self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
-  { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
-  { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-  :Times(2)
-  :Do(function(exp)
-    if exp.occurences == 1 then
-      local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
-      EXPECT_HMIRESPONSE(requestId)
-      self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = false})
-    end
-  end)
+local function deactivateApp()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnHMIStatus", {
+    hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE"
+  })
+end
+
+local function onEventChange()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
+    eventName = "AUDIO_SOURCE", isActive = true
+  })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI", common.rai_n)
-runner.Step("Non-media app activated", nonMediaActivateApp)
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App FULL", activateApp)
+runner.Step("Deactivate App BACKGROUND", deactivateApp)
 
 runner.Title("Test")
-runner.Step("Non_media app in BACKGROUND and NOT_AUDIBLE due to active embedded audio source", onEventChange)
+runner.Step("OnEventChanged AUDIO_SOURCE true", onEventChange)
+runner.Step("Activate App FULL", activateApp)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
