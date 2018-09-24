@@ -37,8 +37,8 @@ for _, moduleName in pairs(common.modules)do
     common.GetInteriorVehicleData, { moduleName, false, 1, 0 })
   runner.Step("OnHashChange after adding subscription for " .. moduleName, common.GetInteriorVehicleData,
     { moduleName, true, 1, 1 })
-  runner.Step("Absence of OnHashChange with subscription after GetInteriorVehicleData(false) for " .. moduleName,
-    common.GetInteriorVehicleData, { moduleName, false, 0, 0 })
+  runner.Step("OnHashChange with subscription after GetInteriorVehicleData(false) for " .. moduleName,
+    common.GetInteriorVehicleData, { moduleName, false, 1, 1 })
 end
 
 runner.Title("Postconditions")

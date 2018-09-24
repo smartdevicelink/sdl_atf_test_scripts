@@ -75,9 +75,9 @@ runner.Step("Reregister App resumption data", common.reRegisterApps,
 runner.Step("Check subscription for app1 and app2 for module " .. common.modules[1], onInteriorVD,
   { common.modules[1] })
 runner.Step("Check subscription for app1 for module " .. common.modules[2], common.GetInteriorVehicleData,
-  { common.modules[2], false, 0, 0 })
+  { common.modules[2], false, 0, 1 })
 runner.Step("Check subscription for app1 for module " .. common.modules[3], common.GetInteriorVehicleData,
-  { common.modules[3], false, 0, 0, 2 })
+  { common.modules[3], false, 1, 1, 2 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

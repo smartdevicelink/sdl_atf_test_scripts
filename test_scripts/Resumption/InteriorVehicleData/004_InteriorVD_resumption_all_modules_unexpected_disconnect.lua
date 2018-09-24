@@ -28,10 +28,10 @@ local function checkResumptionData()
   EXPECT_HMICALL("RC.GetInteriorVehicleData")
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-        { moduleData = common.getModuleControlData(data.params.moduleData.moduleType), isSubscribed = true })
+        { moduleData = common.getModuleControlData(data.params.moduleType), isSubscribed = true })
     end)
   :ValidIf(function(exp, data)
-    modulesToExpect[data.params.moduleData.moduleType] = true
+    modulesToExpect[data.params.moduleType] = true
     if exp.occurences == #modulesToExpect then
       for k, v in pairs(modulesToExpect) do
         if v == false then
@@ -61,7 +61,7 @@ runner.Step("Connect mobile", common.connectMobile)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel})
 for _, mod in pairs(common.modules) do
-  runner.Step("Check subscription for " .. mod, common.GetInteriorVehicleData, { mod, false, 0, 0 })
+  runner.Step("Check subscription for " .. mod, common.GetInteriorVehicleData, { mod, nil, 0, 0 })
 end
 
 runner.Title("Postconditions")

@@ -74,7 +74,7 @@ runner.Step("Open service for app2", common.openRPCservice, { 2 })
 runner.Step("Reregister App resumption data", common.reRegisterApps,
   { checkResumptionData, "RESUME_FAILED", "RESUME_FAILED" })
 runner.Step("Check subscription for app1", common.GetInteriorVehicleData, { common.modules[1], false, 1, 0 })
-runner.Step("Check subscription for app2", common.GetInteriorVehicleData, { common.modules[2], false, 0, 0, 2 })
+runner.Step("Check subscription for app2", common.GetInteriorVehicleData, { common.modules[2], false, 1, 1, 2 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

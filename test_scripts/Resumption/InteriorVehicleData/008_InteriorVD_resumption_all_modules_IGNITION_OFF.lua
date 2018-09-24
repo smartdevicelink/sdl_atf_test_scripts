@@ -61,7 +61,7 @@ runner.Step("IGNITION_ON", common.start)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel })
 for _, mod in pairs(common.modules) do
-  runner.Step("Check subscription for " .. mod, common.GetInteriorVehicleData, { mod, false, 0, 0 })
+  runner.Step("Check subscription for " .. mod, common.GetInteriorVehicleData, { mod, nil, 0, 0 })
 end
 
 runner.Title("Postconditions")

@@ -40,7 +40,7 @@ runner.Step("IGNITION_OFF", common.ignitionOff)
 runner.Step("IGNITION_ON", common.start)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel})
-runner.Step("Check subscription", common.GetInteriorVehicleData, { common.modules[1], false, 0, 0 })
+runner.Step("Check subscription", common.GetInteriorVehicleData, { common.modules[1], nil, 0, 0 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
