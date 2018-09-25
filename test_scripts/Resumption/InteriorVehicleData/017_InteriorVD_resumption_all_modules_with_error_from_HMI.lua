@@ -40,7 +40,7 @@ local function checkResumptionData()
         common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "Error message")
       else
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-          { moduleData = common.getModuleControlData(data.params.moduleData.moduleType), isSubscribed = true })
+          { moduleData = common.getModuleControlData(data.params.moduleType), isSubscribed = true })
       end
     end)
   :ValidIf(function(exp)

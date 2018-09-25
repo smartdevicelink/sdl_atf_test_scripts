@@ -36,7 +36,7 @@ local function checkResumptionData()
         common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "Error message")
       else
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-          { moduleData = common.getModuleControlData(data.params.moduleData.moduleType), subscribe = true })
+          { moduleData = common.getModuleControlData(data.params.moduleType), subscribe = true })
       end
     end)
   :Times(2)

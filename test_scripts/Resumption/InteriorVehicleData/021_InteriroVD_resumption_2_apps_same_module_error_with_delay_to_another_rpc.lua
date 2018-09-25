@@ -35,7 +35,7 @@ local function checkResumptionData()
    { moduleType = common.modules[1], subscribe = true })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-        { moduleData = common.getModuleControlData(data.params.moduleData.moduleType), subscribe = true })
+        { moduleData = common.getModuleControlData(data.params.moduleType), subscribe = true })
     end)
   EXPECT_HMICALL("UI.AddSubMenu")
   :Do(function(_, data)

@@ -31,7 +31,7 @@ local function checkResumptionData()
    { moduleType = common.modules[2], subscribe = true })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-        { moduleData = common.getModuleControlData(data.params.moduleData.moduleType), subscribe = true })
+        { moduleData = common.getModuleControlData(data.params.moduleType), subscribe = true })
     end)
   :Times(2)
 end
