@@ -46,7 +46,7 @@ function  m.GetInteriorVehicleData(pModuleType, isSubscribe, hmiReqExpectTimes, 
 
   m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Do(function(_,data)
-      m.hashId[pAppId] = data.payload.hashId
+      m.hashId[pAppId] = data.payload.hashID
     end)
   :Times(hashChangeExpectTimes)
   m.wait(300)
