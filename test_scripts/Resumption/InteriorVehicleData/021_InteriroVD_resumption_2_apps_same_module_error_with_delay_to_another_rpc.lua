@@ -105,7 +105,7 @@ local function addSubMenu()
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
   common.getMobileSession():ExpectNotification("OnHashChange")
   :Do(function(_,data)
-      common.hashId[1] = data.payload.hashId
+      common.hashId[1] = data.payload.hashID
     end)
 end
 
