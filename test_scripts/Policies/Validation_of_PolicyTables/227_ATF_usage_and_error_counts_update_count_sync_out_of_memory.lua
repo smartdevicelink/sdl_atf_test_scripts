@@ -251,6 +251,7 @@ commonFunctions:newTestCasesGroup("Postconditions")
 
 function Test.Postcondition_StopSDL()
   StopSDL()
+  commonSteps:DeletePolicyTable()
 end
 
 return Test
