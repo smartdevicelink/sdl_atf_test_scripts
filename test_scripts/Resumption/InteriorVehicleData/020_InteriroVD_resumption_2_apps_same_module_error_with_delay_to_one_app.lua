@@ -18,7 +18,8 @@
 -- 1. process unsuccess response from HMI
 -- 2. remove restored data for app1 and app2
 -- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to app1
--- 4. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to app2
+-- 4. send RC.GetInteriorVD(subscribe=true, module_1) request to HMI and receives error resultCode from HMI
+-- 5. in case of successful response send RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to app2
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

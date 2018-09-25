@@ -12,8 +12,8 @@
 -- 3. Transport disconnect and reconnect are performed
 -- 4. Apps reregister with actual HashId
 -- 5. RC.GetInteriorVD(subscribe=true, module_1) is sent from SDL to HMI during resumption for app1
--- 6. RC.GetInteriorVD(subscribe=true, module_2) is sent from SDL to HMI during resumption for app2
--- 7. HMI responds with error resultCode to RC.GetInteriorVD(subscribe=true, module_1) request
+-- 6. HMI responds with error resultCode to RC.GetInteriorVD(subscribe=true, module_1) request
+-- 7. RC.GetInteriorVD(subscribe=true, module_1) is sent from SDL to HMI during resumption for app2
 -- 8. HMI responds with success to remaining requests
 -- SDL does:
 -- 1. process unsuccess response from HMI

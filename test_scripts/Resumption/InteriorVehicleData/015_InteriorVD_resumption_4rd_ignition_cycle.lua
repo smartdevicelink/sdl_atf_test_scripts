@@ -14,8 +14,7 @@
 -- 5. App starts registration with actual hashId after IGN_ON in 4th ignition cycle
 -- SDL does:
 -- 1. not resume persistent data - not send RC.GetInteriorVD(subscribe=true, module_1)
--- 2. respond RAI(SUCCESS) to mobile app
--- 3. update hashId after successful resumption
+-- 2. respond RAI(RESUME_FAILED) to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -54,7 +53,7 @@ runner.Step("IGNITION_ON", common.start)
 runner.Step("IGNITION_OFF", common.ignitionOff)
 runner.Step("IGNITION_ON", common.start)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
-  { 1, checkResumptionData, absenceHMIlevelResumption})
+  { 1, checkResumptionData, absenceHMIlevelResumption, "RESUME_FAILED" })
 runner.Step("Check subscription", common.GetInteriorVehicleData, { common.modules[1], false, 1, 0 })
 
 runner.Title("Postconditions")

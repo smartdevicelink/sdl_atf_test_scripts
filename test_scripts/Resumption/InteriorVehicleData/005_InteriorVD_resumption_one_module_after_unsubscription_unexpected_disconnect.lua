@@ -9,8 +9,9 @@
 -- In case:
 -- 1. App is subscribed to module_1, module_2
 -- 2. App is unsubscribed from module_1
--- 3. Transport disconnect and reconnect are performed
--- 4. App starts registration with actual hashId after unexpected disconnect
+-- 3. App receives updated hashId after unsubscription
+-- 4. Transport disconnect and reconnect are performed
+-- 5. App starts registration with actual hashId after unexpected disconnect
 -- SDL does:
 -- 1. send RC.GetInteriorVD(subscribe=true, module_2) to HMI during resumption data
 -- 2. respond RAI(SUCCESS) to mobile app

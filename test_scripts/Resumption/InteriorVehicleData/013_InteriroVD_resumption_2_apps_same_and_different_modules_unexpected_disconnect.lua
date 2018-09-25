@@ -13,10 +13,11 @@
 -- 4. Apps start registration with actual hashId after unexpected disconnect
 -- SDL does:
 -- 1. send RC.GetInteriorVD(subscribe=true, modules_1) to HMI during resumption data for app2
--- 2. send RC.GetInteriorVD(subscribe=true, modules_2) to HMI during resumption data for app1
--- 3. not restore subscription for module_1 for app1
--- 4. respond RAI(SUCCESS) to mobile apps
--- 5. update hashId after successful resumption
+-- 2. send RC.GetInteriorVD(subscribe=true, modules_3) to HMI during resumption data for app2
+-- 3. send RC.GetInteriorVD(subscribe=true, modules_2) to HMI during resumption data for app1
+-- 4. not restore subscription for module_1 for app1
+-- 5. respond RAI(SUCCESS) to mobile apps
+-- 6. update hashId after successful resumption
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
