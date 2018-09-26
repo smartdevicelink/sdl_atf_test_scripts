@@ -29,26 +29,32 @@ runner.testSettings.isSelfIncluded = false
 local function checkResumptionData()
   local resumedModules = {}
   local requestsNumber = 2*#common.modules - 1
+  local function removeModule(pModule)
+    for key, value in pairs(resumedModules) do
+      if value == pModule then
+        resumedModules[key] = nil
+      end
+    end
+  end
   EXPECT_HMICALL("RC.GetInteriorVehicleData")
-  :Do(function(exp, data)
+  :ValidIf(function(exp, data)
       if data.params.subscribe == true then
         table.insert(resumedModules, data.params.moduleType)
       elseif data.params.subscribe == false then
-        resumedModules[data.params.moduleType] = nil
+        removeModule(data.params.moduleType)
       end
       if exp.occurences == #common.modules then
+        removeModule(data.params.moduleType)
         common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "Error message")
       else
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
           { moduleData = common.getModuleControlData(data.params.moduleType), isSubscribed = true })
       end
+      if requestsNumber == exp.occurences and commonFunctions:is_table_equal(resumedModules, {}) ~= true then
+        return false, "SDL does not revert all resumed data. Remained modules are " .. common.tableToString(resumedModules)
+      end
+      return true
     end)
-  :ValidIf(function(exp)
-    if requestsNumber == exp.occurences and commonFunctions:is_table_equal(resumedModules, {}) ~= true then
-      return false, "SDL does not revert all resimed data. Remained modules are " .. common.tableToString(resumedModules)
-    end
-    return true
-  end)
   :Times(requestsNumber)
 end
 
