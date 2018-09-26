@@ -49,7 +49,7 @@ runner.Step("IGNITION_ON", common.start)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel})
 runner.Step("Check subscription for " .. common.modules[1], common.GetInteriorVehicleData,
-  { common.modules[1], false, 0, 0 })
+  { common.modules[1], false, 1, 1 })
 runner.Step("Absence subscription for " .. common.modules[2], common.GetInteriorVehicleData,
   { common.modules[2], false, 1, 0 })
 
