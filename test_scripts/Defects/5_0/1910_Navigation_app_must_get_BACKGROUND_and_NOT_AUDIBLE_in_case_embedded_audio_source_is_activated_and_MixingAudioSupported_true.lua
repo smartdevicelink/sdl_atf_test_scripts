@@ -14,9 +14,14 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/commonDefects')
+local common = require("user_modules/sequences/actions")
 local hmi_values = require('user_modules/hmi_values')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local utils = require("user_modules/utils")
+local test = require("user_modules/dummy_connecttest")
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
@@ -29,48 +34,62 @@ local function getHMIValues()
   return params
 end
 
-local function start(getHMIParams, self)
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self)
+local function start(getHMIParams)
+  test:runSDL()
+  commonFunctions:waitForSDLStart(test)
   :Do(function()
-      self:initHMI(self)
+      test:initHMI()
       :Do(function()
-          commonFunctions:userPrint(35, "HMI initialized")
-          self:initHMI_onReady(getHMIParams)
+          utils.cprint(35, "HMI initialized")
+          test:initHMI_onReady(getHMIParams)
           :Do(function()
-              commonFunctions:userPrint(35, "HMI is ready")
-              self:connectMobile()
+              utils.cprint(35, "HMI is ready")
+              test:connectMobile()
               :Do(function()
-                  commonFunctions:userPrint(35, "Mobile connected")
-                  common.allow_sdl(self)
-                end)
-            end)
-        end)
-    end)
+                  utils.cprint(35, "Mobile connected")
+                  --common.allowSDL(test)
+              end)
+          end)
+      end)
+  end)
 end
 
-local function activateNaviApp(self)
-  local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
-  EXPECT_HMIRESPONSE(requestId)
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
-	{ hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" },
-	{ hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-	:Times(2)
-  :Do(function(exp)
-	  if exp.occurences == 1 then
-		  self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
-	  end
-  end)
+local function activateApp()
+  local cid = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
+  common.getHMIConnection():ExpectResponse(cid)
+  common.getMobileSession():ExpectNotification("OnHMIStatus", {
+    hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN"
+  })
+end
+
+local function deactivateApp()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnHMIStatus", {
+    hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE"})
+end
+
+local function onEventChange()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
+    eventName = "AUDIO_SOURCE", isActive = true })
+    common.getMobileSession():ExpectNotification("OnHMIStatus")
+    :ValidIf(function(_, data)
+      if ( data.payload.hmiLevel == "BACKGROUND" and data.payload.audioStreamingState == "NOT_AUDIBLE") then 
+        return true
+      end
+      return false, "SDL does not set required HMILevel and audioStreamingState."
+    end)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { getHMIValues })
-runner.Step("RAI", common.rai_n)
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App FULL", activateApp)
+runner.Step("Deactivate App LIMITED", deactivateApp)
 
 runner.Title("Test")
-runner.Step("Navi_App in BACKGROUND and NOT_AUDIBLE in case embedded audio source", activateNaviApp)
+runner.Step("OnEventChanged AUDIO_SOURCE true", onEventChange)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
