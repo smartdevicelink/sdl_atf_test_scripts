@@ -28,16 +28,15 @@ local function HMISendToSDL_MASTER_RESET()
 	common.getMobileSession(2):ExpectNotification("OnAppInterfaceUnregistered",
           { reason = "MASTER_RESET" })
 		  :ValidIf(function()
-                local app_info_table = utils.jsonFileToTable(commonPreconditions:GetPathToSDL()  .. "/app_info.dat")
-                local resumption_data = app_info_table.resumtion
-        		if resumption_data == nil then
-        			return true
-        		else
-                    print(" \27[36m Resumption data is not cleared after MASTER_RESET \27[0m")
-        			return false
-        		end
-    		end)
-	common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose",{})
+                local app_info_table = utils.jsonFileToTable(commonPreconditions:GetPathToSDL()  .. "app_info.dat")
+                local resumption_data = app_info_table.resumption.resume_app_list
+                if next(resumption_data) == nil then
+                    return true
+                else
+                    return false, "Resumption data is not cleared after MASTER_RESET"
+                end
+            end)
+    common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose",{})
 end
 
 --[[ Scenario ]]
