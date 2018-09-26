@@ -29,8 +29,8 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function checkResumptionData()
   EXPECT_HMICALL("RC.GetInteriorVehicleData",
-   { moduleType = common.modules[1], subscribe = true },
    { moduleType = common.modules[2], subscribe = true },
+   { moduleType = common.modules[1], subscribe = true },
    { moduleType = common.modules[3], subscribe = true })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
@@ -76,7 +76,7 @@ runner.Step("Reregister App resumption data", common.reRegisterApps,
 runner.Step("Check subscription for app1 and app2 for module " .. common.modules[1], onInteriorVD,
   { common.modules[1] })
 runner.Step("Check subscription for app1 for module " .. common.modules[2], common.GetInteriorVehicleData,
-  { common.modules[2], false, 0, 1 })
+  { common.modules[2], false, 1, 1 })
 runner.Step("Check subscription for app1 for module " .. common.modules[3], common.GetInteriorVehicleData,
   { common.modules[3], false, 1, 1, 2 })
 
