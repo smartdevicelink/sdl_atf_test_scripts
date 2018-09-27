@@ -15,47 +15,45 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/commonDefects')
+local common = require('user_modules/sequences/actions')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 
---[[ Local Variables ]]
-local function activate_app(pAppId, self)
-  self, pAppId = common.getSelfAndParams(pAppId, self)
-  if not pAppId then pAppId = 1 end
-  local mobSession = common.getMobileSession(self, pAppId)
-  local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
+--[[ Local Functions ]]
+local function activate_app()
+  local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
   EXPECT_HMIRESPONSE(requestId)
-  mobSession:ExpectNotification("OnHMIStatus",
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
-local function onEventChange(self)
-	self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "EMBEDDED_NAVI", isActive = true})
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
-  { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
-  { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-  :Times(2)
-  :Do(function(exp)
-    if exp.occurences == 1 then
-      self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "EMBEDDED_NAVI", isActive = false})
-      local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(1) })
-       EXPECT_HMIRESPONSE(requestId)
-    end
-  end)
+local function deactivateApp()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+	{ hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
+end
+
+local function onEventChange()
+	common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
+	{eventName = "EMBEDDED_NAVI", isActive = true})
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI", common.rai_n)
+runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", activate_app)
+runner.Step("Deactivate App BACKGROUND", deactivateApp)
+runner.Step("onEventChange EMBEDDED_NAVI true", onEventChange)
 
 runner.Title("Test")
-runner.Step("onEventChange EMBEDDED_NAVI true", onEventChange)
+runner.Step("Activate App", activate_app)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
