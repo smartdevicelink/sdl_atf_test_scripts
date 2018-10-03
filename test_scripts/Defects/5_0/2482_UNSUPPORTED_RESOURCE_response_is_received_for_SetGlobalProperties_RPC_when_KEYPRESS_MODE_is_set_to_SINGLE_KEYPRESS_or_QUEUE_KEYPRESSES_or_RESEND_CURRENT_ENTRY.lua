@@ -40,25 +40,21 @@ local keyPressMode = {
 	"RESEND_CURRENT_ENTRY"
 }
 
-local paramsSetGlobalProp = {
-	helpPrompt = {
-		{
-			text = "Help prompt",
-			type = "TEXT"
-		}
-	},
-	keyboardProperties = {
-		keypressMode = pKeypressMode,
-		limitedCharacterList = {"a"},
-	}
+local choiceParams = {
+  interactionChoiceSetID = 100,
+  choiceSet = {
+    {
+      choiceID = 100,
+      menuName = "Choice100",
+      vrCommands = { "Choice100" }
+    }
+  }
 }
 
-local responseUiParams = {
-	keyboardProperties = paramsSetGlobalProp.keyboardProperties
-}
-
-local responseTtsParams = {
-	helpPrompt = paramsSetGlobalProp.helpPrompt
+local createVrParams = {
+	cmdID = choiceParams.interactionChoiceSetID,
+	type = "Choice",
+	vrCommands = choiceParams.vrCommands
 }
 
 local performParams = {
@@ -77,31 +73,19 @@ local performParams = {
   interactionLayout = "KEYBOARD"
 }
 
-local performHmiParams = {
-  initialPrompt = {
-    { type = "TEXT", text = "pathToFile1"}
-  },
-  helpPrompt = {
-    { type = "TEXT", text = "pathToFile2"}
-  },
-  timeoutPrompt = {
-    { type = "TEXT", text = "pathToFile3"}
-  }
-}
-
 --[[ Local Functions ]]
-local function setGlobalProperties(pKeypressMode)
-  if not pKeypressMode then pKeypressMode = "SINGLE_KEYPRESS" end
-	local cid = common.getMobileSession():SendRPC("SetGlobalProperties", paramsSetGlobalProp)
-
-	responseUiParams.appID = common.getHMIAppId()
-	EXPECT_HMICALL("UI.SetGlobalProperties", responseUiParams)
-	:Do(function(_,data)
-		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
-
-	responseTtsParams.appID = common.getHMIAppId()
-	EXPECT_HMICALL("TTS.SetGlobalProperties", responseTtsParams)
+local function setGlobalProperties(pkeyPressMode)
+  local cid = common.getMobileSession():SendRPC("SetGlobalProperties",
+  {
+    keyboardProperties = {
+      keypressMode = pkeyPressMode
+    }
+  })
+  common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties",
+    { appID = common.getHMIAppId(),
+    keyboardProperties = {
+      keypressMode = pkeyPressMode
+    } })
 	:Do(function(_,data)
 		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
@@ -111,16 +95,6 @@ local function setGlobalProperties(pKeypressMode)
 end
 
 local function createInteractionChoiceSet()
-  local choiceParams = {
-    interactionChoiceSetID = 100,
-    choiceSet = {
-      {
-        choiceID = 111,
-        menuName = "Choice111",
-        vrCommands = { "Choice111" }
-      }
-    }
-  }
   local corId = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", choiceParams)
   common.getHMIConnection():ExpectRequest("VR.AddCommand")
   :Do(function(_, data)
@@ -136,9 +110,9 @@ local function sendPerformInteraction_SUCCESS()
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction", {
-    initialPrompt = performHmiParams.initialPrompt,
-    helpPrompt = performHmiParams.helpPrompt,
-    timeoutPrompt = performHmiParams.timeoutPrompt
+    initialPrompt = performParams.initialPrompt,
+    helpPrompt = performParams.helpPrompt,
+    timeoutPrompt = performParams.timeoutPrompt
   })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -146,20 +120,20 @@ local function sendPerformInteraction_SUCCESS()
   common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
-
-runner.Title("Test")
-for _, v in ipairs(keyPressMode) do
-	runner.Step("SetGlobalProperties with keypressMode " .. v, setGlobalProperties, { v })
-end
 runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet)
-runner.Step("Send PerformInteraction SUCCESS response", sendPerformInteraction_SUCCESS)
+
+for _, v in pairs(keyPressMode) do
+  runner.Title("Test")
+	runner.Step("SetGlobalProperties with keypressMode " .. v, setGlobalProperties, { v })
+  runner.Step("Send PerformInteraction SUCCESS response", sendPerformInteraction_SUCCESS)
+
+end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
