@@ -20,6 +20,10 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+local function waitUntilResumptionDataIsStored()
+  utils.wait(10000)
+end
+
 local function HMISendToSDL_MASTER_RESET()
 	common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications",
 		  { reason = "MASTER_RESET" })
@@ -52,6 +56,7 @@ runner.Step("PTU", common.policyTableUpdate)
 
 runner.Title("Test")
 
+runner.Step("Wating for SDL stores resumption data", waitUntilResumptionDataIsStored)
 runner.Step("HMI send to SDL notification OnExitAllApplications reason=MASTER_RESET", HMISendToSDL_MASTER_RESET)
 
 runner.Title("Postconditions")
