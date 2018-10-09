@@ -105,3 +105,4 @@
 ./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/013_GENERIC_ERROR_in_case_HMI_did_not_respond.lua
 ./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/014_GENERIC_ERROR_in_case_HMI_respond_with_invalid_data.lua
 ./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/015_Transfering_of_HMI_resultCode_to_mobile.lua
+./test_scripts/RC/CLIMATE_RADIO/SetInteriorVehicleData/024_params_for_another_module_in_moduleData.lua
