@@ -1,17 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1385
 --
--- Precondition:
--- SDL Core and HMI are started.
--- App is registered and activated
--- Description:
 -- Steps to reproduce:
--- 1) SDL receives BasicCommunication.OnEventChanged(Phone_Call,true) from HMI when apps are full.
+-- 1) App is registered and activated
+-- 2) SDL receives BasicCommunication.OnEventChanged(Phone_Call,true) from HMI when apps are full.
 -- Expected:
 -- SDL should send to mobile app OnHMIStatus
---   1) For navi app: hmiLevel = "LIMITED", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
---   2) For media app: hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
---   3) For voice communication app: hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
+-- 1) For navi app: hmiLevel = "LIMITED", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
+-- 2) For media app: hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
+-- 3) For voice communication app: hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"
 ---------------------------------------------------------------------------------------------------
 
 -- [[ Required Shared libraries ]]
@@ -68,15 +65,19 @@ end
 
 local function sendOnEventChanged(testCase)
   common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
-    eventName = "PHONE_CALL",
-    isActive = true })
-  common.getMobileSession():ExpectNotification("OnHMIStatus", cases[testCase][expectedHmiStatus])
-  :Do(function()
-    common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
       eventName = "PHONE_CALL",
-      isActive = false })
+      isActive = true })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    cases[testCase]["expectedHmiStatus"],
+    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
+  :Times(2)
+  :Do(function(exp)
+      if exp.occurences == 1 then
+        common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
+            eventName = "PHONE_CALL",
+            isActive = false })
+      end
     end)
-  common.getMobileSession():ExpectNotification("OnHMIStatus", "FULL")
 end
 
 local function cleanSessions()
@@ -89,10 +90,10 @@ end
 local function unregisterApp()
   local cid = common.getMobileSession():SendRPC("UnregisterAppInterface", {})
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
-  { appID = common.getHMIAppId(), unexpectedDisconnect = false })
+    { appID = common.getHMIAppId(), unexpectedDisconnect = false })
   common.getMobileSession():ExpectResponse(cid, {success = true, resultCode = "SUCCESS"})
   :Do(function()
-    cleanSessions()
+      cleanSessions()
     end)
 end
 
