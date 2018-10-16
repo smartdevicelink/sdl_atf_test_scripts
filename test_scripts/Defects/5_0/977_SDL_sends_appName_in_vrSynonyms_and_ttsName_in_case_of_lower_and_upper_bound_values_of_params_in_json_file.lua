@@ -82,8 +82,51 @@ local function CreateMobileConnectionCreateSession()
     end)
 end
 
+local function compareArrays(array1, array2)
+    if (#array1 ~= #array2) then
+        return false
+    end
+    
+    for index1, item1 in ipairs(array1) do
+        for index2, item2 in ipairs(array2) do
+            if item2 == item1 then
+                break
+            end
+
+            if index2 == #array2 then
+                return false
+            end
+        end
+    end
+    return true
+end
+
+local function checkParams(data, tbl)
+    for index, item in ipairs(tbl.response) do
+        if item.name == data.appName then
+            local deviceInfo
+            if item.ios ~= nil then
+                deviceInfo = item.ios
+            else
+                deviceInfo = item.android
+            end
+            
+            if compareArrays(deviceInfo.languages[1].default.vrSynonyms, data.vrSynonyms) and
+            deviceInfo.languages[1].default.ttsName == data.ttsName[1] then
+                return true
+            else
+                print(tostring(deviceInfo.languages[1].default.vrSynonyms) .. ' >> ' .. tostring(data.vrSynonyms))
+                print(tostring(deviceInfo.languages[1].default.ttsName) .. ' >> ' .. tostring(data.ttsName[1]))
+                return false
+            end
+        end
+    end
+    return true
+end
+
 local function RegisterAppWithOnSystemRequestQueryApps(pParams)
     local pAppId = 1
+    local tbl = utils.jsonFileToTable("files/jsons/JSON_Language_parameter/" .. tostring(pParams))
     local corId = common.getMobileSession(pAppId):SendRPC("RegisterAppInterface", common.getConfigAppParams(pAppId))
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
         { application = { appName = common.getConfigAppParams(pAppId).appName } })
@@ -114,12 +157,21 @@ local function RegisterAppWithOnSystemRequestQueryApps(pParams)
                 fileName = pParams
             },
             "files/jsons/JSON_Language_parameter/" .. tostring(pParams))
+            EXPECT_HMICALL("BasicCommunication.UpdateAppList")
+            :ValidIf(function(_, data)
+                local result = true
+                for index, item in ipairs(data.params.applications) do
+                    result = checkParams(item, tbl) and result
+                end
+                return result
+                -- return false, "SDL sends in BC.UpdateAppList in vrSynonyms and ttsName value of appName"
+            end)
+            :Do(function(_,data)
+                common.getHMIConnection():SendResponse(data.id, "BasicCommunication.UpdateAppList", "SUCCESS", {})
+            end)
+
             common.getMobileSession(pAppId):ExpectResponse(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
         end
-    end)
-    EXPECT_HMICALL("BasicCommunication.UpdateAppList")
-    :Do(function(_,data)
-        common.getHMIConnection():SendResponse(data.id, "BasicCommunication.UpdateAppList", "SUCCESS", {})
     end)
 end
 
