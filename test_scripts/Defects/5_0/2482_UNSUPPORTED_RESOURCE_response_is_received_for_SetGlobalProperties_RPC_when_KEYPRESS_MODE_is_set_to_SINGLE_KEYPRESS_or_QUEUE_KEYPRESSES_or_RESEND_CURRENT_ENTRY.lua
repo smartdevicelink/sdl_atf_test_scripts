@@ -14,7 +14,7 @@
 -- 2) Select Apps from the status interaction menu
 -- 3) Select Emergency app
 -- 4) Select "send message" and "SetGlobalproperties" ,
--- 	  edit Keyboard properties "KeypressMode as Single_keyPress" and press ok
+--    edit Keyboard properties "KeypressMode as Single_keyPress" and press ok
 -- 5) Select 'Send Message' in the test app on the phone and
 --    Select CreateInteractionChoiceSet then enter all the details and press OK.
 -- 6) Select 'Send Message' in the test app on the phone and
@@ -23,9 +23,9 @@
 -- 7) Verify the Screen displayed on SYNC
 -- 8) Press on the text box and enter the Single key in the keyboard displayed on the sync
 -- Expected result:
--- 1) SUCCESS response should be recieved for both SetGlobalProperties and PerformInteraction RPC.
+-- 1) SUCCESS response should be received for both SetGlobalProperties and PerformInteraction RPC.
 -- Actual result:
--- UNSUPPORTED_RESOURCE response is recieved fot SetGlobalProperties.
+-- UNSUPPORTED_RESOURCE response is received fot SetGlobalProperties.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('user_modules/sequences/actions')
@@ -35,42 +35,39 @@ local runner = require('user_modules/script_runner')
 runner.testSettings.isSelfIncluded = false
 
 local keyPressMode = {
-	"SINGLE_KEYPRESS",
-	"QUEUE_KEYPRESSES",
-	"RESEND_CURRENT_ENTRY"
+  "SINGLE_KEYPRESS",
+  "QUEUE_KEYPRESSES",
+  "RESEND_CURRENT_ENTRY"
+}
+
+local paramsForLinks = {
+  interactionChoiceSetID = 100,
+  vrCommands = { "Choice100" }
 }
 
 local choiceParams = {
-  interactionChoiceSetID = 100,
+  interactionChoiceSetID = paramsForLinks.interactionChoiceSetID,
   choiceSet = {
     {
+      ...,
+      vrCommands = paramsForLinks.vrCommands,
       choiceID = 100,
       menuName = "Choice100",
-      vrCommands = { "Choice100" }
     }
   }
 }
 
 local createVrParams = {
-	cmdID = choiceParams.interactionChoiceSetID,
-	type = "Choice",
-	vrCommands = choiceParams.vrCommands
+  cmdID = paramsForLinks.interactionChoiceSetID,
+  ...,
+  vrCommands = paramsForLinks.vrCommands
 }
 
 local performParams = {
   initialText = "TextInitial",
-  interactionMode = "MANUAL_ONLY",
+  interactionMode = "BOTH",
   interactionChoiceSetIDList = { 100 },
-  initialPrompt = {
-    { type = "TEXT", text = "pathToFile1" }
-  },
-  helpPrompt = {
-    { type = "TEXT", text = "pathToFile2" }
-  },
-  timeoutPrompt = {
-    { type = "TEXT", text = "pathToFile3" }
-  },
-  interactionLayout = "KEYBOARD"
+  ...
 }
 
 --[[ Local Functions ]]
@@ -82,16 +79,16 @@ local function setGlobalProperties(pkeyPressMode)
     }
   })
   common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties",
-    { appID = common.getHMIAppId(),
+  { appID = common.getHMIAppId(),
     keyboardProperties = {
       keypressMode = pkeyPressMode
-    } })
-	:Do(function(_,data)
-		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
+    }
+  })
+  :Do(function(_,data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
 
-	common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-	common.getMobileSession():ExpectNotification("OnHashChange")
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
 local function createInteractionChoiceSet()
@@ -128,11 +125,11 @@ runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet)
 
-for _, v in pairs(keyPressMode) do
-  runner.Title("Test")
-	runner.Step("SetGlobalProperties with keypressMode " .. v, setGlobalProperties, { v })
-  runner.Step("Send PerformInteraction SUCCESS response", sendPerformInteraction_SUCCESS)
+runner.Title("Test")
 
+for _, v in pairs(keyPressMode) do
+  runner.Step("SetGlobalProperties with keypressMode " .. v, setGlobalProperties, { v })
+  runner.Step("Send PerformInteraction SUCCESS response", sendPerformInteraction_SUCCESS)
 end
 
 runner.Title("Postconditions")
