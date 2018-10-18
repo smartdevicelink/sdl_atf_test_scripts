@@ -31,3 +31,4 @@
 ./test_scripts/Defects/7_1/3640_PTU_all_flows_Protected_Mode_v3.lua
 ./test_scripts/Defects/7_1/3659_OnSystemRequest_1st_frame_non-encrypted.lua
 ./test_scripts/Defects/7_1/3667_Revert_RC_SetGlobalProperties_on_failed_resumption.lua
+./test_scripts/Defects/7_1/1846_Mismatch_for_mandatory_parameter_between_MOBILE_API_and_HMI_API.lua
