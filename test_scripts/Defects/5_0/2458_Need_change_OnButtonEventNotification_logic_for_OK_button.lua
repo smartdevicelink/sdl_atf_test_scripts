@@ -122,3 +122,4 @@ runner.Step("OnButtonEvent without App ID", OnButtonEventWithoutAppID)
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
+  
