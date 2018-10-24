@@ -33,6 +33,7 @@ local function checkResumptionData(pAppId)
   common.setGlobalPropertiesResumption(pAppId)
   common.subscribeVehicleDataResumption(pAppId)
   common.subscribeWayPointsResumption(pAppId)
+  common.subscribeButtonResumption(pAppId)
   common.getHMIConnection():ExpectRequest("UI.AddCommand",
     common.resumptionData[pAppId].addCommand.UI)
   :Do(function(_, data)
@@ -43,21 +44,6 @@ local function checkResumptionData(pAppId)
     common.resumptionData[pAppId].createIntrerationChoiceSet.VR)
   :Do(function(_, data)
       common.sendResponse(data)
-    end)
-  :Times(2)
-
-  local isCustomButtonSubscribed = false
-  local isOkButtonSubscribed = false
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
-  :ValidIf(function(_, data)
-      if data.params.name == "CUSTOM_BUTTON" and isCustomButtonSubscribed == false then
-        isCustomButtonSubscribed = true
-      elseif data.params.name == "OK" and data.params.isSubscribed == true and isOkButtonSubscribed == false then
-        isOkButtonSubscribed = true
-      else
-        return false, "Came unexpected Buttons.OnButtonSubscription notification"
-      end
-      return true
     end)
   :Times(2)
 end
@@ -73,7 +59,6 @@ runner.Title("Test")
 for k in pairs(common.rpcs) do
   runner.Step("Add " .. k, common[k])
 end
-runner.Step("Add buttonSubscription", common.buttonSubscription)
 runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("Reregister App resumption data", common.reRegisterAppSuccess,
