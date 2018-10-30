@@ -2,7 +2,7 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2467
 --
 -- Description:
--- Policy table corupted after first ign cycle.
+-- Policy table corrupted after first ign cycle.
 -- Precondition:
 -- 1) SDL and HMI are started.
 -- Step to reproduce:
@@ -18,7 +18,6 @@ local common = require('user_modules/sequences/actions')
 local runner = require('user_modules/script_runner')
 local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
-local sdl = require("SDL")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -34,7 +33,7 @@ local function pTUpdateFunc(tbl)
 end
 
 local function sendLocation()
-    local cid = common.getMobileSession():SendRPC("SendLocation", { 
+    local cid = common.getMobileSession():SendRPC("SendLocation", {
         longitudeDegrees = 1.1,
         latitudeDegrees = 1.1
      })
@@ -49,7 +48,6 @@ local function ignitionOff()
     common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
     :Do(function()
-        sdl:DeleteFile()
         common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "IGNITION_OFF" })
         common.getMobileSession():ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
         common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
@@ -75,7 +73,6 @@ runner.Step("Clean sessions", cleanSessions)
 runner.Step("IGNITION_ON", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Send Location after IGNITION_ON", sendLocation)
-
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
