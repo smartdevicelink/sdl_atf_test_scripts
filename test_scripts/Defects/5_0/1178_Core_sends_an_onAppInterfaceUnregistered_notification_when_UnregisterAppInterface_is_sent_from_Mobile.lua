@@ -2,14 +2,7 @@
 -- User story: https://github.com/SmartDeviceLink/sdl_core/issues/1178
 --
 -- Description:
--- Core sends an onAppInterfaceUnregistered notification when UnregisterAppInterface is sent from Mobile
---
--- It seems as though we have an issue with core sending both an onAppInterfaceUnregistered 
--- notification and an UnregisterAppInterface response when the mobile proxy sends over 
--- UnregisterAppInterface. This should not be the case, as the notification should only be sent 
--- if there is an unregistration from the core side that was not caused by the mobile side. 
--- The notification also has a reason of -1, which is not a valid value.
--- We should remove the notification from being sent when the UnregisterAppInterface RPC is sent.
+-- Core sends an OnAppInterfaceUnregistered notification when UnregisterAppInterface is sent from Mobile
 --
 -- Preconditions:
 -- 1) Clear environment
@@ -38,7 +31,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Functions ]]
 local function unregisterAppInterface()
 	local cid = common.getMobileSession():SendRPC("UnregisterAppInterface", { })
-	common.getMobileSession():ExpectNotification("onAppInterfaceUnregistered", { })
+	common.getMobileSession():ExpectNotification("OnAppInterfaceUnregistered", { })
 	:Times(0)
 	common.getMobileSession():ExpectResponse(cid, 
 		{ success = true, resultCode = "SUCCESS" }
