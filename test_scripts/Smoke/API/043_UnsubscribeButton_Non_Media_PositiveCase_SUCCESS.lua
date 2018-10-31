@@ -22,7 +22,7 @@
 -- SDL checks if Buttons interface is available on HMI
 -- SDL checks if UnsubscribeButton is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL sends the Buttons notificaton to HMI
+-- SDL requests the Buttons.UnsubscribeButton and receives success response from HMI
 -- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
 ---------------------------------------------------------------------------------------------------
 
@@ -35,7 +35,15 @@ config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Variables ]]
 local buttonName = {
-  "OK",
+  "OK"
+}
+
+local mediaButtonName = {
+  "PLAY_PAUSE",
+  "SEEKLEFT",
+  "SEEKRIGHT",
+  "TUNEUP",
+  "TUNEDOWN",
   "PRESET_0",
   "PRESET_1",
   "PRESET_2",
@@ -44,22 +52,18 @@ local buttonName = {
   "PRESET_5",
   "PRESET_6",
   "PRESET_7",
-  "PRESET_8"
-}
-
-local mediaButtonName = {
-  "PLAY_PAUSE",
-  "SEEKLEFT",
-  "SEEKRIGHT",
-  "TUNEUP",
-  "TUNEDOWN"
+  "PRESET_8",
+  "PRESET_9"
 }
 
 --[[ Local Functions ]]
 local function subscribeButtons(pButName, self)
   local cid = self.mobileSession1:SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { appID = appIDvalue, name = pButName, isSubscribed = true })
+  EXPECT_HMICALL("Buttons.SubscribeButton",{ appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   self.mobileSession1:ExpectNotification("OnHashChange")
 end
@@ -67,15 +71,17 @@ end
 local function unsubscribeButton(pButName, self)
   local cid = self.mobileSession1:SendRPC("UnsubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription",
-    { appID = appIDvalue, name = pButName, isSubscribed = false })
+  EXPECT_HMICALL("Buttons.UnsubscribeButton",{ appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   self.mobileSession1:ExpectNotification("OnHashChange")
 end
 
 local function unsubscribeMediaButton(pButName, self)
   local cid = self.mobileSession1:SendRPC("UnsubscribeButton", { buttonName = pButName })
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
+  EXPECT_HMICALL("Buttons.UnsubscribeButton")
   :Times(0)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "IGNORED" })
   self.mobileSession1:ExpectNotification("OnHashChange")
