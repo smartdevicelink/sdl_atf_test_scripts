@@ -53,8 +53,8 @@ local function speakSuccess(self)
 				self.hmiConnection:SendNotification("TTS.Stopped")
 			end
 			local function sendOnResetTimeout()
-				self.hmiConnection:SendNotification("TTS.OnResetTimeout",
-					{ appID = commonSmoke.getHMIAppId(), methodName = "TTS.Speak" })
+				self.hmiConnection:SendNotification("BasicCommunication.OnResetTimeout",
+					{ requestID = data.id, methodName = data.method })
 			end
 			RUN_AFTER(sendOnResetTimeout, 9000)
 			RUN_AFTER(sendSpeakResponse, 18000)
