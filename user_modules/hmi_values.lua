@@ -322,7 +322,8 @@ function module.getDefaultHMITable()
         module.createButtonCapability("SEEKLEFT"),
         module.createButtonCapability("SEEKRIGHT"),
         module.createButtonCapability("TUNEUP"),
-        module.createButtonCapability("TUNEDOWN")
+        module.createButtonCapability("TUNEDOWN"),
+        module.createButtonCapability("SEARCH")
       },
       presetBankCapabilities = { onScreenPresetsAvailable = true },
     },
@@ -511,6 +512,12 @@ function module.getDefaultHMITable()
   }
 
   hmi_table.BasicCommunication.UpdateAppList = {
+    params = { },
+    mandatory = false,
+    pinned = true
+  }
+
+  hmi_table.Buttons.SubscribeButton = {
     params = { },
     mandatory = false,
     pinned = true
