@@ -1,0 +1,2 @@
+./test_scripts/API/VehicleData/GpsShiftSupport/001_GetVehicleData_gps_shifted_true.lua
+./test_scripts/API/VehicleData/GpsShiftSupport/002_SubscribeOnVehicleData_gps_shift.lua
