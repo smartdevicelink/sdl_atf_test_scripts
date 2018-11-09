@@ -3,11 +3,11 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0199-Adding-GPS-Shift-support.md
 -- Description:
 -- In case:
--- 1) Mobile sends GetVehicleData (gps) request
+-- 1) Mobile sends GetVehicleData (gps) request without shifted item
 -- 2) SDL transfers this request to HMI
--- 3) HMI sends VehicleData response with "shifted" item
+-- 3) HMI not sends "shifted" item in "gps" parameter of GetVehicleData response
 -- SDL does:
--- 1) Send GetVehicleData response to mobile with "shifted" item in "gps" parameter
+-- 1) Send GetVehicleData response to mobile without "shifted" item in "gps" parameter
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -25,9 +25,7 @@ runner.Step("PTU", common.policyTableUpdate, { common.pTUpdateFunc })
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-for _, v in pairs(common.shiftValue) do
-  runner.Step("Get GPS VehicleData, gps-shifted " .. tostring(v), common.getVehicleData, { v })
-end
+runner.Step("Get GPS VehicleData, without shift", common.getVehicleData)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
