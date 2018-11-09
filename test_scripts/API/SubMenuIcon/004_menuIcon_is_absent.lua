@@ -28,10 +28,17 @@ local function addSubMenu()
 		position = 500,
 		menuName ="SubMenupositive"
 	}
+
 	local corId = common.getMobileSession():SendRPC("AddSubMenu", params)
 	common.getHMIConnection():ExpectRequest("UI.AddSubMenu", params.requestUiParams)
 	:Do(function(_, data)
 		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+	end)
+	:ValidIf(function(_, data)
+		if data.params.menuIcon then
+			return false, " SDL sends menuIcon in request to HMI in case parameter is absent in request"
+		end
+		return true
 	end)
 
   common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS"})
