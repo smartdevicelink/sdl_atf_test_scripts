@@ -7,11 +7,12 @@ config.defaultProtocolVersion = 2
  --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
 local utils = require('user_modules/utils')
+local commonRC = require("test_scripts/RC/commonRC")
 
 --[[ Variables ]]
 local m = actions
 m.cloneTable = utils.cloneTable
-
+m.radioData = commonRC.getModuleControlData("RADIO")
 m.shiftValue = {
     true,
     false
@@ -38,45 +39,11 @@ m.gpsParams = {
     speed =  2.78
 }
 
-m.radioData = { moduleType = "RADIO" }
-m.radioData.radioControlData = {
-    frequencyInteger = 1,
-    frequencyFraction = 2,
-    band = "AM",
-    rdsData = {
-        PS = "ps",
-        RT = "rt",
-        CT = "123456789012345678901234",
-        PI = "pi",
-        PTY = 1,
-        TP = false,
-        TA = true,
-        REG = "US"
-    },
-    availableHDs = 1,
-    hdChannel = 1,
-    signalStrength = 5,
-    signalChangeThreshold = 10,
-    radioEnable = true,
-    state = "ACQUIRING",
-    hdRadioEnable = true,
-    sisData = {
-        stationShortName = "Name1",
-        stationIDNumber = {
-            countryCode = 100,
-            fccFacilityId = 100
-        },
-        stationLongName = "RadioStationLongName",
-        stationLocation = {
-            longitudeDegrees = 0.1,
-            latitudeDegrees = 0.1,
-            altitude = 0.1
-        },
-        stationMessage = "station message"
-    }
-}
-
 --[[ Functions ]]
+function m.pTUpdateFunc(tbl)
+    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups = {"Base-4", "Location-1"}
+end
+
 function m.getVehicleData(pShiftValue)
     m.gpsParams.shifted = pShiftValue
     local cid = m.getMobileSession():SendRPC("GetVehicleData", { gps = true })
