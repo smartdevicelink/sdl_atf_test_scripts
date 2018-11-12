@@ -8,7 +8,7 @@
 -- 3) HMI not sends "shifted" item in "gps" parameter of GetVehicleData response
 -- SDL does:
 -- 1) Send GetVehicleData response to mobile without "shifted" item in "gps" parameter
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/GpsShiftSupport/commonGpsShift')
