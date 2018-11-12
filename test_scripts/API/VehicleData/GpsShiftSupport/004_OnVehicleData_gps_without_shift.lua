@@ -25,7 +25,7 @@ runner.Step("Activate App", common.activateApp)
 runner.Step("Subscribe on GPS VehicleData", common.subscribeVehicleData)
 
 runner.Title("Test")
-runner.Step("Send On VehicleData without shift", common.sendOnVehicleData)
+runner.Step("Send On VehicleData without shift", common.sendOnVehicleData, { nil })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

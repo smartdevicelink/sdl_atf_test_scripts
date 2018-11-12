@@ -24,10 +24,10 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
-runner.Step("Subscribe on InteriorVehicleData, RADIO module", common.getInteriorVehicleData, { _,true })
+runner.Step("Subscribe on InteriorVehicleData, RADIO module", common.getInteriorVehicleData, { nil, true })
 
 runner.Title("Test")
-runner.Step("OnInteriorVehicleData, RADIO module, without shifted ", common.onInteriorVehicleData)
+runner.Step("OnInteriorVehicleData, RADIO module, without shifted ", common.onInteriorVehicleData, { nil })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -25,7 +25,7 @@ runner.Step("PTU", common.policyTableUpdate, { common.pTUpdateFunc })
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Get GPS VehicleData, without shift", common.getVehicleData)
+runner.Step("Get GPS VehicleData, without shift", common.getVehicleData, { nil })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

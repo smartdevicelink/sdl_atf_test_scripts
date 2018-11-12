@@ -27,7 +27,7 @@ runner.Step("Register App", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("GetInteriorVehicleData RADIO module, without shifted", common.getInteriorVehicleData)
+runner.Step("GetInteriorVehicleData RADIO module, without shifted", common.getInteriorVehicleData, { nil })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

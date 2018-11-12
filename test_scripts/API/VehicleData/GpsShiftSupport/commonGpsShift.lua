@@ -52,6 +52,12 @@ function m.getVehicleData(pShiftValue)
         m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { gps = m.gpsParams })
     end)
     m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", gps = m.gpsParams })
+    :ValidIf(function(_, data)
+        if pShiftValue == nil and data.payload.gps.shifted ~= nil then
+            return false, "Vehicle data containes unexpected shifted parameter"
+        end
+        return true
+    end)
 end
 
 function m.subscribeVehicleData()
@@ -71,6 +77,12 @@ function m.sendOnVehicleData(pShiftValue)
     m.gpsParams.shifted = pShiftValue
     m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = m.gpsParams })
     m.getMobileSession():ExpectNotification("OnVehicleData", { gps = m.gpsParams })
+    :ValidIf(function(_, data)
+        if pShiftValue == nil and data.payload.gps.shifted ~= nil then
+            return false, "Vehicle data containes unexpected shifted parameter"
+        end
+        return true
+    end)
 end
 
 function m.getInteriorVehicleData(pShiftValue, pIsSubscribed)
@@ -94,12 +106,24 @@ function m.getInteriorVehicleData(pShiftValue, pIsSubscribed)
       isSubscribed = pIsSubscribed,
       moduleData = m.radioData
     })
+    :ValidIf(function(_, data)
+        if pShiftValue == nil and data.payload.moduleData.shifted ~= nil then
+            return false, "Vehicle data containes unexpected shifted parameter"
+        end
+        return true
+    end)
 end
 
 function m.onInteriorVehicleData(pShiftValue)
     m.radioData.radioControlData.sisData.stationLocation.shifted = pShiftValue
     m.getHMIConnection():SendNotification("RC.OnInteriorVehicleData", { moduleData = m.radioData })
     m.getMobileSession():ExpectNotification("OnInteriorVehicleData", { moduleData = m.radioData })
+    :ValidIf(function(_, data)
+        if pShiftValue == nil and data.payload.moduleData.shifted ~= nil then
+            return false, "Vehicle data containes unexpected shifted parameter"
+        end
+        return true
+    end)
 end
 
 return m

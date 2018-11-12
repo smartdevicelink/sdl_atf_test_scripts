@@ -24,7 +24,7 @@ runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
-runner.Step("Subscribe on InteriorVehicleData, RADIO module", common.getInteriorVehicleData, { _,true })
+runner.Step("Subscribe on InteriorVehicleData, RADIO module", common.getInteriorVehicleData, { nil, true })
 
 runner.Title("Test")
 for _, v in pairs(common.shiftValue) do
