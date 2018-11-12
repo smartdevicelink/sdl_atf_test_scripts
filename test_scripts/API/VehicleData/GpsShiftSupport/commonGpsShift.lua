@@ -44,6 +44,13 @@ function m.pTUpdateFunc(tbl)
     tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups = {"Base-4", "Location-1"}
 end
 
+function m.checkShifted(data, pShiftValue)
+    if pShiftValue == nil and data ~= nil then
+        return false, "Vehicle data contains unexpected shifted parameter"
+    end
+    return true
+end
+
 function m.getVehicleData(pShiftValue)
     m.gpsParams.shifted = pShiftValue
     local cid = m.getMobileSession():SendRPC("GetVehicleData", { gps = true })
@@ -53,10 +60,7 @@ function m.getVehicleData(pShiftValue)
     end)
     m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", gps = m.gpsParams })
     :ValidIf(function(_, data)
-        if pShiftValue == nil and data.payload.gps.shifted ~= nil then
-            return false, "Vehicle data containes unexpected shifted parameter"
-        end
-        return true
+        return m.checkShifted(data.payload.gps.shifted, pShiftValue)
     end)
 end
 
@@ -78,10 +82,7 @@ function m.sendOnVehicleData(pShiftValue)
     m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = m.gpsParams })
     m.getMobileSession():ExpectNotification("OnVehicleData", { gps = m.gpsParams })
     :ValidIf(function(_, data)
-        if pShiftValue == nil and data.payload.gps.shifted ~= nil then
-            return false, "Vehicle data containes unexpected shifted parameter"
-        end
-        return true
+        return m.checkShifted(data.payload.gps.shifted, pShiftValue)
     end)
 end
 
@@ -107,10 +108,7 @@ function m.getInteriorVehicleData(pShiftValue, pIsSubscribed)
       moduleData = m.radioData
     })
     :ValidIf(function(_, data)
-        if pShiftValue == nil and data.payload.moduleData.shifted ~= nil then
-            return false, "Vehicle data containes unexpected shifted parameter"
-        end
-        return true
+        return m.checkShifted(data.payload.moduleData.radioControlData.sisData.stationLocation.shifted, pShiftValue)
     end)
 end
 
@@ -119,10 +117,7 @@ function m.onInteriorVehicleData(pShiftValue)
     m.getHMIConnection():SendNotification("RC.OnInteriorVehicleData", { moduleData = m.radioData })
     m.getMobileSession():ExpectNotification("OnInteriorVehicleData", { moduleData = m.radioData })
     :ValidIf(function(_, data)
-        if pShiftValue == nil and data.payload.moduleData.shifted ~= nil then
-            return false, "Vehicle data containes unexpected shifted parameter"
-        end
-        return true
+        return m.checkShifted(data.payload.moduleData.radioControlData.sisData.stationLocation.shifted, pShiftValue)
     end)
 end
 
