@@ -163,9 +163,7 @@ function m.putFileByFrames(pParams)
     firstFrameMessage.frameType = 0x02
     firstFrameMessage.frameInfo = 0
     firstFrameMessage.binaryData = int32ToBytes(binaryDataSize) .. int32ToBytes(countOfDataFrames)
-    if pParams.isFirstFrameEncrypted ~= nil then
-      firstFrameMessage.encryption = pParams.isFirstFrameEncrypted
-    end
+    firstFrameMessage.encryption = false
     table.insert(frames, 1, firstFrameMessage)
   else
     table.insert(frames, msg)
