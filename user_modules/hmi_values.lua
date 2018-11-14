@@ -271,7 +271,10 @@ function module.getDefaultHMITable()
               codec = "H264"
             }
           },
-          hapticSpatialDataSupported = false
+          hapticSpatialDataSupported = false,
+          diagonalScreenSize = 8,
+          pixelPerInch = 117,
+          scale = 1
         }
       }
     },
