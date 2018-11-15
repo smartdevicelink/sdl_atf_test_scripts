@@ -6,15 +6,24 @@
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
+local json = require("modules/json")
+
+--[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
 
 --[[ Variables ]]
 local m = actions
 
+local HmiCapabilities_file = config.pathToSDL .. "/hmi_capabilities.json"
+m.f = assert(io.open(HmiCapabilities_file, "r"))
+m.fileContent = m.f:read("*all")
+m.f:close()
+
+local HmiCapabilities = json.decode(m.fileContent)
 m.defaultValue = {
-    diagonalScreenSize = 8,
-    pixelPerInch = 117,
-    scale = 1
+    diagonalScreenSize = HmiCapabilities.UI.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
+    pixelPerInch = HmiCapabilities.UI.systemCapabilities.videoStreamingCapability.pixelPerInch,
+    scale = HmiCapabilities.UI.systemCapabilities.videoStreamingCapability.scale
 }
 
 --[[ Functions]]

@@ -40,7 +40,7 @@ runner.Step("Activate App", common.activateApp)
 -- [[ Test ]]
 runner.Title("Test")
 runner.Step("Get Capability", common.getSystemCapability,
-    { common.defaultValue.diagonalScreenSize, common.defaultValue.pixelPerInch, common.defaultValue.scale })
+    { common.diagonalScreenSize, common.defaultValue.pixelPerInch, common.defaultValue.scale })
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
