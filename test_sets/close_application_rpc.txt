@@ -1,0 +1,5 @@
+./test_scripts/API/CloseApplicationRPC/001_CloseApplicationRPC_SUCCESS.lua
+./test_scripts/API/CloseApplicationRPC/002_CloseApplicationRPC_DISALLOWED.lua
+./test_scripts/API/CloseApplicationRPC/003_CloseApplicationRPC_APPLICATION_NOT_REGISTERED.lua
+./test_scripts/API/CloseApplicationRPC/004_CloseApplicationRPC_GENERIC_ERROR.lua
+./test_scripts/API/CloseApplicationRPC/005_CloseApplicationRPC_IGNORED.lua
