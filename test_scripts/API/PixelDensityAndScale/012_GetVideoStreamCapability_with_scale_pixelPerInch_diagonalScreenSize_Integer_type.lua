@@ -22,7 +22,7 @@ local diagonalScreenSize = 15
 local pixelPerInch = 189
 local scale = 2
 
-local hmiValues = common.getUpdatedHMIValue(diagonalScreenSize, pixelPerInch, scale)
+local hmiValues = common.getUpdatedHMIValues(diagonalScreenSize, pixelPerInch, scale)
 
 --[[ Scenario ]]
 runner.Title("Preconditions")

@@ -6,8 +6,8 @@
 -- 1) During start HMI provides VideoStreamingCapability for parameters: "diagonalScreenSize, pixelPerInch, scale"
 -- 2) Mob app sends GetSystemCapability request to SDL
 -- SDL does:
--- 1) send response videoStreamingCapability to Mobile with default value for "scale, pixelPerInch, diagonalScreenSize"
---    got from HMI
+-- 1) send response videoStreamingCapability to Mobile with value for "scale, pixelPerInch, diagonalScreenSize"
+--    that HMI provied
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -19,13 +19,13 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Function]]
 local function getDefaultHMIValue()
-    local hmiValues = hmi_values.getDefaultHMITable()
-    local hmiDefaultValues = {
-        diagonalScreenSize = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
-        pixelPerInch = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.pixelPerInch,
-        scale = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.scale
-    }
-    return hmiDefaultValues
+  local hmiValues = hmi_values.getDefaultHMITable()
+  local hmiDefaultValues = {
+    diagonalScreenSize = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
+    pixelPerInch = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.pixelPerInch,
+    scale = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.scale
+  }
+  return hmiDefaultValues
 end
 
 local defaultHMIValue = getDefaultHMIValue()
@@ -39,7 +39,7 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Get Capability", common.getSystemCapability, {
-    defaultHMIValue.diagonalScreenSize, defaultHMIValue.pixelPerInch, defaultHMIValue.scale
+  defaultHMIValue.diagonalScreenSize, defaultHMIValue.pixelPerInch, defaultHMIValue.scale
 })
 
 runner.Title("Postconditions")
