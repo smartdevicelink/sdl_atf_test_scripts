@@ -22,8 +22,8 @@ local diagonalScreenSize = nil
 local pixelPerInch = "abc"
 local scale = 0.99
 
-local hmiValues = common.updateHMIValue( diagonalScreenSize, pixelPerInch, scale )
-local hmiCapabilities = common.readHmiCapabilities()
+local hmiValues = common.getUpdatedHMIValue(diagonalScreenSize, pixelPerInch, scale)
+local hmiCapabilities = common.getDefaultHMICapabilities()
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -32,11 +32,9 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { hmi
 runner.Step("RAI", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 
--- [[ Test ]]
 runner.Title("Test")
 runner.Step("Get Capability", common.getSystemCapability,
     { hmiCapabilities.diagonalScreenSize, hmiCapabilities.pixelPerInch, hmiCapabilities.scale })
 
--- [[ Postconditions ]]
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

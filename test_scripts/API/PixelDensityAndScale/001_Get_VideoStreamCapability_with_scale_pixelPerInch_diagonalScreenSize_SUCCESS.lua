@@ -18,7 +18,17 @@ local hmi_values = require('user_modules/hmi_values')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Function]]
-local hmiValues = hmi_values.getDefaultHMITable()
+local function getDefaultHMIValue()
+    local hmiValues = hmi_values.getDefaultHMITable()
+    local hmiDefaultValues = {
+        diagonalScreenSize = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
+        pixelPerInch = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.pixelPerInch,
+        scale = hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.scale
+    }
+    return hmiDefaultValues
+end
+
+local defaultHMIValue = getDefaultHMIValue()
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -27,14 +37,10 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 
--- [[ Test ]]
 runner.Title("Test")
 runner.Step("Get Capability", common.getSystemCapability, {
-    hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
-    hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.pixelPerInch,
-    hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.scale
+    defaultHMIValue.diagonalScreenSize, defaultHMIValue.pixelPerInch, defaultHMIValue.scale
 })
 
--- [[ Postconditions ]]
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
