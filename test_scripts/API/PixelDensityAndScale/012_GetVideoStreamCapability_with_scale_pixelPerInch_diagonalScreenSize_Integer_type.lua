@@ -33,7 +33,11 @@ runner.Step("Activate App", common.activateApp)
 
 -- [[ Test ]]
 runner.Title("Test")
-runner.Step("Get Capability", common.getSystemCapability, { diagonalScreenSize, pixelPerInch, scale })
+runner.Step("Get Capability", common.getSystemCapability, {
+    hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
+    hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.pixelPerInch,
+    hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.scale
+})
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")

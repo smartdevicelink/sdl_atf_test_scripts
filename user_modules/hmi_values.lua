@@ -272,9 +272,9 @@ function module.getDefaultHMITable()
             }
           },
           hapticSpatialDataSupported = false,
-          diagonalScreenSize = 8,
-          pixelPerInch = 117,
-          scale = 1
+          diagonalScreenSize = 10,
+          pixelPerInch = 150,
+          scale = 2.5
         }
       }
     },

@@ -8,6 +8,7 @@
 -- 2) Mob app sends GetSystemCapability request to SDL
 -- SDL does:
 -- 1) send response videoStreamingCapability to Mobile with default value for "scale, pixelPerInch, diagonalScreenSize"
+-- from HMI capability
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -22,6 +23,7 @@ local pixelPerInch = "abc"
 local scale = 0.99
 
 local hmiValues = common.updateHMIValue( diagonalScreenSize, pixelPerInch, scale )
+local hmiCapabilities = common.readHmiCapabilities()
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -33,7 +35,7 @@ runner.Step("Activate App", common.activateApp)
 -- [[ Test ]]
 runner.Title("Test")
 runner.Step("Get Capability", common.getSystemCapability,
-    { common.diagonalScreenSize, common.defaultValue.pixelPerInch, common.defaultValue.scale })
+    { hmiCapabilities.diagonalScreenSize, hmiCapabilities.pixelPerInch, hmiCapabilities.scale })
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")

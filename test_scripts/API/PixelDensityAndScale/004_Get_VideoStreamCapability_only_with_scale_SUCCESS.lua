@@ -7,6 +7,7 @@
 -- 2) Mob app sends GetSystemCapability request to SDL
 -- SDL does:
 -- 1) send response to Mobile with videoStreamingCapability all mandatory parameters and "scale = 1.05"
+--    got from HMI
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

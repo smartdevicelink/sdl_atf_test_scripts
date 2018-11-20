@@ -7,6 +7,7 @@
 -- 2) Mob app sends GetSystemCapability request to SDL
 -- SDL does:
 -- 1) send response to Mobile with videoStreamingCapability all mandatory parameters and "diagonalScreenSize = 15.99"
+--    got from HMI
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

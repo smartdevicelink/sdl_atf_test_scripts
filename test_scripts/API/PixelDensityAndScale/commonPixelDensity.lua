@@ -1,7 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Common module
 ---------------------------------------------------------------------------------------------------
----------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -15,19 +14,22 @@ local actions = require("user_modules/sequences/actions")
 --[[ Variables ]]
 local m = actions
 
-local HmiCapabilities_file = config.pathToSDL .. "/hmi_capabilities.json"
-m.f = assert(io.open(HmiCapabilities_file, "r"))
-m.fileContent = m.f:read("*all")
-m.f:close()
-
-local HmiCapabilities = json.decode(m.fileContent)
-m.defaultValue = {
-    diagonalScreenSize = HmiCapabilities.UI.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
-    pixelPerInch = HmiCapabilities.UI.systemCapabilities.videoStreamingCapability.pixelPerInch,
-    scale = HmiCapabilities.UI.systemCapabilities.videoStreamingCapability.scale
-}
-
 --[[ Functions]]
+function m.readHmiCapabilities()
+    local path_to_file = config.pathToSDL .. "/hmi_capabilities.json"
+    local file  = io.open(path_to_file, "r")
+    local json_data = file:read("*all")
+    file:close()
+
+    local capabilities = json.decode(json_data)
+    local hmiCapabilities = {
+        diagonalScreenSize = capabilities.UI.systemCapabilities.videoStreamingCapability.diagonalScreenSize,
+        pixelPerInch = capabilities.UI.systemCapabilities.videoStreamingCapability.pixelPerInch,
+        scale = capabilities.UI.systemCapabilities.videoStreamingCapability.scale
+    }
+    return hmiCapabilities
+end
+
 function m.updateHMIValue(pDiagonalSize, pPixelPerInch, pScale)
     local hmiValues = hmi_values.getDefaultHMITable()
     hmiValues.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability.diagonalScreenSize = pDiagonalSize
