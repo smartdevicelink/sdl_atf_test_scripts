@@ -27,7 +27,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App_1 registration", common.registerApp)
 
 runner.Title("Test")
-runner.Step("Close Application for NOT activated App", common.closeApplicationRPCUnsucces, { errorCode })
+runner.Step("Close Application for NOT activated App", common.closeApplicationRPCUnsuccess, { errorCode })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

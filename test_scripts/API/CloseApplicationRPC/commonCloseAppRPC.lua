@@ -11,7 +11,7 @@ local actions = require("user_modules/sequences/actions")
 local m = actions
 
 --[[ Functions]]
-function m.closeApplicationRPCSucces()
+function m.closeApplicationRPCSuccess()
 	local cid = m.getMobileSession():SendRPC("CloseApplication", {})
 	EXPECT_HMICALL("BasicCommunication.ActivateApp", { appID = m.getHMIAppId(), level = "NONE" })
 	:Do(function(_, data)
@@ -22,7 +22,7 @@ function m.closeApplicationRPCSucces()
 		{ hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
-function m.closeApplicationRPCUnsucces(pResultCode)
+function m.closeApplicationRPCUnsuccess(pResultCode)
 	local cid = m.getMobileSession():SendRPC("CloseApplication", {})
 	EXPECT_HMICALL("BasicCommunication.ActivateApp")
 	:Times(0)
@@ -35,7 +35,7 @@ function m.closeApplicationRPCwithoutHMIResponse(pResultCode)
 	local cid = m.getMobileSession():SendRPC("CloseApplication", {})
 	EXPECT_HMICALL("BasicCommunication.ActivateApp", { appID = m.getHMIAppId(), level = "NONE" })
 	:Do(function()
-		-- HMI did not response
+		-- HMI did not respond
 	end)
 	m.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pResultCode })
 	m.getMobileSession():ExpectNotification("OnHMIStatus")

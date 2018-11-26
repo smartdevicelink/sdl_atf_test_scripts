@@ -27,7 +27,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-runner.Step("Close Application for NOT register App", common.closeApplicationRPCUnsucces, { errorCode })
+runner.Step("Close Application for NOT register App", common.closeApplicationRPCUnsuccess, { errorCode })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
