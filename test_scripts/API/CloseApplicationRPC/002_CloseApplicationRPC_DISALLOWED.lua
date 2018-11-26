@@ -23,7 +23,7 @@ local errorCode = "DISALLOWED"
 
 --[[ Local Function ]]
 local function pTUpdateFunc(pTbl)
-	pTbl.policy_table.functional_groupings["Base-4"].rpcs.CloseApplication = nil
+  pTbl.policy_table.functional_groupings["Base-4"].rpcs.CloseApplication = nil
 end
 
 
@@ -38,9 +38,9 @@ runner.Step("App_1 activate", common.activateApp, { 1 })
 
 runner.Title("Test")
 runner.Step("Close Application for App_1 in FULL level", common.closeApplicationRPCUnsuccess, { errorCode })
-runner.Step("Set HMI Level to Limited)", common.hmiLeveltoLimited)
+runner.Step("Set HMI Level to Limited", common.hmiLeveltoLimited)
 runner.Step("Close Application for App_1 in LIMITED level", common.closeApplicationRPCUnsuccess, { errorCode })
-runner.Step("Set App_1 to HMI Level in BACKGROUND)", common.activateApp, { 2 })
+runner.Step("Set App_1 to HMI Level in BACKGROUND", common.activateApp, { 2 })
 runner.Step("Close Application for App_1 in BACKGROUND level", common.closeApplicationRPCUnsuccess, { errorCode })
 
 runner.Title("Postconditions")
