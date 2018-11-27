@@ -9,7 +9,7 @@
 -- Expected:
 -- 1) Treat OnVehicleData_response as invalid
 -- 2) Log corresponding error internally
--- 3) Ignore received notification (thus, should NOT send this notification to mobile app(s))
+-- 3) Ignore received notification (thus, should NOT send this notification to mobile app)
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -20,49 +20,49 @@ runner.testSettings.isSelfIncluded = false
 
 -- [[ Local variable ]]
 local gpsData = {
-        longitudeDegrees = 42.5,
-        latitudeDegrees = -83.3,
-        utcYear = 2013,
-        utcMonth = 2,
-        utcDay = 14,
-        utcHours = 13,
-        utcMinutes = 16,
-        utcSeconds = 54,
-        compassDirection = "SOUTHWEST",
-        pdop = 9,
-        hdop = 6.9,
-        vdop = 6.2,
-        actual = false,
-        satellites =  8,
-        dimension = "2D",
-        altitude = 7.7,
-        heading = 173.99,
-        speed = 2.78
+  longitudeDegrees = 42.5,
+  latitudeDegrees = -83.3,
+  utcYear = 2013,
+  utcMonth = 2,
+  utcDay = 14,
+  utcHours = 13,
+  utcMinutes = 16,
+  utcSeconds = 54,
+  compassDirection = "SOUTHWEST",
+  pdop = 9,
+  hdop = 6.9,
+  vdop = 6.2,
+  actual = false,
+  satellites =  8,
+  dimension = "2D",
+  altitude = 7.7,
+  heading = 173.99,
+  speed = 2.78
 }
 
 --[[ Local Functions ]]
 local function subscribeVehicleData()
-    local gpsResponseData = {
-        dataType = "VEHICLEDATA_GPS",
-        resultCode = "SUCCESS"
-      }
-      local cid = common.getMobileSession():SendRPC("SubscribeVehicleData", { gps = true })
-      common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData", { gps = true })
-      :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { gps = gpsResponseData })
-      end)
-      common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", gps = gpsResponseData })
+  local gpsResponseData = {
+    dataType = "VEHICLEDATA_GPS",
+    resultCode = "SUCCESS"
+  }
+  local cid = common.getMobileSession():SendRPC("SubscribeVehicleData", { gps = true })
+  common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData", { gps = true })
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { gps = gpsResponseData })
+  end)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", gps = gpsResponseData })
 end
 
-function sendOnVehicleDataFull(param)
-    common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = param})
-    common.getMobileSession():ExpectNotification("OnVehicleData", { gps = param })
+local function sendOnVehicleDataFull(param)
+  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = param})
+  common.getMobileSession():ExpectNotification("OnVehicleData", { gps = param })
 end
 
-function sendOnVehicleDataEmpty()
-    common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = {} })
-    common.getMobileSession():ExpectNotification("OnVehicleData")
-    :Times(0)
+local function sendOnVehicleDataEmpty()
+  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = {} })
+  common.getMobileSession():ExpectNotification("OnVehicleData")
+  :Times(0)
 end
 
 --[[ Scenario ]]
@@ -77,7 +77,6 @@ runner.Title("Test")
 runner.Step("Subscribe GPS VehicleData", subscribeVehicleData)
 runner.Step("Send OnVehicleData with full structure", sendOnVehicleDataFull, { gpsData })
 runner.Step("Send OnVehicleData with empty structure", sendOnVehicleDataEmpty)
-
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
