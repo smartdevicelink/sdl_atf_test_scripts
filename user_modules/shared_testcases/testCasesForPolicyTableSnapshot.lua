@@ -257,6 +257,7 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
         --omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "device_data."..device_IDs[i]..".usb_transport_enabled", elem_required = "required"}
         omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "device_data."..device_IDs[i]..".user_consent_records.device.input", elem_required = "required"}
         omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "device_data."..device_IDs[i]..".user_consent_records.device.time_stamp", elem_required = "required"}
+        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "device_data."..device_IDs[i]..".unpaired", elem_required = "optional"} -- fix for GH-2463
       end
 
       --TODO(istoimenova): Clarification for the section - exist only if application has consented groups?
