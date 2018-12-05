@@ -17,43 +17,13 @@ c.value = { true, false }
 
 --[[ Common Functions ]]
 
---[[ @ptuFunc: Update PT
---! @parameters:
---! pTbl - table for update
---! @return: none
---]]
-function c.ptuFunc(pTbl)
-  pTbl.policy_table.functional_groupings["Base-4"].rpcs.OnDriverDistraction.hmi_levels = { "FULL", "LIMITED", "BACKGROUND" }
-end
-
 --[[ @registerApp: register mobile application
 --! @parameters: none
 --! @return: none
 --]]
 function c.registerApp()
-  c.getMobileSession():StartService(7)
-  :Do(function()
-    local corId = c.getMobileSession():SendRPC("RegisterAppInterface", c.getConfigAppParams())
-    c.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
-      { application = { appName = c.getConfigAppParams().appName } })
-    :Do(function(_, d1)
-      c.setHMIAppId(d1.params.application.appID)
-        c.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-        :Do(function(_, d2)
-          c.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", { })
-        end)
-    end)
-    c.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-    :Do(function()
-      c.getMobileSession():ExpectNotification("OnHMIStatus",
-      { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-
-      c.getMobileSession():ExpectNotification("OnPermissionsChange")
-      :Times(AnyNumber())
-
-      c.getMobileSession():ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
-    end)
-  end)
+  c.registerAppWOPTU()
+  c.getMobileSession():ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
 end
 
 --[[ @deactivateAppToLimited: bring app to LIMITED HMI level

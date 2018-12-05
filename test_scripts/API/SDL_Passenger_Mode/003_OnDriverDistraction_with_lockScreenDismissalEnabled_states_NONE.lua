@@ -18,32 +18,78 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/SDL_Passenger_Mode/commonPassengerMode')
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local utils = require('user_modules/utils')
+local json = require("modules/json")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+--[[ Local Variables ]]
+local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
+
+--[[ Local Functions ]]
+local function backupPreloadedPT()
+  commonPreconditions:BackupFile(preloadedPT)
+end
+
+local function updatePreloadedPT()
+  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
+  local pt = utils.jsonFileToTable(preloadedFile)
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  pt.policy_table.functional_groupings.NewTestCaseGroup = { rpcs = { } }
+  pt.policy_table.functional_groupings.NewTestCaseGroup.rpcs["OnDriverDistraction"] = {
+    hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
+  }
+
+  --insert application "0000001" into "app_policies"
+  pt.policy_table.app_policies["0000001"] = utils.cloneTable(pt.policy_table.app_policies.default)
+  pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup" }
+
+  utils.tableToJsonFile(pt, preloadedFile)
+end
+
+local function registerApp()
+  common.registerAppWOPTU()
+  common.getMobileSession():ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
+  :Times(0)
+end
+
+local function activateApp()
+  common.activateApp()
+  common.getMobileSession():ExpectNotification("OnDriverDistraction", { state = "DD_OFF", lockScreenDismissalEnabled = true })
+end
+
+local function restorePreloadedPT()
+  commonPreconditions:RestoreFile(preloadedPT)
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Back-up PreloadedPT", backupPreloadedPT)
+runner.Step("Update PreloadedPT", updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration HMI level NONE", common.registerApp)
-runner.Step("PTU", common.policyTableUpdate, { common.ptuFunc })
+runner.Step("App registration HMI level NONE", registerApp)
 
-runner.Title("Test")
+-- runner.Title("Test")
 runner.Step("OnDriverDistraction with state DD_ON with lockScreenDismissalEnabled true",
   common.onDriverDistractionUnsuccess, { "DD_ON", true })
 
 runner.Step("App activation HMI level FULL", common.activateApp)
+-- runner.Step("App activation HMI level FULL", activateApp)
 
-for _, v in pairs(common.OnDDValue) do
-  runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled true",
-  common.onDriverDistraction, { v, true })
-end
+runner.Step("OnDriverDistraction with state DD_OFF with lockScreenDismissalEnabled true",
+    common.onDriverDistraction, { "DD_OFF", true })
 
-for _, v in pairs(common.OnDDValue) do
-  runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled false",
-  common.onDriverDistraction, { v, false })
-end
+-- for _, k in ipairs(common.value) do
+  for _, v in pairs(common.OnDDValue) do
+    runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(false),
+    common.onDriverDistraction, { v, false })
+  end
+-- end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
+runner.Step("Restore PreloadedPT", restorePreloadedPT)

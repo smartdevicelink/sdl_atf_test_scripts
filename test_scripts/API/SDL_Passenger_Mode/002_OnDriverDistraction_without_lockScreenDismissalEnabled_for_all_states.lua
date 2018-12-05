@@ -7,7 +7,7 @@
 -- 2) App registered and activated (HMI level FULL)
 -- 3) HMI not sends "lockScreenDismissalEnabled" item (but with all mandatory fields)
 --    as a parameter of OnDriverDistraction notification
--- -- Note: Covers all hmi levels
+--    Note: Covers all hmi levels
 -- SDL does:
 -- 1) Send  OnDriverDistraction notification to mobile without "lockScreenDismissalEnabled" parameter,
 --    but with all mandatory fields

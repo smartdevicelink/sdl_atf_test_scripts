@@ -25,51 +25,35 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
 runner.Step("App registration HMI level NONE", common.registerApp)
-for _, v in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled true",
-	common.onDriverDistraction, { v, true })
+for _, k in ipairs(common.value) do
+  for _, v in ipairs(common.OnDDValue) do
+    runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(k),
+		common.onDriverDistraction, { v, k })
+  end
 end
-
-for _, k in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. k .. " with lockScreenDismissalEnabled false",
-	common.onDriverDistraction, { k, false })
-end
-
 
 runner.Step("App activation HMI level FULL", common.activateApp)
-
-for _, v in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled true",
-	common.onDriverDistraction, { v, true })
-end
-
-for _, k in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. k .. " with lockScreenDismissalEnabled false",
-	common.onDriverDistraction, { k, false })
+for _, k in ipairs(common.value) do
+  for _, v in ipairs(common.OnDDValue) do
+    runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(k),
+    common.onDriverDistraction, { v, k })
+  end
 end
 
 runner.Step("Deactivate app HMI level LIMITED", common.deactivateAppToLimited)
-
-for _, v in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled true",
-	common.onDriverDistraction, { v, true })
-end
-
-for _, k in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. k .. " with lockScreenDismissalEnabled false",
-	common.onDriverDistraction, { k, false })
+for _, k in ipairs(common.value) do
+  for _, v in ipairs(common.OnDDValue) do
+    runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(k),
+    common.onDriverDistraction, { v, k })
+  end
 end
 
 runner.Step("Deactivate app HMI level BACKGROUND", common.deactivateAppToBackground)
-
-for _, v in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled true",
-	common.onDriverDistraction, { v, true })
-end
-
-for _, k in pairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. k .. " with lockScreenDismissalEnabled false",
-	common.onDriverDistraction, { k, false })
+for _, k in ipairs(common.value) do
+  for _, v in ipairs(common.OnDDValue) do
+    runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(k),
+    common.onDriverDistraction, { v, k })
+  end
 end
 
 runner.Title("Postconditions")
