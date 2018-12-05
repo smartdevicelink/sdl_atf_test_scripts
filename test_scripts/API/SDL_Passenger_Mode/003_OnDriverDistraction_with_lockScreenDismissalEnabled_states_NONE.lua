@@ -38,15 +38,7 @@ local function updatePreloadedPT()
   local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
   local pt = utils.jsonFileToTable(preloadedFile)
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
-  pt.policy_table.functional_groupings.NewTestCaseGroup = { rpcs = { } }
-  pt.policy_table.functional_groupings.NewTestCaseGroup.rpcs["OnDriverDistraction"] = {
-    hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
-  }
-
-  --insert application "0000001" into "app_policies"
-  pt.policy_table.app_policies["0000001"] = utils.cloneTable(pt.policy_table.app_policies.default)
-  pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup" }
-
+  pt.policy_table.functional_groupings["Base-4"].rpcs.OnDriverDistraction.hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
   utils.tableToJsonFile(pt, preloadedFile)
 end
 
@@ -58,7 +50,8 @@ end
 
 local function activateApp()
   common.activateApp()
-  common.getMobileSession():ExpectNotification("OnDriverDistraction", { state = "DD_OFF", lockScreenDismissalEnabled = true })
+  common.getMobileSession():ExpectNotification("OnDriverDistraction",
+    { lockScreenDismissalEnabled = true, state = "DD_OFF" })
 end
 
 local function restorePreloadedPT()
@@ -74,21 +67,17 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration HMI level NONE", registerApp)
 
 -- runner.Title("Test")
-runner.Step("OnDriverDistraction with state DD_ON with lockScreenDismissalEnabled true",
-  common.onDriverDistractionUnsuccess, { "DD_ON", true })
+for _, v in pairs(common.OnDDValue) do
+  runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(true),
+  common.onDriverDistractionUnsuccess, { v, true })
+end
+runner.Step("App activation HMI level FULL", activateApp)
 
-runner.Step("App activation HMI level FULL", common.activateApp)
--- runner.Step("App activation HMI level FULL", activateApp)
+for _, v in pairs(common.OnDDValue) do
+  runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(false),
+  common.onDriverDistraction, { v, false })
+end
 
-runner.Step("OnDriverDistraction with state DD_OFF with lockScreenDismissalEnabled true",
-    common.onDriverDistraction, { "DD_OFF", true })
-
--- for _, k in ipairs(common.value) do
-  for _, v in pairs(common.OnDDValue) do
-    runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(false),
-    common.onDriverDistraction, { v, false })
-  end
--- end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

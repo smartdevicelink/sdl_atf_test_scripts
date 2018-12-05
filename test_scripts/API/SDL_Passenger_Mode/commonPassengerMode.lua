@@ -70,8 +70,8 @@ end
 --]]
 function c.onDriverDistractionUnsuccess(pOnDDValue, pValue)
   local request = { state = pOnDDValue, lockScreenDismissalEnabled = pValue }
-  c.getHMIConnection():SendNotification("UI.OnDriverDistraction", { request })
-  c.getMobileSession():ExpectNotification("OnDriverDistraction", { request })
+  c.getHMIConnection():SendNotification("UI.OnDriverDistraction", request)
+  c.getMobileSession():ExpectNotification("OnDriverDistraction", request)
   :Times(0)
 end
 
