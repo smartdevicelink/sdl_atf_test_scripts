@@ -21,86 +21,88 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local notifParams = {
-wayPoints =
+  wayPoints = {
     {
-        {
-            coordinate = {
-            latitudeDegrees = -90,
-            longitudeDegrees = -180
-            },
-            locationName = "Ho Chi Minh",
-            addressLines = {"182 Le Dai Hanh"},
-            locationDescription = "Toa nha Flemington",
-            phoneNumber = "1231414",
-            locationImage = {
-            value = common.getPathToFileInStorage("icon.png"),
-            imageType = "DYNAMIC"
-            },
-            searchAddress = {
-            countryName = "aaa",
-            countryCode = "084",
-            postalCode = "test",
-            administrativeArea = "aa",
-            subAdministrativeArea = "a",
-            locality = "a",
-            subLocality = "a",
-            thoroughfare = "a",
-            subThoroughfare = "a"      
-            }
-        }  
+      coordinate = {
+        latitudeDegrees = -90,
+        longitudeDegrees = -180
+      },
+      locationName = "Ho Chi Minh",
+      addressLines = {"182 Le Dai Hanh"},
+      locationDescription = "Toa nha Flemington",
+      phoneNumber = "1231414",
+      locationImage = {
+        value = common.getPathToFileInStorage("icon.png"),
+        imageType = "DYNAMIC"
+      },
+      searchAddress = {
+        countryName = "aaa",
+        countryCode = "084",
+        postalCode = "test",
+        administrativeArea = "aa",
+        subAdministrativeArea = "a",
+        locality = "a",
+        subLocality = "a",
+        thoroughfare = "a",
+        subThoroughfare = "a"
+      }
     }
+  }
 }
 
 --[[ Local Functions ]]
 local function pTUpdateFunc(tbl)
-    local OWgroup = {
-        rpcs = {
-            GetWayPoints = {
-                hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
-            },
-            SubscribeWayPoints = {
-                hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
-            },
-            UnsubscribeWayPoints = {
-                hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
-            },
-            OnWayPointChange =  {
-                hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
-            }
-        }
+  local WayPoints = {
+    rpcs = {
+      GetWayPoints = {
+        hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
+      },
+      SubscribeWayPoints = {
+        hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
+      },
+      UnsubscribeWayPoints = {
+        hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
+      },
+      OnWayPointChange =  {
+        hmi_levels = {"BACKGROUND", "FULL", "LIMITED"}
+      }
     }
-    tbl.policy_table.functional_groupings["NewTestCaseGroup"] = OWgroup
-    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups = {"Base-4", "NewTestCaseGroup"}
-    tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID]
-    tbl.policy_table.app_policies[config.application3.registerAppInterfaceParams.appID] = tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID]
+  }
+  tbl.policy_table.functional_groupings["NewTestCaseGroup"] = WayPoints
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
+    { "Base-4", "WayPoints" }
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID] =
+    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID]
+  tbl.policy_table.app_policies[config.application3.registerAppInterfaceParams.fullAppID] =
+    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID]
 end
 
 local function subscribeWayPoints1(pApp)
-    local cid = common.getMobileSession(pApp):SendRPC("SubscribeWayPoints", {})
-    common.getHMIConnection():ExpectRequest("Navigation.SubscribeWayPoints")
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",{})
-    end)
-    common.getMobileSession(pApp):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
-    common.getMobileSession(pApp):ExpectNotification("OnHashChange")
+  local cid = common.getMobileSession(pApp):SendRPC("SubscribeWayPoints", {})
+  common.getHMIConnection():ExpectRequest("Navigation.SubscribeWayPoints")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",{})
+  end)
+  common.getMobileSession(pApp):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+  common.getMobileSession(pApp):ExpectNotification("OnHashChange")
 end
 local function subscribeWayPoints2(pApp)
-    local cid = common.getMobileSession(pApp):SendRPC("SubscribeWayPoints", {})
-    common.getMobileSession(pApp):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
-    common.getMobileSession(pApp):ExpectNotification("OnHashChange")
+  local cid = common.getMobileSession(pApp):SendRPC("SubscribeWayPoints", {})
+  common.getMobileSession(pApp):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+  common.getMobileSession(pApp):ExpectNotification("OnHashChange")
 end
 
 local function onWayPointChange()
-    common.getHMIConnection():SendNotification("Navigation.OnWayPointChange", notifParams)
-    common.getMobileSession(1):ExpectNotification("OnWayPointChange", notifParams)
-    common.getMobileSession(2):ExpectNotification("OnWayPointChange", notifParams)
-  end
+  common.getHMIConnection():SendNotification("Navigation.OnWayPointChange", notifParams)
+  common.getMobileSession(1):ExpectNotification("OnWayPointChange", notifParams)
+  common.getMobileSession(2):ExpectNotification("OnWayPointChange", notifParams)
+end
 
-  local function subscribeWayPoints3(pApp)
-    local cid = common.getMobileSession(pApp):SendRPC("SubscribeWayPoints", {})
-    common.getMobileSession(pApp):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
-    common.getMobileSession(pApp):ExpectNotification("OnWayPointChange", notifParams)
-    common.getMobileSession(pApp):ExpectNotification("OnHashChange")
+local function subscribeWayPoints3(pApp)
+  local cid = common.getMobileSession(pApp):SendRPC("SubscribeWayPoints", {})
+  common.getMobileSession(pApp):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+  common.getMobileSession(pApp):ExpectNotification("OnWayPointChange", notifParams)
+  common.getMobileSession(pApp):ExpectNotification("OnHashChange")
 end
 
 --[[ Scenario ]]
