@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0119-SDL-passenger-mode.md
---
 -- Description:
 -- In case:
 -- 1) By policy OnDriverDistraction allowed for (FULL, LIMITED, BACKGROUND, NONE) HMILevel
@@ -28,7 +27,7 @@ runner.Step("App registration HMI level NONE", common.registerApp)
 for _, k in ipairs(common.value) do
   for _, v in ipairs(common.OnDDValue) do
     runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled " .. tostring(k),
-		common.onDriverDistraction, { v, k })
+    common.onDriverDistraction, { v, k })
   end
 end
 

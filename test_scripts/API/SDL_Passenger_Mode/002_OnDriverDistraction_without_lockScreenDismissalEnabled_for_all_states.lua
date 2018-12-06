@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0119-SDL-passenger-mode.md
---
 -- Description:
 -- In case:
 -- 1) By policy OnDriverDistraction allowed for (FULL, LIMITED, BACKGROUND, NONE) HMILevel
@@ -27,26 +26,26 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Title("Test")
 runner.Step("App registration HMI level NONE", common.registerApp)
 for _, v in ipairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " without lockScreenDismissalEnabled",
-	common.onDriverDistraction, { v, nil })
+  runner.Step("OnDriverDistraction with state " .. v .. " without lockScreenDismissalEnabled",
+  common.onDriverDistraction, { v, nil })
 end
 
 runner.Step("App activation HMI level FULL", common.activateApp)
 for _, v in ipairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " without lockScreenDismissalEnabled",
-	common.onDriverDistraction, { v, nil })
+  runner.Step("OnDriverDistraction with state " .. v .. " without lockScreenDismissalEnabled",
+  common.onDriverDistraction, { v, nil })
 end
 
 runner.Step("Deactivate app HMI level LIMITED", common.deactivateAppToLimited)
 for _, v in ipairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " without lockScreenDismissalEnabled",
-	common.onDriverDistraction, { v, nil })
+  runner.Step("OnDriverDistraction with state " .. v .. " without lockScreenDismissalEnabled",
+  common.onDriverDistraction, { v, nil })
 end
 
 runner.Step("Deactivate app HMI level BACKGROUND", common.deactivateAppToBackground)
 for _, v in ipairs(common.OnDDValue) do
-	runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled",
-	common.onDriverDistraction, { v, nil })
+  runner.Step("OnDriverDistraction with state " .. v .. " with lockScreenDismissalEnabled",
+  common.onDriverDistraction, { v, nil })
 end
 
 runner.Title("Postconditions")

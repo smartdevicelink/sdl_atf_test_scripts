@@ -1,6 +1,5 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0119-SDL-passenger-mode.md
---
 -- Description:
 -- In case:
 -- 1) By policy OnDriverDistractions allowed for (FULL, LIMITED, BACKGROUND, NONE) HMILevel
@@ -19,8 +18,8 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local invalidValue = {
-	"Invalid data type",  -- invalid data type
-	""                    -- empty value
+  "Invalid data type",  -- invalid data type
+  ""                    -- empty value
 }
 
 --[[ Scenario ]]
@@ -31,11 +30,11 @@ runner.Step("App registration", common.registerApp)
 runner.Step("App activation HMI level FULL", common.activateApp)
 
 runner.Title("Test")
-for _, v in pairs(common.OnDDValue) do
-	for _, k in pairs(invalidValue) do
-		runner.Step("OnDriverDistraction with state " .. v .. " and invalid value lockScreenDismissalEnabled",
-		common.onDriverDistractionUnsuccess, { v, k })
-	end
+for _, k in pairs(invalidValue) do
+  for _, v in pairs(common.OnDDValue) do
+    runner.Step("OnDriverDistraction with state " .. v .. " and invalid value lockScreenDismissalEnabled",
+    common.onDriverDistractionUnsuccess, { v, k })
+  end
 end
 
 runner.Title("Postconditions")

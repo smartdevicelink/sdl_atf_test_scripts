@@ -11,7 +11,6 @@ local actions = require("user_modules/sequences/actions")
 local c = actions
 
 --[[ Variables ]]
-
 c.OnDDValue = { "DD_ON", "DD_OFF" }
 c.value = { true, false }
 
