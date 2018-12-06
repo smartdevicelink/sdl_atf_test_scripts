@@ -20,11 +20,11 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Local Variables ]]
-local resulCode = "INVALID_DATA"
+local resultCode = "INVALID_DATA"
 local invalidData = {
-    "5",
-    "",
-    5.5
+  "5",
+  "",
+  5.5
 }
 
 --[[ Scenario ]]
@@ -37,7 +37,7 @@ runner.Step("App activate", common.activateApp)
 runner.Title("Test")
 runner.Step("Add menu", common.addSubMenu, { 5 })
 for _, v in pairs(invalidData) do
-    runner.Step("Send show app menu " .. v .. " menuID", common.showAppMenuUnsuccess, { v, resulCode })
+  runner.Step("Send show app menu " .. v .. " menuID", common.showAppMenuUnsuccess, { v, resultCode })
 end
 
 runner.Title("Postconditions")

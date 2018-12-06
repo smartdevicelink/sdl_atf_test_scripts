@@ -19,7 +19,7 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Local Variables ]]
-local resulCode = "DISALLOWED"
+local resultCode = "DISALLOWED"
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -29,13 +29,13 @@ runner.Step("App registration", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { common.pTUpdateFunc })
 
 runner.Title("Test")
-runner.Step("Send show App menu, NONE level", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show App menu, NONE level", common.showAppMenuUnsuccess, { nil, resultCode })
 runner.Step("App activate", common.activateApp)
-runner.Step("Send show App menu, FULL level", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show App menu, FULL level", common.showAppMenuUnsuccess, { nil, resultCode })
 runner.Step("Set HMI Level to Limited", common.hmiLeveltoLimited, { 1, "MAIN" })
-runner.Step("Send show App menu, LIMITED level", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show App menu, LIMITED level", common.showAppMenuUnsuccess, { nil, resultCode })
 runner.Step("Set HMI Level to BACKGROUND", common.deactivateAppToBackground)
-runner.Step("Send show app menu, BACKGROUND level", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show app menu, BACKGROUND level", common.showAppMenuUnsuccess, { nil, resultCode })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

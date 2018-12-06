@@ -15,11 +15,11 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/OpenMenuRPC/commonOpenMenuRPC')
 
- -- [[ Test Configuration ]]
+-- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
- --[[ Scenario ]]
+--[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)

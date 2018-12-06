@@ -19,7 +19,7 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Local Variables ]]
-local resulCode = "DISALLOWED"
+local resultCode = "DISALLOWED"
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -32,9 +32,9 @@ runner.Title("Test")
 runner.Step("App activate", common.activateApp)
 runner.Step("Set HMI SystemContext to MENU" , common.changeHMISystemContext, { "MENU" })
 runner.Step("Set HMI Level to Limited", common.hmiLeveltoLimited, { 1, "MENU" })
-runner.Step("Send show App menu, Limited level", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show App menu, Limited level", common.showAppMenuUnsuccess, { nil, resultCode })
 runner.Step("Set HMI Level to BACKGROUND", common.deactivateAppToBackground, { "MENU" })
-runner.Step("Send show app menu, BACKGROUND level", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show app menu, BACKGROUND level", common.showAppMenuUnsuccess, { nil, resultCode })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -18,7 +18,7 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Local Variables ]]
-local resulCode = "REJECTED"
+local resultCode = "REJECTED"
 
 --[[ Local Function ]]
 local function sendAlertSuccess()
@@ -35,16 +35,15 @@ local function sendAlertSuccess()
     duration = 6000
   })
   local AlertId
-  EXPECT_HMICALL("UI.Alert", {
-    alertStrings =
-      {
-        {fieldName = "alertText1", fieldText = "a"},
-        {fieldName = "alertText2", fieldText = "1"},
-        {fieldName = "alertText3", fieldText = "_"}
-      },
+  common.getHMIConnection():ExpectRequest("UI.Alert", {
+    alertStrings = {
+      {fieldName = "alertText1", fieldText = "a"},
+      {fieldName = "alertText2", fieldText = "1"},
+      {fieldName = "alertText3", fieldText = "_"}
+    }
   })
   :Do(function(_,data)
-    common.showAppMenuUnsuccess(nil, resulCode)
+    common.showAppMenuUnsuccess(nil, resultCode)
     AlertId = data.id
   end)
   common.getHMIConnection():SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
@@ -59,10 +58,10 @@ runner.Step("App activate", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Set HMI SystemContext to VRSESSION" , common.changeHMISystemContext, { "VRSESSION" })
-runner.Step("Send show app menu", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show app menu", common.showAppMenuUnsuccess, { nil, resultCode })
 
 runner.Step("Set HMI SystemContext to HMI_OBSCURED" , common.changeHMISystemContext, { "HMI_OBSCURED" })
-runner.Step("Send show app menu", common.showAppMenuUnsuccess, { nil, resulCode })
+runner.Step("Send show app menu", common.showAppMenuUnsuccess, { nil, resultCode })
 
 runner.Step("Send show App menu, SystemContext ALERT", sendAlertSuccess)
 

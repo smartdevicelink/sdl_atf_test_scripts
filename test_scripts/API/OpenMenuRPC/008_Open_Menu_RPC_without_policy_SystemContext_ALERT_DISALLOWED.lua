@@ -19,8 +19,7 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Local Variables ]]
-local resulCode = "DISALLOWED"
-
+local resultCode = "DISALLOWED"
 
 --[[ Local Function ]]
 local function pTUpdateFunc(pTbl)
@@ -46,16 +45,15 @@ local function sendAlertSuccess()
     duration = 6000
   })
   local AlertId
-  EXPECT_HMICALL("UI.Alert", {
-    alertStrings =
-      {
-        {fieldName = "alertText1", fieldText = "a"},
-        {fieldName = "alertText2", fieldText = "1"},
-        {fieldName = "alertText3", fieldText = "_"}
-      },
+  common.getHMIConnection():ExpectRequest("UI.Alert", {
+    alertStrings = {
+      {fieldName = "alertText1", fieldText = "a"},
+      {fieldName = "alertText2", fieldText = "1"},
+      {fieldName = "alertText3", fieldText = "_"}
+    }
   })
   :Do(function(_,data)
-    common.showAppMenuUnsuccess(nil, resulCode)
+    common.showAppMenuUnsuccess(nil, resultCode)
     AlertId = data.id
   end)
   common.getHMIConnection():SendResponse(AlertId, "UI.Alert", "SUCCESS", { })

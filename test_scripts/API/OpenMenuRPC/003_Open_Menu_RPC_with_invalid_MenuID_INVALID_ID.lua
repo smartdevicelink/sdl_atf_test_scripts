@@ -20,7 +20,7 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Local Variables ]]
-local resulCode = "INVALID_ID"
+local resultCode = "INVALID_ID"
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -30,9 +30,9 @@ runner.Step("App registration", common.registerApp)
 runner.Step("App activate", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Send show app menu", common.showAppMenuUnsuccess, { 5, resulCode })
+runner.Step("Send show app menu", common.showAppMenuUnsuccess, { 5, resultCode })
 runner.Step("Set HMI SystemContext to MENU", common.changeHMISystemContext, { "MENU" })
-runner.Step("Send show app menu", common.showAppMenuUnsuccess, { 5, resulCode })
+runner.Step("Send show app menu", common.showAppMenuUnsuccess, { 5, resultCode })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

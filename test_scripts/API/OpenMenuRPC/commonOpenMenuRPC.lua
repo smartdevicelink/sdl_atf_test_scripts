@@ -4,14 +4,14 @@
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
- --[[ Required Shared libraries ]]
+--[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
 
- --[[ Variables ]]
+--[[ Variables ]]
 local m = actions
 m.type = "FILE"
 
- --[[ Functions]]
+--[[ Functions]]
 function m.pTUpdateFunc(pTbl)
   pTbl.policy_table.functional_groupings["Base-4"].rpcs.ShowAppMenu = nil
 end
@@ -23,7 +23,7 @@ function m.addSubMenu(pMenuID)
       position = 500,
       menuName ="SubMenupositive"
     })
-    EXPECT_HMICALL("UI.AddSubMenu",
+    m.getHMIConnection():ExpectRequest("UI.AddSubMenu",
       {
         menuID = pMenuID,
         menuParams = {
