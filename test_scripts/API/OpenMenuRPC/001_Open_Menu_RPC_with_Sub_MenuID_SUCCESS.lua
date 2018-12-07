@@ -24,11 +24,11 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerApp)
-runner.Step("App activate", common.activateApp)
 
 runner.Title("Test")
+runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu, { 5 })
-runner.Step("Send show app menu", common.showAppMenuSuccess, { 5 })
+runner.Step("Send show app menu, HMI SystemContext MAIN", common.showAppMenuSuccess, { 5 })
 runner.Step("Set HMI SystemContext to MENU", common.changeHMISystemContext, { "MENU" })
 runner.Step("Show app menu, HMI SystemContext MENU", common.showAppMenuSuccess, { 5 })
 

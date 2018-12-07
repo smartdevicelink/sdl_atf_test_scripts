@@ -3,7 +3,7 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0116-open-menu.md
 -- Description:
 -- In case:
--- 1) Mobile application is set to appropriate HMI level and System Context (see table)
+-- 1) Mobile application is set to FULL HMI level and System Context MAIN
 -- 2) Mobile app sends ShowAppMenu request with invalid menuID parameter to SDL:
 --    invalid type
 --    empty value
@@ -22,9 +22,9 @@ config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 --[[ Local Variables ]]
 local resultCode = "INVALID_DATA"
 local invalidData = {
-  "5",
-  "",
-  5.5
+  invalidEnumValue = "5",
+  mptyValue = "",
+  invalidType = 5.5
 }
 
 --[[ Scenario ]]
@@ -32,12 +32,12 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerApp)
-runner.Step("App activate", common.activateApp)
+runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Add menu", common.addSubMenu, { 5 })
-for _, v in pairs(invalidData) do
-  runner.Step("Send show app menu " .. v .. " menuID", common.showAppMenuUnsuccess, { v, resultCode })
+for k, v in pairs(invalidData) do
+  runner.Step("Send show app menu " .. k .. " menuID", common.showAppMenuUnsuccess, { v, resultCode })
 end
 
 runner.Title("Postconditions")

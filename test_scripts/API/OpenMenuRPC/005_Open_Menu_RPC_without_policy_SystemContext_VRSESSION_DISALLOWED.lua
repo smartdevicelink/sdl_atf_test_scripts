@@ -29,7 +29,7 @@ runner.Step("App registration", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { common.pTUpdateFunc })
 
 runner.Title("Test")
-runner.Step("App activate", common.activateApp)
+runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Set HMI SystemContext to VRSESSION" , common.changeHMISystemContext, { "VRSESSION" })
 runner.Step("Set HMI Level to Limited", common.hmiLeveltoLimited, { 1, "VRSESSION" })
 runner.Step("Send show App menu, Limited level", common.showAppMenuUnsuccess, { nil, resultCode })

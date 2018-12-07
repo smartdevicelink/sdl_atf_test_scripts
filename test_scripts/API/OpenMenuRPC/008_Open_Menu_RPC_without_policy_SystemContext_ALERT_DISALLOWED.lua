@@ -29,22 +29,16 @@ local function pTUpdateFunc(pTbl)
     "BACKGROUND",
     "LIMITED"
   }
+  pTbl.policy_table.module_config.notifications_per_minute_by_priority.NONE = 10
 end
 
 local function sendAlertSuccess()
-  common.getMobileSession():SendRPC("Alert", {
+  local cid = common.getMobileSession():SendRPC("Alert", {
     alertText1 = "a",
     alertText2 = "1",
     alertText3 = "_",
-    ttsChunks = {
-      {
-        text = "TTSChunk",
-        type = "TEXT"
-      }
-    },
     duration = 6000
   })
-  local AlertId
   common.getHMIConnection():ExpectRequest("UI.Alert", {
     alertStrings = {
       {fieldName = "alertText1", fieldText = "a"},
@@ -54,9 +48,12 @@ local function sendAlertSuccess()
   })
   :Do(function(_,data)
     common.showAppMenuUnsuccess(nil, resultCode)
-    AlertId = data.id
+    local function alertResponse()
+      common.getHMIConnection():SendResponse(data.id, "UI.Alert", "SUCCESS", { })
+    end
+    RUN_AFTER(alertResponse, 2000)
   end)
-  common.getHMIConnection():SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
@@ -68,6 +65,9 @@ runner.Step("PTU", common.policyTableUpdate, { pTUpdateFunc })
 runner.Step("App activate", common.activateApp)
 
 runner.Title("Test")
+runner.Step("Set HMI Level to Limited", common.hmiLeveltoLimited, { 1, "MAIN" })
+runner.Step("Send show App menu, SystemContext ALERT", sendAlertSuccess)
+runner.Step("Set HMI Level to BACKGROUND", common.deactivateAppToBackground)
 runner.Step("Send show App menu, SystemContext ALERT", sendAlertSuccess)
 
 runner.Title("Postconditions")

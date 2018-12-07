@@ -22,19 +22,12 @@ local resultCode = "REJECTED"
 
 --[[ Local Function ]]
 local function sendAlertSuccess()
-  common.getMobileSession():SendRPC("Alert", {
+  local cid = common.getMobileSession():SendRPC("Alert", {
     alertText1 = "a",
     alertText2 = "1",
     alertText3 = "_",
-    ttsChunks = {
-      {
-        text = "TTSChunk",
-        type = "TEXT"
-      }
-    },
     duration = 6000
   })
-  local AlertId
   common.getHMIConnection():ExpectRequest("UI.Alert", {
     alertStrings = {
       {fieldName = "alertText1", fieldText = "a"},
@@ -44,9 +37,12 @@ local function sendAlertSuccess()
   })
   :Do(function(_,data)
     common.showAppMenuUnsuccess(nil, resultCode)
-    AlertId = data.id
+    local function alertResponse()
+      common.getHMIConnection():SendResponse(data.id, "UI.Alert", "SUCCESS", { })
+    end
+    RUN_AFTER(alertResponse, 2000)
   end)
-  common.getHMIConnection():SendResponse(AlertId, "UI.Alert", "SUCCESS", { })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
@@ -54,7 +50,7 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerApp)
-runner.Step("App activate", common.activateApp)
+runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Set HMI SystemContext to VRSESSION" , common.changeHMISystemContext, { "VRSESSION" })

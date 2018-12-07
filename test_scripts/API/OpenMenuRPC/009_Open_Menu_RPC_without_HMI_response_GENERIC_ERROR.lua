@@ -3,7 +3,7 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0116-open-menu.md
 -- Description:
 -- In case:
--- 1) Mobile application is set to appropriate HMI level and System Context (see table)
+-- 1) Mobile application is set to FULL HMI level and System Context MAIN
 -- 2) Mobile sends ShowAppMenu request to SDL
 -- 3) SDL sends ShowAppMenu request to HMI
 -- 4) HMI doesn't send ShowAppMenu response to SDL (timeout expired)
@@ -23,7 +23,7 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerApp)
-runner.Step("App activate", common.activateApp)
+runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Send show app menu", common.showAppMenuHMIwithoutResponse, { nil })

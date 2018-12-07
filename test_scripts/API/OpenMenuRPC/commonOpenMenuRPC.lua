@@ -40,7 +40,7 @@ end
 
 function m.showAppMenuSuccess(pMenuID)
   local cid = m.getMobileSession():SendRPC("ShowAppMenu", { menuID = pMenuID })
-  m.getHMIConnection():ExpectRequest("UI.ShowAppMenu", {})
+  m.getHMIConnection():ExpectRequest("UI.ShowAppMenu", { appID = m.getHMIAppId(), menuID = pMenuID })
   :Do(function(_, data)
     m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
@@ -58,7 +58,7 @@ end
 
 function m.showAppMenuHMIwithoutResponse(pMenuID)
   local cid = m.getMobileSession():SendRPC("ShowAppMenu", { menuID = pMenuID })
-  m.getHMIConnection():ExpectRequest("UI.ShowAppMenu", {})
+  m.getHMIConnection():ExpectRequest("UI.ShowAppMenu", { appID = m.getHMIAppId(), menuID = pMenuID })
   :Do(function()
     -- HMI did not response
   end)
