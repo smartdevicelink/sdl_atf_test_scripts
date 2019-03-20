@@ -1,4 +1,4 @@
-
+local crc32 = require('crc32')
 local actions = require("user_modules/sequences/actions")
 
 local commonAppServices = actions
@@ -123,5 +123,91 @@ function commonAppServices.getAppServiceID(app_id)
   if not app_id then app_id = 1 end
   return serviceIDs[app_id]
 end
+
+--[[ GetFile ]]
+
+local function file_check(file_name)
+    local file_found=io.open(file_name, "r")
+  
+    if file_found==nil then
+      return false
+    else
+      return true
+    end
+end
+
+local function getBinaryData(fileName)
+    local inp = assert(io.open("files/"..fileName, "rb"))
+    local data = inp:read("*all")
+    data = string.gsub(data, "\r\n", "\n")
+    assert(inp:close())
+    return data
+end
+
+local function getFileCRC32(bin_data)
+    local crc = crc32.crc32(0, bin_data)   
+    return crc
+end
+
+local function getATFPath()
+    local handle = io.popen("echo $(pwd)")
+    local result = handle:read("*a")
+    handle:close()
+    return result:sub(0, -2)
+end
+
+function commonAppServices.getFileFromStorage(app_id, request_params, response_params)
+    local mobileSession = commonAppServices.getMobileSession(app_id)
+    if file_check("files/"..request_params.fileName) and response_params.crc == nil then
+        local file_data = getBinaryData(request_params.fileName);
+        local file_crc = getFileCRC32(file_data)   
+        if response_params.success then
+            response_params.crc = file_crc
+        end
+    end
+    --mobile side: sending GetFile request
+	local cid = mobileSession:SendRPC("GetFile", request_params)
+    --mobile side: expected GetFile response   
+    mobileSession:ExpectResponse(cid, response_params)
+end
+
+function commonAppServices.getFileFromService(app_id, asp_app_id, request_params, response_params)
+    local mobileSession = commonAppServices.getMobileSession(app_id)
+    if file_check("files/"..request_params.fileName) and response_params.crc == nil then
+        local file_data = getBinaryData(request_params.fileName);
+        local file_crc = getFileCRC32(file_data)   
+        if response_params.success then
+            response_params.crc = file_crc
+        end
+    end
+
+    request_params.appServiceId = commonAppServices.getAppServiceID(asp_app_id)
+
+    --mobile side: sending GetFile request
+    local cid = mobileSession:SendRPC("GetFile", request_params)
+    if asp_app_id == 0 then 
+        --EXPECT_HMICALL
+        commonAppServices.getHMIConnection():ExpectRequest("BasicCommunication.GetFilePath")
+        :Do(function(_, d2)
+            local cwd = getATFPath()
+            file_path = cwd.."/files/"..request_params.fileName
+            commonAppServices.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {filePath = file_path})
+        end) 
+    end
+
+    --mobile side: expected GetFile response   
+    mobileSession:ExpectResponse(cid, response_params)
+end
+
+function commonAppServices.putFileInStorage(app_id, request_params, response_params)
+    local mobileSession = commonAppServices.getMobileSession(app_id)
+        
+    --mobile side: sending PutFile request
+	local cid = mobileSession:SendRPC("PutFile", request_params, "files/"..request_params.syncFileName)
+	--mobile side: expected PutFile response
+	mobileSession:ExpectResponse(cid, response_params)
+end
+
+
 
 return commonAppServices

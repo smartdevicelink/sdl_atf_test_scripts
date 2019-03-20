@@ -59,7 +59,7 @@ runner.Step("RAI App 1", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Activate App", common.activateApp)
 
-runner.Step("Getfile", common.getFileFromService, {1, "HMI", getFileParams, result})
+runner.Step("Getfile", common.getFileFromService, {1, 0, getFileParams, result})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
