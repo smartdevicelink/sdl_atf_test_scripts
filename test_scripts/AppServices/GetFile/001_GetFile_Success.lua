@@ -8,7 +8,7 @@
 --  2) Application sends a GetFile Request with the same file name
 --
 --  Expected:
---  1) GetFile will return SUCESS
+--  1) GetFile will return SUCCESS
 --  2) The CRC value returned in the GetFile response will be the same as the crc32 hash of the file binary data
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

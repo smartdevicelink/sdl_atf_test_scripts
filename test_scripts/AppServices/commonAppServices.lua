@@ -1,4 +1,3 @@
-local crc32 = require('crc32')
 local actions = require("user_modules/sequences/actions")
 
 local commonAppServices = actions
@@ -136,17 +135,21 @@ local function file_check(file_name)
     end
 end
 
-local function getBinaryData(fileName)
-    local inp = assert(io.open("files/"..fileName, "rb"))
-    local data = inp:read("*all")
-    data = string.gsub(data, "\r\n", "\n")
-    assert(inp:close())
-    return data
-end
-
-local function getFileCRC32(bin_data)
-    local crc = crc32.crc32(0, bin_data)   
-    return crc
+local function getFileCRC32(fileName)
+    pFile = "files/"..fileName
+    local cmd = "cat " .. pFile .. " | gzip -1 | tail -c 8 | head -c 4"
+    local handle = io.popen(cmd)
+    local crc = handle:read("*a")
+    handle:close()
+    local function bytesToInt(pStr)
+        local t = { string.byte(pStr, 1, -1) }
+        local n = 0
+        for k = 1, #t do
+          n = n + t[k] * 2 ^ ((k - 1) * 8)
+        end
+        return n
+      end
+      return bytesToInt(crc)
 end
 
 local function getATFPath()
@@ -159,8 +162,7 @@ end
 function commonAppServices.getFileFromStorage(app_id, request_params, response_params)
     local mobileSession = commonAppServices.getMobileSession(app_id)
     if file_check("files/"..request_params.fileName) and response_params.crc == nil then
-        local file_data = getBinaryData(request_params.fileName);
-        local file_crc = getFileCRC32(file_data)   
+        local file_crc = getFileCRC32(request_params.fileName)   
         if response_params.success then
             response_params.crc = file_crc
         end
@@ -174,8 +176,7 @@ end
 function commonAppServices.getFileFromService(app_id, asp_app_id, request_params, response_params)
     local mobileSession = commonAppServices.getMobileSession(app_id)
     if file_check("files/"..request_params.fileName) and response_params.crc == nil then
-        local file_data = getBinaryData(request_params.fileName);
-        local file_crc = getFileCRC32(file_data)   
+        local file_crc = getFileCRC32(request_params.fileName)   
         if response_params.success then
             response_params.crc = file_crc
         end

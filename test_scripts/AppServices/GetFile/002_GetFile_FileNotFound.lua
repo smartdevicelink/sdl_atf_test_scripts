@@ -24,7 +24,7 @@ end
 --[[ Local variables ]]
 
 local getFileParams = {
-    fileName = "fakefile010101010110",
+    fileName = "icon.png",
     fileType = "GRAPHIC_PNG",
 }
 local result = { success = false, resultCode = "FILE_NOT_FOUND"}
