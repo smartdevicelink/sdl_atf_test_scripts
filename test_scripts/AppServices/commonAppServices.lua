@@ -205,6 +205,13 @@ local function getFileCRC32(bin_data)
     return crc
 end
 
+local function getATFPath()
+    local handle = io.popen("echo $(pwd)")
+    local result = handle:read("*a")
+    handle:close()
+    return result:sub(0, -2)
+end
+
 function commonAppServices.getFileFromStorage(app_id, request_params, response_params)
     local mobileSession = commonAppServices.getMobileSession(app_id)
     if file_check("files/"..request_params.fileName) and response_params.crc == nil then
@@ -238,9 +245,9 @@ function commonAppServices.getFileFromService(app_id, asp_app_id, request_params
         --EXPECT_HMICALL
         commonAppServices.getHMIConnection():ExpectRequest("BasicCommunication.GetFilePath")
         :Do(function(_, d2)
-            print("Received get file path")
-            -- commonAppServices.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {})
-            -- ptuTable = utils.jsonFileToTable(d2.params.file)
+            local cwd = getATFPath()
+            file_path = cwd.."/files/"..request_params.fileName
+            commonAppServices.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {filePath = file_path})
         end) 
     end
 
