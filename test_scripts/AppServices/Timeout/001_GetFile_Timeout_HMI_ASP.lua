@@ -46,6 +46,7 @@ local function getFileFromService(app_id, asp_app_id, request_params, response_p
         :Do(function(_, d2)
             local cwd = getATFPath()
             file_path = cwd.."/files/"..request_params.fileName
+            --Trigger timeout if forwarded request timeout has not been increased
             sleep(10)
             common.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {filePath = file_path})
         end) 
