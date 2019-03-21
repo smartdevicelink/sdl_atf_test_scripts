@@ -16,6 +16,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/AppServices/commonAppServices')
+local defaultTimeoutSeconds = runner.testSettings.defaultTimeout / 1000
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -73,8 +74,9 @@ local function processRPCSuccess(self)
   local responseParams = expectedResponse
   responseParams.serviceData.serviceID = service_id
   EXPECT_HMICALL(rpc.hmiName, rpc.params):Do(function(_, data)
-    --Trigger timeout if forwarded request timeout has not been increased
-    sleep(10)
+      --Trigger timeout if forwarded request timeout has not been increased
+      sleep(defaultTimeoutSeconds)
+    
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", 
         {
           serviceData = appServiceData

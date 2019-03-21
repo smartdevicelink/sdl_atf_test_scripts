@@ -16,7 +16,7 @@ local runner = require('user_modules/script_runner')
 local common = require('test_scripts/AppServices/commonAppServices')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-
+local defaultTimeoutSeconds = runner.testSettings.defaultTimeout / 1000
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -47,7 +47,8 @@ local function getFileFromService(app_id, asp_app_id, request_params, response_p
             local cwd = getATFPath()
             file_path = cwd.."/files/"..request_params.fileName
             --Trigger timeout if forwarded request timeout has not been increased
-            sleep(10)
+            sleep(defaultTimeoutSeconds)
+
             common.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {filePath = file_path})
         end) 
     end
