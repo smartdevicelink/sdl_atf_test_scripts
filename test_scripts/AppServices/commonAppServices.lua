@@ -191,4 +191,15 @@ function commonAppServices.getAppServiceID(app_id)
   return serviceIDs[app_id]
 end
 
+--[[Timeout]]
+function commonAppServices.getRpcPassThroughTimeoutFromINI()
+    local SDLini        = config.pathToSDL .. tostring("smartDeviceLink.ini")
+    f = assert(io.open(SDLini, "r"))
+	local fileContentUpdated = false
+	local fileContent = f:read("*all")
+    local property = fileContent:match('RpcPassThroughTimeout%s*=%s*[a-zA-Z%/0-9%_.]+[^\n]')
+    local RpcPassThroughTimeout = string.gsub(property:match("=.*"), "=", "")
+    return tonumber(RpcPassThroughTimeout)
+end
+
 return commonAppServices

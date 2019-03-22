@@ -9,7 +9,9 @@
 --  2) app2 sends a SendLocation request to core
 --
 --  Expected:
---  1) 
+--  1) Core forwards the request to app1
+--  2) app1 responds to core with { success = false, resultCode = "UNSUPPORTED_REQUEST", info = "Request CANNOT be handled by app services" }
+--  3) Core handles the original SendLocation request and sends {success = true, resultCode = "SUCCESS", info = nil} to app2
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
