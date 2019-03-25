@@ -28,6 +28,91 @@ function commonAppServices.appServiceCapability(update_reason, manifest)
   return appService
 end
 
+local appServiceData = {
+  MEDIA = {
+    mediaServiceData = {
+      mediaType = "MUSIC",
+      mediaTitle = "Song name",
+      mediaArtist = "Band name",
+      mediaAlbum = "Album name",
+      playlistName = "Sample music",
+      isExplicit = true,
+      trackPlaybackProgress = 300,
+      trackPlaybackDuration = 400,
+      queuePlaybackProgress = 3200,
+      queuePlaybackDuration = 5000,
+      queueCurrentTrackNumber = 12,
+      queueTotalTrackCount = 25
+    }
+  },
+  NAVIGATION = {
+    navigationServiceData = {
+      timeStamp = {
+        hour = 2,
+        minute = 24,
+        second = 16
+      },
+      origin = {
+        locationName = "start"
+      },
+      destination = {
+        locationName = "finish"
+      },
+      destinationETA = {
+        hour = 2,
+        minute = 38,
+        second = 40
+      },
+      prompt = "Navigating to destination"
+    }
+  },
+  WEATHER = {
+    weatherServiceData = {
+      location = {
+        locationName = "location"
+      },
+      currentForecast = {
+        currentTemperature = {
+          unit = "CELSIUS",
+          value = 24.6
+        },
+        weatherSummary = "Windy",
+        humidity = 0.28,
+        cloudCover = 0.55,
+        moonPhase = 0.85,
+        windBearing = 180,
+        windGust = 2.0,
+        windSpeed = 50.0
+      },
+      alerts = {
+        {
+          title = "Weather Alert"
+        }
+      }
+    }
+  },
+  FUTURE = {
+    futureServiceData = {
+      futureParam1 = "A String Value",
+      futureParam2 = 6,
+      futureParam3 = {
+        futureParam4 = 4.6
+      }
+    }
+  }
+}
+
+function commonAppServices.appServiceDataByType(service_id, service_type)
+  if not service_type then service_type = "MEDIA" end
+  local data = appServiceData[service_type]
+  if data == nil then
+    data = appServiceData["FUTURE"]
+  end
+  data.serviceType = service_type
+  data.serviceID = service_id
+  return data
+end
+
 function commonAppServices.appServiceCapabilityUpdateParams(update_reason, manifest)
   return {
     systemCapability = {
@@ -157,21 +242,18 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
     end)
 end
 
-function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, app_id)
+function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, service_type, app_id)
   if not app_id then app_id = 1 end
+  if not service_type then service_type = "MEDIA" end
   local requestParams = {
-    serviceType = "MEDIA",
+    serviceType = service_type,
     subscribe = true
   }
   local mobileSession = commonAppServices.getMobileSession(app_id)
   local cid = mobileSession:SendRPC("GetAppServiceData", requestParams)
   local service_id = commonAppServices.getAppServiceID(provider_app_id)
   local responseParams = {
-    serviceData = {
-      serviceID = service_id,
-      serviceType = "MEDIA",
-      mediaServiceData = {}
-    }
+    serviceData = commonAppServices.appServiceDataByType(service_id, service_type)
   }
   if provider_app_id == 0 then
     EXPECT_HMICALL("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
