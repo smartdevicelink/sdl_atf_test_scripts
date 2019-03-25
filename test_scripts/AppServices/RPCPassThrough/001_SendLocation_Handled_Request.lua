@@ -41,7 +41,11 @@ local function RPCPassThruTest(rpc, expectedResponse, passThruResponse)
     providerMobileSession:ExpectRequest(rpc.name, rpc.params):Do(function(_, data)
         providerMobileSession:SendResponse(rpc.name, data.rpcCorrelationId, passThruResponse)
     end)
-        
+    
+    if rpc.hmi_name then
+        EXPECT_HMICALL(rpc.hmi_name, requestParams):Times(0)
+    end
+
     MobileSession:ExpectResponse(cid, expectedResponse.params)
 end
 

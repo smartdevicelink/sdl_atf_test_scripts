@@ -45,7 +45,8 @@ local function RPCPassThruTest(rpc, expectedResponse, passThruResponse)
    
     --Core will handle the RPC
     if rpc.hmi_name then
-        EXPECT_HMICALL(rpc.hmi_name, requestParams):Do(function(_, data)
+        EXPECT_HMICALL(rpc.hmi_name, requestParams):Times(1)
+        :Do(function(_, data)
             common.getHMIConnection():SendResponse(data.id, data.method, expectedResponse.hmi_params.code, expectedResponse.hmi_params)
         end)        
     end
