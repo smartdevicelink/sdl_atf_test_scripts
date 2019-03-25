@@ -1,16 +1,16 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
---  2) Specific permissions are assigned for <appID> with GetAppServiceData
+--  2) Specific permissions are assigned for <appID> with PerformAppServiceInteraction
 --  3) HMI has published a MEDIA service
 --
 --  Steps:
---  1) Application sends a GetAppServiceData RPC request with serviceType MEDIA
+--  1) Application sends a PerformAppServiceInteraction RPC request with HMI's serviceID
 --
 --  Expected:
---  1) SDL forwards the GetAppServiceData request to the HMI as AppService.GetAppServiceData
---  2) HMI sends a AppService.GetAppServiceData response (SUCCESS) to Core with its own serviceData
---  3) SDL forwards the response to Application as GetAppServiceData
+--  1) SDL forwards the PerformAppServiceInteraction request to the HMI as AppService.PerformAppServiceInteraction
+--  2) HMI sends a AppService.PerformAppServiceInteraction response (SUCCESS) to Core with a serviceSpecificResult
+--  3) SDL forwards the response to Application as PerformAppServiceInteraction
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -29,34 +29,17 @@ local manifest = {
   mediaServiceManifest = {}
 }
 
-local appServiceData = {
-  serviceType = manifest.serviceType,
-  mediaServiceData = {
-    mediaType = "MUSIC",
-    mediaTitle = "Song name",
-    mediaArtist = "Band name",
-    mediaAlbum = "Album name",
-    playlistName = "Good music",
-    isExplicit = false,
-    trackPlaybackProgress = 200,
-    trackPlaybackDuration = 300,
-    queuePlaybackProgress = 2200,
-    queuePlaybackDuration = 4000,
-    queueCurrentTrackNumber = 12,
-    queueTotalTrackCount = 20
-  }
-}
-
 local rpc = {
-  name = "GetAppServiceData",
-  hmiName = "AppService.GetAppServiceData",
+  name = "PerformAppServiceInteraction",
+  hmiName = "AppService.PerformAppServiceInteraction",
   params = {
-    serviceType = manifest.serviceType
+    originApp = config.application1.registerAppInterfaceParams.fullAppID,
+    serviceUri = "hmi:sample.service.uri"
   }
 }
 
 local expectedResponse = {
-  serviceData = appServiceData,
+  serviceSpecificResult = "RESULT",
   success = true,
   resultCode = "SUCCESS"
 }
@@ -68,18 +51,18 @@ end
 --[[ Local Functions ]]
 local function processRPCSuccess(self)
   local mobileSession = common.getMobileSession()
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
   local service_id = common.getAppServiceID(0)
-  local responseParams = expectedResponse
-  responseParams.serviceData.serviceID = service_id
-  EXPECT_HMICALL(rpc.hmiName, rpc.params):Do(function(_, data) 
+  local requestParams = rpc.params
+  requestParams.serviceID = service_id
+  local cid = mobileSession:SendRPC(rpc.name, requestParams)
+  EXPECT_HMICALL(rpc.hmiName, requestParams):Do(function(_, data) 
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", 
         {
-          serviceData = appServiceData
+          serviceSpecificResult = expectedResponse.serviceSpecificResult
         })
     end)
 
-  mobileSession:ExpectResponse(cid, responseParams)
+  mobileSession:ExpectResponse(cid, expectedResponse)
 end
 
 --[[ Scenario ]]

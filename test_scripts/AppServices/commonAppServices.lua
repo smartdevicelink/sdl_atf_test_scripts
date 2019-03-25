@@ -5,7 +5,7 @@ local commonAppServices = actions
 
 local serviceIDs = {}
 
-local function appServiceCapability(update_reason, manifest) 
+function commonAppServices.appServiceCapability(update_reason, manifest) 
   local appService = {
     updateReason = update_reason,
     updatedAppServiceRecord = {
@@ -34,7 +34,7 @@ function commonAppServices.appServiceCapabilityUpdateParams(update_reason, manif
       systemCapabilityType = "APP_SERVICES",
       appServicesCapabilities = {
         appServices = {
-          appServiceCapability(update_reason, manifest)
+          commonAppServices.appServiceCapability(update_reason, manifest)
         }
       }
     }
@@ -76,14 +76,39 @@ function commonAppServices.getAppServiceProducerConfig(app_id, service_type)
   return policy
 end
 
+function commonAppServices.findCapabilityUpdate(capability, params)
+  if not params.systemCapability then
+    return false, "params.systemCapability is nil"
+  end
+  local systemCapability = params.systemCapability
+  if not systemCapability.systemCapabilityType == "APP_SERVICES" or not systemCapability.appServicesCapabilities then
+    return false, "appServicesCapabilities is nil"
+  end
+  local appServices = systemCapability.appServicesCapabilities.appServices
+  for key, value in pairs(appServices) do
+    local res, err = compareValues(capability, value, "params")
+    if res then
+      return true
+    end
+  end
+  return false, "unable to find matching app service update"
+end
+
 function commonAppServices.publishEmbeddedAppService(manifest)
   local cid = commonAppServices.getHMIConnection():SendRequest("AppService.PublishAppService", {
     appServiceManifest = manifest
   })
-
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated", 
-    commonAppServices.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
-    commonAppServices.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(AtLeast(1))
+  local first_run = true
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+      if first_run then
+        first_run = false
+        local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
+        return commonAppServices.findCapabilityUpdate(publishedParams, data.params)
+      else
+        local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
+        return commonAppServices.findCapabilityUpdate(activatedParams, data.params)
+      end
+    end)
   EXPECT_HMIRESPONSE(cid, {
     result = {
       appServiceRecord = {
@@ -107,9 +132,17 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
     appServiceManifest = manifest
   })
 
-  mobileSession:ExpectNotification("OnSystemCapabilityUpdated",
-    commonAppServices.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
-    commonAppServices.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(AtLeast(1))
+  local first_run = true
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+      if first_run then
+        first_run = false
+        local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
+        return commonAppServices.findCapabilityUpdate(publishedParams, data.payload)
+      else
+        local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
+        return commonAppServices.findCapabilityUpdate(activatedParams, data.payload)
+      end
+    end)
   mobileSession:ExpectResponse(cid, {
     appServiceRecord = {
       serviceManifest = manifest,
@@ -122,6 +155,40 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
         serviceIDs[app_id] = data.payload.appServiceRecord.serviceID
       end
     end)
+end
+
+function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, app_id)
+  if not app_id then app_id = 1 end
+  local requestParams = {
+    serviceType = "MEDIA",
+    subscribe = true
+  }
+  local mobileSession = commonAppServices.getMobileSession(app_id)
+  local cid = mobileSession:SendRPC("GetAppServiceData", requestParams)
+  local service_id = commonAppServices.getAppServiceID(provider_app_id)
+  local responseParams = {
+    serviceData = {
+      serviceID = service_id,
+      serviceType = "MEDIA",
+      mediaServiceData = {}
+    }
+  }
+  if provider_app_id == 0 then
+    EXPECT_HMICALL("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
+        commonAppServices.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
+      end)
+  else
+    local providerMobileSession = commonAppServices.getMobileSession(provider_app_id)
+
+    -- Fill out mobile response params
+    responseParams.resultCode = "SUCCESS"
+    responseParams.success = true
+    providerMobileSession:ExpectRequest("GetAppServiceData", requestParams):Do(function(_, data) 
+        providerMobileSession:SendResponse("GetAppServiceData", data.rpcCorrelationId, responseParams)
+      end)
+  end
+
+  mobileSession:ExpectResponse(cid, responseParams)
 end
 
 function commonAppServices.getAppServiceID(app_id)

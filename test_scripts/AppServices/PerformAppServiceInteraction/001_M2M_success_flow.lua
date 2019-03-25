@@ -3,15 +3,15 @@
 --  1) Application 1 with <appID> is registered on SDL.
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
---  4) Specific permissions are assigned for <appID2> with GetAppServiceData
+--  4) Specific permissions are assigned for <appID2> with PerformAppServiceInteraction
 --  5) Application 1 has published a MEDIA service
 --
 --  Steps:
---  1) Application 2 sends a GetAppServiceData RPC request with serviceType MEDIA
+--  1) Application 2 sends a PerformAppServiceInteraction RPC request with Application 1's serviceID
 --
 --  Expected:
---  1) SDL forwards the GetAppServiceData request to Application 1
---  2) Application 1 sends a GetAppServiceData response (SUCCESS) to Core with its own serviceData
+--  1) SDL forwards the PerformAppServiceInteraction request to Application 1
+--  2) Application 1 sends a PerformAppServiceInteraction response (SUCCESS) to Core with a serviceSpecificResult
 --  3) SDL forwards the response to Application 2
 ---------------------------------------------------------------------------------------------------
 
@@ -32,30 +32,15 @@ local manifest = {
 }
 
 local rpc = {
-  name = "GetAppServiceData",
+  name = "PerformAppServiceInteraction",
   params = {
-    serviceType = manifest.serviceType
+    originApp = config.application2.registerAppInterfaceParams.fullAppID,
+    serviceUri = "mobile:sample.service.uri"
   }
 }
 
 local expectedResponse = {
-  serviceData = {
-    serviceType = manifest.serviceType,
-    mediaServiceData = {
-      mediaType = "MUSIC",
-      mediaTitle = "Song name",
-      mediaArtist = "Band name",
-      mediaAlbum = "Album name",
-      playlistName = "Good music",
-      isExplicit = false,
-      trackPlaybackProgress = 200,
-      trackPlaybackDuration = 300,
-      queuePlaybackProgress = 2200,
-      queuePlaybackDuration = 4000,
-      queueCurrentTrackNumber = 12,
-      queueTotalTrackCount = 20
-    }
-  },
+  serviceSpecificResult = "RESULT",
   success = true,
   resultCode = "SUCCESS"
 }
@@ -69,15 +54,15 @@ end
 local function processRPCSuccess(self)
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
-  local cid = mobileSession2:SendRPC(rpc.name, rpc.params)
   local service_id = common.getAppServiceID()
-  local responseParams = expectedResponse
-  responseParams.serviceData.serviceID = service_id
-  mobileSession:ExpectRequest(rpc.name, rpc.params):Do(function(_, data) 
-      mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, responseParams)
+  local requestParams = rpc.params
+  requestParams.serviceID = service_id
+  local cid = mobileSession2:SendRPC(rpc.name, requestParams)
+  mobileSession:ExpectRequest(rpc.name, requestParams):Do(function(_, data) 
+      mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
     end)
 
-  mobileSession2:ExpectResponse(cid, responseParams)
+  mobileSession2:ExpectResponse(cid, expectedResponse)
 end
 
 --[[ Scenario ]]

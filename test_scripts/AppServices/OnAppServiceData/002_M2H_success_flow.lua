@@ -1,16 +1,15 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
---  2) Specific permissions are assigned for <appID> with GetAppServiceData
+--  2) Specific permissions are assigned for <appID> with OnAppServiceData
 --  3) HMI has published a MEDIA service
+--  4) Application is subscribed to MEDIA app service data
 --
 --  Steps:
---  1) Application sends a GetAppServiceData RPC request with serviceType MEDIA
+--  1) HMI sends a OnAppServiceData RPC notification with serviceType MEDIA
 --
 --  Expected:
---  1) SDL forwards the GetAppServiceData request to the HMI as AppService.GetAppServiceData
---  2) HMI sends a AppService.GetAppServiceData response (SUCCESS) to Core with its own serviceData
---  3) SDL forwards the response to Application as GetAppServiceData
+--  1) SDL forwards the OnAppServiceData notification to Application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -48,17 +47,12 @@ local appServiceData = {
 }
 
 local rpc = {
-  name = "GetAppServiceData",
-  hmiName = "AppService.GetAppServiceData",
-  params = {
-    serviceType = manifest.serviceType
-  }
+  name = "OnAppServiceData",
+  hmiName = "AppService.OnAppServiceData"
 }
 
-local expectedResponse = {
-  serviceData = appServiceData,
-  success = true,
-  resultCode = "SUCCESS"
+local expectedNotification = {
+  serviceData = appServiceData
 }
 
 local function PTUfunc(tbl)
@@ -68,18 +62,12 @@ end
 --[[ Local Functions ]]
 local function processRPCSuccess(self)
   local mobileSession = common.getMobileSession()
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
   local service_id = common.getAppServiceID(0)
-  local responseParams = expectedResponse
-  responseParams.serviceData.serviceID = service_id
-  EXPECT_HMICALL(rpc.hmiName, rpc.params):Do(function(_, data) 
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", 
-        {
-          serviceData = appServiceData
-        })
-    end)
+  local notificationParams = expectedNotification
+  notificationParams.serviceData.serviceID = service_id
 
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getHMIConnection():SendNotification(rpc.hmiName, notificationParams)
+  mobileSession:ExpectNotification(rpc.name, notificationParams)
 end
 
 --[[ Scenario ]]
@@ -90,6 +78,7 @@ runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Activate App", common.activateApp)
 runner.Step("Publish App Service", common.publishEmbeddedAppService, { manifest })
+runner.Step("Subscribe App Service Data", common.mobileSubscribeAppServiceData, { 0 })
 
 runner.Title("Test")
 runner.Step("RPC " .. rpc.name .. "_resultCode_SUCCESS", processRPCSuccess)
