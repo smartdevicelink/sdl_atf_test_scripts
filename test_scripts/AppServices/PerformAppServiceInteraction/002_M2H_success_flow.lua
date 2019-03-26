@@ -2,10 +2,10 @@
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
 --  2) Specific permissions are assigned for <appID> with PerformAppServiceInteraction
+--  3) HMI has published a MEDIA service
 --
 --  Steps:
---  1) HMI sends a AppService.PublishAppService RPC request with serviceType MEDIA
---  2) Application sends a PerformAppServiceInteraction RPC request with HMI's serviceID
+--  1) Application sends a PerformAppServiceInteraction RPC request with HMI's serviceID
 --
 --  Expected:
 --  1) SDL forwards the PerformAppServiceInteraction request to the HMI as AppService.PerformAppServiceInteraction
@@ -22,7 +22,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local manifest = {
-  serviceName = config.application1.registerAppInterfaceParams.appName,
+  serviceName = "HMI_MEDIA_SERVICE",
   serviceType = "MEDIA",
   allowAppConsumers = true,
   rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
@@ -62,7 +62,7 @@ local function processRPCSuccess(self)
         })
     end)
 
-  mobileSession:ExpectResponse(cid, responseParams)
+  mobileSession:ExpectResponse(cid, expectedResponse)
 end
 
 --[[ Scenario ]]

@@ -4,10 +4,10 @@
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
 --  4) Specific permissions are assigned for <appID2> with GetAppServiceData
+--  5) Application 1 has published a MEDIA service
 --
 --  Steps:
---  1) Application 1 sends a PublishAppService RPC request with serviceType MEDIA
---  2) Application 2 sends a GetAppServiceData RPC request with serviceType MEDIA
+--  1) Application 2 sends a GetAppServiceData RPC request with serviceType MEDIA
 --
 --  Expected:
 --  1) SDL forwards the GetAppServiceData request to Application 1

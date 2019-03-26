@@ -3,16 +3,15 @@
 --  1) Application 1 with <appID> is registered on SDL.
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
---  4) Specific permissions are assigned for <appID2> with PerformAppServiceInteraction
+--  4) Specific permissions are assigned for <appID2> with OnAppServiceData
 --  5) Application 1 has published a MEDIA service
+--  6) Application 2 is subscribed to MEDIA app service data
 --
 --  Steps:
---  1) Application 2 sends a PerformAppServiceInteraction RPC request with Application 1's serviceID
+--  2) Application 1 sends a OnAppServiceData RPC notification with serviceType MEDIA
 --
 --  Expected:
---  1) SDL forwards the PerformAppServiceInteraction request to Application 1
---  2) Application 1 sends a PerformAppServiceInteraction response (SUCCESS) to Core with a serviceSpecificResult
---  3) SDL forwards the response to Application 2
+--  1) SDL forwards the OnAppServiceData notification to Application 2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -32,17 +31,27 @@ local manifest = {
 }
 
 local rpc = {
-  name = "PerformAppServiceInteraction",
-  params = {
-    originApp = config.application2.registerAppInterfaceParams.fullAppID,
-    serviceUri = "mobile:sample.service.uri"
-  }
+  name = "OnAppServiceData"
 }
 
-local expectedResponse = {
-  serviceSpecificResult = "RESULT",
-  success = true,
-  resultCode = "SUCCESS"
+local expectedNotification = {
+  serviceData = {
+    serviceType = manifest.serviceType,
+    mediaServiceData = {
+      mediaType = "MUSIC",
+      mediaTitle = "Song name",
+      mediaArtist = "Band name",
+      mediaAlbum = "Album name",
+      playlistName = "Good music",
+      isExplicit = false,
+      trackPlaybackProgress = 200,
+      trackPlaybackDuration = 300,
+      queuePlaybackProgress = 2200,
+      queuePlaybackDuration = 4000,
+      queueCurrentTrackNumber = 12,
+      queueTotalTrackCount = 20
+    }
+  }
 }
 
 local function PTUfunc(tbl)
@@ -55,14 +64,11 @@ local function processRPCSuccess(self)
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local service_id = common.getAppServiceID()
-  local requestParams = rpc.params
-  requestParams.serviceID = service_id
-  local cid = mobileSession2:SendRPC(rpc.name, requestParams)
-  mobileSession:ExpectRequest(rpc.name, requestParams):Do(function(_, data) 
-      mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
-    end)
+  local notificationParams = expectedNotification
+  notificationParams.serviceData.serviceID = service_id
 
-  mobileSession2:ExpectResponse(cid, expectedResponse)
+  mobileSession:SendNotification(rpc.name, notificationParams)
+  mobileSession2:ExpectNotification(rpc.name, notificationParams)
 end
 
 --[[ Scenario ]]
@@ -74,6 +80,7 @@ runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
 runner.Step("Activate App", common.activateApp)
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
+runner.Step("Subscribe App Service Data", common.mobileSubscribeAppServiceData, { 1, 2 })
 
 runner.Title("Test")
 runner.Step("RPC " .. rpc.name .. "_resultCode_SUCCESS", processRPCSuccess)

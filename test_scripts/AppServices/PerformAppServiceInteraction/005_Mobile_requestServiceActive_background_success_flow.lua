@@ -4,15 +4,19 @@
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
 --  4) Specific permissions are assigned for <appID2> with PerformAppServiceInteraction
---  5) Application 1 has published a MEDIA service
+--  5) HMI has published a MEDIA service and is the active MEDIA service
+--  6) Application 1 has published a MEDIA service
 --
 --  Steps:
 --  1) Application 2 sends a PerformAppServiceInteraction RPC request with Application 1's serviceID
+--     and requestServiceActive = true
 --
 --  Expected:
---  1) SDL forwards the PerformAppServiceInteraction request to Application 1
---  2) Application 1 sends a PerformAppServiceInteraction response (SUCCESS) to Core with a serviceSpecificResult
---  3) SDL forwards the response to Application 2
+--  1) SDL sends a AppService.GetActiveServiceConsent message to the HMI, HMI responds with activate = true
+--  2) SDL activates Application 1's MEDIA service and broadcasts OnSystemCapabilityUpdated(APP_SERVICES) 
+--  3) SDL forwards the PerformAppServiceInteraction request to Application 1
+--  4) Application 1 sends a PerformAppServiceInteraction response (SUCCESS) to Core with a serviceSpecificResult
+--  5) SDL forwards the response to Application 2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -23,6 +27,14 @@ local common = require('test_scripts/AppServices/commonAppServices')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
+local hmiManifest = {
+  serviceName = "HMI_MEDIA_SERVICE",
+  serviceType = "MEDIA",
+  allowAppConsumers = true,
+  rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
+  mediaServiceManifest = {}
+}
+
 local manifest = {
   serviceName = config.application1.registerAppInterfaceParams.appName,
   serviceType = "MEDIA",
@@ -35,7 +47,8 @@ local rpc = {
   name = "PerformAppServiceInteraction",
   params = {
     originApp = config.application2.registerAppInterfaceParams.fullAppID,
-    serviceUri = "mobile:sample.service.uri"
+    serviceUri = "mobile:sample.service.uri",
+    requestServiceActive = true
   }
 }
 
@@ -58,6 +71,22 @@ local function processRPCSuccess(self)
   local requestParams = rpc.params
   requestParams.serviceID = service_id
   local cid = mobileSession2:SendRPC(rpc.name, requestParams)
+
+  EXPECT_HMICALL("AppService.GetActiveServiceConsent", { serviceID = service_id }):Do(function(_, data) 
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", 
+        {
+          activate = true
+        })
+    end)
+  local serviceParams = common.appServiceCapability("ACTIVATED", manifest)
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+      return common.findCapabilityUpdate(serviceParams, data.payload)
+    end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+      return common.findCapabilityUpdate(serviceParams, data.params)
+    end)
+
+  requestParams.requestServiceActive = nil
   mobileSession:ExpectRequest(rpc.name, requestParams):Do(function(_, data) 
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
     end)
@@ -72,7 +101,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
-runner.Step("Activate App", common.activateApp)
+runner.Step("Publish Embedded Service", common.publishEmbeddedAppService, { hmiManifest })
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 
 runner.Title("Test")

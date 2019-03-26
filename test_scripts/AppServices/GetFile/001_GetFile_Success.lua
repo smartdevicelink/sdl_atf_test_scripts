@@ -2,10 +2,10 @@
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
 --  2) AppServiceConsumer permissions are assigned for <appID>
+--  3) Application sends a PutFile Request with a given file name
 --
 --  Steps:
---  1) Application sends a PutFile Request with a given file name
---  2) Application sends a GetFile Request with the same file name
+--  1) Application sends a GetFile Request with the same file name
 --
 --  Expected:
 --  1) GetFile will return SUCCESS
@@ -41,9 +41,9 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Activate App", common.activateApp)
+runner.Step("Putfile", common.putFileInStorage, {1, putFileParams, result})
 
 runner.Title("Test")
-runner.Step("Putfile", common.putFileInStorage, {1, putFileParams, result})
 runner.Step("Getfile", common.getFileFromStorage, {1, getFileParams, result})
 
 runner.Title("Postconditions")

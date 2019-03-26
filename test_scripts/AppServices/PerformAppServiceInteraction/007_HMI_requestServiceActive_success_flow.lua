@@ -2,10 +2,12 @@
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
 --  2) Specific permissions are assigned for <appID> with PerformAppServiceInteraction
---  3) Application 1 has published a MEDIA service
+--  3) HMI has published a MEDIA service and is the active MEDIA service
+--  4) Application 1 has published a MEDIA service
 --
 --  Steps:
---  1) HMI sends a AppService.PerformAppServiceInteraction RPC request with Application's serviceID
+--  1) Application sends a AppService.PublishAppService RPC request with serviceType MEDIA
+--  2) HMI sends a AppService.PerformAppServiceInteraction RPC request with Application's serviceID
 --
 --  Expected:
 --  1) SDL forwards the PerformAppServiceInteraction request to Application as PerformAppServiceInteraction
@@ -21,6 +23,14 @@ local common = require('test_scripts/AppServices/commonAppServices')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
+local hmiManifest = {
+  serviceName = "HMI_MEDIA_SERVICE",
+  serviceType = "MEDIA",
+  allowAppConsumers = true,
+  rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
+  mediaServiceManifest = {}
+}
+
 local manifest = {
   serviceName = config.application1.registerAppInterfaceParams.appName,
   serviceType = "MEDIA",
@@ -35,7 +45,8 @@ local rpc = {
   name = "PerformAppServiceInteraction",
   hmiName = "AppService.PerformAppServiceInteraction",
   params = {
-    serviceUri = "mobile:sample.service.uri"
+    serviceUri = "mobile:sample.service.uri",
+    requestServiceActive = true
   }
 }
 
@@ -56,9 +67,17 @@ local function processRPCSuccess(self)
   local requestParams = rpc.params
   requestParams.serviceID = service_id
   local cid = common.getHMIConnection():SendRequest(rpc.hmiName, requestParams)
+  local serviceParams = common.appServiceCapability("ACTIVATED", manifest)
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+      return common.findCapabilityUpdate(serviceParams, data.payload)
+    end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+      return common.findCapabilityUpdate(serviceParams, data.params)
+    end)
   local passedRequestParams = requestParams
   -- Core manually sets the originApp parameter when passing an HMI message through
   passedRequestParams.originApp = hmiOriginID
+  passedRequestParams.requestServiceActive = nil
   mobileSession:ExpectRequest(rpc.name, passedRequestParams):Do(function(_, data) 
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
     end)
@@ -79,7 +98,7 @@ runner.Step("Set HMI Origin ID", common.setSDLIniParameter, { "HMIOriginID", hmi
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
-runner.Step("Activate App", common.activateApp)
+runner.Step("Publish Embedded Service", common.publishEmbeddedAppService, { hmiManifest })
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 
 runner.Title("Test")
