@@ -1,13 +1,13 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
---  1) Application with <appID> and <appID2> is registered on SDL.
+--  1) Applications with <appID> and <appID2> are registered on SDL.
 --  2) AppServiceProvider permissions are assigned for <appID>
 --  3) AppServiceConsumer permissions are assigned for <appID2>
+--  4) Application 1 sends a PutFile Request with a given file name
+--  5) Application 1 sends a PublishAppService
 --
 --  Steps:
---  1) Application 1 sends a PutFile Request with a given file name
---  2) Application 1 sends a PublishAppService
---  2) Application 2 sends a GetFile Request with the same file name and the id of the service published by app1
+--  1) Application 2 sends a GetFile Request with the same file name and the id of the service published by app1
 --
 --  Expected:
 --  1) GetFile will return SUCCESS
@@ -22,48 +22,43 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local functions ]]
 local function PTUfunc(tbl)
-    tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = common.getAppServiceProducerConfig(1);
-end
-local function PTUfunc2(tbl)
-    tbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID] = common.getAppServiceConsumerConfig(2);
+  tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = common.getAppServiceProducerConfig(1);
+  tbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID] = common.getAppServiceConsumerConfig(2);
 end
 
 --[[ Local variables ]]
 local manifest = {
-    serviceName = config.application1.registerAppInterfaceParams.appName,
-    serviceType = "MEDIA",
-    allowAppConsumers = true,
-    rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
-    mediaServiceManifest = {}
-  }
+  serviceName = config.application1.registerAppInterfaceParams.appName,
+  serviceType = "MEDIA",
+  allowAppConsumers = true,
+  rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
+  mediaServiceManifest = {}
+}
 
-  local putFileParams = {
-    syncFileName = "icon.png",
-    fileType ="GRAPHIC_PNG",
-  }
-  local getFileParams = {
-    fileName = "icon.png",
-    fileType = "GRAPHIC_PNG",
-  }
+local putFileParams = {
+  syncFileName = "icon.png",
+  fileType ="GRAPHIC_PNG",
+}
 
-  local result = { success = true, resultCode = "SUCCESS"}
+local getFileParams = {
+  fileName = "icon.png",
+  fileType = "GRAPHIC_PNG",
+}
+
+local result = { success = true, resultCode = "SUCCESS"}
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-
-runner.Title("Test ASProvider")    
 runner.Step("RAI App 1", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
-runner.Step("Activate App", common.activateApp)
 runner.Step("Putfile", common.putFileInStorage, {1, putFileParams, result})
 runner.Step("PublishAppService", common.publishMobileAppService, { manifest, 1 })
+runner.Step("RAI App 2", common.registerAppWOPTU, { 2 })
+runner.Step("Activate App", common.activateApp, { 2 })
 
-runner.Title("Test ASConsumer")    
-runner.Step("RAI App 2", common.registerApp, { 2 })
-runner.Step("PTU", common.policyTableUpdate, { PTUfunc2 })
-runner.Step("Activate App", common.activateApp, { 2 })   
+runner.Title("Test")
 runner.Step("Getfile", common.getFileFromService, {2, 1, getFileParams, result})
 
 runner.Title("Postconditions")

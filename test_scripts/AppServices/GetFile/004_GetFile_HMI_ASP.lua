@@ -1,11 +1,11 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
---  1) Application with <appID> and <appID2> is registered on SDL.
---  3) AppServiceConsumer permissions are assigned for <appID1>
+--  1) Application with <appID> is registered on SDL.
+--  2) AppServiceConsumer permissions are assigned for <appID>
+--  3) HMI sends a PublishAppService
 --
 --  Steps:
---  2) HMI sends a PublishAppService
---  2) Application 1 sends a GetFile Request with the id of the service published by app1
+--  1) Application sends a GetFile Request with the id of the service published by the HMI
 --
 --  Expected:
 --  1) GetFile will return SUCCESS
@@ -25,36 +25,35 @@ end
 
 --[[ Local variables ]]
 local manifest = {
-    serviceName = config.application1.registerAppInterfaceParams.appName,
-    serviceType = "MEDIA",
-    allowAppConsumers = true,
-    rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
-    mediaServiceManifest = {}
-  }
+  serviceName = config.application1.registerAppInterfaceParams.appName,
+  serviceType = "MEDIA",
+  allowAppConsumers = true,
+  rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
+  mediaServiceManifest = {}
+}
 
-  local putFileParams = {
-    syncFileName = "icon.png",
-    fileType ="GRAPHIC_PNG",
-  }
-  local getFileParams = {
-    fileName = "icon.png",
-    fileType = "GRAPHIC_PNG",
-  }
+local putFileParams = {
+  syncFileName = "icon.png",
+  fileType ="GRAPHIC_PNG",
+}
 
-  local result = { success = true, resultCode = "SUCCESS"}
+local getFileParams = {
+  fileName = "icon.png",
+  fileType = "GRAPHIC_PNG",
+}
+
+local result = { success = true, resultCode = "SUCCESS"}
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-
-runner.Title("Test ASProvider")    
 runner.Step("PublishAppService", common.publishEmbeddedAppService, { manifest })
-
-runner.Title("Test ASConsumer")    
 runner.Step("RAI App 1", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Activate App", common.activateApp)
+
+runner.Title("Test")    
 runner.Step("Getfile", common.getFileFromService, {1, 0, getFileParams, result})
 
 runner.Title("Postconditions")
