@@ -198,9 +198,9 @@ end
 function commonAppServices.putFileInStorage(app_id, request_params, response_params)
   local mobileSession = commonAppServices.getMobileSession(app_id)      
   --mobile side: sending PutFile request
-	local cid = mobileSession:SendRPC("PutFile", request_params, "files/"..request_params.syncFileName)
-	--mobile side: expected PutFile response
-	mobileSession:ExpectResponse(cid, response_params)
+  local cid = mobileSession:SendRPC("PutFile", request_params, "files/"..request_params.syncFileName)
+  --mobile side: expected PutFile response
+  mobileSession:ExpectResponse(cid, response_params)
 end
 
 
