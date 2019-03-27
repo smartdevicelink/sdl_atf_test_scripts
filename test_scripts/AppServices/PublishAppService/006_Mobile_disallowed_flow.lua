@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
---  2) Specific permissions are assigned for <appID> with PublishAppService
+--  2) AppServiceProvider permissions are assigned for <appID> with PublishAppService
 --
 --  Steps:
 --  1) Application sends a PublishAppService RPC request for service type NAVIGATION
@@ -9,8 +9,8 @@
 --  3) Application sends a PublishAppService RPC request with handled_rpc = {44}
 --
 --  Expected for each step:
---  1) SDL sends a OnSystemCapabilityUpdated(APP_SERVICES, PUBLISHED) notification to mobile app
---  2) SDL sends a OnSystemCapabilityUpdated(APP_SERVICES, ACTIVATED) notification to mobile app
+--  1) SDL does NOT send a OnSystemCapabilityUpdated(APP_SERVICES, PUBLISHED) notification to mobile app
+--  2) SDL does NOT send a OnSystemCapabilityUpdated(APP_SERVICES, ACTIVATED) notification to mobile app
 --  3) SDL responds to mobile app with "resultCode: DISALLOWED"
 ---------------------------------------------------------------------------------------------------
 
@@ -54,6 +54,10 @@ local function processServiceTypeDisallowed(self)
     common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
     common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(0)
   mobileSession:ExpectResponse(cid, expectedResponse)
+
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated", 
+  common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
+  common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(0)
 end
 
 local function processServiceNameDisallowed(self)
@@ -67,6 +71,10 @@ local function processServiceNameDisallowed(self)
     common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
     common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(0)
   mobileSession:ExpectResponse(cid, expectedResponse)
+
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated", 
+  common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
+  common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(0)
 end
 
 local function processHandledRPCsDisallowed(self)
@@ -79,6 +87,10 @@ local function processHandledRPCsDisallowed(self)
     common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
     common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(0)
   mobileSession:ExpectResponse(cid, expectedResponse)
+
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated", 
+  common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
+  common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(0)
 end
 
 --[[ Scenario ]]

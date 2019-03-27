@@ -289,6 +289,10 @@ function commonAppServices.getAppServiceID(app_id)
   return serviceIDs[app_id]
 end
 
+function commonAppServices.setValidateSchema(value)
+  config.ValidateSchema = value
+end
+
 --[[ GetFile ]]
 
 local function file_check(file_name)
