@@ -17,44 +17,44 @@ local common = require('test_scripts/AppServices/commonAppServices')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local functions ]]
-local function PTUfunc(tbl)
-    local pt_entry = common.getAppServiceProducerConfig(1)
-    pt_entry.app_services.MEDIA.handled_rpcs = {{function_id = 41}}
-    tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = pt_entry
-end
-
-local function getAppServiceRecords(serviceType, expectedResponse)
-    expectedResponse = expectedResponse()
-    table.sort(expectedResponse.serviceRecords, function(r1, r2) return r1.serviceID < r2.serviceID end)
-    local rid = common.getHMIConnection():SendRequest(expectedResponse.method, serivceType)
-    EXPECT_HMIRESPONSE(rid, expectedResponse)
-end
-
 --[[ Local variables ]]
 local manifest = {
-    serviceName = config.application1.registerAppInterfaceParams.appName,
-    serviceType = "MEDIA",
-    handledRPCs = { 41 },    
-    allowAppConsumers = true,
-    rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
-    mediaServiceManifest = {}
+  serviceName = config.application1.registerAppInterfaceParams.appName,
+  serviceType = "MEDIA",
+  handledRPCs = { 41 },    
+  allowAppConsumers = true,
+  rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
+  mediaServiceManifest = {}
 }
 
-local function expectedResponse()
-    local response = {
-        code = 0,
-        method = "AppService.GetAppServiceRecords",
-        serviceRecords = {
-            {
-                servicePublished = true,
-                serviceActive = true,
-                serviceID = common.getAppServiceID(1),
-                serviceManifest = manifest
-            }
-        }
+local function getExpectedResponse()
+  local response = {
+    code = 0,
+    method = "AppService.GetAppServiceRecords",
+    serviceRecords = {
+      {
+        servicePublished = true,
+        serviceActive = true,
+        serviceID = common.getAppServiceID(1),
+        serviceManifest = manifest
+      }
     }
-    return response
+  }
+  return response
+end
+
+--[[ Local functions ]]
+local function PTUfunc(tbl)
+  local pt_entry = common.getAppServiceProducerConfig(1)
+  pt_entry.app_services.MEDIA.handled_rpcs = {{function_id = 41}}
+  tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = pt_entry
+end
+
+local function getAppServiceRecords(serviceType)
+  expectedResponse = getExpectedResponse()
+  table.sort(expectedResponse.serviceRecords, function(r1, r2) return r1.serviceID < r2.serviceID end)
+  local rid = common.getHMIConnection():SendRequest(expectedResponse.method, serivceType)
+  EXPECT_HMIRESPONSE(rid, expectedResponse)
 end
 
 --[[ Scenario ]]
@@ -67,7 +67,7 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("GetAppServiceRecords_MOBILE")    
 runner.Step("Publish Mobile AppService", common.publishMobileAppService, { manifest, 1 })
-runner.Step("GetAppServiceRecords", getAppServiceRecords, { "MEDIA", expectedResponse })
+runner.Step("GetAppServiceRecords", getAppServiceRecords, { "MEDIA" })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
