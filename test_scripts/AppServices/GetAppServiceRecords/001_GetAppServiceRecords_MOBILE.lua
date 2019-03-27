@@ -20,7 +20,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local functions ]]
 local function PTUfunc(tbl)
     local pt_entry = common.getAppServiceProducerConfig(1)
-    pt_entry.app_services.MEDIA = { handled_rpcs = {{function_id = 41}} }
+    pt_entry.app_services.MEDIA.handled_rpcs = {{function_id = 41}}
     tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = pt_entry
 end
 
