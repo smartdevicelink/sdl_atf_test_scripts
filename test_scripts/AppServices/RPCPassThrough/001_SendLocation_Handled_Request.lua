@@ -36,7 +36,9 @@ local successResponse = {
   info = "Request was handled by app services"
 }
 
-local rpcRequest = { 
+local rpcRequest = {
+  name = "SendLocation",
+  hmi_name = "Navigation.SendLocation", 
   params = {
     longitudeDegrees = 50,
     latitudeDegrees = 50,
@@ -69,14 +71,14 @@ local function RPCPassThruTest()
   local providerMobileSession = common.getMobileSession(1)
   local mobileSession = common.getMobileSession(2)
   
-  local cid = mobileSession:SendRPC("SendLocation", rpcRequest.params)
+  local cid = mobileSession:SendRPC(rpcRequest.name, rpcRequest.params)
       
-  providerMobileSession:ExpectRequest("SendLocation", rpcRequest.params):Do(function(_, data)
-      providerMobileSession:SendResponse("SendLocation", data.rpcCorrelationId, successResponse)
+  providerMobileSession:ExpectRequest(rpcRequest.name, rpcRequest.params):Do(function(_, data)
+      providerMobileSession:SendResponse(rpcRequest.name, data.rpcCorrelationId, successResponse)
   end)
 
   --Core will NOT handle the RPC  
-  EXPECT_HMICALL("Navigation.SendLocation", rpcRequest.hmi_params):Times(0)
+  EXPECT_HMICALL(rpcRequest.hmi_name, rpcRequest.hmi_params):Times(0)
 
   mobileSession:ExpectResponse(cid, rpcResponse.params)
 end

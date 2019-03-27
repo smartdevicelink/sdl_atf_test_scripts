@@ -36,7 +36,9 @@ local unsupportedResponse = {
   info = "Request CANNOT be handled by app services"
 }
 
-local rpcRequest = { 
+local rpcRequest = {
+  name = "SendLocation",
+  hmi_name = "Navigation.SendLocation", 
   params = {
     longitudeDegrees = 50,
     latitudeDegrees = 50,
@@ -51,7 +53,10 @@ local rpcRequest = {
 
 local rpcResponse = { 
   params = {success = true, resultCode = "SUCCESS", info = nil},
-  hmi_params = {code = 0}
+  hmi_result = {
+    code = "SUCCESS",
+    params = {}
+  }
 }
 
 --[[ Local functions ]]
@@ -70,16 +75,16 @@ local function RPCPassThruTest()
   local providerMobileSession = common.getMobileSession(1)
   local mobileSession = common.getMobileSession(2)
 
-  local cid = mobileSession:SendRPC("SendLocation", rpcRequest.params)
+  local cid = mobileSession:SendRPC(rpcRequest.name, rpcRequest.params)
       
-  providerMobileSession:ExpectRequest("SendLocation", rpcRequest.params):Do(function(_, data)
-    providerMobileSession:SendResponse("SendLocation", data.rpcCorrelationId, unsupportedResponse)
+  providerMobileSession:ExpectRequest(rpcRequest.name, rpcRequest.params):Do(function(_, data)
+    providerMobileSession:SendResponse(rpcRequest.name, data.rpcCorrelationId, unsupportedResponse)
   end)
 
   --Core will handle the RPC
-  EXPECT_HMICALL("Navigation.SendLocation", rpcRequest.hmi_params):Times(1)
+  EXPECT_HMICALL(rpcRequest.hmi_name, rpcRequest.hmi_params):Times(1)
   :Do(function(_, data)
-    common.getHMIConnection():SendResponse(data.id, data.method, rpcResponse.hmi_params.code, rpcResponse.hmi_params)
+    common.getHMIConnection():SendResponse(data.id, data.method, rpcResponse.hmi_result.code, rpcResponse.hmi_result.params)
   end)        
 
   mobileSession:ExpectResponse(cid, rpcResponse.params)
