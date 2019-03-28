@@ -75,7 +75,7 @@ local function processRPCSuccess(self)
   mobileSession:ExpectRequest(rpc.name, rpc.params):Do(function(_, data) 
     RUN_AFTER((function() 
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, responseParams)
-    end), runner.testSettings.defaultTimeout + 1000)
+    end), runner.testSettings.defaultTimeout + 2000)
   end)
 
   EXPECT_HMIRESPONSE(cid, {

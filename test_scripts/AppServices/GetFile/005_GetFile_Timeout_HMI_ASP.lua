@@ -65,7 +65,7 @@ local function getFileFromService(app_id, asp_app_id, request_params, response_p
       file_path = cwd.."/files/"..request_params.fileName
       RUN_AFTER((function() 
         common.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {filePath = file_path})      
-      end), runner.testSettings.defaultTimeout + 1000)
+      end), runner.testSettings.defaultTimeout + 2000)
     end) 
   end
   --mobile side: expected GetFile response   

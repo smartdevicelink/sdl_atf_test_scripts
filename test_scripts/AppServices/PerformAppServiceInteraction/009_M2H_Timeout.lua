@@ -61,7 +61,7 @@ local function processRPCSuccess(self)
         {
           serviceSpecificResult = expectedResponse.serviceSpecificResult
         })
-    end), runner.testSettings.defaultTimeout + 1000)
+    end), runner.testSettings.defaultTimeout + 2000)
   end)
 
   mobileSession:ExpectResponse(cid, expectedResponse):Timeout(runner.testSettings.defaultTimeout + common.getRpcPassThroughTimeoutFromINI())

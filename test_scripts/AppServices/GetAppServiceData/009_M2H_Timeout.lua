@@ -78,7 +78,7 @@ local function processRPCSuccess(self)
         {
           serviceData = appServiceData
         })
-    end), runner.testSettings.defaultTimeout + 1000) 
+    end), runner.testSettings.defaultTimeout + 2000) 
   end)
 
 

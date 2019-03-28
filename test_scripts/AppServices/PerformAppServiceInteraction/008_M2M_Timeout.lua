@@ -61,7 +61,7 @@ local function processRPCSuccess(self)
   mobileSession:ExpectRequest(rpc.name, requestParams):Do(function(_, data)
     RUN_AFTER((function()
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
-    end), runner.testSettings.defaultTimeout + 1000) 
+    end), runner.testSettings.defaultTimeout + 2000) 
   end)
 
   mobileSession2:ExpectResponse(cid, expectedResponse):Timeout(runner.testSettings.defaultTimeout + common.getRpcPassThroughTimeoutFromINI())
