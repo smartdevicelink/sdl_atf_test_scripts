@@ -1,4 +1,3 @@
-
 local actions = require("user_modules/sequences/actions")
 
 local commonAppServices = actions
@@ -28,6 +27,91 @@ function commonAppServices.appServiceCapability(update_reason, manifest)
   return appService
 end
 
+local appServiceData = {
+  MEDIA = {
+    mediaServiceData = {
+      mediaType = "MUSIC",
+      mediaTitle = "Song name",
+      mediaArtist = "Band name",
+      mediaAlbum = "Album name",
+      playlistName = "Sample music",
+      isExplicit = true,
+      trackPlaybackProgress = 300,
+      trackPlaybackDuration = 400,
+      queuePlaybackProgress = 3200,
+      queuePlaybackDuration = 5000,
+      queueCurrentTrackNumber = 12,
+      queueTotalTrackCount = 25
+    }
+  },
+  NAVIGATION = {
+    navigationServiceData = {
+      timeStamp = {
+        hour = 2,
+        minute = 24,
+        second = 16
+      },
+      origin = {
+        locationName = "start"
+      },
+      destination = {
+        locationName = "finish"
+      },
+      destinationETA = {
+        hour = 2,
+        minute = 38,
+        second = 40
+      },
+      prompt = "Navigating to destination"
+    }
+  },
+  WEATHER = {
+    weatherServiceData = {
+      location = {
+        locationName = "location"
+      },
+      currentForecast = {
+        currentTemperature = {
+          unit = "CELSIUS",
+          value = 24.6
+        },
+        weatherSummary = "Windy",
+        humidity = 0.28,
+        cloudCover = 0.55,
+        moonPhase = 0.85,
+        windBearing = 180,
+        windGust = 2.0,
+        windSpeed = 50.0
+      },
+      alerts = {
+        {
+          title = "Weather Alert"
+        }
+      }
+    }
+  },
+  FUTURE = {
+    futureServiceData = {
+      futureParam1 = "A String Value",
+      futureParam2 = 6,
+      futureParam3 = {
+        futureParam4 = 4.6
+      }
+    }
+  }
+}
+
+function commonAppServices.appServiceDataByType(service_id, service_type)
+  if not service_type then service_type = "MEDIA" end
+  local data = appServiceData[service_type]
+  if data == nil then
+    data = appServiceData["FUTURE"]
+  end
+  data.serviceType = service_type
+  data.serviceID = service_id
+  return data
+end
+
 function commonAppServices.appServiceCapabilityUpdateParams(update_reason, manifest)
   return {
     systemCapability = {
@@ -52,23 +136,28 @@ function commonAppServices.getAppServiceConsumerConfig(app_id)
   }
 end
 
-function commonAppServices.getAppServiceProducerConfig(app_id)
-  return {
+function commonAppServices.getAppServiceProducerConfig(app_id, service_type)
+  local policy = {
     keep_context = false,
     steal_focus = false,
     priority = "NONE",
     default_hmi = "NONE",
-    groups = { "Base-4" , "AppServiceProducer" },
+    groups = { "Base-4" , "AppServiceProvider" },
     nicknames = { config["application" .. app_id].registerAppInterfaceParams.appName },
-    app_services = {
-      MEDIA = {
-        handled_rpcs = {{function_id = 2000}},
-        service_names = {
-          config["application" .. app_id].registerAppInterfaceParams.appName
-        }
-      }
+    app_services = {}
+  }
+  local service_info = {
+    handled_rpcs = {{function_id = 2000}},
+    service_names = {
+      config["application" .. app_id].registerAppInterfaceParams.appName
     }
   }
+  if service_type then
+    policy.app_services[service_type] = service_info
+  else
+    policy.app_services["MEDIA"] = service_info
+  end
+  return policy
 end
 
 function commonAppServices.findCapabilityUpdate(capability, params)
@@ -95,15 +184,17 @@ function commonAppServices.publishEmbeddedAppService(manifest)
   })
   local first_run = true
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
-      if first_run then
-        first_run = false
-        local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
-        return commonAppServices.findCapabilityUpdate(publishedParams, data.params)
-      else
-        local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
-        return commonAppServices.findCapabilityUpdate(activatedParams, data.params)
-      end
-    end)
+    if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
+      return true
+    elseif first_run then
+      first_run = false
+      local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
+      return commonAppServices.findCapabilityUpdate(publishedParams, data.params)
+    else
+      local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
+      return commonAppServices.findCapabilityUpdate(activatedParams, data.params)
+    end
+  end)
   EXPECT_HMIRESPONSE(cid, {
     result = {
       appServiceRecord = {
@@ -127,17 +218,31 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
     appServiceManifest = manifest
   })
 
-  local first_run = true
+  local first_run_mobile = true
   mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
-      if first_run then
-        first_run = false
-        local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
-        return commonAppServices.findCapabilityUpdate(publishedParams, data.payload)
-      else
-        local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
-        return commonAppServices.findCapabilityUpdate(activatedParams, data.payload)
-      end
-    end)
+    if first_run_mobile then
+      first_run_mobile = false
+      local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
+      return commonAppServices.findCapabilityUpdate(publishedParams, data.payload)
+    else
+      local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
+      return commonAppServices.findCapabilityUpdate(activatedParams, data.payload)
+    end
+  end)
+  local first_run_hmi = true
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+    if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
+      return true
+    elseif first_run_hmi then
+      first_run_hmi = false
+      local publishedParams = commonAppServices.appServiceCapability("PUBLISHED", manifest)
+      return commonAppServices.findCapabilityUpdate(publishedParams, data.params)
+    else
+      local activatedParams = commonAppServices.appServiceCapability("ACTIVATED", manifest)
+      return commonAppServices.findCapabilityUpdate(activatedParams, data.params)
+    end
+  end)
+
   mobileSession:ExpectResponse(cid, {
     appServiceRecord = {
       serviceManifest = manifest,
@@ -152,21 +257,18 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
     end)
 end
 
-function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, app_id)
+function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, service_type, app_id)
   if not app_id then app_id = 1 end
+  if not service_type then service_type = "MEDIA" end
   local requestParams = {
-    serviceType = "MEDIA",
+    serviceType = service_type,
     subscribe = true
   }
   local mobileSession = commonAppServices.getMobileSession(app_id)
   local cid = mobileSession:SendRPC("GetAppServiceData", requestParams)
   local service_id = commonAppServices.getAppServiceID(provider_app_id)
   local responseParams = {
-    serviceData = {
-      serviceID = service_id,
-      serviceType = "MEDIA",
-      mediaServiceData = {}
-    }
+    serviceData = commonAppServices.appServiceDataByType(service_id, service_type)
   }
   if provider_app_id == 0 then
     EXPECT_HMICALL("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
@@ -191,15 +293,99 @@ function commonAppServices.getAppServiceID(app_id)
   return serviceIDs[app_id]
 end
 
+function commonAppServices.setValidateSchema(value)
+  config.ValidateSchema = value
+end
+
+--[[ GetFile ]]
+
+local function file_check(file_name)
+  local file_found=io.open(file_name, "r")
+  return file_found~=nil
+end
+
+local function getFileCRC32(fileName)
+  pFile = "files/"..fileName
+  local cmd = "cat " .. pFile .. " | gzip -1 | tail -c 8 | head -c 4"
+  local handle = io.popen(cmd)
+  local crc = handle:read("*a")
+  handle:close()
+  local function bytesToInt(pStr)
+    local t = { string.byte(pStr, 1, -1) }
+    local n = 0
+    for k = 1, #t do
+      n = n + t[k] * 2 ^ ((k - 1) * 8)
+    end
+    return n
+  end
+  return bytesToInt(crc)
+end
+
+local function getATFPath()
+  local handle = io.popen("echo $(pwd)")
+  local result = handle:read("*a")
+  handle:close()
+  return result:sub(0, -2)
+end
+
+function commonAppServices.getFileFromStorage(app_id, request_params, response_params)
+  local mobileSession = commonAppServices.getMobileSession(app_id)
+  if file_check("files/"..request_params.fileName) and response_params.crc == nil then
+    local file_crc = getFileCRC32(request_params.fileName)   
+    if response_params.success then
+      response_params.crc = file_crc
+    end
+  end
+  --mobile side: sending GetFile request
+  local cid = mobileSession:SendRPC("GetFile", request_params)
+  --mobile side: expected GetFile response   
+  mobileSession:ExpectResponse(cid, response_params)
+end
+
+function commonAppServices.getFileFromService(app_id, asp_app_id, request_params, response_params)
+  local mobileSession = commonAppServices.getMobileSession(app_id)
+  if file_check("files/"..request_params.fileName) and response_params.crc == nil then
+    local file_crc = getFileCRC32(request_params.fileName)   
+    if response_params.success then
+      response_params.crc = file_crc
+    end
+  end
+
+  request_params.appServiceId = commonAppServices.getAppServiceID(asp_app_id)
+
+  --mobile side: sending GetFile request
+  local cid = mobileSession:SendRPC("GetFile", request_params)
+  if asp_app_id == 0 then 
+    --EXPECT_HMICALL
+    commonAppServices.getHMIConnection():ExpectRequest("BasicCommunication.GetFilePath")
+    :Do(function(_, d2)
+      local cwd = getATFPath()
+      file_path = cwd.."/files/"..request_params.fileName
+      commonAppServices.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", {filePath = file_path})
+    end) 
+  end
+
+  --mobile side: expected GetFile response   
+  mobileSession:ExpectResponse(cid, response_params)
+end
+
+function commonAppServices.putFileInStorage(app_id, request_params, response_params)
+  local mobileSession = commonAppServices.getMobileSession(app_id)      
+  --mobile side: sending PutFile request
+  local cid = mobileSession:SendRPC("PutFile", request_params, "files/"..request_params.syncFileName)
+  --mobile side: expected PutFile response
+  mobileSession:ExpectResponse(cid, response_params)
+end
+
 --[[Timeout]]
 function commonAppServices.getRpcPassThroughTimeoutFromINI()
-    local SDLini        = config.pathToSDL .. tostring("smartDeviceLink.ini")
-    f = assert(io.open(SDLini, "r"))
-	local fileContentUpdated = false
-	local fileContent = f:read("*all")
-    local property = fileContent:match('RpcPassThroughTimeout%s*=%s*[a-zA-Z%/0-9%_.]+[^\n]')
-    local RpcPassThroughTimeout = string.gsub(property:match("=.*"), "=", "")
-    return tonumber(RpcPassThroughTimeout)
+  local SDLini        = config.pathToSDL .. tostring("smartDeviceLink.ini")
+  f = assert(io.open(SDLini, "r"))
+  local fileContentUpdated = false
+  local fileContent = f:read("*all")
+  local property = fileContent:match('RpcPassThroughTimeout%s*=%s*[a-zA-Z%/0-9%_.]+[^\n]')
+  local RpcPassThroughTimeout = string.gsub(property:match("=.*"), "=", "")
+  return tonumber(RpcPassThroughTimeout)
 end
 
 return commonAppServices

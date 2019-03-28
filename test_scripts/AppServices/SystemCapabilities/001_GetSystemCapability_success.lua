@@ -1,15 +1,16 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
---  1) Application with <appID> is registered on SDL.
---  2) Specific permissions are assigned for <appID> with PublishAppService
+--  1) Application 1 with <appID> is registered on SDL.
+--  2) Application 2 with <appID2> is registered on SDL.
+--  3) AppServiceProvider permissions are assigned for <appID> with PublishAppService
 --
 --  Steps:
---  1) Application sends a PublishAppService RPC request
+--  1) Application 2 sends a GetSystemCapability RPC request with subscribe = true
+--  2) Application 1 sends a PublishAppService RPC request with serviceType MEDIA
 --
 --  Expected:
---  1) SDL sends a OnSystemCapabilityUpdated(APP_SERVICES, PUBLISHED) notification to mobile app
---  2) SDL sends a OnSystemCapabilityUpdated(APP_SERVICES, ACTIVATED) notification to mobile app
---  3) SDL responds to mobile app with "resultCode: SUCCESS, success: true"
+--  1) App 2 gets a GetSystemCapability response SUCCESS
+--  2) App 1, App 2, and HMI, all get OnSystemCapabilityUpdated notifications
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -29,13 +30,26 @@ local manifest = {
 }
 
 local rpc = {
+  name = "GetSystemCapability",
+  params = {
+    systemCapabilityType = "APP_SERVICES",
+    subscribe = true
+  }
+}
+
+local expectedResponse = {
+  success = true,
+  resultCode = "SUCCESS"
+}
+
+local publishRpc = {
   name = "PublishAppService",
   params = {
     appServiceManifest = manifest
   }
 }
 
-local expectedResponse = {
+local publishExpectedResponse = {
   appServiceRecord = {
     serviceManifest = manifest,
     servicePublished = true,
@@ -50,14 +64,28 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function GetSystemCapabilitySubscribe(self)
+  local mobileSession2 = common.getMobileSession(2)
+  local cid = mobileSession2:SendRPC(rpc.name, rpc.params)
+  local responseParams = expectedResponse
+
+  mobileSession2:ExpectResponse(cid, responseParams)
+end
+
+local function PublishServiceExpectNotification(self)
   local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
+  local mobileSession2 = common.getMobileSession(2)
+  local cid = mobileSession:SendRPC(publishRpc.name, publishRpc.params)
 
   mobileSession:ExpectNotification("OnSystemCapabilityUpdated", 
     common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
     common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(2)
-  mobileSession:ExpectResponse(cid, expectedResponse)
+  
+  mobileSession2:ExpectNotification("OnSystemCapabilityUpdated", 
+    common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
+    common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(2)
+
+  mobileSession:ExpectResponse(cid, publishExpectedResponse)
 
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated", 
     common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
@@ -70,10 +98,13 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
+runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
 runner.Step("Activate App", common.activateApp)
+runner.Step("Activate App", common.activateApp, { 2 })
 
 runner.Title("Test")
-runner.Step("RPC " .. rpc.name .. "_resultCode_SUCCESS", processRPCSuccess)
+runner.Step("RPC " .. rpc.name .. "_resultCode_SUCCESS", GetSystemCapabilitySubscribe)
+runner.Step("Publish Service and expect OnSystemCapabilityUpdate", PublishServiceExpectNotification)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

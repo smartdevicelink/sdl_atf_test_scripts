@@ -4,11 +4,11 @@
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
 --  4) Specific permissions are assigned for <appID2> with OnAppServiceData
---  5) Application 1 has published a MEDIA service
---  6) Application 2 is subscribed to MEDIA app service data
+--  5) Application 1 has published a NAVIGATION service
+--  6) Application 2 is subscribed to NAVIGATION app service data
 --
 --  Steps:
---  2) Application 1 sends a OnAppServiceData RPC notification with serviceType MEDIA
+--  2) Application 1 sends a OnAppServiceData RPC notification with serviceType NAVIGATION
 --
 --  Expected:
 --  1) SDL forwards the OnAppServiceData notification to Application 2
@@ -24,7 +24,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local manifest = {
   serviceName = config.application1.registerAppInterfaceParams.appName,
-  serviceType = "MEDIA",
+  serviceType = "NAVIGATION",
   allowAppConsumers = true,
   rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
   mediaServiceManifest = {}
@@ -37,25 +37,30 @@ local rpc = {
 local expectedNotification = {
   serviceData = {
     serviceType = manifest.serviceType,
-    mediaServiceData = {
-      mediaType = "MUSIC",
-      mediaTitle = "Song name",
-      mediaArtist = "Band name",
-      mediaAlbum = "Album name",
-      playlistName = "Good music",
-      isExplicit = false,
-      trackPlaybackProgress = 200,
-      trackPlaybackDuration = 300,
-      queuePlaybackProgress = 2200,
-      queuePlaybackDuration = 4000,
-      queueCurrentTrackNumber = 12,
-      queueTotalTrackCount = 20
+    navigationServiceData = {
+      timeStamp = {
+        hour = 2,
+        minute = 14,
+        second = 46
+      },
+      origin = {
+        locationName = "origin"
+      },
+      destination = {
+        locationName = "destination"
+      },
+      destinationETA = {
+        hour = 2,
+        minute = 18,
+        second = 50
+      },
+      prompt = "Navigating to destination"
     }
   }
 }
 
 local function PTUfunc(tbl)
-  tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = common.getAppServiceProducerConfig(1);
+  tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = common.getAppServiceProducerConfig(1, manifest.serviceType);
   tbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID] = common.getAppServiceConsumerConfig(2);
 end
 
