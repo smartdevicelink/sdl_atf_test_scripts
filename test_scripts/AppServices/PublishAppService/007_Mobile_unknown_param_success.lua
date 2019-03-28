@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
---  2) Specific permissions are assigned for <appID> with PublishAppService
+--  2) AppServiceProvider permissions are assigned for <appID> with PublishAppService
 --
 --  Steps:
---  1) Application sends a PublishAppService RPC request
+--  1) Application sends a PublishAppService RPC request. Request contains two parameters that are unknown to the rpc spec.
 --
 --  Expected:
 --  1) SDL sends a OnSystemCapabilityUpdated(APP_SERVICES, PUBLISHED) notification to mobile app
@@ -25,7 +25,10 @@ local manifest = {
   serviceType = "MEDIA",
   allowAppConsumers = true,
   rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
-  mediaServiceManifest = {}
+  mediaServiceManifest = {
+    futureMediaManifestdata = true
+  },
+  futureServiceManifestData = true
 }
 
 local rpc = {
@@ -45,11 +48,11 @@ local expectedResponse = {
   resultCode = "SUCCESS"
 }
 
+--[[ Local Functions ]]
 local function PTUfunc(tbl)
   tbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID] = common.getAppServiceProducerConfig(1);
 end
 
---[[ Local Functions ]]
 local function processRPCSuccess(self)
   local mobileSession = common.getMobileSession(self, 1)
   local cid = mobileSession:SendRPC(rpc.name, rpc.params)
@@ -58,10 +61,6 @@ local function processRPCSuccess(self)
     common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
     common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(2)
   mobileSession:ExpectResponse(cid, expectedResponse)
-
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated", 
-    common.appServiceCapabilityUpdateParams("PUBLISHED", manifest),
-    common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)):Times(2)
 end
 
 --[[ Scenario ]]
@@ -71,6 +70,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Activate App", common.activateApp)
+runner.Step("Set config.ValidateSchema = false", common.setValidateSchema, {false})
 
 runner.Title("Test")
 runner.Step("RPC " .. rpc.name .. "_resultCode_SUCCESS", processRPCSuccess)
