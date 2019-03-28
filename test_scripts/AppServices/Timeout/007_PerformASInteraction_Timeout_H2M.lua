@@ -2,10 +2,10 @@
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
 --  2) Specific permissions are assigned for <appID> with PerformAppServiceInteraction
+--  3) Application 1 has published a MEDIA service
 --
 --  Steps:
---  1) Application sends a AppService.PublishAppService RPC request with serviceType MEDIA
---  2) HMI sends a AppService.PerformAppServiceInteraction RPC request with Application's serviceID
+--  1) HMI sends a AppService.PerformAppServiceInteraction RPC request with Application's serviceID
 --
 --  Expected:
 --  1) SDL forwards the PerformAppServiceInteraction request to Application as PerformAppServiceInteraction
@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/AppServices/commonAppServices')
-local defaultTimeoutSeconds = runner.testSettings.defaultTimeout / 1000
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -61,11 +60,10 @@ local function processRPCSuccess(self)
   -- Core manually sets the originApp parameter when passing an HMI message through
   passedRequestParams.originApp = hmiOriginID
   mobileSession:ExpectRequest(rpc.name, passedRequestParams):Do(function(_, data)
-      --Trigger timeout if forwarded request timeout has not been increased
-      sleep(defaultTimeoutSeconds)
- 
+    RUN_AFTER((function() 
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
-    end)
+    end), runner.testSettings.defaultTimeout + 1000) 
+  end)
 
   EXPECT_HMIRESPONSE(cid, {
     result = {
@@ -73,7 +71,7 @@ local function processRPCSuccess(self)
       code = 0, 
       method = rpc.hmiName
     }
-  })
+  }):Timeout(runner.testSettings.defaultTimeout + common.getRpcPassThroughTimeoutFromINI())
 end
 
 --[[ Scenario ]]

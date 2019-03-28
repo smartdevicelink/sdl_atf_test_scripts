@@ -4,10 +4,10 @@
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
 --  4) Specific permissions are assigned for <appID2> with GetAppServiceData
+--  5) Application 1 has published a MEDIA service
 --
 --  Steps:
---  1) Application 1 sends a PublishAppService RPC request with serviceType MEDIA
---  2) Application 2 sends a GetAppServiceData RPC request with serviceType MEDIA
+--  1) Application 2 sends a GetAppServiceData RPC request with serviceType MEDIA
 --
 --  Expected:
 --  1) SDL forwards the GetAppServiceData request to Application 1
@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/AppServices/commonAppServices')
-local defaultTimeoutSeconds = runner.testSettings.defaultTimeout / 1000
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -74,14 +73,13 @@ local function processRPCSuccess(self)
   local service_id = common.getAppServiceID()
   local responseParams = expectedResponse
   responseParams.serviceData.serviceID = service_id
-  mobileSession:ExpectRequest(rpc.name, rpc.params):Do(function(_, data)
-      --Trigger timeout if forwarded request timeout has not been increased
-      sleep(defaultTimeoutSeconds)
-
+  mobileSession:ExpectRequest(rpc.name, rpc.params):Do(function(_, data) 
+    RUN_AFTER((function() 
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, responseParams)
-    end)
+    end), runner.testSettings.defaultTimeout + 1000)
+  end)
 
-  mobileSession2:ExpectResponse(cid, responseParams)
+  mobileSession2:ExpectResponse(cid, responseParams):Timeout(runner.testSettings.defaultTimeout + common.getRpcPassThroughTimeoutFromINI())
 end
 
 --[[ Scenario ]]

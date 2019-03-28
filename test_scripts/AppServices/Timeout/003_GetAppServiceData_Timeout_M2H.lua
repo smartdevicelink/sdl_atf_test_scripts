@@ -2,10 +2,10 @@
 --  Precondition: 
 --  1) Application with <appID> is registered on SDL.
 --  2) Specific permissions are assigned for <appID> with GetAppServiceData
+--  3) HMI has published a MEDIA service
 --
 --  Steps:
---  1) HMI sends a AppService.PublishAppService RPC request with serviceType MEDIA
---  2) Application sends a GetAppServiceData RPC request with serviceType MEDIA
+--  1) Application sends a GetAppServiceData RPC request with serviceType MEDIA
 --
 --  Expected:
 --  1) SDL forwards the GetAppServiceData request to the HMI as AppService.GetAppServiceData
@@ -16,14 +16,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/AppServices/commonAppServices')
-local defaultTimeoutSeconds = runner.testSettings.defaultTimeout / 1000
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local manifest = {
-  serviceName = config.application1.registerAppInterfaceParams.appName,
+  serviceName = "HMI_MEDIA_SERVICE",
   serviceType = "MEDIA",
   allowAppConsumers = true,
   rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
@@ -74,16 +73,16 @@ local function processRPCSuccess(self)
   local responseParams = expectedResponse
   responseParams.serviceData.serviceID = service_id
   EXPECT_HMICALL(rpc.hmiName, rpc.params):Do(function(_, data)
-      --Trigger timeout if forwarded request timeout has not been increased
-      sleep(defaultTimeoutSeconds)
-    
+    RUN_AFTER((function() 
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", 
         {
           serviceData = appServiceData
         })
-    end)
+    end), runner.testSettings.defaultTimeout + 1000) 
+  end)
 
-  mobileSession:ExpectResponse(cid, responseParams)
+
+  mobileSession:ExpectResponse(cid, responseParams):Timeout(runner.testSettings.defaultTimeout + common.getRpcPassThroughTimeoutFromINI())
 end
 
 --[[ Scenario ]]

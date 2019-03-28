@@ -4,10 +4,10 @@
 --  2) Application 2 with <appID2> is registered on SDL.
 --  3) Specific permissions are assigned for <appID> with PublishAppService
 --  4) Specific permissions are assigned for <appID2> with PerformAppServiceInteraction
+--  5) Application 1 has published a MEDIA service
 --
 --  Steps:
---  1) Application 1 sends a PublishAppService RPC request with serviceType MEDIA
---  2) Application 2 sends a PerformAppServiceInteraction RPC request with Application 1's serviceID
+--  1) Application 2 sends a PerformAppServiceInteraction RPC request with Application 1's serviceID
 --
 --  Expected:
 --  1) SDL forwards the PerformAppServiceInteraction request to Application 1
@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/AppServices/commonAppServices')
-local defaultTimeoutSeconds = runner.testSettings.defaultTimeout / 1000
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -35,7 +34,7 @@ local manifest = {
 local rpc = {
   name = "PerformAppServiceInteraction",
   params = {
-    originApp = config.application1.registerAppInterfaceParams.fullAppID,
+    originApp = config.application2.registerAppInterfaceParams.fullAppID,
     serviceUri = "mobile:sample.service.uri"
   }
 }
@@ -60,13 +59,12 @@ local function processRPCSuccess(self)
   requestParams.serviceID = service_id
   local cid = mobileSession2:SendRPC(rpc.name, requestParams)
   mobileSession:ExpectRequest(rpc.name, requestParams):Do(function(_, data)
-      --Trigger timeout if forwarded request timeout has not been increased
-      sleep(defaultTimeoutSeconds)
- 
+    RUN_AFTER((function()
       mobileSession:SendResponse(rpc.name, data.rpcCorrelationId, expectedResponse)
-    end)
+    end), runner.testSettings.defaultTimeout + 1000) 
+  end)
 
-  mobileSession2:ExpectResponse(cid, expectedResponse)
+  mobileSession2:ExpectResponse(cid, expectedResponse):Timeout(runner.testSettings.defaultTimeout + common.getRpcPassThroughTimeoutFromINI())
 end
 
 --[[ Scenario ]]
