@@ -7,4 +7,5 @@
 ./test_scripts/CloudAppRPCs/007_SetCloudAppProperties_InitNewCloudApp.lua
 ./test_scripts/CloudAppRPCs/008_GetCloudAppProperties_Success.lua
 ./test_scripts/CloudAppRPCs/009_GetCloudAppProperties_DATA_NOT_AVAILABLE.lua
+./test_scripts/CloudAppRPCs/010_get_icon_url.lua
 ./test_scripts/CloudAppRPCs/011_UpdateAppList_NewCloudApplication.lua
