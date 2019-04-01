@@ -24,7 +24,6 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local variables ]]
 sub_list = {}
-sub_list_size = 0
 
 subscribeRPC = {
   name = "SubscribeWayPoints",
@@ -55,13 +54,13 @@ local function SubscribeWayPoints(app_id)
   local mobileSession = common.getMobileSession(app_id)
   local cid = mobileSession:SendRPC(subscribeRPC.name, subscribeRPC.params)
 
-  if sub_list_size == 0 then
+  if #sub_list == 0 then
     EXPECT_HMICALL(subscribeRPC.hmi_name, nil):Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})    
     end)
   end 
+
   table.insert(sub_list, app_id)
-  sub_list_size = sub_list_size + 1
   mobileSession:ExpectResponse(cid, subscribeRPC.result)
 end
 
@@ -70,14 +69,13 @@ local function UnsubscribeWayPoints(app_id)
   local mobileSession = common.getMobileSession(app_id)
   local cid = mobileSession:SendRPC(unsubscribeRPC.name, unsubscribeRPC.params)
 
-  if sub_list_size == 1 then
+  if #sub_list == 1 then
     EXPECT_HMICALL(unsubscribeRPC.hmi_name, nil):Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})    
     end)
   end 
   
   table.remove(sub_list)
-  sub_list_size = sub_list_size - 1
   mobileSession:ExpectResponse(cid, unsubscribeRPC.result)
 end
 
