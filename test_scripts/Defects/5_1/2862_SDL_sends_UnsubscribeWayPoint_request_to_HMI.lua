@@ -55,6 +55,7 @@ local function SubscribeWayPoints(app_id)
   local cid = mobileSession:SendRPC(subscribeRPC.name, subscribeRPC.params)
 
   if #sub_list == 0 then
+    --Expect HMI call for the first app which sends a SubscribeWayPoints request
     EXPECT_HMICALL(subscribeRPC.hmi_name, nil):Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})    
     end)
@@ -70,6 +71,7 @@ local function UnsubscribeWayPoints(app_id)
   local cid = mobileSession:SendRPC(unsubscribeRPC.name, unsubscribeRPC.params)
 
   if #sub_list == 1 then
+    --Expect HMI call for the last app which sends a UnsubscribeWayPoints request
     EXPECT_HMICALL(unsubscribeRPC.hmi_name, nil):Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})    
     end)
