@@ -15,6 +15,9 @@
 ./test_scripts/AppServices/GetAppServiceData/011_M2M_GENERIC_ERROR.lua
 ./test_scripts/AppServices/GetAppServiceData/012_M2H_GENERIC_ERROR.lua
 ./test_scripts/AppServices/GetAppServiceData/013_H2M_GENERIC_ERROR.lua
+./test_scripts/AppServices/GetAppServiceData/014_M2M_Unknown_ServiceType.lua
+./test_scripts/AppServices/GetAppServiceData/015_M2H_Unknown_ServiceType.lua
+./test_scripts/AppServices/GetAppServiceData/016_H2M_Unknown_ServiceType.lua
 ./test_scripts/AppServices/GetAppServiceRecords/001_GetAppServiceRecords_MOBILE.lua
 ./test_scripts/AppServices/GetAppServiceRecords/002_GetAppServiceRecords_HMI.lua
 ./test_scripts/AppServices/GetAppServiceRecords/003_GetAppServiceRecords_Multiple.lua
@@ -43,6 +46,9 @@
 ./test_scripts/AppServices/PerformAppServiceInteraction/011_M2M_GENERIC_ERROR.lua
 ./test_scripts/AppServices/PerformAppServiceInteraction/012_M2H_GENERIC_ERROR.lua
 ./test_scripts/AppServices/PerformAppServiceInteraction/013_H2M_GENERIC_ERROR.lua
+./test_scripts/AppServices/PerformAppServiceInteraction/014_M2M_Unknown_ServiceId.lua
+./test_scripts/AppServices/PerformAppServiceInteraction/015_M2H_Unknown_ServiceId.lua
+./test_scripts/AppServices/PerformAppServiceInteraction/016_H2M_Unknown_ServiceId.lua
 ./test_scripts/AppServices/PublishAppService/001_Mobile_success_flow.lua
 ./test_scripts/AppServices/PublishAppService/002_HMI_success_flow.lua
 ./test_scripts/AppServices/PublishAppService/003_Nav_success_flow.lua
@@ -54,6 +60,10 @@
 ./test_scripts/AppServices/RPCPassThrough/002_SendLocation_Unsupported_Request.lua
 ./test_scripts/AppServices/RPCPassThrough/003_SendLocation_Request_Timeout.lua
 ./test_scripts/AppServices/RPCPassThrough/004_SendLocation_MultipleAS.lua
+./test_scripts/AppServices/RPCPassThrough/010_UnknownRpc_Handled_Request.lua
+./test_scripts/AppServices/RPCPassThrough/011_UnknownRpc_Unsupported_Request.lua
+./test_scripts/AppServices/RPCPassThrough/012_UnknownRpc_Request_Timeout.lua
+./test_scripts/AppServices/RPCPassThrough/013_UnknownRpc_MultipleAS.lua
 ./test_scripts/AppServices/SystemCapabilities/001_GetSystemCapability_success.lua
 ./test_scripts/AppServices/SystemCapabilities/002_GetSystemCapabilitySubscribe_OnSystemCapability_on_unregister.lua
 ./test_scripts/AppServices/SystemCapabilities/003_OnSystemCapability_on_deactivate_service.lua
