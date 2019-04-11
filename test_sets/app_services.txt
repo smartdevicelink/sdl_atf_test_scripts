@@ -60,6 +60,11 @@
 ./test_scripts/AppServices/RPCPassThrough/002_SendLocation_Unsupported_Request.lua
 ./test_scripts/AppServices/RPCPassThrough/003_SendLocation_Request_Timeout.lua
 ./test_scripts/AppServices/RPCPassThrough/004_SendLocation_MultipleAS.lua
+./test_scripts/AppServices/RPCPassThrough/005_SendLocation_Invalid_Permissions.lua
+./test_scripts/AppServices/RPCPassThrough/006_ButtonPress_Handled_Request.lua
+./test_scripts/AppServices/RPCPassThrough/007_ButtonPress_Invalid_Permissions.lua
+./test_scripts/AppServices/RPCPassThrough/008_PTU_allow_unknown_rpc_passthrough.lua
+./test_scripts/AppServices/RPCPassThrough/009_UnknownRPC_Consumer_UNSUPPORTED_REQUEST_policy_allow_flag_false.lua
 ./test_scripts/AppServices/RPCPassThrough/010_UnknownRpc_Handled_Request.lua
 ./test_scripts/AppServices/RPCPassThrough/011_UnknownRpc_Unsupported_Request.lua
 ./test_scripts/AppServices/RPCPassThrough/012_UnknownRpc_Request_Timeout.lua
