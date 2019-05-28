@@ -130,7 +130,7 @@ function Test.Postcondition_Stop_SDL()
   StopSDL()
 end
 function Test.RestoreIniFile()
-  -- Preconditions:RestoreFile("smartDeviceLink.ini")
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test
