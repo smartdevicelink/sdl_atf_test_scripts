@@ -27,7 +27,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
 local mobile_session = require('mobile_session')
-local SDL = require('SDL')
+local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
@@ -67,18 +67,7 @@ commonFunctions:newTestCasesGroup("App resume at LIMITED level")
 commonSteps:ChangeHMIToLimited()
 
 function Test:IGNITION_OFF()
-  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", {reason = "SUSPEND" })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
-    SDL:DeleteFile()
-    self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
-      { reason = "IGNITION_OFF" })
-    EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
-  end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-  :Do(function()
-      SDL:StopSDL()
-    end)
+  commonSmoke.ignitionOff(self)
 end
 
 function Test:Restart_SDL_And_Add_Mobile_Connection()

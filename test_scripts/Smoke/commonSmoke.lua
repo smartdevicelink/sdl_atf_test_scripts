@@ -15,6 +15,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local utils = require('user_modules/utils')
+local events = require('events')
 
 --[[ Local Variables ]]
 local hmiAppIds = {}
@@ -283,6 +284,39 @@ function commonSmoke.registerApp(pAppId, self)
           mobSession:ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
         end)
     end)
+end
+
+function commonSmoke.ignitionOff(self)
+  local timeout = 5000
+  local event = events.Event()
+  event.matches = function(event1, event2) return event1 == event2 end
+  EXPECT_EVENT(event, "SDL shutdown")
+  :Do(function()
+      StopSDL()
+      commonTestCases:DelayedExp(1000)
+    end)
+  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
+  :Do(function()
+      self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
+      self.mobileSession:ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+    end)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  local isSDLShutDownGracefully = false
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  :Do(function()
+      utils.cprint(35, "SDL was shutdown gracefully")
+      isSDLShutDownGracefully = true
+      RAISE_EVENT(event, event)
+    end)
+  :Timeout(timeout)
+  local function forceStopSDL()
+    if isSDLShutDownGracefully == false then
+      utils.cprint(35, "SDL was shutdown forcibly")
+      RAISE_EVENT(event, event)
+    end
+  end
+  RUN_AFTER(forceStopSDL, timeout + 500)
 end
 
 return commonSmoke

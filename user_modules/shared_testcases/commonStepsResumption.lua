@@ -2,6 +2,8 @@ local commonStepsResumption = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
+local raiTime
+
 function commonStepsResumption:AddCommand()
   local cid = Test.mobileSession:SendRPC("AddCommand", { cmdID = 1, vrCommands = {"OnlyVRCommand"}})
   local on_hmi_call = EXPECT_HMICALL("VR.AddCommand", {cmdID = 1, type = "Command",
@@ -46,13 +48,13 @@ function commonStepsResumption:AddChoiceSet()
   end)
 end
 
-local function CheckTimeBoundaries(time)
+local function CheckTimeBoundaries()
   local timeout = tonumber(commonFunctions:read_parameter_from_smart_device_link_ini("ApplicationResumingTimeout"))
   return function (exp, _)
     if exp.occurences == 2 then
       local time2 = timestamp()
-      local time_to_resumption = time2 - time
-      if time_to_resumption >= timeout and time_to_resumption < (timeout + 1000) then
+      local time_to_resumption = time2 - raiTime
+      if time_to_resumption >= (timeout - 500) and time_to_resumption < (timeout + 1000) then
         commonFunctions:userPrint(33, "Time to HMI level resumption is " .. tostring(time_to_resumption) ..", expected ~ " .. timeout )
         return true
       else
@@ -93,6 +95,9 @@ function commonStepsResumption:RegisterApp(app, additional_expectations , resume
       return false, "The value of (".. tostring(pA) .. ") is not as expected (" .. tostring(pE) .. ")"
     end)
   Test.mobileSession:ExpectResponse(correlation_id, { success = true})
+  :Do(function()
+      raiTime = timestamp()
+    end)
   local exp = additional_expectations(Test, app)
   return exp
 end
@@ -102,14 +107,13 @@ function commonStepsResumption:ExpectResumeAppFULL(app)
   if(app.isMediaApplication == false) then
     audio_streaming_state = "NOT_AUDIBLE"
   end
-  local time = timestamp()
   local app_activated = EXPECT_HMICALL("BasicCommunication.ActivateApp",
                         {appID = Test.applications[app.appName]}):Do(function(_,data)
     Test.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
   end)
   EXPECT_NOTIFICATION("OnHMIStatus",
     {hmiLevel = "NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE"},
-    {hmiLevel = "FULL", systemContext = "MAIN", audioStreamingState = "AUDIBLE"}):ValidIf(CheckTimeBoundaries(time))
+    {hmiLevel = "FULL", systemContext = "MAIN", audioStreamingState = "AUDIBLE"}):ValidIf(CheckTimeBoundaries())
     :Do(function(_,data)
       Test.hmiLevel = data.payload.hmiLevel
     end):Times(2)
@@ -121,11 +125,10 @@ function commonStepsResumption:ExpectResumeAppLIMITED(app)
   if(app.isMediaApplication == false) then
     audio_streaming_state = "NOT_AUDIBLE"
   end
-  local time = timestamp()
   local on_audio_source = EXPECT_HMINOTIFICATION("BasicCommunication.OnResumeAudioSource", {appID = Test.applications[app.appName]})
   EXPECT_NOTIFICATION("OnHMIStatus",
     {hmiLevel = "NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE"},
-    {hmiLevel = "LIMITED", systemContext = "MAIN", audioStreamingState = "AUDIBLE"}):ValidIf(CheckTimeBoundaries(time))
+    {hmiLevel = "LIMITED", systemContext = "MAIN", audioStreamingState = "AUDIBLE"}):ValidIf(CheckTimeBoundaries())
     :Do(function(_,data)
       Test.hmiLevel = data.payload.hmiLevel
     end)
