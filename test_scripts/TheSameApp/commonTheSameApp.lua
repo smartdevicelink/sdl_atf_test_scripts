@@ -909,4 +909,29 @@ function common.onInteriorVehicleData(pAppId1, pAppId2, pNumberOfAppsSubscribed,
   mobSession2:ExpectNotification("OnInteriorVehicleData", pNotificationPayload[pPayload] ):Times( pTime2 )
 end
 
+function common.sendRPCPositive(pAppId, pPrefix, pRPCName, pRPCParams, pRequestParams)
+  local pReqParams
+  if not pRequestParams then pReqParams = pRPCParams end
+  local cid = common.mobile.getSession(pAppId):SendRPC(pRPCName, pRPCParams)
+      common.hmi.getConnection():ExpectRequest(pPrefix..pRPCName, pReqParams)
+  :Do(function(_, data)
+       common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  common.mobile.getSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+end
+
+function common.sendRPCNegative(pAppId, pRPCName, pRPCParameters)
+  local cid = common.mobile.getSession(pAppId):SendRPC(pRPCName, pRPCParameters)
+  common.mobile.getSession(pAppId):ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
+end
+
+function common.createNewGroup(pAppId, pTestGroupName, pTestGroup, pPolicyTable)
+  local pt = pPolicyTable
+
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = common.json.null
+  pt.policy_table.functional_groupings[pTestGroupName] = pTestGroup
+  pt.policy_table.app_policies[pAppId] = utils.cloneTable(pt.policy_table.app_policies.default)
+  pt.policy_table.app_policies[pAppId].groups = { pTestGroupName, "Notifications-RC" }
+end
+
 return common
