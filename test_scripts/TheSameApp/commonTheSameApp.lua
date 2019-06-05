@@ -116,7 +116,7 @@ function common.registerAppEx(pAppId, pAppParams, pMobConnId, pHasPTU)
     end)
 end
 
-function common.registerAppFromSameDevice(pAppId, pAppParams, pMobConnId, pResultCode)
+function common.registerAppExVrSynonyms(pAppId, pAppParams, pMobConnId)
   local appParams = common.app.getParams(pAppId)
   for k, v in pairs(pAppParams) do
     appParams[k] = v
@@ -126,7 +126,61 @@ function common.registerAppFromSameDevice(pAppId, pAppParams, pMobConnId, pResul
   session:StartService(7)
   :Do(function()
       local corId = session:SendRPC("RegisterAppInterface", appParams)
-      session:ExpectResponse(corId, { success = false, resultCode = pResultCode })
+      local connection = session.mobile_session_impl.connection
+      common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        {
+          application = {
+            appName = appParams.appName,
+            deviceInfo = {
+              name = common.getDeviceName(connection.host, connection.port),
+              id = common.getDeviceMAC(connection.host, connection.port)
+            }
+          },
+          vrSynonyms = appParams.vrSynonyms
+        })
+      :Do(function(_, d1)
+        common.app.setHMIId(d1.params.application.appID, pAppId)
+        end)
+      session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
+          session:ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          session:ExpectNotification("OnPermissionsChange")
+        end)
+    end)
+end
+
+function common.registerAppExTtsName(pAppId, pAppParams, pMobConnId)
+  local appParams = common.app.getParams(pAppId)
+  for k, v in pairs(pAppParams) do
+    appParams[k] = v
+  end
+
+  local session = common.mobile.createSession(pAppId, pMobConnId)
+  session:StartService(7)
+  :Do(function()
+      local corId = session:SendRPC("RegisterAppInterface", appParams)
+      local connection = session.mobile_session_impl.connection
+      common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        {
+          application = {
+            appName = appParams.appName,
+            deviceInfo = {
+              name = common.getDeviceName(connection.host, connection.port),
+              id = common.getDeviceMAC(connection.host, connection.port)
+            }
+          },
+          ttsName = appParams.ttsName
+        })
+      :Do(function(_, d1)
+        common.app.setHMIId(d1.params.application.appID, pAppId)
+        end)
+      session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
+          session:ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          session:ExpectNotification("OnPermissionsChange")
+        end)
     end)
 end
 
