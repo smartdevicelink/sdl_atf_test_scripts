@@ -770,4 +770,54 @@ function common.checkCounter(pPolicyAppID, pCounterName, pExpectedCounterValue)
   common.run.fail("PTS file was not found")
 end
 
+function common.startVideoService(pAppId)
+  local mobSession = common.mobile.getSession(pAppId)
+  mobSession:StartService( 11 )
+  :ValidIf(function(_, data)
+      if data.frameInfo == common.frameInfo.START_SERVICE_ACK then
+        print("\t   --> StartService ACK received")
+        return true
+      else
+        print("\t   --> StartService NACK received")
+        return false
+      end
+    end)
+  local hmi = common.hmi.getConnection()
+  hmi:ExpectNotification("Navigation.StartStream")
+    :Do(function(_,data)
+      hmi:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+end
+
+function common.startVideoServiceNACK(pAppId)
+  local mobSession = common.mobile.getSession(pAppId)
+  local sendMessageData = {
+    serviceType = common.serviceType.VIDEO,
+    frameInfo   = common.frameInfo.START_SERVICE,
+    frameType   = common.frameType.CONTROL_FRAME,
+    sessionId   = mobSession.SessionId.get()
+  }
+
+  local startServiceEvent = common.events.Event()
+  startServiceEvent.matches = function(_, data)
+    return data.frameType == common.frameType.CONTROL_FRAME and
+         data.sessionId == mobSession.SessionId.get() and
+         data.serviceType == common.serviceType.VIDEO and
+        (data.frameInfo == common.frameInfo.START_SERVICE_NACK or
+         data.frameInfo == common.frameInfo.START_SERVICE_ACK)
+    end
+  local ret = mobSession:ExpectEvent(startServiceEvent, "Expect StartServiceNACK")
+  ret:ValidIf(function(_, data)
+      if data.frameInfo == common.frameInfo.START_SERVICE_NACK then
+        print("\t   --> StartService NACK received")
+        return true
+      else
+        return false, "StartService ACK received"
+      end
+    end)
+
+  mobSession:Send(sendMessageData)
+  return ret
+end
+
 return common
