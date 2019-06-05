@@ -820,4 +820,93 @@ function common.startVideoServiceNACK(pAppId)
   return ret
 end
 
+function common.sendOnButtonEventPress(pAppId1, pAppId2, pButtonName, pNumberOfDevicesSubscribed)
+  local mobSession1 = common.mobile.getSession(pAppId1)
+  local mobSession2 = common.mobile.getSession(pAppId2)
+  local pTime = pNumberOfDevicesSubscribed
+
+  common.hmi.getConnection():SendNotification("Buttons.OnButtonEvent",
+    {name = pButtonName, mode = "BUTTONDOWN", appID = common.app.getHMIId(pAppId1) })
+  mobSession1:ExpectNotification("OnButtonEvent",{buttonName = pButtonName, buttonEventMode="BUTTONDOWN"}):Times(pTime)
+  mobSession2:ExpectNotification("OnButtonEvent",{buttonName = pButtonName, buttonEventMode="BUTTONDOWN"}):Times(0)
+  common.hmi.getConnection():SendNotification("Buttons.OnButtonPress",
+    {name = pButtonName, mode = "LONG", appID = common.app.getHMIId(pAppId1)})
+  mobSession1:ExpectNotification("OnButtonPress",{buttonName = pButtonName, buttonPressMode = "LONG"}):Times(pTime)
+  mobSession2:ExpectNotification("OnButtonPress",{buttonName = pButtonName, buttonPressMode = "LONG"}):Times(0)
+end
+
+function common.hmiLeveltoLimited(pAppId)
+ common.getHMIConnection(pAppId):SendNotification("BasicCommunication.OnAppDeactivated",
+     { appID = common.getHMIAppId(pAppId) })
+ common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
+   { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
+end
+
+function common.sendSubscribeWayPoints(pAppId, pIsAFirstApp)
+  local mobSession = common.mobile.getSession(pAppId)
+  local cid = mobSession:SendRPC("SubscribeWayPoints", {})
+  local pTime = 0
+  if pIsAFirstApp then pTime = 1 end
+
+  -- SDL -> HMI should send this request only when 1st app is subscribing
+    common.hmi.getConnection():ExpectRequest("Navigation.SubscribeWayPoints"):Times(pTime)
+    :Do(function(_,data)
+         common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+    mobSession:ExpectNotification("OnHashChange")
+end
+
+function common.sendOnWayPointChange(pAppId1, pAppId2, pNumberOfAppsSubscribed, pWayPoints)
+  local mobSession1 = common.mobile.getSession(pAppId1)
+  local mobSession2 = common.mobile.getSession(pAppId2)
+  local pTime1, pTime2
+
+  if     pNumberOfAppsSubscribed == 0 then pTime1 = 0; pTime2 = 0
+  elseif pNumberOfAppsSubscribed == 1 then pTime1 = 1; pTime2 = 0
+  elseif pNumberOfAppsSubscribed == 2 then pTime1 = 1; pTime2 = 1 end
+
+  common.hmi.getConnection():SendNotification("Navigation.OnWayPointChange", { wayPoints = {pWayPoints} })
+  mobSession1:ExpectNotification("OnWayPointChange",{ wayPoints = {pWayPoints} }):Times(pTime1)
+  mobSession2:ExpectNotification("OnWayPointChange",{ wayPoints = {pWayPoints} }):Times(pTime2)
+end
+
+function common.getInteriorVehicleData(pAppId, pModuleType, pSubscribe, pIsAFirstApp, pReqPayload, pRspPayload)
+  local pPayload
+  if     pModuleType == "RADIO"   then pPayload = 1
+  elseif pModuleType == "CLIMATE" then pPayload = 2
+  end
+
+  local mobSession = common.mobile.getSession(pAppId)
+  local cid = mobSession:SendRPC("GetInteriorVehicleData", { moduleType = pModuleType, subscribe = pSubscribe })
+  -- SDL -> HMI - should send this request only when 1st app get subscribed
+  if pIsAFirstApp then
+    common.hmi.getConnection():ExpectRequest("RC.GetInteriorVehicleData",
+        { moduleType = pModuleType, subscribe = pSubscribe})
+    :Do(function(_,data)
+        common.hmi.getConnection():SendResponse( data.id, data.method, "SUCCESS", pReqPayload[pPayload] )
+      end)
+  end
+    mobSession:ExpectResponse( cid, pRspPayload[pPayload] )
+end
+
+function common.onInteriorVehicleData(pAppId1, pAppId2, pNumberOfAppsSubscribed, pModuleType, pNotificationPayload)
+  local pPayload
+  if     pModuleType == "RADIO"   then pPayload = 1
+  elseif pModuleType == "CLIMATE" then pPayload = 2
+  end
+
+  local mobSession1 = common.mobile.getSession(pAppId1)
+  local mobSession2 = common.mobile.getSession(pAppId2)
+  local pTime1, pTime2
+
+  if     pNumberOfAppsSubscribed == 0 then pTime1 = 0; pTime2 = 0
+  elseif pNumberOfAppsSubscribed == 1 then pTime1 = 1; pTime2 = 0
+  elseif pNumberOfAppsSubscribed == 2 then pTime1 = 1; pTime2 = 1 end
+
+  common.hmi.getConnection():SendNotification("RC.OnInteriorVehicleData", pNotificationPayload[pPayload] )
+  mobSession1:ExpectNotification("OnInteriorVehicleData", pNotificationPayload[pPayload] ):Times( pTime1 )
+  mobSession2:ExpectNotification("OnInteriorVehicleData", pNotificationPayload[pPayload] ):Times( pTime2 )
+end
+
 return common
