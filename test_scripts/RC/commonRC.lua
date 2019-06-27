@@ -32,7 +32,6 @@ commonRC.getHMIConnection = actions.getHMIConnection
 commonRC.getMobileSession = actions.getMobileSession
 commonRC.policyTableUpdate = actions.policyTableUpdate
 commonRC.registerApp = actions.registerApp
-commonRC.registerAppWOPTU = actions.registerAppWOPTU
 commonRC.getHMIAppId = actions.getHMIAppId
 commonRC.jsonFileToTable = utils.jsonFileToTable
 commonRC.tableToJsonFile = utils.tableToJsonFile
@@ -85,6 +84,10 @@ commonRC.LightsNameList = { "FRONT_LEFT_HIGH_BEAM", "FRONT_RIGHT_HIGH_BEAM", "FR
 commonRC.readOnlyLightStatus = { "RAMP_UP", "RAMP_DOWN", "UNKNOWN", "INVALID" }
 
 --[[ Common Functions ]]
+function commonRC.registerAppWOPTU(pAppId, self)
+   return actions.registerAppWOPTU(pAppId)
+end
+
 function commonRC.getRCAppConfig(tbl)
   if tbl then
     local out = commonRC.cloneTable(tbl.policy_table.app_policies.default)
@@ -105,7 +108,7 @@ function commonRC.getRCAppConfig(tbl)
   end
 end
 
-function actions.getAppDataForPTU(pAppId)
+function actions.ptu.getAppData(pAppId)
   return {
     keep_context = false,
     steal_focus = false,
@@ -125,6 +128,7 @@ local function allowSDL()
       name = utils.getDeviceName()
     }
   })
+  actions.run.wait(500) -- stabilization delay
 end
 
 function commonRC.start(pHMIParams)
