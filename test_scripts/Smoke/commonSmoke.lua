@@ -15,6 +15,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local utils = require('user_modules/utils')
+local hmi_values = require("user_modules/hmi_values")
 
 --[[ Local Variables ]]
 local hmiAppIds = {}
@@ -261,6 +262,42 @@ function commonSmoke.updatePreloadedPT()
   pt.policy_table.app_policies["0000001"].keep_context = true
   pt.policy_table.app_policies["0000001"].steal_focus = true
   utils.tableToJsonFile(pt, preloadedFile)
+end
+
+function commonSmoke.preparePreloadedPTForRC()
+  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
+  local pt = utils.jsonFileToTable(preloadedFile)
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  local appId = config["application1"].registerAppInterfaceParams.fullAppID
+  pt.policy_table.app_policies[appId] = {
+    keep_context = false,
+    steal_focus = false,
+    priority = "NONE",
+    default_hmi = "NONE",
+    moduleType ={ "CLIMATE" },
+    groups = { "Base-4", "RemoteControl" },
+    AppHMIType = { "REMOTE_CONTROL" }
+  }
+  utils.tableToJsonFile(pt, preloadedFile)
+end
+
+function commonSmoke.getRcModuleId(pRcModuleType, pIdx)
+  local capMap = {
+    RADIO = "radioControlCapabilities",
+    CLIMATE = "climateControlCapabilities",
+    SEAT = "seatControlCapabilities",
+    AUDIO = "audioControlCapabilities",
+    LIGHT = "lightControlCapabilities",
+    HMI_SETTINGS = "hmiSettingsControlCapabilities",
+    BUTTONS = "buttonCapabilities"
+  }
+
+  local rcCapabilities = hmi_values.getDefaultHMITable().RC.GetCapabilities.params.remoteControlCapability
+  if pRcModuleType == "LIGHT" or pRcModuleType == "HMI_SETTINGS" then
+    return rcCapabilities[capMap[pRcModuleType]].moduleInfo.moduleId
+  else
+    return rcCapabilities[capMap[pRcModuleType]][pIdx].moduleInfo.moduleId
+  end
 end
 
 function commonSmoke.registerApp(pAppId, self)
