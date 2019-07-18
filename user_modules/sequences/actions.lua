@@ -714,6 +714,7 @@ end
 function m.sdl.restoreSDLIniFile()
   if m.sdl.isSdlIniBackuped then
     commonPreconditions:RestoreFile("smartDeviceLink.ini")
+    m.sdl.isSdlIniBackuped = false
   end
 end
 
@@ -747,6 +748,7 @@ end
 function m.sdl.restorePreloadedPT()
   if m.sdl.isPreloadedPTBackuped then
     commonPreconditions:RestoreFile(m.sdl.getSDLIniParameter("PreloadedPT"))
+    m.sdl.isPreloadedPTBackuped = false
   end
 end
 
@@ -761,11 +763,63 @@ end
 --[[ @sdl.setPreloadedPT: set content into sdl preloaded_pt file
 --! @parameters:
 --! pPreloadedPT - table with content to be set into sdl preloaded_pt
---! @return: sdl preloaded_pt table
+--! @return: none
 --]]
 function m.sdl.setPreloadedPT(pPreloadedPT)
   m.sdl.backupPreloadedPT()
   utils.tableToJsonFile(pPreloadedPT, m.sdl.getPreloadedPTPath())
+end
+
+--[[ @sdl.getHMICapabilitiesFilePath: get path to default hmi_capabilities file
+--! @parameters: none
+--! @return: path to default hmi_capabilities file
+--]]
+function m.sdl.getHMICapabilitiesFilePath()
+  if not m.sdl.hmiCapabilitiesPath then
+    local hmiCapabilitiesName = m.sdl.getSDLIniParameter("HMICapabilities")
+    m.sdl.hmiCapabilitiesPath = commonPreconditions:GetPathToSDL() .. hmiCapabilitiesName
+  end
+  return m.sdl.hmiCapabilitiesPath
+end
+
+--[[ @sdl.backupHMICapabilitiesFile: backup default hmi_capabilities file
+--! @parameters: none
+--! @return: none
+--]]
+function m.sdl.backupHMICapabilitiesFile()
+  if not m.sdl.isHMICapabilitiesBackuped then
+    commonPreconditions:BackupFile(m.sdl.getSDLIniParameter("HMICapabilities"))
+    m.sdl.isHMICapabilitiesBackuped = true
+  end
+end
+
+--[[ @sdl.restoreHMICapabilitiesFile: restore backuped default hmi_capabilities file
+--! @parameters: none
+--! @return: none
+--]]
+function m.sdl.restoreHMICapabilitiesFile()
+  if m.sdl.isHMICapabilitiesBackuped then
+    commonPreconditions:RestoreFile(m.sdl.getSDLIniParameter("HMICapabilities"))
+    m.sdl.isHMICapabilitiesBackuped = false
+  end
+end
+
+--[[ @sdl.getHMICapabilitiesFromFile: get content of default hmi_capabilities file
+--! @parameters: none
+--! @return: default hmi_capabilities table
+--]]
+function m.sdl.getHMICapabilitiesFromFile()
+  return utils.jsonFileToTable(m.sdl.getHMICapabilitiesFilePath())
+end
+
+--[[ @sdl.setHMICapabilitiesToFile: set content into default hmi_capabilities file
+--! @parameters:
+--! pHMICapabilities - table with content to be set default hmi_capabilities file
+--! @return: none
+--]]
+function m.sdl.setHMICapabilitiesToFile(pHMICapabilities)
+  m.sdl.backupHMICapabilitiesFile()
+  utils.tableToJsonFile(pHMICapabilities, m.sdl.getHMICapabilitiesFilePath())
 end
 
 --[[ @sdl.start: start SDL
@@ -1026,6 +1080,7 @@ function m.postconditions()
   StopSDL()
   m.sdl.restoreSDLIniFile()
   m.sdl.restorePreloadedPT()
+  m.sdl.restoreHMICapabilitiesFile()
 end
 
 --[[ @getMobileSession: get mobile session
