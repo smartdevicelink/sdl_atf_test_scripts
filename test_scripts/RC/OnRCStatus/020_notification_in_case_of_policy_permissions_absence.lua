@@ -43,11 +43,11 @@ local function PTUfunc(tbl)
 end
 
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
+  local pModuleStatus = common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
   common.getMobileSession(1):ExpectNotification("OnRCStatus")
   :Times(0)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatusForHMI(1, pModuleStatus)
 end
 
 local function registerApp()

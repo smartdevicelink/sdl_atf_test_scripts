@@ -5,26 +5,69 @@
 local commonRC = require('test_scripts/RC/commonRC')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local utils = require("user_modules/utils")
+local rc = require('user_modules/sequences/remote_control')
 
 --[[ Common Variables ]]
 commonRC.wait = utils.wait
 commonRC.cloneTable = utils.cloneTable
+commonRC.getModulesAllocationByApp = rc.state.getModulesAllocationByApp
 
 --[[ Common Functions ]]
+
+function commonRC.start()
+  local state = rc.state.buildDefaultActualModuleState(rc.predefined.getRcCapabilities())
+  rc.state.initActualModuleStateOnHMI(state)
+  rc.rc.start(rcCapabilities)
+end
+
+local originalUnregisterApp = commonRC.unregisterApp
+
+function commonRC.unregisterApp(pAppId)
+  if not pAppId then pAppId = 1 end
+  rc.state.resetModulesAllocationByApp(pAppId)
+  originalUnregisterApp(pAppId)
+end
+
+local originalPolicyTableUpdate = commonRC.policyTableUpdate
+
+function commonRC.policyTableUpdate(pTUfunc, pAppId)
+  if not pAppId then pAppId = 1 end
+  rc.state.resetModulesAllocationByApp(pAppId)
+  originalPolicyTableUpdate(pTUfunc)
+end
+
+function commonRC.userExit(pAppId)
+  if not pAppId then pAppId = 1 end
+  rc.state.resetModulesAllocationByApp(pAppId)
+  local hmiAppId = commonRC.getHMIAppId()
+  commonRC.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
+    { appID = hmiAppId, reason = "USER_EXIT" })
+  commonRC.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
+    { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
+end
+
+function commonRC.driverDistractionViolation(pAppId)
+  if not pAppId then pAppId = 1 end
+  rc.state.resetModulesAllocationByApp(pAppId)
+  local hmiAppId = commonRC.getHMIAppId()
+  commonRC.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
+    { appID = hmiAppId, reason = "DRIVER_DISTRACTION_VIOLATION" })
+  commonRC.getMobileSession(1):ExpectNotification("OnHMIStatus",
+    { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
+end
+
+function commonRC.disableRCFromHMI(pAppId)
+  if not pAppId then pAppId = 1 end
+  rc.state.resetModulesAllocationByApp(pAppId)
+  commonRC.getHMIConnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
+end
+
 function commonRC.getModules()
   return commonFunctions:cloneTable({ "RADIO", "CLIMATE" })
 end
 
 function commonRC.getAllModules()
   return commonFunctions:cloneTable({ "RADIO", "CLIMATE", "SEAT", "AUDIO", "LIGHT", "HMI_SETTINGS" })
-end
-
-function commonRC.getModulesArray(pModules)
-  local out = {}
-  for _, mod in pairs(pModules) do
-    table.insert(out, { moduleType = mod })
-  end
-  return out
 end
 
 function commonRC.getHMIAppIdsRC()
@@ -45,7 +88,7 @@ function commonRC.registerRCApplication(pAppId, pAllowed)
   if pAllowed == nil then pAllowed = true end
   local freeModulesArray = {}
   if true == pAllowed then
-    freeModulesArray = commonRC.getModulesArray(commonRC.getAllModules())
+    freeModulesArray = rc.state.getModulesAllocationByApp(pAppId).freeModules
   end
   local pModuleStatusForApp = {
     freeModules = freeModulesArray,
@@ -58,57 +101,18 @@ function commonRC.registerRCApplication(pAppId, pAllowed)
   :Times(0)
 end
 
-local function setAllocationState(pAllocArrays, pAllocApp, pModule)
-  for i=1,#pAllocArrays do
-    for key, value in pairs(pAllocArrays[i]) do
-      if pModule == value then
-        table.remove(pAllocArrays[i], key)
-      end
-    end
-  end
-  table.insert(pAllocArrays[pAllocApp], pModule)
-end
-
-function commonRC.setModuleStatus(pFreeMod, pAllocatedMod, pModule, pAllocApp)
+function commonRC.setModuleStatus(pModule, pAllocApp)
   if not pAllocApp then pAllocApp = 1 end
-  local modulesStatusAllocatedApp = { }
-  local modulesStatusAnotherApp = { }
-  setAllocationState(pAllocatedMod, pAllocApp, pModule)
-  for key, value in pairs(pFreeMod) do
-    if pModule == value then
-      table.remove(pFreeMod, key)
-    end
-  end
-  modulesStatusAllocatedApp.freeModules = commonRC.getModulesArray(pFreeMod)
-  modulesStatusAnotherApp.freeModules = commonRC.getModulesArray(pFreeMod)
-  modulesStatusAllocatedApp.allocatedModules = commonRC.getModulesArray(pAllocatedMod[pAllocApp])
-  if 1 == pAllocApp then
-    modulesStatusAnotherApp.allocatedModules = pAllocatedMod[2]
-  else
-    modulesStatusAnotherApp.allocatedModules = pAllocatedMod[1]
-  end
-  return modulesStatusAllocatedApp, modulesStatusAnotherApp
+  local moduleId = commonRC.getModuleId(pModule)
+  rc.state.setModuleAllocation(pModule, moduleId, pAllocApp)
+  return rc.state.getModulesAllocationByApp(pAllocApp)
 end
 
-function commonRC.setModuleStatusByDeallocation(pFreeMod, pAllocatedMod, pModule, pRemoveAllocFromApp)
+function commonRC.setModuleStatusByDeallocation(pModule, pRemoveAllocFromApp)
   if not pRemoveAllocFromApp then pRemoveAllocFromApp = 1 end
-  local modulesStatusAllocatedApp = { }
-  local modulesStatusAnotherApp = { }
-  table.insert(pFreeMod, pModule)
-  for key, value in pairs(pAllocatedMod[pRemoveAllocFromApp]) do
-    if pModule == value then
-      table.remove(pAllocatedMod[pRemoveAllocFromApp], key)
-    end
-  end
-  modulesStatusAllocatedApp.freeModules = commonRC.getModulesArray(pFreeMod)
-  modulesStatusAnotherApp.freeModules = commonRC.getModulesArray(pFreeMod)
-  modulesStatusAllocatedApp.allocatedModules = commonRC.getModulesArray(pAllocatedMod[pRemoveAllocFromApp])
-  if 1 == pRemoveAllocFromApp then
-    modulesStatusAnotherApp.allocatedModules = pAllocatedMod[2]
-  else
-    modulesStatusAnotherApp.allocatedModules = pAllocatedMod[1]
-  end
-  return modulesStatusAllocatedApp, modulesStatusAnotherApp
+  local moduleId = commonRC.getModuleId(pModule)
+  rc.state.resetModuleAllocation(pModule, moduleId)
+  return rc.state.getModulesAllocationByApp(pRemoveAllocFromApp)
 end
 
 function commonRC.closeSession(pAppId)
@@ -117,88 +121,30 @@ function commonRC.closeSession(pAppId)
   commonRC.getMobileSession(pAppId):Stop()
 end
 
-function commonRC.sortModules(pModulesArray)
-  local function f(a, b)
-    if a.moduleType and b.moduleType then
-      return a.moduleType < b.moduleType
-    elseif a and b then
-      return a < b
-    end
-    return 0
+function commonRC.validateOnRCStatus(pAppIds)
+  if not pAppIds then pAppIds =  {1} end
+  local hmiExpDataTable  = { }
+  for _, appId in pairs(pAppIds) do
+    local rcStatusForApp = rc.state.getModulesAllocationByApp(appId)
+    hmiExpDataTable[commonRC.getHMIAppId(appId)] = utils.cloneTable(rcStatusForApp)
+    rcStatusForApp.allowed = true
+    rc.rc.expectOnRCStatusOnMobile(appId, rcStatusForApp)
   end
-  table.sort(pModulesArray, f)
+  rc.rc.expectOnRCStatusOnHMI(hmiExpDataTable)
 end
 
-function commonRC.validateOnRCStatusForApp(pAppId, pExpData)
- local ExpData = commonRC.cloneTable(pExpData)
- if ExpData.allowed == nil then ExpData.allowed = true end
- commonRC.getMobileSession(pAppId):ExpectNotification("OnRCStatus")
- :ValidIf(function(_, d)
-     commonRC.sortModules(ExpData.freeModules)
-     commonRC.sortModules(ExpData.allocatedModules)
-     commonRC.sortModules(d.payload.freeModules)
-     commonRC.sortModules(d.payload.allocatedModules)
-     return compareValues(ExpData, d.payload, "payload")
-   end)
- :ValidIf(function(_, d)
-   if d.payload.allowed == nil  then
-     return false, "RC.OnRCStatus notification doesn't contains 'allowed' parameter"
-   end
-   return true
- end)
+function commonRC.validateOnRCStatusForApp(pAppId, pExpData, allowed)
+ local expData = utils.cloneTable(pExpData)
+ if allowed == nil then allowed = true end
+ expData.allowed = allowed
+ rc.rc.expectOnRCStatusOnMobile(pAppId, expData)
 end
 
-function commonRC.validateOnRCStatusForHMI(pCountOfRCApps, pExpData, pAllocApp)
-  local usedHmiAppIds = { }
-  EXPECT_HMINOTIFICATION("RC.OnRCStatus")
-  :ValidIf(function(_, d)
-      commonRC.sortModules(d.params.freeModules)
-      commonRC.sortModules(d.params.allocatedModules)
-      for i=1,#pExpData do
-        commonRC.sortModules(pExpData[i].freeModules)
-        commonRC.sortModules(pExpData[i].allocatedModules)
-      end
-      local AnotherApp
-      if pAllocApp and pAllocApp == 1 then
-        AnotherApp = 2
-      else
-        AnotherApp = 1
-      end
-      if d.params.appID == commonRC.getHMIAppId(pAllocApp) and pAllocApp then
-        return compareValues(pExpData[pAllocApp], d.params, "params")
-      else
-        return compareValues(pExpData[AnotherApp], d.params, "params")
-      end
-    end)
-  :ValidIf(function(_, d)
-    if d.params.allowed ~= nil then
-      return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
-    end
-    return true
-  end)
-  :ValidIf(function(e, d)
-      if e.occurences == 1 then
-        usedHmiAppIds = {}
-      end
-      local avlHmiAppIds = {}
-      for _, appId in pairs(commonRC.getHMIAppIdsRC()) do
-        avlHmiAppIds[appId] = true
-      end
-      local actAppId = d.params.appID
-      if avlHmiAppIds[actAppId] and not usedHmiAppIds[actAppId] then
-        usedHmiAppIds[actAppId] = true
-        return true
-      end
-      local expAppIds = {}
-      for appId in pairs(avlHmiAppIds) do
-        if not usedHmiAppIds[appId] then
-          table.insert(expAppIds, appId)
-        end
-      end
-      return false, " Occurence: " .. e.occurences .. ", "
-      .. "expected appID: [" .. table.concat(expAppIds, ", ") .. "], " .. "actual: " .. tostring(actAppId)
-    end)
-  :Times(pCountOfRCApps)
+function commonRC.validateOnRCStatusForHMI(pAppId, pExpData)
+  pExpData["appID"] = commonRC.getHMIAppId(pAppId)
+  local hmiExpDataTable  = { }
+  hmiExpDataTable[commonRC.getHMIAppId(pAppId)] = utils.cloneTable(pExpData)
+  rc.rc.expectOnRCStatusOnHMI(hmiExpDataTable)
 end
 
 function commonRC.registerNonRCApp(pAppId)

@@ -33,6 +33,8 @@ hmiValues.RC.GetCapabilities.params.remoteControlCapability = "fake_params"
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Backup HMI capabilities file", common.backupHMICapabilities)
+runner.Step("Update HMI capabilities file", common.updateDefaultCapabilities, { {} })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { hmiValues })
 runner.Step("RAI", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
@@ -44,3 +46,4 @@ end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
+runner.Step("Restore HMI capabilities file", common.restoreHMICapabilities)

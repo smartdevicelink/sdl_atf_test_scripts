@@ -68,8 +68,11 @@ local paramsMissingMandatory = {
 
 --[[ Local Functions ]]
 local function getRadioParams(pStationLocationParams)
+  local rcCapabilities = common.getDefaultHMITable().RC.GetCapabilities.params.remoteControlCapability
+  local moduleId = rcCapabilities.radioControlCapabilities[1].moduleInfo.moduleId
   local  radioParams = {
     moduleType = moduleName,
+    moduleId = moduleId,
     radioControlData = {
       sisData = {
         stationShortName = "Name2",

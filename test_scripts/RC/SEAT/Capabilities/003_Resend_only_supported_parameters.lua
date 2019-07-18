@@ -19,16 +19,46 @@ local commonRC = require('test_scripts/RC/commonRC')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local seat_capabilities = {{moduleName = "Seat", horizontalPositionAvailable = true, verticalPositionAvailable = false}}
+local moduleId = commonRC.getModuleId("SEAT")
+local seat_capabilities = {
+	{
+		moduleName = "Seat",
+		moduleInfo = {
+			moduleId = moduleId
+		},
+		horizontalPositionAvailable = true,
+		verticalPositionAvailable = false
+	}
+}
 local capParams = {}
 capParams.CLIMATE = commonRC.DEFAULT
 capParams.RADIO = commonRC.DEFAULT
 capParams.BUTTONS = commonRC.DEFAULT
 capParams.SEAT = seat_capabilities
 local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
-local available_params = {moduleType = "SEAT", seatControlData = {id = "DRIVER", horizontalPosition = 75}}
-local absent_params = {moduleType = "SEAT", seatControlData = {id = "DRIVER", frontVerticalPosition = 55}}
-local unavailable_params = {moduleType = "SEAT", seatControlData = {id = "DRIVER", verticalPosition = 65}}
+local available_params = {
+	moduleType = "SEAT",
+	moduleId= moduleId,
+	seatControlData = {
+		id = "DRIVER",
+		horizontalPosition = 75
+	}
+}
+local absent_params = {
+	moduleType = "SEAT",
+	moduleId = moduleId,
+	seatControlData = {
+		id = "DRIVER",
+		frontVerticalPosition = 55
+	}
+}
+local unavailable_params = {moduleType = "SEAT",
+	moduleId = moduleId,
+	seatControlData = {
+		id = "DRIVER",
+		verticalPosition = 65
+	}
+}
 
 --[[ Local Functions ]]
 local function setVehicleData(params)
@@ -59,7 +89,7 @@ runner.Step("Activate_App", commonRC.activateApp)
 
 runner.Title("Test")
 runner.Step("SetInteriorVehicleData rejected with unavailable parameter", setVehicleData, { unavailable_params })
-runner.Step("SetInteriorVehicleData processed with available params", setVehicleData, { available_params })
+runner.Step("SetInteriorVehicleData processed with available parameters", setVehicleData, { available_params })
 runner.Step("SetInteriorVehicleData rejected with absent parameter", setVehicleData, { absent_params })
 
 runner.Title("Postconditions")

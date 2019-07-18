@@ -22,14 +22,23 @@ local common_functions = require('user_modules/shared_testcases/commonTestCases'
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local climate_capabilities = {{moduleName = "Climate", fanSpeedAvailable = true}}
+local moduleId = commonRC.getModuleId("CLIMATE")
+local climate_capabilities = {
+	{moduleName = "Climate", moduleInfo = {moduleId = moduleId}, fanSpeedAvailable = true}
+}
 local capParams = {}
 capParams.CLIMATE = climate_capabilities
 capParams.RADIO = commonRC.DEFAULT
 capParams.BUTTONS = commonRC.DEFAULT
 local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
-local available_params = {moduleType = "CLIMATE", climateControlData = {fanSpeed = 30}}
-local absent_params = {moduleType = "CLIMATE", climateControlData = {acMaxEnable = true}}
+local available_params = {
+	moduleType = "CLIMATE",
+	moduleId = moduleId,
+	climateControlData = {fanSpeed = 30}
+}
+local absent_params = {
+	moduleType = "CLIMATE", moduleId = moduleId, climateControlData = {acMaxEnable = true}
+}
 
 --[[ Local Functions ]]
 local function setVehicleData(pParams)

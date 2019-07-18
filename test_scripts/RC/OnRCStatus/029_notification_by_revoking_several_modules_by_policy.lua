@@ -24,12 +24,6 @@ runner.testSettings.isSelfIncluded = false
 --[[ General configuration parameters ]]
 config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {
-  [1] = { }
-}
-
 --[[ Local Functions ]]
 local function pTUfunc(tbl)
   local appId1 = config.application1.registerAppInterfaceParams.fullAppID
@@ -40,20 +34,18 @@ local function pTUfunc(tbl)
 end
 
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
+  local pModuleStatus = common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
   common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
 end
 
 local function ptuWithRevokingModule()
   common.policyTableUpdate(pTUfunc)
   local pModuleStatus = {
-    freeModules = common.getModulesArray(common.getAllModules()),
+    freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { }
   }
-  common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]

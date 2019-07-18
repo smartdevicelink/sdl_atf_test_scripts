@@ -36,29 +36,28 @@ end
 local function registerRCAppRCDisallowed()
   local pModuleStatusForApp = {
     freeModules = {},
-    allocatedModules = { },
+    allocatedModules = {},
     allowed = false
   }
 
   commonRC.registerAppWOPTU(1, test)
-  common.validateOnRCStatusForApp(1, pModuleStatusForApp, true)
+  common.validateOnRCStatusForApp(1, pModuleStatusForApp, false)
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
   :Times(0)
 end
 
 local function enableRCFromHMI()
   local pModuleStatus = {
-  freeModules = common.getModulesArray(common.getAllModules()),
+  freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { },
     allowed = true
   }
   local pModuleStatusHMI = {
-    freeModules = common.getModulesArray(common.getAllModules()),
+    freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { }
   }
   common.getHMIConnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
-  common.validateOnRCStatusForApp(1, pModuleStatus, true)
-  common.validateOnRCStatusForHMI(1, { pModuleStatusHMI })
+  common.validateOnRCStatus({ 1 })
   common.getMobileSession(2):ExpectNotification("OnRCStatus")
   :Times(0)
 end

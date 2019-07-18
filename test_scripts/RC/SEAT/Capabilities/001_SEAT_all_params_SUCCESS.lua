@@ -28,7 +28,7 @@ local hmiRcCapabilities = commonRC.buildHmiRcCapabilities(capParams)
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" } })
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "SEAT" }, true })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all posible RC capabilities), connect Mobile, start Session", commonRC.start,
 	{ hmiRcCapabilities })

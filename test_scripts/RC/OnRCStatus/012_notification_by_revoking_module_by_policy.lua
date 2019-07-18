@@ -33,20 +33,19 @@ local function pTUfunc(tbl)
 end
 
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(common.getAllModules(), {{}}, pModuleType)
+  local pModuleStatus = common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatus({ 1 })
 end
 
 local function ptuWithRevokingModule()
   common.policyTableUpdate(pTUfunc)
   local pModuleStatus = {
-    freeModules = common.getModulesArray(common.getAllModules()),
+    freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { }
   }
   common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatusForHMI(1, pModuleStatus)
 end
 
 --[[ Scenario ]]

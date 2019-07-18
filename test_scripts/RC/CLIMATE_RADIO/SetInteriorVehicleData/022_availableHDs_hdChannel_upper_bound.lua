@@ -28,7 +28,7 @@ local paramValues = {
 --[[ Local Functions ]]
 local function requestSuccessful(pValue)
   function commonRC.getModuleControlData()
-    return commonRC.actualInteriorDataStateOnHMI[mType]
+   return commonRC.cloneTable(commonRC.actualInteriorDataStateOnHMI[mType])
   end
   commonRC.actualInteriorDataStateOnHMI[mType].radioControlData = {
     hdChannel = pValue

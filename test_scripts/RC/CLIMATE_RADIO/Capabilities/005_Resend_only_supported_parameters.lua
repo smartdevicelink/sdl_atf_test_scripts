@@ -22,7 +22,15 @@ local common_functions = require('user_modules/shared_testcases/commonTestCases'
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local radio_capabilities = {{moduleName = "Radio", radioFrequencyAvailable = true, radioBandAvailable = true}}
+local moduleId = commonRC.getModuleId("RADIO")
+local radio_capabilities = {
+  {
+    moduleName = "Radio",
+    moduleInfo = {moduleId = moduleId},
+    radioFrequencyAvailable = true,
+    radioBandAvailable = true
+  }
+}
 local capParams = {}
 capParams.CLIMATE = commonRC.DEFAULT
 capParams.RADIO = radio_capabilities
@@ -31,9 +39,14 @@ local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
 local available_params =
 {
     moduleType = "RADIO",
+    moduleId = moduleId,
     radioControlData = {frequencyInteger = 1, frequencyFraction = 2, band = "AM"}
 }
-local absent_params = {moduleType = "RADIO", radioControlData = {frequencyInteger = 1, frequencyFraction = 2}}
+local absent_params = {
+  moduleType = "RADIO",
+  moduleId = moduleId,
+  radioControlData = {frequencyInteger = 1, frequencyFraction = 2}
+}
 
 --[[ Local Functions ]]
 local function setVehicleData(params)

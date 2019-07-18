@@ -55,7 +55,7 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { enabledModule } })
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { enabledModule }, true })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
 runner.Step("RAI", commonRC.registerAppWOPTU)

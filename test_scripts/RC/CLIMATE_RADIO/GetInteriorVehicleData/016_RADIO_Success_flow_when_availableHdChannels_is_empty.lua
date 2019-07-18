@@ -24,6 +24,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local mType = "RADIO"
+local moduleId = commonRC.getModuleId("RADIO")
 local response_table = {
   id = 28,
   jsonrpc = "2.0",
@@ -31,6 +32,7 @@ local response_table = {
     code = 0,
     method = "RC.GetInteriorVehicleData",
     moduleData = {
+      moduleId = moduleId,
       moduleType = mType,
       radioControlData = {
         availableHdChannels = json.EMPTY_ARRAY,

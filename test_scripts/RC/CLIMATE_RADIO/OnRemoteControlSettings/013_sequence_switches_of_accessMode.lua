@@ -16,7 +16,8 @@
 --
 -- Description:
 -- In case:
--- RC_functionality is disabled on HMI and HMI sends notification OnRemoteControlSettings (allowed:true, <any_accessMode>)
+-- RC_functionality is disabled on HMI and HMI sends notification OnRemoteControlSettings
+--  (allowed:true, <any_accessMode>)
 --
 -- SDL must:
 -- 1) store RC state allowed:true and received from HMI internally
@@ -53,13 +54,17 @@ runner.Title("Default -> ASK_DRIVER")
 runner.Step("Enable RC from HMI with ASK_DRIVER access mode", commonRC.defineRAMode, { true, "ASK_DRIVER"})
 for _, mod in pairs(commonRC.modules)  do
   runner.Step("Activate App2", commonRC.activateApp, { 2 })
-  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed", commonRC.rpcAllowed, { mod, 2, "SetInteriorVehicleData" })
+  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed",
+      commonRC.rpcAllowed, { mod, 2, "SetInteriorVehicleData" })
   runner.Step("Activate App1", commonRC.activateApp)
-  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
+  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent",
+      commonRC.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
   runner.Step("Activate App2", commonRC.activateApp, { 2 })
-  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 2, "ButtonPress" })
+  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent",
+      commonRC.rpcAllowedWithConsent, { mod, 2, "ButtonPress" })
   runner.Step("Activate App1", commonRC.activateApp)
-  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 1, "ButtonPress" })
+  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 1, "ButtonPress" })
 end
 runner.Title("ASK_DRIVER -> AUTO_ALLOW")
 runner.Step("Enable RC from HMI with AUTO_ALLOW access mode", commonRC.defineRAMode, { true, "AUTO_ALLOW"})
@@ -85,13 +90,17 @@ runner.Title("AUTO_DENY -> ASK_DRIVER")
 runner.Step("Enable RC from HMI with ASK_DRIVER access mode", commonRC.defineRAMode, { true, "ASK_DRIVER"})
 for _, mod in pairs(commonRC.modules)  do
   runner.Step("Activate App2", commonRC.activateApp, { 2 })
-  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 2, "SetInteriorVehicleData" })
+  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 2, "SetInteriorVehicleData" })
   runner.Step("Activate App1", commonRC.activateApp)
-  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
+  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
   runner.Step("Activate App2", commonRC.activateApp, { 2 })
-  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 2, "ButtonPress" })
+  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 2, "ButtonPress" })
   runner.Step("Activate App1", commonRC.activateApp)
-  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 1, "ButtonPress" })
+  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 1, "ButtonPress" })
 end
 runner.Title("ASK_DRIVER -> AUTO_DENY")
 runner.Step("Enable RC from HMI with AUTO_DENY access mode", commonRC.defineRAMode, { true, "AUTO_DENY"})
@@ -117,13 +126,17 @@ runner.Title("AUTO_ALLOW -> ASK_DRIVER")
 runner.Step("Enable RC from HMI with ASK_DRIVER access mode", commonRC.defineRAMode, { true, "ASK_DRIVER"})
 for _, mod in pairs(commonRC.modules)  do
   runner.Step("Activate App2", commonRC.activateApp, { 2 })
-  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 2, "SetInteriorVehicleData" })
+  runner.Step("Check module " .. mod .." App2 SetInteriorVehicleData allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 2, "SetInteriorVehicleData" })
   runner.Step("Activate App1", commonRC.activateApp)
-  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 1, "SetInteriorVehicleData" })
+  runner.Step("Check module " .. mod .." App1 SetInteriorVehicleData allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
   runner.Step("Activate App2", commonRC.activateApp, { 2 })
-  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 2, "ButtonPress" })
+  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 2, "ButtonPress" })
   runner.Step("Activate App1", commonRC.activateApp)
-  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent", commonRC.rpcAllowedWithConsent, { mod, 1, "ButtonPress" })
+  runner.Step("Check module " .. mod .." App1 ButtonPress allowed with driver consent",
+      commonRC.rpcAllowed, { mod, 1, "ButtonPress" })
 end
 
 runner.Title("Postconditions")
