@@ -1,4 +1,5 @@
 local SDL = require('SDL')
+local utils = require('user_modules/utils')
 local module = { }
 
 --[[ Functions for Values' Creation ]]
@@ -7,13 +8,124 @@ local module = { }
 --! for shortPressAvailable, longPressAvailable and upDownAvailable params "true" is
 -- default value, so if they are not specified or equal to different values
 -- than "false" they are set to "true" ]]
-function module.createButtonCapability(name, shortPressAvailable, longPressAvailable, upDownAvailable)
+function module.createButtonCapability(name, shortPressAvailable, longPressAvailable, upDownAvailable, moduleInfo)
   return {
     name = name,
+    moduleInfo = moduleInfo,
     shortPressAvailable = shortPressAvailable ~= false or false,
     longPressAvailable = longPressAvailable ~= false or false,
     upDownAvailable = upDownAvailable ~= false or false
   }
+end
+
+function module.createRCModuleCapability(moduleType, moduleInformation)
+  local moduleCapabilities = {
+    CLIMATE = {
+      currentTemperatureAvailable = true,
+      fanSpeedAvailable = true,
+      desiredTemperatureAvailable = true,
+      acEnableAvailable = true,
+      acMaxEnableAvailable = true,
+      circulateAirEnableAvailable = true,
+      autoModeEnableAvailable = true,
+      dualModeEnableAvailable = true,
+      defrostZoneAvailable = true,
+      defrostZone = {
+        "FRONT", "REAR", "ALL", "NONE"
+      },
+      ventilationModeAvailable = true,
+      ventilationMode = {
+        "UPPER", "LOWER", "BOTH", "NONE"
+      },
+      heatedSteeringWheelAvailable = true,
+      heatedWindshieldAvailable = true,
+      heatedRearWindowAvailable = true,
+      heatedMirrorsAvailable = true,
+      climateEnableAvailable = true
+    },
+    RADIO = {
+      radioEnableAvailable = true,
+      radioBandAvailable = true,
+      radioFrequencyAvailable = true,
+      hdChannelAvailable = true,
+      rdsDataAvailable = true,
+      availableHdChannelsAvailable = true,
+      stateAvailable = true,
+      signalStrengthAvailable = true,
+      signalChangeThresholdAvailable = true,
+      sisDataAvailable = true,
+      hdRadioEnableAvailable = true,
+      siriusxmRadioAvailable = true
+    },
+    SEAT = {
+      heatingEnabledAvailable = true,
+      coolingEnabledAvailable = true,
+      heatingLevelAvailable = true,
+      coolingLevelAvailable = true,
+      horizontalPositionAvailable = true,
+      verticalPositionAvailable = true,
+      frontVerticalPositionAvailable = true,
+      backVerticalPositionAvailable = true,
+      backTiltAngleAvailable = true,
+      headSupportHorizontalPositionAvailable = true,
+      headSupportVerticalPositionAvailable = true,
+      massageEnabledAvailable = true,
+      massageModeAvailable = true,
+      massageCushionFirmnessAvailable = true,
+      memoryAvailable = true
+    },
+    AUDIO = {
+      sourceAvailable = true,
+      keepContextAvailable = true,
+      volumeAvailable = true,
+      equalizerAvailable = true,
+      equalizerMaxChannelId = 100
+    },
+    LIGHT = {
+      supportedLights = (function()
+        local lights = { "FRONT_LEFT_HIGH_BEAM", "FRONT_RIGHT_HIGH_BEAM", "FRONT_LEFT_LOW_BEAM",
+          "FRONT_RIGHT_LOW_BEAM", "FRONT_LEFT_PARKING_LIGHT", "FRONT_RIGHT_PARKING_LIGHT",
+          "FRONT_LEFT_FOG_LIGHT", "FRONT_RIGHT_FOG_LIGHT", "FRONT_LEFT_DAYTIME_RUNNING_LIGHT",
+          "FRONT_RIGHT_DAYTIME_RUNNING_LIGHT", "FRONT_LEFT_TURN_LIGHT", "FRONT_RIGHT_TURN_LIGHT",
+          "REAR_LEFT_FOG_LIGHT", "REAR_RIGHT_FOG_LIGHT", "REAR_LEFT_TAIL_LIGHT", "REAR_RIGHT_TAIL_LIGHT",
+          "REAR_LEFT_BRAKE_LIGHT", "REAR_RIGHT_BRAKE_LIGHT", "REAR_LEFT_TURN_LIGHT", "REAR_RIGHT_TURN_LIGHT",
+          "REAR_REGISTRATION_PLATE_LIGHT", "HIGH_BEAMS", "LOW_BEAMS", "FOG_LIGHTS", "RUNNING_LIGHTS",
+          "PARKING_LIGHTS", "BRAKE_LIGHTS", "REAR_REVERSING_LIGHTS", "SIDE_MARKER_LIGHTS", "LEFT_TURN_LIGHTS",
+          "RIGHT_TURN_LIGHTS", "HAZARD_LIGHTS", "AMBIENT_LIGHTS", "OVERHEAD_LIGHTS", "READING_LIGHTS",
+          "TRUNK_LIGHTS", "EXTERIOR_FRONT_LIGHTS", "EXTERIOR_REAR_LIGHTS", "EXTERIOR_LEFT_LIGHTS",
+          "EXTERIOR_RIGHT_LIGHTS", "REAR_CARGO_LIGHTS", "REAR_TRUCK_BED_LIGHTS", "REAR_TRAILER_LIGHTS",
+          "LEFT_SPOT_LIGHTS", "RIGHT_SPOT_LIGHTS", "LEFT_PUDDLE_LIGHTS", "RIGHT_PUDDLE_LIGHTS",
+          "EXTERIOR_ALL_LIGHTS" }
+      local out = { }
+      for _, name in pairs(lights) do
+        local item = {
+          name = name,
+          densityAvailable = true,
+          statusAvailable = true,
+          rgbColorSpaceAvailable = true
+        }
+        table.insert(out, item)
+      end
+      return out
+      end)()
+    },
+    HMI_SETTINGS = {
+      distanceUnitAvailable = true,
+      temperatureUnitAvailable = true,
+      displayModeUnitAvailable = true
+    }
+  }
+
+  local result = utils.cloneTable(moduleInformation)
+  for key, value in pairs(moduleCapabilities[moduleType]) do
+    if type(value) == "table" then
+      result[key] = utils.cloneTable(value)
+    else
+      result[key] = value
+    end
+  end
+
+  return result
 end
 
 --[[ @createTextField: the function creates a value for UI.GetCapabilities.displayCapabilities.textFields ]]
@@ -341,132 +453,264 @@ function module.getDefaultHMITable()
   }
 
   if SDL.buildOptions.remoteControl == "ON" then
+    local modules = {
+      CLIMATE = {
+        {
+          moduleName = "Climate Driver Seat",
+          moduleInfo = {
+            moduleId = "2df6518c-ca8a-4e7c-840a-0eba5c028351",
+            location = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            serviceArea = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            allowMultipleAccess = true
+          }
+        },
+        {
+          moduleName = "Climate Front Passenger Seat",
+          moduleInfo = {
+            moduleId = "4c133291-3cc2-4174-b722-6284953af345",
+            location = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            serviceArea = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            allowMultipleAccess = true
+          }
+        },
+        {
+          moduleName = "Climate Second Row Seats",
+          moduleInfo = {
+            moduleId = "b468c01c-9346-4331-bd4f-927ca97f0103",
+            location = { col = 0, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            serviceArea = { col = 0, row = 1, level = 0, colspan = 3, rowspan = 1, levelspan = 1 },
+            allowMultipleAccess = true
+          }
+        }
+      },
+      RADIO = {
+        {
+          moduleName = "Radio Driver Seat",
+          moduleInfo = {
+            moduleId = "00bd6d93-e093-4bf0-9784-281febe41bed",
+            location = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            serviceArea = { col = 0, row = 0, level = 0, colspan = 3, rowspan = 2, levelspan = 1 },
+            allowMultipleAccess = true
+          }
+        }
+      },
+      SEAT = {
+        {
+          moduleName = "Seat of Driver",
+          moduleInfo = {
+            moduleId = "a42bf1e0-e02e-4462-912a-7d4230815f73",
+            location = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          }
+        },
+        {
+          moduleName = "Seat of Front Passenger",
+          moduleInfo = {
+            moduleId = "650765bb-2f89-4d68-a665-6267c80e6c62",
+            location = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          }
+        },
+        {
+          moduleName = "Seat of 2nd Row Left Passenger",
+          moduleInfo = {
+            moduleId = "664975ce-689f-4448-bc9d-802615166947",
+            location = { col = 0, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 0, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          }
+        },
+        {
+          moduleName = "Seat of 2nd Row Middle Passenger",
+          moduleInfo = {
+            moduleId = "89a08b45-f76a-4a37-9979-6acb50cefcf8",
+            location = { col = 1, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 1, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          }
+        },
+        {
+          moduleName = "Seat of 2nd Row Right Passenger",
+          moduleInfo = {
+            moduleId = "7b12e79b-26f1-46d4-a1b8-18886ebd7266",
+            location = { col = 2, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 2, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          }
+        }
+      },
+      AUDIO = {
+        {
+          moduleName = "Audio Driver Seat",
+          moduleInfo = {
+            moduleId = "0876b4be-f1ce-4f5c-86e9-5ca821683a1b",
+            location = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          },
+        },
+        {
+          moduleName = "Audio Front Passenger Seat",
+          moduleInfo = {
+            moduleId = "d77a4bd2-5bd2-4c5a-991a-7ec5f14911ca",
+            location = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          },
+        },
+        {
+          moduleName = "Audio 2nd Row Left Seat",
+          moduleInfo = {
+            moduleId = "c64f6c90-6fcb-4543-ae65-c401b3ca08b2",
+            location = { col = 0, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 0, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          },
+        },
+        {
+          moduleName = "Audio 2nd Row Middle Seat",
+          moduleInfo = {
+            moduleId = "bd0452a1-34a2-4432-af60-6e0e9c3902e2",
+            location = { col = 1, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 1, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          },
+        },
+        {
+          moduleName = "Audio 2nd Row Right Seat",
+          moduleInfo = {
+            moduleId = "3b41cd63-d6b0-4e5e-b831-70e937326074",
+            location = { col = 2, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 2, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            allowMultipleAccess = true
+          },
+        },
+        {
+          moduleName = "Audio Upper Level Vehicle Interior",
+          moduleInfo = {
+            moduleId = "726827ed-d6be-47d7-a8cc-4723f333b009",        -- a position (NOT a SEAT) on the upper level
+            location = { col = 0, row = 0, level = 1, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 0, row = 0, level = 1, colspan = 3, rowspan = 2, levelspan = 1
+            },
+            allowMultipleAccess = true
+          },
+        }
+      },
+      LIGHT = {
+        {
+          moduleName = "Light Driver Seat",
+          moduleInfo = {
+            moduleId = "f31ef579-743d-41be-a75e-80630d16f4e6",
+            location = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1
+            },
+            serviceArea = { col = 0, row = 0, level = 0, colspan = 3, rowspan = 2, levelspan = 1
+            },
+            allowMultipleAccess = true
+          }
+        }
+      },
+      HMI_SETTINGS = {
+        {
+          moduleName = "HmiSettings Driver Seat",
+          moduleInfo = {
+            moduleId = "fd68f1ef-95ce-4468-a304-4c864a0e34a1",
+            location = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 },
+            serviceArea = { col = 0, row = 0, level = 0, colspan = 3, rowspan = 2, levelspan = 1 },
+            allowMultipleAccess = true
+          }
+        }
+      }
+    }
+
+    local function buildCapabilitiesForModuleType(moduleType)
+      local capabilities = {}
+      for _, moduleInformation in pairs(modules[moduleType]) do
+        table.insert(capabilities, module.createRCModuleCapability(moduleType, moduleInformation))
+      end
+      if moduleType == "LIGHT" or moduleType == "HMI_SETTINGS" then
+        return capabilities[1]
+      end
+      return capabilities
+    end
+
     hmi_table.RC = { }
     hmi_table.RC.GetCapabilities = {
       params = {
         remoteControlCapability = {
-          climateControlCapabilities = {
-              {
-                moduleName = "Climate",
-                currentTemperatureAvailable = true,
-                fanSpeedAvailable = true,
-                desiredTemperatureAvailable = true,
-                acEnableAvailable = true,
-                acMaxEnableAvailable = true,
-                circulateAirEnableAvailable = true,
-                autoModeEnableAvailable = true,
-                dualModeEnableAvailable = true,
-                defrostZoneAvailable = true,
-                defrostZone = {
-                  "FRONT", "REAR", "ALL", "NONE"
-                },
-                ventilationModeAvailable = true,
-                ventilationMode = {
-                  "UPPER", "LOWER", "BOTH", "NONE"
-                },
-                heatedSteeringWheelAvailable = true,
-                heatedWindshieldAvailable = true,
-                heatedRearWindowAvailable = true,
-                heatedMirrorsAvailable = true,
-                climateEnableAvailable = true
-              }
-            },
-          radioControlCapabilities = {
-              {
-                moduleName = "Radio",
-                radioEnableAvailable = true,
-                radioBandAvailable = true,
-                radioFrequencyAvailable = true,
-                hdChannelAvailable = true,
-                rdsDataAvailable = true,
-                availableHdChannelsAvailable = true,
-                stateAvailable = true,
-                signalStrengthAvailable = true,
-                signalChangeThresholdAvailable = true,
-                sisDataAvailable = true,
-                hdRadioEnableAvailable = true,
-                siriusxmRadioAvailable = true
-              }
-            },
-          audioControlCapabilities = {
-              {
-                moduleName = "Audio",
-                sourceAvailable = true,
-                keepContextAvailable = true,
-                volumeAvailable = true,
-                equalizerAvailable = true,
-                equalizerMaxChannelId = 100
-              }
-            },
-            seatControlCapabilities = {
-              {
-                moduleName = "Seat",
-                heatingEnabledAvailable = true,
-                coolingEnabledAvailable = true,
-                heatingLevelAvailable = true,
-                coolingLevelAvailable = true,
-                horizontalPositionAvailable = true,
-                verticalPositionAvailable = true,
-                frontVerticalPositionAvailable = true,
-                backVerticalPositionAvailable = true,
-                backTiltAngleAvailable = true,
-                headSupportHorizontalPositionAvailable = true,
-                headSupportVerticalPositionAvailable = true,
-                massageEnabledAvailable = true,
-                massageModeAvailable = true,
-                massageCushionFirmnessAvailable = true,
-                memoryAvailable = true
-              }
-           },
-          hmiSettingsControlCapabilities = {
-              moduleName = "HmiSettings",
-              distanceUnitAvailable = true,
-              temperatureUnitAvailable = true,
-              displayModeUnitAvailable = true
-            },
-          lightControlCapabilities = {
-              moduleName = "Light",
-              supportedLights = (function()
-                local lights = { "FRONT_LEFT_HIGH_BEAM", "FRONT_RIGHT_HIGH_BEAM", "FRONT_LEFT_LOW_BEAM",
-                  "FRONT_RIGHT_LOW_BEAM", "FRONT_LEFT_PARKING_LIGHT", "FRONT_RIGHT_PARKING_LIGHT",
-                  "FRONT_LEFT_FOG_LIGHT", "FRONT_RIGHT_FOG_LIGHT", "FRONT_LEFT_DAYTIME_RUNNING_LIGHT",
-                  "FRONT_RIGHT_DAYTIME_RUNNING_LIGHT", "FRONT_LEFT_TURN_LIGHT", "FRONT_RIGHT_TURN_LIGHT",
-                  "REAR_LEFT_FOG_LIGHT", "REAR_RIGHT_FOG_LIGHT", "REAR_LEFT_TAIL_LIGHT", "REAR_RIGHT_TAIL_LIGHT",
-                  "REAR_LEFT_BRAKE_LIGHT", "REAR_RIGHT_BRAKE_LIGHT", "REAR_LEFT_TURN_LIGHT", "REAR_RIGHT_TURN_LIGHT",
-                  "REAR_REGISTRATION_PLATE_LIGHT", "HIGH_BEAMS", "LOW_BEAMS", "FOG_LIGHTS", "RUNNING_LIGHTS",
-                  "PARKING_LIGHTS", "BRAKE_LIGHTS", "REAR_REVERSING_LIGHTS", "SIDE_MARKER_LIGHTS", "LEFT_TURN_LIGHTS",
-                  "RIGHT_TURN_LIGHTS", "HAZARD_LIGHTS", "AMBIENT_LIGHTS", "OVERHEAD_LIGHTS", "READING_LIGHTS",
-                  "TRUNK_LIGHTS", "EXTERIOR_FRONT_LIGHTS", "EXTERIOR_REAR_LIGHTS", "EXTERIOR_LEFT_LIGHTS",
-                  "EXTERIOR_RIGHT_LIGHTS", "REAR_CARGO_LIGHTS", "REAR_TRUCK_BED_LIGHTS", "REAR_TRAILER_LIGHTS",
-                  "LEFT_SPOT_LIGHTS", "RIGHT_SPOT_LIGHTS", "LEFT_PUDDLE_LIGHTS", "RIGHT_PUDDLE_LIGHTS",
-                  "EXTERIOR_ALL_LIGHTS" }
-              local out = { }
-              for _, name in pairs(lights) do
-                local item = {
-                  name = name,
-                  densityAvailable = true,
-                  statusAvailable = true,
-                  rgbColorSpaceAvailable = true
-                }
-                table.insert(out, item)
-              end
-              return out
-              end)()
-            },
+          climateControlCapabilities = buildCapabilitiesForModuleType("CLIMATE"),
+          radioControlCapabilities = buildCapabilitiesForModuleType("RADIO"),
+          audioControlCapabilities = buildCapabilitiesForModuleType("AUDIO"),
+          seatControlCapabilities = buildCapabilitiesForModuleType("SEAT"),
+          hmiSettingsControlCapabilities = buildCapabilitiesForModuleType("HMI_SETTINGS"),
+          lightControlCapabilities = buildCapabilitiesForModuleType("LIGHT"),
           buttonCapabilities = (function()
             local buttons = {
-              -- climate
-              "AC_MAX", "AC", "RECIRCULATE", "FAN_UP", "FAN_DOWN", "TEMP_UP", "TEMP_DOWN", "DEFROST_MAX", "DEFROST",
-              "DEFROST_REAR", "UPPER_VENT", "LOWER_VENT",
-              -- radio
-              "VOLUME_UP", "VOLUME_DOWN", "EJECT", "SOURCE", "SHUFFLE", "REPEAT"
+              CLIMATE = {
+                buttons = {
+                  "AC_MAX", "AC", "RECIRCULATE", "FAN_UP", "FAN_DOWN", "TEMP_UP", "TEMP_DOWN", "DEFROST_MAX", "DEFROST",
+                  "DEFROST_REAR", "UPPER_VENT", "LOWER_VENT"
+                },
+                moduleIds = {
+                  "2df6518c-ca8a-4e7c-840a-0eba5c028351",
+                  "4c133291-3cc2-4174-b722-6284953af345",
+                  "b468c01c-9346-4331-bd4f-927ca97f0103"
+                }
+              },
+              RADIO = {
+                buttons = {
+                  "VOLUME_UP", "VOLUME_DOWN", "EJECT", "SOURCE", "SHUFFLE", "REPEAT"
+                },
+                moduleIds = {
+                  "00bd6d93-e093-4bf0-9784-281febe41bed"
+                }
+              }
             }
             local out = { }
-            for _, button in pairs(buttons) do
-              table.insert(out, module.createButtonCapability(button, true, true, true))
+            for _, moduleStruct in pairs(buttons) do
+              for _, button in pairs(moduleStruct.buttons) do
+                for _, moduleId in pairs(moduleStruct.moduleIds) do
+                  local moduleInfo = { moduleId = moduleId }
+                  table.insert(out, module.createButtonCapability(button, true, true, true, moduleInfo))
+                end
+              end
             end
             return out
           end)()
+        },
+        seatLocationCapability = {
+          rows = 2,
+          columns = 3,
+          levels = 2,
+          seats = {
+            { grid = { col = 0, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 }},
+            { grid = { col = 2, row = 0, level = 0, colspan = 1, rowspan = 1, levelspan = 1 }},
+            { grid = { col = 0, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1 }},
+            { grid = { col = 1, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1 }},
+            { grid = { col = 2, row = 1, level = 0, colspan = 1, rowspan = 1, levelspan = 1 }}
+          }
         }
       },
       mandatory = true,
