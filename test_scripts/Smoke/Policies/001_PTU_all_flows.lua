@@ -105,6 +105,7 @@ local function getPTUFromPTS(ptu)
   ptu.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID]["groups"] = {
     "Base-4", "Base-6"
   }
+  ptu.policy_table.vehicle_data = nil
 end
 
 -- Save created PT in file

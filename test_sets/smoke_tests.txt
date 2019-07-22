@@ -46,6 +46,7 @@
 ./test_scripts/Smoke/API/046_NavApp_SubscribeButtonRequest_SUCCESS.lua
 ./test_scripts/Smoke/API/047_NonNavApp_SubscribeButtonRequest_REJECTED.lua
 ./test_scripts/Smoke/API/048_GetSystemCapabilityRequest_SUCCESS.lua
+./test_scripts/Smoke/API/049_GetPolicyConfigurationData_SUCCESS.lua
 ./test_scripts/API/CloseApplication/001_Success_flow.lua
 ./test_scripts/Smoke/HeartBeat/001_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua
 ./test_scripts/Smoke/HeartBeat/002_HeartBeat_App_does_not_send_HB_but_respond.lua
