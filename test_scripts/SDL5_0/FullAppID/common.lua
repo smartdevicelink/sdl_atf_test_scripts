@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------
 -- Script verifies that a PT snapshot contains the correct full_app_id_supported flag
--- Supports PROPRIETARY 
+-- Supports PROPRIETARY
 ---------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -107,6 +107,7 @@ local function getPTUFromPTS(ptu)
   ptu.policy_table.app_policies[m.policy_app_id]["groups"] = {
     "Base-4", "Base-6"
   }
+  ptu.policy_table.vehicle_data = nil
 end
 
 -- Save created PT in file
@@ -138,7 +139,7 @@ local function checkIfPTSIsSentAsBinary(bin_data, self)
     log("expected: " .. pt_full_id_support .. " recieved: " .. ini_full_id_support)
     self:FailTestCase(".ini full app ID support does not match PT snapshot given")
   end
-  
+
 end
 
 -- Policy table update with Proprietary flow
@@ -163,11 +164,11 @@ local function ptuProprietary(ptu_table, self)
       -- Prepare PT for update
       getPTUFromPTS(ptu_table)
       log("HMI->SDL:get ptu")
-      
+
       -- Save created PT for update in tmp file
       storePTUInFile(ptu_table, ptu_file_name)
       log("HMI->SDL:store ptu")
-      
+
       -- Expect receiving of OnSystemRequest notification with snapshot on mobile side
       self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
       :Do(function(_, d)

@@ -36,6 +36,7 @@ local hmiLevels = { }
 
 --[[ Local Functions ]]
 local function SetTimeout()
+  os.setlocale("C")
   local pathToFile = commonPreconditions:GetPathToSDL() .. 'sdl_preloaded_pt.json'
   local file = io.open(pathToFile, "r")
   local json_data = file:read("*all")

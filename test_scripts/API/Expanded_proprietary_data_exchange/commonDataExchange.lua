@@ -81,6 +81,7 @@ local function getPTUFromPTS(pTbl)
   pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   pTbl.policy_table.module_config.preloaded_pt = nil
   pTbl.policy_table.module_config.preloaded_date = nil
+  pTbl.policy_table.vehicle_data = nil
 end
 
 --[[ @policyTableUpdate: perform PTU
@@ -94,6 +95,7 @@ function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc, pRequestSubTyp
     pExpNotificationFunc()
   else
     m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+    m.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
   end
   local ptsFileName = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")

@@ -117,6 +117,10 @@ function Test:TestStep_FinishPTU_ForAppId1()
     end)
 end
 
+function Test.Postcondition_StopSDL()
+  StopSDL()
+end
+
 function Test:TestStep_CheckThatAppID_Present_In_DataBase()
   local PolicyDBPath = nil
   if commonSteps:file_exists(tostring(config.pathToSDL) .. "/storage/policy.sqlite") == true then
@@ -130,12 +134,6 @@ function Test:TestStep_CheckThatAppID_Present_In_DataBase()
   if result == false then
     self:FailTestCase("DB doesn't contain special id")
   end
-end
-
---[[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postconditions")
-function Test.Postcondition_StopSDL()
-  StopSDL()
 end
 
 return Test

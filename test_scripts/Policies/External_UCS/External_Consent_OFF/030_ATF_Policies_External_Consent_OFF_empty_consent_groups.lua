@@ -160,7 +160,9 @@ Test["TEST_NAME_OFF" .. "_MainCheck_RPC_of_Group002_is_allowed"] = function(self
   self.mobileSession:SendRPC("SubscribeVehicleData",{rpm = true})
   EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",{})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM" }
+      })
     end)
   EXPECT_RESPONSE("SubscribeVehicleData", {success = true , resultCode = "SUCCESS"})
   EXPECT_NOTIFICATION("OnHashChange")

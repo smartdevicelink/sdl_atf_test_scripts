@@ -12,6 +12,7 @@ local events = require("events")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
+local utils = require('user_modules/utils')
 
 --[[ Local Variables ]]
 local ptu_table = {}
@@ -22,6 +23,7 @@ local commonVehicleData = {}
 commonVehicleData.timeout = 2000
 commonVehicleData.minTimeout = 500
 commonVehicleData.DEFAULT = "Default"
+commonVehicleData.cloneTable =  utils.cloneTable
 
 local function checkIfPTSIsSentAsBinary(bin_data)
   if not (bin_data ~= nil and string.len(bin_data) > 0) then
@@ -47,6 +49,7 @@ local function getPTUFromPTS(tbl)
   tbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   tbl.policy_table.module_config.preloaded_pt = nil
   tbl.policy_table.module_config.preloaded_date = nil
+  tbl.policy_table.vehicle_data = nil
 end
 
 local function jsonFileToTable(file_name)

@@ -60,6 +60,7 @@ local function getPTUFromPTS()
     pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
     pTbl.policy_table.module_config.preloaded_pt = nil
     pTbl.policy_table.module_config.preloaded_date = nil
+    pTbl.policy_table.vehicle_data = nil
   end
   return pTbl
 end

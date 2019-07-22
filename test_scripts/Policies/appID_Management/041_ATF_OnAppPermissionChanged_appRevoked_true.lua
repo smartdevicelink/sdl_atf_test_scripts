@@ -48,6 +48,7 @@ local function updatePTU(ptu)
   ptu.policy_table.app_policies["0000001"] = json.null
   ptu.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   ptu.policy_table.module_config.preloaded_pt = nil
+  ptu.policy_table.vehicle_data = nil
 end
 
 local function storePTUInFile(ptu, ptu_file_name)

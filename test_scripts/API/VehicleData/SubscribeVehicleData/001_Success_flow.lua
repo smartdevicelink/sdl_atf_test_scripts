@@ -32,23 +32,23 @@ local rpc = {
 
 local vehicleDataResults = {
   engineOilLife = {
-    dataType = "VEHICLEDATA_ENGINEOILLIFE", 
+    dataType = "VEHICLEDATA_ENGINEOILLIFE",
     resultCode = "SUCCESS"
   },
   fuelRange = {
-    dataType = "VEHICLEDATA_FUELRANGE", 
+    dataType = "VEHICLEDATA_FUELRANGE",
     resultCode = "SUCCESS"
   },
   tirePressure = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
+    dataType = "VEHICLEDATA_TIREPRESSURE",
     resultCode = "SUCCESS"
-  }, 
+  },
   electronicParkBrakeStatus = {
-    dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS", 
+    dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS",
     resultCode = "SUCCESS"
-  }, 
+  },
   turnSignal = {
-    dataType = "VEHICLEDATA_TURNSIGNAL", 
+    dataType = "VEHICLEDATA_TURNSIGNAL",
     resultCode = "SUCCESS"
   }
 }
@@ -62,7 +62,7 @@ local function processRPCSuccess(self)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
         vehicleDataResults)
     end)
-  local responseParams = vehicleDataResults
+  local responseParams = common.cloneTable(vehicleDataResults)
   responseParams.success = true
   responseParams.resultCode = "SUCCESS"
   mobileSession:ExpectResponse(cid, responseParams)
