@@ -86,7 +86,8 @@ function Test:Precondition_Activate_App_Consent_Device_And_Update_Policy()
       pathToSnapshot = data.params.file
       days_after_epoch_prev = getDaysAfterEpochFromPTS(pathToSnapshot)
 
-      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
       EXPECT_HMIRESPONSE(RequestIdGetURLS)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})

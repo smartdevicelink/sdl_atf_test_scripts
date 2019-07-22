@@ -65,7 +65,8 @@ function Test:TestStep_Assign_To_App_Default_Permissions_And_Check_Them_In_OnPer
 end
 
 function Test:TestStep_Update_Policy_With_New_Permissions_And_Check_Them_In_OnPermissionsChange()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",

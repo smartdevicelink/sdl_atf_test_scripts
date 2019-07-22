@@ -71,7 +71,8 @@ end
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Sending_PTS_to_mobile_application()
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestId_GetUrls)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{

@@ -55,8 +55,6 @@
 ./test_scripts/Policies/Policy_Table_Update/126_ATF_OnStatusUpdate_UPDATE_NEEDED_new_PTU_request.lua
 ./test_scripts/Policies/Policy_Table_Update/127_ATF_PTS_Creation_rule.lua
 ./test_scripts/Policies/Policy_Table_Update/128_ATF_PTU_GetURLs.lua
-./test_scripts/Policies/Policy_Table_Update/129_ATF_HMI_sends_GetURLs_one_app_registered.lua
-./test_scripts/Policies/Policy_Table_Update/130_ATF_HMI_sends_GetURLs_no_app_registered.lua
 ./test_scripts/Policies/Policy_Table_Update/131_ATF_PTS_storage_on_file_system.lua
 ./test_scripts/Policies/Policy_Table_Update/132_ATF_Timeout_to_wait_response_PTU.lua
 ./test_scripts/Policies/Policy_Table_Update/133_ATF_PTU_retry_timeout_definition.lua

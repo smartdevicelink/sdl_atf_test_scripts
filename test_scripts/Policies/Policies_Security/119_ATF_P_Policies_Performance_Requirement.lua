@@ -84,12 +84,13 @@ local function ptu(self)
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local ptu_file_name = os.tmpname()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  log("HMI->SDL: RQ: SDL.GetURLS")
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  log("HMI->SDL: RQ: SDL.GetPolicyConfigurationData")
   EXPECT_HMIRESPONSE(requestId)
   :Do(
     function()
-      log("SDL->HMI: RS: SDL.GetURLS")
+      log("SDL->HMI: RS: SDL.GetPolicyConfigurationData")
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
       log("HMI->SDL: N: BC.OnSystemRequest")
       updatePTU(ptu_table)

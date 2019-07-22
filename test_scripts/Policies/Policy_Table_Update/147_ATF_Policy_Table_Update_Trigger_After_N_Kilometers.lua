@@ -108,7 +108,8 @@ function Test:Preconditions_Set_Odometer_Value1()
 end
 
 function Test:Precondition_Update_Policy_With_New_Exchange_After_X_Kilometers_Value()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",

@@ -67,16 +67,9 @@ end
 
 function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
   currentSystemDaysAfterEpoch = getSystemDaysAfterEpoch()
-      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-      EXPECT_HMIRESPONSE(RequestIdGetURLS, {
-        result = {
-          code = 0,
-          method = "SDL.GetURLS",
-          urls = {
-            { url = commonFunctions.getURLs("0x07")[1] }
-          }
-        }
-      })
+      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
+      EXPECT_HMIRESPONSE(RequestIdGetURLS, { result = { code = 0, method = "SDL.GetPolicyConfigurationData" }})
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

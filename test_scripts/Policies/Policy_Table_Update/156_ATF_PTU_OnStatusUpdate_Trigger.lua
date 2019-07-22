@@ -77,7 +77,8 @@ function Test:TestStep_Trigger_Device_consent()
 end
 
 function Test:TestStep_PTU_Success()
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestId_GetUrls)
   :Do(function(_,_)
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",

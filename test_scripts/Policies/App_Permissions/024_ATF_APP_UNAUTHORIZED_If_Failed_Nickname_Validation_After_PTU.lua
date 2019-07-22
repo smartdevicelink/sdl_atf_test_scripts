@@ -171,7 +171,8 @@ function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,_)
-      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
       EXPECT_HMIRESPONSE(RequestIdGetURLS)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})

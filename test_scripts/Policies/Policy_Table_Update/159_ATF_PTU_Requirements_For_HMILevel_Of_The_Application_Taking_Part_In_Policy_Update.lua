@@ -160,7 +160,8 @@ for time = 1, 10 do
   function Test:TestStep_CheckOnSystemRequest_AppLevel()
     print("Check OnSystemRequest sent to application. Time: "..time.."/10")
     local received_onsystemrequest = 0
-    local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
     EXPECT_HMIRESPONSE(requestId)
     :Do(function()
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })

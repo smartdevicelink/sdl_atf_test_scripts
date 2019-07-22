@@ -65,12 +65,12 @@ end
 
 function Test:Precondition_PolicyUpdateStarted()
 
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestIdGetURLS)
-  :Do(function(_, data)
+  :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{
           requestType = "PROPRIETARY",
-          url = data.result.urls[1].url,
           appID = self.applications [config.application1.registerAppInterfaceParams.appName],
           fileName = "sdl_snapshot.json"
         })

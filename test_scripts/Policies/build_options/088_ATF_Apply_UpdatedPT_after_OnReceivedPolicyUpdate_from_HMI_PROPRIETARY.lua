@@ -64,16 +64,9 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_Update_Policy()
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
 
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
-    result = {
-      code = 0,
-      method = "SDL.GetURLS",
-      urls = {
-        { url = commonFunctions.getURLs("0x07")[1] }
-      }
-    }
-  })
+  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(RequestIdGetURLS, { result = { code = 0, method = "SDL.GetPolicyConfigurationData" } })
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_path .. "sdl_snapshot.json"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

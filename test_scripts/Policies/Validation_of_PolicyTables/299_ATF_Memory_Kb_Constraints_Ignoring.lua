@@ -73,7 +73,8 @@ function Test:TestStep_Default_Send_PutFile_Bigger_Than_AppDirectoryQuota_OUT_OF
 end
 
 function Test:Precondition_Update_Policy_With_memory_kb_Param()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})

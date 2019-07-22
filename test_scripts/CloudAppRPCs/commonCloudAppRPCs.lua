@@ -130,7 +130,8 @@ function commonCloudAppRPCs.policyTableUpdateWithIconUrl(pPTUpdateFunc, pExpNoti
   local ptsFileName = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptuFileName = os.tmpname()
-  local requestId = commonCloudAppRPCs.getHMIConnection():SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = commonCloudAppRPCs.getHMIConnection():SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   commonCloudAppRPCs.getHMIConnection():ExpectResponse(requestId)
   :Do(function()
     commonCloudAppRPCs.getHMIConnection():SendNotification("BasicCommunication.OnSystemRequest",
