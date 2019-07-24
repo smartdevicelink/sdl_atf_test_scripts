@@ -3,10 +3,13 @@
 --  1) app1 is registered on SDL
 --
 --  Steps:
---  1) app1 sends a CancelInteraction Request for an invalid functionID (not one of the UI interactions)
+--  1) app1 sends a sends an Alert RPC
+--  2) app1 sends a CancelInteraction Request with an INVALID functionID
 --
 --  Expected:
---  1) core replies to app1 with a failure message
+--  1) the HMI does not receive the CancelInteraction request
+--  2) app1 receives INVALID_ID CancelInteraction response
+--  2) app1 receives SUCCESS from the Alert
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -16,13 +19,26 @@ local common = require('user_modules/sequences/actions')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local variables ]]
-local rpcRequest = {
+local rpcInteraction = {
+  name = "Alert",
+  hmi_name = "UI.Alert",
+  params = {
+    alertText1 = "hello"
+  }
+}
+
+local rpcCancelInteraction = {
   name = "CancelInteraction",
   hmi_name = "UI.CancelInteraction",
   params = {
-    cancelID = -1,
-    functionID = 11
+    cancelID = 99,
+    functionID = 21489012
   }
+}
+
+local successResponse = {
+  success = true,
+  resultCode = "SUCCESS"
 }
 
 local invalidIdResponse = {
@@ -31,14 +47,23 @@ local invalidIdResponse = {
 }
 
 --[[ Local functions ]]
-local function SendCancelInteracion()
+local function SendCancelInteraction()
   local mobileSession = common.getMobileSession(1)
+  local hmiSession = common.getHMIConnection()
   
-  local cid = mobileSession:SendRPC(rpcRequest.name, rpcRequest.params)
+  local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
+  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
   
-  EXPECT_HMICALL(rpcRequest.hmi_name, rpcRequest.params):Times(0)
+  EXPECT_HMICALL(rpcInteraction.hmi_name, {})
+  :Do(function(_, data)
+    hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
 
-  mobileSession:ExpectResponse(cid, invalidIdResponse)
+  EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
+  :Times(0)
+
+  mobileSession:ExpectResponse(cid0, successResponse)
+  mobileSession:ExpectResponse(cid1, invalidIdResponse)
 end
 
 --[[ Scenario ]]
@@ -48,8 +73,8 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI App 1", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 
-runner.Title("Test")    
-runner.Step("SendCancelInteracion", SendCancelInteracion)   
+runner.Title("Test")
+runner.Step("Send CancelInteraction", SendCancelInteraction)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

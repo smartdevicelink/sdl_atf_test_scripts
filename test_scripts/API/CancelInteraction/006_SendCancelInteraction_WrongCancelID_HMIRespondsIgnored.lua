@@ -3,13 +3,13 @@
 --  1) app1 is registered on SDL
 --
 --  Steps:
---  1) app1 sends a sends an ScrollableMessage RPC
---  2) app1 sends a CancelInteraction Request with the functionID of ScrollableMessage
+--  1) app1 sends a sends an Alert RPC with cancelID 42
+--  2) app1 sends a CancelInteraction Request with the functionID of Alert and a cancelID of 999
 --  3) the HMI receives the CancelInteraction Request and replies
 --
 --  Expected:
---  1) app1 receives SUCCESS from the CancelInteraction
---  2) app1 receives ABORTED from the ScrollableMessage
+--  2) app1 receives IGNORED CancelInteraction response since cancelID does not match current interaction
+--  2) app1 receives SUCCESS from the Alert
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -20,10 +20,11 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local variables ]]
 local rpcInteraction = {
-  name = "ScrollableMessage",
-  hmi_name = "UI.ScrollableMessage",
+  name = "Alert",
+  hmi_name = "UI.Alert",
   params = {
-    scrollableMessageBody = "big scrollable\n\t\tmessage"
+    alertText1 = "hello",
+    cancelID = 42
   }
 }
 
@@ -31,8 +32,8 @@ local rpcCancelInteraction = {
   name = "CancelInteraction",
   hmi_name = "UI.CancelInteraction",
   params = {
-    cancelID = 99,
-    functionID = 25
+    functionID = 12,
+    cancelID = 999
   }
 }
 
@@ -41,9 +42,9 @@ local successResponse = {
   resultCode = "SUCCESS"
 }
 
-local abortedResponse = {
+local ignoredResponse = {
   success = false,
-  resultCode = "ABORTED"
+  resultCode = "IGNORED"
 }
 
 --[[ Local functions ]]
@@ -56,16 +57,16 @@ local function SendCancelInteraction()
   
   EXPECT_HMICALL(rpcInteraction.hmi_name, {})
   :Do(function(_, data)
-    hmiSession:SendResponse(data.id, data.method, "ABORTED", {})
+    hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
 
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Do(function(_, data)
-    hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
+    hmiSession:SendResponse(data.id, data.method, "IGNORED", {})
   end)
 
-  mobileSession:ExpectResponse(cid0, abortedResponse)
-  mobileSession:ExpectResponse(cid1, successResponse)
+  mobileSession:ExpectResponse(cid0, successResponse)
+  mobileSession:ExpectResponse(cid1, ignoredResponse)
 end
 
 --[[ Scenario ]]
