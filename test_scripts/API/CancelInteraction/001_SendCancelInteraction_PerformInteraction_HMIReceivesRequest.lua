@@ -32,7 +32,7 @@ local successResponse = {
 }
 
 --[[ Local functions ]]
-local function SendCancelInteracion()
+local function SendCancelInteraction()
   local mobileSession = common.getMobileSession(1)
   local hmiSession = common.getHMIConnection()
   
