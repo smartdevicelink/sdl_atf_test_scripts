@@ -53,7 +53,7 @@ runner.Step("RAI App 1", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("SendCancelInteracion", SendCancelInteracion)
+runner.Step("Send CancelInteraction", SendCancelInteraction)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
