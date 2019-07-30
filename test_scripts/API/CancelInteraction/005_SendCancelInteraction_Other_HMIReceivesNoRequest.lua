@@ -9,7 +9,7 @@
 --  Expected:
 --  1) the HMI does not receive the CancelInteraction request
 --  2) app1 receives INVALID_ID CancelInteraction response
---  2) app1 receives SUCCESS from the Alert
+--  3) app1 receives SUCCESS from the Alert
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -23,7 +23,16 @@ local rpcInteraction = {
   name = "Alert",
   hmi_name = "UI.Alert",
   params = {
-    alertText1 = "hello"
+    alertText1 = "hello",
+    cancelID = 99
+  },
+  hmi_params = {
+    alertType = "UI",
+    duration = 5000,
+    cancelID = 99,
+    alertStrings = {
+      { fieldName = "alertText1", fieldText = "hello" }
+    }
   }
 }
 
@@ -32,7 +41,7 @@ local rpcCancelInteraction = {
   hmi_name = "UI.CancelInteraction",
   params = {
     cancelID = 99,
-    functionID = 21489012
+    functionID = 5
   }
 }
 
@@ -52,12 +61,13 @@ local function SendCancelInteraction()
   local hmiSession = common.getHMIConnection()
   
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
   
-  EXPECT_HMICALL(rpcInteraction.hmi_name, {})
+  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.hmi_params)
   :Do(function(_, data)
     hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
+
+  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
 
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Times(0)

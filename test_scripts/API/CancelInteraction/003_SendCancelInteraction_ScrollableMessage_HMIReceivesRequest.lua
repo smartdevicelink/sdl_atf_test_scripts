@@ -23,7 +23,16 @@ local rpcInteraction = {
   name = "ScrollableMessage",
   hmi_name = "UI.ScrollableMessage",
   params = {
-    scrollableMessageBody = "big scrollable\n\t\tmessage"
+    scrollableMessageBody = "big scrollable\n\t\tmessage",
+    cancelID = 99
+  },
+  hmi_params = {
+    timeout = 30000,
+    messageText = {
+      fieldName = "scrollableMessageBody",
+      fieldText = "big scrollable\n\t\tmessage"
+    },
+    cancelID = 99
   }
 }
 
@@ -52,15 +61,18 @@ local function SendCancelInteraction()
   local hmiSession = common.getHMIConnection()
   
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
+  local interaction_id = 0
   
-  EXPECT_HMICALL(rpcInteraction.hmi_name, {})
+  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.hmi_params)
   :Do(function(_, data)
-    hmiSession:SendResponse(data.id, data.method, "ABORTED", {})
+    interaction_id = data.id
   end)
+
+  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
 
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Do(function(_, data)
+    hmiSession:SendResponse(interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
     hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
 

@@ -3,13 +3,13 @@
 --  1) app1 is registered on SDL
 --
 --  Steps:
---  1) app1 sends a sends an Slider RPC
---  2) app1 sends a CancelInteraction Request with the functionID of Slider
+--  1) app1 sends a sends an Alert RPC
+--  2) app1 sends a CancelInteraction Request with the functionID of Alert
 --  3) the HMI receives the CancelInteraction Request and replies
 --
 --  Expected:
 --  1) app1 receives SUCCESS from the CancelInteraction
---  2) app1 receives ABORTED from the Slider
+--  2) app1 receives ABORTED from the Alert
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -20,14 +20,19 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local variables ]]
 local rpcInteraction = {
-  name = "Slider",
-  hmi_name = "UI.Slider",
+  name = "Alert",
+  hmi_name = "UI.Alert",
   params = {
-    numTicks = 16,
-    position = 8,
-    sliderHeader = "SLIDE ME",
-    timeout = 4999,
+    alertText1 = "hello",
     cancelID = 99
+  },
+  hmi_params = {
+    alertType = "UI",
+    duration = 5000,
+    cancelID = 99,
+    alertStrings = {
+      { fieldName = "alertText1", fieldText = "hello" }
+    }
   }
 }
 
@@ -35,8 +40,7 @@ local rpcCancelInteraction = {
   name = "CancelInteraction",
   hmi_name = "UI.CancelInteraction",
   params = {
-    functionID = 26,
-    cancelID = 99
+    functionID = 12
   }
 }
 
@@ -57,18 +61,18 @@ local function SendCancelInteraction()
   
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
   local interaction_id = 0
-
-  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.params)
+  
+  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.hmi_params)
   :Do(function(_, data)
     interaction_id = data.id
   end)
 
   local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
-  
+
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Do(function(_, data)
-    hmiSession:SendResponse(interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
     hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
+    hmiSession:SendResponse(interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
   end)
 
   mobileSession:ExpectResponse(cid0, abortedResponse)

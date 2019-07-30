@@ -8,7 +8,7 @@
 --  3) the HMI receives the CancelInteraction Request and replies
 --
 --  Expected:
---  2) app1 receives IGNORED CancelInteraction response since cancelID does not match current interaction
+--  1) app1 receives IGNORED CancelInteraction response since cancelID does not match current interaction
 --  2) app1 receives SUCCESS from the Alert
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -25,6 +25,14 @@ local rpcInteraction = {
   params = {
     alertText1 = "hello",
     cancelID = 42
+  },
+  hmi_params = {
+    alertType = "UI",
+    duration = 5000,
+    cancelID = 42,
+    alertStrings = {
+      { fieldName = "alertText1", fieldText = "hello" }
+    }
   }
 }
 
@@ -53,16 +61,19 @@ local function SendCancelInteraction()
   local hmiSession = common.getHMIConnection()
   
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
+  local interaction_id = 0
   
-  EXPECT_HMICALL(rpcInteraction.hmi_name, {})
+  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.hmi_params)
   :Do(function(_, data)
-    hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
+    interaction_id = data.id
   end)
+
+  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
 
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Do(function(_, data)
     hmiSession:SendResponse(data.id, data.method, "IGNORED", {})
+    hmiSession:SendResponse(interaction_id, rpcInteraction.hmi_name, "SUCCESS", {})
   end)
 
   mobileSession:ExpectResponse(cid0, successResponse)

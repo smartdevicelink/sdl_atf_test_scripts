@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
-local util = require('user_modules/utils')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -38,10 +37,32 @@ local rpcInteraction = {
   hmi_name = "UI.PerformInteraction",
   hmi_name2 = "VR.PerformInteraction",
   params = {
+    cancelID = 99,
     initialText = "hello",
     interactionMode = 0,
     interactionChoiceSetIDList = { 42 },
     helpPrompt = { { text = "tts_chunk", type = "SILENCE" } }
+  },
+  ui_params = {
+    cancelID = 99,
+    choiceSet = {
+      { choiceID = 1, menuName = "choice1" },
+      { choiceID = 2, menuName = "choice2" }
+    },
+    initialText = {
+      fieldName = "initialInteractionText",
+      fieldText = "hello"
+    },
+    timeout = 10000
+  },
+  vr_params = {
+    helpPrompt = {
+      { text = "tts_chunk", type = "SILENCE" }
+    },
+    timeoutPrompt = {
+      { text = "tts_chunk", type = "SILENCE" }
+    },
+    timeout = 10000
   }
 }
 
@@ -71,20 +92,25 @@ local function SendCancelInteraction()
   
   mobileSession:SendRPC(rpcCreateChoiceSet.name, rpcCreateChoiceSet.params)
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
+  local ui_perform_interaction_id = 0
+  local vr_perform_interaction_id = 0
   
-  EXPECT_HMICALL(rpcInteraction.hmi_name, {})
+  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.ui_params)
   :Do(function(_, data)
-    hmiSession:SendResponse(data.id, data.method, "ABORTED", {})
+    ui_perform_interaction_id = data.id
+  end)
+  
+  EXPECT_HMICALL(rpcInteraction.hmi_name2, rpcInteraction.vr_params)
+  :Do(function(_, data)
+    vr_perform_interaction_id = data.id
   end)
 
-  EXPECT_HMICALL(rpcInteraction.hmi_name2, {})
-  :Do(function(_, data)
-    hmiSession:SendResponse(data.id, data.method, "ABORTED", {})
-  end)
+  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
 
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Do(function(_, data)
+    hmiSession:SendResponse(ui_perform_interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
+    hmiSession:SendResponse(vr_perform_interaction_id, rpcInteraction.hmi_name2, "ABORTED", {})
     hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
 
