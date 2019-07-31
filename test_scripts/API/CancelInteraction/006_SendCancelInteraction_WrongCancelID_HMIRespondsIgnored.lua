@@ -61,14 +61,14 @@ local function SendCancelInteraction()
   local hmiSession = common.getHMIConnection()
   
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
-  local interaction_id = 0
+  local cid1
+  local interaction_id
   
   EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.hmi_params)
   :Do(function(_, data)
     interaction_id = data.id
+    cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
   end)
-
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
 
   EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
   :Do(function(_, data)

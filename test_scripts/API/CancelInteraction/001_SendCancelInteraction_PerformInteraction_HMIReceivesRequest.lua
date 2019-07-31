@@ -56,6 +56,7 @@ local rpcInteraction = {
     timeout = 10000
   },
   vr_params = {
+    cancelID = 99,
     helpPrompt = {
       { text = "tts_chunk", type = "SILENCE" }
     },
