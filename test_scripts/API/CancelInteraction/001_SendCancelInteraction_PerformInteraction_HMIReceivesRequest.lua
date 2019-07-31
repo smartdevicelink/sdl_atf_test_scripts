@@ -95,28 +95,29 @@ local function SendCancelInteraction()
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
   local ui_perform_interaction_id = 0
   local vr_perform_interaction_id = 0
-  
-  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.ui_params)
-  :Do(function(_, data)
-    ui_perform_interaction_id = data.id
-  end)
-  
+
   EXPECT_HMICALL(rpcInteraction.hmi_name2, rpcInteraction.vr_params)
   :Do(function(_, data)
     vr_perform_interaction_id = data.id
   end)
-
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
-
-  EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
+  
+  EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.ui_params)
   :Do(function(_, data)
-    hmiSession:SendResponse(ui_perform_interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
-    hmiSession:SendResponse(vr_perform_interaction_id, rpcInteraction.hmi_name2, "ABORTED", {})
-    hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
+    ui_perform_interaction_id = data.id
 
+    local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
+  
+    EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
+    :Do(function(_, data2)
+      hmiSession:SendResponse(ui_perform_interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
+      hmiSession:SendResponse(vr_perform_interaction_id, rpcInteraction.hmi_name2, "ABORTED", {})
+      hmiSession:SendResponse(data2.id, data2.method, "SUCCESS", {})
+    end)
+  
+    mobileSession:ExpectResponse(cid1, successResponse)
+  end)
+  
   mobileSession:ExpectResponse(cid0, abortedResponse)
-  mobileSession:ExpectResponse(cid1, successResponse)
 end
 
 --[[ Scenario ]]

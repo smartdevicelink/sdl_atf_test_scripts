@@ -56,23 +56,21 @@ local function SendCancelInteraction()
   local hmiSession = common.getHMIConnection()
   
   local cid0 = mobileSession:SendRPC(rpcInteraction.name, rpcInteraction.params)
-  local interaction_id = 0
 
   EXPECT_HMICALL(rpcInteraction.hmi_name, rpcInteraction.params)
   :Do(function(_, data)
-    interaction_id = data.id
-  end)
-
-  local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
+    local cid1 = mobileSession:SendRPC(rpcCancelInteraction.name, rpcCancelInteraction.params)
+    
+    EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
+    :Do(function(_, data2)
+      hmiSession:SendResponse(data.id, data.method, "ABORTED", {})
+      hmiSession:SendResponse(data2.id, data2.method, "SUCCESS", {})
+    end)
   
-  EXPECT_HMICALL(rpcCancelInteraction.hmi_name, rpcCancelInteraction.params)
-  :Do(function(_, data)
-    hmiSession:SendResponse(interaction_id, rpcInteraction.hmi_name, "ABORTED", {})
-    hmiSession:SendResponse(data.id, data.method, "SUCCESS", {})
+    mobileSession:ExpectResponse(cid1, successResponse)
   end)
 
   mobileSession:ExpectResponse(cid0, abortedResponse)
-  mobileSession:ExpectResponse(cid1, successResponse)
 end
 
 --[[ Scenario ]]
