@@ -36,7 +36,11 @@ local dataReqRes = {
     request = { policyType = "module_config", property = "seconds_between_retries" },
     response = { result = { code = 0 } },
     validIf = function(data)
-      return common.validation(data.result.value, preloadedTable.policy_table.module_config.seconds_between_retries,
+      local expectedData = {}
+      for _, item in ipairs(preloadedTable.policy_table.module_config.seconds_between_retries) do
+        table.insert(expectedData, tostring(item))
+      end
+      return common.validation(data.result.value, expectedData,
         "seconds_between_retries from GetPolicyConfigurationData response ")
     end
 },
@@ -56,7 +60,7 @@ local function GetPolicyConfigurationData(pData)
   common.getHMIConnection():ExpectResponse(requestId, pData.response)
   :ValidIf(function(_, data)
     if pData.validIf then
-      pData.validIf(data)
+      return pData.validIf(data)
     end
     return true
     end)
