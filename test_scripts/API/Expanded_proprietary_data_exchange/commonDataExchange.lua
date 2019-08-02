@@ -95,7 +95,6 @@ function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc, pRequestSubTyp
     pExpNotificationFunc()
   else
     m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-    m.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
   end
   local ptsFileName = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
