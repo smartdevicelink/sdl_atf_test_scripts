@@ -3,12 +3,11 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0179-pixel-density-and-scale.md
 -- Description:
 -- In case:
--- 1) During start HMI provides VideoStreamingCapability for parameters: "scale = 1.25" correct and
---    "pixelPerInch = abc" incorrect value
+-- 1) During start HMI provides VideoStreamingCapability for 'scale' parameter = 9.99 - max in range value
 -- 2) Mob app sends GetSystemCapability request to SDL
 -- SDL does:
--- 1) send response with videoStreamingCapability to Mobile with default value for "scale, pixelPerInch,
---    diagonalScreenSize" from HMI capability
+-- 1) send response to Mobile with videoStreamingCapability all mandatory parameters
+-- and with 'scale=9.99' parameter
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -19,11 +18,10 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local diagonalScreenSize = nil
-local pixelPerInch = "abc"
-local scale = 1.25
+local pixelPerInch = nil
+local scale = 9.99
 
 local hmiValues = common.getUpdatedHMIValues(diagonalScreenSize, pixelPerInch, scale)
-local hmiDefaultValues = common.hmiDefaultValues()
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -33,8 +31,7 @@ runner.Step("RAI", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Get Capability", common.getSystemCapability,
-  { hmiDefaultValues.diagonalScreenSize, hmiDefaultValues.pixelPerInch, hmiDefaultValues.scale })
+runner.Step("Get Capability", common.getSystemCapability, { nil, nil, scale })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -3,8 +3,7 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0179-pixel-density-and-scale.md
 -- Description:
 -- In case:
--- 1) During start HMI provides VideoStreamingCapability for parameters: "scale = 1.25" correct and
---    "pixelPerInch = abc" incorrect value
+-- 1) During start HMI provides VideoStreamingCapability for 'scale' parameter = 10.01 - out of range value
 -- 2) Mob app sends GetSystemCapability request to SDL
 -- SDL does:
 -- 1) send response with videoStreamingCapability to Mobile with default value for "scale, pixelPerInch,
@@ -19,8 +18,8 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local diagonalScreenSize = nil
-local pixelPerInch = "abc"
-local scale = 1.25
+local pixelPerInch = nil
+local scale = 10.01
 
 local hmiValues = common.getUpdatedHMIValues(diagonalScreenSize, pixelPerInch, scale)
 local hmiDefaultValues = common.hmiDefaultValues()
