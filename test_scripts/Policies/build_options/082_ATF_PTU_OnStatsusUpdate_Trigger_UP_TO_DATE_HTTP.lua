@@ -29,6 +29,7 @@
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -45,7 +46,7 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Test")
 
 function Test.Wait()
-	os.execute("sleep 2")
+	commonTestCases:DelayedExp(2000)
 end
 
 function Test:TestStep_PoliciesManager_changes_UP_TO_DATE()

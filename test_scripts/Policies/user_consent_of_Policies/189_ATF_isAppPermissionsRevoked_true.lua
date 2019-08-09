@@ -57,26 +57,7 @@ function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
   local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
   EXPECT_HMIRESPONSE(RequestIdGetURLS)
   :Do(function(_,_)
-      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "filename"})
-
-      EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
-      :Do(function(_,_)
-          self.mobileSession:SendRPC("SystemRequest", { fileName = "PolicyTableUpdate", requestType = "PROPRIETARY"},
-          "files/PTU_NewPermissionsForUserConsent.json")
-
-          local systemRequestId
-          EXPECT_HMICALL("BasicCommunication.SystemRequest")
-          :Do(function(_,data)
-              systemRequestId = data.id
-              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"})
-
-              local function to_run()
-                self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
-              end
-              RUN_AFTER(to_run, 1000)
-            end)
-
-          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(AtLeast(1))
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
           :Do(function(_,data)
               if(data.params.status == "UP_TO_DATE") then
 
@@ -104,6 +85,20 @@ function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
 
                   end)
               end
+            end)
+      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "filename"})
+
+      EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
+      :Do(function(_,_)
+        self.mobileSession:SendRPC("SystemRequest", { fileName = "PolicyTableUpdate", requestType = "PROPRIETARY"},
+          "files/PTU_NewPermissionsForUserConsent.json")
+
+          EXPECT_HMICALL("BasicCommunication.SystemRequest")
+          :Do(function(_,data)
+
+              self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"})
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+
             end)
         end)
     end)

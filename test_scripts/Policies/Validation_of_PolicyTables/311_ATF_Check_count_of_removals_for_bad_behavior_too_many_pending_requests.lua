@@ -47,6 +47,17 @@ Test = require('connecttest')
 require('cardinalities')
 require('user_modules/AppTypes')
 
+local connectMobile_Orig = Test.connectMobile
+function Test:connectMobile()
+  local ret = connectMobile_Orig(self)
+  ret:Do(function()
+      self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+        { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }} )
+      utils.wait(500)
+    end)
+  return ret
+end
+
 commonPreconditions:BackupFile("smartDeviceLink.ini")
 commonFunctions:write_parameter_to_smart_device_link_ini("FrequencyCount", count_of_requests)
 commonFunctions:write_parameter_to_smart_device_link_ini("FrequencyTime", "5000")

@@ -112,18 +112,9 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
           transportType = "WIFI",
           isSDLAllowed = false
     } } })
-  :Do(function(_,data)
-      if(order_communication ~= 1 and order_communication ~= 2) then
-        commonFunctions:printError("BasicCommunication.OnAppRegistered is not received 1 or 2 in message order. Real: received number: "..order_communication)
-        is_test_fail = true
-      end
-      order_communication = order_communication + 1
-      self.applications["SPT"] = data.params.application.appID
-    end)
-
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   :Do(function(_,_)
-      if(order_communication ~= 2 and order_communication ~= 1) then
+      if(order_communication ~= 1) then
         commonFunctions:printError("RAI response is not received 1 or 2 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
@@ -132,7 +123,7 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
 
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   :Do(function(_,_)
-      if(order_communication ~= 3) then
+      if(order_communication ~= 2) then
         commonFunctions:printError("OnHMIStatus is not received 3 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
@@ -141,7 +132,7 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
 
   EXPECT_NOTIFICATION("OnPermissionsChange", {})
   :Do(function(_,_data2)
-      if(order_communication ~= 4) then
+      if(order_communication ~= 3) then
         commonFunctions:printError("OnPermissionsChange is not received 4 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end

@@ -26,7 +26,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 --[[ Local Variables ]]
 local ptu_file = "files/jsons/Policies/build_options/ptu_18269.json"
 local sequence = { }
-local attempts = 16
+local attempts = 6
 local r_expected = {
   commonFunctions.getURLs("0x07")[1],
   "http://policies.domain1.ford.com/api/policies",

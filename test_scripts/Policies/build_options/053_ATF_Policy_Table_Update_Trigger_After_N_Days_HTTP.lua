@@ -24,6 +24,7 @@ config.defaultProtocolVersion = 2
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local exchangeDays = 30
@@ -64,6 +65,7 @@ local mobile_session = require('mobile_session')
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test.Preconditions_Set_Exchange_After_X_Days_For_PTU()
   CreatePTUFromExisted()
+  commonTestCases:DelayedExp(500)
 end
 
 function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()

@@ -85,14 +85,13 @@ function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
 
               EXPECT_HMICALL("BasicCommunication.SystemRequest")
               :Do(function(_,data1)
-
+                EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}):Times(1)
                 self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"})
                 self.hmiConnection:SendResponse(data1.id, "BasicCommunication.SystemRequest", "SUCCESS", {})
                 EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
               end)
           end)
       end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}):Times(1)
   end
 
 function Test.Precondition_StopSDL()
@@ -130,7 +129,7 @@ function Test:TestStep_Register_App_And_Check_That_PTU_Triggered()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",{status = "UPDATE_NEEDED"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",{status = "UPDATE_NEEDED"},{status = "UPDATING"}):Times(2)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
 end
 
