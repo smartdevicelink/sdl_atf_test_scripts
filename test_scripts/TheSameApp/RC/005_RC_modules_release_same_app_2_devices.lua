@@ -23,14 +23,19 @@
 --    SDL sends OnRCStatus(allocatedModules:(), freeModules: (RADIO, LIGHT)) notification to App1 on Mobile №1
 --    SDL sends OnRCStatus(allocatedModules:(CLIMATE), freeModules: (RADIO, LIGHT)) notification to App1 on Mobile №2
 --    SDL sends RC.OnRCStatus(appId: hmiAppId_1, allocatedModules:(), freeModules: (RADIO, LIGHT)) notification to HMI
---    SDL sends RC.OnRCStatus(appId: hmiAppId_2, allocatedModules:(CLIMATE), freeModules: (RADIO, LIGHT)) notification to HMI
+--    SDL sends RC.OnRCStatus(appId: hmiAppId_2, allocatedModules:(CLIMATE), freeModules: (RADIO, LIGHT)) notification
+--    to HMI
 -- 2)User exit Application App1 on Mobile №2
 --    HMI sends BC.OnExitApplication(hmiAppId_2, reason = USER_EXIT) notification to SDL
 --   Check:
---    SDL sends OnRCStatus(allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification to App1 on Mobile №1
---    SDL sends OnRCStatus(allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification to App1 on Mobile №2
---    SDL sends RC.OnRCStatus(appId: hmiAppId_1, allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification to HMI
---    SDL sends RC.OnRCStatus(appId: hmiAppId_2, allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification to HMI
+--    SDL sends OnRCStatus(allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification to App1
+--    on Mobile №1
+--    SDL sends OnRCStatus(allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification to App1
+--    on Mobile №2
+--    SDL sends RC.OnRCStatus(appId: hmiAppId_1, allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification
+--    to HMI
+--    SDL sends RC.OnRCStatus(appId: hmiAppId_2, allocatedModules:(), freeModules: (RADIO, CLIMATE, LIGHT)) notification
+--    to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -55,6 +60,10 @@ local appParams = {
   }
 }
 
+local rcAppIds = { 1, 2 }
+local hmiCapabilities = common.buildHmiRcCapabilities({ CLIMATE = "Default", LIGHT = "Default", RADIO = "Default" })
+local rcCapabilities = common.getRcCapabilities(hmiCapabilities)
+
 --[[ Local Functions ]]
 local function modificationOfPreloadedPT(pPolicyTable)
   local pt = pPolicyTable.policy_table
@@ -68,52 +77,30 @@ local function modificationOfPreloadedPT(pPolicyTable)
   pt.app_policies[appParams[1].fullAppID] = policyAppParams
 end
 
-local function releaseModuleApp1Dev1()
-  local freeModules = {"RADIO", "LIGHT", "SEAT", "AUDIO", "HMI_SETTINGS"}
-  local pHmiExpDataTable = {
-    [common.app.getHMIId(1)] = {allocatedModules = {}, freeModules = freeModules},
-    [common.app.getHMIId(2)] = {allocatedModules = {"CLIMATE"}, freeModules = freeModules}
-  }
-  common.expectOnRCStatusOnHMI(pHmiExpDataTable)
-  common.expectOnRCStatusOnMobile(1, {allocatedModules = {}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(2, {allocatedModules = {"CLIMATE"}, freeModules = freeModules, allowed = true})
-
+local function exitApp(pAppId, pRcAppIds)
+  common.resetModulesAllocationByApp(pAppId)
+  common.validateOnRCStatus(pRcAppIds)
   common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
-    { appID = common.app.getHMIId(1), reason = "USER_EXIT" })
-end
-
-local function releaseModuleApp1Dev2()
-  local freeModules = {"RADIO", "LIGHT", "CLIMATE", "SEAT", "AUDIO", "HMI_SETTINGS"}
-  local pHmiExpDataTable = {
-    [common.app.getHMIId(1)] = {allocatedModules = {}, freeModules = freeModules},
-    [common.app.getHMIId(2)] = {allocatedModules = {}, freeModules = freeModules}
-  }
-  common.expectOnRCStatusOnHMI(pHmiExpDataTable)
-  common.expectOnRCStatusOnMobile(1,  {allocatedModules = {}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(2,  {allocatedModules = {}, freeModules = freeModules, allowed = true})
-
-  common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
-    { appID = common.app.getHMIId(2), reason = "USER_EXIT" })
+    { appID = common.app.getHMIId(pAppId), reason = "USER_EXIT" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Prepare preloaded PT", common.modifyPreloadedPt, {modificationOfPreloadedPT})
-runner.Step("Start SDL and HMI with CLIMATE, LIGHT and RADIO RC modules", common.start,
-    {common.buildHmiRcCapabilities({CLIMATE = "Default", LIGHT = "Default", RADIO = "Default"})})
+runner.Step("Start SDL and HMI with CLIMATE, LIGHT and RADIO RC modules", common.startWithRC, { hmiCapabilities })
 runner.Step("Set AccessMode AUTO_DENY", common.defineRAMode, { true, "AUTO_DENY" })
 runner.Step("Connect two mobile devices to SDL", common.connectMobDevices, {devices})
 runner.Step("Register App1 from device 1", common.registerAppEx, {1, appParams[1], 1})
 runner.Step("Register App1 from device 2", common.registerAppEx, {2, appParams[1], 2})
 runner.Step("Activate App1 from Device 1", common.activateApp, {1})
-runner.Step("App1 on Device 1 successfully allocates module RADIO", common.rpcAllowed, {1, "RADIO"})
+runner.Step("App1 on Device 1 successfully allocates module RADIO", common.allocateModuleToApp, {1, "RADIO", rcAppIds, rcCapabilities })
 runner.Step("Activate App1 from Device 2", common.activateApp, {2})
-runner.Step("App1 on Device 2 successfully allocates module CLIMATE", common.rpcAllowed, {2, "CLIMATE"})
+runner.Step("App1 on Device 2 successfully allocates module CLIMATE", common.allocateModuleToApp, {2, "CLIMATE", rcAppIds, rcCapabilities })
 
 runner.Title("Test")
-runner.Step("User exit Application App1 on Mobile №1", releaseModuleApp1Dev1)
-runner.Step("User exit Application App1 on Mobile №2", releaseModuleApp1Dev2)
+runner.Step("User exit Application App1 on Mobile №1", exitApp, { 1, rcAppIds })
+runner.Step("User exit Application App1 on Mobile №2", exitApp, { 2, rcAppIds })
 
 runner.Title("Postconditions")
 runner.Step("Remove mobile devices", common.clearMobDevices, {devices})

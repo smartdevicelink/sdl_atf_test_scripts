@@ -85,59 +85,34 @@ local function modificationOfPreloadedPT(pPolicyTable)
 
 end
 
-local function allocateModuleApp2Dev2()
-  local freeModules = {"SEAT", "AUDIO", "HMI_SETTINGS"}
-  local pHmiExpDataTable = {
-    [common.app.getHMIId(1)] = {allocatedModules = {}, freeModules = freeModules},
-    [common.app.getHMIId(2)] = {allocatedModules = {"CLIMATE"}, freeModules = freeModules},
-    [common.app.getHMIId(3)] = {allocatedModules = {"LIGHT", "RADIO"}, freeModules = freeModules}
-  }
-  common.expectOnRCStatusOnHMI(pHmiExpDataTable)
-  common.expectOnRCStatusOnMobile(1, {allocatedModules = {}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(2, {allocatedModules = {"CLIMATE"}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(3, {
-    allocatedModules = {"LIGHT", "RADIO"}, freeModules = freeModules, allowed = true})
-  common.rpcAllowed(3, "RADIO")
-end
-
-local function allocateModuleApp1Dev1()
-  local freeModules = {"SEAT", "AUDIO", "HMI_SETTINGS"}
-  local pHmiExpDataTable = {
-    [common.app.getHMIId(1)] = {allocatedModules = {"CLIMATE"}, freeModules = freeModules},
-    [common.app.getHMIId(2)] = {allocatedModules = {}, freeModules = freeModules},
-    [common.app.getHMIId(3)] = {allocatedModules = {"LIGHT", "RADIO"}, freeModules = freeModules}
-  }
-  common.expectOnRCStatusOnHMI(pHmiExpDataTable)
-  common.expectOnRCStatusOnMobile(1, {allocatedModules = {"CLIMATE"}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(2, {allocatedModules = {}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(3, {
-    allocatedModules = {"LIGHT", "RADIO"}, freeModules = freeModules, allowed = true})
-  common.rpcAllowed(1, "CLIMATE")
-end
+local rcAppIds = { 1, 2, 3 }
+local hmiCapabilities = common.buildHmiRcCapabilities({ CLIMATE = "Default", LIGHT = "Default", RADIO = "Default" })
+local rcCapabilities = common.getRcCapabilities(hmiCapabilities)
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Prepare preloaded PT", common.modifyPreloadedPt, {modificationOfPreloadedPT})
-runner.Step("Start SDL and HMI with CLIMATE, LIGHT and RADIO RC modules", common.start,
-    {common.buildHmiRcCapabilities({CLIMATE = "Default", LIGHT = "Default", RADIO = "Default"})})
+runner.Step("Start SDL and HMI with CLIMATE, LIGHT and RADIO RC modules", common.startWithRC, { hmiCapabilities })
 runner.Step("Set AccessMode AUTO_ALLOW", common.defineRAMode, { true, "AUTO_ALLOW" })
 runner.Step("Connect two mobile devices to SDL", common.connectMobDevices, {devices})
 runner.Step("Register App1 from device 1", common.registerAppEx, {1, appParams[1], 1})
 runner.Step("Register App1 from device 2", common.registerAppEx, {2, appParams[1], 2})
 runner.Step("Register App2 from device 2", common.registerAppEx, {3, appParams[2], 2})
 runner.Step("Activate App1 from Device 1", common.activateApp, {1})
-runner.Step("App1 on Device 1 successfully allocates module RADIO", common.rpcAllowed, {1, "RADIO"})
+runner.Step("App1 on Device 1 successfully allocates module RADIO", common.allocateModuleToApp, {1, "RADIO", rcAppIds, rcCapabilities })
 runner.Step("Activate App1 from Device 2", common.activateApp, {2})
-runner.Step("App1 on Device 2 successfully allocates module CLIMATE", common.rpcAllowed, {2, "CLIMATE"})
+runner.Step("App1 on Device 2 successfully allocates module CLIMATE", common.allocateModuleToApp, {2, "CLIMATE", rcAppIds, rcCapabilities })
 runner.Step("Activate App2 from Device 2", common.activateApp, {3})
-runner.Step("App2 on Device 2 successfully allocates module LIGHT", common.rpcAllowed, {3, "LIGHT"})
+runner.Step("App2 on Device 2 successfully allocates module LIGHT", common.allocateModuleToApp, {3, "LIGHT", rcAppIds, rcCapabilities })
 
 runner.Title("Test")
-runner.Step("App2 on Device 2 successfully reallocates module RADIO from App1 on Device 1", allocateModuleApp2Dev2)
+runner.Step("App2 on Device 2 successfully reallocates module RADIO from App1 on Device 1", common.allocateModuleToApp,
+    { 3, "RADIO", rcAppIds, rcCapabilities })
 
 runner.Step("Activate App1 from Device 1", common.activateApp, {1})
-runner.Step("App1 on Device 1 successfully reallocates module CLIMATE from App1 on Device 2", allocateModuleApp1Dev1)
+runner.Step("App1 on Device 1 successfully reallocates module CLIMATE from App1 on Device 2", common.allocateModuleToApp,
+    { 1, "CLIMATE", rcAppIds, rcCapabilities })
 
 runner.Title("Postconditions")
 runner.Step("Remove mobile devices", common.clearMobDevices, {devices})

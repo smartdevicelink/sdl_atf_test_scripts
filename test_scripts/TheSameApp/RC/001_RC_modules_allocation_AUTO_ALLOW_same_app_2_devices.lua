@@ -21,7 +21,8 @@
 --    SDL sends OnRCStatus(allocatedModules:(), freeModules: (CLIMATE, LIGHT)) notification to App1 on Mobile №1
 --    SDL sends OnRCStatus(allocatedModules:(RADIO), freeModules: (CLIMATE, LIGHT)) notification to App1 on Mobile №2
 --    SDL sends RC.OnRCStatus(appId: hmiAppId_1, allocatedModules:(), freeModules: (CLIMATE, LIGHT)) notification to HMI
---    SDL sends RC.OnRCStatus(appId: hmiAppId_2, allocatedModules:(RADIO), freeModules: (CLIMATE, LIGHT)) notification to HMI
+--    SDL sends RC.OnRCStatus(appId: hmiAppId_2, allocatedModules:(RADIO), freeModules: (CLIMATE, LIGHT)) notification
+--    to HMI
 -- 2)Application App1 from Mobile №1 activates and sends to SDL valid SetInteriorVehicleData (module: LIGHT)
 --    RPC request to allocate LIGHT module
 --   Check:
@@ -54,6 +55,10 @@ local appParams = {
   }
 }
 
+local rcAppIds = { 1, 2 }
+local hmiCapabilities = common.buildHmiRcCapabilities({ CLIMATE = "Default", LIGHT = "Default", RADIO = "Default" })
+local rcCapabilities = common.getRcCapabilities(hmiCapabilities)
+
 --[[ Local Functions ]]
 
 local function modificationOfPreloadedPT(pPolicyTable)
@@ -68,44 +73,11 @@ local function modificationOfPreloadedPT(pPolicyTable)
   pt.app_policies[appParams[1].fullAppID] = policyAppParams
 end
 
-local function allocateModuleApp1Dev2()
-  local freeModules = {"CLIMATE", "LIGHT", "SEAT", "AUDIO", "HMI_SETTINGS"}
-  local pHmiExpDataTable = {
-    [common.app.getHMIId(1)] = {
-      allocatedModules = {}, freeModules = freeModules},
-    [common.app.getHMIId(2)] = {
-      allocatedModules = {"RADIO"}, freeModules = freeModules}
-  }
-  common.expectOnRCStatusOnHMI(pHmiExpDataTable)
-  common.expectOnRCStatusOnMobile(1, {
-    allocatedModules = {}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(2, {
-    allocatedModules = {"RADIO"}, freeModules = freeModules, allowed = true})
-  common.rpcAllowed(2, "RADIO")
-end
-
-local function allocateModuleApp1Dev1()
-  local freeModules = {"CLIMATE", "SEAT", "AUDIO", "HMI_SETTINGS"}
-  local pHmiExpDataTable = {
-    [common.app.getHMIId(1)] = {
-      allocatedModules = {"LIGHT"}, freeModules = freeModules},
-    [common.app.getHMIId(2)] = {
-      allocatedModules = {"RADIO"}, freeModules = freeModules}
-  }
-  common.expectOnRCStatusOnHMI(pHmiExpDataTable)
-  common.expectOnRCStatusOnMobile(1, {
-    allocatedModules = {"LIGHT"}, freeModules = freeModules, allowed = true})
-  common.expectOnRCStatusOnMobile(2, {
-    allocatedModules = {"RADIO"}, freeModules = freeModules, allowed = true})
-  common.rpcAllowed(1, "LIGHT")
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Prepare preloaded PT", common.modifyPreloadedPt, {modificationOfPreloadedPT})
-runner.Step("Start SDL and HMI with CLIMATE, LIGHT and RADIO RC modules", common.start,
-    {common.buildHmiRcCapabilities({CLIMATE = "Default", LIGHT = "Default", RADIO = "Default"})})
+runner.Step("Start SDL and HMI with CLIMATE, LIGHT and RADIO RC modules", common.startWithRC, { hmiCapabilities })
 runner.Step("Set AccessMode AUTO_ALLOW", common.defineRAMode, { true, "AUTO_ALLOW" })
 runner.Step("Connect two mobile devices to SDL", common.connectMobDevices, {devices})
 runner.Step("Register App1 from device 1", common.registerAppEx, {1, appParams[1], 1})
@@ -113,10 +85,12 @@ runner.Step("Register App1 from device 2", common.registerAppEx, {2, appParams[1
 
 runner.Title("Test")
 runner.Step("Activate App1 from Device 2", common.activateApp, {2})
-runner.Step("App1 on Device 2 successfully allocates module RADIO", allocateModuleApp1Dev2)
+runner.Step("App1 on Device 2 successfully allocates module RADIO", common.allocateModuleToApp,
+    { 2, "RADIO", rcAppIds, rcCapabilities })
 
 runner.Step("Activate App1 from Device 1", common.activateApp, {1})
-runner.Step("App1 on Device 1 successfully allocates module LIGHT", allocateModuleApp1Dev1)
+runner.Step("App1 on Device 1 successfully allocates module LIGHT", common.allocateModuleToApp,
+    { 1, "LIGHT", rcAppIds, rcCapabilities })
 
 runner.Title("Postconditions")
 runner.Step("Remove mobile devices", common.clearMobDevices, {devices})

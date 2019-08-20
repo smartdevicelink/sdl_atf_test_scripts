@@ -110,6 +110,7 @@ local function unsubscribeVehicleData(pAppId, pModuleType, pSubscribe, pIsLastAp
     common.hmi.getConnection():ExpectRequest("RC.GetInteriorVehicleData",
         { moduleType = pModuleType, subscribe = pSubscribe})
     :Do(function(_,data)
+        pReqPayloadNeg[pPayload].moduleData.moduleId = data.params.moduleId
         common.hmi.getConnection():SendResponse( data.id, data.method, "SUCCESS", pReqPayloadNeg[pPayload] )
       end)
   end
