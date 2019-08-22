@@ -7,6 +7,7 @@ local actions = require('user_modules/sequences/actions')
 local events = require("events")
 local constants = require('protocol_handler/ford_protocol_constants')
 local hmi_values = require("user_modules/hmi_values")
+local rc = require('user_modules/sequences/remote_control')
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
@@ -25,6 +26,8 @@ common.getDeviceName = utils.getDeviceName
 common.getDeviceMAC = utils.getDeviceMAC
 common.cloneTable = utils.cloneTable
 common.isTableContains = utils.isTableContains
+common.setModuleAllocation = rc.state.setModuleAllocation
+common.resetModulesAllocationByApp = rc.state.resetModulesAllocationByApp
 
 --[[ Common Functions ]]
 function common.start(pHMIParams)
@@ -426,21 +429,37 @@ function common.funcGroupConsentForApp(pPrompts, pAppId)
     end)
 end
 
-function common.buildHmiRcCapabilities(pCapabilities)
-  local capMap = {
-    ["RADIO"] = "radioControlCapabilities",
-    ["CLIMATE"] = "climateControlCapabilities",
-    ["SEAT"] = "seatControlCapabilities",
-    ["AUDIO"] = "audioControlCapabilities",
-    ["LIGHT"] = "lightControlCapabilities",
-    ["HMI_SETTINGS"] = "hmiSettingsControlCapabilities",
-    ["BUTTONS"] = "buttonCapabilities"
-  }
+local capabilitiesMap = {
+  RADIO = "radioControlCapabilities",
+  CLIMATE = "climateControlCapabilities",
+  SEAT = "seatControlCapabilities",
+  AUDIO = "audioControlCapabilities",
+  LIGHT = "lightControlCapabilities",
+  HMI_SETTINGS = "hmiSettingsControlCapabilities",
+  BUTTONS = "buttonCapabilities"
+}
 
+function common.getRcCapabilities(pHmiCapabilities)
+  local hmiRcCapabilities = pHmiCapabilities.RC.GetCapabilities.params.remoteControlCapability
+  local rcCapabilities = {}
+  for moduleType, capabilitiesParamName in pairs(capabilitiesMap) do
+    rcCapabilities[moduleType] = hmiRcCapabilities[capabilitiesParamName]
+  end
+  return rcCapabilities
+end
+
+function common.startWithRC(pHmiCapabilities)
+  local rcCapabilities = common.getRcCapabilities(pHmiCapabilities)
+  local state = rc.state.buildDefaultActualModuleState(rcCapabilities)
+  rc.state.initActualModuleStateOnHMI(state)
+  common.start(pHmiCapabilities)
+end
+
+function common.buildHmiRcCapabilities(pCapabilities)
   local hmiParams = hmi_values.getDefaultHMITable()
   hmiParams.RC.IsReady.params.available = true
   local capParams = hmiParams.RC.GetCapabilities.params.remoteControlCapability
-  for k, v in pairs(capMap) do
+  for k, v in pairs(capabilitiesMap) do
     if pCapabilities[k] then
       if pCapabilities[k] ~= "Default" then
         capParams[v] = pCapabilities[k]
@@ -501,87 +520,35 @@ function common.getModuleControlData(pModuleType)
   return out
 end
 
-local function sortModules(pModulesArray)
-  local function f(a, b)
-    if a.moduleType and b.moduleType then
-      return a.moduleType < b.moduleType
-    elseif a and b then
-      return a < b
-    end
-    return 0
+local function createAllocationExpectations(pAppId, pModuleType, pRcAppIds, pRcCapabilities)
+  if pModuleType == "HMI_SETTINGS" or pModuleType == "LIGHT" then
+    common.setModuleAllocation(pModuleType, pRcCapabilities[pModuleType].moduleInfo.moduleId, pAppId)
+  else
+    common.setModuleAllocation(pModuleType, pRcCapabilities[pModuleType][1].moduleInfo.moduleId, pAppId)
   end
-  table.sort(pModulesArray, f)
+  common.validateOnRCStatus(pRcAppIds)
 end
 
-local function enrichExpDataTable(pExpDataTable)
-
-  local function createModulesArray(pIncomeModArray)
-    local modArray = {}
-    for _, moduleType in ipairs(pIncomeModArray) do
-      table.insert(modArray, {moduleType = moduleType})
-    end
-  return modArray
-  end
-
-  local expDataTable = common.cloneTable(pExpDataTable)
-    expDataTable.allocatedModules = createModulesArray(pExpDataTable.allocatedModules)
-    expDataTable.freeModules = createModulesArray(pExpDataTable.freeModules)
-  return expDataTable
+function common.allocateModuleToApp(pAppId, pModuleType, pRcAppIds, pRcCapabilities)
+  createAllocationExpectations(pAppId, pModuleType, pRcAppIds, pRcCapabilities)
+  common.rpcAllowed(pAppId, pModuleType)
 end
 
-function common.expectOnRCStatusOnMobile(pAppId, pExpData)
-  local expData = enrichExpDataTable(pExpData)
-  common.mobile.getSession(pAppId):ExpectNotification("OnRCStatus")
-  :ValidIf(function(_, d)
-     sortModules(expData.freeModules)
-     sortModules(expData.allocatedModules)
-     sortModules(d.payload.freeModules)
-     sortModules(d.payload.allocatedModules)
-     return compareValues(expData, d.payload, "payload")
-   end)
- :ValidIf(function(_, d)
-   if d.payload.allowed == nil  then
-     return false, "OnRCStatus notification doesn't contains 'allowed' parameter"
-   end
-   return true
- end)
+function common.allocateModuleToAppWithConsent (pAppId, pModuleType, pRcAppIds, pRcCapabilities)
+  createAllocationExpectations(pAppId, pModuleType, pRcAppIds, pRcCapabilities)
+  common.rpcAllowedWithConsent(pAppId, pModuleType)
 end
 
-function common.expectOnRCStatusOnHMI(pExpDataTable)
-  local expDataTable = common.cloneTable(pExpDataTable)
-    for i in pairs(pExpDataTable) do
-      expDataTable[i] = enrichExpDataTable(pExpDataTable[i])
-    end
-  local usedHmiAppIds = {}
-  local appCount = 0;
-  for _,_ in pairs(expDataTable) do
-    appCount = appCount + 1
+function common.validateOnRCStatus(pAppIds)
+  if not pAppIds then pAppIds =  {1} end
+  local hmiExpDataTable  = { }
+  for _, appId in pairs(pAppIds) do
+    local rcStatusForApp = rc.state.getModulesAllocationByApp(appId)
+    hmiExpDataTable[common.getHMIAppId(appId)] = utils.cloneTable(rcStatusForApp)
+    rcStatusForApp.allowed = true
+    rc.rc.expectOnRCStatusOnMobile(appId, rcStatusForApp)
   end
-  common.hmi.getConnection():ExpectNotification("RC.OnRCStatus")
-  :ValidIf(function(_, d)
-      if d.params.allowed ~= nil then
-        return false, "RC.OnRCStatus notification contains unexpected 'allowed' parameter"
-      end
-
-      local hmiAppId = d.params.appID
-      if expDataTable[hmiAppId] and not usedHmiAppIds[hmiAppId] then
-        usedHmiAppIds[hmiAppId] = true
-        sortModules(expDataTable[hmiAppId].freeModules)
-        sortModules(expDataTable[hmiAppId].allocatedModules)
-        sortModules(d.params.freeModules)
-        sortModules(d.params.allocatedModules)
-        return compareValues(expDataTable[hmiAppId], d.params, "params")
-      else
-        local msg
-        if usedHmiAppIds[hmiAppId] then
-          msg = "To many occurrences of RC.OnRCStatus notification for hmiAppId: " .. hmiAppId
-        else
-          msg = "Unexpected RC.OnRCStatus notification for hmiAppId: " .. hmiAppId
-        end
-        return false, msg
-      end
-    end)
-  :Times(appCount)
+  rc.rc.expectOnRCStatusOnHMI(hmiExpDataTable)
 end
 
 function common.defineRAMode(pAllowed, pAccessMode)
@@ -596,9 +563,12 @@ local function successHmiRequestSetInteriorVehicleData(pAppId, pModuleControlDat
     moduleData = pModuleControlData
   })
   :Do(function(_, data)
+      local moduleControlData = common.cloneTable(pModuleControlData)
+      moduleControlData.moduleId = data.params.moduleData.moduleId
       common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {
-        moduleData = pModuleControlData
+        moduleData = moduleControlData
       })
+      common.setModuleAllocation(moduleControlData.moduleType, moduleControlData.moduleId, pAppId)
     end)
 end
 
@@ -623,7 +593,7 @@ function common.rpcAllowedWithConsent(pAppId, pModuleType)
         moduleType = pModuleType
       })
   :Do(function(_, data)
-      common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {allowed = true})
+      common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {allowed = { true } })
       successHmiRequestSetInteriorVehicleData(pAppId, moduleControlData)
     end)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
@@ -640,7 +610,6 @@ function common.rpcDenied(pAppId, pModuleType, pResultCode)
 end
 
 function common.rpcRejectWithConsent(pAppId, pModuleType)
-  local info = "The resource is in use and the driver disallows this remote control RPC"
   local moduleControlData = common.getModuleControlData(pModuleType)
   local mobSession = common.mobile.getSession(pAppId)
   local cid = mobSession:SendRPC("SetInteriorVehicleData", {
@@ -651,10 +620,10 @@ function common.rpcRejectWithConsent(pAppId, pModuleType)
         moduleType = pModuleType
       })
   :Do(function(_, data)
-      common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {allowed = false})
+      common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {allowed = { false } })
       common.hmi.getConnection():ExpectRequest("RC.SetInteriorVehicleData", {}):Times(0)
     end)
-  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED", info = info })
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED"})
 end
 
 function common.ignitionOff(pDevices, pExpFunc)
@@ -877,6 +846,7 @@ function common.getInteriorVehicleData(pAppId, pModuleType, pSubscribe, pIsAFirs
   elseif pModuleType == "CLIMATE" then pPayload = 2
   end
 
+  local moduleId
   local mobSession = common.mobile.getSession(pAppId)
   local cid = mobSession:SendRPC("GetInteriorVehicleData", { moduleType = pModuleType, subscribe = pSubscribe })
   -- SDL -> HMI - should send this request only when 1st app get subscribed
@@ -884,9 +854,12 @@ function common.getInteriorVehicleData(pAppId, pModuleType, pSubscribe, pIsAFirs
     common.hmi.getConnection():ExpectRequest("RC.GetInteriorVehicleData",
         { moduleType = pModuleType, subscribe = pSubscribe})
     :Do(function(_,data)
+        moduleId = data.params.moduleId
+        pReqPayload[pPayload].moduleData.moduleId = moduleId
         common.hmi.getConnection():SendResponse( data.id, data.method, "SUCCESS", pReqPayload[pPayload] )
       end)
   end
+    pRspPayload[pPayload].moduleData.moduleId = moduleId
     mobSession:ExpectResponse( cid, pRspPayload[pPayload] )
 end
 
