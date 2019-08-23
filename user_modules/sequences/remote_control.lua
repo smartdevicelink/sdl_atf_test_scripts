@@ -2,7 +2,6 @@
 -- Common RC related actions module
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local commonRC = require('test_scripts/RC/commonRC')
 local actions = require("user_modules/sequences/actions")
 local hmi_values = require("user_modules/hmi_values")
 local utils = require('user_modules/utils')
@@ -850,7 +849,7 @@ local rcRPCs = {
     end,
     hmiRequestParams = function(pModuleType, pModuleId, pAppId)
       return {
-        appID = commonRC.getHMIAppId(pAppId),
+        appID = actions.app.getHMIId(pAppId),
         moduleType = pModuleType,
         moduleId = pModuleId,
         buttonName = m.predefined.getButtonName(pModuleType),
@@ -878,7 +877,7 @@ local rcRPCs = {
     end,
     hmiRequestParams = function(pModuleType, pModuleId, pAppId, pModuleIdArray)
       return {
-        appID = commonRC.getHMIAppId(pAppId),
+        appID = actions.app.getHMIId(pAppId),
         moduleType = pModuleType,
         moduleIds = pModuleIdArray
       }
