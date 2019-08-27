@@ -52,7 +52,8 @@ local absent_params = {
     frontVerticalPosition = 55
   }
 }
-local unavailable_params = {moduleType = "SEAT",
+local unavailable_params = {
+  moduleType = "SEAT",
   moduleId = moduleId,
   seatControlData = {
     id = "DRIVER",
