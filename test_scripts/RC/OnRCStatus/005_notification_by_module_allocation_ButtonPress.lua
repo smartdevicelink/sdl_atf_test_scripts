@@ -21,9 +21,9 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function buttonPress(pModuleType)
-	common.setModuleStatus(pModuleType)
-	common.rpcAllowed(pModuleType, 1, "ButtonPress")
-	common.validateOnRCStatus()
+  common.setModuleStatus(pModuleType)
+  common.rpcAllowed(pModuleType, 1, "ButtonPress")
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]

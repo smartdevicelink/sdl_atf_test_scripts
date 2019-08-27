@@ -32,7 +32,7 @@ runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" }, true })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all possible RC capabilities), connect Mobile, start Session", commonRC.start,
-	{hmiRcCapabilities})
+  {hmiRcCapabilities})
 runner.Step("RAI, PTU", commonRC.registerAppWOPTU)
 runner.Step("Activate App1", commonRC.activateApp)
 

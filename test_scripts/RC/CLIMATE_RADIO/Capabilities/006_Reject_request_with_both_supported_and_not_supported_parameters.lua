@@ -38,9 +38,9 @@ capParams.BUTTONS = commonRC.DEFAULT
 local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
 local climate_params =
 {
-	moduleType = "CLIMATE",
+  moduleType = "CLIMATE",
   moduleId = moduleId,
-	climateControlData =
+  climateControlData =
   {
     fanSpeed = 30,
     acEnable = true,

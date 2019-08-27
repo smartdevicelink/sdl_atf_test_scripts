@@ -21,14 +21,14 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local moduleId = commonRC.getModuleId("SEAT")
 local seat_capabilities = {
-	{
-		moduleName = "Seat",
-		moduleInfo = {
-			moduleId = moduleId
-		},
-		horizontalPositionAvailable = true,
-		verticalPositionAvailable = false
-	}
+  {
+    moduleName = "Seat",
+    moduleInfo = {
+      moduleId = moduleId
+    },
+    horizontalPositionAvailable = true,
+    verticalPositionAvailable = false
+  }
 }
 local capParams = {}
 capParams.CLIMATE = commonRC.DEFAULT
@@ -37,47 +37,47 @@ capParams.BUTTONS = commonRC.DEFAULT
 capParams.SEAT = seat_capabilities
 local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
 local available_params = {
-	moduleType = "SEAT",
-	moduleId= moduleId,
-	seatControlData = {
-		id = "DRIVER",
-		horizontalPosition = 75
-	}
+  moduleType = "SEAT",
+  moduleId= moduleId,
+  seatControlData = {
+    id = "DRIVER",
+    horizontalPosition = 75
+  }
 }
 local absent_params = {
-	moduleType = "SEAT",
-	moduleId = moduleId,
-	seatControlData = {
-		id = "DRIVER",
-		frontVerticalPosition = 55
-	}
+  moduleType = "SEAT",
+  moduleId = moduleId,
+  seatControlData = {
+    id = "DRIVER",
+    frontVerticalPosition = 55
+  }
 }
 local unavailable_params = {moduleType = "SEAT",
-	moduleId = moduleId,
-	seatControlData = {
-		id = "DRIVER",
-		verticalPosition = 65
-	}
+  moduleId = moduleId,
+  seatControlData = {
+    id = "DRIVER",
+    verticalPosition = 65
+  }
 }
 
 --[[ Local Functions ]]
 local function setVehicleData(params)
-	local mobSession = commonRC.getMobileSession()
-	local cid = mobSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
+  local mobSession = commonRC.getMobileSession()
+  local cid = mobSession:SendRPC("SetInteriorVehicleData", {moduleData = params})
 
-	if params.seatControlData.horizontalPosition then
-		EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-            appID = commonRC.getHMIAppId(1),
-			moduleData = params})
-		:Do(function(_, data)
-				commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
-					moduleData = params})
-			end)
-		mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-	else
-		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		mobSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-	end
+  if params.seatControlData.horizontalPosition then
+    EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
+      appID = commonRC.getHMIAppId(1),
+      moduleData = params})
+    :Do(function(_, data)
+        commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+          moduleData = params})
+      end)
+    mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  else
+    EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
+    mobSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+  end
 end
 
 --[[ Scenario ]]

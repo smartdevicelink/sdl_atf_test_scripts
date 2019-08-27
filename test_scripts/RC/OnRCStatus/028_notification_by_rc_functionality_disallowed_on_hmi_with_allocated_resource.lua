@@ -27,7 +27,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 local function disableRCFromHMI()
   common.disableRCFromHMI()
   common.getMobileSession():ExpectNotification("OnRCStatus",
-	{ allowed = false, freeModules = {}, allocatedModules = {} })
+  { allowed = false, freeModules = {}, allocatedModules = {} })
   local pModuleStatusHMI = {
     freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { }
@@ -36,9 +36,9 @@ local function disableRCFromHMI()
 end
 
 local function setVehicleData(pModuleType)
-	common.setModuleStatus(pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.validateOnRCStatus()
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]

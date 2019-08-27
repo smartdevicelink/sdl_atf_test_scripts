@@ -28,12 +28,12 @@ local function alocateModule(pModuleType)
 end
 
 local function closeSession()
-	local pModuleStatus = common.setModuleStatusByDeallocation("CLIMATE", 1)
-	common.closeSession(1)
+  local pModuleStatus = common.setModuleStatusByDeallocation("CLIMATE", 1)
+  common.closeSession(1)
   common.validateOnRCStatusForApp(2, pModuleStatus)
   common.validateOnRCStatusForHMI(2, pModuleStatus)
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-		{ appID = common.getHMIAppId(), unexpectedDisconnect = true })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
+  { appID = common.getHMIAppId(), unexpectedDisconnect = true })
 end
 
 --[[ Scenario ]]

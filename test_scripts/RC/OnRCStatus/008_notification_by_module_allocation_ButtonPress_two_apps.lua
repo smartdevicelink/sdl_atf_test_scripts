@@ -22,9 +22,9 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function buttonPress(pModuleType)
-	local pModuleStatusAllocatedApp = common.setModuleStatus(pModuleType)
-	common.rpcAllowed(pModuleType, 1, "ButtonPress")
-	common.validateOnRCStatus({ 1, 2 })
+  local pModuleStatusAllocatedApp = common.setModuleStatus(pModuleType)
+  common.rpcAllowed(pModuleType, 1, "ButtonPress")
+  common.validateOnRCStatus({ 1, 2 })
 end
 
 --[[ Scenario ]]
@@ -37,7 +37,7 @@ runner.Step("Register RC application 2", common.registerRCApplication, { 2 })
 
 runner.Title("Test")
 for _, mod in pairs(common.getModules()) do
-	runner.Step("ButtonPress " .. mod, buttonPress, { mod })
+  runner.Step("ButtonPress " .. mod, buttonPress, { mod })
 end
 
 runner.Title("Postconditions")

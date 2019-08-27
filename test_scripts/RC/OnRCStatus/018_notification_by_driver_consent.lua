@@ -29,8 +29,8 @@ local function alocateModule(pModuleType)
 end
 
 local function subscribeToModuleWithDriverConsent(pModuleType)
-	common.setModuleStatus(pModuleType, 2)
-	common.rpcAllowedWithConsent(pModuleType, 2, "SetInteriorVehicleData")
+  common.setModuleStatus(pModuleType, 2)
+  common.rpcAllowedWithConsent(pModuleType, 2, "SetInteriorVehicleData")
   common.validateOnRCStatus({ 1, 2 })
 end
 

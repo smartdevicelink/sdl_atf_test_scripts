@@ -21,9 +21,9 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType)
-	local pModuleStatus = common.setModuleStatus(pModuleType)
+  local pModuleStatus = common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.validateOnRCStatus()
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]
@@ -35,7 +35,7 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, mod in pairs(common.getAllModules()) do
-	runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
+  runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
 end
 
 runner.Title("Postconditions")
