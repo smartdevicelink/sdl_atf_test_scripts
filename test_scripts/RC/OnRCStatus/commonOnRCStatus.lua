@@ -36,24 +36,22 @@ function commonRC.policyTableUpdate(pTUfunc, pAppId)
   originalPolicyTableUpdate(pTUfunc)
 end
 
-function commonRC.userExit(pAppId)
+local function exitApplication(pAppId, pReason)
   if not pAppId then pAppId = 1 end
   rc.state.resetModulesAllocationByApp(pAppId)
   local hmiAppId = commonRC.getHMIAppId()
   commonRC.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
-    { appID = hmiAppId, reason = "USER_EXIT" })
+    { appID = hmiAppId, reason = pReason })
   commonRC.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
 end
 
+function commonRC.userExit(pAppId)
+  exitApplication(pAppId, "USER_EXIT")
+end
+
 function commonRC.driverDistractionViolation(pAppId)
-  if not pAppId then pAppId = 1 end
-  rc.state.resetModulesAllocationByApp(pAppId)
-  local hmiAppId = commonRC.getHMIAppId()
-  commonRC.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
-    { appID = hmiAppId, reason = "DRIVER_DISTRACTION_VIOLATION" })
-  commonRC.getMobileSession(1):ExpectNotification("OnHMIStatus",
-    { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
+  exitApplication(pAppId, "DRIVER_DISTRACTION_VIOLATION")
 end
 
 function commonRC.disableRCFromHMI(pAppId)
