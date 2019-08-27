@@ -54,7 +54,7 @@ local function setVehicleData(pModuleType, pParams)
     EXPECT_HMICALL("RC.SetInteriorVehicleData", { appID = commonRC.getHMIAppId() })
     :Do(function(_, data)
             commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
-                moduleData = moduleDataSettable,
+                moduleData = moduleDataSettable
             })
         end)
     :ValidIf(function(_, data)
