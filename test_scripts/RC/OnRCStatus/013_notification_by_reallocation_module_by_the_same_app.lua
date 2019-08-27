@@ -30,7 +30,7 @@ local function alocateModuleWithoutNot(pModuleType)
 end
 
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
   common.validateOnRCStatus()
 end

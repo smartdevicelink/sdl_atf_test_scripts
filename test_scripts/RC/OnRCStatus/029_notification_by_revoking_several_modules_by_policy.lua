@@ -41,10 +41,6 @@ end
 
 local function ptuWithRevokingModule()
   common.policyTableUpdate(pTUfunc)
-  local pModuleStatus = {
-    freeModules = common.getModulesAllocationByApp(1).freeModules,
-    allocatedModules = { }
-  }
   common.validateOnRCStatus()
 end
 

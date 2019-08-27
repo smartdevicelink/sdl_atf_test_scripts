@@ -47,15 +47,6 @@ local function registerRCAppRCDisallowed()
 end
 
 local function enableRCFromHMI()
-  local pModuleStatus = {
-  freeModules = common.getModulesAllocationByApp(1).freeModules,
-    allocatedModules = { },
-    allowed = true
-  }
-  local pModuleStatusHMI = {
-    freeModules = common.getModulesAllocationByApp(1).freeModules,
-    allocatedModules = { }
-  }
   common.getHMIConnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
   common.validateOnRCStatus({ 1 })
   common.getMobileSession(2):ExpectNotification("OnRCStatus")

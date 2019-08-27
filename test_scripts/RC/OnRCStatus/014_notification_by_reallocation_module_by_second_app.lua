@@ -22,13 +22,13 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function alocateModuleFirstApp(pModuleType)
-  local pModuleStatusAllocatedApp = common.setModuleStatus("CLIMATE")
+  common.setModuleStatus("CLIMATE")
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
   common.validateOnRCStatus({1,2})
 end
 
 local function alocateModuleSecondApp(pModuleType)
-  local pModuleStatusAllocatedApp = common.setModuleStatus("CLIMATE", 2)
+  common.setModuleStatus("CLIMATE", 2)
   common.rpcAllowed(pModuleType, 2, "SetInteriorVehicleData")
   common.validateOnRCStatus({1, 2})
 end

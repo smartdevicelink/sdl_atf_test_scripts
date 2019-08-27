@@ -20,10 +20,6 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {{}}
-
 --[[ Local Functions ]]
 local function PTUfunc(tbl)
   local appId = config.application1.registerAppInterfaceParams.fullAppID

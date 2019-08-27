@@ -21,7 +21,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType)
-  local pModuleStatus = common.setModuleStatus(pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
   common.validateOnRCStatus()
 end
