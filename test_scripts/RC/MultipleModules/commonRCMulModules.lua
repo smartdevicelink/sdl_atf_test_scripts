@@ -480,7 +480,7 @@ end
 local function getInfo(pModuleType, pModuleId, pInfoType)
   local info = {
     SUCCESS = "is released successfully.",
-    FREE_MODULE ="is not allocated to this application.",
+    FREE_MODULE ="is not allocated to any application.",
     ALLOCATED_TO_ANOTHER_APP ="is allocated to a different application.",
     NOT_EXISTING_MODULE = "",
     INCORRECT_MODULE_TYPE = ""
