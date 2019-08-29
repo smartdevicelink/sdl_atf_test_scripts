@@ -30,7 +30,7 @@ local function initHmiRcCapabilities(pModuleIdModification)
   local notMandatoryParameters = { "location", "serviceArea", "allowMultipleAccess" }
   local capabilities = common.getRcCapabilities()
   for moduleType, modules in pairs(capabilities) do
-      local moduleInfo
+    local moduleInfo
     if moduleType == "LIGHT" or moduleType == "HMI_SETTINGS" then
       moduleInfo = modules.moduleInfo
       moduleInfo.moduleId = moduleInfo.moduleId .. pModuleIdModification
