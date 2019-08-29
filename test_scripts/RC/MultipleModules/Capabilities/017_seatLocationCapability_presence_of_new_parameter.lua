@@ -3,7 +3,7 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0221-multiple-modules.md
 -- Description:
 --  SDL received seat location capabilities containing all new parameters from the HMI.
---  SDl should transfer these capabilities in response to the "GetSystemCapability" request from a mobile App
+--  SDL should transfer these capabilities in response to the "GetSystemCapability" request from a mobile App
 --
 -- Preconditions:
 -- 1) SDL and HMI are started
