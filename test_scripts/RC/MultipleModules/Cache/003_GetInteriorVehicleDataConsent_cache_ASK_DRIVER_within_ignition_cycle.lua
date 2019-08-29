@@ -95,7 +95,7 @@ for moduleType, consentArray in pairs(testModules) do
   for moduleId, isAllowed in pairs(consentArray) do
     runner.Step("Try to reallocate module [" .. moduleType .. ":" .. moduleId .. "] with "
         .. tostring(isAllowed and "allowed" or "disallowed") .. " driver consent to App1",
-      common.getAllocationFunction(testModules[moduleType][moduleId], true),
+      common.getAllocationFunction(isAllowed, true),
       { 1, moduleType, moduleId, nil, rcAppIds })
   end
 end
