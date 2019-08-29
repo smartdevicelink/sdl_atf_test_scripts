@@ -37,7 +37,7 @@ commonRC.getHMIAppId = actions.getHMIAppId
 commonRC.jsonFileToTable = utils.jsonFileToTable
 commonRC.tableToJsonFile = utils.tableToJsonFile
 commonRC.cloneTable = utils.cloneTable
-commonRC.wait = utils.wait
+commonRC.wait = actions.run.wait
 commonRC.isTableEqual = utils.isTableEqual
 commonRC.getPreloadedPT = actions.sdl.getPreloadedPT
 commonRC.getDefaultHMITable = hmi_values.getDefaultHMITable
@@ -972,7 +972,7 @@ function commonRC.activateApp(pAppId)
   EXPECT_HMIRESPONSE(requestId)
   mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = audibleState(pAppId),
       systemContext = "MAIN" })
-  utils.wait()
+  actions.run.wait()
 end
 
 function commonRC.getModuleId(pModuleType)
