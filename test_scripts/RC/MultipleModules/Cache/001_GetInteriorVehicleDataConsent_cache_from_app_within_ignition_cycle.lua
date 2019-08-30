@@ -65,12 +65,6 @@ runner.Step("Register App1", common.registerAppWOPTU, { 1 })
 runner.Step("Register App2", common.registerAppWOPTU, { 2 })
 runner.Step("Activate App1", common.activateApp, { 1 })
 runner.Step("Send user location of App1", common.setUserLocation, { 1, appLocation[1] })
-
-for moduleType, consentArray in pairs(testModules) do
-  runner.Step("Allow/disallow " .. moduleType .. " modules reallocation to App1 without asking driver",
-    common.driverConsentForReallocationToApp, { 1, moduleType, consentArray, rcAppIds })
-end
-
 runner.Step("Activate App2", common.activateApp, { 2 })
 runner.Step("Send user location of App2", common.setUserLocation, { 2, appLocation[2] })
 
@@ -79,6 +73,12 @@ for moduleType, consentArray in pairs(testModules) do
     runner.Step("Allocate module [" .. moduleType .. ":" .. moduleId .. "] to App2",
       common.rpcSuccess, { moduleType, moduleId, 2, "SetInteriorVehicleData" })
   end
+end
+
+runner.Step("Activate App1", common.activateApp, { 1 })
+for moduleType, consentArray in pairs(testModules) do
+  runner.Step("Allow/disallow " .. moduleType .. " modules reallocation to App1 without asking driver",
+    common.driverConsentForReallocationToApp, { 1, moduleType, consentArray, rcAppIds })
 end
 
 runner.Title("Test")

@@ -64,6 +64,16 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { rcC
 runner.Step("Set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
 runner.Step("Register App1", common.registerAppWOPTU, { 1 })
 runner.Step("Register App2", common.registerAppWOPTU, { 2 })
+runner.Step("Activate App2", common.activateApp, { 2 })
+runner.Step("Send user location of App2 (Back seat)", common.setUserLocation, { 2, appLocation[2] })
+
+for moduleType, consentArray in pairs(testModules) do
+  for moduleId in pairs(consentArray) do
+    runner.Step("Allocate module [" .. moduleType .. ":" .. moduleId .. "] to App2",
+      common.rpcSuccess, { moduleType, moduleId, 2, "SetInteriorVehicleData" })
+  end
+end
+
 runner.Step("Activate App1", common.activateApp, { 1 })
 runner.Step("Send user location of App1 (Back Seat)", common.setUserLocation, { 1, appLocation[1] })
 
@@ -72,13 +82,11 @@ for moduleType, consentArray in pairs(testModules) do
     common.driverConsentForReallocationToApp, { 1, moduleType, consentArray, rcAppIds })
 end
 
-runner.Step("Activate App2", common.activateApp, { 2 })
-runner.Step("Send user location of App2 (Back seat)", common.setUserLocation, { 2, appLocation[2] })
-
 runner.Title("Test")
 runner.Step("Disable RC functionality", common.defineRAMode, { false })
 runner.Step("Enable RC and set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
 
+runner.Step("Activate App2", common.activateApp, { 2 })
 for moduleType, consentArray in pairs(testModules) do
   for moduleId in pairs(consentArray) do
     runner.Step("Allocate module [" .. moduleType .. ":" .. moduleId .. "] to App2",
