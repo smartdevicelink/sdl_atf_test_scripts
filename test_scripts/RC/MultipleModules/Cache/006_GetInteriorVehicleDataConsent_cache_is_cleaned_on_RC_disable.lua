@@ -61,14 +61,14 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Prepare preloaded policy table", common.preparePreloadedPT, { rcAppIds })
 runner.Step("Prepare RC modules capabilities and initial modules data", common.initHmiDataState, { rcCapabilities })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { rcCapabilities })
-runner.Step("Set RA mode: AUTO_ALLOW", common.defineRAMode, { true, "AUTO_ALLOW" })
+runner.Step("Set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
 runner.Step("Register App1", common.registerAppWOPTU, { 1 })
 runner.Step("Register App2", common.registerAppWOPTU, { 2 })
 runner.Step("Activate App1", common.activateApp, { 1 })
 runner.Step("Send user location of App1 (Back Seat)", common.setUserLocation, { 1, appLocation[1] })
 
 for moduleType, consentArray in pairs(testModules) do
-  runner.Step("Allow/disallow " .. moduleType .. " modules reallocation to App1 without asking driver",
+  runner.Step("Allow/disallow " .. moduleType .. " modules reallocation to App1",
     common.driverConsentForReallocationToApp, { 1, moduleType, consentArray, rcAppIds })
 end
 
