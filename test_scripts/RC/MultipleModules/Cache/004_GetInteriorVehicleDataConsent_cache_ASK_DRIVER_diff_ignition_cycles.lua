@@ -101,6 +101,8 @@ for moduleType, consentArray in pairs(testModules) do
       { 1, moduleType, moduleId, nil, rcAppIds })
   end
 end
+runner.Step("Unregister App1", common.unRegisterApp, { 1 })
+runner.Step("Unregister App2", common.unRegisterApp, { 2 })
 
 runner.Title("Test")
 runner.Step("Ignition off", common.ignitionOff)
