@@ -12,7 +12,8 @@
 -- 2) HMI sent RC capabilities with module to SDL (moduleType: <moduleType>, moduleId: <moduleId>)
 -- 3) Mobile is connected to SDL
 -- 4) App1 and App2 (appHMIType: ["REMOTE_CONTROL"]) are registered from Mobile
--- 5) App1 and App2 sent userLocation which is within the serviceArea of module through SetGlobalProperties RPC
+-- 5) App1 and App2 sent userLocation which is out of serviceArea of module but in Driver position
+--    through SetGlobalProperties RPC
 -- 6) HMI level of App1 is BACKGROUND;
 --    HMI level of App2 is FULL
 -- 7) RC module (moduleType: <moduleType>, moduleId: <moduleId>) is free

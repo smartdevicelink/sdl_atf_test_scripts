@@ -3,7 +3,7 @@
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0221-multiple-modules.md
 -- Description:
 --  Check allocation/reallocation of RC module to mobile application in case:
---  - RC module has no allowMultipleAccess but serviceArea is defined
+--  - RC module has 'allowMultipleAccess' parameter missing and 'serviceArea' defined
 --  - RC access mode set from HMI: AUTO_ALLOW
 --  - application sent userLocation which is within the serviceArea
 --
