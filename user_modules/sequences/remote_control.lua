@@ -1047,7 +1047,7 @@ function m.rc.defineRAMode(pAllowed, pAccessMode)
   actions.run.wait(m.minTimeout) -- workaround due to issue with SDL -> redundant OnHMIStatus notification is sent
 end
 
-function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, pIsAskDriver)
+function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isHmiRequestExpected)
   local rpc = "GetInteriorVehicleDataConsent"
   local mobSession = actions.mobile.getSession(pAppId)
   local moduleIdArray = {}
@@ -1058,7 +1058,7 @@ function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, pIsAskDri
   end
   local cid = mobSession:SendRPC(m.rpc.getAppEventName(rpc),
       m.rpc.getAppRequestParams(rpc, pModuleType, nil, moduleIdArray))
-  if pIsAskDriver then
+  if isHmiRequestExpected then
     local hmi = actions.hmi.getConnection()
     hmi:ExpectRequest(m.rpc.getHMIEventName(rpc),
         m.rpc.getHMIRequestParams(rpc, pModuleType, nil, pAppId, moduleIdArray))

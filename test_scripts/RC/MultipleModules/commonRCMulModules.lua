@@ -410,20 +410,27 @@ function common.initHmiRcCapabilitiesAllocation(pModuleInfoUpdate)
   return capabilities
 end
 
-function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleConsentArray, pRCAppIds, pAccessMode)
+function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleConsentArray,
+                                                  pRCAppIds, pAccessMode, pSdlDecisions)
   if not pAccessMode then pAccessMode = "ASK_DRIVER" end
   local hmi = actions.hmi.getConnection()
   for _, appId in pairs(pRCAppIds) do
     actions.mobile.getSession(appId):ExpectNotification("OnRCStatus"):Times(0)
   end
   hmi:ExpectNotification("RC.OnRCStatus"):Times(0)
-  local isAskDriver = false
+  local isHmiRequestExpected = false
   if pAccessMode == "ASK_DRIVER" then
-    isAskDriver = true
+    if type(pSdlDecisions) == "table" then
+      for _, isSdlDecision in pairs(pSdlDecisions) do
+        if not isSdlDecision then isHmiRequestExpected = true end
+      end
+    else
+      isHmiRequestExpected = true
+    end
   else
     hmi:ExpectRequest("RC.GetInteriorVehicleDataConsent"):Times(0)
   end
-  rc.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isAskDriver)
+  rc.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isHmiRequestExpected)
 end
 
 -- Used once
