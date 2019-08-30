@@ -410,12 +410,20 @@ function common.initHmiRcCapabilitiesAllocation(pModuleInfoUpdate)
   return capabilities
 end
 
-function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleConsentArray, pRCAppIds)
+function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleConsentArray, pRCAppIds, pAccessMode)
+  if not pAccessMode then pAccessMode = "ASK_DRIVER" end
+  local hmi = actions.hmi.getConnection()
   for _, appId in pairs(pRCAppIds) do
     actions.mobile.getSession(appId):ExpectNotification("OnRCStatus"):Times(0)
   end
-  actions.hmi.getConnection():ExpectNotification("RC.OnRCStatus"):Times(0)
-  rc.rc.consentModules(pModuleType, pModuleConsentArray, pAppId)
+  hmi:ExpectNotification("RC.OnRCStatus"):Times(0)
+  local isAskDriver = false
+  if pAccessMode == "ASK_DRIVER" then
+    isAskDriver = true
+  else
+    hmi:ExpectRequest("RC.GetInteriorVehicleDataConsent"):Times(0)
+  end
+  rc.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isAskDriver)
 end
 
 -- Used once
@@ -738,6 +746,20 @@ function common.buildTestModulesStruct(pRcCapabilities)
       for _, rcModuleCapabilities in ipairs(modules) do
         modulesStuct[moduleType][rcModuleCapabilities.moduleInfo.moduleId] = isAllowed
         isAllowed = not isAllowed
+      end
+    end
+  end
+  return modulesStuct
+end
+
+function common.buildTestModulesStructSame(pRcCapabilities, pIsAllowed)
+  local excludedModuleTypes = {"BUTTONS", "HMI_SETTINGS", "LIGHT"}
+  local modulesStuct = {}
+  for moduleType, modules in pairs(pRcCapabilities) do
+    if not common.isTableContains(excludedModuleTypes, moduleType) then
+      modulesStuct[moduleType] = {}
+      for _, rcModuleCapabilities in ipairs(modules) do
+        modulesStuct[moduleType][rcModuleCapabilities.moduleInfo.moduleId] = pIsAllowed
       end
     end
   end

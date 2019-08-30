@@ -1047,10 +1047,9 @@ function m.rc.defineRAMode(pAllowed, pAccessMode)
   actions.run.wait(m.minTimeout) -- workaround due to issue with SDL -> redundant OnHMIStatus notification is sent
 end
 
-function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId)
+function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, pIsAskDriver)
   local rpc = "GetInteriorVehicleDataConsent"
   local mobSession = actions.mobile.getSession(pAppId)
-  local hmi = actions.hmi.getConnection()
   local moduleIdArray = {}
   local allowedArray = {}
   for k, v in pairs(pModuleConsentArray) do
@@ -1059,12 +1058,19 @@ function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId)
   end
   local cid = mobSession:SendRPC(m.rpc.getAppEventName(rpc),
       m.rpc.getAppRequestParams(rpc, pModuleType, nil, moduleIdArray))
-  hmi:ExpectRequest(m.rpc.getHMIEventName(rpc), m.rpc.getHMIRequestParams(rpc, pModuleType, nil, pAppId, moduleIdArray))
-  :Do(function(_, data)
-      hmi:SendResponse(data.id, data.method, "SUCCESS", m.rpc.getHMIResponseParams(rpc, pModuleType, nil, allowedArray))
-    end)
+  if pIsAskDriver then
+    local hmi = actions.hmi.getConnection()
+    hmi:ExpectRequest(m.rpc.getHMIEventName(rpc),
+        m.rpc.getHMIRequestParams(rpc, pModuleType, nil, pAppId, moduleIdArray))
+    :Do(function(_, data)
+        hmi:SendResponse(data.id, data.method, "SUCCESS",
+            m.rpc.getHMIResponseParams(rpc, pModuleType, nil, allowedArray))
+      end)
+  end
   mobSession:ExpectResponse(cid, m.rpc.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, nil, allowedArray))
 end
+
+
 
 function m.rc.releaseModule(pModuleType, pModuleId, pAppId)
   local rpc = "ReleaseInteriorVehicleDataModule"
