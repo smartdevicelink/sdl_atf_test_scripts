@@ -92,6 +92,7 @@ local m = { }
     m.pts.policy_table.app_policies[appId]["groups"] = { "Base-4", "Base-6" }
     m.pts.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
     m.pts.policy_table.module_config.preloaded_pt = nil
+    m.pts.policy_table.vehicle_data = nil
   end
 
 --[[@ptu: Perform Policy Table Update process
