@@ -4,7 +4,7 @@
 -- Description:
 --  Check of GetInteriorVehicleDataConsent RPC processing with multiple moduleIds and module allocation
 --  is performed/rejected without asking driver if access mode is ASK_DRIVER and part of modules are free
---  another part have cached friver decisions
+--  another part have cached driver decisions
 --
 -- 1) SDL and HMI are started
 -- 2) HMI sent RC capabilities with modules of each type (allowMultipleAccess: true) to SDL
@@ -39,7 +39,7 @@
 --    SDL does not send RC.GetInteriorVehicleDataConsent request to HMI
 --    SDL responds on GetInteriorVehicleDataConsent RPC with resultCode:"SUCCESS", success:true, allowed: [false, true]
 --    SDL does not send OnRCStatus notifications to HMI and Apps
--- 3) Try to reallocate modules (moduleType: <moduleType>, moduleId: <moduleId1>)
+-- 4) Try to reallocate modules (moduleType: <moduleType>, moduleId: <moduleId1>)
 --     and (moduleType: <moduleType>, moduleId: <moduleId2>) to App1 via SetInteriorVehicleData RPC sequentially
 --   Check:
 --    SDL does not send GetInteriorVehicleDataConsent RPC to HMI
@@ -75,8 +75,8 @@ local testModules = common.buildTestModulesStruct(rcCapabilities)
 
 --[[ Local Variables ]]
 local function driverConsentForReallocationToApp(pAppId, pModuleType, pModuleConsentArray, pRCAppIds, pAccessMode)
-  for moduleId, isAllowed in pairs(pModuleConsentArray) do
-      sdlDecisions[moduleId] = isAllowed  -- SDL makes decision without asking driver for this module
+  for moduleId in pairs(pModuleConsentArray) do
+     sdlDecisions[moduleId] = true  -- SDL makes decision without asking driver for this module
   end
   common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleConsentArray,
                                            pRCAppIds, pAccessMode, sdlDecisions)
@@ -88,8 +88,8 @@ local function driverConsentForReallocationToAppPart(pAppId, pModuleType, pModul
     if not isAllowed then
       partialModuleConsentArray[moduleId] = isAllowed
     end
-    common.driverConsentForReallocationToApp(pAppId, pModuleType, partialModuleConsentArray, pRCAppIds, pAccessMode)
   end
+  common.driverConsentForReallocationToApp(pAppId, pModuleType, partialModuleConsentArray, pRCAppIds, pAccessMode)
 end
 
 --[[ Scenario ]]
