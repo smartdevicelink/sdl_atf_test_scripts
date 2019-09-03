@@ -23,7 +23,7 @@
 --    SDL does not send GetInteriorVehicleDataConsent RPC to HMI
 --    SDL allocates modules (moduleType: <moduleType>, moduleId: <moduleId1>) to App2
 --     and sends appropriate OnRCStatus notifications
--- 2) Activate App1 and send GetInteriorVehicleDataConsent RPC for one module of each RC module type consequentially
+-- 2) Activate App1 and send GetInteriorVehicleDataConsent RPC for one module of each RC module type sequentially
 --     (moduleType: <moduleType>, moduleIds: [<moduleId>]) from App1
 --    HMI responds on GetInteriorVehicleDataConsent request with allowed: false for module
 --     (moduleType: <moduleType>, allowed: [false])
@@ -31,13 +31,13 @@
 --    SDL sends RC.GetInteriorVehicleDataConsent request to HMI with (moduleType: <moduleType>, moduleIds:[<moduleId>])
 --    SDL responds on GetInteriorVehicleDataConsent RPC with resultCode:"SUCCESS", success:true
 --    SDL does not send OnRCStatus notifications to HMI and Apps
--- 3) Send GetInteriorVehicleData RPC with subscribe: true for one module of each RC module type consequentially
+-- 3) Send GetInteriorVehicleData RPC with subscribe: true for one module of each RC module type sequentially
 --     (moduleType: <moduleType>, moduleId: <moduleId>) from App1
 --    HMI responds on RC.GetInteriorVehicleData request with isSubscribed: true for module
 --     (moduleType: <moduleType>, moduleId: <moduleId>)
 --   Check:
 --    SDL responds on GetInteriorVehicleData RPC with resultCode: SUCCESS
--- 4) Send OnInteriorVehicleData notification for one module of each RC module type consequentially
+-- 4) Send OnInteriorVehicleData notification for one module of each RC module type sequentially
 --     (moduleType: <moduleType>, moduleId: <moduleId>) from HMI
 --   Check:
 --    SDL resends OnInteriorVehicleData notification to App1 with (moduleType: <moduleType>, moduleId: <moduleId>)

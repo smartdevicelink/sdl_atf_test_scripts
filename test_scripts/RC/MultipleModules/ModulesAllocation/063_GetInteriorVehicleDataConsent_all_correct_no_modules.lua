@@ -25,7 +25,7 @@
 --    SDL allocates module (moduleType: <moduleType>, moduleId: <moduleId>) to App2
 --     and sends appropriate OnRCStatus notifications
 -- 2) Activate App1 and send GetInteriorVehicleDataConsent RPC with empty array as moduleIds
---     for each RC module type consequentially (moduleType: <moduleType>, moduleIds: []) from App1
+--     for each RC module type sequentially (moduleType: <moduleType>, moduleIds: []) from App1
 --    HMI responds on GetInteriorVehicleDataConsent request with allowed: true for module
 --     (moduleType: <moduleType>, allowed: [true])
 --   Check:

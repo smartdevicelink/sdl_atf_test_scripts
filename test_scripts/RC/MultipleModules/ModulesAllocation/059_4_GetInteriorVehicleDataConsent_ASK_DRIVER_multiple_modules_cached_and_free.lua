@@ -25,7 +25,7 @@
 --    SDL allocates module (moduleType: <moduleType>, moduleId: <moduleId>) to App2
 --     and sends appropriate OnRCStatus notifications
 -- 2) Activate App1 and send GetInteriorVehicleDataConsent RPC for part of modules of each RC module type
---     consequentially (moduleType: <moduleType>, moduleIds: [<moduleId1>]) from App1
+--     sequentially (moduleType: <moduleType>, moduleIds: [<moduleId1>]) from App1
 --    HMI responds on GetInteriorVehicleDataConsent request with allowed: true for modules
 --     (moduleType: <moduleType>, allowed: [false])
 --   Check:
@@ -34,13 +34,13 @@
 --    SDL responds on GetInteriorVehicleDataConsent RPC with resultCode:"SUCCESS", success:true, allowed: [false]
 --    SDL does not send OnRCStatus notifications to HMI and Apps
 -- 3) Send GetInteriorVehicleDataConsent RPC for multiple modules of each RC module type
---     consequentially (moduleType: <moduleType>, moduleIds: [<moduleId1>, <moduleId2>]) from App1
+--     sequentially (moduleType: <moduleType>, moduleIds: [<moduleId1>, <moduleId2>]) from App1
 --   Check:
 --    SDL does not send RC.GetInteriorVehicleDataConsent request to HMI
 --    SDL responds on GetInteriorVehicleDataConsent RPC with resultCode:"SUCCESS", success:true, allowed: [false, true]
 --    SDL does not send OnRCStatus notifications to HMI and Apps
 -- 3) Try to reallocate modules (moduleType: <moduleType>, moduleId: <moduleId1>)
---     and (moduleType: <moduleType>, moduleId: <moduleId2>) to App1 via SetInteriorVehicleData RPC consequentially
+--     and (moduleType: <moduleType>, moduleId: <moduleId2>) to App1 via SetInteriorVehicleData RPC sequentially
 --   Check:
 --    SDL does not send GetInteriorVehicleDataConsent RPC to HMI
 --    SDL allocates module (moduleType: <moduleType>, moduleId: <moduleId1>)

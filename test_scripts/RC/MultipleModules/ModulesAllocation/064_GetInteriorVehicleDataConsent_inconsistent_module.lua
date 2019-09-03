@@ -16,7 +16,7 @@
 --
 -- Steps:
 -- 1) Send GetInteriorVehicleDataConsent RPC with inconsistent values in moduleType and moduleIds array
---     for each RC module type consequentially (moduleType: <moduleType>, moduleIds: [<moduleId>]) from App1
+--     for each RC module type sequentially (moduleType: <moduleType>, moduleIds: [<moduleId>]) from App1
 --   Check:
 --    SDL responds on GetInteriorVehicleDataConsent RPC with resultCode:"UNSUPPORTED_RESOURCE", success:false
 --    SDL does not send OnRCStatus notifications to HMI and Apps

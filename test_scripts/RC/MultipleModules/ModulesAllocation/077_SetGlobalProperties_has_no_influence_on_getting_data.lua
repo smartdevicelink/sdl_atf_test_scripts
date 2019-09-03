@@ -19,13 +19,13 @@
 --   Check:
 --    SDL sends RC.SetGlobalProperties request with userLocation: <out of module serviceArea> to HMI
 --    SDL responds on SetGlobalProperties RPC with resultCode: SUCCESS
--- 2) Send GetInteriorVehicleData RPC with subscribe: true for one module of each RC module type consequentially
+-- 2) Send GetInteriorVehicleData RPC with subscribe: true for one module of each RC module type sequentially
 --     (moduleType: <moduleType>, moduleId: <moduleId>) from App1
 --    HMI responds on RC.GetInteriorVehicleData request with isSubscribed: true for module
 --     (moduleType: <moduleType>, moduleId: <moduleId>)
 --   Check:
 --    SDL responds on GetInteriorVehicleData RPC with resultCode: SUCCESS
--- 3) Send OnInteriorVehicleData notification for one module of each RC module type consequentially
+-- 3) Send OnInteriorVehicleData notification for one module of each RC module type sequentially
 --     (moduleType: <moduleType>, moduleId: <moduleId>) from HMI
 --   Check:
 --    SDL resends OnInteriorVehicleData notification to App1 with (moduleType: <moduleType>, moduleId: <moduleId>)

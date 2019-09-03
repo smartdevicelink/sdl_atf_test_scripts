@@ -38,14 +38,14 @@
 --    Allocate modules <X01> and <X02> of each of module types to App2
 --    Activate App1
 --    Try to reallocate disallowed module <X02> without of asking driver to App1
---     via SetInteriorVehicleData RPC consequentially
+--     via SetInteriorVehicleData RPC sequentially
 --   Check:
 --    SDL does not send GetInteriorVehicleDataConsent RPC to HMI
 --    SDL rejects allocation of module <X02> to App1
 --     and does not send OnRCStatus notifications to HMI and Apps
 --    SDL responds on SetInteriorVehicleData RPC with resultCode: REJECTED
 -- 4) Try to reallocate allowed module <X01> without of asking driver to App1
---     via SetInteriorVehicleData RPC consequentially
+--     via SetInteriorVehicleData RPC sequentially
 --   Check:
 --    SDL does not send GetInteriorVehicleDataConsent RPC to HMI
 --    SDL allocates module <X01> to App1
