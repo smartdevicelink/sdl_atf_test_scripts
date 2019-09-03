@@ -353,6 +353,13 @@ function module.getDefaultHMITable()
         bitsPerSample = "8_BIT",
         audioType = "PCM"
       },
+      audioPassThruCapabilitiesList = {
+        {
+          samplingRate = "44KHZ",
+          bitsPerSample = "8_BIT",
+          audioType = "PCM"
+        }
+      },
       hmiZoneCapabilities = "FRONT",
       softButtonCapabilities = {
         {
@@ -383,7 +390,10 @@ function module.getDefaultHMITable()
               codec = "H264"
             }
           },
-          hapticSpatialDataSupported = false
+          hapticSpatialDataSupported = false,
+          diagonalScreenSize = 10,
+          pixelPerInch = 150,
+          scale = 2.5
         }
       }
     },

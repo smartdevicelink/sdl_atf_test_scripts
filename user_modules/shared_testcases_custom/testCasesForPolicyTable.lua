@@ -309,13 +309,14 @@ function testCasesForPolicyTable:updatePolicy(PTName, iappID, TestName)
 			iappID = self.applications[config.application1.registerAppInterfaceParams.appName]
 		end
 
-		--hmi side: sending SDL.GetURLS request
-		local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+		--hmi side: sending SDL.GetPolicyConfigurationData request
+		local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
 
-		--hmi side: expect SDL.GetURLS response from HMI
-		EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+		--hmi side: expect SDL.GetPolicyConfigurationData response from HMI
+		EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetPolicyConfigurationData"}})
 		:Do(function(_,data)
-			--print("SDL.GetURLS response is received")
+			--print("SDL.GetPolicyConfigurationData response is received")
 			--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 			self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
 				{

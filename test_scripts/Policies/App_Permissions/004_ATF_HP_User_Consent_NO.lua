@@ -140,8 +140,9 @@ function Test:Precondition_UpdatePolicyWithPTU()
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {
           requestType = "PROPRIETARY",
@@ -180,7 +181,7 @@ function Test:TestStep_User_Consents_New_Permissions_After_App_Activation()
       { result = { code = 0,
           messages = {{ messageCode = "New_permissions"}},
           method = "SDL.GetUserFriendlyMessage"}})
-  
+
     local RequestIdListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", { appID = self.applications["SPT"] })
     EXPECT_HMIRESPONSE(RequestIdListOfPermissions,
       { result = {

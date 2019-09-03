@@ -99,7 +99,8 @@ function Test:Trigger_getting_device_consent()
   :Do(
     function(_, d)
       self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
-      local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+      local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
       EXPECT_HMIRESPONSE(requestId)
       :Do(
         function()

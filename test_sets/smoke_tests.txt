@@ -48,6 +48,7 @@
 ./test_scripts/Smoke/API/048_GetSystemCapabilityRequest_SUCCESS.lua
 ./test_scripts/Smoke/API/049_SetMenuLayout_SUCCESS.lua
 ./test_scripts/Smoke/API/050_SetMenuLayout_unsupported_WARNINGS.lua
+./test_scripts/Smoke/API/051_GetPolicyConfigurationData_SUCCESS.lua
 ./test_scripts/AppServices/PublishAppService/001_Mobile_success_flow.lua
 ./test_scripts/AppServices/PublishAppService/002_HMI_success_flow.lua
 ./test_scripts/AppServices/GetAppServiceData/001_M2M_success_flow.lua
@@ -75,16 +76,16 @@
 ./test_scripts/Smoke/Registration/004_Reregister_App.lua
 ./test_scripts/Smoke/Registration/005_Reregister_App_after_disconnect.lua
 ./test_scripts/Smoke/Registration/006_Reregister_App_if_two_apps_are_registered.lua
-./test_scripts/Smoke/Resumption/001_Resumption_3rd_ignition_cycle.lua
+./test_scripts/Smoke/Resumption/001_Resumption_3rd_ignition_cycle.lua 2976
 ./test_scripts/Smoke/Resumption/002_Resumption_app_registered_in_more_than_30sec_after_BC.OnReady.lua
 ./test_scripts/Smoke/Resumption/003_Resumption_App_Unregister_itself.lua
 ./test_scripts/Smoke/Resumption/004_Resumption_BACKGROUND_level.lua
 ./test_scripts/Smoke/Resumption/005_Resumption_big_amount_of_data.lua
 ./test_scripts/Smoke/Resumption/006_Resumption_disconnect_more_than_30s_before_SUSPEND.lua
-./test_scripts/Smoke/Resumption/007_Resumption_FULL_IGNITION_OFF.lua
+./test_scripts/Smoke/Resumption/007_Resumption_FULL_IGNITION_OFF.lua 2976
 ./test_scripts/Smoke/Resumption/008_Resumption_heartbeat_disconnect.lua
 ./test_scripts/Smoke/Resumption/009_Resumption_LIMITED_IGNITION_OFF.lua
 ./test_scripts/Smoke/Resumption/010_Resumption_LIMITED_level.lua
 ./test_scripts/Smoke/Resumption/011_Resumption_unexpected_disconnect.lua
-./test_scripts/Smoke/ShutDown/001_ShutDown_IGNITION_OFF.lua
+./test_scripts/Smoke/ShutDown/001_ShutDown_IGNITION_OFF.lua 2976
 ./test_scripts/Smoke/ShutDown/002_ShutDown_MASTER_RESET.lua

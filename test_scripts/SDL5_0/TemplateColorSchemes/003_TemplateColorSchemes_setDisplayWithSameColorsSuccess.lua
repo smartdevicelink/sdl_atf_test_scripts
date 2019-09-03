@@ -2,7 +2,7 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0147-template-color-scheme.md
 --
 -- Description:
--- SDL Core should track the number of attempted SetDisplayLayout requests with the current template and REJECT 
+-- SDL Core should track the number of attempted SetDisplayLayout requests with the current template and REJECT
 -- any beyond the first with the reason "Using SetDisplayLayout to change the color scheme may only be done once.
 -- Sending A SetDisplayLayout with the same color should still return success.
 --
@@ -10,8 +10,9 @@
 --
 -- Steps: Send additional SetDisplayLayout with same layout and the same color scheme.
 --
--- Expected result: 
+-- Expected result:
 -- SDL Core returns SUCCESS
+-- Note: since "SetDisplayLayout" is deprecated SDL has to respond with WARNINGS to mobile in success case
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -19,7 +20,7 @@ local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
 local function getRequestParams()
-  return { 
+  return {
     displayLayout = "ONSCREEN_PRESETS",
     dayColorScheme = {
       primaryColor = {
@@ -40,7 +41,7 @@ local function setDisplayWithColorsSuccess(self)
   end)
   self.mobileSession1:ExpectResponse(cid, {
     success = true,
-    resultCode = "SUCCESS"
+    resultCode = "WARNINGS"
   })
 end
 
@@ -53,7 +54,7 @@ local function setDisplayWithSameColorsSuccess(self)
   end)
   self.mobileSession1:ExpectResponse(cid, {
     success = true,
-    resultCode = "SUCCESS"
+    resultCode = "WARNINGS"
   })
 end
 

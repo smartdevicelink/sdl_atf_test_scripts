@@ -934,7 +934,7 @@ function commonFunctions:write_parameter_to_smart_device_link_ini(param_name, pa
     end
     new_file_content = new_file_content..line.."\n"
   end
-  
+
   if is_find_string == true then
     local file = io.open(path_to_ini_file, "w")
     if file then
@@ -1356,5 +1356,39 @@ function commonFunctions.getURLs(pService)
   return url
 end
 
+--! @brief Acquire table with URLs for PTU from policy file
+--! @param pPtFileName - json file with policy table structure
+function commonFunctions:getUrlsTableFromPtFile(pPtFileName)
+  if not pPtFileName then
+    local function getPathToSDL()
+      local pathToSDL = config.pathToSDL
+      if pathToSDL:sub(-1) ~= '/' then
+        pathToSDL = pathToSDL .. "/"
+      end
+      return pathToSDL
+    end
+    pPtFileName = getPathToSDL() .. commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
+  end
+local pt = io.open(pPtFileName, "r")
+    if pt == nil then
+      error("PT file not found")
+    end
+  local ptString = pt:read("*all")
+  pt:close()
+
+  local ptTable = json.decode(ptString)
+  return ptTable.policy_table.module_config.endpoints["0x07"]
+end
+
+--! @brief This function perform base validation of URLs from response of SDl.GetPolicyConfigurationData
+--! @param expected_url_tbl - table with expected collection of URLs
+--! @param actual_data - table which represents response of SDl.GetPolicyConfigurationData
+function commonFunctions:validateUrls(pExpectedUrlTbl, pActualData)
+  local endpoints = json.decode(pActualData.result.value[1])
+  if endpoints then
+    return compareValues(pExpectedUrlTbl, endpoints["0x07"], "urls")
+  end
+  return false, "Value JSON is not correct"
+end
 
 return commonFunctions

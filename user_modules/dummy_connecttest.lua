@@ -333,7 +333,8 @@ function module:initHMI()
           "SDL.OnSDLConsentNeeded",
           "BasicCommunication.OnResumeAudioSource",
           "BasicCommunication.OnSystemTimeReady",
-          "BasicCommunication.OnSystemCapabilityUpdated"
+          "BasicCommunication.OnSystemCapabilityUpdated",
+          "BasicCommunication.OnServiceUpdate"
         })
       registerComponent("UI",
         {
@@ -349,7 +350,7 @@ function module:initHMI()
           "Navigation.OnAudioDataStreaming",
           "Navigation.OnVideoDataStreaming"
         })
-      registerComponent("AppService", 
+      registerComponent("AppService",
         {
           "AppService.OnAppServiceData"
         })

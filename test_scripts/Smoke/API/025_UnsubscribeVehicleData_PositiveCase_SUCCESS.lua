@@ -111,7 +111,7 @@ local function unsubscribeVD(pParams, self)
   :Do(function(_, data)
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
   end)
-  local MobResp = pParams.responseUiParams
+  local MobResp = commonSmoke.cloneTable(pParams.responseUiParams)
   MobResp.success = true
   MobResp.resultCode = "SUCCESS"
   self.mobileSession1:ExpectResponse(cid, MobResp)

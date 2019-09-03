@@ -143,6 +143,7 @@ end
 function Test.UpdatePTS()
   ptu.policy_table.device_data = nil
   ptu.policy_table.usage_and_error_counts = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.app_policies["0000001"] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies["0000001"]["groups"] = { "Base-4", "Base-6" }
   -- ptu.policy_table.app_policies["0000001"]["RequestType"] = { "HTTP" }

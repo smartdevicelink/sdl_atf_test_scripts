@@ -24,6 +24,7 @@
 -- SDL transfers the UI part of request with allowed parameters to HMI
 -- SDL receives UI part of response from HMI with "SUCCESS" result code
 -- SDL transfers response to mobile app
+-- Note: since "SetDisplayLayout" is deprecated SDL has to respond with WARNINGS to mobile in success case
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -220,7 +221,7 @@ local function setDisplaySuccess(self)
 		end)
 	self.mobileSession1:ExpectResponse(cid, {
 		success = true,
-		resultCode = "SUCCESS",
+		resultCode = "WARNINGS",
 		displayCapabilities = responseParams.displayCapabilities,
 		buttonCapabilities = responseParams.buttonCapabilities,
 		softButtonCapabilities = responseParams.softButtonCapabilities,

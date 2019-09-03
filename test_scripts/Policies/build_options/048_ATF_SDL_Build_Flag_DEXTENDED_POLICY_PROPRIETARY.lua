@@ -40,6 +40,7 @@ local function updatePTU(ptu)
   ptu.policy_table.consumer_friendly_messages.messages = nil
   ptu.policy_table.device_data = nil
   ptu.policy_table.module_meta = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies[app_id] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Base-6" }
@@ -57,7 +58,8 @@ local function ptuSequence(self)
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local ptu_file_name = os.tmpname()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(
     function()

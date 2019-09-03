@@ -71,7 +71,7 @@ local function updatePTU(ptu)
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Base-6" }
   ptu.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   ptu.policy_table.module_config.preloaded_pt = nil
-  --
+  ptu.policy_table.vehicle_data = nil
 end
 
 local function storePTUInFile(ptu, ptu_file_name)
@@ -84,12 +84,13 @@ local function ptu(self)
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local ptu_file_name = os.tmpname()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  log("HMI->SDL: RQ: SDL.GetURLS")
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  log("HMI->SDL: RQ: SDL.GetPolicyConfigurationData")
   EXPECT_HMIRESPONSE(requestId)
   :Do(
     function()
-      log("SDL->HMI: RS: SDL.GetURLS")
+      log("SDL->HMI: RS: SDL.GetPolicyConfigurationData")
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
       log("HMI->SDL: N: BC.OnSystemRequest")
       updatePTU(ptu_table)

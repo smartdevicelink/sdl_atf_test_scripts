@@ -19,7 +19,6 @@ local hmi_values = require("user_modules/hmi_values")
 
 --[[ Local Variables ]]
 local hmiAppIds = {}
-local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
 
 local commonSmoke = {}
 
@@ -29,13 +28,22 @@ commonSmoke.HMITypeStatus = {
 }
 commonSmoke.timeout = 5000
 commonSmoke.minTimeout = 500
+commonSmoke.cloneTable = utils.cloneTable
+commonSmoke.tableToString = utils.tableToString
+commonSmoke.decode = json.decode
+commonSmoke.is_table_equal = commonFunctions.is_table_equal
+commonSmoke.read_parameter_from_smart_device_link_ini =  commonFunctions.read_parameter_from_smart_device_link_ini
+commonSmoke.GetPathToSDL = commonPreconditions.GetPathToSDL
+commonSmoke.jsonFileToTable = utils.jsonFileToTable
 
+local preloadedPT = commonSmoke:read_parameter_from_smart_device_link_ini("PreloadedPT")
+
+--[[Module functions]]
 local function allowSDL(self)
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
     { allowed = true, source = "GUI", device = { id = commonSmoke.getDeviceMAC(), name = commonSmoke.getDeviceName() }})
+  utils.wait(commonSmoke.minTimeout)
 end
-
---[[Module functions]]
 
 function commonSmoke.preconditions()
   commonFunctions:SDLForceStop()
@@ -92,7 +100,7 @@ function commonSmoke.getHMIAppId(pAppId)
 end
 
 function commonSmoke.getPathToFileInStorage(fileName)
-  return commonPreconditions:GetPathToSDL() .. "storage/"
+  return commonSmoke:GetPathToSDL() .. "storage/"
   .. commonSmoke.getMobileAppId() .. "_"
   .. commonSmoke.getDeviceMAC() .. "/" .. fileName
 end
@@ -235,7 +243,7 @@ function commonSmoke.GetAppMediaStatus(pAppId)
 end
 
 function commonSmoke.readParameterFromSmartDeviceLinkIni(paramName)
-  return commonFunctions:read_parameter_from_smart_device_link_ini(paramName)
+  return commonSmoke:read_parameter_from_smart_device_link_ini(paramName)
 end
 
 function commonSmoke.postconditions()
@@ -244,8 +252,8 @@ function commonSmoke.postconditions()
 end
 
 function commonSmoke.updatePreloadedPT()
-  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
-  local pt = utils.jsonFileToTable(preloadedFile)
+  local preloadedFile = commonSmoke:GetPathToSDL() .. preloadedPT
+  local pt = commonSmoke.jsonFileToTable(preloadedFile)
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   local additionalRPCs = {
     "SendLocation", "SubscribeVehicleData", "UnsubscribeVehicleData", "GetVehicleData", "UpdateTurnList",
@@ -257,7 +265,7 @@ function commonSmoke.updatePreloadedPT()
       hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
     }
   end
-  pt.policy_table.app_policies["0000001"] = utils.cloneTable(pt.policy_table.app_policies.default)
+  pt.policy_table.app_policies["0000001"] = commonSmoke.cloneTable(pt.policy_table.app_policies.default)
   pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup" }
   pt.policy_table.app_policies["0000001"].keep_context = true
   pt.policy_table.app_policies["0000001"].steal_focus = true

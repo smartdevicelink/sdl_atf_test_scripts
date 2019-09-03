@@ -42,16 +42,17 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_CheckMessagesSequence()
   local is_test_fail = false
   local message_number = 1
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"})
 
     if(message_number ~= 1) then
-      commonFunctions:printError("Error: SDL.GetURLS reponse is not received as message 1 after SDL.GetURLS request. Real: "..message_number)
+      commonFunctions:printError("Error: SDL.GetPolicyConfigurationData reponse is not received as message 1 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
-      print("SDL.GetURLS is received as message "..message_number.." after SDL.GetURLS request")
+      print("SDL.GetPolicyConfigurationData is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
   end)
@@ -59,10 +60,10 @@ function Test:TestStep_CheckMessagesSequence()
   EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
   :Do(function(_,_)
     if( (message_number ~= 2) and (message_number ~= 3)) then
-      commonFunctions:printError("Error: SDL.OnStatusUpdate reponse is not received as message 2/3 after SDL.GetURLS request. Real: "..message_number)
+      commonFunctions:printError("Error: SDL.OnStatusUpdate reponse is not received as message 2/3 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
-      print("OnSystemRequest is received as message "..message_number.." after SDL.GetURLS request")
+      print("OnSystemRequest is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
   end)
@@ -70,10 +71,10 @@ function Test:TestStep_CheckMessagesSequence()
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",{status = "UPDATING"})
   :Do(function(_,data)
     if( (message_number ~= 2) and (message_number ~= 3)) then
-      commonFunctions:printError("Error: SDL.OnStatusUpdate reponse is not received as message 2/3 after SDL.GetURLS request. Real: "..message_number)
+      commonFunctions:printError("Error: SDL.OnStatusUpdate reponse is not received as message 2/3 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
-      print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetURLS request")
+      print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
   end)

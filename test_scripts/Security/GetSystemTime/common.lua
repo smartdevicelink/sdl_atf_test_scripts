@@ -49,17 +49,6 @@ function m.getAppID(pAppId)
   return m.getConfigAppParams(pAppId).appID
 end
 
-local function allowSDL()
-  test.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
-    allowed = true,
-    source = "GUI",
-    device = {
-      id = utils.getDeviceMAC(),
-      name = utils.getDeviceName()
-    }
-  })
-end
-
 function m.start(pOnSystemTime, pHMIParams)
   test:runSDL()
   commonFunctions:waitForSDLStart(test)
@@ -76,7 +65,7 @@ function m.start(pOnSystemTime, pHMIParams)
               test:connectMobile()
               :Do(function()
                   utils.cprint(35, "Mobile connected")
-                  allowSDL(test)
+                  m.allowSDL(test)
                 end)
             end)
         end)
@@ -104,10 +93,6 @@ function m.startServiceSecured(pData, pServiceId, pGetSystemTimeOccur, pTime, pH
   expectHandshakeMessage(pGetSystemTimeOccur, pTime, pHandshakeOccurences)
 end
 
-local function expNotDuringPTU()
-  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-end
-
 function m.startServiceSecuredwithPTU(pData, pServiceId, pGetSystemTimeOccur, pTime, pPTUpdateFunc, pHandshakeOccurences)
   m.getMobileSession():StartSecureService(pServiceId)
   m.getMobileSession():ExpectControlMessage(pServiceId, pData)
@@ -117,7 +102,7 @@ function m.startServiceSecuredwithPTU(pData, pServiceId, pGetSystemTimeOccur, pT
     :Times(3)
     :Do(function(e)
       if e.occurences == 1 then
-        m.policyTableUpdate(pPTUpdateFunc, expNotDuringPTU)
+        m.policyTableUpdate(pPTUpdateFunc)
       end
     end)
 
@@ -130,20 +115,6 @@ local preconditionsOrig = m.preconditions
 function m.preconditions()
   preconditionsOrig()
   common.initSDLCertificates("./files/Security/GetSystemTime_certificates/client_credential.pem", false)
-end
-
-local policyTableUpdate_orig = m.policyTableUpdate
-
-function m.policyTableUpdate(pPTUpdateFunc)
-  local function expNotificationFunc()
-    m.getHMIConnection():ExpectRequest("BasicCommunication.DecryptCertificate")
-    :Do(function(_, d)
-        m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
-      end)
-    :Times(AnyNumber())
-    m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-  end
-  policyTableUpdate_orig(pPTUpdateFunc, expNotificationFunc)
 end
 
 return m

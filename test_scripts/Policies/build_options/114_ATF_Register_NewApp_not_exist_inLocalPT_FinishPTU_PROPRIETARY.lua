@@ -61,21 +61,13 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup ("Preconditions")
 function Test:Precondition_PolicyUpdateStarted()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
-    result = {
-      code = 0,
-      method = "SDL.GetURLS",
-      urls = {
-        { url = commonFunctions.getURLs("0x07")[1] }
-      }
-    }
-  })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId, { result = { code = 0, method = "SDL.GetPolicyConfigurationData" }})
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
-          url = commonFunctions.getURLs("0x07")[1],
           appID = self.applications ["Test Application"],
           fileName = "sdl_snapshot.json"
         })
@@ -117,6 +109,10 @@ function Test:TestStep_FinishPTU_ForAppId1()
     end)
 end
 
+function Test.Postcondition_StopSDL()
+  StopSDL()
+end
+
 function Test:TestStep_CheckThatAppID_Present_In_DataBase()
   local PolicyDBPath = nil
   if commonSteps:file_exists(tostring(config.pathToSDL) .. "/storage/policy.sqlite") == true then
@@ -130,12 +126,6 @@ function Test:TestStep_CheckThatAppID_Present_In_DataBase()
   if result == false then
     self:FailTestCase("DB doesn't contain special id")
   end
-end
-
---[[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postconditions")
-function Test.Postcondition_StopSDL()
-  StopSDL()
 end
 
 return Test

@@ -47,6 +47,7 @@ local function getPTUFromPTS(pTbl)
   pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   pTbl.policy_table.module_config.preloaded_pt = nil
   pTbl.policy_table.module_config.preloaded_date = nil
+  pTbl.policy_table.vehicle_data = nil
 end
 
 --[[ @jsonFileToTable: convert .json file to table
@@ -82,7 +83,8 @@ local function ptu(pPTUpdateFunc, self)
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptu_file_name = os.tmpname()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",

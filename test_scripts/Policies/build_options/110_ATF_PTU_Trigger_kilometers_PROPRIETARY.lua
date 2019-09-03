@@ -100,14 +100,17 @@ function Test:Preconditions_Set_Odometer_Value1()
   local cid_vehicle = self.mobileSession:SendRPC("SubscribeVehicleData", {odometer = true})
   EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        odometer = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_ODOMETER" }
+      })
     end)
   EXPECT_RESPONSE(cid_vehicle, { success = true, resultCode = "SUCCESS" })
 end
 
 function Test:Precondition_Update_Policy_With_New_Exchange_After_X_Kilometers_Value()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {

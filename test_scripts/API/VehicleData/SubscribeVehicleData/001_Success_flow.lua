@@ -19,54 +19,9 @@ local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 
 --[[ Local Variables ]]
-local rpc = {
-  name = "SubscribeVehicleData",
-  params = {
-    engineOilLife = true,
-    fuelRange = true,
-    tirePressure = true,
-    electronicParkBrakeStatus = true,
-    turnSignal = true
-  }
-}
-
-local vehicleDataResults = {
-  engineOilLife = {
-    dataType = "VEHICLEDATA_ENGINEOILLIFE", 
-    resultCode = "SUCCESS"
-  },
-  fuelRange = {
-    dataType = "VEHICLEDATA_FUELRANGE", 
-    resultCode = "SUCCESS"
-  },
-  tirePressure = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
-    resultCode = "SUCCESS"
-  }, 
-  electronicParkBrakeStatus = {
-    dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS", 
-    resultCode = "SUCCESS"
-  }, 
-  turnSignal = {
-    dataType = "VEHICLEDATA_TURNSIGNAL", 
-    resultCode = "SUCCESS"
-  }
-}
-
---[[ Local Functions ]]
-local function processRPCSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params)
-  :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
-        vehicleDataResults)
-    end)
-  local responseParams = vehicleDataResults
-  responseParams.success = true
-  responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
-end
+local rpc = "SubscribeVehicleData"
+-- removed because vin parameter is not applicable for SubscribeVehicleData
+common.allVehicleData.vin = nil
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -76,7 +31,10 @@ runner.Step("RAI with PTU", common.registerAppWithPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("RPC " .. rpc.name, processRPCSuccess)
+for vehicleDataName in pairs(common.allVehicleData) do
+  runner.Step("RPC " .. rpc .. " " .. vehicleDataName, common.processRPCSubscriptionSuccess,
+    {rpc, vehicleDataName })
+end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

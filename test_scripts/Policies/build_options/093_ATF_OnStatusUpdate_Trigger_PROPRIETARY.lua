@@ -102,6 +102,7 @@ local function updatePTU(ptu)
   end
   ptu.policy_table.device_data = nil
   ptu.policy_table.module_meta = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies[app_id] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Base-6" }
@@ -162,11 +163,12 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:PTU()
   if ptu_table then
     local ptu_file_name = os.tmpname()
-    local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-    log("HMI->SDL: RQ: SDL.GetURLS")
+    local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
+    log("HMI->SDL: RQ: SDL.GetPolicyConfigurationData")
     EXPECT_HMIRESPONSE(requestId)
     :Do(function()
-        log("SDL->HMI: RS: SDL.GetURLS")
+        log("SDL->HMI: RS: SDL.GetPolicyConfigurationData")
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = policy_file_name})
         log("HMI->SDL: N: BC.OnSystemRequest")
         updatePTU(ptu_table)

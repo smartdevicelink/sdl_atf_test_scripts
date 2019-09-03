@@ -59,8 +59,9 @@ function Test:Precondition_Activate_app()
 end
 
 function Test:Precondition_PolicyUpdateRAI()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = "filename"})

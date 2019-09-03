@@ -191,6 +191,8 @@ function m.putFileByFrames(pParams)
 
   if pParams.isSessionEncrypted == false then
     m.getMobileSession():ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
+  elseif pParams.isSentDataEncrypted == false then
+    m.getMobileSession():ExpectResponse(correlationId, { success = false, resultCode = "ENCRYPTION_NEEDED"})
   else
     m.getMobileSession():ExpectEncryptedResponse(correlationId, { success = true, resultCode = "SUCCESS"})
   end
@@ -228,20 +230,6 @@ local preconditionsOrig = m.preconditions
 function m.preconditions()
   preconditionsOrig()
   common.initSDLCertificates("./files/Security/client_credential.pem", false)
-end
-
-local policyTableUpdate_orig = m.policyTableUpdate
-
-function m.policyTableUpdate(pPTUpdateFunc)
-  local function expNotificationFunc()
-    m.getHMIConnection():ExpectRequest("BasicCommunication.DecryptCertificate")
-    :Do(function(_, d)
-        m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
-      end)
-    :Times(AnyNumber())
-    m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-  end
-  policyTableUpdate_orig(pPTUpdateFunc, expNotificationFunc)
 end
 
 return m

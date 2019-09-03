@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------
 -- Script verifies that a PT snapshot contains the correct full_app_id_supported flag
--- Supports PROPRIETARY 
+-- Supports PROPRIETARY
 ---------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -107,6 +107,7 @@ local function getPTUFromPTS(ptu)
   ptu.policy_table.app_policies[m.policy_app_id]["groups"] = {
     "Base-4", "Base-6"
   }
+  ptu.policy_table.vehicle_data = nil
 end
 
 -- Save created PT in file
@@ -138,7 +139,7 @@ local function checkIfPTSIsSentAsBinary(bin_data, self)
     log("expected: " .. pt_full_id_support .. " recieved: " .. ini_full_id_support)
     self:FailTestCase(".ini full app ID support does not match PT snapshot given")
   end
-  
+
 end
 
 -- Policy table update with Proprietary flow
@@ -149,25 +150,26 @@ local function ptuProprietary(ptu_table, self)
   .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   -- create ptu_file_name as tmp file
   local ptu_file_name = os.tmpname()
-  -- Send GetURLS request from HMI to SDL with service 7
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  log("HMI->SDL: RQ: SDL.GetURLS")
-  -- Expect response GetURLS on HMI side
+  -- Send GetPolicyConfigurationData request from HMI to SDL with service 7
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  log("HMI->SDL: RQ: SDL.GetPolicyConfigurationData")
+  -- Expect response GetPolicyConfigurationData on HMI side
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
-      log("SDL->HMI: RS: SDL.GetURLS")
-      -- After receiving GetURLS response send OnSystemRequest notification from HMI
+      log("SDL->HMI: RS: SDL.GetPolicyConfigurationData")
+      -- After receiving GetPolicyConfigurationData response send OnSystemRequest notification from HMI
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = pts_file_name })
       log("HMI->SDL: N: BC.OnSystemRequest")
       -- Prepare PT for update
       getPTUFromPTS(ptu_table)
       log("HMI->SDL:get ptu")
-      
+
       -- Save created PT for update in tmp file
       storePTUInFile(ptu_table, ptu_file_name)
       log("HMI->SDL:store ptu")
-      
+
       -- Expect receiving of OnSystemRequest notification with snapshot on mobile side
       self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
       :Do(function(_, d)

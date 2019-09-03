@@ -9,6 +9,8 @@ local test = require("user_modules/dummy_connecttest")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local constants = require("protocol_handler/ford_protocol_constants")
+local events = require("events")
+local json = require("modules/json")
 
 --[[ General configuration parameters ]]
 config.SecurityProtocol = "DTLS"
@@ -20,6 +22,9 @@ local m = actions
 
 m.frameInfo = security.frameInfo
 m.readFile = utils.readFile
+
+--[[ Variables ]]
+local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
 
 --[[ Functions ]]
 local function getSystemTimeValue()
@@ -47,7 +52,9 @@ local function registerGetSystemTimeResponse()
 end
 
 function m.allowSDL()
-  actions.getHMIConnection():SendNotification("SDL.OnAllowSDLFunctionality", {
+  local event = events.Event()
+  event.matches = function(e1, e2) return e1 == e2 end
+  m.getHMIConnection():SendNotification("SDL.OnAllowSDLFunctionality", {
     allowed = true,
     source = "GUI",
     device = {
@@ -55,6 +62,8 @@ function m.allowSDL()
       name = utils.getDeviceName()
     }
   })
+  RUN_AFTER(function() m.getHMIConnection():RaiseEvent(event, "Allow SDL event") end, 500)
+  return m.getHMIConnection():ExpectEvent(event, "Allow SDL event")
 end
 
 function m.start()
@@ -163,34 +172,59 @@ end
 local preconditionsOrig = m.preconditions
 local postconditionsOrig = m.postconditions
 
-function m.preconditions()
+function m.preloadedPTUpdate(pPTUpdateFunc)
+  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
+  local pt = utils.jsonFileToTable(preloadedFile)
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  if pPTUpdateFunc then pPTUpdateFunc(pt) end
+  utils.tableToJsonFile(pt, preloadedFile)
+end
+
+function m.preconditions(pPTUpdateFunc)
   preconditionsOrig()
   m.cleanUpCertificates()
+  commonPreconditions:BackupFile(preloadedPT)
+  if pPTUpdateFunc == nil then
+    pPTUpdateFunc = function(pPT)
+      pPT.policy_table.app_policies["default"].encryption_required = true
+      pPT.policy_table.functional_groupings["Base-4"].encryption_required = true
+    end
+  end
+  m.preloadedPTUpdate(pPTUpdateFunc)
 end
 
 function m.postconditions()
   postconditionsOrig()
   m.cleanUpCertificates()
+  commonPreconditions:RestoreFile(preloadedPT)
+end
+
+function m.defaultExpNotificationFunc()
+  m.getHMIConnection():ExpectRequest("BasicCommunication.DecryptCertificate")
+  :Do(function(_, d)
+      m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
+      utils.wait(1000) -- time for SDL to save certificates
+    end)
+  :Times(AnyNumber())
+  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+end
+
+local policyTableUpdateOrig = m.policyTableUpdate
+function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
+  local func = m.defaultExpNotificationFunc
+  if pExpNotificationFunc then func = pExpNotificationFunc end
+  policyTableUpdateOrig(pPTUpdateFunc, func)
 end
 
 function m.policyTableUpdateSuccess(pPTUpdateFunc)
-  local function expNotificationFunc()
-    m.getHMIConnection():ExpectRequest("BasicCommunication.DecryptCertificate")
-    :Do(function(_, d)
-        m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
-      end)
-    :Times(AnyNumber())
-    m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-  end
   m.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
   :Do(function(e, d)
       if e.occurences == 1 then
         m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
-        m.policyTableUpdate(pPTUpdateFunc, expNotificationFunc)
+        m.policyTableUpdate(pPTUpdateFunc)
       end
     end)
 end
-
 
 local function registerStartSecureServiceFunc(pMobSession)
   function pMobSession.mobile_session_impl.control_services:StartSecureService(pServiceId, pPayload)

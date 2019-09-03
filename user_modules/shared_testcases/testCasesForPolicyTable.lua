@@ -304,13 +304,14 @@ function testCasesForPolicyTable:updatePolicy(PTName, iappID)
       iappID = self.applications[config.application1.registerAppInterfaceParams.appName]
     end
 
-    --hmi side: sending SDL.GetURLS request
-    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    --hmi side: sending SDL.GetPolicyConfigurationData request
+    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
 
-    --hmi side: expect SDL.GetURLS response from HMI
+    --hmi side: expect SDL.GetPolicyConfigurationData response from HMI
     EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
-        --print("SDL.GetURLS response is received")
+        --print("SDL.GetPolicyConfigurationData response is received")
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
           {
@@ -404,10 +405,11 @@ end
 --! @param mobile_session - session with registered app
 function testCasesForPolicyTable:updatePolicyInDifferentSessions(self, PTName, appName, mobile_session)
     local iappID = self.applications[appName]
-    --hmi side: sending SDL.GetURLS request
-    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    --hmi side: sending SDL.GetPolicyConfigurationData request
+    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
 
-    --hmi side: expect SDL.GetURLS response from HMI
+    --hmi side: expect SDL.GetPolicyConfigurationData response from HMI
     EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
@@ -927,8 +929,12 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
       return false, msg
     end)
   :Times(2)
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS", urls = endpoints} } )
+  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetPolicyConfigurationData" } } )
+  :ValidIf(function(_,data)
+      return commonFunctions:validateUrls(commonFunctions:getUrlsTableFromPtFile(), data)
+    end)
   :Do(function(_,_)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
     { requestType = "PROPRIETARY", fileName = SystemFilesPath .. pts_file_name})
