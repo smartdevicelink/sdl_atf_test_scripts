@@ -593,13 +593,11 @@ function m.app.unRegister(pAppId)
   local session = m.mobile.getSession(pAppId)
   local cid = session:SendRPC("UnregisterAppInterface", {})
   session:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  :Do(function()
-      m.mobile.deleteSession(pAppId)
-    end)
   m.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = false, appID = m.app.getHMIId(pAppId) })
   :Do(function()
       m.app.deleteHMIId(pAppId)
+      m.mobile.deleteSession(pAppId)
     end)
 end
 
