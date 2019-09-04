@@ -8,7 +8,7 @@
 -- Precondition:
 -- 1) SDL and HMI are started
 -- 2) HMI sent RC capabilities with modules of each type to SDL
--- 3) RC access mode set from HMI: AUTO_ALLOW
+-- 3) RC access mode set from HMI: ASK_DRIVER
 -- 4) Mobile is connected to SDL
 -- 5) App1 and App2 (appHMIType: ["REMOTE_CONTROL"]) are registered from Mobile
 -- 6) App2 is within serviceArea of modules, App1 is not
