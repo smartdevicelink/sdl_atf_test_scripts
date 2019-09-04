@@ -79,7 +79,7 @@ runner.Step("Send user location of App2 (Back seat)", common.setUserLocation, { 
 runner.Title("Test")
 runner.Step("Activate App1", common.activateApp, { 1 })
 for moduleType, consentArray in pairs(testModules) do
-  runner.Step("Allow " .. moduleType .. " modules reallocation to App1 without asking driver",
+  runner.Step("Allow " .. moduleType .. " modules reallocation to App1",
     driverConsentForReallocationToApp, { 1, moduleType, consentArray, rcAppIds, accessMode })
 end
 

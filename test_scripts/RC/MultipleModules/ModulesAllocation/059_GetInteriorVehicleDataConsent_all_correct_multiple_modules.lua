@@ -99,7 +99,7 @@ end
 runner.Title("Test")
 runner.Step("Activate App1", common.activateApp, { 1 })
 for moduleType, consentArray in pairs(testModules) do
-  runner.Step("Allow " .. moduleType .. " modules reallocation to App1 without asking driver",
+  runner.Step("Allow " .. moduleType .. " modules reallocation to App1",
     common.driverConsentForReallocationToApp, { 1, moduleType, consentArray, rcAppIds })
 end
 
