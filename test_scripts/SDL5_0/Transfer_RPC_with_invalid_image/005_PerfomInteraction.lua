@@ -200,13 +200,12 @@ local function PI_PerformViaVR_ONLY(paramsSend)
       vrHelpTitle = paramsSend.initialText,
     })
   :Do(function(_,data)
-      common.getHMIConnection():SendResponse( data.id, data.method, "WARNINGS",
-        { info = "Requested image(s) not found." } )
+      common.getHMIConnection():SendError( data.id, data.method, "WARNINGS","Requested image(s) not found.")
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("VR")
   common.getMobileSession():ExpectResponse(cid,
     { success = true, resultCode = "WARNINGS", choiceID = paramsSend.interactionChoiceSetIDList[1],
-    info = "Requested image(s) not found" })
+    info = "Requested image(s) not found." })
 end
 
 --! @PI_PerformViaMANUAL_ONLY: Processing PI with interaction mode MANUAL_ONLY with performing selection
@@ -246,8 +245,7 @@ local function PI_PerformViaMANUAL_ONLY(paramsSend)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("MANUAL")
   common.getMobileSession():ExpectResponse(cid,
-    { success = true, resultCode = "WARNINGS", choiceID = paramsSend.interactionChoiceSetIDList[1],
-    info = "Requested image(s) not found." })
+    { success = true, resultCode = "WARNINGS", choiceID = paramsSend.interactionChoiceSetIDList[1]})
 end
 
 --! @PI_PerformViaBOTH: Processing PI with interaction mode BOTH with timeout on VR and IU
@@ -295,8 +293,7 @@ local function PI_PerformViaBOTH(paramsSend)
       RUN_AFTER(choiceIconDisplayed, 25)
       local function uiResponse()
         common.getHMIConnection():SendNotification("TTS.Stopped")
-        common.getHMIConnection():SendResponse(data.id, data.method, "WARNINGS",
-          { info = "Requested image(s) not found." })
+        common.getHMIConnection():SendError(data.id, data.method, "WARNINGS", "Requested image(s) not found")
         SendOnSystemContext("MAIN")
       end
       RUN_AFTER(uiResponse, 30)
