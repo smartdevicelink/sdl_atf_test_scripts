@@ -237,7 +237,7 @@ local function PI_PerformViaMANUAL_ONLY(paramsSend)
       SendOnSystemContext("HMI_OBSCURED")
       local function uiResponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "WARNINGS",
-          { choiceID = paramsSend.interactionChoiceSetIDList[1], info = "Requested image(s) not found." } )
+          { choiceID = paramsSend.interactionChoiceSetIDList[1] } )
         common.getHMIConnection():SendNotification("TTS.Stopped")
         SendOnSystemContext("MAIN")
       end
@@ -245,7 +245,8 @@ local function PI_PerformViaMANUAL_ONLY(paramsSend)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("MANUAL")
   common.getMobileSession():ExpectResponse(cid,
-    { success = true, resultCode = "WARNINGS", choiceID = paramsSend.interactionChoiceSetIDList[1]})
+    { success = true, resultCode = "WARNINGS", choiceID = paramsSend.interactionChoiceSetIDList[1] })
+  -- this is the only case when 'info' won't be populated since HMI couldn't provide it within success response
 end
 
 --! @PI_PerformViaBOTH: Processing PI with interaction mode BOTH with timeout on VR and IU
