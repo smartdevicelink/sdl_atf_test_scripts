@@ -265,15 +265,17 @@ local function ptuFunc(pTbl)
   }
 end
 
-
 local function ptu()
   updateVDitemsWithNewData()
-  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
-  common.policyTableUpdate(ptuFunc)
+  common.isPTUStarted()
+  :Do(function()
+      common.policyTableUpdate(ptuFunc)
+    end)
   common.getMobileSession():ExpectNotification("OnPermissionsChange")
   :ValidIf(function(_, data)
       return common.onPermissionChangeValidation(data.payload.permissionItem, common.getAllVehicleData())
   end)
+  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
 end
 
 local function RPCprocessingwithRemovedVDitems(pData)

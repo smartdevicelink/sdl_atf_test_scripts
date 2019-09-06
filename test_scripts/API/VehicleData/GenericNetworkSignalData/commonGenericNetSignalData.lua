@@ -54,6 +54,9 @@ common.EMPTY_OBJECT = json.EMPTY_OBJECT
 common.null = json.null
 common.decode = json.decode
 
+common.isPTUStarted = actions.isPTUStarted
+common.getPTS = actions.sdl.getPTS
+
 common.CUSTOM_DATA_TYPE = "VEHICLEDATA_OEM_CUSTOM_DATA"
 
 common.VehicleDataItemsWithData = {}
@@ -877,14 +880,16 @@ function common.connectMobile()
 end
 
 function common.ptuWithOnPolicyUpdateFromHMI(pPtuFunc, pVDparams)
+  common.isPTUStarted()
+  :Do(function()
+      common.policyTableUpdateWithOnPermChange(pPtuFunc, nil, pVDparams)
+    end)
   common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
-  common.policyTableUpdateWithOnPermChange(pPtuFunc, nil, pVDparams)
 end
 
 function common.ptuWithPolicyUpdateReq(pPTUfunc)
-  common.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-  :Do(function(_, d2)
-      common.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", { })
+  common.isPTUStarted()
+  :Do(function()
       common.policyTableUpdateWithOnPermChange(pPTUfunc)
     end)
 end

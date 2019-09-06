@@ -41,6 +41,7 @@ local policyModes = {
   H  = "HTTP"
 }
 local ptuAppNum
+local pts
 
 test.mobileConnections = {}
 test.mobileSession = {}
@@ -685,6 +686,9 @@ function m.isPTUStarted()
           if d3.payload.requestType == "HTTP" then
             utils.cprint(35, "App ".. appNum .. " will be used for PTU")
             ptuAppNum = appNum
+            if d3.binaryData ~= nil then
+              pts = m.json.decode(d3.binaryData)
+            end
             raisePtuEvent()
           end
         end)
@@ -951,7 +955,6 @@ end
 --]]
 function m.sdl.getPTS()
   local ptsFileName = m.sdl.getPTSFilePath()
-  local pts = nil
   if utils.isFileExist(ptsFileName) then
     pts = utils.jsonFileToTable(ptsFileName)
   end
@@ -967,6 +970,7 @@ function m.sdl.deletePTS()
   if utils.isFileExist(ptsFileName) then
     os.remove(ptsFileName)
   end
+  pts = nil
 end
 
 --[[ Functions of ATF extension ]]

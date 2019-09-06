@@ -78,10 +78,14 @@ local function ExpNotificationFunc()
 end
 
 local function policyTableUpdateWithoutOnPermChange(pPTUpdateFunc, pExpFunc)
-  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
-  common.policyTableUpdate(pPTUpdateFunc, pExpFunc)
+  pExpFunc()
+  common.isPTUStarted()
+  :Do(function()
+      common.policyTableUpdate(pPTUpdateFunc, function() end)
+    end)
   common.getMobileSession():ExpectNotification("OnPermissionsChange")
   :Times(0)
+  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
 end
 
 -- [[ Scenario ]]
@@ -91,7 +95,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerApp)
 runner.Step("App activation", common.activateApp)
 runner.Step("PTU with VehicleDataItems specialCharactersName", common.policyTableUpdateWithoutOnPermChange,
-  { updateFunctions. itemForFirstUpdate.specialCharactersName, common.expUpdateNeeded })
+  { updateFunctions.itemForFirstUpdate.specialCharactersName, common.expUpdateNeeded })
 for  key, value in pairs(updateFunctions.itemsForNextUpdates) do
   runner.Step("PTU with VehicleDataItems " .. key, policyTableUpdateWithoutOnPermChange,
     { value, ExpNotificationFunc })

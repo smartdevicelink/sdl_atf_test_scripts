@@ -35,10 +35,7 @@ local function registerApp()
         { application = { appName = common.getConfigAppParams().appName } })
       :Do(function(_, d1)
           common.setHMIAppId(d1.params.application.appID, 1)
-          common.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-          :Do(function(_, d2)
-              common.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", { })
-            end)
+          common.isPTUStarted()
         end)
       common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
@@ -56,10 +53,8 @@ end
 local function checkPolicySnapshot()
   local preloadedTable = common.getPreloadedFileAndContent()
   local vehicleDataSchemaVersion = preloadedTable.policy_table.vehicle_data.schema_version
-  local ptsFileName = common:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
-    .. common:read_parameter_from_smart_device_link_ini("PathToSnapshot")
-  if common.isFileExist(ptsFileName) then
-    local snapshotTbl = common.jsonFileToTable(ptsFileName)
+  local snapshotTbl = common.getPTS()
+  if snapshotTbl ~= nil then
     if snapshotTbl.policy_table.vehicle_data then
       local isError = false
       local msg = ""

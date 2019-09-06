@@ -41,10 +41,13 @@ local function ptuFuncWithEmptyEndpointProperties(pTbl)
 end
 
 local function policyTableUpdateWithoutOnPermChange(pPTUpdateFunc)
-  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
-  common.policyTableUpdate(pPTUpdateFunc)
+  common.isPTUStarted()
+  :Do(function()
+      common.policyTableUpdate(pPTUpdateFunc)
+    end)
   common.getMobileSession():ExpectNotification("OnPermissionsChange")
   :Times(0)
+  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
 end
 
 -- [[ Scenario ]]
