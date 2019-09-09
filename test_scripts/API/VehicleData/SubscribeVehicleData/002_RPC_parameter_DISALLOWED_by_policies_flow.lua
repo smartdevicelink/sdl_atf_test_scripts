@@ -15,9 +15,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local rpc = {
@@ -34,64 +32,47 @@ local rpc = {
 
 local vehicleDataResults = {
   engineOilLife = {
-    dataType = "VEHICLEDATA_ENGINEOILLIFE", 
+    dataType = "VEHICLEDATA_ENGINEOILLIFE",
     resultCode = "DISALLOWED"
   },
   fuelRange = {
-    dataType = "VEHICLEDATA_FUELRANGE", 
+    dataType = "VEHICLEDATA_FUELRANGE",
     resultCode = "DISALLOWED"
   },
   tirePressure = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
+    dataType = "VEHICLEDATA_TIREPRESSURE",
     resultCode = "DISALLOWED"
   },
   electronicParkBrakeStatus = {
-    dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS", 
+    dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS",
     resultCode = "DISALLOWED"
   },
   turnSignal = {
-    dataType = "VEHICLEDATA_TURNSIGNAL", 
+    dataType = "VEHICLEDATA_TURNSIGNAL",
     resultCode = "DISALLOWED"
   }
 }
 
 --[[ Local Functions ]]
-local function ptu_update_func(tbl)
-  local params = tbl.policy_table.functional_groupings["Emergency-1"].rpcs["SubscribeVehicleData"].parameters
-  local newParams = {}
-  for index, value in pairs(params) do
-    if not (("engineOilLife" == value) or ("fuelRange" == value) or ("tirePressure" == value) or ("turnSignal" == value) or ("electronicParkBrakeStatus" == value)) then table.insert(newParams, value) end
-  end
-  tbl.policy_table.functional_groupings["Emergency-1"].rpcs["SubscribeVehicleData"].parameters = newParams
-
-  params = tbl.policy_table.functional_groupings["VehicleInfo-3"].rpcs["SubscribeVehicleData"].parameters
-  newParams = {}
-  for index, value in pairs(params) do
-    if not (("engineOilLife" == value) or ("fuelRange" == value) or ("tirePressure" == value) or ("turnSignal" == value) or ("electronicParkBrakeStatus" == value)) then table.insert(newParams, value) end
-  end
-  tbl.policy_table.functional_groupings["VehicleInfo-3"].rpcs["SubscribeVehicleData"].parameters = newParams
-end
-
-local function processRPCFailure(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params):Times(0)
-  commonTestCases:DelayedExp(common.timeout)
+local function processRPCFailure()
+  local cid = common.getMobileSession():SendRPC(rpc.name, rpc.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc.name, rpc.params):Times(0)
   local responseParams = vehicleDataResults
   responseParams.success = false
   responseParams.resultCode = "DISALLOWED"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU, {1, ptu_update_func})
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdateMin })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
-runner.Step("RPC " .. rpc.name , processRPCFailure)
+common.Title("Test")
+common.Step("RPC " .. rpc.name , processRPCFailure)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

@@ -26,19 +26,19 @@ local rpc_unsubscribe = "UnsubscribeVehicleData"
 common.allVehicleData.vin = nil
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
+common.Title("Test")
 for vehicleDataName in pairs(common.allVehicleData) do
   runner.Step("RPC " .. rpc_subscribe .. " " .. vehicleDataName, common.processRPCSubscriptionSuccess,
     {rpc_subscribe, vehicleDataName })
   runner.Step("RPC " .. rpc_unsubscribe .. " " .. vehicleDataName, common.processRPCSubscriptionSuccess,
     {rpc_unsubscribe, vehicleDataName })
 end
-
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

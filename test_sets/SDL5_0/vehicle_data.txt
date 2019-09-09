@@ -4,12 +4,12 @@
 ./test_scripts/API/VehicleData/GetVehicleData/004_Success_deviceStatus_primaryAudioSource.lua
 ./test_scripts/API/VehicleData/OnVehicleData/001_Success_flow.lua
 ./test_scripts/API/VehicleData/OnVehicleData/002_NotificationForUnsubsribedParameter_Ignored_flow.lua
-;./test_scripts/API/VehicleData/OnVehicleData/003_NotificationParameterDisallowedByPolicies_Ignored_flow.lua
+./test_scripts/API/VehicleData/OnVehicleData/003_NotificationParameterDisallowedByPolicies_Ignored_flow.lua
 ./test_scripts/API/VehicleData/OnVehicleData/004_OnVD_gps_mandatory_parameters.lua
 ./test_scripts/API/VehicleData/OnVehicleData/005_Success_flow_deviceStatus_primaryAudioSource.lua
 ./test_scripts/API/VehicleData/SubscribeVehicleData/001_Success_flow.lua
-;./test_scripts/API/VehicleData/SubscribeVehicleData/002_RPC_parameter_DISALLOWED_by_policies_flow.lua
-;./test_scripts/API/VehicleData/SubscribeVehicleData/003_RPC_parameter_already_subscribed_Result_IGNORED_flow.lua
+./test_scripts/API/VehicleData/SubscribeVehicleData/002_RPC_parameter_DISALLOWED_by_policies_flow.lua
+./test_scripts/API/VehicleData/SubscribeVehicleData/003_RPC_parameter_already_subscribed_Result_IGNORED_flow.lua
 ./test_scripts/API/VehicleData/UnsubscribeVehicleData/001_Success_flow.lua
 ./test_scripts/API/VehicleData/UnsubscribeVehicleData/002_RPC_parameter_not_yet_subscribed_IGNORED_flow.lua
 ./test_scripts/API/VehicleData/UnsubscribeVehicleData/003_RPC_parameter_already_unsubscribed_Result_IGNORED_flow.lua

@@ -17,9 +17,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local rpc_subscribe = {
@@ -91,57 +89,54 @@ local vehicleDataResults2 = {
 }
 
 --[[ Local Functions ]]
-local function processRPCSubscribeSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc_subscribe.name, rpc_subscribe.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc_subscribe.name, rpc_subscribe.params)
+local function processRPCSubscribeSuccess()
+  local cid = common.getMobileSession():SendRPC(rpc_subscribe.name, rpc_subscribe.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc_subscribe.name, rpc_subscribe.params)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
         vehicleDataResults)
     end)
-  local responseParams = common.cloneTable(vehicleDataResults)
+  local responseParams = vehicleDataResults
   responseParams.success = true
   responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
-local function processRPCUnsubscribeSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc_unsubscribe.name, rpc_unsubscribe.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc_unsubscribe.name, rpc_unsubscribe.params)
+local function processRPCUnsubscribeSuccess()
+  local cid = common.getMobileSession():SendRPC(rpc_unsubscribe.name, rpc_unsubscribe.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc_unsubscribe.name, rpc_unsubscribe.params)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
         vehicleDataResults)
     end)
-  local responseParams = common.cloneTable(vehicleDataResults)
+  local responseParams = vehicleDataResults
   responseParams.success = true
   responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
-local function processRPCUnsubscribeIgnored(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc_unsubscribe.name, rpc_unsubscribe.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc_unsubscribe.name, rpc_unsubscribe.params):Times(0)
-  commonTestCases:DelayedExp(common.timeout)
+local function processRPCUnsubscribeIgnored()
+  local cid = common.getMobileSession():SendRPC(rpc_unsubscribe.name, rpc_unsubscribe.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc_unsubscribe.name, rpc_unsubscribe.params):Times(0)
   local responseParams = vehicleDataResults2
   responseParams.success = false
   responseParams.resultCode = "IGNORED"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
-runner.Step("RPC " .. rpc_subscribe.name, processRPCSubscribeSuccess)
-runner.Step("RPC " .. rpc_unsubscribe.name, processRPCUnsubscribeSuccess)
-runner.Title("Trying to unsubscribe from already unsubscribed parameter...")
-runner.Step("RPC " .. rpc_unsubscribe.name, processRPCUnsubscribeIgnored)
+common.Title("Test")
+common.Step("RPC " .. rpc_subscribe.name, processRPCSubscribeSuccess)
+common.Step("RPC " .. rpc_unsubscribe.name, processRPCUnsubscribeSuccess)
+common.Title("Trying to unsubscribe from already unsubscribed parameter...")
+common.Step("RPC " .. rpc_unsubscribe.name, processRPCUnsubscribeIgnored)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

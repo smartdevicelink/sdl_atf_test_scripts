@@ -14,9 +14,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
-local utils = require('user_modules/utils')
 
 --[[ Local Variables ]]
 local audioSources = {
@@ -58,39 +56,38 @@ local rpc2 = {
 }
 
 --[[ Local Functions ]]
-local function processRPCSubscribeSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc1.name, rpc1.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc1.name, rpc1.params)
+local function processRPCSubscribeSuccess()
+  local cid = common.getMobileSession():SendRPC(rpc1.name, rpc1.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc1.name, rpc1.params)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", vehicleDataResults)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", vehicleDataResults)
     end)
 
-  local responseParams = utils.cloneTable(vehicleDataResults)
+  local responseParams = vehicleDataResults
   responseParams.success = true
   responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
-local function checkNotificationSuccess(pAudioSource, self)
+local function checkNotificationSuccess(pAudioSource)
   rpc2.params.deviceStatus.primaryAudioSource = pAudioSource
-  local mobileSession = common.getMobileSession(self, 1)
-  self.hmiConnection:SendNotification("VehicleInfo." .. rpc2.name, rpc2.params)
-  mobileSession:ExpectNotification("OnVehicleData", rpc2.params)
+  common.getHMIConnection():SendNotification("VehicleInfo." .. rpc2.name, rpc2.params)
+  common.getMobileSession():ExpectNotification("OnVehicleData", rpc2.params)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
-runner.Step("RPC " .. rpc1.name, processRPCSubscribeSuccess)
+common.Title("Test")
+common.Step("RPC " .. rpc1.name, processRPCSubscribeSuccess)
 for _, source in pairs(audioSources) do
-  runner.Step("RPC " .. rpc2.name .. " source " .. source, checkNotificationSuccess, { source })
+  common.Step("RPC " .. rpc2.name .. " source " .. source, checkNotificationSuccess, { source })
 end
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

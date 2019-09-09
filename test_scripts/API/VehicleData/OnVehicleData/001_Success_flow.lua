@@ -28,7 +28,8 @@ common.allVehicleData.vin = nil
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")

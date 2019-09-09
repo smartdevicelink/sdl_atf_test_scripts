@@ -26,35 +26,37 @@ local rpc =  "SubscribeVehicleData"
 common.allVehicleData.vin = nil
 
 --[[ Local Functions ]]
-local function ptu_update_func(tbl)
-  local newTestGroup = common.cloneTable(tbl.policy_table.functional_groupings["Emergency-1"])
-  for vehicleDataName in pairs (newTestGroup.rpcs) do
-    newTestGroup.rpcs[vehicleDataName].parameters = common.EMPTY_ARRAY
+local function ptUpdate(pTbl)
+  common.ptUpdate(pTbl)
+  local NewTestGroup = common.cloneTable(pTbl.policy_table.functional_groupings["Emergency-1"])
+  for vehicleDataName in pairs(NewTestGroup.rpcs) do
+    NewTestGroup.rpcs[vehicleDataName].parameters = common.EMPTY_ARRAY
   end
-  tbl.policy_table.functional_groupings.newTestGroup = newTestGroup
-  tbl.policy_table.app_policies[common.getMobileAppId(2)].groups = { "Base-4", "newTestGroup" }
+  pTbl.policy_table.functional_groupings.NewTestGroup = NewTestGroup
+  pTbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID].groups = { "Base-4", "Emergency-1" }
+  pTbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID].groups = { "Base-4", "NewTestGroup" }
 end
 
-local function checkNotification2apps(pData, self)
-  local mobileSession1 = common.getMobileSession(self, 1)
-  local mobileSession2 = common.getMobileSession(self, 2)
+local function checkNotification2apps(pData)
   local hmiNotParams = { [pData] = common.allVehicleData[pData].value }
   local mobNotParams = common.cloneTable(hmiNotParams)
   if mobNotParams.emergencyEvent then
     mobNotParams.emergencyEvent.maximumChangeVelocity = 0
   end
-  self.hmiConnection:SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
-  mobileSession1:ExpectNotification("OnVehicleData", mobNotParams)
-  mobileSession2:ExpectNotification("OnVehicleData"):Times(0)
+  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  common.getMobileSession(1):ExpectNotification("OnVehicleData", mobNotParams)
+  common.getMobileSession(2):ExpectNotification("OnVehicleData"):Times(0)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI App1 with PTU", common.registerAppWithPTU)
-runner.Step("Activate App1", common.activateApp)
-runner.Step("RAI App2 with PTU", common.registerAppWithPTU, { 2, ptu_update_func })
+common.Step("RAI 1", common.registerApp, { 1 })
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+runner.Step("RAI 2", common.registerApp, { 2 })
+common.Step("PTU", common.policyTableUpdate, { ptUpdate })
+runner.Step("Activate App1", common.activateApp, { 1 })
 runner.Step("Activate App2", common.activateApp, { 2 })
 
 runner.Title("Test")
