@@ -8,7 +8,7 @@
 -- 1. Mobile app requests PerfromInteraction with image that is absent on file system
 -- SDL must:
 -- 1. transfer this RPC to HMI for processing
--- 2. transfer the received from HMI response (WARNINGS, message: “Requested image(s) not found”) to mobile app
+-- 2. transfer the received from HMI response (WARNINGS, message: “Requested image(s) not found.”) to mobile app
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -294,14 +294,14 @@ local function PI_PerformViaBOTH(paramsSend)
       RUN_AFTER(choiceIconDisplayed, 25)
       local function uiResponse()
         common.getHMIConnection():SendNotification("TTS.Stopped")
-        common.getHMIConnection():SendError(data.id, data.method, "WARNINGS", "Requested image(s) not found")
+        common.getHMIConnection():SendError(data.id, data.method, "WARNINGS", "Requested image(s) not found.")
         SendOnSystemContext("MAIN")
       end
       RUN_AFTER(uiResponse, 30)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("BOTH")
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "WARNINGS",
-    info = "Requested image(s) not found, Perform Interaction error response." })
+    info = "Requested image(s) not found., Perform Interaction error response." })
 end
 
 --[[ Scenario ]]
