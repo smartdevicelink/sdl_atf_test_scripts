@@ -69,8 +69,8 @@ local function ptuWithOnPolicyUpdateFromHMI(pPtuFunc, pExpNotificationFunc)
   pExpNotificationFunc()
   common.isPTUStarted()
   :Do(function()
-      common.policyTableUpdateWithoutOnPermChange(pPtuFunc, function() end)
-    end)
+    common.policyTableUpdateWithoutOnPermChange(pPtuFunc, function() end)
+  end)
   common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
 end
 

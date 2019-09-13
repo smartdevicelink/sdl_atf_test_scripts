@@ -882,8 +882,8 @@ end
 function common.ptuWithOnPolicyUpdateFromHMI(pPtuFunc, pVDparams)
   common.isPTUStarted()
   :Do(function()
-      common.policyTableUpdateWithOnPermChange(pPtuFunc, nil, pVDparams)
-    end)
+    common.policyTableUpdateWithOnPermChange(pPtuFunc, nil, pVDparams)
+  end)
   common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
 end
 
