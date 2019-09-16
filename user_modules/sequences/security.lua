@@ -67,6 +67,9 @@ local function registerExpectServiceEventFunc(pMobSession)
     :Do(function(_, data)
         if data.encryption == true and data.frameInfo == constants.FRAME_INFO.START_SERVICE_ACK then
           session.security:registerSecureService(pServiceId)
+          if data.serviceType == constants.SERVICE_TYPE.RPC then
+            session.security:registerSecureService(constants.SERVICE_TYPE.BULK_DATA)
+          end
         end
       end)
     :ValidIf(function(_, data)

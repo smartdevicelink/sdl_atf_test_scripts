@@ -70,6 +70,7 @@
 ./test_scripts/Smoke/HeartBeat/003_HeartBeat_App_send_HB.lua
 ./test_scripts/Smoke/HeartBeat/004_HeartBeat_no_heartbeat_v2_protocol.lua
 ./test_scripts/Smoke/Policies/001_PTU_all_flows.lua
+./test_scripts/Smoke/Policies/002_PTU_all_flows_Protected_Mode.lua
 ./test_scripts/Smoke/Registration/001_Register_5_connection.lua
 ./test_scripts/Smoke/Registration/002_Register_5_session.lua
 ./test_scripts/Smoke/Registration/003_Register_App.lua
