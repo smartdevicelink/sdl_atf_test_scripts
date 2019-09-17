@@ -38,3 +38,4 @@
 ./test_scripts/RC/InteriorVehicleData_cache/037_GetInteriorVD_subscribe_false_without_subscribtion.lua
 ./test_scripts/RC/InteriorVehicleData_cache/038_OnInteriorVD_one_parameter.lua
 ./test_scripts/RC/InteriorVehicleData_cache/039_GetInteriorVD_limitation_time_interval.lua
+./test_scripts/RC/InteriorVehicleData_cache/040_GetInteriorVD_with_subscription_after_OnInteriorVD_2_apps_light.lua
