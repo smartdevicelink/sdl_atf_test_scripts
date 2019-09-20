@@ -74,7 +74,7 @@ runner.Step("App1 GetInteriorVehicleData with subscribe=true " .. mod, common.Ge
   { mod, true, true, 1 })
 runner.Step("App1 OnInteriorVehicleData for " .. mod, common.OnInteriorVD,
   { mod, true, 1 , { moduleType = mod, lightControlData = { lightState = params[2] } } })
-runner.Step("Set HMI data state for LIGHT module", common.setActualInteriorVD,
+runner.Step("Set HMI data state for " .. mod .. " module", common.setActualInteriorVD,
     {"LIGHT", { lightControlData = { lightState = params[3] } } })
 runner.Step("App2 GetInteriorVehicleData without subscribe " .. mod, common.GetInteriorVehicleData,
   { mod, nil, false, 2 })

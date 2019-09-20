@@ -73,7 +73,7 @@ for _, mod in pairs(common.modules) do
     { mod, true, true, 1 })
   runner.Step("App1 OnInteriorVehicleData for " .. mod, common.OnInteriorVD,
     { mod, true, 1, updatedParams })
-  runner.Step("Set HMI data state for LIGHT module", setActualInteriorVD, {
+  runner.Step("Set HMI data state for " .. mod .. " module", setActualInteriorVD, {
     initialParams, updatedParams })
   runner.Step("App1 GetInteriorVehicleData without subscribe " .. mod, common.GetInteriorVehicleData,
     { mod, nil, false, 1 })
