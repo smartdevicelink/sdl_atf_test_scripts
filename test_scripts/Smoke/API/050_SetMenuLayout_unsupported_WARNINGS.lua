@@ -116,7 +116,7 @@ local onSystemCapabilityUpdatedParams = {
 --[[ Local Functions ]]
 local function setMenuLayoutTiles(self)
   onSystemCapabilityUpdatedParams.appID = commonSmoke.getHMIAppId()
-  local cid0 = self.hmiConnection:SendNotification("BasicCommunication.OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
+  self.hmiConnection:SendNotification("BasicCommunication.OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
   
   onSystemCapabilityUpdatedParams.appID = nil
   self.mobileSession1:ExpectNotification("OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
