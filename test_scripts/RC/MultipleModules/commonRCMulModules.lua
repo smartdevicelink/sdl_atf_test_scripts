@@ -418,19 +418,24 @@ function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleCo
     actions.mobile.getSession(appId):ExpectNotification("OnRCStatus"):Times(0)
   end
   hmi:ExpectNotification("RC.OnRCStatus"):Times(0)
+  local filteredConsentsArray = {}
   local isHmiRequestExpected = false
   if pAccessMode == "ASK_DRIVER" then
     if type(pSdlDecisions) == "table" then
-      for _, isSdlDecision in pairs(pSdlDecisions) do
-        if not isSdlDecision then isHmiRequestExpected = true end
+      for moduleId, isSdlDecision in pairs(pSdlDecisions) do
+        if not isSdlDecision then 
+          isHmiRequestExpected = true
+          filteredConsentsArray[moduleId] = pModuleConsentArray[moduleId]
+        end
       end
     else
       isHmiRequestExpected = true
+      filteredConsentsArray = nil
     end
   else
     hmi:ExpectRequest("RC.GetInteriorVehicleDataConsent"):Times(0)
   end
-  rc.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isHmiRequestExpected)
+  rc.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isHmiRequestExpected, filteredConsentsArray)
 end
 
 -- Used once

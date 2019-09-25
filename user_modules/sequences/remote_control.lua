@@ -1047,27 +1047,34 @@ function m.rc.defineRAMode(pAllowed, pAccessMode)
   actions.run.wait(m.minTimeout) -- workaround due to issue with SDL -> redundant OnHMIStatus notification is sent
 end
 
-function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isHmiRequestExpected)
+function m.rc.consentModules(pModuleType, pModuleConsentArray, pAppId, isHmiRequestExpected, pFilteredConsentsArray)
+  if not pFilteredConsentsArray then pFilteredConsentsArray = pModuleConsentArray end
   local rpc = "GetInteriorVehicleDataConsent"
   local mobSession = actions.mobile.getSession(pAppId)
-  local moduleIdArray = {}
-  local allowedArray = {}
+  local mobile_moduleIdArray = {}
+  local mobile_allowedArray = {}
   for k, v in pairs(pModuleConsentArray) do
-    table.insert(moduleIdArray, k)
-    table.insert(allowedArray, v)
+    table.insert(mobile_moduleIdArray, k)
+    table.insert(mobile_allowedArray, v)
   end
   local cid = mobSession:SendRPC(m.rpc.getAppEventName(rpc),
-      m.rpc.getAppRequestParams(rpc, pModuleType, nil, moduleIdArray))
+      m.rpc.getAppRequestParams(rpc, pModuleType, nil, mobile_moduleIdArray))
   if isHmiRequestExpected then
+    local hmi_moduleIdArray = {}
+    local hmi_allowedArray = {}
+    for k, v in pairs(pFilteredConsentsArray) do
+      table.insert(hmi_moduleIdArray, k)
+      table.insert(hmi_allowedArray, v)
+    end
     local hmi = actions.hmi.getConnection()
     hmi:ExpectRequest(m.rpc.getHMIEventName(rpc),
-        m.rpc.getHMIRequestParams(rpc, pModuleType, nil, pAppId, moduleIdArray))
+        m.rpc.getHMIRequestParams(rpc, pModuleType, nil, pAppId, hmi_moduleIdArray))
     :Do(function(_, data)
         hmi:SendResponse(data.id, data.method, "SUCCESS",
-            m.rpc.getHMIResponseParams(rpc, pModuleType, nil, allowedArray))
+            m.rpc.getHMIResponseParams(rpc, pModuleType, nil, hmi_allowedArray))
       end)
   end
-  mobSession:ExpectResponse(cid, m.rpc.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, nil, allowedArray))
+  mobSession:ExpectResponse(cid, m.rpc.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, nil, mobile_allowedArray))
 end
 
 
