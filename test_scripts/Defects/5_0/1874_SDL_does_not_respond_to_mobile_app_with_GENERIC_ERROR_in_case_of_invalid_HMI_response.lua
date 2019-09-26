@@ -32,7 +32,7 @@ local hmiResponseParams = {
 
 -- [[ Local Functions ]]
 local function pTUpdateFunc(tbl)
-	table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups, "DrivingCharacteristics-3")
+	table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups, "DrivingCharacteristics-3")
 end
 
 local function getVehicleDataGenericError(pHMIresponseParams, self)
