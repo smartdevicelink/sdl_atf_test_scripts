@@ -119,21 +119,22 @@ local function setMenuLayoutTiles(self)
   
   onSystemCapabilityUpdatedParams.appID = nil
   self.mobileSession1:ExpectNotification("OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
-
-  local cid = self.mobileSession1:SendRPC("SetGlobalProperties", setGlobalPropertiesParams)
+  :Do(function()
+    local cid = self.mobileSession1:SendRPC("SetGlobalProperties", setGlobalPropertiesParams)
   
-  EXPECT_HMICALL("UI.SetGlobalProperties", {})
-  :Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    self.mobileSession1:ExpectResponse(cid, successResponse)
-  end)
+    EXPECT_HMICALL("UI.SetGlobalProperties", {})
+    :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.mobileSession1:ExpectResponse(cid, successResponse)
+    end)
 
-  local cid2 = self.mobileSession1:SendRPC("AddSubMenu", addSubMenuParams)
+    local cid2 = self.mobileSession1:SendRPC("AddSubMenu", addSubMenuParams)
   
-  EXPECT_HMICALL("UI.AddSubMenu", {})
-  :Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    self.mobileSession1:ExpectResponse(cid2, successResponse)
+    EXPECT_HMICALL("UI.AddSubMenu", {})
+    :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.mobileSession1:ExpectResponse(cid2, successResponse)
+    end)
   end)
 end
 
