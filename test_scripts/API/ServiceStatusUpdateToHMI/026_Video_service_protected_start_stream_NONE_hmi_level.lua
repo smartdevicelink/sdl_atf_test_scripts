@@ -51,7 +51,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Init SDL certificates", common.initSDLCertificates,
   { "./files/Security/client_credential_expired.pem", true })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration", common.registerAppWOPTU)
+runner.Step("App registration", common.registerApp)
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 
 runner.Title("Test")

@@ -27,6 +27,16 @@ runner.testSettings.isSelfIncluded = false
 local serviceId = 11
 
 --[[ Local Functions ]]
+function common.startServiceFunc(pServiceId)
+  local msg = {
+    frameType = common.const.FRAME_TYPE.CONTROL_FRAME,
+    serviceType = pServiceId,
+    frameInfo = common.const.FRAME_INFO.START_SERVICE,
+    encryption = false
+  }
+  common.getMobileSession():Send(msg)
+end
+
 function common.onServiceUpdateFunc(pServiceTypeValue)
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnServiceUpdate",
     { serviceEvent = "REQUEST_RECEIVED", serviceType = pServiceTypeValue, appID = common.getHMIAppId() },
