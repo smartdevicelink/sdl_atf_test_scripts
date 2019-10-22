@@ -86,3 +86,4 @@
 ./test_scripts/AppServices/SystemCapabilities/003_OnSystemCapability_on_deactivate_service.lua
 ./test_scripts/AppServices/SystemCapabilities/004_GetSystemCapability_unsubscribe.lua
 ./test_scripts/AppServices/SystemCapabilities/005_OnSystemCapability_unknown_parameter_success.lua
+./test_scripts/AppServices/Resumption/001_Resumption_GetAppServiceData_Unexpected_Disconnect.lua
