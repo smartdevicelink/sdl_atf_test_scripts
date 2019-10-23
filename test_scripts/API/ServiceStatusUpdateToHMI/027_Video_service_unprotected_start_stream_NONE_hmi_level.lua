@@ -64,7 +64,7 @@ runner.Step("App registration", common.registerApp)
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 
 runner.Title("Test")
-runner.Step("Start Video Service protected, App in NONE level",
+runner.Step("Start Video Service unprotected, App in NONE level",
   common.startServiceWithOnServiceUpdate, { serviceId, 0, 0 })
 
 runner.Title("Postconditions")
