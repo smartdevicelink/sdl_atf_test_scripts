@@ -16,6 +16,7 @@ local mobile = require("mobile_connection")
 local events = require("events")
 local expectations = require('expectations')
 local module = require("user_modules/dummy_connecttest")
+local actions = require('user_modules/sequences/actions')
 
 --[[ Local Variables ]]
 local Expectation = expectations.Expectation
@@ -120,13 +121,14 @@ function m.preconditions()
   commonSteps:DeletePolicyTable()
   commonPreconditions:BackupFile(ptFileName)
   os.execute("cp -f " .. ptName .. " " .. commonPreconditions:GetPathToSDL() .. "/" .. ptFileName)
-  commonFunctions:SetValuesInIniFile("AppTransportChangeTimer%s-=%s-[%d]-%s-\n", "AppTransportChangeTimer", "5000")
+  actions.setSDLIniParameter("AppTransportChangeTimer", "5000")
 end
 
 function m.postconditions()
   SDL:StopSDL()
   local ptFileName = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
   commonPreconditions:RestoreFile(ptFileName)
+  actions.restoreSDLIniParameters()
 end
 
 function m:start()
