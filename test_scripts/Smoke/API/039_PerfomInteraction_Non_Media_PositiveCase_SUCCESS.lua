@@ -127,11 +127,11 @@ local function SendOnSystemContext(self, ctx)
     { appID = commonSmoke.getHMIAppId(), systemContext = ctx })
 end
 
---! @setExChoiseSet: ChoiceSet structure for UI.PerformInteraction request
+--! @setExChoiceSet: ChoiceSet structure for UI.PerformInteraction request
 --! @parameters:
 --! choiceIDValues - value of choice id
 --! @return: none
-local function setExChoiseSet(choiceIDValues)
+local function setExChoiceSet(choiceIDValues)
   local exChoiceSet = { }
   for i = 1, #choiceIDValues do
     exChoiceSet[i] = {
@@ -254,7 +254,7 @@ local function PI_PerformViaMANUAL_ONLY(paramsSend, self)
     end)
   EXPECT_HMICALL("UI.PerformInteraction", {
       timeout = paramsSend.timeout,
-      choiceSet = setExChoiseSet(paramsSend.interactionChoiceSetIDList),
+      choiceSet = setExChoiceSet(paramsSend.interactionChoiceSetIDList),
       initialText = {
         fieldName = "initialInteractionText",
         fieldText = paramsSend.initialText
@@ -306,7 +306,7 @@ local function PI_PerformViaBOTH(paramsSend, self)
     end)
   EXPECT_HMICALL("UI.PerformInteraction", {
       timeout = paramsSend.timeout,
-      choiceSet = setExChoiseSet(paramsSend.interactionChoiceSetIDList),
+      choiceSet = setExChoiceSet(paramsSend.interactionChoiceSetIDList),
       initialText = {
         fieldName = "initialInteractionText",
         fieldText = paramsSend.initialText
@@ -330,6 +330,114 @@ local function PI_PerformViaBOTH(paramsSend, self)
   self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT" })
 end
 
+--! @PI_PerformViaBOTHuiChoice: Processing PI with interaction mode BOTH with user choice on UI part
+--! @parameters:
+--! paramsSend - parameters for PI request
+--! self - test object
+--! @return: none
+local function PI_PerformViaBOTHuiChoice(paramsSend, self)
+  paramsSend.interactionMode = "BOTH"
+  local cid = self.mobileSession1:SendRPC("PerformInteraction",paramsSend)
+  EXPECT_HMICALL("VR.PerformInteraction", {
+      helpPrompt = paramsSend.helpPrompt,
+      initialPrompt = paramsSend.initialPrompt,
+      timeout = paramsSend.timeout,
+      timeoutPrompt = paramsSend.timeoutPrompt
+    })
+  :Do(function(_,data)
+      self.hmiConnection:SendNotification("VR.Started")
+      self.hmiConnection:SendNotification("TTS.Started")
+      SendOnSystemContext(self,"VRSESSION")
+      local function firstSpeakTimeOut()
+        self.hmiConnection:SendNotification("TTS.Stopped")
+        self.hmiConnection:SendNotification("TTS.Started")
+      end
+      RUN_AFTER(firstSpeakTimeOut, 1000)
+      local function vrResponse()
+        self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
+        self.hmiConnection:SendNotification("VR.Stopped")
+      end
+      RUN_AFTER(vrResponse, 2000)
+    end)
+  EXPECT_HMICALL("UI.PerformInteraction", {
+      timeout = paramsSend.timeout,
+      choiceSet = setExChoiceSet(paramsSend.interactionChoiceSetIDList),
+      initialText = {
+        fieldName = "initialInteractionText",
+        fieldText = paramsSend.initialText
+      },
+      vrHelp = paramsSend.vrHelp,
+      vrHelpTitle = paramsSend.initialText
+    })
+  :Do(function(_,data)
+      local function choiceIconDisplayed()
+        SendOnSystemContext(self,"HMI_OBSCURED")
+      end
+      RUN_AFTER(choiceIconDisplayed, 2050)
+      local function uiResponse()
+        self.hmiConnection:SendNotification("TTS.Stopped")
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+          { choiceID = paramsSend.interactionChoiceSetIDList[1] })
+        SendOnSystemContext(self,"MAIN")
+      end
+      RUN_AFTER(uiResponse, 3000)
+    end)
+  ExpectOnHMIStatusWithAudioStateChanged_PI(self, "BOTH")
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  choiceID = paramsSend.interactionChoiceSetIDList[1], triggerSource = "MENU" })
+end
+
+--! @PI_PerformViaBOTHvrChoice: Processing PI with interaction mode BOTH with user choice on VR part
+--! @parameters:
+--! paramsSend - parameters for PI request
+--! self - test object
+--! @return: none
+local function PI_PerformViaBOTHvrChoice(paramsSend, self)
+  paramsSend.interactionMode = "BOTH"
+  local cid = self.mobileSession1:SendRPC("PerformInteraction",paramsSend)
+  EXPECT_HMICALL("VR.PerformInteraction", {
+      helpPrompt = paramsSend.helpPrompt,
+      initialPrompt = paramsSend.initialPrompt,
+      timeout = paramsSend.timeout,
+      timeoutPrompt = paramsSend.timeoutPrompt
+    })
+  :Do(function(_,data)
+      self.hmiConnection:SendNotification("TTS.Started")
+      self.hmiConnection:SendNotification("VR.Started")
+      SendOnSystemContext(self,"VRSESSION")
+      local function firstSpeakTimeOut()
+        self.hmiConnection:SendNotification("TTS.Stopped")
+      end
+      RUN_AFTER(firstSpeakTimeOut, 1000)
+      local function vrResponse()
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+          { choiceID = paramsSend.interactionChoiceSetIDList[1] })
+        self.hmiConnection:SendNotification("VR.Stopped")
+        SendOnSystemContext(self, "MAIN")
+      end
+      RUN_AFTER(vrResponse, 2000)
+    end)
+  EXPECT_HMICALL("UI.PerformInteraction", {
+      timeout = paramsSend.timeout,
+      choiceSet = setExChoiceSet(paramsSend.interactionChoiceSetIDList),
+      initialText = {
+        fieldName = "initialInteractionText",
+        fieldText = paramsSend.initialText
+      },
+      vrHelp = paramsSend.vrHelp,
+      vrHelpTitle = paramsSend.initialText
+    })
+  :Do(function(_,data)
+      EXPECT_HMICALL("UI.ClosePopUp", { methodName = "UI.PerformInteraction" })
+        :Do(function()
+          self.hmiConnection:SendError(data.id, data.method, "ABORTED", "Error message")
+        end)
+    end)
+  ExpectOnHMIStatusWithAudioStateChanged_PI(self, "VR")
+  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  choiceID = paramsSend.interactionChoiceSetIDList[1], triggerSource = "VR" })
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonSmoke.preconditions)
@@ -344,7 +452,9 @@ runner.Step("CreateInteractionChoiceSet with id 300", CreateInteractionChoiceSet
 runner.Title("Test")
 runner.Step("PerformInteraction with VR_ONLY interaction mode", PI_PerformViaVR_ONLY, {requestParams})
 runner.Step("PerformInteraction with MANUAL_ONLY interaction mode", PI_PerformViaMANUAL_ONLY, {requestParams})
-runner.Step("PerformInteraction with BOTH interaction mode", PI_PerformViaBOTH, {requestParams})
+runner.Step("PerformInteraction with BOTH interaction mode TIMED_OUT", PI_PerformViaBOTH, {requestParams})
+runner.Step("PerformInteraction with BOTH interaction mode choice via UI", PI_PerformViaBOTHuiChoice, {requestParams})
+runner.Step("PerformInteraction with BOTH interaction mode choice via VR", PI_PerformViaBOTHvrChoice, {requestParams})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonSmoke.postconditions)
