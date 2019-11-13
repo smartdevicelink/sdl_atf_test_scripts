@@ -300,7 +300,7 @@ local function PI_PerformViaBOTH(paramsSend)
       RUN_AFTER(uiResponse, 30)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("BOTH")
-  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "WARNINGS",
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "WARNINGS",
     info = "Requested image(s) not found., Perform Interaction error response." })
 end
 
