@@ -282,7 +282,10 @@ local function PI_PerformViaVR_ONLY(paramsSend, self)
       vrHelpTitle = paramsSend.initialText,
     })
   :Do(function(_,data)
-      self.hmiConnection:SendResponse( data.id, data.method, "SUCCESS", { } )
+      EXPECT_HMICALL("UI.ClosePopUp", { methodName = "UI.PerformInteraction" })
+        :Do(function()
+          self.hmiConnection:SendError(data.id, data.method, "ABORTED", "Error message")
+        end)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI(self, "VR")
   self.mobileSession1:ExpectResponse(cid,
@@ -439,7 +442,7 @@ local function PI_PerformViaBOTHuiChoice(paramsSend, self)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI(self, "BOTH")
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
-  choiceID = paramsSend.interactionChoiceSetIDList[1], triggerSource = "MENU" })
+    choiceID = paramsSend.interactionChoiceSetIDList[1], triggerSource = "MENU" })
 end
 
 --! @PI_PerformViaBOTHvrChoice: Processing PI with interaction mode BOTH with user choice on VR part
@@ -490,7 +493,7 @@ local function PI_PerformViaBOTHvrChoice(paramsSend, self)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI(self, "VR")
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
-  choiceID = paramsSend.interactionChoiceSetIDList[1], triggerSource = "VR" })
+    choiceID = paramsSend.interactionChoiceSetIDList[1], triggerSource = "VR" })
 end
 
 --[[ Scenario ]]
