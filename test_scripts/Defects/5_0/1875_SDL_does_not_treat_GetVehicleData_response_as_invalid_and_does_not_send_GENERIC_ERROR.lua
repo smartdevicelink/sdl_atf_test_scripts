@@ -1,54 +1,36 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/SmartDeviceLink/sdl_core/issues/1875
 --
+-- Description:
+-- SDL does not treat GetVehicleData_response as invalid and does not send GENERIC_ERROR
 -- Precondition:
 -- 1) SDL and HMI are started.
 -- 2) App is registered and activated.
--- Description:
--- SDL does not treat GetVehicleData_response as invalid and does not send GENERIC_ERROR
 -- Steps to reproduce:
 -- 1) HMI sends GetVehilceData_response with 'gpsData' (and/or 'beltStatus'/ 'deviceStatus'/ 'tireStatus') structure
 -- and this structure has at least one parameter with invalid value.
--- Expected:
--- SDL treats GetVehicleData_response as invalid.
+-- SDL does:
+-- treat GetVehicleData_response as invalid.
 -- send GENERIC_ERROR, success:false, info: Invalid message received from vehicle.
--- Actual result
--- SDL does not send GENERIC_ERROR.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/commonDefects')
+local common = require("user_modules/sequences/actions")
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local utils = require('user_modules/utils')
+local json = require("modules/json")
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local function pTUpdateFunc(tbl)
-    local VDgroup = {
-        rpcs = {
-            GetVehicleData = {
-                hmi_levels = {"BACKGROUND", "FULL", "LIMITED"},
-                parameters = {"gps", "deviceStatus", "tirePressure", "beltStatus"}
-            }
-        }
-    }
-    tbl.policy_table.functional_groupings["NewTestCaseGroup"] = VDgroup
-    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups = {"Base-4", "NewTestCaseGroup"}
-end
+local beltStatusResponse = { driverBeltDeployed = "NO" }
 
-local beltStatusResponse = {
-	driverBeltDeployed = "NO"
-}
+local DeviceStatusResponse = { voiceRecOn = true }
 
-local DeviceStatusResponse = {
-	voiceRecOn = true
-}
+local gpsDataResponse = { longitudeDegrees = 100 }
 
-local gpsDataResponse = {
-	longitudeDegrees = 100
-}
-
-local tireStatusResponse = {
-	pressureTelltale = "OFF"
-}
+local tireStatusResponse = { pressureTelltale = "OFF" }
 
 local tireStatusTable = {}
 for key, value in pairs (tireStatusResponse) do
@@ -62,6 +44,26 @@ for key, value in pairs (tireStatusResponse) do
 end
 
 --[[ Local Functions ]]
+local function updatePreloadedPT(pGroups, pAppId)
+  local pt = common.sdl.getPreloadedPT()
+  if not pGroups then
+    pGroups = {
+      rpcs = {
+        GetVehicleData = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED", "NONE" },
+          parameters = {"gps", "deviceStatus", "tirePressure", "beltStatus"}
+        }
+      }
+    }
+  end
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = utils.json.null
+  pt.policy_table.app_policies[common.app.getParams(pAppId).fullAppID] = utils.cloneTable(pt.policy_table.app_policies.default)
+  pt.policy_table.app_policies[common.app.getParams(pAppId).fullAppID].groups = { "Base-4", "NewTestCaseGroup" }
+  pt.policy_table.functional_groupings["NewTestCaseGroup"] = pGroups
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  common.sdl.setPreloadedPT(pt)
+end
+
 local function CreationTblWithInvalidVAlues(tbl)
 	local CreatedTbl = {}
 	for key, value in pairs (tbl) do
@@ -83,23 +85,24 @@ local beltStatusTable = CreationTblWithInvalidVAlues(beltStatusResponse)
 local deviceStatusTable = CreationTblWithInvalidVAlues(DeviceStatusResponse)
 local gpsResponsesTable = CreationTblWithInvalidVAlues(gpsDataResponse)
 
-local function GetVDError(requestParams, responseParams, self)
-	local cid = self.mobileSession1:SendRPC("GetVehicleData", requestParams)
+local function GetVDError(requestParams, responseParams)
+	local cid = common.getMobileSession():SendRPC("GetVehicleData", requestParams)
 	EXPECT_HMICALL("VehicleInfo.GetVehicleData", requestParams)
 	:Do(function(_, data)
-		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
 		responseParams)
-    end)
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR",
+	end)
+    common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR",
 	info = "Invalid message received from vehicle" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Update local PT", updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI, PTU", common.rai_ptu, {pTUpdateFunc})
-runner.Step("Activate App", common.activate_app)
+runner.Step("RAI, PTU", common.registerAppWOPTU)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for k,v in pairs(beltStatusTable) do
