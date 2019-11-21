@@ -1,8 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1833
 --
--- Description:
--- Precondition:
 -- In case:
 -- Change HMI to not respond to VR.DeleteCommand
 -- Create Interaction choice set
@@ -21,92 +19,92 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local putFileParams = {
-	requestParams = {
-	    syncFileName = 'icon.png',
-	    fileType = "GRAPHIC_PNG",
-	    persistentFile = false,
-	    systemFile = false
-	},
-	filePath = "files/icon.png"
+  requestParams = {
+    syncFileName = 'icon.png',
+    fileType = "GRAPHIC_PNG",
+    persistentFile = false,
+    systemFile = false
+  },
+  filePath = "files/icon.png"
 }
 
 local createRequestParams = {
-	interactionChoiceSetID = 1001,
-	choiceSet = {
-		{
-			choiceID = 1001,
-			menuName ="Choice1001",
-			vrCommands = {
-				"Choice1001"
-			},
-			image = {
-				value ="icon.png",
-				imageType ="DYNAMIC"
-			}
-		}
-	}
+  interactionChoiceSetID = 1001,
+  choiceSet = {
+    {
+      choiceID = 1001,
+      menuName ="Choice1001",
+      vrCommands = {
+        "Choice1001"
+      },
+      image = {
+        value ="icon.png",
+        imageType ="DYNAMIC"
+      }
+    }
+  }
 }
 
 local createResponseVrParams = {
-	cmdID = createRequestParams.interactionChoiceSetID,
-	type = "Choice",
-	vrCommands = createRequestParams.vrCommands
+  cmdID = createRequestParams.interactionChoiceSetID,
+  type = "Choice",
+  vrCommands = createRequestParams.vrCommands
 }
 
 local createAllParams = {
-	requestParams = createRequestParams,
-	responseVrParams = createResponseVrParams
+  requestParams = createRequestParams,
+  responseVrParams = createResponseVrParams
 }
 
 local deleteRequestParams = {
-	interactionChoiceSetID = createRequestParams.interactionChoiceSetID
+  interactionChoiceSetID = createRequestParams.interactionChoiceSetID
 }
 
 local deleteResponseVrParams = {
-	cmdID = createRequestParams.interactionChoiceSetID,
-	type = "Choice"
+  cmdID = createRequestParams.interactionChoiceSetID,
+  type = "Choice"
 }
 
 local deleteAllParams = {
-	requestParams = deleteRequestParams,
-	responseVrParams = deleteResponseVrParams
+  requestParams = deleteRequestParams,
+  responseVrParams = deleteResponseVrParams
 }
 
 --[[ Local Functions ]]
 local function putFile(params)
-    local cid = common.getMobileSession():SendRPC("PutFile", params.requestParams, params.filePath)
-    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  local cid = common.getMobileSession():SendRPC("PutFile", params.requestParams, params.filePath)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
 local function createInteractionChoiceSet(params)
-	local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", params.requestParams)
-	params.responseVrParams.appID = common.getHMIAppId()
-	EXPECT_HMICALL("VR.AddCommand", params.responseVrParams)
-	:Do(function(_,data)
-		common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
-	:ValidIf(function(_,data)
-		if data.params.grammarID ~= nil then
-			deleteResponseVrParams.grammarID = data.params.grammarID
-			return true
-		else
-			return false, "grammarID should not be empty"
-		end
-	end)
+  local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", params.requestParams)
+  params.responseVrParams.appID = common.getHMIAppId()
+  EXPECT_HMICALL("VR.AddCommand", params.responseVrParams)
+  :Do(function(_,data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    if data.params.grammarID ~= nil then
+      deleteResponseVrParams.grammarID = data.params.grammarID
+      return true
+    else
+      return false, "grammarID should not be empty"
+    end
+  end)
 
-	common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-	common.getMobileSession():ExpectNotification("OnHashChange")
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 local function deleteInteractionChoiceSet(params)
-	local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
-	params.responseVrParams.appID = common.getHMIAppId()
-	EXPECT_HMICALL("VR.DeleteCommand", params.responseVrParams)
-	:Do(function(_,_)
-		-- HMI does not respond
-	end)
+  local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
+  params.responseVrParams.appID = common.getHMIAppId()
+  EXPECT_HMICALL("VR.DeleteCommand", params.responseVrParams)
+  :Do(function(_,_)
+    -- HMI does not respond
+  end)
 
-	common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]
