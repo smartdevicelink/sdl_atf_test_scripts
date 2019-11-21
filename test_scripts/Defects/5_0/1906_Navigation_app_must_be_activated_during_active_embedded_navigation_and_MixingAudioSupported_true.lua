@@ -35,35 +35,25 @@ local function start(getHMIParams, self)
   self:runSDL()
   commonFunctions:waitForSDLStart(self)
   :Do(function()
-      self:initHMI(self)
-      :Do(function()
-          commonFunctions:userPrint(35, "HMI initialized")
-          self:initHMI_onReady(getHMIParams)
+    self:initHMI(self)
+    :Do(function()
+        commonFunctions:userPrint(35, "HMI initialized")
+        self:initHMI_onReady(getHMIParams)
+        :Do(function()
+          commonFunctions:userPrint(35, "HMI is ready")
+          self:connectMobile()
           :Do(function()
-              commonFunctions:userPrint(35, "HMI is ready")
-              self:connectMobile()
-              :Do(function()
-                  commonFunctions:userPrint(35, "Mobile connected")
-                  common.allow_sdl(self)
-                end)
-            end)
+            commonFunctions:userPrint(35, "Mobile connected")
+            common.allow_sdl(self)
+          end)
         end)
-    end)
+      end)
+  end)
 end
 
 local function onEventChange(self)
-	self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
-	self.mobileSession1:ExpectNotification("OnHMIStatus",
-		{hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE"},
-		{hmiLevel = "FULL", audioStreamingState = "AUDIBLE"})
-	:Times(2)
-	:Do(function(exp)
-		if exp.occurences == 1 then
-			local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp",
-				{ appID = common.getHMIAppId()})
-			EXPECT_HMIRESPONSE(requestId)
-		end
-	end)
+  self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
+  self.mobileSession1:ExpectNotification("OnHMIStatus", { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
 end
 
 --[[ Scenario ]]
@@ -75,6 +65,7 @@ runner.Step("Activate App", common.activate_app)
 
 runner.Title("Test")
 runner.Step("onEventChange AUDIO_SOURCE true", onEventChange)
+runner.Step("Activate App", common.activate_app)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
