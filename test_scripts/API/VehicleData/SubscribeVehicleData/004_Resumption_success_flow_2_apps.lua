@@ -20,7 +20,11 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 local actions = require("user_modules/sequences/actions")
+local test = require("user_modules/dummy_connecttest")
 local mobile_session = require("mobile_session")
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.isMediaApplication = false
@@ -55,13 +59,31 @@ local vehicleDataResults = {
 }
 
 --[[ Local Functions ]]
-local function processRPCSubscribeSuccess(pAppId, pHMIsubscription, self)
-  local mobileSession = common.getMobileSession(self, pAppId)
+local function getVDParams()
+  local out = {}
+  for k in pairs(common.allVehicleData) do
+    table.insert(out, k)
+  end
+  return out
+end
+
+local function ptUpdateForApps(pTbl)
+  pTbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID].groups = { "Base-4", "Emergency-1" }
+  pTbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID].groups = { "Base-4", "Emergency-1" }
+  local grp = pTbl.policy_table.functional_groupings["Emergency-1"]
+  for _, v in pairs(grp.rpcs) do
+    v.parameters = getVDParams()
+  end
+  pTbl.policy_table.vehicle_data = nil
+end
+
+local function processRPCSubscribeSuccess(pAppId, pHMIsubscription)
+  local mobileSession = common.getMobileSession( pAppId)
   local cid = mobileSession:SendRPC(rpc.name, rpc.params)
   if true == pHMIsubscription then
     EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params)
     :Do(function(_, data)
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
           vehicleDataResults)
       end)
   else
@@ -78,11 +100,11 @@ local function processRPCSubscribeSuccess(pAppId, pHMIsubscription, self)
   end)
 end
 
-local function processRPCSubscribeResumption(pHMIunsubscription, self)
+local function processRPCSubscribeResumption(pHMIunsubscription)
   if true == pHMIunsubscription then
     EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params)
     :Do(function(_, data)
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
           vehicleDataResults)
       end)
   else
@@ -91,66 +113,66 @@ local function processRPCSubscribeResumption(pHMIunsubscription, self)
   end
 end
 
-local function ActivateSecondApp(self)
-  common.activateApp(2, self)
-  common.getMobileSession(self, 1):ExpectNotification("OnHMIStatus",
+local function ActivateSecondApp()
+  common.activateApp(2)
+  common.getMobileSession(1):ExpectNotification("OnHMIStatus",
     { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
 end
 
-local function reconnect(self)
-  common.getMobileSession(self, 1):Stop()
-  common.getMobileSession(self, 2):Stop()
-  EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData")
-  :Times(0)
+local function reconnect()
+  common.getMobileSession(1):Stop()
+  common.getMobileSession(2):Stop()
+  common.getHMIConnection():ExpectNotification("VehicleInfo.UnsubscribeVehicleData")
   actions.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
-    { unexpectedDisconnect = true })
-  :Times(2)
+  { unexpectedDisconnect = true }):Times(2)
   :Do(function()
-    self.mobileSession["1"] = mobile_session.MobileSession(
-    self,
-    self.mobileConnection,
-    config["application" .. 1].registerAppInterfaceParams)
-    self.mobileSession["2"] = mobile_session.MobileSession(
-    self,
-    self.mobileConnection,
-    config["application" .. 2].registerAppInterfaceParams)
-    self.mobileConnection:Connect()
+    test.mobileSession[1] = mobile_session.MobileSession(
+      test,
+      test.mobileConnection,
+      config["application" .. 1].registerAppInterfaceParams)
+    test.mobileSession[2] = mobile_session.MobileSession(
+      test,
+      test.mobileConnection,
+      config["application" .. 2].registerAppInterfaceParams)
+    test.mobileConnection:Connect()
   end)
 end
 
-local function raiN(id, pHashId, self)
-  self["mobileSession" .. id] = mobile_session.MobileSession(self, self.mobileConnection)
-  self["mobileSession" .. id]:StartService(7)
+local function raiN(id, pHashId)
+  test["mobileSession" .. id] = mobile_session.MobileSession(test.mobileConnection)
+  local session = actions.mobile.createSession(id)
+  session:StartService(7)
   :Do(function()
     config["application" .. id].registerAppInterfaceParams.hashID = pHashId
-      local corId = self["mobileSession" .. id]:SendRPC("RegisterAppInterface",
+      local corId = common.getMobileSession(id):SendRPC("RegisterAppInterface",
         config["application" .. id].registerAppInterfaceParams)
-      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
+        common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
         { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
-      self["mobileSession" .. id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      common.getMobileSession(id):ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
     end)
 end
 
-local function resumptionApps(pAppId, level, pHMIsubscription, self)
-  raiN(pAppId, hashIdArray[pAppId], self)
-  common.getMobileSession(self, 1):ExpectNotification("OnHMIStatus",
+local function resumptionApps(pAppId, level, pHMIsubscription)
+  raiN(pAppId, hashIdArray[pAppId])
+  common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
     { hmiLevel = level, audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
   :Times(2)
-  EXPECT_HMICALL("BasicCommunication.ActivateApp")
+  common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp")
     :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
     :Times(AtMost(1))
-  processRPCSubscribeResumption(pHMIsubscription, self)
+  processRPCSubscribeResumption(pHMIsubscription)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI app1 with PTU", common.registerAppWithPTU)
-runner.Step("RAI app2 with PTU", common.registerAppWithPTU, { 2 })
+runner.Step("App_1 is registered", common.registerAppWOPTU)
+runner.Step("App_2 is registered", common.registerAppWOPTU, { 2 })
+runner.Step("PTU", common.policyTableUpdate, { ptUpdateForApps })
 runner.Step("Activate app1", common.activateApp)
 runner.Step("Activate app2", ActivateSecondApp)
 
@@ -158,8 +180,8 @@ runner.Title("Test")
 runner.Step("RPC " .. rpc.name .. " app1", processRPCSubscribeSuccess, { 1, true })
 runner.Step("RPC " .. rpc.name .. " app2", processRPCSubscribeSuccess, { 2, false })
 runner.Step("Reconnect", reconnect)
-runner.Step("Resumption app1", resumptionApps, { 2, "FULL", true })
-runner.Step("Resumption app2", resumptionApps, { 1, "LIMITED", false })
+runner.Step("Resumption app2", resumptionApps, { 2, "FULL", true })
+runner.Step("Resumption app1", resumptionApps, { 1, "LIMITED", false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
