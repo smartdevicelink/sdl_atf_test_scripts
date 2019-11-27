@@ -31,6 +31,10 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("user_modules/sequences/actions")
+local hmi_values = require('user_modules/hmi_values')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Applications Configuration ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
