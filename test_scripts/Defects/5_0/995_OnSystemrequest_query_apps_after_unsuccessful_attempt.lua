@@ -63,7 +63,6 @@ end
 
 local function RegisterSecondApp()
   common.registerAppWOPTU(2)
-  common.getMobileSession(2):ExpectNotification("OnSystemRequest", { requestType = "LOCK_SCREEN_ICON_URL" })
 end
 
 local function OnSystemRequest_QueryApps_IsNotSentToNewRegisteredApp()
