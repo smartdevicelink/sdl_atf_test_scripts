@@ -8,7 +8,7 @@ config.defaultProtocolVersion = 2
 --[[ Required Shared libraries ]]
 local mobile_session = require("mobile_session")
 local json = require("modules/json")
-
+local events = require("events")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
