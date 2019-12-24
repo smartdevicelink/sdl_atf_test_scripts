@@ -27,8 +27,9 @@ end
 local function registerApp(pAppId)
   common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
     { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
-  :Times(2)
+  :Times(0)
   common.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
+  :Times(0)
   common.registerAppWOPTU(pAppId)
 end
 

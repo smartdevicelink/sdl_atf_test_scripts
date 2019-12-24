@@ -54,7 +54,7 @@ function m.setForceProtectedServiceParam(pParamValue)
 end
 
 function m.getAppID(pAppId)
-  return m.getConfigAppParams(pAppId).appID
+  return m.getConfigAppParams(pAppId).fullAppID
 end
 
 return m
