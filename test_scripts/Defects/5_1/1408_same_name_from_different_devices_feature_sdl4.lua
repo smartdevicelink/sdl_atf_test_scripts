@@ -67,29 +67,21 @@ local function sdl4Function(pAppId)
   local session = actions.mobile.getSession(pAppId)
   session.correlationId = session.correlationId + 1
 
-  local msg =
-      {
-        serviceType      = 7,
-        frameInfo        = 0,
-        rpcType          = 2,
-        rpcFunctionId    = 32768,
-        rpcCorrelationId = session.correlationId,
-        payload          = '{"hmiLevel" :"FULL", "audioStreamingState" : "NOT_AUDIBLE", "systemContext" : "MAIN"}'
-      }
+  session:SendNotification("OnHMIStatus",
+    { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
 
-  session:Send(msg)
-  actions.mobile.getSession(pAppId):ExpectNotification("OnSystemRequest",
+  session:ExpectNotification("OnSystemRequest",
     { requestType = "LOCK_SCREEN_ICON_URL" },
     { requestType = "QUERY_APPS" })
   :Do(function(_,data)
       if data.payload.requestType == "QUERY_APPS" then
-        local CorIdSystemRequest = actions.mobile.getSession(pAppId):SendRPC("SystemRequest",
+        local corIdSystemRequest = actions.mobile.getSession(pAppId):SendRPC("SystemRequest",
         {
           requestType = "QUERY_APPS",
           fileName = "correctJSON.json"
         },
         file)
-        actions.mobile.getSession(pAppId):ExpectResponse(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+        session:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
       end
     end)
   :Times(2)
