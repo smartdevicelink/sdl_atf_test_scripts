@@ -4,11 +4,11 @@
 -- Steps:
 -- 1. Set StopStreamingTimeout = 3000 and VideoDataStoppedTimeout = 3000 in SDL .INI file
 -- 2. Start SDL, HMI, connect Mobile device
--- 3. Register PROJECTION (App_1) and NAVIGATION (App_2) applications
+-- 3. Register 2 NAVIGATION applications: App_1 and App_2
 -- 4. Activate App_1 and start Video streaming
 -- 5. Deactivate App_1 (streaming still continue since app has STREAMABLE state)
 -- 6. Activate App_2 and start Video streaming
--- 7. App_1 and App_2 continue streaming data withing 'StopStreamingTimeout' timeout
+-- 7. App_1 and App_2 continue streaming data within 'StopStreamingTimeout' timeout
 -- SDL does:
 --   - switch streaming between apps and provides HMI with streaming data from App_2
 --   - not unregister App_1 since timeout is not yet expired
@@ -25,7 +25,7 @@ local common = require("test_scripts/Defects/6_1/common_3139_3140_3142")
 runner.testSettings.isSelfIncluded = false
 
 --[[ Apps Configuration ]]
-common.app.getParams(1).appHMIType = { "PROJECTION" }
+common.app.getParams(1).appHMIType = { "NAVIGATION" }
 common.app.getParams(2).appHMIType = { "NAVIGATION" }
 
 --[[ Local Functions ]]
@@ -55,15 +55,19 @@ local function activateApp2()
   :Do(function()
       startStreaming(2, 11)
     end)
-  stopStreaming(1, 11)
-  common.hmi.getConnection():ExpectNotification("Navigation.OnVideoDataStreaming",
-    { available = false }, { available = true }):Times(2)
+  common.hmi.getConnection():ExpectNotification("Navigation.OnVideoDataStreaming"):Times(0)
 end
 
 local function stopStreamingWONotification()
   common.stopStreaming(1)
-  common.hmi.getConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = false }):Times(0)
-  common.wait(10000)
+  common.hmi.getConnection():ExpectNotification("Navigation.OnVideoDataStreaming"):Times(0)
+  common.wait(5000)
+end
+
+local function stopStreamingWithNotification()
+  common.stopStreaming(2)
+  common.hmi.getConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = false })
+  common.wait(5000)
 end
 
 --[[ Scenario ]]
@@ -78,7 +82,8 @@ runner.Title("Test")
 runner.Step("App 1 start video streaming", common.startStreaming, { 1, 11 })
 runner.Step("App 1 deactivated", common.deactivateApp, { 1 })
 runner.Step("App 2 activated", activateApp2)
-runner.Step("App 1 stop video streaming", stopStreamingWONotification)
+runner.Step("App 1 stop video streaming without notification", stopStreamingWONotification)
+runner.Step("App 2 stop video streaming with notification", stopStreamingWithNotification)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
