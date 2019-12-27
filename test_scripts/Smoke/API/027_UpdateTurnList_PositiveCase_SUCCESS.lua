@@ -72,7 +72,7 @@ local requestParams = {
 local responseUiParams = commonFunctions:cloneTable(requestParams)
 responseUiParams.turnList[1].navigationText = {
   fieldText = requestParams.turnList[1].navigationText,
-  fieldName = "turnText"
+  fieldName = "navigationText"
 }
 responseUiParams.turnList[1].turnIcon.value = commonSmoke.getPathToFileInStorage(requestParams.turnList[1].turnIcon.value)
 responseUiParams.softButtons[1].image.value = commonSmoke.getPathToFileInStorage(requestParams.softButtons[1].image.value)
