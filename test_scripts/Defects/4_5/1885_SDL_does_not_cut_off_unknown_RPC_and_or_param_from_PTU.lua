@@ -9,11 +9,14 @@
 -- SDL must cut off <unknown_parameter> or <unknown_RPC> continue validating received PTU without <unknown_parameter> or
 -- <unknown_RPC> merge valid Updated PT without <unknown_parameter> or <unknown_RPC> with LocalPT in case
 -- of no other failures
--- Actual result:N/A
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("user_modules/sequences/actions")
+local test = require('user_modules/dummy_connecttest')
+local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local json = require("modules/json")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -49,6 +52,9 @@ local gpsResponse = {
   shifted = true
 }
 
+local pathToPTS = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
+  .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
+
 --[[ Local Functions ]]
 
 --[[ @ptuUpdateFuncRPC: update table with unknown RPC for PTU
@@ -71,6 +77,30 @@ local function ptuUpdateFuncRPC(tbl)
   tbl.policy_table.functional_groupings["NewTestCaseGroup1"] = VDgroup
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
     { "Base-4", "NewTestCaseGroup1" }
+end
+
+local function ptuWithNotValid(tbl)
+  local VDgroup = {
+    rpcs = {
+      GetVehicleData = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED" },
+        parameters = { "gps", unknownParameter }
+      },
+      SubscribeVehicleData = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED" },
+      },
+      [unknownAPI] = {
+        hmi_levels = { "BACKGROUND", "FULL", "LIMITED" },
+        parameters = { "gps" }
+      },
+      -- SendLocation = {
+      --   -- missed mandatory hmi_levels parameter
+      -- }
+    }
+  }
+  tbl.policy_table.functional_groupings["NewTestCaseGroup3"] = VDgroup
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
+    { "Base-4", "NewTestCaseGroup1", "NewTestCaseGroup2", "NewTestCaseGroup3" }
 end
 
 --[[ @ptuUpdateFuncParams: update table with unknown parameters for PTU
@@ -97,15 +127,11 @@ end
 --! RPC - RPC name
 --! params - RPC params for mobile request
 --! interface - interface of RPC on HMI
---! self - test object
 --! @return: none
 --]]
 local function SuccessfulProcessingRPC(RPC, params, interface)
   local cid = common.getMobileSession():SendRPC(RPC, params)
   common.getHMIConnection():ExpectRequest(interface .. "." .. RPC, params)
-  -- :Do(function(_,data)
-  --     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  --   end)
   :Do(function(_, data)
     if RPC == "GetVehicleData" then
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {gps = gpsResponse})
@@ -125,14 +151,61 @@ end
 --! RPC - RPC name
 --! params - RPC params for mobile request
 --! interface - interface of RPC on HMI
---! self - test object
 --! @return: none
 --]]
-local function DisallowedRPC(RPC, params, interface)
-  local cid = common.getMobileSession():SendRPC(RPC, params)
-  common.getHMIConnection():ExpectRequest(interface .. "." .. RPC)
+local function DisallowedRPC()
+  local cid = common.getMobileSession():SendRPC("SubscribeVehicleData", { gps = true })
+  common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData", { gps = true })
   :Times(0)
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "DISALLOWED" })
+end
+
+local function ptsToTable(pts_f)
+  local f = io.open(pts_f, "r")
+  local content = f:read("*all")
+  f:close()
+  return json.decode(content)
+end
+
+local function contains(pTbl, pValue)
+  for _, v in pairs(pTbl) do
+    if v == pValue then return true end
+  end
+  return false
+end
+
+local function removePtsAndTriggerPTU()
+  -- remove Snapshot
+  os.execute("rm -f " .. pathToPTS)
+  -- expect PolicyUpdate request on HMI side
+  common.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate", { file = pathToPTS })
+  :Do(function()
+    if (commonSteps:file_exists(pathToPTS) == false) then
+      test:FailTestCase(pathToPTS .. " is not created")
+    else
+      local pts = ptsToTable(pathToPTS)
+      local rpcs = pts.policy_table.functional_groupings.NewTestCaseGroup1.rpcs
+      if rpcs[unknownAPI] then
+        commonFunctions:userPrint(33, " Snapshot contains '" .. unknownAPI .. "'")
+      end
+      local parameters = pts.policy_table.functional_groupings.NewTestCaseGroup2.rpcs.GetVehicleData.parameters
+      if contains(parameters, unknownParameter) then
+        test:FailTestCase("Snapshot contains '" .. unknownParameter .. "' for GetVehicleData RPC")
+      end
+    end
+  end)
+  -- Sending OnPolicyUpdate notification form HMI
+  common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", { })
+  -- Expect OnStatusUpdate notifications on HMI side
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
+  { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
+  :Times(2)
+end
+
+local function expNotificationFunc()
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
+    { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
+  :Times(2)
 end
 
 --[[ Scenario ]]
@@ -151,8 +224,9 @@ runner.Step("PTU update with unknown API", common.policyTableUpdate, { ptuUpdate
 
 runner.Step("Check applying of PT by processing GetVehicleData", SuccessfulProcessingRPC,
   { "GetVehicleData", { gps = true }, "VehicleInfo" })
-runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC,
-  { "SubscribeVehicleData", { gps = true }, "VehicleInfo" })
+runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC)
+runner.Step("Remove Snapshot, trigger PTU, check new created PTS", removePtsAndTriggerPTU)
+runner.Step("PolicyTableUpdate fails", common.policyTableUpdate, { ptuWithNotValid })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
