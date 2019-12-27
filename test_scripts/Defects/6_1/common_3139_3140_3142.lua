@@ -6,6 +6,7 @@ local actions = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
 local constants = require('protocol_handler/ford_protocol_constants')
 local atf_logger = require("atf_logger")
+local message_dispatcher = require("message_dispatcher")
 
 --[[ Module ]]
 local m = {}
@@ -105,7 +106,7 @@ function m.startStreaming(pAppId, pServiceId)
   end
   m.mobile.getSession(pAppId):StartService(pServiceId)
   :Do(function()
-      m.mobile.getSession(pAppId):StartStreaming(pServiceId, m.streamFiles[pAppId], 160*1024)
+      m.mobile.getSession(pAppId):StartStreaming(pServiceId, m.streamFiles[pAppId], 10000)
       m.hmi.getConnection():ExpectNotification(notName, { available = true })
       m.log("App " .. pAppId .." starts streaming ...")
       m.streamingStatus[pAppId] = true
@@ -195,6 +196,21 @@ function m.deactivateApp(pAppId)
   m.hmi.getConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = m.app.getHMIId(pAppId) })
   m.mobile.getSession(pAppId):ExpectNotification("OnHMIStatus",
     { hmiLevel = "LIMITED", videoStreamingState = "STREAMABLE" })
+end
+
+local FileStream_Orig = message_dispatcher.FileStream
+function message_dispatcher.FileStream(...)
+  local stream = FileStream_Orig(...)
+  local frameSize = (constants.FRAME_SIZE["P" .. stream.version] - constants.PROTOCOL_HEADER_SIZE)
+  local chunkSize = (frameSize < stream.bandwidth) and frameSize or (stream.bandwidth)
+  local numberOfChunksPerSecond = 10 -- allow to send 10 chunks per 1 second
+  stream.chunksize = math.floor(chunkSize / numberOfChunksPerSecond + 0.5)
+  local GetMessage_Orig = stream.GetMessage
+  function stream:GetMessage(...)
+    local msg = GetMessage_Orig(self, ...)
+    return msg, 10
+  end
+  return stream
 end
 
 return m
