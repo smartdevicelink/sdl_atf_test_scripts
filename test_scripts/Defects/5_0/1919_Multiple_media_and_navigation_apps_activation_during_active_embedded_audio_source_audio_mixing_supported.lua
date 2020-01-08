@@ -25,8 +25,6 @@
 -- 2) SDL -> HMI: SDL.ActivateApp (SUCCESS)
 -- 3) SDL -> non-media app_3 : OnHMIStatus (FULL, NOT_AUDIBLE)
 -- Note: media app_1 still in LIMITED and AUDIBLE
--- Actual result:
--- 1) SDL does not set required HMILevel and audioStreamingState
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -39,33 +37,29 @@ runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application2.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
-config.application2.registerAppInterfaceParams.isMediaApplication = true
+config.application2.registerAppInterfaceParams.isMediaApplication = false
 config.application3.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application3.registerAppInterfaceParams.isMediaApplication = false
 
+--[[ Local Variables ]]
+local appsOnHMIStatusExp = {
+  navi = { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
+  media = { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
+  non_media = { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" }
+}
+
 --[[ Local Functions ]]
-local function activateApp(pAppId)
-  if not pAppId then pAppId = 1 end
+local function setMixingAudioSupportedValue()
+  common.setSDLIniParameter("MixingAudioSupported", "true")
+end
+
+local function appActivation(pAppId, pExpTbl)
   local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(pAppId) })
   common.getHMIConnection():ExpectResponse(requestId)
-  common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus")
-  :ValidIf(function(_, data)
-    if config["application"..pAppId].registerAppInterfaceParams.isMediaApplication == false and
-      config["application"..pAppId].registerAppInterfaceParams.appHMIType[1] == "DEFAULT"
-      then
-        return data.payload.audioStreamingState == "NOT_AUDIBLE" and
-          data.payload.hmiLevel == "FULL" and
-          data.payload.systemContext == "MAIN"
-      else
-        return data.payload.audioStreamingState == "AUDIBLE" and
-          data.payload.hmiLevel == "FULL" and
-          data.payload.systemContext == "MAIN"
-    end
-  end)
+  common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus", pExpTbl)
 end
 
 local function deactivateApp(pAppId)
-  if not pAppId then pAppId = 1 end
   common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId(pAppId) })
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus")
   :ValidIf(function(_, data)
@@ -118,13 +112,13 @@ end
 --[[ Test ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { setMixingAudioSupportedValue() })
 runner.Step("Register App 1 (media)", common.registerAppWOPTU, { 1 })
 runner.Step("Register App 2 (navi)", common.registerAppWOPTU, { 2 })
 runner.Step("Register App 3 (non media)", common.registerAppWOPTU, { 3 })
-runner.Step("Activate App 3 (non media)", activateApp, { 3 })
-runner.Step("Activate App 2 (navi)", activateApp, { 2 })
-runner.Step("Activate App 1 (media)", activateApp, { 1 })
+runner.Step("Activate App 3 (non media)", appActivation, { 3, appsOnHMIStatusExp.non_media })
+runner.Step("Activate App 2 (navi)", appActivation, { 2, appsOnHMIStatusExp.navi })
+runner.Step("Activate App 1 (media)", appActivation, { 1, appsOnHMIStatusExp.media })
 runner.Step("Embedded audio", embededAudioActivated)
 runner.Step("Activate media app", activateMediaApp)
 runner.Step("Activate navi app", activateNaviApp)
