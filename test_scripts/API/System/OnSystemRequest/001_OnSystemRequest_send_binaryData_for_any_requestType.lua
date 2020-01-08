@@ -7,6 +7,7 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/System/commonSystem')
 local json = require("modules/json")
+local utils = require("user_modules/utils")
 
 --[[ Local Variables ]]
 local request_types = {
@@ -60,7 +61,11 @@ local function onSystemRequest_PROPRIETARY(self)
   :ValidIf(function(_, d)
       local binary_data = json.decode(d.binaryData)
       local actual_binary_data = common.convertTableToString(binary_data["HTTPRequest"]["body"], 1)
-      return exp_binary_data == actual_binary_data
+      if exp_binary_data ~= actual_binary_data then
+        utils.cprint(35, "SDL does not send binary data for PROPRIETARY requestType")
+      else
+        return exp_binary_data == actual_binary_data
+      end
     end)
 end
 
