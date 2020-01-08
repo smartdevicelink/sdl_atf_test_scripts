@@ -13,8 +13,6 @@
 -- 6) Press "Start File Streaming"
 -- Expected result:
 -- 1) Audio Streaming is started.
--- Actual result:
--- App is unregistered with reason "PROTOCOL_VIOLATION".
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -59,7 +57,7 @@ local function startStreaming()
       RUN_AFTER(responseSuccess, delay)
     end
   end)
-  :Times(AnyNumber())
+  :Times(3)
   common.getMobileSession():ExpectNotification("OnAppInterfaceUnregistered", { reason = "PROTOCOL_VIOLATION" })
   :Times(0)
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered")
@@ -75,7 +73,7 @@ runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("StartStreaming", startStreaming)
+runner.Step("App launched the audio service and the start of streaming", startStreaming)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
