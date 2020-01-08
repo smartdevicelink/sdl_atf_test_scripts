@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/980
--- Description: [APIs] AlertManeuver: SDL responds GENERIC_ERROR instead of INVALID_DATA when soft button has Type is
--- Image or Both and Text is whitespace or \t or \n or empty
+-- Description: [APIs] AlertManeuver: SDL responds GENERIC_ERROR instead of INVALID_DATA when soft button has
+-- Type is Image or Both and Text is whitespace or \t or \n or empty
 -- Precondition:
 -- 1) AlertManeuver is allowed by policy for "default" group.
 -- 2) SDL and HMI are started.
@@ -10,8 +10,6 @@
 -- 1) Send AlertManeuver sure that soft button has Type is Image or Both and Text is whitespace or \t or \n or empty.
 -- Expected result:
 -- 1) SDL must respond with resultCode "INVALID_DATA" and success:"false".
--- Actual result:
--- 1) SDL responds with resultCode "GENERIC_ERROR" and success:"false".
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -51,12 +49,11 @@ local requestParams = {
 }
 
 --[[ Local Functions ]]
-local function updatePreloadedPT(pGroups, pAppId)
+local function updatePreloadedPT()
   local pt = common.sdl.getPreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = utils.json.null
-  pt.policy_table.app_policies[common.app.getParams(pAppId).fullAppID] = utils.cloneTable(pt.policy_table.app_policies.default)
-  pt.policy_table.app_policies[common.app.getParams(pAppId).fullAppID].groups = { "Base-4", "Navigation-1" }
-  pt.policy_table.functional_groupings["NewTestCaseGroup"] = pGroups
+  pt.policy_table.app_policies[common.app.getParams().fullAppID] = utils.cloneTable(pt.policy_table.app_policies.default)
+  pt.policy_table.app_policies[common.app.getParams().fullAppID].groups = { "Base-4", "Navigation-1" }
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   common.sdl.setPreloadedPT(pt)
 end
