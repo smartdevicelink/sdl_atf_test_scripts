@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_core/issues/982
+-- User story: https://github.com/smartdevicelink/sdl_core/issues/3196
 --
 -- Description:
 -- SDL responds "resultCode: SUCCESS" while dataType:VEHICLEDATA_EXTERNTEMP is VEHICLE_DATA_NOT_AVAILABLE and not
@@ -15,8 +15,6 @@
 -- 3) Observe the result.
 -- Expected result:
 -- SDL should send "SUCCESS, (speed: SUCCESS), (externalTemperature: VEHICLE_DATA_NOT_AVAILABLE)" to mobile app2.
--- Actual result:
--- SDL sends "resultCode: SUCCESS, success:true" to mobile app2.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
