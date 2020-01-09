@@ -1,15 +1,13 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1006
--- Description: PoliciesManager must allow all requested params in case "parameters" field is omitted
+-- Description: SDL responses with GENERIC_ERROR instead of UNSUPPORTED_RESOURCE
 -- Precondition:
 -- 1) SDL and HMI are started.
 -- In case:
--- 1) Send any single UI-related RPC , UI interface is not supported by the system
+-- 1) Any single UI-related RPC is requested , UI interface is not supported by the system
 -- 2) SDL receives UI.IsReady (available=false) from HMI
 -- Expected result:
 -- 1) SDL must respond "UNSUPPORTED_RESOURCE, success=false, info: UI is not supported by system" to mobile app
--- Actual result:
--- SDL responds with GENERIC_ERROR, success=false (logs are in attachment)
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -60,6 +58,8 @@ end
 
 local function sendAlert(params)
   local cid = common.getMobileSession():SendRPC("Alert", params.requestParams)
+  common.getHMIConnection():ExpectRequest("UI.Alert")
+  :Times(0)
   common.getHMIConnection():ExpectRequest("TTS.Speak", params.ttsSpeakRequestParams)
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, "TTS.Speak", "SUCCESS", {})
