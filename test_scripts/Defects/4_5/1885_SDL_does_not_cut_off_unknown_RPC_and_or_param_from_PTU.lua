@@ -27,6 +27,7 @@ local SendLocationParams = {
   longitudeDegrees = 1.1,
   latitudeDegrees = 1.1,
 }
+
 local unknownAPI = "UnknownAPI"
 local unknownParameter = "unknownParameter"
 
@@ -79,30 +80,6 @@ local function ptuUpdateFuncRPC(tbl)
     { "Base-4", "NewTestCaseGroup1" }
 end
 
-local function ptuWithNotValid(tbl)
-  local VDgroup = {
-    rpcs = {
-      GetVehicleData = {
-        hmi_levels = { "BACKGROUND", "FULL", "LIMITED" },
-        parameters = { "gps", unknownParameter }
-      },
-      SubscribeVehicleData = {
-        hmi_levels = { "BACKGROUND", "FULL", "LIMITED" },
-      },
-      [unknownAPI] = {
-        hmi_levels = { "BACKGROUND", "FULL", "LIMITED" },
-        parameters = { "gps" }
-      },
-      -- SendLocation = {
-      --   -- missed mandatory hmi_levels parameter
-      -- }
-    }
-  }
-  tbl.policy_table.functional_groupings["NewTestCaseGroup3"] = VDgroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
-    { "Base-4", "NewTestCaseGroup1", "NewTestCaseGroup2", "NewTestCaseGroup3" }
-end
-
 --[[ @ptuUpdateFuncParams: update table with unknown parameters for PTU
 --! @parameters:
 --! tbl - table for update
@@ -135,10 +112,6 @@ local function SuccessfulProcessingRPC(RPC, params, interface)
   :Do(function(_, data)
     if RPC == "GetVehicleData" then
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {gps = gpsResponse})
-    elseif
-      RPC == "SubscribeVehicleData" then
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-      {gps = { dataType = "VEHICLEDATA_GPS", resultCode = "SUCCESS" }})
     else
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end
@@ -147,11 +120,7 @@ local function SuccessfulProcessingRPC(RPC, params, interface)
 end
 
 --[[ @DisallowedRPC: Unsuccessful processing of API with Disallowed status
---! @parameters:
---! RPC - RPC name
---! params - RPC params for mobile request
---! interface - interface of RPC on HMI
---! @return: none
+--! @parameters: none
 --]]
 local function DisallowedRPC()
   local cid = common.getMobileSession():SendRPC("SubscribeVehicleData", { gps = true })
@@ -174,6 +143,10 @@ local function contains(pTbl, pValue)
   return false
 end
 
+--[[ @removeSnapshotAndTriggerPTUFromHMI: Remove snapshot and trigger PTU from HMI for creation new snapshot,
+--! check absence of unknown parameters in snapshot
+--! @parameters: none
+--]]
 local function removePtsAndTriggerPTU()
   -- remove Snapshot
   os.execute("rm -f " .. pathToPTS)
@@ -202,12 +175,6 @@ local function removePtsAndTriggerPTU()
   :Times(2)
 end
 
-local function expNotificationFunc()
-  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-    { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
-  :Times(2)
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -226,7 +193,6 @@ runner.Step("Check applying of PT by processing GetVehicleData", SuccessfulProce
   { "GetVehicleData", { gps = true }, "VehicleInfo" })
 runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC)
 runner.Step("Remove Snapshot, trigger PTU, check new created PTS", removePtsAndTriggerPTU)
-runner.Step("PolicyTableUpdate fails", common.policyTableUpdate, { ptuWithNotValid })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
