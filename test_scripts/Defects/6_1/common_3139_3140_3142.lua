@@ -7,6 +7,7 @@ local utils = require("user_modules/utils")
 local constants = require('protocol_handler/ford_protocol_constants')
 local atf_logger = require("atf_logger")
 local message_dispatcher = require("message_dispatcher")
+local consts = require("user_modules/consts")
 
 --[[ Module ]]
 local m = {}
@@ -39,20 +40,23 @@ m.mobile = actions.mobile
 m.sdl = actions.sdl
 m.run = actions.run
 m.wait = actions.run.wait
+m.color = consts.color
 
 --[[ Common Functions ]]
-function m.print(...) utils.cprint(35, ...) end
+function m.print(...) utils.cprint(m.color.magenta, ...) end
 
-function m.printTable(...) utils.cprintTable(35, ...) end
+function m.printTable(...) utils.cprintTable(m.color.magenta, ...) end
 
 function m.timestamp(pEventName, pConType)
   m.ts[pEventName] = timestamp()
+
   local function isExist(pArray, pItem)
     for _, v in pairs(pArray) do
       if v == pItem then return true end
     end
     return false
   end
+
   local function insert(pTable, pItem)
     if not isExist(pTable, pItem) then table.insert(pTable, pItem) end
   end
@@ -72,14 +76,14 @@ function m.log(...)
     if i == 1 then delimiter = " " end
     str = str .. delimiter .. p
   end
-  utils.cprint(35, str)
+  utils.cprint(m.color.magenta, str)
 end
 
 function m.preconditions(pParamValues)
   actions.preconditions()
   if pParamValues and type(pParamValues) == "table" then
     for p, v in pairs(pParamValues) do
-      utils.cprint(35, p, v)
+      utils.cprint(m.color.magenta, p, v)
       m.sdl.setSDLIniParameter(p, v)
     end
   end
@@ -123,7 +127,7 @@ function m.stopStreaming(pAppId)
     m.log("App " .. pAppId .. " stops streaming")
     m.streamingStatus[pAppId] = false
   else
-    utils.cprint(33, "Streaming is unable to stop since it's not started")
+    utils.cprint(m.color.yellow, "Streaming is unable to stop since it's not started")
   end
 end
 
@@ -179,7 +183,7 @@ function m.checkTimeout(pBaseParam, pVerifiedParam, pExpTS, pTollerance)
 end
 
 function m.checkSequence(pConType, pExpSeq)
-  local function isArraysEqual(pTbl1, pTbl2)
+  local function arraysEqual(pTbl1, pTbl2)
     if #pTbl1 ~= #pTbl2 then return false end
     for k in pairs(pTbl1) do
       if pTbl1[k] ~= pTbl2[k] then return false end
@@ -187,7 +191,7 @@ function m.checkSequence(pConType, pExpSeq)
     return true
   end
   local seq = m.seq[pConType]
-  if not isArraysEqual(pExpSeq, seq) then
+  if not arraysEqual(pExpSeq, seq) then
     m.run.fail("Expected sequence:\n" .. utils.tableToString(pExpSeq) .. "\nActual:\n" .. utils.tableToString(seq))
   end
 end
