@@ -70,7 +70,6 @@ local function activateApp2()
       log("SDL->HMI ","Navi.OnVideoDataStreaming(false)")
       ts("Navi.OnVideoDataStreaming", "hmi")
     end)
-  :Times(AtLeast(1)) -- number of occurences may be >1 due to issue 3142
 
   common.hmi.getConnection():ExpectRequest("Navigation.StopStream", { appID = common.app.getHMIId(1)})
   :Do(function(_, data)
