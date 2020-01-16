@@ -119,12 +119,11 @@ local function performInteraction(pAppId)
     RUN_AFTER(choiceIconDisplayed, 25)
     local function uiResponse()
       common.getHMIConnection():SendNotification("TTS.Stopped")
-      common.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT")
+      common.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
       sendOnSystemContext("MAIN", pMainId)
       sendOnSystemContext("MAIN", params.windowID)
     end
     RUN_AFTER(uiResponse, 30)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = pMainId },
