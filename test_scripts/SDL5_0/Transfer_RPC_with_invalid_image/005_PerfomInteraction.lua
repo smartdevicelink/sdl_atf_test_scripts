@@ -204,7 +204,7 @@ local function PI_PerformViaVR_ONLY(paramsSend)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("VR")
   common.getMobileSession():ExpectResponse(cid,
-    { success = true, resultCode = "WARNINGS", choiceID = paramsSend.interactionChoiceSetIDList[1],
+    { success = true, resultCode = "SUCCESS", choiceID = paramsSend.interactionChoiceSetIDList[1],
     info = "Requested image(s) not found." })
 end
 
