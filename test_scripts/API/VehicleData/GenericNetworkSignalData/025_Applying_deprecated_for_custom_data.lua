@@ -5,8 +5,8 @@
 
 -- Precondition:
 -- 1. Preloaded file contains VehicleDataItems for all RPC spec VD
--- 2. App1 is registered with majorVersion = 3
--- 3. App2 is registered with majorVersion = 6
+-- 2. App1 is registered with majorVersion = 3.0
+-- 3. App2 is registered with majorVersion = 5.9
 -- 4. PTU is performed, the update contains VehicleDataItems with deprecated parameter
 -- 5. Custom VD is allowed
 
@@ -23,17 +23,17 @@ local common = require('test_scripts/API/VehicleData/GenericNetworkSignalData/co
 runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 3
 config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
-config.application2.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
-config.application2.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
+config.application2.registerAppInterfaceParams.syncMsgVersion.majorVersion = 5
+config.application2.registerAppInterfaceParams.syncMsgVersion.minorVersion = 9
 
 --[[ Local Variables ]]
 local itemBool
 
 for VDkey, VDitem in pairs (common.customDataTypeSample)do
   if VDitem.name == "custom_vd_item5_boolean" then
+    itemBool = common.cloneTable(common.customDataTypeSample[VDkey])
     common.customDataTypeSample[VDkey]["since"] = "1.0"
     common.customDataTypeSample[VDkey]["until"] = "5.0"
-    itemBool = common.cloneTable(common.customDataTypeSample[VDkey])
     itemBool.deprecated = true
     itemBool.since = "5.0"
   elseif VDitem.name == "custom_vd_item6_array_string" then

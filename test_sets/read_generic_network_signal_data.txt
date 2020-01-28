@@ -21,7 +21,7 @@
 ./test_scripts/API/VehicleData/GenericNetworkSignalData/021_Not_applying_mandatory_root_level.lua
 ./test_scripts/API/VehicleData/GenericNetworkSignalData/022_Applying_mandatory_child_level.lua
 ./test_scripts/API/VehicleData/GenericNetworkSignalData/023_VehicleDataItems_only_mandatory.lua
-;./test_scripts/API/VehicleData/GenericNetworkSignalData/024_Applying_since_until_for_custom_data.lua https://github.com/smartdevicelink/sdl_core/issues/2997
+./test_scripts/API/VehicleData/GenericNetworkSignalData/024_Applying_since_until_for_custom_data.lua
 ./test_scripts/API/VehicleData/GenericNetworkSignalData/025_Applying_deprecated_for_custom_data.lua
 ./test_scripts/API/VehicleData/GenericNetworkSignalData/026_Applying_removed_for_custom_data.lua
 ./test_scripts/API/VehicleData/GenericNetworkSignalData/027_VDI_permissions_in_next_ign_cycle.lua

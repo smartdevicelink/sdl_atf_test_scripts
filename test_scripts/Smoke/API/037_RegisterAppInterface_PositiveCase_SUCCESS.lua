@@ -31,8 +31,8 @@ local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 --[[ Local Variables ]]
 local requestParams = {
 	syncMsgVersion = {
-		majorVersion = 2,
-		minorVersion = 2,
+		majorVersion = 5,
+		minorVersion = 0,
 	},
 	appName = "SyncProxyTester",
 	ttsName = {

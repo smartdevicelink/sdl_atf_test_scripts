@@ -53,16 +53,9 @@ local function getMobConnectionFromSession(pMobSession)
   return pMobSession.mobile_session_impl.connection
 end
 
-local function getPolicyAppId(pAppId)
-  local appParams = m.app.getParams(pAppId)
-  local appId = appParams.fullAppID
-  if not appId then appId = appParams.appID end
-  return appId
-end
-
 --- Get HMI key for App by script's App id
 local function getHmiAppIdKey(pAppId)
-  local appId = getPolicyAppId(pAppId)
+  local appId = m.app.getPolicyAppId(pAppId)
 
   local connection = getMobConnectionFromSession(m.mobile.getSession(pAppId))
   return utils.getDeviceName(connection.host, connection.port) .. tostring(appId)
@@ -474,7 +467,7 @@ local function policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
         { requestType = "PROPRIETARY", fileName = m.sdl.getPTSFilePath() })
       local ptuTable = getPTUFromPTS()
       for i, _ in pairs(m.mobile.getApps()) do
-        ptuTable.policy_table.app_policies[m.app.getParams(i).fullAppID] = m.ptu.getAppData(i)
+        ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
       end
       if pPTUpdateFunc then
         pPTUpdateFunc(ptuTable)
@@ -509,8 +502,8 @@ end
 local function policyTableUpdateHttp(pPTUpdateFunc, pExpNotificationFunc)
   local ptuFileName = os.tmpname()
   local ptuTable = getPTUFromPTS()
-  for i = 1, m.getAppsCount() do
-    ptuTable.policy_table.app_policies[m.getConfigAppParams(i).fullAppID] = m.ptu.getAppData(i)
+  for i, _ in pairs(m.mobile.getApps()) do
+    ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
   end
   if pPTUpdateFunc then
     pPTUpdateFunc(ptuTable)
@@ -637,6 +630,19 @@ function m.app.getParams(pAppId)
   return config["application" .. pAppId].registerAppInterfaceParams
 end
 
+--[[ @app.getPolicyAppId: get application policy id
+--! @parameters:
+--! pAppId - script's mobile application id
+--! @return: application policy id
+--]]
+function m.app.getPolicyAppId(pAppId)
+  local appParams = m.app.getParams(pAppId)
+  if appParams.syncMsgVersion.majorVersion < 5 or appParams.fullAppID == nil then
+    return appParams.appID
+  end
+  return appParams.fullAppID
+end
+
 --[[ @app.getHMIIds: get HMI application Ids collection
 --! @parameters: none
 --! @return: HMI Ids collection
@@ -712,7 +718,7 @@ function m.app.setHMIId(pHMIAppId, pAppId)
   if not pAppId then pAppId = 1 end
   hmiAppIds[getHmiAppIdKey(pAppId)] = {
     hmiId = pHMIAppId,
-    policyId = getPolicyAppId(pAppId)
+    policyId = m.app.getPolicyAppId(pAppId)
   }
 end
 

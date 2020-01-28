@@ -50,7 +50,17 @@ local rpc2 = {
   name = "OnVehicleData",
   params = {
     deviceStatus = {
-      primaryAudioSource = "CD"
+      primaryAudioSource = "CD",
+      voiceRecOn = false,
+      btIconOn = false,
+      callActive = false,
+      phoneRoaming = false,
+      textMsgAvailable = false,
+      battLevelStatus = "TWO_LEVEL_BARS",
+      stereoAudioOutputMuted = false,
+      monoAudioOutputMuted = false,
+      signalLevelStatus = "ONE_LEVEL_BARS",
+      eCallEventActive = false
     }
   }
 }

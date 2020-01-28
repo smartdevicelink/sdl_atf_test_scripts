@@ -33,8 +33,6 @@ config.defaultProtocolVersion = 2
 --[[ Required Shared Libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local json = require("modules/json")
 local testCasesForExternalUCS = require('user_modules/shared_testcases/testCasesForExternalUCS')
 local utils = require ('user_modules/utils')
 
@@ -44,13 +42,8 @@ local grpId = "Location-1"
 local checkedSection = "external_consent_status_groups"
 
 --[[ Local Functions ]]
-local function replaceSDLPreloadedPtFile()
-  local preloadedFile = commonPreconditions:GetPathToSDL() ..
-  commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
-  local preloadedTable = testCasesForExternalUCS.createTableFromJsonFile(preloadedFile)
-  preloadedTable.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
-  --
-  preloadedTable.policy_table.app_policies[appId] = {
+local function ptuFunc(pTable)
+  pTable.policy_table.app_policies[appId] = {
     default_hmi = "NONE",
     keep_context = false,
     priority = "NONE",
@@ -59,20 +52,17 @@ local function replaceSDLPreloadedPtFile()
       "Base-4", grpId
     }
   }
-  preloadedTable.policy_table.functional_groupings[grpId].disallowed_by_external_consent_entities_on = {
+  pTable.policy_table.functional_groupings[grpId].disallowed_by_external_consent_entities_on = {
     {
       entityID = 128,
       entityType = 0
     }
   }
-  testCasesForExternalUCS.createJsonFileFromTable(preloadedTable, preloadedFile)
 end
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
-commonPreconditions:BackupFile("sdl_preloaded_pt.json")
-replaceSDLPreloadedPtFile()
 testCasesForExternalUCS.removePTS()
 
 --[[ General Settings for configuration ]]
@@ -98,7 +88,7 @@ function Test:RAI_1()
 end
 
 function Test:ActivateApp_1()
-  testCasesForExternalUCS.activateApp(self, 1)
+  testCasesForExternalUCS.activateApp(self, 1, "UP_TO_DATE", ptuFunc)
 end
 
 function Test:SendExternalConsent()
@@ -144,10 +134,6 @@ function Test:CheckPTS()
 
   function Test.StopSDL()
     StopSDL()
-  end
-
-  function Test.Postcondition_RestorePreloadedFile()
-    commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
   end
 
   return Test

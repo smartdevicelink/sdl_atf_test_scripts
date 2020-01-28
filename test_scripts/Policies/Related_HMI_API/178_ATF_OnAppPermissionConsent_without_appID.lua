@@ -28,11 +28,11 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
 local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
-testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/Policies/Related_HMI_API/OnAppPermissionConsent.json")
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -43,6 +43,10 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_trigger_getting_device_consent()
   testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
+end
+
+function Test:UpdatePolicy()
+  testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/Related_HMI_API/OnAppPermissionConsent_ptu.json")
 end
 
 function Test:Precondition_ExitApplication()
@@ -64,7 +68,7 @@ function Test:TestStep_User_consent_on_activate_app()
       EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
 
-          local request_id_list_of_permissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", { appID = self.applications[config.application1.registerAppInterfaceParams.appName] })
+          local request_id_list_of_permissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", { appID = nil })
           EXPECT_HMIRESPONSE(request_id_list_of_permissions)
           :Do(function(_,data)
               local groups = {}
@@ -80,7 +84,7 @@ function Test:TestStep_User_consent_on_activate_app()
               self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", {
                 consentedFunctions = groups,
                 source = "GUI",
-                appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+                appID = nil
               })
               EXPECT_NOTIFICATION("OnPermissionsChange")
             end)
@@ -120,7 +124,6 @@ end
 
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")
-testCasesForPolicyTable:Restore_preloaded_pt()
 function Test.Postcondition_Stop()
   StopSDL()
 end

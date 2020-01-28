@@ -95,7 +95,7 @@ runner.Step("Connect two mobile devices to SDL", common.connectMobDevices, {devi
 runner.Step("Allow SDL for Device 1", common.mobile.allowSDL, {1})
 runner.Step("Allow SDL for Device 2", common.mobile.allowSDL, {2})
 runner.Step("Register App1 from device 1", common.registerAppEx, {1, appParams[1], 1, true})
-runner.Step("Register App1 from device 2", common.registerAppEx, {2, appParams[1], 2, true})
+runner.Step("Register App1 from device 2", common.registerAppEx, {2, appParams[1], 2, false})
 runner.Step("PTU", common.ptu.policyTableUpdate, {modificationOfPreloadedPT})
 
 runner.Title("Test")

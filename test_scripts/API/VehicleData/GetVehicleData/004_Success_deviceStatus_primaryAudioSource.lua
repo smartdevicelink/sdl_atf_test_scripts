@@ -45,7 +45,17 @@ local function processRPCSuccess(pAudioSource)
   local cid = common.getMobileSession():SendRPC(rpc.name, rpc.params)
   local vehicleDataValues = {
     deviceStatus = {
-      primaryAudioSource = pAudioSource
+      primaryAudioSource = pAudioSource,
+      voiceRecOn = false,
+      btIconOn = false,
+      callActive = false,
+      phoneRoaming = false,
+      textMsgAvailable = false,
+      battLevelStatus = "TWO_LEVEL_BARS",
+      stereoAudioOutputMuted = false,
+      monoAudioOutputMuted = false,
+      signalLevelStatus = "ONE_LEVEL_BARS",
+      eCallEventActive = false
     }
   }
   common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc.name, rpc.params)
