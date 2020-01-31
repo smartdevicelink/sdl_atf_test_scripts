@@ -2,6 +2,14 @@ local testCasesForPolicyTableSnapshot = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local expectations = require('expectations')
+
+local expOrig = expectations.Expectation
+function expectations.Expectation(name, connection)
+  local e = expOrig(name, connection)
+  e.timeout = e.timeout + 10000
+  return e
+end
 
 testCasesForPolicyTableSnapshot.preloaded_elements = {}
 testCasesForPolicyTableSnapshot.pts_elements = {}

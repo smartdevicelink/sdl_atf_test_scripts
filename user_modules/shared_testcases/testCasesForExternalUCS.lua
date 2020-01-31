@@ -110,7 +110,7 @@ local m = { }
         test.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
           { requestType = "PROPRIETARY", fileName = policy_file_name })
         m.createJsonFileFromTable(m.pts, ptu_file_name)
-        EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = status }):Times(2)
+        EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = status })
         test.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
         :Do(function()
             local corIdSystemRequest = test.mobileSession1:SendRPC("SystemRequest",
@@ -190,9 +190,9 @@ local m = { }
     EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
     :Do(function(exp, d)
       if(exp.occurences == 1) then
+        test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
         m.pts = m.createTableFromJsonFile(d.params.file)
         if status then
-          test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
           updatePTU()
           if updateFunc then
             updateFunc(m.pts)

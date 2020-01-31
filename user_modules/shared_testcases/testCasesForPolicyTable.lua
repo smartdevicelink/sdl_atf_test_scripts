@@ -923,12 +923,11 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
   end
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :ValidIf(function(e, d)
-      if e.occurences == 1 and d.params.status == "UPDATING" then return true end
-      if e.occurences == 2 and d.params.status == "UP_TO_DATE" then return true end
+      if e.occurences == 1 and d.params.status == "UP_TO_DATE" then return true end
       local msg = table.concat({"Unexpected occurence '", e.occurences, "' of SDL.OnStatusUpdate with status '", d.params.status, "'"})
       return false, msg
     end)
-  :Times(2)
+  :Times(1)
   local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
       { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetPolicyConfigurationData" } } )
@@ -969,7 +968,7 @@ function testCasesForPolicyTable:trigger_user_request_update_from_HMI(self)
 
   testCasesForPolicyTable.time_trigger = timestamp()
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
   :Do(function(_,_) testCasesForPolicyTable.time_onstatusupdate = timestamp() end)
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
@@ -1053,6 +1052,7 @@ function testCasesForPolicyTable:trigger_getting_device_consent(self, app_name, 
 
       testCasesForPolicyTable.time_policyupdate = timestamp()
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
     end)
   end)
   EXPECT_HMICALL("BasicCommunication.ActivateApp"):Times(Between(0,1))
