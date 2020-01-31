@@ -917,14 +917,7 @@ function common.updateCustomDataTypeSample(pName, dParam, pValue)
 end
 
 function common.expUpdateNeeded()
-  if test.sdlBuildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" then
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-      { status = "UPDATING" },
-      { status = "UPDATE_NEEDED" })
-    :Times(2)
-  else
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
-  end
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
 end
 
 function common.getCustomAndRpcSpecDataNames()
