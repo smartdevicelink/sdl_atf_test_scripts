@@ -81,7 +81,6 @@ function Test:Precondition_PolicyUpdateStarted()
         })
   end)
   EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY" })
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"})
 end
 
 function Test:Precondition_OpenNewSession()

@@ -81,9 +81,10 @@ EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
 :Pin()
 
 EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-:Do(function(_, d)
-    r_actual_1 = d.params
-    log("SDL->HMI: BC.PolicyUpdate()")
+:Do(function(_,data)
+  r_actual_1 = data.params
+  log("SDL->HMI: BC.PolicyUpdate()")
+  Test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   end)
 :Times(AnyNumber())
 :Pin()

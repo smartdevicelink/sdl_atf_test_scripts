@@ -99,8 +99,7 @@ function Test:Precondition_Update_Policy_With_memory_kb_Param()
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:TestStep_PredataConsent_Send_PutFile_Bigger_Than_AppDirectoryQuota_OUT_OF_MEMORY()

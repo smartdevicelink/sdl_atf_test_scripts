@@ -310,8 +310,7 @@ function Test:updatePolicyInDifferentSessions(PTName, appName, mobileSession)
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 
 end
 
@@ -396,6 +395,11 @@ end
 function Test:ActivateApp()
   HMIAppId = self.applications[config.application1.registerAppInterfaceParams.appName]
   activateAppInSpecificLevel(self,HMIAppId,"FULL")
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 function Test:TestStep_Check_app_registration_language_vui_PTS()

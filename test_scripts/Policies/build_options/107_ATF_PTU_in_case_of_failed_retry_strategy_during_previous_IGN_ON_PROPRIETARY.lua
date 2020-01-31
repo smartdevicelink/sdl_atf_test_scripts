@@ -72,6 +72,10 @@ end
 function Test:RegisterApp()
   self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 --[[ Test ]]

@@ -117,6 +117,11 @@ function Test:TestStep_PolicyUpdateFinished_ForDefaultApplication()
 
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(3)
 
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+      end)
+
   local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
       { policyType = "module_config", property = "endpoints" })
 

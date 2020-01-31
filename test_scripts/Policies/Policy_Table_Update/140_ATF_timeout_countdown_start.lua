@@ -95,7 +95,7 @@ function Test:TestStep_Sending_PTS_to_mobile_application()
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY", fileType = "JSON"})
       :Do(function(_,_) time_system_request[#time_system_request + 1] = timestamp() end)
 
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UPDATE_NEEDED"}):Times(2):Timeout(64000)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}):Times(1):Timeout(64000)
       :Do(function(exp_pu, data)
           print(exp_pu.occurences..":"..data.params.status)
           if(data.params.status == "UPDATE_NEEDED") then

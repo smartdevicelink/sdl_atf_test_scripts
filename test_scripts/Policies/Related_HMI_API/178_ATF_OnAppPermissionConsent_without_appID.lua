@@ -41,6 +41,7 @@ require('user_modules/AppTypes')
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
+
 function Test:Precondition_trigger_getting_device_consent()
   testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
@@ -95,6 +96,7 @@ function Test:TestStep_User_consent_on_activate_app()
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
 end
 
+
 function Test:TestStep_check_LocalPT_for_updates()
   local RequestId = self.hmiConnection:SendRequest("SDL.UpdateSDL", {} )
   EXPECT_HMIRESPONSE(RequestId, { result = { result = "UPDATE_NEEDED" }})
@@ -121,6 +123,7 @@ function Test:TestStep_check_LocalPT_for_updates()
       end
     end)
 end
+
 
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")

@@ -72,18 +72,11 @@ function Test:TestStep_CheckMessagesSequence_UpToDate()
     EXPECT_RESPONSE(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
   end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :Do(function(exp,data)
     if(exp.occurences == 1) then
-      if( (message_number ~= 2) and (message_number ~= 3)) then
-        commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message 2/3 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
-        is_test_fail = true
-      else
-        print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
-      end
-    elseif(exp.occurences == 2) then
-      if(message_number ~= 5) then
-        commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message 5 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
+      if (message_number ~= 4) then
+        commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message 4 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
         is_test_fail = true
       else
         print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
@@ -96,8 +89,8 @@ function Test:TestStep_CheckMessagesSequence_UpToDate()
 
   EXPECT_HMICALL("BasicCommunication.SystemRequest")
   :Do(function(_, data)
-    if( (message_number ~= 4)) then
-      commonFunctions:printError("Error: BasicCommunication.SystemRequest reponse is not received as message 4 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
+    if( (message_number ~= 3)) then
+      commonFunctions:printError("Error: BasicCommunication.SystemRequest response is not received as message 3 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
       print("BasicCommunication.SystemRequest is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")

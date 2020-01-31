@@ -41,6 +41,10 @@ function Test:Precondition_Activate_app()
       EXPECT_HMIRESPONSE(RequestIdGetMes)
       :Do(function()
         self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
+        EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+        :Do(function(_,data3)
+          self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+        end)
         EXPECT_HMICALL("BasicCommunication.ActivateApp")
         :Do(function(_,data1)
           self.hmiConnection:SendResponse(data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -49,6 +53,7 @@ function Test:Precondition_Activate_app()
     end
   end)
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 --[[ Test ]]
@@ -89,8 +94,7 @@ function Test:TestStep_Validate_groups_in_default_upon_PTU()
     end)
   end)
    --PTU is valid
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 --[[ Postconditions ]]

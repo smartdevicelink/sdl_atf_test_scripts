@@ -85,6 +85,10 @@ function Test:Precondition_Activate_App_Consent_Device()
         end)
     end)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data2)
+      self.hmiConnection:SendResponse(data2.id, data2.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
@@ -107,8 +111,7 @@ function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
             end)
         end)
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:Precondition_ExitApplication()

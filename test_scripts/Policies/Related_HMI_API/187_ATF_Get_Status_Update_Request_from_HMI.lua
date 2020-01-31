@@ -52,7 +52,10 @@ function Test:Test_1_UPDATE_NEEDED()
 
             local reqId = self.hmiConnection:SendRequest("SDL.GetStatusUpdate")
             EXPECT_HMIRESPONSE(reqId, { status = "UPDATE_NEEDED" })
-
+            EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+            :Do(function(_,data3)
+                self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+              end)
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })

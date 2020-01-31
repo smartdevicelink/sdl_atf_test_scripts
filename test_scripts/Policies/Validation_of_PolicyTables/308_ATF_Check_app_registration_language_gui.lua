@@ -159,6 +159,12 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:ActivateAppInFULLLevel()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID,"FULL")
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  :Times(AtLeast(1))
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 function Test:InitiatePTUForGetSnapshot()
@@ -169,8 +175,7 @@ function Test:InitiatePTUForGetSnapshot()
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"})
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-        {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
       EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
       :Do(function(_,_)
           local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = self.applications[application1.registerAppInterfaceParams.appName]},

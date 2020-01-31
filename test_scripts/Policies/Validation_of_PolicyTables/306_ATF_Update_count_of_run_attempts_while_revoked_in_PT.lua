@@ -52,7 +52,7 @@ function Test:Precondition_trigger_getting_device_consent()
 end
 
 function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
   :Do(function(_,data)
       if(data.params.status == "UP_TO_DATE") then
 
@@ -111,7 +111,7 @@ function Test:Precondition_trigger_user_request_update_from_HMI()
 end
 
 function Test:Precondition_PTU_revoke_app()
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(Between(2,3))
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :Do(function(_,data)
       if(data.params.status == "UP_TO_DATE") then
         EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged")

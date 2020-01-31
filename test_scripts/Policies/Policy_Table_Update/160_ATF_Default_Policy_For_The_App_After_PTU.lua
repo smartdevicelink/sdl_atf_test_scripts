@@ -86,6 +86,14 @@ function Test:Precondition_Register_Activate_App_And_Consent_Device()
       EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
+            {status = "UPDATE_NEEDED"},
+            {status = "UPDATING"})
+          :Times(2)
+          EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+          :Do(function(_,data)
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+            end)
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_,data)
               self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -135,8 +143,7 @@ function Test:TestStep_Update_Policy_With_New_Permission_In_Default_Section()
             end)
         end)
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:TestStep_Check_Allowed_RPC()

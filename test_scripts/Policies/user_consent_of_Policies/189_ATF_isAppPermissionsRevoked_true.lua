@@ -58,7 +58,7 @@ function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
       { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
-          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
           :Do(function(_,data)
               if(data.params.status == "UP_TO_DATE") then
 

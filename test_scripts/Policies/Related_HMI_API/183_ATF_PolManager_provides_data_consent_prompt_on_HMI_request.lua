@@ -79,7 +79,7 @@ end
 function Test:TestStep_PTU_SUCCESS_StatusPending_StatusUpToDate()
   local SystemFilesPath = "/tmp/fs/mp/images/ivsu_cache/"
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
   :Do(function(exp,_)
       if(exp.occurences == 1) then
         local language_status_pending = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("consumer_friendly_messages.messages.StatusPending.languages.en-us.line1")

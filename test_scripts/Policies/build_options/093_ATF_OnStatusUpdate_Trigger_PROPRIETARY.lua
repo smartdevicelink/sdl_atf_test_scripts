@@ -15,7 +15,7 @@
 -- 4. Register new app2
 --
 -- Expected result:
--- Status changes in a wollowing way:
+-- Status changes in a following way:
 -- "UPDATE_NEEDED" -> "UPDATING" -> "UP_TO_DATE" -> "UPDATE_NEEDED" -> "UPDATING"
 ---------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
@@ -122,7 +122,7 @@ commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ General Settings for configuration ]]
-Test = require("connecttest")
+Test = require("user_modules/connecttest_resumption")
 require("user_modules/AppTypes")
 
 --[[ Specific Notifications ]]
@@ -130,15 +130,6 @@ EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
 :Do(function(_, d)
     log("SDL->HMI: N: SDL.OnStatusUpdate", d.params.status)
     table.insert(r_actual, d.params.status)
-  end)
-:Times(AnyNumber())
-:Pin()
-
-EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-:Do(function(_, d)
-    if not ptu_table then
-      ptu_table = ptsToTable(d.params.file)
-    end
   end)
 :Times(AnyNumber())
 :Pin()
@@ -155,6 +146,31 @@ function Test.DeleteFiles()
     os.remove(policy_file_path .. "/" .. pts_file_name)
     print("PTS file removed")
   end
+end
+
+function Test:Precondition_connectMobile()
+  self:connectMobile()
+end
+
+function Test:StartNewSession()
+  self.mobileSession = mobileSession.MobileSession(self, self.mobileConnection)
+  self.mobileSession:StartService(7)
+end
+
+function Test:RegisterNewApp()
+  local correlationId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
+  self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
+  self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_, d)
+      log("SDL->HMI: RQ: BC.PolicyUpdate")
+      Test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      log("HMI->SDL: RS: BC.PolicyUpdate")
+      if not ptu_table then
+        ptu_table = ptsToTable(d.params.file)
+      end
+    end)
 end
 
 --[[ Test ]]
@@ -201,16 +217,22 @@ function Test:CheckStatus()
   log("HMI->SDL: RS: UP_TO_DATE: SDL.GetStatusUpdate")
 end
 
-function Test:StartNewSession()
+function Test:StartNewSession2()
   self.mobileSession2 = mobileSession.MobileSession(self, self.mobileConnection)
   self.mobileSession2:StartService(7)
 end
 
-function Test:RegisterNewApp()
+function Test:RegisterNewApp2()
   local correlationId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
   self.mobileSession2:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
   self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_, d)
+    log("SDL->HMI: RQ: BC.PolicyUpdate")
+      Test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      log("HMI->SDL: RS: BC.PolicyUpdate")
+    end)
 end
 
 for i = 1, 3 do

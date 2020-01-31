@@ -86,7 +86,7 @@ function Test:TestStep_ChangeStatus_Update_Needed()
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY", fileType = "JSON"}):Timeout(12000)
       :Do(function(_,_) time_system_request[#time_system_request + 1] = timestamp() end)
 
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UPDATE_NEEDED"}):Times(2):Timeout(time_wait+2000)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}):Timeout(time_wait+2000)
       :Do(function(_,data)
           if(data.params.status == "UPDATE_NEEDED" ) then
             --first retry sequence
