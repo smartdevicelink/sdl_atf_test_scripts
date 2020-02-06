@@ -1,0 +1,129 @@
+;-----------------------------------------------------------------------------------------------------
+;Functionality:
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;Policies
+;-----------------------------------------------------------------------------------------------------
+;./test_scripts/Defects/4_5/1206_REQUEST_PTU_Trigger_PTU_failed_previous_IGN_ON.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+./test_scripts/Defects/4_5/1376_PTU_all_flows.lua - already exists in smoke set
+;./test_scripts/Defects/4_5/1772_update_default_section.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2314
+./test_scripts/Defects/4_5/1873_UnsubscribeVD_OnVD_Parameters_empty_in_policy_table.lua
+;./test_scripts/Defects/4_5/1873_Parameters_empty_in_policy_table.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2330
+;./test_scripts/Defects/4_5/1921_Invalid_PT_after_cutting_unknow_values.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2333
+./test_scripts/Defects/4_6/842_App_does_not_activate_when_policies_are_disabled.lua
+./test_scripts/Defects/5_0/1887_PoliciesManager_allows_all_requested_params_in_case_parameters_field_is_empty.lua
+./test_scripts/Defects/5_0/2427_policy_db_consistency_after_ignition_cycle.lua
+;./test_scripts/Defects/5_0/2405/001_omitted_omitted_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/002_omitted_empty_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/003_omitted_param_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/004_empty_omitted_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/005_empty_empty_USER_DISALLOWED.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/006_empty_param_SUCCESS_DISALLOWED.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/007_param_omitted_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/008_param_empty_SUCCESS_DISALLOWED.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/5_0/2405/009_param_param_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+;./test_scripts/Defects/6_1/2442_Fix_mem_seg_fault_error_in_jsoncpp.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2328
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;Security
+;-----------------------------------------------------------------------------------------------------
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_1_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_2_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_3_navi_audio_force_off.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_4_navi_video_force_off.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_5_navi_audio_force_on.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_6_navi_video_force_on.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_1_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_2_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_3_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_4_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_1_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_2_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_3_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_4_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1922_1_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1922_2_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1923_1_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1923_2_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1924_1_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1924_2_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_1_navi_no_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_2_navi_no_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_3_navi_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_4_navi_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_5_non-navi_no_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_6_non-navi_no_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_7_non-navi_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_8_non-navi_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;Resumption
+;-----------------------------------------------------------------------------------------------------
+./test_scripts/Defects/4_5/1395_Resumption_data_IGN_OFF.lua
+./test_scripts/Defects/5_0/959_resumption_limited_non_media.lua
+./test_scripts/Defects/5_0/1898_Canceling_HMILevel_resumption_of_media_app_after_unexpectedDisconnect.lua
+./test_scripts/Defects/5_0/2446_SDL_doesn_t_resume_HMILevel_when_DEACTIVATE_HMI_with_isActive_is_true_then_false.lua
+;./test_scripts/Defects/5_0/2447_Resumption_revoked_app_still_be_resumed_as_FULL.lua https://github.com/smartdevicelink/sdl_core/issues/2447
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;RPC
+;-----------------------------------------------------------------------------------------------------
+;./test_scripts/Defects/4_5/1211_ATF_Check_count_of_removals_for_bad_behavior_REQUEST_WHILE_IN_NONE_HMI_LEVEL.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
+./test_scripts/Defects/4_5/1880_DefaultAndRPCTimeoutGENERIC_ERROR.lua
+./test_scripts/Defects/4_5/1881_OnDriverDistraction_After_changing_HMIlevel_from_NONE.lua
+;./test_scripts/Defects/5_0/972_SDL_should_respond_IGNORED_with_correct_result_code_for_UnSubscribeVehicleData_in_case_vi_interface_is_not_available.lua https://github.com/smartdevicelink/sdl_core/issues/3205
+./test_scripts/Defects/5_0/2457_Needed_fixes_sending_of_UpdateDeviceList_notification_on_device_connect.lua
+./test_scripts/Defects/5_0/1031_SDL_transfer_OnKeyboardInput_notification_to_not_active_App_when_there_is_no_active_PerformInteraction_KEYBOARD.lua
+./test_scripts/Defects/5_0/2480_Vefiry_that_SDL_sends_OnDD_notification_once_upon_registration.lua
+./test_scripts/Defects/5_0/1035_SDL_doesnt_send_REJECTED_code_to_mobile_app_when_activating_app_from_HMI_with_activate.lua
+./test_scripts/Defects/5_0/1218_Mandatory_parameter_spaceAvailable_is_not_provided_in_response_for_PutFile_request.lua
+;./test_scripts/Defects/5_0/1032_CreateInteractionChoiceSet_core_successfully_creates_choice_set_with_duplicate_vrCommands_menuName_inside_it.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2330
+./test_scripts/Defects/5_0/2443_SDL_does_not_check_for_non_manadatory_parameters.lua
+./test_scripts/Defects/5_0/964_SDL_sends_to_mobile_APPLICATION_NOT_REGISTRED_in_setAppIcon_responce_if_HMI_responds_with_INVALID_DATA.lua
+./test_scripts/Defects/5_0/1030_API_SDL_sends_OnAppInterfaceUnregistered(DRIVER_DISTRACTION_VIOLATION)_to_app_when_receives_OnExitApplication(DRIVER_DISTRACTION_VIOLATION)_from_HMI.lua
+;./test_scripts/Defects/5_0/1866_SDL_does_not_respond_to_HMI_request_with_missed_mandatory_params.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2329
+;./test_scripts/Defects/5_0/1867_SDL_does_not_respond_to_HMI_request_with_wrong_type_of_params.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2329
+;./test_scripts/Defects/5_0/1868_SDL_does_not_respond_to_HMI_request_with_empty_string_parameter.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2329
+./test_scripts/Defects/5_1/2862_SDL_sends_UnsubscribeWayPoint_request_to_HMI.lua
+./test_scripts/Defects/5_1/2874_SDL_sends_system_request_with_correlationid_-1_and_INAVLID_DATA.lua
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;Stream:
+;-----------------------------------------------------------------------------------------------------
+./test_scripts/Defects/4_5/1912_Video_service_start_via_2_protocol.lua
+./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_1_SDL_does_not_respond_NACK_Navi_Type.lua
+./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_2_SDL_does_not_respond_NACK_Audio_Type.lua
+./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_3_SDL_respond_NACK_from_protected_to_not_protected.lua
+./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_4_SDL_respond_NACK_from_protected_to_protected.lua
+./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_5_SDL_respond_NACK_from_not_protected_to_not_protected.lua
+./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_6_SDL_respond_ACK_from_not_protected_to_protected.lua
+./test_scripts/Defects/6_1/3139_01_Stop_streaming_gracefully_1st_timer.lua
+./test_scripts/Defects/6_1/3139_02_Stop_streaming_gracefully_2nd_timer.lua
+./test_scripts/Defects/6_1/3139_03_Stop_streaming_forcibly_app_continue_streaming.lua
+./test_scripts/Defects/6_1/3139_04_Stop_streaming_forcibly_app_does_not_send_EndServiceAck.lua
+./test_scripts/Defects/6_1/3140_01_1st_app_is_able_to_continue_streaming_after_activate_deactivate_2nd_app.lua
+./test_scripts/Defects/6_1/3142_01_Absence_of_misplaced_OnVideoDataStreaming.lua
+./test_scripts/Defects/6_1/3142_02_Absence_of_misplaced_OnAudioDataStreaming.lua
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;HB:
+;-----------------------------------------------------------------------------------------------------
+./test_scripts/Defects/4_5/1893_ATF_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua
+;./test_scripts/Defects/4_5/1892_HB_from_SDL_after_receiving_HB_from_mobile.lua https://github.com/smartdevicelink/sdl_core/issues/1892
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;RC:
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+./test_scripts/Defects/5_0/2670_GetInteriorVD_after_ignition_off.lua
+./test_scripts/Defects/5_0/2670_2_GetInteriorVD_after_ignition_off.lua
+./test_scripts/Defects/5_0/2670_3_GetInteriorVD_after_ignition_off.lua
+./test_scripts/Defects/5_0/2670_4_GetInteriorVD_after_ignition_off.lua
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
+;IGNITION OFF
+;-----------------------------------------------------------------------------------------------------
+;./test_scripts/Defects/4_5/1225_FACTORY_DEFAULTS.lua https://github.com/smartdevicelink/sdl_core/issues/3204
+./test_scripts/Defects/5_0/2464_SDL_does_not_send_OnSDLClose_notification_by_switching_off_with_reason_IGNITION_OFF.lua
+;-----------------------------------------------------------------------------------------------------
+;-----------------------------------------------------------------------------------------------------
