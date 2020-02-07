@@ -21,7 +21,7 @@ local common = require('test_scripts/Defects/commonDefects')
 local function GetUserFriendlyMessage(self)
 	local RequestId = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
 		{language = "EN-US", messageCodes = {""} })
-	EXPECT_HMIRESPONSE(RequestId,{result = {code = 11, method = "SDL.GetUserFriendlyMessage"}})
+	EXPECT_HMIRESPONSE(RequestId,{result = {code = 11,  data = {method = "SDL.GetUserFriendlyMessage"}}})
 end
 
 --[[ Scenario ]]
