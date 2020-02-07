@@ -11,32 +11,13 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local serviceId = 11
 local appHMIType = "NAVIGATION"
+local startServiceData = {
+  frameInfo = common.frameInfo.START_SERVICE_ACK,
+  encryption = false
+}
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
-
---[[ Local Functions ]]
-local function ptUpdate(pTbl)
-  pTbl.policy_table.module_config.seconds_between_retries = nil
-end
-
-local function expNotificationFunc()
-  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-    { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
-  :Times(2)
-end
-
-local function startServiceSecured()
-  common.getMobileSession():StartSecureService(serviceId)
-  common.getMobileSession():ExpectControlMessage(serviceId, {
-    frameInfo = common.frameInfo.START_SERVICE_ACK,
-    encryption = false
-  })
-
-  common.getMobileSession():ExpectHandshakeMessage()
-  :Times(0)
-  common.delayedExp()
-end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -46,9 +27,10 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
 runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate fails", common.policyTableUpdate, { ptUpdate, expNotificationFunc })
+runner.Step("PolicyTableUpdate without certificate", common.policyTableUpdate, { common.ptUpdateWOcert })
 runner.Step("Activate App", common.activateApp)
-runner.Step("StartService Secured ACK, no encryption, no Handshake", startServiceSecured)
+runner.Step("StartService Secured, PTU started and fails, NACK, no Handshake", common.startServiceSecuredUnsuccess,
+  { serviceId, startServiceData })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

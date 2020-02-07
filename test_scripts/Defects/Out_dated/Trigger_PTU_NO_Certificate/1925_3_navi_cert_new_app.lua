@@ -20,15 +20,15 @@ config.application2.registerAppInterfaceParams.appHMIType = { appHMIType[2] }
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
-	pTbl.policy_table.module_config.certificate = nil
+  local filePath = "./files/Security/client_credential.pem"
+  local crt = common.readFile(filePath)
+  pTbl.policy_table.module_config.certificate = crt
 end
 
-local function registerApp(pAppId)
+local function expNotificationFunc()
   common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
     { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
   :Times(2)
-  common.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-  common.registerAppWOPTU(pAppId)
 end
 
 --[[ Scenario ]]
@@ -39,7 +39,7 @@ runner.Step("Register " .. appHMIType[1] .. " App", common.registerApp, { 1 })
 runner.Step("PTU 1 finished", common.policyTableUpdate, { ptUpdate })
 
 runner.Title("Test")
-runner.Step("Register " .. appHMIType[2] .. " App, PTU started", registerApp, { 2 })
+runner.Step("Register " .. appHMIType[2] .. " App, PTU started", common.registerApp, { 2, expNotificationFunc })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

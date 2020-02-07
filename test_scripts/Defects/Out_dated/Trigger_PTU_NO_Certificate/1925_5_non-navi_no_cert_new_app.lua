@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Issue: https://github.com/SmartDeviceLink/sdl_core/issues/1891
+-- Issue: https://github.com/SmartDeviceLink/sdl_core/issues/1925
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/common')
@@ -9,15 +9,18 @@ local runner = require('user_modules/script_runner')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local serviceId = 10
-local appHMIType = "NAVIGATION"
+local appHMIType = {
+  [1] = "DEFAULT",
+  [2] = "DEFAULT"
+}
 
 --[[ General configuration parameters ]]
-config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
+config.application1.registerAppInterfaceParams.appHMIType = { appHMIType[1] }
+config.application2.registerAppInterfaceParams.appHMIType = { appHMIType[2] }
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
-  pTbl.policy_table.module_config.seconds_between_retries = nil
+	pTbl.policy_table.module_config.certificate = nil
 end
 
 local function expNotificationFunc()
@@ -26,29 +29,15 @@ local function expNotificationFunc()
   :Times(2)
 end
 
-local function startServiceSecured()
-  common.getMobileSession():StartSecureService(serviceId)
-  common.getMobileSession():ExpectControlMessage(serviceId, {
-    frameInfo = common.frameInfo.START_SERVICE_ACK,
-    encryption = false
-  })
-
-  common.getMobileSession():ExpectHandshakeMessage()
-  :Times(0)
-  common.delayedExp()
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Set ForceProtectedService OFF", common.setForceProtectedServiceParam, { "Non" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register " .. appHMIType[1] .. " App", common.registerApp, { 1 })
+runner.Step("PTU 1 finished", common.policyTableUpdate, { ptUpdate })
 
 runner.Title("Test")
-runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate fails", common.policyTableUpdate, { ptUpdate, expNotificationFunc })
-runner.Step("Activate App", common.activateApp)
-runner.Step("StartService Secured ACK, no encryption, no Handshake", startServiceSecured)
+runner.Step("Register " .. appHMIType[2] .. " App, PTU started", common.registerApp, { 2, expNotificationFunc })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
