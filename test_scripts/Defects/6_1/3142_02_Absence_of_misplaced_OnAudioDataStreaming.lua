@@ -11,6 +11,10 @@
 -- 7. App_1 and App_2 continue streaming data within 'StopStreamingTimeout' timeout
 -- SDL does:
 --   - switch streaming between apps and provides HMI with streaming data from App_2
+--     - sends 'Navi.StopAudioStream' for App_1
+--     - sends Navi.OnAudioDataStreaming(false)
+--     - sends 'Navi.StartAudioStream' for App_2
+--     - sends Navi.OnAudioDataStreaming(true)
 --   - not unregister App_1 since timeout is not yet expired
 -- 8. App_1 stops streaming within 'StopStreamingTimeout' timeout
 -- SDL does:
@@ -29,11 +33,12 @@ common.app.getParams(1).appHMIType = { "NAVIGATION" }
 common.app.getParams(2).appHMIType = { "NAVIGATION" }
 
 --[[ Local Functions ]]
-local function stopStreaming(pAppId, pServiceId)
+local function stopStreaming(pAppId)
   common.hmi.getConnection():ExpectRequest("Navigation.StopAudioStream", { appID = common.app.getHMIId(pAppId)})
-  :Do(function(_, data) common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", { }) end)
-  common.mobile.getSession(pAppId):ExpectEndService(pServiceId)
-  :Do(function() common.mobile.getSession(pAppId):SendEndServiceAck(pServiceId) end)
+  :Do(function(_, data)
+      common.log("Navigation.StopAudioStream for App " .. pAppId)
+      common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
 end
 
 local function startStreaming(pAppId, pServiceId)
@@ -44,7 +49,10 @@ local function startStreaming(pAppId, pServiceId)
       common.streamingStatus[pAppId] = true
     end)
   common.hmi.getConnection():ExpectRequest("Navigation.StartAudioStream", { appID = common.app.getHMIId(pAppId) })
-  :Do(function(_, data) common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", { }) end)
+    :Do(function(_, data)
+      common.log("Navigation.StartAudioStream for App " .. pAppId)
+      common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
 end
 
 local function activateApp2()
@@ -53,9 +61,12 @@ local function activateApp2()
   common.mobile.getSession(2):ExpectNotification("OnHMIStatus",
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
   :Do(function()
+      stopStreaming(1, 10)
       startStreaming(2, 10)
     end)
-  common.hmi.getConnection():ExpectNotification("Navigation.OnAudioDataStreaming"):Times(0)
+  common.hmi.getConnection():ExpectNotification("Navigation.OnAudioDataStreaming",
+    { available = false }, { available = true })
+  :Times(2)
 end
 
 local function stopStreamingWONotification()
