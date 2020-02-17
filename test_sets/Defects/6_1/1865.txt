@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1865_Invalid_request_from_HMI.lua
