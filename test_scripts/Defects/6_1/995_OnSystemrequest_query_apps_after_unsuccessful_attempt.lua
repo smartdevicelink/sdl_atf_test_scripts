@@ -62,7 +62,7 @@ local function OnSystemRequest_QueryApps_IsError()
 end
 
 local function RegisterSecondApp()
-  common.registerAppWOPTU(2)
+  common.registerApp(2)
 end
 
 local function OnSystemRequest_QueryApps_IsNotSentToNewRegisteredApp()
