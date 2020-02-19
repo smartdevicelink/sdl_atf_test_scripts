@@ -22,7 +22,6 @@
 ;./test_scripts/Defects/5_0/2405/007_param_omitted_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
 ;./test_scripts/Defects/5_0/2405/008_param_empty_SUCCESS_DISALLOWED.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
 ;./test_scripts/Defects/5_0/2405/009_param_param_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
-;./test_scripts/Defects/6_1/2442_Fix_mem_seg_fault_error_in_jsoncpp.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2328
 ;-----------------------------------------------------------------------------------------------------
 ;-----------------------------------------------------------------------------------------------------
 ;Security
@@ -97,13 +96,6 @@
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_4_SDL_respond_NACK_from_protected_to_protected.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_5_SDL_respond_NACK_from_not_protected_to_not_protected.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_6_SDL_respond_ACK_from_not_protected_to_protected.lua
-./test_scripts/Defects/6_1/3139_01_Stop_streaming_gracefully_1st_timer.lua
-./test_scripts/Defects/6_1/3139_02_Stop_streaming_gracefully_2nd_timer.lua
-./test_scripts/Defects/6_1/3139_03_Stop_streaming_forcibly_app_continue_streaming.lua
-./test_scripts/Defects/6_1/3139_04_Stop_streaming_forcibly_app_does_not_send_EndServiceAck.lua
-./test_scripts/Defects/6_1/3140_01_1st_app_is_able_to_continue_streaming_after_activate_deactivate_2nd_app.lua
-./test_scripts/Defects/6_1/3142_01_Absence_of_misplaced_OnVideoDataStreaming.lua
-./test_scripts/Defects/6_1/3142_02_Absence_of_misplaced_OnAudioDataStreaming.lua
 ;-----------------------------------------------------------------------------------------------------
 ;-----------------------------------------------------------------------------------------------------
 ;HB:
