@@ -2,7 +2,7 @@
 -- Issue: https://github.com/smartdevicelink/sdl_core/issues/3267
 --
 -- Steps:
--- 1. Make sure specifc 'url' is defined in PT in 'endpoints' section for an application
+-- 1. Make sure specific 'url' is defined in PT in 'endpoints' section for an application
 -- 2. Start SDL, HMI, connect Mobile device
 -- 3. Register mobile application
 -- SDL does:
