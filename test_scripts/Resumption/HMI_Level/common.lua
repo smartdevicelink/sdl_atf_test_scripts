@@ -38,6 +38,7 @@ m.runAfter = actions.run.runAfter
 function m.unexpectedDisconnect()
   m.mobile.closeSession()
   m.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
+  utils.wait(1000)
 end
 
 function m.setAppHMILevel(pHMILevel, pAppId)

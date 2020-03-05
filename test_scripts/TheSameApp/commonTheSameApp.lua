@@ -699,6 +699,7 @@ function common.unexpectedDisconnect(pAppId)
   common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = true, appID = common.app.getHMIId(pAppId) })
   common.mobile.closeSession(pAppId)
+  utils.wait(1000)
 end
 
 function common.triggerPTUtoGetPTS()

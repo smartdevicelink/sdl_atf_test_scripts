@@ -142,6 +142,7 @@ function m.unexpectedDisconnect(pAppId)
     appID = m.getHMIAppId(pAppId)
   })
   m.getMobileSession(pAppId):Stop()
+  utils.wait(1000)
 end
 
 --[[ @unregisterApp: unregister application sequence

@@ -105,6 +105,7 @@ function commonRC.unexpectedDisconnect(pAppId, isHMIreqExpect, pModuleType)
     end)
   :Times(HMIrequestsNumber)
   commonRC.getMobileSession(pAppId):Stop()
+  commonRC.wait(1000)
 end
 
 function commonRC.moduleDataUpdate(pModuleType)

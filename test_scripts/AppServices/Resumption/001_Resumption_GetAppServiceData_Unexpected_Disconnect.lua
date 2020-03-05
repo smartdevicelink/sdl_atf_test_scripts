@@ -111,6 +111,7 @@ end
 local function unexpectedDisconnect()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
   common.mobile.disconnect()
+  utils.wait(1000)
 end
 
 local function connectMobile()

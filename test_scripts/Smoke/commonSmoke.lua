@@ -302,6 +302,7 @@ function common.unexpectedDisconnect(pAppId)
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = true, appID = common.getHMIAppId(pAppId) })
   common.deleteMobileSession(pAppId)
+  utils.wait(1000)
 end
 
 function common.createEvent(pMatchFunc)

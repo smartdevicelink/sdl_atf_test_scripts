@@ -864,6 +864,7 @@ function common.unexpectedDisconnect()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
   :Times(actions.mobile.getAppsCount())
   actions.mobile.disconnect()
+  utils.wait(1000)
 end
 
 function common.connectMobile()
