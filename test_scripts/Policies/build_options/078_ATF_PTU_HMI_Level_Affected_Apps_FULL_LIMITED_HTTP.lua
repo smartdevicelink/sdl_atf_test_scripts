@@ -19,6 +19,8 @@
 -- 1) Mobile application 1 remains in FULL
 -- 2) Mobile application 2 remains in LIMITED
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }

@@ -28,6 +28,8 @@
 -- SDL replaces the following sections of the Local Policy Table with the
 --corresponding sections from PTU: module_config, functional_groupings and app_policies
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General Settings for configuration ]]
 config.defaultProtocolVersion = 2
 

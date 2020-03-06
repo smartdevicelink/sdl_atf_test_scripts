@@ -23,6 +23,8 @@
 -- Expected result:
 -- Status is UPDATE_NEEDED and PTS is sent as binary data of OnSystemRequest to Mobile
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

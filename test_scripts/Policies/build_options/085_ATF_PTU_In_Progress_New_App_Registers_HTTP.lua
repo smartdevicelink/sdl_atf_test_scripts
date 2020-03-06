@@ -22,6 +22,8 @@
 -- SDL adds application with App 2 data into LocalPT according to general rules
 -- of adding app data into LocalPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

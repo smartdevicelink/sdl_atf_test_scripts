@@ -27,6 +27,8 @@
 -- SDL replaces the following sections of the Local Policy Table with the
 --corresponding sections from PTU: module_config, functional_groupings and app_policies
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }

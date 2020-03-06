@@ -29,6 +29,8 @@
 -- t[4] = timeout_after_x_seconds + seconds_between_retries[4] + t[3]
 -- t[5] = timeout_after_x_seconds + seconds_between_retries[5] + t[4]
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

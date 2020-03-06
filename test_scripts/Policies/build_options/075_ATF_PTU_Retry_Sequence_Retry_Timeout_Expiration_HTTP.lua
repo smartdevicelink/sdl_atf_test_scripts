@@ -24,6 +24,8 @@
 -- Expected result:
 -- Number of retries corresponds to number of elements in 'seconds_between_retries' array
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

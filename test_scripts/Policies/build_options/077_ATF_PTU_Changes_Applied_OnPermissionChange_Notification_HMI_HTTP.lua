@@ -21,6 +21,8 @@
 -- SDL->app: onPermissionChange(<permisssionItem>)
 -- SDL->HMI: SDL.OnAppPermissionChanged(appID, params)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

@@ -18,6 +18,8 @@
 -- gets equal to the value of field "exchange_after_x_ignition_cycles" ("module_config" section)
 ----PTU sequence is triggered and SDL sends to HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
 

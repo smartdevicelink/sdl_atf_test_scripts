@@ -19,6 +19,8 @@
 -- SDL->HMI:OnStatusUpdate("UP_TO_DATE")
 -- SDL->app: onPermissionChange(permisssions)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General Settings for configuration ]]
 config.defaultProtocolVersion = 2
 
