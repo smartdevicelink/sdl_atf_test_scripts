@@ -16,6 +16,8 @@
 -- PoliciesManager must initiate the PT Update through the app from consented device,
 -- second(non-consented) device should not be used e.i. no second query for user consent should be sent to HMI
 ---------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General Settings for configuration ]]
 Test = require('user_modules/connecttest_resumption')
 require('cardinalities')
