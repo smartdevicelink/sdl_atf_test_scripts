@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 --------------------------------------Requirement summary---------------------------------------------
 --[Policies] External UCS: settings for all connected apps
 

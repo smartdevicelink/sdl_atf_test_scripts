@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 --------------------------------------Requirement summary---------------------------------------------
 --[Policies] External UCS: "OFF" in case of omitted "disallowed_by_external_consent_entities" param in functional groupings
 
