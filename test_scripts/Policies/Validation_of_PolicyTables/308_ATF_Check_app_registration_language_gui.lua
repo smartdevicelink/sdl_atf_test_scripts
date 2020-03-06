@@ -19,6 +19,8 @@
 -- Expected:
 -- 4. PolciesManager writes <languageDesired> to "app_registration_language_gui" field at LocalPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.defaultProtocolVersion = 2

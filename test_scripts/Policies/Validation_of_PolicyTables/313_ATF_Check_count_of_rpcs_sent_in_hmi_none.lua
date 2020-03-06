@@ -17,6 +17,8 @@
 -- Expected:
 -- 2. PoliciesManager increment "count_of_rpcs_sent_in_hmi_none" at LocalPT for this app
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")

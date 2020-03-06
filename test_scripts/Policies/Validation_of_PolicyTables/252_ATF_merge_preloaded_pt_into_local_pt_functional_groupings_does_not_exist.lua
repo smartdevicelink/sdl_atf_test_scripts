@@ -15,6 +15,8 @@
 -- Expected result:
 -- SDL must add the "functional_group_name" sectionat LocalPT without changes (with all 4 groups)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')

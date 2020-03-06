@@ -14,6 +14,8 @@
 -- Expected result:
 -- SDL must: increment "count_sync_out_of_memory" section value of Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]

@@ -18,6 +18,8 @@
 --1) The validation should not reject tables that include fields with a status of ‘omitted,’ it will assume these are to be ignored.
 --2) Validation must reject a policy table update if it does not include fields with a status of ‘required.’
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 -- local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')

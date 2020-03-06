@@ -16,6 +16,8 @@
 -- Expected result:
 -- In case "en-us" <language> sub-section for at least one <messageCode> is not found in PTUpdate , PoliciesManager must reject PTU and assume it as invalid
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')

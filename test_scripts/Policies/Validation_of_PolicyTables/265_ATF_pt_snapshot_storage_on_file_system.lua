@@ -13,6 +13,8 @@
 -- Expected result:
 -- SDL must store the PT snapshot as a JSON file which filename and filepath are defined in "PathToSnapshot" parameter of smartDeviceLink.ini file.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
 require('user_modules/AppTypes')

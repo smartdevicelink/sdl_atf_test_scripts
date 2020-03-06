@@ -16,6 +16,8 @@
 -- Expected result:
 -- SDL must invalidate this received PolicyTableUpdated and log corresponding error internally
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')

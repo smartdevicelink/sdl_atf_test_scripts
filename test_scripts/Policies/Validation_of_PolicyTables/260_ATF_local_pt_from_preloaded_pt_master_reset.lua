@@ -15,6 +15,8 @@
 -- Expected result:
 -- SDL must populate the LocalPT with items from PreloadedPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')

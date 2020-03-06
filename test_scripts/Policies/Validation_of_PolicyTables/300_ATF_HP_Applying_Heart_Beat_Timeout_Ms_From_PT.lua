@@ -17,6 +17,8 @@
 -- Expected result:
 -- a) SDL send HB with time specified in pre_DataConsent section (4000 ms)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')

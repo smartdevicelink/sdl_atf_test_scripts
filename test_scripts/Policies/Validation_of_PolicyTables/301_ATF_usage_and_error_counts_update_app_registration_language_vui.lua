@@ -16,6 +16,8 @@
 -- SDL must: must write "languageDesired" value received via RegisterAppInterface into Local Policy Table
 -- as "app_registration_language_vui" key value of "usage_and_error_counts"- >"app_level" - > <app id> section.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
 config.defaultProtocolVersion = 2
