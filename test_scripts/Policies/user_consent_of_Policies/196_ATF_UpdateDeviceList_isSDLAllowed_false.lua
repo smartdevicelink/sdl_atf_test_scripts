@@ -14,6 +14,8 @@
 -- Expected result:
 -- PoliciesManager must provide "isSDLAllowed:false" param of "DeviceInfo" struct ONLY when sending "UpdateDeviceList" RPC to HMI
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 Test =  require('user_modules/dummy_connecttest')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')

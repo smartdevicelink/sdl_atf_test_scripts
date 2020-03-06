@@ -13,6 +13,8 @@
 -- Expected result:
 -- SDL must add new device in deviceList of BasicCommunication.UpdateDeviceList
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
 

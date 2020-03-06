@@ -19,6 +19,8 @@
 -- Expected result:
 -- PoliciesManager must apply <functional grouping> only after the User has consented it -> RPC should be allowed
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 ---[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

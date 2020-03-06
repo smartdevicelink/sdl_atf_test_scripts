@@ -22,6 +22,8 @@
 -- SDL must NOT send the PoliciesSnapshot over OnSystemRequest to any of the apps,
 -- SDL must NOT send the OnSDLConsentNeeded to HMI
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 

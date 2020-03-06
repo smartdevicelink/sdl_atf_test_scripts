@@ -19,6 +19,8 @@
 -- On receiving SDL.ActivateApp PoliciesManager must respond with "isPermissionsConsentNeeded:true" to HMI,
 -- consent for custom permissions should appeared
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

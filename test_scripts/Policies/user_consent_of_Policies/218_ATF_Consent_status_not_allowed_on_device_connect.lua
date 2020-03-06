@@ -13,6 +13,8 @@
 --     SDL/PoliciesManager must provide the device`s DataConsent status (not allowed) to HMI upon device`s connection->
 --     SDL must request DataConsent status of the corresponding device from the PoliciesManager
 -------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General Settings for configuration ]]
 Test = require('user_modules/dummy_connecttest')
 

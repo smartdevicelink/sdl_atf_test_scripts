@@ -20,6 +20,8 @@
 -- PoliciesManager must respond with the list of <groupName>s that have the field "user_consent_prompt" in corresponding <functional grouping> and
 -- are assigned to the specified application (section "<appID>" -> "groups")
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

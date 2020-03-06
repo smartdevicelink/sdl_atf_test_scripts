@@ -17,6 +17,8 @@
 -- PoliciesManager must respond with 1)"isSDLAllowed:false", 2) "device" param containing the device`s name and ID previously sent by SDL via UpdateDeviceList
 -- in the response to HMI without consent request
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
