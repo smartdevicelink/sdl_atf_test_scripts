@@ -15,6 +15,8 @@
 -- Expected result:
 -- respond SDL.GetURLs_response (SUCCESS, urls: array(<SDL-chosen appID> + <url from policy database for service 7>)) to HMI
 ---------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")

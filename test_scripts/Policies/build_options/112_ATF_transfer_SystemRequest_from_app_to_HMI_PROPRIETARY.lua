@@ -11,6 +11,8 @@
 -- Expected result:
 -- SDL must send BasicCommunication.SystemRequest (<path to UpdatedPT>, PROPRIETARY, params) to HMI
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

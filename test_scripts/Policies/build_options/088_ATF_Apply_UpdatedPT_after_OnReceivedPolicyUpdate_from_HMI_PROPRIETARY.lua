@@ -12,6 +12,8 @@
 -- Expected result:
 -- SDL->MOB: BasicCommunication.SystemRequest (<result code from HMI responce)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

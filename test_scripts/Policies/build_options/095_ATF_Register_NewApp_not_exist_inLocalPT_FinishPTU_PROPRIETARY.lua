@@ -19,6 +19,8 @@
 -- 3. SDL replaces the following sections of the Local Policy Table with the corresponding sections from PTU: module_config, functional_groupings, app_policies
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

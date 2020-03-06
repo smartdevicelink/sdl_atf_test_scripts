@@ -20,6 +20,8 @@
 -- 2. Parameters (retry, timeout, file) are defined
 -- 3. Status changed to 'UPDATING'
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")

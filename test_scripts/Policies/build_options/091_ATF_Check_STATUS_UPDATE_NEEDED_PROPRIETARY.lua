@@ -16,6 +16,8 @@
  -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
  -- SDL->HMI: BasicCommunication.PolicyUpdate
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

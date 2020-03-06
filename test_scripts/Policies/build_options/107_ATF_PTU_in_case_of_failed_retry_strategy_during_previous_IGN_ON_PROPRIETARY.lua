@@ -17,6 +17,8 @@
 -- 3. PTU sequence started: *SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)*
 -- 4. PTS is created by SDL.....//PTU started
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 

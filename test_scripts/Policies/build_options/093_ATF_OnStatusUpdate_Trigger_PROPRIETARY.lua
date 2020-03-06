@@ -18,6 +18,8 @@
 -- Status changes in a following way:
 -- "UPDATE_NEEDED" -> "UPDATING" -> "UP_TO_DATE" -> "UPDATE_NEEDED" -> "UPDATING"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

@@ -20,6 +20,8 @@
 -- SDL->app: OnSystemRequest ('url', requestType:PROPRIETARY, fileType="JSON")
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.defaultProtocolVersion = 2

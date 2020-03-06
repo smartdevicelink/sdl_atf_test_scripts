@@ -16,6 +16,8 @@
 -- Expected result:
 -- SDL.OnStatusUpdate(UPDATING) notification is send right after SDL->MOB: OnSystemRequest
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
