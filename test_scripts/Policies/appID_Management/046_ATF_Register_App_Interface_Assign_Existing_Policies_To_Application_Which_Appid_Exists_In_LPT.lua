@@ -18,6 +18,8 @@
 -- Expected result:
 -- Permissions in payload of OnPermissionsChange() notification is the same as defined in LPT (specific)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

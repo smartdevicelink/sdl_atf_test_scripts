@@ -12,6 +12,8 @@
 -- 2. MOB-SDL - send the list of RPCs
 -- 3. SDL responce, success = false, resultCode = "DISALLOWED"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

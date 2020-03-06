@@ -17,6 +17,8 @@
 -- Expected result:
 -- SDL -> HMI: OnAppPermissionChanged (<appID>, appRevoked=true, params)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
