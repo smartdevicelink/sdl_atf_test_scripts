@@ -17,6 +17,8 @@
 -- Expected result:
 -- Previous version of consumer_friendly_messages.messages section in LPT has to be replaced by a new one.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")

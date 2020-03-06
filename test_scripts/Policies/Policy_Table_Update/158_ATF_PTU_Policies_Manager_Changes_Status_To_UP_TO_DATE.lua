@@ -15,6 +15,8 @@
 -- Expected result:
 -- SDL.OnStatusUpdate(UP_TO_DATE) notification is send right after successful validation of received PTU
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")

@@ -19,6 +19,8 @@
 -- Expected result:
 -- Previous version of sections in LPT are replaced by a new ones
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local mobileSession = require("mobile_session")

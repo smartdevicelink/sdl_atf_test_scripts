@@ -14,6 +14,8 @@
 -- Expected result:
 -- SDL adds application with app_2 data into LocalPT according to general rules of adding app data into LocalPT
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
