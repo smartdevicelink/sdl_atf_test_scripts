@@ -179,4 +179,9 @@ function runner.skipTest(message)
   skipReason = message
 end
 
+function runner.isTestApplicable(pSdlBuildOptions)
+  runner.testSettings.restrictions.sdlBuildOptions = pSdlBuildOptions
+  runner.Step("Check SDL policy mode", function() end)
+end
+
 return runner
