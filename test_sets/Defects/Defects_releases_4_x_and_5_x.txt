@@ -10,7 +10,7 @@
 ./test_scripts/Defects/4_5/1873_UnsubscribeVD_OnVD_Parameters_empty_in_policy_table.lua
 ;./test_scripts/Defects/4_5/1873_Parameters_empty_in_policy_table.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2330
 ;./test_scripts/Defects/4_5/1921_Invalid_PT_after_cutting_unknow_values.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2333
-./test_scripts/Defects/4_6/842_App_does_not_activate_when_policies_are_disabled.lua
+;./test_scripts/Defects/4_6/842_App_does_not_activate_when_policies_are_disabled.lua https://github.com/smartdevicelink/sdl_core/issues/3285
 ./test_scripts/Defects/5_0/1887_PoliciesManager_allows_all_requested_params_in_case_parameters_field_is_empty.lua
 ./test_scripts/Defects/5_0/2427_policy_db_consistency_after_ignition_cycle.lua
 ;./test_scripts/Defects/5_0/2405/001_omitted_omitted_SUCCESS.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
@@ -71,7 +71,7 @@
 ./test_scripts/Defects/4_5/1880_DefaultAndRPCTimeoutGENERIC_ERROR.lua
 ./test_scripts/Defects/4_5/1881_OnDriverDistraction_After_changing_HMIlevel_from_NONE.lua
 ;./test_scripts/Defects/5_0/972_SDL_should_respond_IGNORED_with_correct_result_code_for_UnSubscribeVehicleData_in_case_vi_interface_is_not_available.lua https://github.com/smartdevicelink/sdl_core/issues/3205
-./test_scripts/Defects/5_0/2457_Needed_fixes_sending_of_UpdateDeviceList_notification_on_device_connect.lua
+;./test_scripts/Defects/5_0/2457_Needed_fixes_sending_of_UpdateDeviceList_notification_on_device_connect.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2365
 ./test_scripts/Defects/5_0/1031_SDL_transfer_OnKeyboardInput_notification_to_not_active_App_when_there_is_no_active_PerformInteraction_KEYBOARD.lua
 ./test_scripts/Defects/5_0/2480_Vefiry_that_SDL_sends_OnDD_notification_once_upon_registration.lua
 ./test_scripts/Defects/5_0/1035_SDL_doesnt_send_REJECTED_code_to_mobile_app_when_activating_app_from_HMI_with_activate.lua
@@ -95,7 +95,7 @@
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_3_SDL_respond_NACK_from_protected_to_not_protected.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_4_SDL_respond_NACK_from_protected_to_protected.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_5_SDL_respond_NACK_from_not_protected_to_not_protected.lua
-./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_6_SDL_respond_ACK_from_not_protected_to_protected.lua
+;./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_6_SDL_respond_ACK_from_not_protected_to_protected.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2366
 ;-----------------------------------------------------------------------------------------------------
 ;-----------------------------------------------------------------------------------------------------
 ;HB:
