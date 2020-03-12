@@ -19,7 +19,7 @@ local common = require('test_scripts/Policies/HMI_PTU/common_hmi_ptu')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } }
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 
 --[[ Local Functions ]]
 local function manualPTU()
