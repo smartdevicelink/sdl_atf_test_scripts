@@ -9,8 +9,8 @@ config.checkAllValidations = true
 local utils = require('user_modules/utils')
 local consts = require('user_modules/consts')
 local actions = require("user_modules/sequences/actions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local atf_logger = require("atf_logger")
+local SDL = require('SDL')
 
 --[[ Common Variables ]]
 local m = {}
@@ -30,6 +30,7 @@ m.getPreloadedPT = actions.sdl.getPreloadedPT
 m.registerNoPTU = actions.app.registerNoPTU
 m.register = actions.app.register
 m.runAfter = actions.run.runAfter
+m.unRegister = actions.app.unRegister
 
 --[[ Common Functions ]]
 --[[ @getPTUFromPTS: create policy table update table (PTU) using PTS
@@ -40,17 +41,7 @@ local function getPTUFromPTS()
   local pTbl = m.getPTS()
   if pTbl == nil then
     utils.cprint(consts.color.magenta, "PTS file was not found, PreloadedPT is used instead")
-    local appConfigFolder = m.getSDLIniParameter("AppConfigFolder")
-    if appConfigFolder == nil or appConfigFolder == "" then
-      appConfigFolder = commonPreconditions:GetPathToSDL()
-    end
-    local preloadedPT = m.getSDLIniParameter("PreloadedPT")
-    local ptsFile = appConfigFolder .. preloadedPT
-    if utils.isFileExist(ptsFile) then
-      pTbl = utils.jsonFileToTable(ptsFile)
-    else
-      utils.cprint(consts.color.magenta, "PreloadedPT was not found, PTS is not created")
-    end
+    pTbl = m.getPreloadedPT()
   end
   if next(pTbl) ~= nil then
     pTbl.policy_table.consumer_friendly_messages = nil
@@ -91,10 +82,10 @@ function m.ptuViaHMI(pPTUpdateFunc, pExpNotificationFunc)
       if not pExpNotificationFunc then
          m.hmi():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
          m.hmi():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
-          :Do(function() os.remove(ptuFileName) end)
       end
       m.hmi():SendNotification("SDL.OnReceivedPolicyUpdate",
         { policyfile = ptuFileName })
+      m.runAfter(function() os.remove(ptuFileName) end, 250)
       for id, _ in pairs(actions.mobile.getApps()) do
         m.mobile(id):ExpectNotification("OnPermissionsChange")
       end
@@ -178,6 +169,36 @@ end
 function m.checkPTUStatus(pExpStatus)
   local cid = m.hmi():SendRequest("SDL.GetStatusUpdate")
   m.hmi():ExpectResponse(cid, { result = { status = pExpStatus }})
+end
+
+--[[ @ignitionOff: perform Ignition Off sequence
+--! @parameters: none
+--! @return: none
+--]]
+function m.ignitionOff()
+  m.hmi():SendNotification("BasicCommunication.OnIgnitionCycleOver")
+  m.hmi():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
+  m.hmi():ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
+  :Do(function()
+      m.hmi():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "IGNITION_OFF" })
+      m.hmi():ExpectNotification("BasicCommunication.OnSDLClose")
+      :Do(function()
+          SDL.DeleteFile()
+          actions.mobile.getConnection():Close()
+        end)
+    end)
+  m.wait(3000)
+end
+
+--[[ @updatePolicyDB: update value in Policy DB
+--! @parameters:
+--! pQuery - query which is going to be executed
+--! @return: none
+--]]
+function m.updatePolicyDB(pQuery)
+  local pathToDB = SDL.AppStorage.path() .. config.pathToSDLPolicyDB
+  os.execute('sqlite3 ' .. pathToDB .. ' ' .. pQuery)
+  m.wait(1000)
 end
 
 return m

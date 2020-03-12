@@ -15,3 +15,7 @@
 ./test_scripts/Policies/HMI_PTU/015_Successful_PTU_after_failed_retry_consequtive_trigger_propr.lua
 ./test_scripts/Policies/HMI_PTU/016_Successful_PTU_after_failed_retry_parallel_trigger_ext.lua
 ./test_scripts/Policies/HMI_PTU/017_Successful_PTU_after_failed_retry_parallel_trigger_propr.lua
+./test_scripts/Policies/HMI_PTU/018_No_App_kilometers_trigger.lua
+./test_scripts/Policies/HMI_PTU/019_No_App_days_trigger.lua
+./test_scripts/Policies/HMI_PTU/020_No_App_ignition_cycles_trigger.lua
+./test_scripts/Policies/HMI_PTU/021_No_App_manual_trigger.lua
