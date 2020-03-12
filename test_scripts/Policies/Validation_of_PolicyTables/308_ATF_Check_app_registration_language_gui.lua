@@ -141,7 +141,11 @@ function Test:RegisterFirstApp()
       EXPECT_RESPONSE(correlationId, { success = true })
       EXPECT_NOTIFICATION("OnPermissionsChange")
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 function Test:CheckDB_app_registration_language_gui()
@@ -162,12 +166,6 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:ActivateAppInFULLLevel()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID,"FULL")
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"})
 end
 
 function Test:InitiatePTUForGetSnapshot()
