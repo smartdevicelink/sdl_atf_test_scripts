@@ -95,13 +95,12 @@ function common.setAppProperties(pData)
   local corId = common.getHMIConnection():SendRequest("BasicCommunication.SetAppProperties",
     { properties = pData })
   common.getHMIConnection():ExpectResponse(corId,
-    { result = { success = true, resultCode = "SUCCESS" }})
+    { result = { code = 0 }})
 end
 
 function common.getAppProperties(pData)
   local sdlResponseDataResult = {}
-  sdlResponseDataResult.success = true
-  sdlResponseDataResult.resultCode = "SUCCESS"
+  sdlResponseDataResult.code = 0
   sdlResponseDataResult.properties = { pData }
   local corId = common.getHMIConnection():SendRequest("BasicCommunication.GetAppProperties",
     { policyAppID = pData.policyAppID })

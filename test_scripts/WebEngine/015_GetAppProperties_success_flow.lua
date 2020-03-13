@@ -42,8 +42,7 @@ local appProperties2 = {
 --[[ Local Functions ]]
 local function getAppPropertiesAll(pData)
   local sdlResponseDataResult = {}
-  sdlResponseDataResult.success = true
-  sdlResponseDataResult.resultCode = "SUCCESS"
+  sdlResponseDataResult.code = 0
   sdlResponseDataResult.properties =  pData
   local corId = common.getHMIConnection():SendRequest("BasicCommunication.GetAppProperties", {})
   common.getHMIConnection():ExpectResponse(corId, { result = sdlResponseDataResult })

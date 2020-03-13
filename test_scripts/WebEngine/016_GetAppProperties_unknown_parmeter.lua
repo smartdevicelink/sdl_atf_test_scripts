@@ -21,8 +21,7 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 --[[ Local Functions ]]
 local function getAppPropertiesUnknownParameter(pData)
   local hmiResponseDataResult = {}
-  hmiResponseDataResult.success = true
-  hmiResponseDataResult.resultCode = "SUCCESS"
+  hmiResponseDataResult.code = 0
   hmiResponseDataResult.properties = { pData }
   local corId = common.getHMIConnection():SendRequest("BasicCommunication.GetAppProperties",
     { unknownParameter = "unknownParameter" })
