@@ -48,6 +48,11 @@ local function unregisterApp(pAppID, pTimes, pExpNumOfApps)
   common.checkUpdateAppList("000000" .. pAppID, pTimes, pExpNumOfApps)
 end
 
+local function registerApp(pAppID, pTimes, pExpNumOfApps)
+  common.registerAppWOPTU(1, 1)
+  common.checkUpdateAppList("000000" .. pAppID, pTimes, pExpNumOfApps)
+end
+
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -58,7 +63,7 @@ common.Step("UpdateAppList on setAppProperties for policyAppID1:enabled=true",
   setAppProperties, { 1, true, expected, 1 })
 common.Step("UpdateAppList on setAppProperties for policyAppID2:enabled=true",
   setAppProperties, { 2, true, expected, 2 })
-common.Step("RAI of web App1", common.registerApp, { 1, 1 })
+common.Step("RAI of web App1", registerApp, { 2, expected, 2 })
 common.Step("Activate web app1", common.activateApp, { 1 })
 common.Step("Unregister App1", unregisterApp, { 2, expected, 2 })
 
