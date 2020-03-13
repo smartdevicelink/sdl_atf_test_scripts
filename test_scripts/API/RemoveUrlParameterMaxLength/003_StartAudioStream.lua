@@ -9,7 +9,7 @@
 -- 3. AppStorageFolder is set to value with length in 300 characters
 -- 4. Audio service starts
 -- SDL does:
--- - sends Navigation.StartAudioStream(<pathToSDL/AppStorageFolder + file name>)
+-- - sends Navigation.StartAudioStream(<pathToSDL/AppStorageFolder>/<file name>)
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

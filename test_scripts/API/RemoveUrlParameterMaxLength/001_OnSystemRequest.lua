@@ -4,7 +4,7 @@
 -- Description: Check processing of OnSystemRequest notification with different length of url
 --
 -- In case:
--- 1. HMI sends OnSystemRequest notification with out of lower bound value in url parameter
+-- 1. HMI sends OnSystemRequest notification with length of url is less than min value
 -- SDL does:
 -- - ignore notification and not send it to mobile app
 -- 2. HMI sends OnSystemRequest notification with in bound value in url parameter
