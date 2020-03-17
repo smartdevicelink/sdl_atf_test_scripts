@@ -108,7 +108,6 @@ local function unsuccessfulPTUviaMobile(pNewAppId)
     { status = "UPDATE_NEEDED" }, -- new PTU sequence
     { status = "UPDATING" }
   }
-  utils.printTable(exp)
   common.hmi.getConnection():ExpectNotification("SDL.OnStatusUpdate", table.unpack(exp))
   :Times(#exp)
   :Timeout(timeout)
@@ -130,7 +129,7 @@ local function unsuccessfulPTUviaMobile(pNewAppId)
       if e.occurences == #exp - 1 and isBCPUReceived == true then
         return false, "BC.PolicyUpdate is sent before new PTU sequence"
       end
-      if e.occurences == #exp - 2 and common.sdl.getPTS() ~= nil then
+      if e.occurences == #exp - 3 and common.sdl.getPTS() ~= nil then
         return false, "PTS was created before new PTU sequence"
       end
       return true
