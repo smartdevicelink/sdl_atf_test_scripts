@@ -1,0 +1,11 @@
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_1_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL.lua
+./test_scripts/Defects/6_1/3267_2_RAI_OnSystemRequest_LOCK_SCREEN_ICON_URL_app_specific.lua

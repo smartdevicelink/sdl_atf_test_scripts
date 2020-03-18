@@ -51,7 +51,7 @@ local function setAppProperties(pData)
   local corId = common.getHMIConnection():SendRequest("BasicCommunication.SetAppProperties",
     { properties = pData })
   common.getHMIConnection():ExpectResponse(corId,
-    { result = { success = true, resultCode = "SUCCESS" }})
+    { result = { code = 0 }})
   common.isPTUStarted()
   common.wait(1000)
 end

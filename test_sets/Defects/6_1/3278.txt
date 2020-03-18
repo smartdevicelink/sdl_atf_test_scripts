@@ -1,0 +1,10 @@
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
+./test_scripts/Defects/6_1/3278_Start_A-V_services_protected_at_the_same_time.lua
