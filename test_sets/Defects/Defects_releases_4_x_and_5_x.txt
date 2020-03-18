@@ -5,7 +5,7 @@
 ;Policies
 ;-----------------------------------------------------------------------------------------------------
 ;./test_scripts/Defects/4_5/1206_REQUEST_PTU_Trigger_PTU_failed_previous_IGN_ON.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2332
-./test_scripts/Defects/4_5/1376_PTU_all_flows.lua - already exists in smoke set
+./test_scripts/Defects/4_5/1376_PTU_all_flows.lua
 ;./test_scripts/Defects/4_5/1772_update_default_section.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2314
 ./test_scripts/Defects/4_5/1873_UnsubscribeVD_OnVD_Parameters_empty_in_policy_table.lua
 ;./test_scripts/Defects/4_5/1873_Parameters_empty_in_policy_table.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2330
