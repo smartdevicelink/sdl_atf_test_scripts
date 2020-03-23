@@ -36,6 +36,7 @@ local function registerAppWOPTU(pAppId)
       mobileSession:ExpectNotification("OnSystemRequest", { requestType = "LOCK_SCREEN_ICON_URL" })
     end)
   end)
+  utils.wait(500)
 end
 
 --[[ Scenario ]]
