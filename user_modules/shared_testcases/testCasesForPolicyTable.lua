@@ -913,7 +913,7 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
 
   -- Check SDL snapshot is created correctly and get needed data
-  testCasesForPolicyTableSnapshot:verify_PTS(true, {app_id}, {device_id}, {hmi_app_id})
+  -- testCasesForPolicyTableSnapshot:verify_PTS(true, {app_id}, {device_id}, {hmi_app_id})
 
   local endpoints = {}
   for i = 1, #testCasesForPolicyTableSnapshot.pts_endpoints do
