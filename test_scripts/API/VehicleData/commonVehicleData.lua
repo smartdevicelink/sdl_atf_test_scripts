@@ -246,6 +246,13 @@ m.allVehicleData = {
     },
     type = "VEHICLEDATA_CLUSTERMODESTATUS"
   },
+  stabilityControlsStatus = {
+    value = {
+      escSystem = "ON",
+      trailerSwayControl = "OFF"
+    },
+    type = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+  },
   myKey = {
     value = { e911Override = "ON" },
     type = "VEHICLEDATA_MYKEY"
