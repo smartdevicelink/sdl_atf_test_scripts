@@ -1,0 +1,4 @@
+./test_scripts/API/VehicleData/StabilityControlsStatus/001_GetVehicleData_StabilityControlsStatus.lua
+./test_scripts/API/VehicleData/StabilityControlsStatus/002_SubscribeVehicleData_StabilityControlsStatus.lua
+./test_scripts/API/VehicleData/StabilityControlsStatus/003_UnsubscribeVehicleData_StabilityControlsStatus.lua
+./test_scripts/API/VehicleData/StabilityControlsStatus/004_OnVehicleData_StabilityControlsStatus.lua
