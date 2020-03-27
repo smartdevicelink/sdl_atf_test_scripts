@@ -74,7 +74,7 @@ end
 
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Clean environment check HMICapabilitiesCacheFile", common.precondition)
+common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI", common.start)
 common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
 common.Step("Register App", common.registerAppWOPTU)

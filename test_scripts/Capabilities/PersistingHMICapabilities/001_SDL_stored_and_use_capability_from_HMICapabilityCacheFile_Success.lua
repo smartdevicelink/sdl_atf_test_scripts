@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL is create file, save capability to file and loading capability form file after ignition
+-- Description: Check that SDL is created file, save capability to file and loading capability form file after ignition
 -- OFF/ON cycle
 --
 -- Preconditions:
@@ -27,34 +27,16 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
---[[ Local Functions ]]
-local function getHMIParams()
-  local params = common.getDefaultHMITable()
-  params.RC.GetCapabilities.occurrence = 0
-  params.UI.GetSupportedLanguages.occurrence = 0
-  params.UI.GetCapabilities.occurrence = 0
-  params.VR.GetSupportedLanguages.occurrence = 0
-  params.VR.GetCapabilities.occurrence = 0
-  params.TTS.GetSupportedLanguages.occurrence = 0
-  params.TTS.GetCapabilities.occurrence = 0
-  params.Buttons.GetCapabilities.occurrence = 0
-  params.VehicleInfo.GetVehicleType.occurrence = 0
-  params.UI.GetLanguage.occurrence = 0
-  params.VR.GetLanguage.occurrence = 0
-  params.TTS.GetLanguage.occurrence = 0
-  return params
-end
-
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Clean environment", common.precondition)
-common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile)
+common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
 common.Step("Start SDL and HMI", common.start)
 common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, Start SDL, HMI", common.start, { getHMIParams() })
+common.Step("Ignition on, SDL doesn't send HMI capabilities requests",
+  common.start, { common.noRequestsGetHMIParam() })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

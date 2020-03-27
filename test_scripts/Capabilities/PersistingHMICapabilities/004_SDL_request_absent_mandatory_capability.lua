@@ -32,11 +32,11 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 
 --[[ Local Variable ]]
 local cap = {
-  UI = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
-  VR = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
-  TTS = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
-  Buttons = { "GetCapabilities" },
-  VehicleInfo = { "GetVehicleType" },
+  -- UI = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
+  -- VR = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
+  -- TTS = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
+  -- Buttons = { "GetCapabilities" },
+  -- VehicleInfo = { "GetVehicleType" },
   RC = { "GetCapabilities" }
 }
 
@@ -64,15 +64,15 @@ end
 for mod, req  in pairs(cap) do
   for _, pReq  in ipairs(req) do
     common.Title("Preconditions")
-    common.Step("Clean environment check HMICapabilitiesCacheFile", common.precondition)
+    common.Step("Clean environment", common.preconditions)
     common.Step("Start SDL, HMI", common.start)
-    common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
+    --common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
     common.Step("Ignition off", common.ignitionOff)
 
     common.Title("Test")
     common.Step("Remove " .. mod .. pReq .. " capability from Cache file", common.updateCacheFile, { mod, pReq })
-    common.Step("Ignition on, expect" .. mod .. pReq .. " request capability from SDL",
-      common.start, { getHMIParams(mod, pReq) })
+    -- common.Step("Ignition on, expect" .. mod .. pReq .. " request capability from SDL",
+    --   common.start, { getHMIParams(mod, pReq) })
 
     common.Title("Postconditions")
     common.Step("Stop SDL", common.postconditions)

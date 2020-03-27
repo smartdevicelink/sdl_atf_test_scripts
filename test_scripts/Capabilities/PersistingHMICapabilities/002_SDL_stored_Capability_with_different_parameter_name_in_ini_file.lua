@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL does create capability cache file in AppStorageFolder in case
+-- Description: Check that SDL creates capability cache file in AppStorageFolder in case
 -- HMICapabilitiesCacheFile parameter has different value in smartDeviceLink.ini
 --
 -- Preconditions:
@@ -21,19 +21,23 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Variables ]]
-local cacheFileNames = { "12345.json", "a.json", "a_1.json" }
+local cacheFileNames = { "hmi_capabilities.json", "cash.json", "12345.json" }
 
 --[[ Scenario ]]
-for _, k in pairs(cacheFileNames) do
+for _, value in pairs(cacheFileNames) do
   common.Title("Preconditions")
-  common.Step("Clean environment check HMICapabilitiesCacheFile", common.precondition)
-  common.Step("BackUp Ini File And Set file name-" .. k, common.backUpIniFileAndSetHBValue, { k })
+  common.Step("Clean environment", common.preconditions)
+  common.Step("Update HMICapabilitiesCacheFile in SDL.ini file " .. value, common.setSDLIniParameter,
+    { "HMICapabilitiesCacheFile", value })
 
   common.Title("Test")
   common.Step("Start SDL, HMI", common.start)
-  common.Step("Check that SDL does create capability file with name-" .. k, common.checkIfExistCapabilityFile, { k })
+  common.Step("Check that SDL creates capability file with name-" .. value,
+    common.checkIfExistCapabilityFile, { value })
+  common.Step("Ignition off", common.ignitionOff)
+  common.Step("Ignition on, SDL doesn't send HMI capabilities requests",
+  common.start, { common.noRequestsGetHMIParam() })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)
-  common.Step("RestoreIniFile", common.restoreIniFile)
 end

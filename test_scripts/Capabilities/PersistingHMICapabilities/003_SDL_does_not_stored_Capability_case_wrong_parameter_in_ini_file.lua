@@ -22,33 +22,24 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Variables ]]
-local HMICacheFile_pathToFile = config.pathToSDL .. "storage/"
-local cacheFileNames = {
-  empty = "",
-  empty_space = " ",
-  null = "null",
-  path_to_file = "/storage/hmi_capabilities_cache",
-  wrong_file_extension = "hmi_capabilities_cache.js",
-  integer = 5
+local hmiCacheFile = {
+  commented_out = ";",
+  undefined = "",
+  --file_txt = "file.txt" -- Under Clarification
 }
 
---[[ Local Functions ]]
-local function checkSDLNotStoredCapability(pFileName)
-  common.isFileExist(HMICacheFile_pathToFile .. pFileName)
-  common.run.fail("HMICapabilitiesCacheFile file does exist")
-end
-
 --[[ Scenario ]]
-for d, k in pairs(cacheFileNames) do
+for k, value in pairs(hmiCacheFile) do
   common.Title("Preconditions")
-  common.Step("Clean environment check HMICapabilitiesCacheFile", common.precondition)
-  common.Step("BackUp Ini File And Set file name-" .. d, common.backUpIniFileAndSetHBValue, { k })
+  common.Step("Clean environment", common.preconditions)
+  common.Step("Update HMICapabilitiesCacheFile in SDL.ini file " .. k, common.setSDLIniParameter,
+    { "HMICapabilitiesCacheFile", value })
 
   common.Title("Test")
-  common.Step("Start SDL, HMI", common.start)
-  common.Step("Check that SDL doesn't store capability with name-" .. k, checkSDLNotStoredCapability, { k })
+  common.Step("Start SDL and HMI", common.start)
+  common.Step("Ignition off", common.ignitionOff)
+  common.Step("Ignition on, SDL sends HMI capabilities requests", common.start)
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)
-  common.Step("RestoreIniFile", common.restoreIniFile)
 end
