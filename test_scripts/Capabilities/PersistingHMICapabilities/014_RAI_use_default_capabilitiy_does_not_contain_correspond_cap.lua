@@ -21,6 +21,11 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
+--[[ Local Variables ]]
+local appSessionId = 1
+local hmiDefaultCap = common.getDefaultHMITable()
+local hmiCapabilities = common.getHMICapabilitiesFromFile()
+
 local requests = {
   UI = { "GetCapabilities", "GetLanguage" },
   VR = { "GetCapabilities", "GetLanguage" },
@@ -29,24 +34,16 @@ local requests = {
   VehicleInfo = { "GetVehicleType" }
 }
 
-local hmiCaps = common.getDefaultHMITable()
-
-
+--[[ Local Functions ]]
 local function updateHMICaps(pMod, pRequest)
-  for key,_ in pairs (hmiCaps) do
+  for key,_ in pairs (hmiDefaultCap) do
     if key == pMod then
-      hmiCaps[pMod][pRequest] = nil
+      hmiDefaultCap[pMod][pRequest] = nil
       if not pMod == "Buttons" then
-        hmiCaps[pMod].IsReady.params.available = true
+        hmiDefaultCap[pMod].IsReady.params.available = true
       end
     end
   end
-end
-
-local function hmiDefaultData()
-  local path_to_file = config.pathToSDL .. "/hmi_capabilities.json"
-  local defaulValue = common.jsonFileToTable(path_to_file)
-  return defaulValue
 end
 
 local function changeBitsPSEnumPcmCap(pCapabilities)
@@ -71,65 +68,57 @@ local function changeBitsPSEnumAudioCap(pCapabilities)
   return bitsPerSampleEnum
 end
 
-
---[[ Local Variables ]]
-local hmiDefault = hmiDefaultData()
-
-
-local function del()
-  hmiDefault.UI.displayCapabilities.imageCapabilities = nil  -- no Mobile_API.xml
-  hmiDefault.UI.displayCapabilities.menuLayoutsAvailable = nil --since 6.0
-  return hmiDefault.UI.displayCapabilities
+local function removedRaduantParameters()
+  hmiCapabilities.UI.displayCapabilities.imageCapabilities = nil  -- no Mobile_API.xml
+  hmiCapabilities.UI.displayCapabilities.menuLayoutsAvailable = nil --since 6.0
+  return hmiCapabilities.UI.displayCapabilities
 end
 
-
-
-local capRaiResponse = {
-  UI = {
-    GetCapabilities = {
-      audioPassThruCapabilities = changeBitsPSEnumAudioCap(hmiDefault.UI.audioPassThruCapabilities),
-      pcmStreamCapabilities = changeBitsPSEnumPcmCap(hmiDefault.UI.pcmStreamCapabilities),
-      hmiZoneCapabilitie = hmiDefault.UI.hmiZoneCapabilitie,
-      softButtonCapabilities = hmiDefault.UI.softButtonCapabilities,
-      displayCapabilities = del(),
-    },
-    GetLanguage = {
-      hmiDisplayLanguage =  hmiDefault.UI.language }},
-  VR = {
-    GetCapabilities = {
-      vrCapabilities = hmiDefault.VR.capabilities },
-    GetLanguage = {
-      language = hmiDefault.VR.language,}},
-  TTS = {
-    GetCapabilities = {
-      speechCapabilities = hmiDefault.TTS.capabilities },
-    GetLanguage = {
-      language = hmiDefault.TTS.language}},
-  Buttons = {
-    GetCapabilities = {
-      buttonCapabilities = hmiDefault.Buttons.capabilities }},
-  VehicleInfo = {
-    GetVehicleType  = {
-      vehicleType = hmiDefault.VehicleInfo.vehicleType }}
-}
-
+local function expCapRaiResponse( pMod, pReq)
+  local capRaiResponse = {
+    UI = {
+      GetCapabilities = {
+        audioPassThruCapabilities = changeBitsPSEnumAudioCap(hmiCapabilities.UI.audioPassThruCapabilities),
+        pcmStreamCapabilities = changeBitsPSEnumPcmCap(hmiCapabilities.UI.pcmStreamCapabilities),
+        hmiZoneCapabilitie = hmiCapabilities.UI.hmiZoneCapabilitie,
+        softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
+        displayCapabilities = removedRaduantParameters(),
+      },
+      GetLanguage = {
+        hmiDisplayLanguage =  hmiCapabilities.UI.language }},
+    VR = {
+      GetCapabilities = {
+        vrCapabilities = hmiCapabilities.VR.capabilities },
+      GetLanguage = {
+        language = hmiCapabilities.VR.language,}},
+    TTS = {
+      GetCapabilities = {
+        speechCapabilities = hmiCapabilities.TTS.capabilities },
+      GetLanguage = {
+        language = hmiCapabilities.TTS.language}},
+    Buttons = {
+      GetCapabilities = {
+        buttonCapabilities = hmiCapabilities.Buttons.capabilities }},
+    VehicleInfo = {
+      GetVehicleType  = {
+        vehicleType = hmiCapabilities.VehicleInfo.vehicleType }}
+    }
+  return capRaiResponse[pMod][pReq]
+end
 
 --[[ Scenario ]]
 for mod, req  in pairs(requests) do
   for _, pReq  in ipairs(req) do
+    common.Title("Preconditions")
+    common.Title("TC processing " .. tostring(mod) .." " .. tostring(pReq).."]")
+    common.Step("Clean environment", common.preconditions)
 
-common.Title("Preconditions")
-common.Title("TC processing " .. tostring(mod) .." " .. tostring(pReq).."]")
+    common.Title("Test")
+    common.Step("Updated HMI Capabilities", updateHMICaps, { mod, pReq })
+    common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
+    common.Step("App registration", common.registerApp, { appSessionId, expCapRaiResponse(mod, pReq) })
 
-common.Step("Clean environment", common.preconditions)
-
-common.Title("Test")
-common.Step("Updated HMI Capabilities", updateHMICaps, { mod, pReq })
-common.Step("Ignition on, Start SDL, HMI", common.start, { hmiCaps })
-common.Step("App registration", common.registerApp, { 1, capRaiResponse[mod][pReq] })
-
-common.Title("Postconditions")
-common.Step("Stop SDL", common.postconditions)
-
+    common.Title("Postconditions")
+    common.Step("Stop SDL", common.postconditions)
   end
 end

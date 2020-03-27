@@ -31,33 +31,40 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Variable ]]
+local hmiDefaultCap = common.getDefaultHMITable()
+
 local cap = {
-  -- UI = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
-  -- VR = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
-  -- TTS = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
-  -- Buttons = { "GetCapabilities" },
-  -- VehicleInfo = { "GetVehicleType" },
+  UI = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
+  VR = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
+  TTS = { "GetLanguage", "GetSupportedLanguages", "GetCapabilities" },
+  Buttons = { "GetCapabilities" },
+  VehicleInfo = { "GetVehicleType" },
   RC = { "GetCapabilities" }
 }
 
 --[[ Local Functions ]]
-local function getHMIParams(pMod, pReq)
-  local params = common.getDefaultHMITable()
-  local tbl =  common.cloneTable(params)
-  tbl.UI.GetLanguage.occurrence = 0
-  tbl.UI.GetSupportedLanguages.occurrence = 0
-  tbl.UI.GetCapabilities.occurrence = 0
-  tbl.VR.GetLanguage.occurrence = 0
-  tbl.VR.GetSupportedLanguages.occurrence = 0
-  tbl.VR.GetCapabilities.occurrence = 0
-  tbl.TTS.GetLanguage.occurrence = 0
-  tbl.TTS.GetSupportedLanguages.occurrence = 0
-  tbl.TTS.GetCapabilities.occurrence = 0
-  tbl.Buttons.GetCapabilities.occurrence = 0
-  tbl.VehicleInfo.GetVehicleType.occurrence = 0
-  tbl.RC.GetCapabilities.occurrence = 0
-  tbl[pMod][pReq].occurrence = nil
-  return tbl
+local function updateHMICaps_noResponseGetHMIParam(pMod, pReq)
+  local noResponseGetHMIParam = common.cloneTable(hmiDefaultCap)
+  noResponseGetHMIParam[pMod][pReq] = nil
+  return noResponseGetHMIParam
+end
+
+local function updateHMICaps_requestGetHMIParam(pMod, pReq)
+  local requestGetHMIParam = common.cloneTable(hmiDefaultCap)
+  requestGetHMIParam.UI.GetLanguage.occurrence = 0
+  requestGetHMIParam.UI.GetSupportedLanguages.occurrence = 0
+  requestGetHMIParam.UI.GetCapabilities.occurrence = 0
+  requestGetHMIParam.VR.GetLanguage.occurrence = 0
+  requestGetHMIParam.VR.GetSupportedLanguages.occurrence = 0
+  requestGetHMIParam.VR.GetCapabilities.occurrence = 0
+  requestGetHMIParam.TTS.GetLanguage.occurrence = 0
+  requestGetHMIParam.TTS.GetSupportedLanguages.occurrence = 0
+  requestGetHMIParam.TTS.GetCapabilities.occurrence = 0
+  requestGetHMIParam.Buttons.GetCapabilities.occurrence = 0
+  requestGetHMIParam.VehicleInfo.GetVehicleType.occurrence = 0
+  requestGetHMIParam.RC.GetCapabilities.occurrence = 0
+  requestGetHMIParam[pMod][pReq].occurrence = nil
+  return requestGetHMIParam
 end
 
 --[[ Scenario ]]
@@ -65,14 +72,12 @@ for mod, req  in pairs(cap) do
   for _, pReq  in ipairs(req) do
     common.Title("Preconditions")
     common.Step("Clean environment", common.preconditions)
-    common.Step("Start SDL, HMI", common.start)
-    --common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
+    common.Step("Start SDL, HMI"..mod .. pReq, common.start, { updateHMICaps_noResponseGetHMIParam(mod, pReq) })
     common.Step("Ignition off", common.ignitionOff)
 
     common.Title("Test")
-    common.Step("Remove " .. mod .. pReq .. " capability from Cache file", common.updateCacheFile, { mod, pReq })
-    -- common.Step("Ignition on, expect" .. mod .. pReq .. " request capability from SDL",
-    --   common.start, { getHMIParams(mod, pReq) })
+    common.Step("Ignition on, SDL doesn't send HMI capabilities requests",
+      common.start, { updateHMICaps_requestGetHMIParam (mod, pReq) })
 
     common.Title("Postconditions")
     common.Step("Stop SDL", common.postconditions)

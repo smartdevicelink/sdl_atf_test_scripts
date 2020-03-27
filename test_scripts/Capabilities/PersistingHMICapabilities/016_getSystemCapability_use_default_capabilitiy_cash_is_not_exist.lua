@@ -21,16 +21,31 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
+--[[ Local Functions ]]
+
+
 --[[ Local Variables ]]
-local hmiCapabilities = common.getHMICapabilitiesFromFile()
+local hmiCap = common.getDefaultHMITable()
 
 local systemCapabilities = {
-  NAVIGATION = { navigationCapability = hmiCapabilities.UI.systemCapabilities.navigationCapability },
-  PHONE_CALL = { phoneCapability = hmiCapabilities.UI.systemCapabilities.phoneCapability },
-  VIDEO_STREAMING = { videoStreamingCapability = hmiCapabilities.UI.systemCapabilities.videoStreamingCapability },
-  REMOTE_CONTROL = { remoteControlCapability = hmiCapabilities.RC.remoteControlCapability },
-  SEAT_LOCATION = { remoteControlCapability = hmiCapabilities.RC.seatControlCapability }
+  NAVIGATION = {
+    navigationCapability = hmiCap.UI.GetCapabilities.params.systemCapabilities.navigationCapability },
+  PHONE_CALL = {
+    phoneCapability = hmiCap.UI.GetCapabilities.params.systemCapabilities.phoneCapability },
+  VIDEO_STREAMING = {
+    videoStreamingCapability = hmiCap.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability },
+  REMOTE_CONTROL = {
+    remoteControlCapability = hmiCap.RC.GetCapabilities.params.remoteControlCapability },
+  SEAT_LOCATION = {
+    remoteControlCapability = hmiCap.RC.GetCapabilities.params.seatControlCapability }
 }
+
+local function getSystemCapability(pSystemCapabilityType, pResponseCapabilities)
+  local mobSession = common.getMobileSession()
+  local cid = mobSession:SendRPC("GetSystemCapability", { systemCapabilityType = pSystemCapabilityType })
+  mobSession:ExpectResponse(cid, { systemCapability = pResponseCapabilities, success = true, resultCode = "SUCCESS" })
+end
+
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -38,13 +53,15 @@ common.Step("Back-up/update PPT", common.updatePreloadedPT)
 common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
+common.Step("Ignition on, Start SDL, HMI", common.start)
+common.Step("Check that capability file exists", common.checkIfExistCapabilityFile)
+common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParam() })
-common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile)
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
 for sysCapType, cap  in pairs(systemCapabilities) do
   common.Title("TC processing " .. tostring(sysCapType) .."]")
-  common.Step("getSystemCapability ".. sysCapType, common.getSystemCapability, { sysCapType, cap })
+  common.Step("getSystemCapability ".. sysCapType, getSystemCapability, { sysCapType, cap })
 end
 
 common.Title("Postconditions")

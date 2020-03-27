@@ -19,33 +19,35 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
-config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Local Variables ]]
-local hmiCapabilities = common.getHMICapabilitiesFromFile()
+local appSessionId = 1
+local hmiCapabilities = common.getDefaultHMITable()
 
-local systemCapabilities = {
-  NAVIGATION = { navigationCapability = hmiCapabilities.UI.systemCapabilities.navigationCapability },
-  PHONE_CALL = { phoneCapability = hmiCapabilities.UI.systemCapabilities.phoneCapability },
-  VIDEO_STREAMING = { videoStreamingCapability = hmiCapabilities.UI.systemCapabilities.videoStreamingCapability },
-  REMOTE_CONTROL = { remoteControlCapability = hmiCapabilities.RC.remoteControlCapability },
-  SEAT_LOCATION = { remoteControlCapability = hmiCapabilities.RC.seatControlCapability }
+local capRaiResponse = {
+  buttonCapabilities = hmiCapabilities.Buttons.GetCapabilities.params.capabilities,
+  vehicleType = hmiCapabilities.VehicleInfo.GetVehicleType.params.vehicleType,
+  audioPassThruCapabilities = hmiCapabilities.UI.GetCapabilities.params.audioPassThruCapabilities,
+  hmiDisplayLanguage =  hmiCapabilities.UI.GetCapabilities.params.language,
+  language = hmiCapabilities.VR.GetLanguage.params.language, -- or TTS.language
+  pcmStreamCapabilities = hmiCapabilities.UI.GetCapabilities.params.pcmStreamCapabilities,
+  hmiZoneCapabilitie = hmiCapabilities.UI.GetCapabilities.params.hmiZoneCapabilitie,
+  softButtonCapabilities = hmiCapabilities.UI.GetCapabilities.params.softButtonCapabilities,
+  displayCapabilities = hmiCapabilities.UI.GetCapabilities.params.displayCapabilities,
+  vrCapabilities = hmiCapabilities.VR.GetCapabilities.params.capabilities,
+  speechCapabilities = hmiCapabilities.TTS.GetCapabilities.params.capabilities
 }
 
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Back-up/update PPT", common.updatePreloadedPT)
 common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
+common.Step("Ignition on, Start SDL, HMI", common.start)
+common.Step("Check that capability file exists", common.checkIfExistCapabilityFile)
+common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParam() })
-common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile)
-common.Step("App registration", common.registerApp)
-common.Step("App activation", common.activateApp)
-for sysCapType, cap  in pairs(systemCapabilities) do
-  common.Title("TC processing " .. tostring(sysCapType) .."]")
-  common.Step("getSystemCapability ".. sysCapType, common.getSystemCapability, { sysCapType, cap })
-end
+common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

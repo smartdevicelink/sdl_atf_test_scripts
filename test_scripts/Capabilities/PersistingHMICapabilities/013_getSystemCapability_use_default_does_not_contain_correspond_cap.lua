@@ -21,54 +21,39 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
---[[ Local Functions ]]
+--[[ Local Variables ]]
+local hmiDefaultCap = common.getDefaultHMITable()
+local hmiCapabilities = common.getHMICapabilitiesFromFile()
 
 local requests = {
   UI = { "GetCapabilities" },
   RC = { "GetCapabilities" }
 }
 
-local function hmiDefaultData()
-  local path_to_file = config.pathToSDL .. "/hmi_capabilities.json"
-  local defaultValue = common.jsonFileToTable(path_to_file)
-  return defaultValue
-end
+local systemCapabilities = {
+  UI = {
+    NAVIGATION = { navigationCapability = hmiCapabilities.UI.systemCapabilities.navigationCapability },
+    PHONE_CALL = { phoneCapability = hmiCapabilities.UI.systemCapabilities.phoneCapability },
+    VIDEO_STREAMING = { videoStreamingCapability = hmiCapabilities.UI.systemCapabilities.videoStreamingCapability }},
+  RC = {
+    REMOTE_CONTROL = { remoteControlCapability = hmiCapabilities.RC.remoteControlCapability },
+    SEAT_LOCATION = { remoteControlCapability = hmiCapabilities.RC.seatControlCapability }
+  }
+}
 
-local hmiCaps = common.getDefaultHMITable()
-
+--[[ Local Functions ]]
 local function updateHMICaps(pMod, pRequest)
-  for key,_ in pairs (hmiCaps) do
+  for key,_ in pairs (hmiDefaultCap) do
     if key == pMod then
-      hmiCaps[pMod][pRequest] = nil
+      hmiDefaultCap[pMod][pRequest] = nil
       if not pMod == "Buttons" then
-        hmiCaps[pMod].IsReady.params.available = true
+        hmiDefaultCap[pMod].IsReady.params.available = true
       end
     end
   end
 end
 
---[[ Local Variables ]]
-local hmiDefault = hmiDefaultData()
-
-local function getSystemCapability(pSystemCapabilityType, pResponseCapabilities)
-  local mobSession = common.getMobileSession()
-  local cid = mobSession:SendRPC("GetSystemCapability", { systemCapabilityType = pSystemCapabilityType })
-  mobSession:ExpectResponse(cid, { systemCapability = pResponseCapabilities, success = true, resultCode = "SUCCESS" })
-end
-
-local systemCapabilities = {
-  UI = {
-    NAVIGATION = { navigationCapability = hmiDefault.UI.systemCapabilities.navigationCapability },
-    PHONE_CALL = { phoneCapability = hmiDefault.UI.systemCapabilities.phoneCapability },
-    VIDEO_STREAMING = { videoStreamingCapability = hmiDefault.UI.systemCapabilities.videoStreamingCapability }},
-  RC = {
-    REMOTE_CONTROL = { remoteControlCapability = hmiDefault.RC.remoteControlCapability },
-    SEAT_LOCATION = { remoteControlCapability = hmiDefault.RC.seatControlCapability }
-  }
-}
-
 --[[ Scenario ]]
-
 for mod, req  in pairs(requests) do
   for _, pReq  in ipairs(req) do
 common.Title("TC processing " .. tostring(mod) .."]")
@@ -79,11 +64,11 @@ common.Step("Clean environment", common.preconditions)
 common.Title("Test")
 
 common.Step("Updated HMI Capabilities", updateHMICaps, { mod, pReq })
-common.Step("Ignition on, Start SDL, HMI", common.start, { hmiCaps })
+common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
   for sysCapType, cap  in pairs(systemCapabilities[mod]) do
-    common.Step("getSystemCapability "..sysCapType, getSystemCapability, { sysCapType, cap })
+    common.Step("getSystemCapability "..sysCapType, common.getSystemCapability, { sysCapType, cap })
   end
 
 common.Title("Postconditions")

@@ -20,15 +20,10 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
---[[ Local Functions ]]
--- local function hmiDefaultData()
---     local hmiCapabilities = common.getHMICapabilitiesFromFile()
---   -- local path_to_file = config.pathToSDL .. "/hmi_capabilities.json"
---   -- local defaulValue = common.jsonFileToTable(path_to_file)
---   -- return defaulValue
---     return hmiCapabilities
--- end
+--[[ Local Variables ]]
+local appSessionId = 1
 
+--[[ Local Functions ]]
 local function changeBitsPSEnumPcmCap(pCapabilities)
   local bitsPerSampleEnum = common.cloneTable(pCapabilities)
   for pKey, value in pairs(bitsPerSampleEnum) do
@@ -71,12 +66,11 @@ local capRaiResponse = {
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile) -- to common
 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParam() })
 common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile)
-common.Step("App registration", common.registerApp, { 1, capRaiResponse })
+common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
