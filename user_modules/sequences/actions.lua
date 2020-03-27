@@ -715,7 +715,7 @@ function m.app.unRegister(pAppId)
     { unexpectedDisconnect = false, appID = m.app.getHMIId(pAppId) })
   :Do(function()
     m.app.deleteHMIId(pAppId)
-    m.mobile.deleteSession(pAppId)
+    m.mobile.closeSession(pAppId)
     end)
 end
 
