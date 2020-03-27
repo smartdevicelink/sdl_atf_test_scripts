@@ -31,7 +31,7 @@ end
 
 local function updateDefaultHMIcapabilities()
   local defaultHMIcapabilities = commonRC.HMICap.get()
-  defaultHMIcapabilitiesRC = defaultHMIcapabilities.UI.systemCapabilities.remoteControlCapability
+  defaultHMIcapabilitiesRC = defaultHMIcapabilities.RC.remoteControlCapability
   defaultHMIcapabilitiesRC.climateControlCapabilities[1].climateEnableAvailable = false
   defaultHMIcapabilitiesRC.radioControlCapabilities[1].availableHdChannelsAvailable = false
   commonRC.HMICap.set(defaultHMIcapabilities)
