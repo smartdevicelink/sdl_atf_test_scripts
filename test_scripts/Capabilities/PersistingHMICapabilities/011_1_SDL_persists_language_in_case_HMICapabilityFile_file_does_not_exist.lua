@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL persists language in "hmi_capabilities_cache.json" file in case HMI sends
+-- Description: Check that SDL persists (VR/TTS/UI) languages in "hmi_capabilities_cache.json" file in case HMI sends
 --  TTS/VR/UI.OnLanguageChange notification with appropriate language
 -- Preconditions:
 -- 1) hmi_capabilities_cache.json file doesn't exist on file system
@@ -21,7 +21,7 @@ common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI", common.start, { common.noResponseGetHMIParam()})
 
 common.Title("Test")
-common.Step("OnLanguageChange notification", common.onLanguageChange, { "FR-FR" })
+common.Step("OnLanguageChange notification FR-FR", common.onLanguageChange, { "FR-FR" })
 common.Step("Check stored value to cache file", common.checkLanguageCapability, { "FR-FR" })
 
 common.Title("Postconditions")

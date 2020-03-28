@@ -15,13 +15,16 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
+--[[ Local Variable ]]
+local invalidLanguage = "EN-EN"
+
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI", common.start, { common.updateHMILanguage("EN-US") })
 
 common.Title("Test")
-common.Step("OnLanguageChange notification", common.onLanguageChange, { "EN-EN" })
+common.Step("OnLanguageChange notification invalid language EN-EN", common.onLanguageChange, { invalidLanguage })
 common.Step("Check stored value to cache file", common.checkLanguageCapability, { "EN-US" })
 
 common.Title("Postconditions")

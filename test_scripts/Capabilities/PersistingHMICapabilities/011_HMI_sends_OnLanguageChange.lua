@@ -17,6 +17,8 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
+--[[ Local Variables ]]
+local language = { "FR-FR", "DE-DE", "EN-US" }
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -24,14 +26,11 @@ common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI", common.start, { common.updateHMILanguage("EN-US") })
 
 common.Title("Test")
-common.Step("OnLanguageChange notification", common.onLanguageChange, { "FR-FR" })
-common.Step("Check stored value to cache file", common.checkLanguageCapability, { "FR-FR" })
 
-common.Step("OnLanguageChange notification", common.onLanguageChange, { "DE-DE" })
-common.Step("Check stored value to cache file", common.checkLanguageCapability, { "DE-DE" })
-
-common.Step("OnLanguageChange notification", common.onLanguageChange, { "EN-US" })
-common.Step("Check stored value to cache file", common.checkLanguageCapability, { "EN-US" })
+for _, pLanguage in pairs(language) do
+  common.Step("OnLanguageChange notification" .. pLanguage , common.onLanguageChange, { pLanguage  })
+  common.Step("Check stored value to cache file", common.checkLanguageCapability, { pLanguage  })
+end
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
