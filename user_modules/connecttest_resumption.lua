@@ -356,6 +356,10 @@ function module:initHMI()
           "UI.OnRecordStart"
         })
       registerComponent("VehicleInfo")
+      registerComponent("RC",
+        {
+          "RC.OnRCStatus"
+        })
       registerComponent("Navigation",
         {
           "Navigation.OnAudioDataStreaming",
@@ -602,12 +606,12 @@ function module:initHMI_onReady()
       },
       hmiZoneCapabilities = "FRONT",
       softButtonCapabilities =
-      {
+      {{
         shortPressAvailable = true,
         longPressAvailable = true,
         upDownAvailable = true,
         imageSupported = true
-      }
+      }}
     })
 
   ExpectRequest("VR.IsReady", true, { available = true })
@@ -615,6 +619,7 @@ function module:initHMI_onReady()
   ExpectRequest("UI.IsReady", true, { available = true })
   ExpectRequest("Navigation.IsReady", true, { available = true })
   ExpectRequest("VehicleInfo.IsReady", true, { available = true })
+  ExpectRequest("RC.IsReady", true, { available = false })
 
   self.applications = { }
   ExpectRequest("BasicCommunication.UpdateAppList", false, { })

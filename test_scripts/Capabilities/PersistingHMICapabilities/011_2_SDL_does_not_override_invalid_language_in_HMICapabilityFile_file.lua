@@ -1,17 +1,16 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL sends all HMI capabilities request (VR/TTS/RC/UI etc)
---  in case "hmi_capabilities_cache.json" file doesn't exist
---
+-- Description: Check that SDL does not override in "hmi_capabilities_cache.json" file
+-- in case HMI sends TTS/VR/UI.OnLanguageChange notification with invalid language
 -- Preconditions:
 -- 1) hmi_capabilities_cache.json file doesn't exist on file system
 -- 2) SDL and HMI are started
+-- 3) HMI sends all HMI capability to SDL
 -- Steps:
--- 1) HMI does not provide any HMI capabilities
--- 2) IGN_OFF/IGN_ON
+-- 1) HMI sends "TTS/VR/UI.OnLanguageChange" notifications with invalid language to SDL
 -- SDL does:
---  a) sends all HMI capabilities request to HMI
+--   a) SDL does not override TTS/VR/UI.language in "hmi_capabilities_cache.json" file
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -19,13 +18,11 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParam() })
-common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile)
-common.Step("Ignition off", common.ignitionOff)
+common.Step("Start SDL, HMI", common.start, { common.updateHMILanguage("EN-US") })
 
 common.Title("Test")
-common.Step("Ignition on, SDL sends all HMI capabilities requests",
-  common.start, { common.noResponseGetHMIParam() })
+common.Step("OnLanguageChange notification", common.onLanguageChange, { "EN-EN" })
+common.Step("Check stored value to cache file", common.checkLanguageCapability, { "EN-US" })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

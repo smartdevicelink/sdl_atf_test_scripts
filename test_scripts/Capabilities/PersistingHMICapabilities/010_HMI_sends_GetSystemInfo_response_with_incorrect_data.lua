@@ -5,16 +5,15 @@
 -- incorrect data
 --
 -- Preconditions:
--- 1) Check that file with capability file doesn't exist on file system
+-- 1) hmi_capabilities_cache.json file doesn't exist on file system
 -- 2) SDL and HMI are started
--- 3) HMI sends all capability to SDL
+-- 3) HMI sends all HMI capabilities
 -- 4) SDL stored capability to "hmi_capabilities_cache.json" file in AppStorageFolder
 -- 5) Ignition OFF/ON cycle performed
--- 6) SDL is started and send GetSystemInfo request
 -- Steps:
--- 1) HMI sends "BasicCommunication.GetSystemInfo" notification with incorrect data
+-- 5) HMI sends "BasicCommunication.GetSystemInfo" response  without mandatory parameter "ccpu_version"
 -- SDL does:
--- - a) send requested to HMI for all capability
+--   a) sends all HMI capabilities request (VR/TTS/RC/UI etc)
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -23,7 +22,11 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 local function updateHMIValue()
   local hmiValues = common.getDefaultHMITable()
   hmiValues.BasicCommunication.GetSystemInfo = {
-    params = { 1 }  -- Incorrect data
+    params = {
+      -- ccpu_version mandatory parameter is missing
+      language = "EN-US",
+      wersCountryCode = "wersCountryCode"
+    }
   }
   return hmiValues
 end
@@ -32,7 +35,6 @@ end
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI", common.start)
-common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
 
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)

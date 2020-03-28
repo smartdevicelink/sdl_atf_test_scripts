@@ -27,7 +27,6 @@ m.preconditions = actions.preconditions
 m.postconditions = actions.postconditions
 m.getHMICapabilitiesFromFile = actions.sdl.getHMICapabilitiesFromFile
 m.getMobileSession = actions.getMobileSession
-m.getHMIConnection = actions.getHMIConnection
 m.getConfigAppParams = actions.getConfigAppParams
 m.getAppsCount = actions.getAppsCount
 m.getHMIConnection = actions.hmi.getConnection
@@ -93,8 +92,9 @@ function m.noResponseGetHMIParam()
   return hmiCaps
 end
 
-function m.getCacheCapabilityTable()
-  local cacheFile = m.jsonFileToTable(hmiCapCacheFile)
+function m.getCacheCapabilityTable(pHmiCapCacheFile)
+  if not pHmiCapCacheFile then  pHmiCapCacheFile = hmiCapCacheFile end
+  local cacheFile = m.jsonFileToTable(pHmiCapCacheFile)
   return cacheFile
 end
 
@@ -114,14 +114,13 @@ function m.checkContentCapabilityCacheFile(pExpHmiCapabilities)
   end
   if m.isFileExist(hmiCapCacheFile) then
     local msg = ""
-    local storedCacheCapability = m.getCacheCapabilityTable()
+    local  cacheTable = m.getCacheCapabilityTable()
     local hmiCapMap = {
       UI = {
         GetLanguage = { "language" },
         GetSupportedLanguages = { "languages" },
         GetCapabilities = { "displayCapabilities", "hmiCapabilities", "hmiZoneCapabilities",
-        "softButtonCapabilities", "systemCapabilities"
-          --,"audioPassThruCapabilities" - under clarification
+        "softButtonCapabilities", "systemCapabilities" ,"audioPassThruCapabilitiesList"
           }
         },
       VR = {
@@ -149,21 +148,29 @@ function m.checkContentCapabilityCacheFile(pExpHmiCapabilities)
       for req, params in pairs(requests) do
         for _, pParam in ipairs(params) do
           if pParam == "language" or pParam == "hmiZoneCapabilities"  then
-            if not (storedCacheCapability[mod][pParam] == expHmiCapabilities[mod][req].params[pParam]) then
-             msg = msg .. mod .. "." .. pParam .. " contains unexpected value\n" ..
+            if not (cacheTable[mod][pParam] == expHmiCapabilities[mod][req].params[pParam]) then
+            msg = msg .. mod .. "." .. pParam .. " contains unexpected value\n" ..
               " Expected: " .. tostring(expHmiCapabilities[mod][req].params[pParam]) .. "\n" ..
-              " Actual: " .. tostring(storedCacheCapability[mod][pParam]) .. "\n"
+              " Actual: " .. tostring(cacheTable[mod][pParam]) .. "\n"
             end
           else
-            if not storedCacheCapability[mod][pParam] then
-              msg = msg .. mod .. "." ..pParam.. " contains unexpected value\n" ..
-                " Expected table:" .. m.tableToString(expHmiCapabilities[mod][req].params[pParam]) .. "\n" ..
-                " Actual table: does not exist"  .. "\n"
+            if pParam == "audioPassThruCapabilitiesList" then
+              if not (cacheTable[mod].audioPassThruCapabilities == expHmiCapabilities[mod][req].params[pParam]) then
+              msg = msg .. mod .. "." .. pParam .. " contains unexpected value\n" ..
+                " Expected: " ..  m.tableToString(expHmiCapabilities[mod][req].params[pParam]) .. "\n" ..
+                " Actual: " ..  m.tableToString(cacheTable[mod].audioPassThruCapabilities) .. "\n"
+              end
             else
-              if not m.isTableEqual(storedCacheCapability[mod][pParam], expHmiCapabilities[mod][req].params[pParam]) then
+              if not cacheTable[mod][pParam] then
+                msg = msg .. mod .. "." ..pParam.. " contains unexpected value\n" ..
+                  " Expected table:" .. m.tableToString(expHmiCapabilities[mod][req].params[pParam]) .. "\n" ..
+                  " Actual table: does not exist"  .. "\n"
+              else
+                if not m.isTableEqual(cacheTable[mod][pParam], expHmiCapabilities[mod][req].params[pParam]) then
                 msg = msg .. mod .. "." ..pParam.. " contains unexpected value\n" ..
                   " Expected table: " .. m.tableToString(expHmiCapabilities[mod][req].params[pParam]) .. "\n" ..
-                  " Actual table: " .. m.tableToString(storedCacheCapability[mod][pParam]) .. "\n"
+                  " Actual table: " .. m.tableToString(cacheTable[mod][pParam]) .. "\n"
+                end
               end
             end
           end
@@ -176,6 +183,18 @@ function m.checkContentCapabilityCacheFile(pExpHmiCapabilities)
   else
     m.failTestStep("HMICapabilitiesCacheFile file doesn't exist")
   end
+end
+
+function m.updateHMISystemInfo(pVersion)
+  local hmiValues = m.getDefaultHMITable()
+  hmiValues.BasicCommunication.GetSystemInfo = {
+    params = {
+      ccpu_version = "New_ccpu_"..pVersion,
+      language = "EN-US",
+      wersCountryCode = "wersCountryCode"
+    }
+  }
+  return hmiValues
 end
 
 function m.updateCacheFile(pModule, pGroup)
@@ -231,6 +250,29 @@ function  m.getSystemCapability(pSystemCapabilityType, pResponseCapabilities)
       return true
     end
   end)
+end
+
+function m.onLanguageChange(pLanguage)
+  m.getHMIConnection():SendNotification("TTS.OnLanguageChange", { language = pLanguage })
+  m.getHMIConnection():SendNotification("VR.OnLanguageChange", { language = pLanguage })
+  m.getHMIConnection():SendNotification("UI.OnLanguageChange", { language = pLanguage })
+end
+
+function m.checkLanguageCapability(pLanguage)
+  local data = m.getCacheCapabilityTable()
+  if data.VR.language == pLanguage and data.TTS.language == pLanguage and data.UI.language == pLanguage then
+    m.print(35, "Languages were changed")
+  else
+    m.failTestStep("SDL doesn't updated cache file")
+  end
+end
+
+function m.updateHMILanguage(pLanguage)
+  local hmiValues = m.getDefaultHMITable()
+  hmiValues.UI.GetLanguage.params.language = pLanguage
+  hmiValues.VR.GetLanguage.params.language = pLanguage
+  hmiValues.TTS.GetLanguage.params.language = pLanguage
+  return hmiValues
 end
 
 function m.registerApp(pAppId, pCapResponse, pMobConnId, hasPTU)

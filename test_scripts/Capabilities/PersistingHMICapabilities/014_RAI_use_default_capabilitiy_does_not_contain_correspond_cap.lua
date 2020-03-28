@@ -11,11 +11,6 @@
 -- 1) HMI does not provide one of available Capability
 -- SDL does:
 --  a) use appropriate default capability from hmi_capabilities.json file
---  b) not persist appropriate default capabilities in cache file
--- 2) IGN_OFF/IGN_ON
--- SDL does:
---  a) cached of all capability
---  b) created HMICapabilitiesCache file with all capability on file system
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')

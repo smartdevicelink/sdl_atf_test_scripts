@@ -5,7 +5,7 @@
 -- HMICapabilitiesCacheFile parameter has different value in smartDeviceLink.ini
 --
 -- Preconditions:
--- 1) Check that file with capability file doesn't exist on file system
+-- 1) hmi_capabilities_cache.json file doesn't exist on file system
 -- 2) Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
 -- 3) SDL and HMI are started
 -- Steps:

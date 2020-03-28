@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that the SDL takes default parameters from hmi_capabilities.json in case
+-- Description: Check that the SDL takes parameters from hmi_capabilities_cache.json in case
 -- HMI does not provide successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
 
 -- Preconditions:
@@ -10,12 +10,7 @@
 -- Steps:
 -- 1) HMI does not provide any Capability
 -- SDL does:
---  a) use default capability from hmi_capabilities.json file
---  b) not persist default capabilities in cache file
--- 2) IGN_OFF/IGN_ON
--- SDL does:
---  a) cached of all capability
---  b) created HMICapabilitiesCache file with all capability on file system
+--  a) use cash capability from hmi_capabilities_cache.json file
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -46,7 +41,7 @@ common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start)
 common.Step("Check that capability file exists", common.checkIfExistCapabilityFile)
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParam() })
+common.Step("Ignition on, Start SDL, HMI", common.start, { common.noRequestsGetHMIParam() })
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
 

@@ -5,7 +5,7 @@
 -- OFF/ON cycle
 --
 -- Preconditions:
--- 1) Check that file with capability file doesn't exist on file system
+-- 1) hmi_capabilities_cache.json file doesn't exist on file system
 -- 2) SDL and HMI are started
 -- Steps:
 -- 1) HMI sends "BasicCommunication.OnReady" notification

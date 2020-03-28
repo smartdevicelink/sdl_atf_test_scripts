@@ -5,23 +5,18 @@
 -- HMI does not provide successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
 
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) HMI and SDL are started
+-- 1) HMI and SDL are started
 -- Steps:
 -- 1) HMI does not provide any Capability
 -- SDL does:
 --  a) use default capability from hmi_capabilities.json file
---  b) not persist default capabilities in cache file
--- 2) IGN_OFF/IGN_ON
--- SDL does:
---  a) cached of all capability
---  b) created HMICapabilitiesCache file with all capability on file system
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Variables ]]
 local appSessionId = 1
+local hmiCapabilities = common.getHMICapabilitiesFromFile()
 
 --[[ Local Functions ]]
 local function changeBitsPSEnumPcmCap(pCapabilities)
@@ -45,9 +40,6 @@ local function changeBitsPSEnumAudioCap(pCapabilities)
   end
   return bitsPerSampleEnum
 end
-
---[[ Local Variables ]]
-local hmiCapabilities = common.getHMICapabilitiesFromFile()
 
 local capRaiResponse = {
   buttonCapabilities = hmiCapabilities.Buttons.capabilities,
