@@ -26,6 +26,7 @@ m.Step = runner.Step
 m.preconditions = actions.preconditions
 m.postconditions = actions.postconditions
 m.getHMICapabilitiesFromFile = actions.sdl.getHMICapabilitiesFromFile
+m.setHMICapabilitiesToFile = actions.sdl.setHMICapabilitiesToFile
 m.getMobileSession = actions.getMobileSession
 m.getConfigAppParams = actions.getConfigAppParams
 m.getAppsCount = actions.getAppsCount
@@ -203,6 +204,33 @@ function m.updateCacheFile(pModule, pGroup)
   file:close()
   local capabilityData = m.decode(json_data)
   capabilityData[pModule][pGroup] = nil
+end
+
+function m.updatedHMICapTab()
+  local hmiCapTbl = m.getHMICapabilitiesFromFile()
+    table.remove(hmiCapTbl.UI.displayCapabilities.textFields, 1)
+    hmiCapTbl.UI.hmiZoneCapabilitie = "BACK"
+    hmiCapTbl.UI.softButtonCapabilities.imageSupported = false
+    hmiCapTbl.UI.audioPassThruCapabilities[1].samplingRate = "RATE_8KHZ"
+    hmiCapTbl.UI.pcmStreamCapabilities.samplingRate = "RATE_8KHZ"
+    hmiCapTbl.UI.systemCapabilities.navigationCapability.sendLocationEnabled = false
+    hmiCapTbl.UI.systemCapabilities.phoneCapability.dialNumberEnabled = false
+    hmiCapTbl.UI.systemCapabilities.videoStreamingCapability.maxBitrate = 50000
+    table.remove(hmiCapTbl.Buttons.capabilities, 1)
+    hmiCapTbl.VehicleInfo.vehicleType.modelYear = 2000
+    hmiCapTbl.UI.language = "JA-JP"
+    hmiCapTbl.VR.language = "JA-JP"
+    hmiCapTbl.TTS.language = "JA-JP"
+    hmiCapTbl.VR.vrCapabilities[2] = "TEXT"
+    hmiCapTbl.TTS.prerecordedSpeechCapabilities = "NEGATIVE_JINGLE"
+    table.remove(hmiCapTbl.RC.remoteControlCapability.buttonCapabilities, 1)
+    hmiCapTbl.RC.seatLocationCapability.rows = 1
+  return hmiCapTbl
+end
+
+function m.updateHMICapabilities()
+  local hmiCapTbl = m.updatedHMICapTab()
+  m.setHMICapabilitiesToFile(hmiCapTbl)
 end
 
 function m.deleteHMICapabilitiesCacheFile()

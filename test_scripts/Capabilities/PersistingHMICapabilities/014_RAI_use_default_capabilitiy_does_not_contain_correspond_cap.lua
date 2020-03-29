@@ -2,7 +2,7 @@
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
 -- Description: Check that the SDL takes default parameters from hmi_capabilities.json in case
--- HMI does not provide successful GetCapabilities/GetLanguage/GetVehicleType response due to timeout
+-- HMI does not send one of GetCapabilities/GetLanguage/GetVehicleType response due to timeout
 
 -- Preconditions:
 -- 1) hmi_capabilities_cache.json file doesn't exist on file system
@@ -19,7 +19,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 --[[ Local Variables ]]
 local appSessionId = 1
 local hmiDefaultCap = common.getDefaultHMITable()
-local hmiCapabilities = common.getHMICapabilitiesFromFile()
+local hmiCapabilities = common.updatedHMICapTab()
 
 local requests = {
   UI = { "GetCapabilities", "GetLanguage" },
@@ -69,13 +69,13 @@ local function removedRaduantParameters()
   return hmiCapabilities.UI.displayCapabilities
 end
 
-local function expCapRaiResponse( pMod, pReq)
+local function expCapRaiResponse(pMod, pReq)
   local capRaiResponse = {
     UI = {
       GetCapabilities = {
         audioPassThruCapabilities = changeBitsPSEnumAudioCap(hmiCapabilities.UI.audioPassThruCapabilities),
         pcmStreamCapabilities = changeBitsPSEnumPcmCap(hmiCapabilities.UI.pcmStreamCapabilities),
-        hmiZoneCapabilitie = hmiCapabilities.UI.hmiZoneCapabilitie,
+        hmiZoneCapabilitie = hmiCapabilities.UI.hmiZoneCapabilities,
         softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
         displayCapabilities = removedRaduantParameters(),
       },
@@ -107,6 +107,7 @@ for mod, req  in pairs(requests) do
     common.Title("Preconditions")
     common.Title("TC processing " .. tostring(mod) .." " .. tostring(pReq).."]")
     common.Step("Clean environment", common.preconditions)
+    common.Step("Update HMI capabilities", common.updateHMICapabilities)
 
     common.Title("Test")
     common.Step("Updated HMI Capabilities", updateHMICaps, { mod, pReq })

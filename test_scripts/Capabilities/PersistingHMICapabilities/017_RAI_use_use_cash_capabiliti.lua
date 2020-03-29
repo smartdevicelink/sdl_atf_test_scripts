@@ -2,7 +2,7 @@
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
 -- Description: Check that the SDL takes parameters from hmi_capabilities_cache.json in case
--- HMI does not provide successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
+-- HMI does not send successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
 
 -- Preconditions:
 -- 1) hmi_capabilities_cache.json file doesn't exist on file system
@@ -37,6 +37,7 @@ local capRaiResponse = {
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
+common.Step("Update HMI capabilities", common.updateHMICapabilities)
 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start)
