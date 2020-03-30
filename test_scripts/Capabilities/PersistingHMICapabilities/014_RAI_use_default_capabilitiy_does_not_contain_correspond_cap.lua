@@ -75,7 +75,7 @@ local function expCapRaiResponse(pMod, pReq)
       GetCapabilities = {
         audioPassThruCapabilities = changeBitsPSEnumAudioCap(hmiCapabilities.UI.audioPassThruCapabilities),
         pcmStreamCapabilities = changeBitsPSEnumPcmCap(hmiCapabilities.UI.pcmStreamCapabilities),
-        hmiZoneCapabilitie = hmiCapabilities.UI.hmiZoneCapabilities,
+        hmiZoneCapabilities = hmiCapabilities.UI.hmiZoneCapabilities,
         softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
         displayCapabilities = removedRaduantParameters(),
       },
@@ -108,9 +108,9 @@ for mod, req  in pairs(requests) do
     common.Title("TC processing " .. tostring(mod) .." " .. tostring(pReq).."]")
     common.Step("Clean environment", common.preconditions)
     common.Step("Update HMI capabilities", common.updateHMICapabilities)
+    common.Step("Updated default HMI Capabilities", updateHMICaps, { mod, pReq })
 
     common.Title("Test")
-    common.Step("Updated HMI Capabilities", updateHMICaps, { mod, pReq })
     common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
     common.Step("App registration", common.registerApp, { appSessionId, expCapRaiResponse(mod, pReq) })
 

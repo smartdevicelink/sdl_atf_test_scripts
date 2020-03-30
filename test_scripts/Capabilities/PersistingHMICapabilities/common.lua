@@ -209,7 +209,7 @@ end
 function m.updatedHMICapTab()
   local hmiCapTbl = m.getHMICapabilitiesFromFile()
     table.remove(hmiCapTbl.UI.displayCapabilities.textFields, 1)
-    hmiCapTbl.UI.hmiZoneCapabilitie = "BACK"
+    hmiCapTbl.UI.hmiZoneCapabilities = "BACK"
     hmiCapTbl.UI.softButtonCapabilities.imageSupported = false
     hmiCapTbl.UI.audioPassThruCapabilities[1].samplingRate = "RATE_8KHZ"
     hmiCapTbl.UI.pcmStreamCapabilities.samplingRate = "RATE_8KHZ"

@@ -59,7 +59,7 @@ common.Step("Update HMI capabilities", common.updateHMICapabilities)
 
 common.Title("Test")
 
-common.Step("Updated HMI Capabilities", updateHMICaps, { mod, pReq })
+common.Step("Updated default HMI Capabilities", updateHMICaps, { mod, pReq })
 common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
