@@ -29,12 +29,12 @@ common.Step("Update HMICapabilitiesCacheFile in SDL.ini file ", common.setSDLIni
   { "HMICapabilitiesCacheFile", "hmi_capabilities_cash.json" })
 
 common.Title("Test")
-common.Step("Start SDL, HMI", common.start)
 common.Step("Check that HMI capability cash file exists: hmi_capabilities_cash.json",
   common.checkIfCapabilityCashFileExists, { true, "hmi_capabilities_cash.json" })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Update HMICapabilitiesCacheFile in SDL.ini file ", common.setSDLIniParameter,
   { "HMICapabilitiesCacheFile", "NEW_hmi_capabilities_cash.json" })
+common.Step("Ignition on, Start SDL, HMI", common.start)
 common.Step("Check that HMI capability cash file exists: new_hmi_capabilities_cash.json",
   common.checkIfCapabilityCashFileExists, { true, "NEW_hmi_capabilities_cash.json" })
 
