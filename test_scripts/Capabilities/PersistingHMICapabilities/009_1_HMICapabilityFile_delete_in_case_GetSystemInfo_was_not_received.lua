@@ -6,14 +6,16 @@
 -- Preconditions:
 -- 1. hmi_capabilities_cache.json file doesn't exist on file system
 -- 2. Check that file with capability file doesn't exist on file system
--- 3. SDL and HMI are started
+-- 3. HMI sends GetSystemInfo with ccpu_version = "New_ccpu_version_1" to SDL
 -- 4. HMI sends all capability to SDL
 -- 5. SDL persists capability to "hmi_capabilities_cache.json" file in AppStorageFolder
 -- 6. Ignition OFF/ON cycle performed
 -- 7. SDL is started and send GetSystemInfo request
 -- Sequence:
 -- 1. HMI does not send "BasicCommunication.GetSystemInfo" notification
--- - a) send requested to HMI for all capability
+--   a) send requested to HMI for all capability
+--   b) delete hmi capability cache file in AppStorageFolder
+
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
