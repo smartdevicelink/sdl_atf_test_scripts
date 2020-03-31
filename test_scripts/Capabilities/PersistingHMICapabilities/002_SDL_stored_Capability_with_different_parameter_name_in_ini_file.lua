@@ -5,38 +5,35 @@
 -- HMICapabilitiesCacheFile parameter has different value in smartDeviceLink.ini
 --
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
--- 3) SDL and HMI are started
--- Steps:
--- 1) HMI sends "BasicCommunication.OnReady" notification
--- SDL does:
--- - a) request all capability from HMI
--- Steps:
--- 2) HMI sends all capability to SDL
--- SDL does:
--- - a) created file for capability with different names
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
+-- 2. Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
+-- 3. SDL and HMI are started
+-- Sequence:
+-- 1. HMI sends "BasicCommunication.OnReady" notification
+--  a request all capability from HMI
+-- 2. HMI sends all capability to SDL
+--  a. created file for capability with different names
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Variables ]]
-local cacheFileNames = { "hmi_capabilities.json", "cash.json", "12345.json" }
+local cacheFileNames = { "hmi_capabilities.json", "file.txt", "json" }
 
 --[[ Scenario ]]
-for _, value in pairs(cacheFileNames) do
+for _, cashFile in pairs(cacheFileNames) do
   common.Title("Preconditions")
   common.Step("Clean environment", common.preconditions)
-  common.Step("Update HMICapabilitiesCacheFile in SDL.ini file " .. value, common.setSDLIniParameter,
-    { "HMICapabilitiesCacheFile", value })
+  common.Step("Update HMICapabilitiesCacheFile in SDL.ini file " .. cashFile, common.setSDLIniParameter,
+    { "HMICapabilitiesCacheFile", cashFile })
 
   common.Title("Test")
   common.Step("Start SDL, HMI", common.start)
-  common.Step("Check that SDL creates capability file with name-" .. value,
-    common.checkIfExistCapabilityFile, { value })
+  common.Step("Check that SDL creates capability file with name-" .. cashFile,
+    common.checkIfCapabilityCashFileExists, { true, cashFile })
   common.Step("Ignition off", common.ignitionOff)
   common.Step("Ignition on, SDL doesn't send HMI capabilities requests",
-  common.start, { common.noRequestsGetHMIParam() })
+  common.start, { common.noRequestsGetHMIParams() })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

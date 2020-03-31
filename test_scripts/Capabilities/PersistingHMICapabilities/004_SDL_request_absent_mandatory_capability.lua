@@ -5,13 +5,12 @@
 --  in case "hmi_capabilities_cache.json" file doesn't exist
 --
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) SDL and HMI are started
--- Steps:
--- 1) HMI does not provide any HMI capabilities
--- 2) IGN_OFF/IGN_ON
--- SDL does:
---  a) sends all HMI capabilities request to HMI
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
+-- 2. SDL and HMI are started
+-- Sequence:
+-- 1. HMI does not provide any HMI capabilities
+-- 2. IGN_OFF/IGN_ON
+--  a. sends all HMI capabilities request to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -19,13 +18,13 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParam() })
-common.Step("Check that capability file doesn't exist", common.checkIfDoesNotExistCapabilityFile)
+common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParams() })
+common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCashFileExists, { false })
 common.Step("Ignition off", common.ignitionOff)
 
 common.Title("Test")
 common.Step("Ignition on, SDL sends all HMI capabilities requests",
-  common.start, { common.noResponseGetHMIParam() })
+  common.start, { common.noResponseGetHMIParams() })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

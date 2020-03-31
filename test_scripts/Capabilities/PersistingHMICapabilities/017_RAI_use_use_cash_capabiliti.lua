@@ -5,13 +5,11 @@
 -- HMI does not send successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
 
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) HMI and SDL are started
--- Steps:
--- 1) HMI does not provide any Capability
--- SDL does:
---  a) use cash capability from hmi_capabilities_cache.json file
-
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
+-- 2. HMI and SDL are started
+-- Sequence:
+-- 1. HMI does not provide any Capability
+--  a. use cash capability from hmi_capabilities_cache.json file
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -27,7 +25,7 @@ local capRaiResponse = {
   hmiDisplayLanguage =  hmiCapabilities.UI.GetCapabilities.params.language,
   language = hmiCapabilities.VR.GetLanguage.params.language, -- or TTS.language
   pcmStreamCapabilities = hmiCapabilities.UI.GetCapabilities.params.pcmStreamCapabilities,
-  hmiZoneCapabilitie = hmiCapabilities.UI.GetCapabilities.params.hmiZoneCapabilitie,
+  hmiZoneCapabilities = hmiCapabilities.UI.GetCapabilities.params.hmiZoneCapabilities,
   softButtonCapabilities = hmiCapabilities.UI.GetCapabilities.params.softButtonCapabilities,
   displayCapabilities = hmiCapabilities.UI.GetCapabilities.params.displayCapabilities,
   vrCapabilities = hmiCapabilities.VR.GetCapabilities.params.capabilities,
@@ -37,13 +35,13 @@ local capRaiResponse = {
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Update HMI capabilities", common.updateHMICapabilities)
+common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start)
-common.Step("Check that capability file exists", common.checkIfExistCapabilityFile)
+common.Step("Check that capability file exists", common.checkIfCapabilityCashFileExists)
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noRequestsGetHMIParam() })
+common.Step("Ignition on, Start SDL, HMI", common.start, { common.noRequestsGetHMIParams() })
 common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
 
 common.Title("Postconditions")

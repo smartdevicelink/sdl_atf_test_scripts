@@ -5,12 +5,11 @@
 -- HMI does not send one of GetCapabilities/GetLanguage/GetVehicleType response due to timeout
 
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) HMI and SDL are started
--- Steps:
--- 1) HMI does not provide one of available Capability
--- SDL does:
---  a) use appropriate default capability from hmi_capabilities.json file
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
+-- 2. HMI and SDL are started
+-- Sequence:
+-- 1. HMI does not provide one of available Capability
+--  a. use appropriate default capability from hmi_capabilities.json file
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -19,12 +18,12 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 --[[ Local Variables ]]
 local appSessionId = 1
 local hmiDefaultCap = common.getDefaultHMITable()
-local hmiCapabilities = common.updatedHMICapTab()
+local hmiCapabilities = common.updatedHMICapabilitiesTable()
 
 local requests = {
-  UI = { "GetCapabilities", "GetLanguage" },
-  VR = { "GetCapabilities", "GetLanguage" },
-  TTS = { "GetCapabilities", "GetLanguage" },
+  UI = { "GetCapabilities" }, --"GetLanguage"
+  VR = { "GetCapabilities" }, --"GetLanguage"
+  TTS = { "GetCapabilities" }, --"GetLanguage"
   Buttons = { "GetCapabilities" },
   VehicleInfo = { "GetVehicleType" }
 }
@@ -41,26 +40,19 @@ local function updateHMICaps(pMod, pRequest)
   end
 end
 
-local function changeBitsPSEnumPcmCap(pCapabilities)
-  local bitsPerSampleEnum = common.cloneTable(pCapabilities)
-  for pKey, value in pairs(bitsPerSampleEnum) do
-    if pKey == "bitsPerSample" then
-      bitsPerSampleEnum.bitsPerSample = string.gsub(value, "RATE_", "")
-    end
-  end
-  return bitsPerSampleEnum
+local function changeInternalNameRate(pCapabilities)
+  local capTable = common.cloneTable(pCapabilities)
+    capTable.bitsPerSample = string.gsub(capTable.bitsPerSample, "RATE_", "")
+    capTable.samplingRate = string.gsub(capTable.samplingRate, "RATE_", "")
+  return capTable
 end
 
-local function changeBitsPSEnumAudioCap(pCapabilities)
-  local bitsPerSampleEnum = common.cloneTable(pCapabilities)
-  for _, value in ipairs(bitsPerSampleEnum) do
-    for pKey, pValue in pairs(value) do
-      if pKey == "bitsPerSample" then
-        value.bitsPerSample = string.gsub(pValue, "RATE_", "")
-      end
-    end
+local function changeInternalNameRateArray(pCapabilities)
+  local capTableArray = common.cloneTable(pCapabilities)
+  for key, value in ipairs(capTableArray) do
+    capTableArray[key] = changeInternalNameRate(value)
   end
-  return bitsPerSampleEnum
+  return capTableArray
 end
 
 local function removedRaduantParameters()
@@ -73,8 +65,8 @@ local function expCapRaiResponse(pMod, pReq)
   local capRaiResponse = {
     UI = {
       GetCapabilities = {
-        audioPassThruCapabilities = changeBitsPSEnumAudioCap(hmiCapabilities.UI.audioPassThruCapabilities),
-        pcmStreamCapabilities = changeBitsPSEnumPcmCap(hmiCapabilities.UI.pcmStreamCapabilities),
+        audioPassThruCapabilities = changeInternalNameRateArray(hmiCapabilities.UI.audioPassThruCapabilities),
+        pcmStreamCapabilities = changeInternalNameRate(hmiCapabilities.UI.pcmStreamCapabilities),
         hmiZoneCapabilities = hmiCapabilities.UI.hmiZoneCapabilities,
         softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
         displayCapabilities = removedRaduantParameters(),
@@ -107,7 +99,7 @@ for mod, req  in pairs(requests) do
     common.Title("Preconditions")
     common.Title("TC processing " .. tostring(mod) .." " .. tostring(pReq).."]")
     common.Step("Clean environment", common.preconditions)
-    common.Step("Update HMI capabilities", common.updateHMICapabilities)
+    common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
     common.Step("Updated default HMI Capabilities", updateHMICaps, { mod, pReq })
 
     common.Title("Test")

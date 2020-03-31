@@ -5,12 +5,11 @@
 -- HMI does not send one of GetCapabilities/GetLanguage/GetVehicleType response due to timeout
 
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) HMI and SDL are started
--- Steps:
--- 1) HMI does not provide any Capability
--- SDL does:
---  a) use default capability from hmi_capabilities.json file
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
+-- 2. HMI and SDL are started
+-- Sequence:
+-- 1. HMI does not provide any Capability
+--  a. use default capability from hmi_capabilities.json file
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -18,7 +17,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Local Variables ]]
 local hmiDefaultCap = common.getDefaultHMITable()
-local hmiCapabilities = common.updatedHMICapTab()
+local hmiCapabilities = common.updatedHMICapabilitiesTable()
 
 local requests = {
   UI = { "GetCapabilities" },
@@ -55,7 +54,7 @@ common.Title("TC processing " .. tostring(mod) .."]")
 common.Title("Preconditions")
 common.Step("Back-up/update PPT", common.updatePreloadedPT)
 common.Step("Clean environment", common.preconditions)
-common.Step("Update HMI capabilities", common.updateHMICapabilities)
+common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
 
 common.Title("Test")
 

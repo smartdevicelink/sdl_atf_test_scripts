@@ -5,18 +5,15 @@
 -- HMICapabilitiesCacheFile parameter has incorrect value in smartDeviceLink.ini
 --
 -- Preconditions:
--- 1) hmi_capabilities_cache.json file doesn't exist on file system
--- 2) Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
--- 3) SDL and HMI are started
--- Steps:
--- 1) HMI sends "BasicCommunication.OnReady" notification
--- SDL does:
--- - a) request all capability from HMI
--- Steps:
--- 2) HMI sends all capability to SDL
--- SDL does:
--- - a) not created file for capability with incorrect name
--- - b) not stored capability to file in AppStorageFolder
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
+-- 2. Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
+-- 3. SDL and HMI are started
+-- Sequence:
+-- 1. HMI sends "BasicCommunication.OnReady" notification
+--  a. request all capability from HMI
+-- 2. HMI sends all capability to SDL
+--  a. not created file for capability with incorrect name
+--  b. not stored capability to file in AppStorageFolder
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -24,8 +21,7 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 --[[ Local Variables ]]
 local hmiCacheFile = {
   commented_out = ";",
-  undefined = "",
-  --file_txt = "file.txt" -- Under Clarification
+  undefined = ""
 }
 
 --[[ Scenario ]]
