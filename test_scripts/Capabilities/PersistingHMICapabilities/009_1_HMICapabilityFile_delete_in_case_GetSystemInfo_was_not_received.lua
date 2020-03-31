@@ -4,15 +4,13 @@
 -- Description: Check that SDL is requested all capability in case HMI does not send BC.GetSystemInfo notification
 --
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. Check that file with capability file doesn't exist on file system
--- 3. HMI sends GetSystemInfo with ccpu_version = "New_ccpu_version_1" to SDL
--- 4. HMI sends all capability to SDL
--- 5. SDL persists capability to "hmi_capabilities_cache.json" file in AppStorageFolder
--- 6. Ignition OFF/ON cycle performed
--- 7. SDL is started and send GetSystemInfo request
+-- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
+-- 2. HMI sends all capability to SDL
+-- 3. SDL persists capability to "hmi_capabilities_cache.json" file in AppStorageFolder
+-- 4. Ignition OFF/ON cycle performed
+-- 5. SDL is started and send GetSystemInfo request
 -- Sequence:
--- 1. HMI does not send "BasicCommunication.GetSystemInfo" notification
+-- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_2" to SDL
 --   a) send requested to HMI for all capability
 --   b) delete hmi capability cache file in AppStorageFolder
 
@@ -21,10 +19,16 @@
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Functions ]]
-local function noResponseGetSystemInfo()
-  local hmiCapabilities = common.noResponseGetHMIParams()
-  hmiCapabilities.BasicCommunication.GetSystemInfo = nil
-  return hmiCapabilities
+local function noResponseGetHMIParams(pVersion)
+  local hmiValues = common.noResponseGetHMIParams()
+  hmiValues.BasicCommunication.GetSystemInfo = {
+    params = {
+      ccpu_version = pVersion,
+      language = "EN-US",
+      wersCountryCode = "wersCountryCode"
+    }
+  }
+  return hmiValues
 end
 
 --[[ Scenario ]]
@@ -34,8 +38,8 @@ common.Step("Start SDL, HMI", common.start, { common.updateHMISystemInfo("cppu_v
 
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, Start SDL, HMI does not send GetSystemInfo notification",
-  common.start, { noResponseGetSystemInfo() })
+common.Step("Ignition on, Start SDL, GetSystemInfo notification",
+  common.start, { noResponseGetHMIParams("cppu_version_2") })
 common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCashFileExists, { false })
 
 common.Title("Postconditions")
