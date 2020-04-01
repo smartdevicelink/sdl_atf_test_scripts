@@ -36,7 +36,7 @@ common.Step("AddSubMenu", common.AddSubMenu)
 
 common.Title("Test")
 common.Step("Waiting for SDL stores resumption data", common.waitUntilResumptionDataIsStored)
-common.Step("Mobile app disconnect", common.mobile.disconnect)
+common.Step("Mobile app disconnect", common.disconnect)
 common.Step(shutDownReason, common.shutignDown, { shutDownReason })
 
 common.Step("Start SDL, HMI, connect Mobile", common.start)
