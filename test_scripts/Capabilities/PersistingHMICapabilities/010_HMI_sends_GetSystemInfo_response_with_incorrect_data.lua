@@ -21,7 +21,7 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 local invalidTypeCcpuVersion = 1
 
 --[[ Local Functions ]]
-function noRequestsGetHMIParams(pVersion)
+local function noRequestsGetHMIParams(pVersion)
   local hmiValues = common.noRequestsGetHMIParams()
   hmiValues.BasicCommunication.GetSystemInfo = {
     params = {

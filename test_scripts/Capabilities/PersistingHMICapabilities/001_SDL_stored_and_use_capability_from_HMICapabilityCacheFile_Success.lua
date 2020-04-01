@@ -1,22 +1,22 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL is created file, save capability to file and loading capability form file after ignition
--- OFF/ON cycle
+-- Description: Check that SDL persists all HMI Capabilities (VR/TTS/RC/UI/Buttons.GetCapabilities/,
+--  VR/TTS/UI.GetSupportedLanguages/GetLanguage, VehicleInfo.GetVehicleType) received from HMI
+--  in HMI capability cash file.
+-- SDL does not send correspond HMI Capabilities (VR/TTS/RC/UI etc) request to HMI for subsequent ignition cycles.
 --
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. SDL and HMI are started
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capability cash file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 3. SDL and HMI are started
 -- Sequence:
--- 1. HMI sends "BasicCommunication.OnReady" notification
---   a. request all capability from HMI
--- 2. HMI sends all capability to SDL
---   a. stored all capability to "hmi_capabilities_cache.json" file in AppStorageFolder
+-- 1. HMI responds with available = true on VR/TTS/RC/UI/VehicleInfo.IsReady requests from SDL
+--   a. SDL sends HMI capabilities (VR/TTS/RC/UI etc) requests to HMI
+-- 2. HMI sends all HMI capabilities (VR/TTS/RC/UI/Buttons/VehicleInfo etc) responses
+--   a. SDL persists all HMI Capabilities to "hmi_capabilities_cache.json" file in AppStorageFolder
 -- 3. Ignition OFF/ON cycle performed
---   a. check if hmi_capabilities_cache.json file present in AppStorageFolder
---   b. check that all mandatory capability preset
---   c. load capability from "hmi_capabilities_cache.json" file
---   d. not send requests for all capability to SDL
+--   a. SDL does not send HMI capabilities (VR/TTS/RC/UI etc) requests to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -26,10 +26,10 @@ common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
-common.Step("Start SDL and HMI", common.start)
+common.Step("Start SDL and HMI, SDL sends HMI capabilities requests to HMI", common.start)
 common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, SDL doesn't send HMI capabilities requests",
+common.Step("Ignition on, SDL doesn't send HMI capabilities requests to HMI",
   common.start, { common.noRequestsGetHMIParams() })
 
 common.Title("Postconditions")

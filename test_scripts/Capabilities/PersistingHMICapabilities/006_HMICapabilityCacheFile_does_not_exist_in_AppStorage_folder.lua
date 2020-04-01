@@ -1,16 +1,17 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL sends appropriate HMI capabilities request (VR/TTS/RC/UI etc)
---  in case one of them is missing in "hmi_capabilities_cache.json" file
+-- Description: Check that SDL sends correspondent HMI capabilities request (VR/TTS/RC/UI/Buttons/VehicleInfo etc)
+--  in case one of them is missing in HMI capability cash ("hmi_capabilities_cache.json") file
 --
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. SDL and HMI are started
--- 3. HMI does not provide one of HMI capability
+-- 1. Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. hmi_capabilities_cache.json doesn't exist on file system
+-- 3. SDL and HMI are started
+-- 4. HMI does not provide one of HMI capabilities (VR/TTS/RC/UI/Buttons/VehicleInfo etc)
 -- Sequence:
 -- 1. IGN_OFF/IGN_ON
---  a. sends appropriate HMI capability request
+--  a. SDL sends correspondent HMI capabilities (VR/TTS/RC/UI/Buttons/VehicleInfo etc) request to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -57,7 +58,7 @@ for mod, req  in pairs(cap) do
   for _, pReq  in ipairs(req) do
     common.Title("Preconditions")
     common.Step("Clean environment", common.preconditions)
-    common.Step("Start SDL,HMI does not provide capability on request "..mod .."." ..pReq,
+    common.Step("Start SDL, HMI does not provide capability on request "..mod .."." ..pReq,
       common.start, { updateHMICaps_noResponseGetHMIParams(mod, pReq) })
     common.Step("Ignition off", common.ignitionOff)
 

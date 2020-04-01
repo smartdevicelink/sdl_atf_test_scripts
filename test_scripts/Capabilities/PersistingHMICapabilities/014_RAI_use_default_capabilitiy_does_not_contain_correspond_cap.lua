@@ -1,15 +1,18 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that the SDL takes default parameters from hmi_capabilities.json in case
+-- Description: Check that the SDL use default capabilities from hmi_capabilities.json in case
 -- HMI does not send one of GetCapabilities/GetLanguage/GetVehicleType response due to timeout
 
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. HMI and SDL are started
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capability cash file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 3. SDL and HMI are started
+-- 4. HMI does not provide one of HMI capabilities (VR/TTS/RC/UI etc)
+-- 5. App is registered
 -- Sequence:
--- 1. HMI does not provide one of available Capability
---  a. use appropriate default capability from hmi_capabilities.json file
+-- 1. Mobile sends RegisterAppInterface request to SDL
+--  a. SDL sends RegisterAppInterface response with correspond capabilities (stored in hmi_capabilities.json) to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -94,17 +97,17 @@ local function expCapRaiResponse(pMod, pReq)
 end
 
 --[[ Scenario ]]
-for mod, req  in pairs(requests) do
-  for _, pReq  in ipairs(req) do
+for mod, request  in pairs(requests) do
+  for _, req  in ipairs(request) do
     common.Title("Preconditions")
-    common.Title("TC processing " .. tostring(mod) .." " .. tostring(pReq).."]")
+    common.Title("TC processing " .. tostring(mod) .." " .. tostring(req).."]")
     common.Step("Clean environment", common.preconditions)
     common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
-    common.Step("Updated default HMI Capabilities", updateHMICaps, { mod, pReq })
+    common.Step("HMI does not response on "..mod ..".".. req, updateHMICaps, { mod, req })
 
     common.Title("Test")
     common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
-    common.Step("App registration", common.registerApp, { appSessionId, expCapRaiResponse(mod, pReq) })
+    common.Step("App registration", common.registerApp, { appSessionId, expCapRaiResponse(mod, req) })
 
     common.Title("Postconditions")
     common.Step("Stop SDL", common.postconditions)

@@ -5,19 +5,18 @@
 -- ignition cycle
 --
 -- Preconditions:
--- 1. HMI capability cash file exists on file system
--- 2. Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
+-- 1. HMI capability cash file (hmi_capabilities_cache.json) exists on file system
 -- Sequence:
 -- 1. SDL and HMI are started
 --  SDL sends all HMI capabilities request (VR/TTS/RC/UI etc) to HMI
 -- 2. HMI sends all HMI capabilities (VR/TTS/RC/UI etc)
---  a. SDL stored capability to "hmi_capabilities_cache.json" file in AppStorageFolder
+--  a. SDL persists HMI capabilities to "hmi_capabilities_cache.json" file in AppStorageFolder
 -- 2. Ignition OFF
 -- 3. Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
 -- 4. Ignition On, Start SDL and HMI
---  a. sends all HMI capabilities request (VR/TTS/RC/UI etc)
+--  a. SDL sends all HMI capabilities request (VR/TTS/RC/UI etc)
 -- 5. HMI sends all HMI capabilities (VR/TTS/RC/UI etc)
---  a. SDL stored capability to "NEW_hmi_capabilities_cache.json" file in AppStorageFolder
+--  a. SDL persists capabilities to "NEW_hmi_capabilities_cache.json" file in AppStorageFolder
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')

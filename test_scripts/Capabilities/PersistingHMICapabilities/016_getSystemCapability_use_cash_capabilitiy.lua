@@ -1,15 +1,19 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that the SDL takes parameters from hmi_capabilities_cache.json in case
--- HMI does not send successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
-
+-- Description: Check that SDL use capabilities from stored in hmi_capabilities_cache.json
+-- SDL sends GetSystemCapability response with all capabilities stored in hmi_capabilities_cache.json
+--  on GetSystemCapability(NAVIGATION/PHONE_CALL/VIDEO_STREAMING/REMOTE_CONTROL/SEAT_LOCATION) request from Mobile App
+--
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. HMI and SDL are started
+-- 1. Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capability cash file (hmi_capabilities_cache.json) exists on file system
+-- 3. All HMI Capabilities (VR/TTS/RC/UI etc) are presented in hmi_capabilities_cache.json
+-- 4. SDL and HMI are started
+-- 5. App is registered
 -- Sequence:
--- 1. HMI does not provide any Capability
---  a. use cash capability from hmi_capabilities_cache.json file
+-- 1. App sends "GetSystemCapability" request
+--  a. SDL sends "GetSystemCapability" response with correspondent capabilities stored in hmi_capabilities_cache.json
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')

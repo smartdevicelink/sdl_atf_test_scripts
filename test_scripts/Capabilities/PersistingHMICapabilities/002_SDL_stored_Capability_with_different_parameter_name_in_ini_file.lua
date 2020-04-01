@@ -1,18 +1,16 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL creates capability cache file in AppStorageFolder in case
--- HMICapabilitiesCacheFile parameter has different value in smartDeviceLink.ini
+-- Description: Processing of HMICapabilitiesCacheFile parameter in SmartDeviceLink.ini
 --
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
--- 3. SDL and HMI are started
+-- 1. Value of HMICapabilitiesCacheFile parameter is changed in smartDeviceLink.ini file
+-- 2. SDL and HMI are started
 -- Sequence:
--- 1. HMI sends "BasicCommunication.OnReady" notification
---  a request all capability from HMI
--- 2. HMI sends all capability to SDL
---  a. created file for capability with different names
+-- 1. HMI sends all HMI capabilities (VR/TTS/RC/UI/Buttons/VehicleInfo etc)
+--   a. SDL persists all HMI Capabilities to corresponding file in AppStorageFolder
+-- 2. Ignition OFF/ON cycle performed
+--   a. SDL does not send HMI capabilities (VR/TTS/RC/UI/Buttons/VehicleInfo etc) requests to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')

@@ -1,15 +1,18 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that the SDL takes parameters from hmi_capabilities_cache.json in case
--- HMI does not send successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
+-- Description: Check that SDL use capabilities stored in hmi_capabilities_cache.json
+--  SDL sends RegisterAppInterface response with all capabilities stored in hmi_capabilities_cache.json
+-- on RegisterAppInterface request from Mobile App
 
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. HMI and SDL are started
+-- 1. Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capability cash file (hmi_capabilities_cache.json) exists on file system
+-- 3. All HMI Capabilities (VR/TTS/RC/UI etc) are presented in hmi_capabilities_cache.json
+-- 4. SDL and HMI are started
 -- Sequence:
--- 1. HMI does not provide any Capability
---  a. use cash capability from hmi_capabilities_cache.json file
+-- 1. Mobile sends RegisterAppInterface request to SDL
+--  a. SDL sends RegisterAppInterface response with correspond capabilities (stored in hmi_capabilities_cache.json) to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -41,7 +44,8 @@ common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start)
 common.Step("Check that capability file exists", common.checkIfCapabilityCashFileExists)
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noRequestsGetHMIParams() })
+common.Step("Ignition on, HMI, SDL doesn't send HMI capabilities requests to HMI",
+  common.start, { common.noRequestsGetHMIParams() })
 common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
 
 common.Title("Postconditions")
