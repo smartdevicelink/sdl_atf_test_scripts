@@ -70,6 +70,8 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", preconditions)
+runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file",
+  actions.setSDLIniParameter, {"HMICapabilitiesCacheFile", ""})
 runner.Step("Backup preloaded pt", commonPreconditions.BackupFile, { test, "sdl_preloaded_pt.json" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", actions.start)
 runner.Step("RAI", actions.registerAppWOPTU)

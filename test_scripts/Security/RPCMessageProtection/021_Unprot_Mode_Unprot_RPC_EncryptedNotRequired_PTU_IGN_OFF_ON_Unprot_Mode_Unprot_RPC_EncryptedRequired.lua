@@ -60,6 +60,8 @@ for n, tc in common.spairs(testCases) do
   runner.Title("TC[" .. string.format("%03d", n) .. "]")
   runner.Title("Preconditions")
   runner.Step("Clean environment", common.preconditions)
+  runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.sdl.setSDLIniParameter,
+    { "HMICapabilitiesCacheFile", "" })
   runner.Step("Preloaded update", common.updatePreloadedPT, { tc.a, tc.f })
   runner.Step("Start SDL, init HMI", common.start)
   runner.Step("Register App", common.registerAppWOPTU)

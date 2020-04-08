@@ -296,6 +296,15 @@ function commonDefect.restoreINIFile()
   commonPreconditions:RestoreFile("smartDeviceLink.ini")
 end
 
+--[[ @clear_HMICapabilitiesCacheFile_parameter_in_INIFile: clear HMICapabilitiesCacheFile
+--!in the smartDeviceLink.ini file
+--! @parameters: none
+--! @return: none
+--]]
+function commonDefect.clear_HMICapabilitiesCacheFile_parameter_in_INIFile()
+  commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
+end
+
 --[[ @rai_ptu: register mobile application and perform PTU sequence for 1st application
 --! @parameters:
 --! ptu_update_func - additional function for update

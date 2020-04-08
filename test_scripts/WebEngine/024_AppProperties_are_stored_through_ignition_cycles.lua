@@ -21,6 +21,8 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 -- [[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
+common.Step("Clear HMICapabilitiesCacheFile parameter in INI file",
+  common.setSDLIniParameter, {"HMICapabilitiesCacheFile", ""})
 common.Step("Start SDL, HMI, connect regular mobile, start Session", common.start)
 
 common.Title("Test")

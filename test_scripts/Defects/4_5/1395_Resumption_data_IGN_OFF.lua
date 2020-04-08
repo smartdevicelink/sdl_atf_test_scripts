@@ -24,6 +24,12 @@ runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPR
 --[[ Local Variables ]]
 
 --[[ Local Functions ]]
+
+local function updateINIFile()
+  common.backupINIFile()
+  common.clear_HMICapabilitiesCacheFile_parameter_in_INIFile()
+end
+
 -- Successful processing AddCommand request from mobile app
 local function AddCommand(self)
   -- Send AddCommand request from HMI
@@ -129,6 +135,7 @@ local function expectResumeData(self)
   runner.Title("Preconditions")
   -- Stop SDL if process is still running, delete local policy table and log files
   runner.Step("Clean environment", common.preconditions)
+  runner.Step("Update INI file", updateINIFile)
   -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP
   -- and create mobile session
   runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
@@ -152,3 +159,5 @@ local function expectResumeData(self)
 
   runner.Title("Postconditions")
   runner.Step("Stop SDL", common.postconditions)
+  runner.Step("Restore INI file", common.restoreINIFile)
+

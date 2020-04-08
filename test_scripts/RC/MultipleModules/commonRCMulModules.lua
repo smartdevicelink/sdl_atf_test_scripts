@@ -31,6 +31,7 @@ common.getPreloadedPT = actions.sdl.getPreloadedPT
 common.setPreloadedPT = actions.sdl.setPreloadedPT
 common.wait = actions.run.wait
 common.failTestStep = actions.run.fail
+common.setSDLIniParameter = actions.setSDLIniParameter
 
 common.DEFAULT = rc.DEFAULT
 common.getActualModuleStateOnHMI = rc.state.getActualModuleStateOnHMI

@@ -40,6 +40,7 @@ common.SDL.PTS = SDL.PTS
 common.runAfter = common.run.runAfter
 common.failTestCase = common.run.fail
 common.getDeviceTransportType = utils.getDeviceTransportType
+common.setSDLIniParameter = common.setSDLIniParameter
 
 --[[ Module constants ]]
 common.timeout = 4000
