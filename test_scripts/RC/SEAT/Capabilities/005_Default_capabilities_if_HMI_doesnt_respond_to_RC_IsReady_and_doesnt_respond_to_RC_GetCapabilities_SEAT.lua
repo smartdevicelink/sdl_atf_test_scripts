@@ -51,12 +51,17 @@ local function rpcSuccess(pModuleType, pRPC)
   mobSession:ExpectResponse(cid, commonRC.getAppResponseParams(pRPC, true, "SUCCESS", pModuleType))
 end
 
+local function start(pHMIParams)
+  commonRC.start(pHMIParams)
+  commonRC.wait(11000)
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { disabledModule } })
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { getHMIParams() })
 runner.Step("RAI", commonRC.registerAppWOPTU)
 runner.Step("Activate App", commonRC.activateApp)
 
