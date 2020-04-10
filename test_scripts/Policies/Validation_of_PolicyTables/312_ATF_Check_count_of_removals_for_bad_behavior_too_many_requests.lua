@@ -60,6 +60,7 @@ function Test.ChangeIniFile( )
   -- change AppTimeScaleMaxRequests and AppRequestsTimeScale
   commonFunctions:write_parameter_to_smart_device_link_ini("AppTimeScaleMaxRequests", count_of_requests)
   commonFunctions:write_parameter_to_smart_device_link_ini("AppRequestsTimeScale", 30000)
+  commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 end
 function Test.Precondition_StartSDL()
   StartSDL(config.pathToSDL, config.ExitOnCrash)

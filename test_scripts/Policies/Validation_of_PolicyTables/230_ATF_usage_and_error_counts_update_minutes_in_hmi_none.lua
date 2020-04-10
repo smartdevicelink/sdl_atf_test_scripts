@@ -37,8 +37,13 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
 local utils = require ('user_modules/utils')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 require('cardinalities')
 require('user_modules/AppTypes')
+
+--[[ General Precondition before ATF start ]]
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ Local Variables ]]
 local PRELOADED_PT_FILE_NAME = "sdl_preloaded_pt.json"
@@ -476,6 +481,10 @@ function Test.Postcondition()
   commonSteps:DeletePolicyTable()
   Test.restorePreloadedPT("backup_")
   TestData:info()
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

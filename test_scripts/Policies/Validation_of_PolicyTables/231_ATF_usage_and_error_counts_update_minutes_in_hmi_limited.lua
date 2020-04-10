@@ -36,9 +36,13 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
 local utils = require ('user_modules/utils')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
+--[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
 commonSteps:DeletePolicyTable()
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
@@ -499,6 +503,10 @@ function Test.Postcondition()
   --commonSteps:DeletePolicyTable()
   Test.restorePreloadedPT("backup_")
   TestData:info()
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

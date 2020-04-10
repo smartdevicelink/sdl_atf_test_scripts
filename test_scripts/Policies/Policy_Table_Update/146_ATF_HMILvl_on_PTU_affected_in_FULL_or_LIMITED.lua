@@ -26,6 +26,7 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local json = require('json')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local Variables ]]
 local HMIAppID2
@@ -113,6 +114,8 @@ end
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -217,6 +220,10 @@ function Test.Postcondition_RemovePTUfiles()
 end
 function Test.Postcondition_Stop_SDL()
   StopSDL()
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

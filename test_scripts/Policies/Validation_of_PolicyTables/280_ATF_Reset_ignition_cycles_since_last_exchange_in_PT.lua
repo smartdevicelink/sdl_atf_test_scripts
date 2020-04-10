@@ -31,6 +31,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 local utils = require ('user_modules/utils')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local variables ]]
 local ignition_cycles_before_ptu
@@ -38,6 +39,8 @@ local ignition_cycles_before_ptu
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -191,4 +194,8 @@ end
 commonFunctions:newTestCasesGroup("Postconditions")
 function Test.Postcondition_SDLStop()
   StopSDL()
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end

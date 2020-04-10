@@ -19,6 +19,11 @@ require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "E
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
+
+--[[ General Precondition before ATF start ]]
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General configuration parameters ]]
 Test = require('user_modules/dummy_connecttest')
@@ -283,6 +288,10 @@ commonFunctions:newTestCasesGroup("Postconditions")
 function Test.Postcondition()
   commonSteps:DeletePolicyTable()
   TestData:info()
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

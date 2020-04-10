@@ -63,6 +63,7 @@ function Test.ChangeIniFile( )
   Preconditions:BackupFile("smartDeviceLink.ini")
   commonFunctions:write_parameter_to_smart_device_link_ini("AppHMILevelNoneTimeScaleMaxRequests", count_of_requests)
   commonFunctions:write_parameter_to_smart_device_link_ini("AppHMILevelNoneRequestsTimeScale", 30000)
+  commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 end
 
 function Test.Precondition_StartSDL()

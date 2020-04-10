@@ -25,6 +25,11 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
+
+--[[ General Precondition before ATF start ]]
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ Local Variables ]]
 local exchange_after = 5
@@ -179,6 +184,10 @@ function Test.Postcondition_RestoreFiles()
   local ptu_file_bak = ptu_file..".BAK"
   os.execute("cp -f " .. ptu_file_bak .. " " .. ptu_file)
   os.execute("rm -f " .. ptu_file_bak)
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

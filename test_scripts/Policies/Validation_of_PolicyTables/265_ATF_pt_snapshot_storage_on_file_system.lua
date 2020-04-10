@@ -15,17 +15,22 @@
 ---------------------------------------------------------------------------------------------
 require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
---[[ General configuration parameters ]]
-Test = require('connecttest')
-require('user_modules/AppTypes')
-config.defaultProtocolVersion = 2
-
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
-require('cardinalities')
 local mobile_session = require('mobile_session')
 local utils = require ('user_modules/utils')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
+
+--[[ General Precondition before ATF start ]]
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
+config.defaultProtocolVersion = 2
+
+--[[ General configuration parameters ]]
+Test = require('connecttest')
+require('user_modules/AppTypes')
+require('cardinalities')
 
 --[[ Local Variables ]]
 local POLICY_SNAPSHOT_FILE_NAME = "sdl_mega_snapshot.json"
