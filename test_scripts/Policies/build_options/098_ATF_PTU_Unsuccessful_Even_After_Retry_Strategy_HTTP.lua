@@ -34,11 +34,14 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonPreconditions = require("user_modules/shared_testcases/commonPreconditions")
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local mobile_session = require('mobile_session')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
 testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/Policies/build_options/retry_seq.json")
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/connecttest_resumption')
@@ -156,6 +159,10 @@ end
 
 function Test.Postcondition_Stop_SDL()
   StopSDL()
+end
+
+function Test.RestoreIniFile()
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

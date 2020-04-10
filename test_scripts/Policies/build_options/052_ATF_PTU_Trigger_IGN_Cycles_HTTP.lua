@@ -28,6 +28,7 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local variables]]
 local ignition_cycles_before_ptu
@@ -78,6 +79,8 @@ end
 commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFiles()
 commonSteps:DeletePolicyTable()
+Preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 --TODO(mmihaylova): Should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 
@@ -233,6 +236,10 @@ function Test:TestStep_Register_app()
 
   function Test.Postcondition_RestoreFile()
     commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
+  end
+
+  function Test.RestoreIniFile()
+    Preconditions:RestoreFile("smartDeviceLink.ini")
   end
 
   return Test
