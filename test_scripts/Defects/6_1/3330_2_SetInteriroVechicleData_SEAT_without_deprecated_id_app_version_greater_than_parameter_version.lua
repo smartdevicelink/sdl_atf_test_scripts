@@ -2,10 +2,10 @@
 -- Issue: https://github.com/smartdevicelink/sdl_core/issues/3330
 --
 -- Description: SetInteriorVehicleData request is successfully processed for SEAT module
--- without the deprecated `id` parameter from an app with version that is equal to the deprecated parameter version
+-- without the deprecated `id` parameter from an app with version that is greater than the deprecated parameter version
 --
 --In case:
--- 1. REMOTE_CONTROL app with version 6.0 is registered
+-- 1. REMOTE_CONTROL app with version 6.5 is registered
 -- 2. App requests SetInteriorVehicleData(SEAT) without `id` parameter
 -- SDL does:
 --   a. process the request successful
@@ -13,11 +13,11 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/6_1/3330_common')
+local common = require('test_scripts/Defects/6_1/common_3330')
 
 --[[ Test Configuration ]]
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
-config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
+config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 5
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -27,7 +27,7 @@ runner.Step("RAI", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("SetInteriorVehicleData", common.rpcAllowed)
+runner.Step("SetInteriorVehicleData", common.rpcSuccessful, { false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

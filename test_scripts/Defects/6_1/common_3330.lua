@@ -18,9 +18,9 @@ m.activateApp = commonRC.activateApp
 m.postconditions = commonRC.postconditions
 
 --[[ Common Functions ]]
-function m.rpcAllowed(isIdParam)
+function m.rpcSuccessful(isIdParamDefined)
   local seatParams = utils.cloneTable(commonRC.getModuleControlData("SEAT"))
-  if isIdParam ~= true then seatParams.seatControlData.id = nil end
+  if isIdParamDefined == false then seatParams.seatControlData.id = nil end
 
   local requestParams = utils.cloneTable(seatParams)
   requestParams.moduleId = nil
@@ -28,16 +28,16 @@ function m.rpcAllowed(isIdParam)
   local mobSession = commonRC.getMobileSession()
   local rpc = "SetInteriorVehicleData"
   local cid = mobSession:SendRPC(commonRC.getAppEventName(rpc), { moduleData = requestParams })
-  EXPECT_HMICALL(commonRC.getHMIEventName(rpc), commonRC.getHMIRequestParams(rpc, "SEAT"))
+  EXPECT_HMICALL(commonRC.getHMIEventName(rpc), { moduleData = requestParams })
   :Do(function(_, data)
       commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { moduleData = seatParams })
     end)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS", moduleData = seatParams })
 end
 
-function m.rpcDisallowed()
+function m.rpcUnsuccessful(isIdParamDefined)
   local seatParams = utils.cloneTable(commonRC.getModuleControlData("SEAT"))
-  seatParams.seatControlData.id = nil
+  if isIdParamDefined == false then seatParams.seatControlData.id = nil end
 
   local requestParams = utils.cloneTable(seatParams)
   requestParams.moduleId = nil

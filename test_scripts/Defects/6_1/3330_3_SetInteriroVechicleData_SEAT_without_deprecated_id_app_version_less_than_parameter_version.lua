@@ -12,7 +12,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/6_1/3330_common')
+local common = require('test_scripts/Defects/6_1/common_3330')
 
 --[[ Test Configuration ]]
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 5
@@ -26,7 +26,7 @@ runner.Step("RAI", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("SetInteriorVehicleData", common.rpcDisallowed)
+runner.Step("SetInteriorVehicleData", common.rpcUnsuccessful , { false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
