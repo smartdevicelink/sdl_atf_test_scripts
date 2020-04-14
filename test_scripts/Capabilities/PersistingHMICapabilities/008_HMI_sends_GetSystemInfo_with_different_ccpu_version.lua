@@ -5,7 +5,7 @@
 -- different, SDL does requested all capability from HMI
 --
 -- Preconditions:
--- 1.. hmi_capabilities_cache.json file doesn't exist on file system
+-- 1. hmi_capabilities_cache.json file doesn't exist on file system
 -- 2. SDL and HMI are started
 -- 3. HMI sends all HMI capabilities (VR/TTS/RC/UI etc) to SDL
 -- 4. SDL stored capability to "hmi_capabilities_cache.json" file in AppStorageFolder

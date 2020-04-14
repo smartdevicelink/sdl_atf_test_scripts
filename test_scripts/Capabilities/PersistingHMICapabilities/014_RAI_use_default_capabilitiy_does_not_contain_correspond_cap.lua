@@ -33,7 +33,7 @@ local requests = {
 
 --[[ Local Functions ]]
 local function updateHMICaps(pMod, pRequest)
-  for key,_ in pairs (hmiDefaultCap) do
+  for key, _ in pairs (hmiDefaultCap) do
     if key == pMod then
       hmiDefaultCap[pMod][pRequest] = nil
       if not pMod == "Buttons" then
@@ -80,12 +80,12 @@ local function expCapRaiResponse(pMod, pReq)
       GetCapabilities = {
         vrCapabilities = hmiCapabilities.VR.capabilities },
       GetLanguage = {
-        language = hmiCapabilities.VR.language,}},
+        language = hmiCapabilities.VR.language }},
     TTS = {
       GetCapabilities = {
         speechCapabilities = hmiCapabilities.TTS.capabilities },
       GetLanguage = {
-        language = hmiCapabilities.TTS.language}},
+        language = hmiCapabilities.TTS.language }},
     Buttons = {
       GetCapabilities = {
         buttonCapabilities = hmiCapabilities.Buttons.capabilities }},
@@ -100,10 +100,10 @@ end
 for mod, request  in pairs(requests) do
   for _, req  in ipairs(request) do
     common.Title("Preconditions")
-    common.Title("TC processing " .. tostring(mod) .." " .. tostring(req).."]")
+    common.Title("TC processing " .. tostring(mod) .. " " .. tostring(req) .. "]")
     common.Step("Clean environment", common.preconditions)
     common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
-    common.Step("HMI does not response on "..mod ..".".. req, updateHMICaps, { mod, req })
+    common.Step("HMI does not response on " .. mod .. "." .. req, updateHMICaps, { mod, req })
 
     common.Title("Test")
     common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })

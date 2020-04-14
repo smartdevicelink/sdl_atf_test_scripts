@@ -20,17 +20,9 @@ m.Step = runner.Step
 m.preconditions = actions.preconditions
 m.postconditions = actions.postconditions
 m.getHMICapabilitiesFromFile = actions.sdl.getHMICapabilitiesFromFile
-m.getMobileSession = actions.mobile.getSession
-m.getHMIConnection = actions.hmi.getConnection
 m.activateApp = actions.app.activate
 m.start = actions.start
 m.setSDLIniParameter = actions.sdl.setSDLIniParameter
-m.getSDLIniParameter = actions.sdl.getSDLIniParameter
-m.createSession = actions.mobile.createSession
-m.getParams = actions.app.getParams
-m.setHMIId = actions.app.setHMIId
-m.getPreloadedPT = actions.sdl.getPreloadedPT
-m.setPreloadedPT = actions.sdl.setPreloadedPT
 m.cloneTable = utils.cloneTable
 m.getDefaultHMITable = hmi_values.getDefaultHMITable
 
@@ -77,19 +69,6 @@ function m.noResponseGetHMIParams()
   return hmiCaps
 end
 
-local function getCacheCapabilityTable(pHmiCapCacheFile)
-  if not pHmiCapCacheFile then  pHmiCapCacheFile = hmiCapCacheFile end
-  local cacheFile = utils.jsonFileToTable(pHmiCapCacheFile)
-  return cacheFile
-end
-
-function m.updatePreloadedPT()
-  local pt = m.getPreloadedPT()
-  pt.policy_table.app_policies["default"].groups = { "Base-4", "REMOTE_CONTROL" }
-  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = actions.json.null
-  m.setPreloadedPT(pt)
-end
-
 local function errorMessage(pMessage, pActualValue, pExpectedValue)
   local errorMsg = pMessage .. " contains unexpected value\n" ..
     " Expected: " .. utils.toString(pExpectedValue) .. "\n" ..
@@ -97,39 +76,39 @@ local function errorMessage(pMessage, pActualValue, pExpectedValue)
   return errorMsg
 end
 
-function m.checkContentCapabilityCacheFile(pExpHmiCapabilities)
+function m.checkContentOfCapabilityCacheFile(pExpHmiCapabilities)
   local expHmiCapabilities
   if not pExpHmiCapabilities then
     expHmiCapabilities = m.getDefaultHMITable()
   else
     expHmiCapabilities = pExpHmiCapabilities
   end
-  if SDL.AppStorage.isFileExist(m.getSDLIniParameter("HMICapabilitiesCacheFile")) then
-    local  cacheTable = getCacheCapabilityTable()
+  if SDL.AppStorage.isFileExist(actions.sdl.getSDLIniParameter("HMICapabilitiesCacheFile")) then
+    local  cacheTable = utils.jsonFileToTable(hmiCapCacheFile)
     local hmiCheckingParametersMap = {
       UI = {
         GetLanguage = { "language" },
         GetSupportedLanguages = { "languages" },
         GetCapabilities = { "displayCapabilities", "hmiCapabilities", "hmiZoneCapabilities",
         "softButtonCapabilities", "systemCapabilities" ,"audioPassThruCapabilitiesList"
-          }
-        },
+        }
+      },
       VR = {
         GetLanguage = { "language" },
         GetSupportedLanguages = { "languages" },
         GetCapabilities  = { "vrCapabilities" }
-        },
+      },
       TTS = {
         GetLanguage = { "language" },
         GetSupportedLanguages = { "languages" },
         GetCapabilities = { "prerecordedSpeechCapabilities", "speechCapabilities" }
-        },
+      },
       Buttons = {
         GetCapabilities = { "capabilities", "presetBankCapabilities" }
-        },
+      },
       VehicleInfo = {
         GetVehicleType = { "vehicleType" }
-        },
+      },
       RC = {
         GetCapabilities = { "remoteControlCapability", "seatLocationCapability" }
       }
@@ -139,27 +118,20 @@ function m.checkContentCapabilityCacheFile(pExpHmiCapabilities)
       for req, params in pairs(requests) do
         for _, param in ipairs(params) do
           local message = mod .. "." .. param
-          if param == "language" or param == "hmiZoneCapabilities"  then
-            if not (cacheTable[mod][param] == expHmiCapabilities[mod][req].params[param]) then
+          if param == "audioPassThruCapabilitiesList" then
+            if not (cacheTable[mod].audioPassThruCapabilities == expHmiCapabilities[mod][req].params[param]) then
               errorMessages = errorMessages ..
-                errorMessage(message, cacheTable[mod][param], expHmiCapabilities[mod][req].params[param])
+                errorMessage(message, cacheTable[mod].audioPassThruCapabilities,
+                  expHmiCapabilities[mod][req].params[param])
             end
           else
-            if param == "audioPassThruCapabilitiesList" then
-              if not (cacheTable[mod].audioPassThruCapabilities == expHmiCapabilities[mod][req].params[param]) then
-                errorMessages = errorMessages ..
-                  errorMessage(message, cacheTable[mod].audioPassThruCapabilities,
-                    expHmiCapabilities[mod][req].params[param])
-              end
+            if not cacheTable[mod][param] then
+              errorMessages = errorMessages ..
+                errorMessage(message, "does not exist", expHmiCapabilities[mod][req].params[param])
             else
-              if not cacheTable[mod][param] then
+              if not utils.isTableEqual(cacheTable[mod][param], expHmiCapabilities[mod][req].params[param]) then
                 errorMessages = errorMessages ..
-                  errorMessage(message, "does not exist", expHmiCapabilities[mod][req].params[param])
-              else
-                if not utils.isTableEqual(cacheTable[mod][param], expHmiCapabilities[mod][req].params[param]) then
-                  errorMessages = errorMessages ..
-                    errorMessage(message, cacheTable[mod][param], expHmiCapabilities[mod][req].params[param])
-                end
+                  errorMessage(message, cacheTable[mod][param], expHmiCapabilities[mod][req].params[param])
               end
             end
           end
@@ -230,18 +202,18 @@ end
 
 function  m.getSystemCapability(pSystemCapabilityType, pResponseCapabilities)
   local errorMessages = ""
-  local mobSession = m.getMobileSession()
+  local mobSession = actions.mobile.getSession()
   local cid = mobSession:SendRPC("GetSystemCapability", { systemCapabilityType = pSystemCapabilityType })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf(function(_,data)
     for param, value in pairs (pResponseCapabilities) do
       if not data.payload.systemCapability[param] then
         errorMessages = errorMessages ..
-          errorMessage(param, "does not exist", pResponseCapabilities[param])
+          errorMessage(param, "does not exist", value)
       else
-        if not utils.isTableEqual(data.payload.systemCapability[param], pResponseCapabilities[param]) then
+        if not utils.isTableEqual(data.payload.systemCapability[param], value) then
           errorMessages = errorMessages ..
-            errorMessage(param, data.payload.systemCapability[param], pResponseCapabilities[param])
+            errorMessage(param, data.payload.systemCapability[param], value)
         end
       end
     end
@@ -254,13 +226,14 @@ function  m.getSystemCapability(pSystemCapabilityType, pResponseCapabilities)
 end
 
 function m.changeLanguage(pLanguage)
-  m.getHMIConnection():SendNotification("TTS.OnLanguageChange", { language = pLanguage })
-  m.getHMIConnection():SendNotification("VR.OnLanguageChange", { language = pLanguage })
-  m.getHMIConnection():SendNotification("UI.OnLanguageChange", { language = pLanguage })
+  local hmiConnection = actions.hmi.getConnection()
+  hmiConnection:SendNotification("TTS.OnLanguageChange", { language = pLanguage })
+  hmiConnection:SendNotification("VR.OnLanguageChange", { language = pLanguage })
+  hmiConnection:SendNotification("UI.OnLanguageChange", { language = pLanguage })
 end
 
 function m.checkLanguageCapability(pLanguage)
-  local data = getCacheCapabilityTable()
+  local data = utils.jsonFileToTable(hmiCapCacheFile)
   if data.VR.language == pLanguage and data.TTS.language == pLanguage and data.UI.language == pLanguage then
     utils.cprint(35, "Languages were changed")
   else
@@ -287,14 +260,14 @@ function m.registerApp(pAppId, pCapResponse, pMobConnId, hasPTU)
     H  = "HTTP"
   }
 
-  local session = m.createSession(pAppId, pMobConnId)
+  local session = actions.mobile.createSession(pAppId, pMobConnId)
   session:StartService(7)
   :Do(function()
-      local corId = session:SendRPC("RegisterAppInterface", m.getParams(pAppId))
-      m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = m.getParams(pAppId).appName }})
+      local corId = session:SendRPC("RegisterAppInterface", actions.app.getParams(pAppId))
+      actions.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        { application = { appName = actions.app.getParams(pAppId).appName }})
       :Do(function(_, d1)
-          m.setHMIId(d1.params.application.appID, pAppId)
+          actions.app.setHMIId(d1.params.application.appID, pAppId)
           if hasPTU then
             m.ptu.expectStart()
           end
@@ -304,14 +277,14 @@ function m.registerApp(pAppId, pCapResponse, pMobConnId, hasPTU)
       :ValidIf(function(_,data)
         for param, value in pairs (pCapResponse) do
           if param == "hmiZoneCapabilities" then
-            if not data.payload[param] == pCapResponse[param] then
+            if not data.payload[param] == value then
               errorMessages = errorMessages ..
-                errorMessage(param, data.payload[param], pCapResponse[param])
+                errorMessage(param, data.payload[param], value)
             end
           else
-            if not utils.isTableEqual(data.payload[param], pCapResponse[param]) then
+            if not utils.isTableEqual(data.payload[param], value) then
               errorMessages = errorMessages ..
-                errorMessage(param, data.payload[param], pCapResponse[param])
+                errorMessage(param, data.payload[param], value)
             end
           end
         end
@@ -337,8 +310,8 @@ end
 function m.masterReset(pExpFunc)
   local isOnSDLCloseSent = false
   if pExpFunc then pExpFunc() end
-  m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "MASTER_RESET" })
-  m.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose")
+  actions.hmi.getConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "MASTER_RESET" })
+  actions.hmi.getConnection():ExpectNotification("BasicCommunication.OnSDLClose")
   :Do(function()
     isOnSDLCloseSent = true
     SDL.DeleteFile()
@@ -352,6 +325,8 @@ function m.masterReset(pExpFunc)
 end
 
 function m.ignitionOff()
+  local hmiConnection = actions.hmi.getConnection()
+  local mobileConnection = actions.mobile.getConnection()
   config.ExitOnCrash = false
   local timeout = 5000
   local function removeSessions()
@@ -361,34 +336,34 @@ function m.ignitionOff()
   end
   local event = events.Event()
   event.matches = function(event1, event2) return event1 == event2 end
-  actions.mobile.getConnection():ExpectEvent(event, "SDL shutdown")
+  mobileConnection:ExpectEvent(event, "SDL shutdown")
   :Do(function()
     removeSessions()
     StopSDL()
     config.ExitOnCrash = true
   end)
-  m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
-  m.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
+  hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
+  hmiConnection:ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
   :Do(function()
-    m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
+    hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
     for i = 1, actions.mobile.getAppsCount() do
-      m.getMobileSession(i):ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+      actions.mobile.getSession(i):ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
     end
   end)
-  m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  hmiConnection:ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
   :Times(actions.mobile.getAppsCount())
   local isSDLShutDownSuccessfully = false
-  m.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose")
+  hmiConnection:ExpectNotification("BasicCommunication.OnSDLClose")
   :Do(function()
     utils.cprint(35, "SDL was shutdown successfully")
     isSDLShutDownSuccessfully = true
-    actions.mobile.getConnection():RaiseEvent(event, event)
+    mobileConnection:RaiseEvent(event, event)
   end)
   :Timeout(timeout)
   local function forceStopSDL()
     if isSDLShutDownSuccessfully == false then
       utils.cprint(35, "SDL was shutdown forcibly")
-      actions.mobile.getConnection():RaiseEvent(event, event)
+      mobileConnection:RaiseEvent(event, event)
     end
   end
   actions.run.runAfter(forceStopSDL, timeout + 500)

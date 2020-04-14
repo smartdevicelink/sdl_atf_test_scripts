@@ -27,7 +27,7 @@ common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
 common.Step("Start SDL and HMI, SDL sends HMI capabilities requests to HMI", common.start)
-common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
+common.Step("Validate stored capability file", common.checkContentOfCapabilityCacheFile)
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, SDL doesn't send HMI capabilities requests to HMI",
   common.start, { common.noRequestsGetHMIParams() })

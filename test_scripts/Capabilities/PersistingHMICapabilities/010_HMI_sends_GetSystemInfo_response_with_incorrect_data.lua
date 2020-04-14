@@ -41,13 +41,13 @@ common.Step("Start SDL, HMI", common.start, { common.updateHMISystemInfo("cppu_v
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI sends GetSystemInfo notification with invalid parameter type",
-common.start, { common.updateHMISystemInfo(invalidTypeCcpuVersion)})
+  common.start, { common.updateHMISystemInfo(invalidTypeCcpuVersion) })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI sends the same cppu_version_1",
   common.start, { noRequestsGetHMIParams("cppu_version_1") })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, HMI sends GetSystemInfo notification without mandatory parameter ccpu_version",
-common.start, { common.updateHMISystemInfo()})
+  common.start, { common.updateHMISystemInfo() })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI sends the same cppu_version_1",
   common.start, { noRequestsGetHMIParams("cppu_version_1") })

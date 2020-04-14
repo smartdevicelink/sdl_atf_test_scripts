@@ -19,13 +19,13 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI provides HMI capabilities", common.start)
-common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
+common.Step("Validate stored capability file", common.checkContentOfCapabilityCacheFile)
 
 common.Title("Test")
 common.Step("Shutdown by MASTER_RESET", common.masterReset)
 common.Step("Check that SDL deletes HMI capability cash file", common.checkIfCapabilityCashFileExists, { false })
 common.Step("Ignition on, SDL sends HMI capabilities requests to HMI", common.start)
-common.Step("Validate stored capability file", common.checkContentCapabilityCacheFile)
+common.Step("Validate stored capability file", common.checkContentOfCapabilityCacheFile)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

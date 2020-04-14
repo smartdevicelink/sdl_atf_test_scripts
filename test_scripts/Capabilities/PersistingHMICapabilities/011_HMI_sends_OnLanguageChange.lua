@@ -27,8 +27,8 @@ common.Step("Start SDL, HMI", common.start, { common.updateHMILanguageCapability
 common.Title("Test")
 
 for _, pLanguage in pairs(language) do
-  common.Step("OnLanguageChange notification" .. pLanguage , common.changeLanguage, { pLanguage  })
-  common.Step("Check stored value to cache file", common.updateHMILanguageCapability, { pLanguage  })
+  common.Step("OnLanguageChange notification " .. pLanguage , common.changeLanguage, { pLanguage })
+  common.Step("Check stored value to cache file", common.updateHMILanguageCapability, { pLanguage })
 end
 
 common.Title("Postconditions")

@@ -53,21 +53,19 @@ end
 --[[ Scenario ]]
 for mod, req  in pairs(requests) do
   for _, pReq  in ipairs(req) do
-common.Title("TC processing " .. tostring(mod) .."]")
+common.Title("TC processing " .. tostring(mod) .. "]")
 common.Title("Preconditions")
-common.Step("Back-up/update PPT", common.updatePreloadedPT)
 common.Step("Clean environment", common.preconditions)
 common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
 
 common.Title("Test")
-
 common.Step("Updated default HMI Capabilities", updateHMICaps, { mod, pReq })
 common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
-  for sysCapType, cap  in pairs(systemCapabilities[mod]) do
-    common.Step("getSystemCapability "..sysCapType, common.getSystemCapability, { sysCapType, cap })
-  end
+for sysCapType, cap  in pairs(systemCapabilities[mod]) do
+  common.Step("getSystemCapability " .. sysCapType, common.getSystemCapability, { sysCapType, cap })
+end
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

@@ -58,12 +58,12 @@ for mod, req  in pairs(cap) do
   for _, pReq  in ipairs(req) do
     common.Title("Preconditions")
     common.Step("Clean environment", common.preconditions)
-    common.Step("Start SDL, HMI does not provide capability on request "..mod .."." ..pReq,
+    common.Step("Start SDL, HMI does not provide capability on request " .. mod .. "." .. pReq,
       common.start, { updateHMICaps_noResponseGetHMIParams(mod, pReq) })
     common.Step("Ignition off", common.ignitionOff)
 
     common.Title("Test")
-    common.Step("Ignition on, SDL doesn't send " ..mod .."." ..pReq .." request",
+    common.Step("Ignition on, SDL doesn't send " .. mod .. "." .. pReq .." request",
       common.start, { updateHMICaps_requestGetHMIParams(mod, pReq) })
 
     common.Title("Postconditions")

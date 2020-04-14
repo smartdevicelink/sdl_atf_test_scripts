@@ -37,7 +37,6 @@ local systemCapabilities = {
 
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Back-up/update PPT", common.updatePreloadedPT)
 common.Step("Clean environment", common.preconditions)
 common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
 
@@ -50,8 +49,8 @@ common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
 
 for sysCapType, cap  in pairs(systemCapabilities) do
-  common.Title("TC processing " .. tostring(sysCapType) .."]")
-  common.Step("getSystemCapability ".. sysCapType, common.getSystemCapability, { sysCapType, cap })
+  common.Title("TC processing " .. tostring(sysCapType) .. "]")
+  common.Step("getSystemCapability " .. sysCapType, common.getSystemCapability, { sysCapType, cap })
 end
 
 common.Title("Postconditions")

@@ -30,7 +30,6 @@ local systemCapabilities = {
 
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Back-up/update PPT", common.updatePreloadedPT)
 common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
@@ -39,7 +38,7 @@ common.Step("Check that capability file doesn't exist", common.checkIfCapability
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
 for sysCapType, cap  in pairs(systemCapabilities) do
-  common.Title("TC processing " .. tostring(sysCapType) .."]")
+  common.Title("TC processing " .. tostring(sysCapType) .. "]")
   common.Step("getSystemCapability ".. sysCapType, common.getSystemCapability, { sysCapType, cap })
 end
 
