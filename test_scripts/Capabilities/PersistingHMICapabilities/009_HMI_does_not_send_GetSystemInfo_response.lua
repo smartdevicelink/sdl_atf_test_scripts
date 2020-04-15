@@ -24,6 +24,11 @@ local function noResponseGetSystemInfo()
   return hmiCapabilities
 end
 
+local function startNoResponseGetSystemInfo()
+  common.start(noResponseGetSystemInfo)
+  :Timeout(15000) -- because of SDL delays requests of capabilities
+end
+
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -32,7 +37,7 @@ common.Step("Start SDL, HMI", common.start, { common.updateHMISystemInfo("cppu_v
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI does not send GetSystemInfo notification",
-  common.start, { noResponseGetSystemInfo() })
+  startNoResponseGetSystemInfo)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
