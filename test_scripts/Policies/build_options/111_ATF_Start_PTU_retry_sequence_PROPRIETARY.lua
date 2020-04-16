@@ -5,6 +5,7 @@
 -- Description:
 -- In case PoliciesManager does not receive the Updated PT during time defined in
 -- "timeout_after_x_seconds" section of Local PT, it must start the retry sequence.
+-- The HMI does not provide a url so Core must use the urls included in the policy table.
 -- 1. Used preconditions
 -- SDL is built with "-DEXTENDED_POLICY: PROPRIETARY" flag
 -- Application not in PT is registered -> PTU is triggered
@@ -13,11 +14,12 @@
 --
 -- 2. Performed steps
 -- HMI -> SDL: SDL.GetURLs (<service>)
--- HMI->SDL: BasicCommunication.OnSystemRequest ('url', requestType: PROPRIETARY)
+-- HMI->SDL: BasicCommunication.OnSystemRequest (requestType: PROPRIETARY)
+-- SDL->app: OnSystemRequest (<url 1>, requestType:PROPRIETARY, fileType="JSON")
 --
 -- Expected result:
--- Timeout expires and retry sequence started
--- SDL->app: OnSystemRequest ('url', requestType:PROPRIETARY, fileType="JSON")
+-- Timeout expires and retry sequence started with next url in endpoint array
+-- SDL->app: OnSystemRequest (<url 2>, requestType:PROPRIETARY, fileType="JSON")
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
 require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })

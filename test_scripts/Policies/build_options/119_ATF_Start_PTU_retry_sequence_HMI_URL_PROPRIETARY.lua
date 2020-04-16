@@ -5,6 +5,7 @@
 -- Description:
 -- In case PoliciesManager does not receive the Updated PT during time defined in
 -- "timeout_after_x_seconds" section of Local PT, it must start the retry sequence.
+-- The HMI supplies the URL in this case so SDL Core must cache that url and use it in future retry attempts
 -- 1. Used preconditions
 -- SDL is built with "-DEXTENDED_POLICY: PROPRIETARY" flag
 -- Application not in PT is registered -> PTU is triggered
@@ -14,6 +15,7 @@
 -- 2. Performed steps
 -- HMI -> SDL: SDL.GetURLs (<service>)
 -- HMI->SDL: BasicCommunication.OnSystemRequest ('url', requestType: PROPRIETARY)
+-- SDL->app: OnSystemRequest ('url', requestType:PROPRIETARY, fileType="JSON")
 --
 -- Expected result:
 -- Timeout expires and retry sequence started
