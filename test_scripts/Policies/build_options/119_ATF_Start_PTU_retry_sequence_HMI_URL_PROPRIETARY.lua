@@ -44,7 +44,7 @@ local tolerance = 500 -- ms
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
-testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/Policies/build_options/retry_seq_url_array.json")
+testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/Policies/build_options/retry_seq.json")
 
 --[[ General Settings for configuration ]]
 Test = require('user_modules/connecttest_resumption')
@@ -91,8 +91,8 @@ function Test:TestStep_OnStatusUpdate_UPDATE_NEEDED_new_PTU_request()
       :Do(function()
           local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
           local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
-          self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_path .. pts_file_name })
-          self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY", url = "http://policies.telematics.ford.com/api/policies/1" })
+          self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", url = "http://www.smartdevicelink.com", fileName = policy_file_path .. pts_file_name })
+          self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY", url = "http://www.smartdevicelink.com" })
         end)
     end)
 end
@@ -114,7 +114,7 @@ function Test:TestStep_RetrySequenceStart()
   :Timeout(15000)
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate"):Times(0)
-  self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" , url = "http://policies.telematics.ford.com/api/policies/2"}):Times(1)
+  self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" , url = "http://www.smartdevicelink.com"}):Times(1)
   :Timeout(15000)
 
   commonTestCases:DelayedExp(15000)
