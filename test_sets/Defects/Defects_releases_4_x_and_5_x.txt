@@ -90,3 +90,4 @@
 ;IGNITION OFF
 ;./test_scripts/Defects/4_5/1225_FACTORY_DEFAULTS.lua https://github.com/smartdevicelink/sdl_core/issues/3204
 ./test_scripts/Defects/5_0/2464_SDL_does_not_send_OnSDLClose_notification_by_switching_off_with_reason_IGNITION_OFF.lua
+./test_scripts/Defects/5_1/3196_SDL_responds_resultCode_GENERIC_ERROR_while_dataType_VEHICLEDATA_EXTERNTEMP_is_VEHICLE_DATA_NOT_AVAILABLE_and_not_in_subscribed_list_store.lua
