@@ -2,11 +2,12 @@
 -- Issue: https://github.com/smartdevicelink/sdl_core/issues/3321
 --
 -- Description:
--- Processing of the OnAppPropertiesChange notification to HMI on SetAppProperties request without one of nicknames
+-- Processing of the OnAppPropertiesChange notification to HMI on SetAppProperties request
+-- with updated data of application where one of nicknames had been removed
 --
 -- Precondition:
 -- 1. SDL and HMI are started
--- 2. Web app is enabled through SetAppProperties with two nicknames
+-- 2. Web app is enabled and has two nicknames in SDL policy table set by SetAppProperties RPC
 --
 -- Sequence:
 -- 1. HMI sends BC.SetAppProperties request with application properties
@@ -23,40 +24,35 @@ local appProperties = {
   nicknames = { "nickname_11", "nickname_12" },
   policyAppID = "0000001",
   enabled = true,
-  authToken = "authToken1",
   transportType = "transportType1",
   hybridAppPreference = "CLOUD",
-  endpoint = "endpoint1"
 }
 
 local appPropertiesRemovedOneNickname = {
   nicknames = { "nickname_11" }, --removed nickname_12
   policyAppID = "0000001",
   enabled = true,
-  authToken = "authToken1",
   transportType = "transportType1",
-  hybridAppPreference = "CLOUD",
-  endpoint = "endpoint1"
+  hybridAppPreference = "CLOUD"
 }
 
 
 --[[ Local Variables ]]
-local function onAppPropertiesChange(pData, pDataExpect, pTimes)
+local function onAppPropertiesChange(pData, pTimes)
   common.setAppProperties(pData)
-  common.onAppPropertiesChange(pDataExpect, pTimes)
+  common.onAppPropertiesChange(pData, pTimes)
 end
 
 -- [[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI, connect regular mobile, start Session", common.start)
+common.Step("OnAppPropertiesChange notification: added app properties with two nicknames",
+  onAppPropertiesChange, { appProperties })
 
 common.Title("Test")
-
-common.Step("OnAppPropertiesChange notification: added app properties with two nicknames",
-  onAppPropertiesChange, { appProperties, appProperties })
 common.Step("OnAppPropertiesChange notification: update app properties without one of nickname",
-  onAppPropertiesChange, { appPropertiesRemovedOneNickname, appPropertiesRemovedOneNickname })
+  onAppPropertiesChange, { appPropertiesRemovedOneNickname })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
