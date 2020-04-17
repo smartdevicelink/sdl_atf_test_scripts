@@ -69,6 +69,7 @@
 ./test_scripts/Policies/build_options/116_ATF_DEXTENDED_POLICY_OFF_HTTP.lua
 ./test_scripts/Policies/build_options/117_ATF_DEXTENDED_POLICY_No_Flag_HTTP.lua
 ./test_scripts/Policies/build_options/118_ATF_Request_PTU_Trigger_App_Excluded_PT_HTTP.lua
+./test_scripts/Policies/build_options/119_ATF_Start_PTU_retry_sequence_HMI_URL_PROPRIETARY.lua
 ./test_scripts/Policies/appID_Management/031_ATF_Register_App_Interface_App_Unauthorized.lua
 ./test_scripts/Policies/appID_Management/032_ATF_Register_App_Interface_Successful_Nickname_Validation.lua
 ./test_scripts/Policies/appID_Management/033_ATF_Register_App_Interface_Order_Of_Nickname_Validation.lua
