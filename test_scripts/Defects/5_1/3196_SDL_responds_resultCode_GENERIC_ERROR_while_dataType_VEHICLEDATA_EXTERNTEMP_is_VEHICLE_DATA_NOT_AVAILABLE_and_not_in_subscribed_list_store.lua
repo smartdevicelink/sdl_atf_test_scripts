@@ -10,7 +10,7 @@
 -- 3) Navi App1 and navi app2 are registered and activated.
 -- Steps to reproduce:
 -- 1) Send SubscribeVehicleData (speed, externalTemperature) from app_1 => SDL responds SubscribeVehicleData
--- ((speed:success),(externalTemperature:VEHICLE_DATA_NOT_AVAILABLE), SUCCESS).
+-- SDL should send "SUCCESS, (speed: SUCCESS), (externalTemperature: VEHICLE_DATA_NOT_AVAILABLE)" to mobile app1.
 -- 2) Send SubscribeVehicleData (speed, externalTemperature) from app_2.
 -- 3) Observe the result.
 -- Expected result:
