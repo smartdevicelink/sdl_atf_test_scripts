@@ -12,6 +12,6 @@
 ./test_scripts/MobileProjection/Phase1/012_Retry_sequence_of_StartStream_during_video_service_start.lua
 ./test_scripts/MobileProjection/Phase1/013_Rejecting_StartAudioStream_during_audio_service_start.lua
 ./test_scripts/MobileProjection/Phase1/014_Rejecting_StartStream_during_video_service_start.lua
-;./test_scripts/MobileProjection/Phase1/015_Restore_video_streaming_from_NONE.lua 2721
-;./test_scripts/MobileProjection/Phase1/016_Restore_audio_streaming_from_NONE.lua 2721
+./test_scripts/MobileProjection/Phase1/015_Restore_video_streaming_from_NONE.lua
+./test_scripts/MobileProjection/Phase1/016_Restore_audio_streaming_from_NONE.lua
 ./test_scripts/MobileProjection/Phase1/017_HappyPath_flow_with_audio_video_streamings.lua
