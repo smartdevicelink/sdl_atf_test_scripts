@@ -8,6 +8,13 @@ require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "E
 ------------------------------------------------------------------------------------------------------
 require('user_modules/all_common_modules')
 local common_functions_external_consent = require('user_modules/shared_testcases_custom/ATF_Policies_External_Consent_common_functions')
+local preconditions = require('user_modules/shared_testcases/commonPreconditions')
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+
+--[[ General Precondition before ATF start ]]
+preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
+
 ------------------------------------------------------------------------------------------------------
 ---------------------------------------Preconditions--------------------------------------------------
 ------------------------------------------------------------------------------------------------------
@@ -163,4 +170,8 @@ CheckRPCisDisallowed()
 -- Stop SDL
 Test["Stop_SDL"] = function()
   StopSDL()
+end
+
+Test["RestoreIniFile"] = function()
+  preconditions:RestoreFile("smartDeviceLink.ini")
 end

@@ -8,9 +8,15 @@ require('user_modules/all_common_modules')
 local common_functions_external_consent = require('user_modules/shared_testcases_custom/ATF_Policies_External_Consent_common_functions')
 local common_steps = require('user_modules/common_steps')
 local common_functions = require ('user_modules/common_functions')
+local preconditions = require('user_modules/shared_testcases/commonPreconditions')
+local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 
 ---------------------------------------Common Variables-----------------------------------------------
 local id_group = {}
+
+--[[ General Precondition before ATF start ]]
+preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 ---------------------------------------Preconditions--------------------------------------------------
 -- Start SDL and register application
@@ -255,4 +261,8 @@ CheckGroup002IsConsented()
 --------------------------------------Postcondition------------------------------------------
 Test["Stop_SDL"] = function()
   StopSDL()
+end
+
+Test["RestoreIniFile"] = function()
+  preconditions:RestoreFile("smartDeviceLink.ini")
 end

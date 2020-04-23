@@ -41,6 +41,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local sdl = require('SDL')
 local testCasesForExternalUCS = require('user_modules/shared_testcases/testCasesForExternalUCS')
+local preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local variables ]]
 local grpId = "Location-1"
@@ -60,6 +61,8 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 commonPreconditions:BackupFile("sdl_preloaded_pt.json")
 testCasesForExternalUCS.removePTS()
 updatePreloadedPT()
+preconditions:BackupFile("smartDeviceLink.ini")
+commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General Settings for configuration ]]
 Test = require("user_modules/connecttest_resumption")
@@ -146,6 +149,10 @@ end
 
 function Test.RestorePreloadedFile()
   commonPreconditions:RestoreFile("sdl_preloaded_pt.json")
+end
+
+function Test.RestoreIniFile()
+  preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test
