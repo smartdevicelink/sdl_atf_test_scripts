@@ -11,6 +11,7 @@ local atf_logger = require("atf_logger")
 local sdl = require("SDL")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local utils = require ('user_modules/utils')
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ General configuration parameters ]]
 config.mobileHost = "127.0.0.1"
@@ -44,6 +45,7 @@ local function allowSDL(self)
       name = utils.getDeviceName()
     }
   })
+  commonTestCases:DelayedExp(500)
 end
 
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP

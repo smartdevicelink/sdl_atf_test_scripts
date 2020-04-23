@@ -185,6 +185,7 @@ function commonDefect.allow_sdl(self)
       name = commonDefect.getDeviceName()
     }
   })
+  commonDefect.delayedExp(commonDefect.minTimeout)
 end
 
 --[[ @preconditions: precondition steps
