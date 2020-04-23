@@ -75,6 +75,11 @@ config.wssCertificateCAPath = aftCertPath.. common.wssCertificateCAname
 config.wssCertificateClientPath = aftCertPath .. common.wssCertificateClientName
 config.wssPrivateKeyPath = aftCertPath .. common.wssPrivateKeyName
 
+local isSDLCrtsCopied = {
+  { name = common.wssCertificateCAname, value = false },
+  { name = common.wssCertificateServerName, value  = false },
+  { name = common.wssServerPrivateKeyName, value  = false }
+}
 
 --[[ Common Functions ]]
 local function getWebEngineConParams(pConnectionType)
@@ -239,16 +244,20 @@ function common.postconditions()
 end
 
 function common.addAllCertInSDLbinFolder()
-  os.execute("cp -f " .. aftCertPath .. common.wssCertificateCAname .. " " .. common.GetPathToSDL())
-  os.execute("cp -f " .. aftCertPath .. common.wssCertificateServerName .. " " .. common.GetPathToSDL())
-  os.execute("cp -f " .. aftCertPath .. common.wssServerPrivateKeyName .. " " .. common.GetPathToSDL())
+  for _, crt in pairs(isSDLCrtsCopied) do
+    if not utils.isFileExist(common.GetPathToSDL() .. crt.name) then
+      os.execute("cp -f " .. aftCertPath .. crt.name .. " " .. common.GetPathToSDL())
+      crt.value = true
+    end
+  end
 end
 
 function common.removeAllCertFromSDLbinFolder()
-  local command = "rm -f " .. common.GetPathToSDL() .. common.wssCertificateCAname .. " "
-  .. common.GetPathToSDL() .. common.wssCertificateServerName .. " "
-  .. common.GetPathToSDL() .. common.wssServerPrivateKeyName
-  os.execute(command)
+  for _, crt in pairs(isSDLCrtsCopied) do
+    if crt.value == true then
+      os.execute("rm -f " .. common.GetPathToSDL() .. crt.name)
+    end
+  end
 end
 
 function common.addAllCertInIniFile()
