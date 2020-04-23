@@ -2,7 +2,7 @@
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
 -- Description: Check that SDL sends correspondent HMI capabilities request (VR/TTS/RC/UI/Buttons/VehicleInfo etc)
---  in case one of them is missing in HMI capability cash ("hmi_capabilities_cache.json") file
+--  in case one of them is missing in HMI capability cache ("hmi_capabilities_cache.json") file
 --
 -- Preconditions:
 -- 1. Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file

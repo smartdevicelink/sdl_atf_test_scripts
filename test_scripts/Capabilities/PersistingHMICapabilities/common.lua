@@ -119,7 +119,7 @@ function m.checkContentOfCapabilityCacheFile(pExpHmiCapabilities)
         for _, param in ipairs(params) do
           local message = mod .. "." .. param
           if param == "audioPassThruCapabilitiesList" then
-            if not (cacheTable[mod].audioPassThruCapabilities == expHmiCapabilities[mod][req].params[param]) then
+            if not utils.isTableEqual(cacheTable[mod].audioPassThruCapabilities, expHmiCapabilities[mod][req].params[param]) then
               errorMessages = errorMessages ..
                 errorMessage(message, cacheTable[mod].audioPassThruCapabilities,
                   expHmiCapabilities[mod][req].params[param])
@@ -185,7 +185,7 @@ function m.updatedHMICapabilitiesFile()
   actions.sdl.setHMICapabilitiesToFile(hmiCapTbl)
 end
 
-function m.checkIfCapabilityCashFileExists(pIsShouldExists, pFileName)
+function m.checkIfCapabilityCacheFileExists(pIsShouldExists, pFileName)
   if not pFileName then pFileName = SDL.INI.get("HMICapabilitiesCacheFile") end
   if pIsShouldExists == nil or pIsShouldExists == true then
     if SDL.AppStorage.isFileExist(pFileName) then
@@ -367,6 +367,215 @@ function m.ignitionOff()
     end
   end
   actions.run.runAfter(forceStopSDL, timeout + 500)
+end
+
+function m.startWoHMIonReady()
+  local event = actions.run.createEvent()
+  actions.init.SDL()
+  :Do(function()
+      actions.init.HMI()
+      :Do(function()
+          actions.init.connectMobile()
+          :Do(function()
+              actions.init.allowSDL()
+              :Do(function()
+                  actions.hmi.getConnection():RaiseEvent(event, "Start event")
+                end)
+            end)
+        end)
+    end)
+  return actions.hmi.getConnection():ExpectEvent(event, "Start event")
+end
+
+function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pMobConnId, hasPTU)
+  if not pCapResponse then pCapResponse = {} end
+  if not pAppId then pAppId = 1 end
+  if not pMobConnId then pMobConnId = 1 end
+
+  local timeout = 22000
+  local timeRunAfter = 10000
+  local isHMIonReady = false
+  local policyModes = {
+    P  = "PROPRIETARY",
+    EP = "EXTERNAL_PROPRIETARY",
+    H  = "HTTP"
+  }
+
+  local function HMIonReady()
+  actions.init.HMI_onReady(pHMIParams)
+    :Do(function()
+      isHMIonReady = true
+      end)
+  end
+  actions.run.runAfter(HMIonReady, timeRunAfter)
+
+  local session = actions.mobile.createSession(pAppId, pMobConnId)
+  session:StartService(7)
+  :Do(function()
+      local corId = session:SendRPC("RegisterAppInterface", actions.app.getParams(pAppId))
+      actions.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        { application = { appName = actions.app.getParams(pAppId).appName }}):Timeout(timeout)
+      :Do(function(_, d1)
+          actions.app.setHMIId(d1.params.application.appID, pAppId)
+          if hasPTU then
+            m.ptu.expectStart()
+          end
+      end)
+      local errorMessages = ""
+      session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" }):Timeout(timeout)
+      :ValidIf(function(_,data)
+        if isHMIonReady == false then
+          actions.run.fail("RegisterAppInterface response was received before HMI on ready")
+        end
+
+        for param, value in pairs (pCapResponse) do
+          if param == "hmiZoneCapabilities" then
+            if not data.payload[param] == value then
+              errorMessages = errorMessages ..
+                errorMessage(param, data.payload[param], value)
+            end
+          else
+            if not utils.isTableEqual(data.payload[param], value) then
+              errorMessages = errorMessages ..
+                errorMessage(param, data.payload[param], value)
+            end
+          end
+        end
+        if string.len(errorMessages) > 0 then
+          return false, errorMessages
+        else
+          return true
+        end
+      end)
+      :Do(function()
+          session:ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+          session:ExpectNotification("OnPermissionsChange")
+          :Times(AnyNumber())
+          local policyMode = SDL.buildOptions.extendedPolicy
+          if policyMode == policyModes.P or policyMode == policyModes.EP then
+            session:ExpectNotification("OnSystemRequest", { requestType = "LOCK_SCREEN_ICON_URL" })
+          end
+        end)
+    end)
+end
+
+function m.connectMobDevice(pMobConnId, pDeviceInfo, pIsSDLAllowed)
+  if pIsSDLAllowed == nil then pIsSDLAllowed = true end
+  utils.addNetworkInterface(pMobConnId, pDeviceInfo.host)
+  actions.mobile.createConnection(pMobConnId, pDeviceInfo.host, pDeviceInfo.port)
+  local mobConnectExp = actions.mobile.connect(pMobConnId)
+  if pIsSDLAllowed then
+    mobConnectExp:Do(function()
+        actions.mobile.allowSDL(pMobConnId)
+      end)
+  end
+end
+
+function m.deleteMobDevices(pMobConnId)
+  utils.deleteNetworkInterface(pMobConnId)
+end
+
+function m.startService(pAppId, pMobConnId)
+  actions.mobile.createSession(pAppId, pMobConnId):StartService(7)
+end
+
+function m.registerAppsSuspend( pCapResponse, pHMIParams )
+  local appSessionId1 = 1 -- mobConnId1
+  local appSessionId2 = 2 -- mobConnId1
+  local appSessionId3 = 3 -- mobConnId2
+
+  local timeout = 22000
+  local timeRunAfter = 10000
+  local isHMIonReady = false
+  local policyModes = {
+    P  = "PROPRIETARY",
+    EP = "EXTERNAL_PROPRIETARY",
+    H  = "HTTP"
+  }
+
+  local function validationCapResponse(pData)
+    local errorMessages = ""
+    for param, value in pairs (pCapResponse) do
+      if param == "hmiZoneCapabilities" then
+        if not pData.payload[param] == value then
+          errorMessages = errorMessages ..
+            errorMessage(param, pData.payload[param], value)
+        end
+      else
+        if not utils.isTableEqual(pData.payload[param], value) then
+          errorMessages = errorMessages ..
+            errorMessage(param, pData.payload[param], value)
+        end
+      end
+    end
+    if string.len(errorMessages) > 0 then
+      return false, errorMessages
+    else
+      return true
+    end
+  end
+
+  local function processingRAIresponse(pSession, pCorId)
+    pSession:ExpectResponse(pCorId, { success = true, resultCode = "SUCCESS" }):Timeout(timeout)
+    :ValidIf(function(_,data)
+      if isHMIonReady == false then
+        actions.run.fail("RegisterAppInterface response was received before HMI on ready")
+      end
+      return validationCapResponse(data)
+    end)
+    :Do(function()
+        pSession:ExpectNotification("OnHMIStatus",
+          { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+        pSession:ExpectNotification("OnPermissionsChange")
+        :Times(AnyNumber())
+        local policyMode = SDL.buildOptions.extendedPolicy
+        if policyMode == policyModes.P or policyMode == policyModes.EP then
+          pSession:ExpectNotification("OnSystemRequest", { requestType = "LOCK_SCREEN_ICON_URL" })
+        end
+      end)
+  end
+
+  local function HMIonReady()
+    actions.init.HMI_onReady(pHMIParams)
+     :Do(function()
+        isHMIonReady = true
+        end)
+  end
+
+  actions.run.runAfter(HMIonReady, timeRunAfter)
+
+  local mobSession1 = actions.mobile.getSession(appSessionId1)
+  local mobSession2 = actions.mobile.getSession(appSessionId2)
+  local mobSession3 = actions.mobile.getSession(appSessionId3)
+
+  actions.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+    { application = { appName = actions.app.getParams(appSessionId1).appName }},
+    { application = { appName = actions.app.getParams(appSessionId2).appName }},
+    { application = { appName = actions.app.getParams(appSessionId3).appName }})
+  :Do(function(exp, data)
+      if exp.occurences == 1 then
+        actions.app.setHMIId(data.params.application.appID, appSessionId1)
+      elseif exp.occurences == 2 then
+        actions.app.setHMIId(data.params.application.appID, appSessionId2)
+      else
+        actions.app.setHMIId(data.params.application.appID, appSessionId3)
+      end
+    end)
+  :Timeout(timeout)
+  :Times(3)
+
+  local corId1 = mobSession1:SendRPC("RegisterAppInterface",
+    actions.app.getParams(appSessionId1))
+  local corId2 = mobSession2:SendRPC("RegisterAppInterface",
+    actions.app.getParams(appSessionId2))
+  local corId3 = mobSession3:SendRPC("RegisterAppInterface",
+    actions.app.getParams(appSessionId3))
+
+  processingRAIresponse(mobSession1, corId1)
+  processingRAIresponse(mobSession2, corId2)
+  processingRAIresponse(mobSession3, corId3)
+
 end
 
 return m

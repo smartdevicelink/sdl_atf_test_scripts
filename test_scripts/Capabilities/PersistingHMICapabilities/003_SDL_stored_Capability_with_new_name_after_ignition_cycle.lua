@@ -5,7 +5,7 @@
 -- ignition cycle
 --
 -- Preconditions:
--- 1. HMI capability cash file (hmi_capabilities_cache.json) exists on file system
+-- 1. HMI capability cache file (hmi_capabilities_cache.json) exists on file system
 -- Sequence:
 -- 1. SDL and HMI are started
 --  SDL sends all HMI capabilities request (VR/TTS/RC/UI etc) to HMI
@@ -25,18 +25,18 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Update HMICapabilitiesCacheFile in SDL.ini file ", common.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "hmi_capabilities_cash.json" })
+  { "HMICapabilitiesCacheFile", "hmi_capabilities_cache.json" })
 
 common.Title("Test")
 common.Step("Start SDL and HMI", common.start)
-common.Step("Check that HMI capability cash file exists: hmi_capabilities_cash.json",
-  common.checkIfCapabilityCashFileExists, { true, "hmi_capabilities_cash.json" })
+common.Step("Check that HMI capability cache file exists: hmi_capabilities_cache.json",
+  common.checkIfCapabilityCacheFileExists, { true, "hmi_capabilities_cache.json" })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Update HMICapabilitiesCacheFile in SDL.ini file ", common.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "NEW_hmi_capabilities_cash.json" })
+  { "HMICapabilitiesCacheFile", "NEW_hmi_capabilities_cache.json" })
 common.Step("Ignition on, Start SDL, HMI", common.start)
-common.Step("Check that HMI capability cash file exists: new_hmi_capabilities_cash.json",
-  common.checkIfCapabilityCashFileExists, { true, "NEW_hmi_capabilities_cash.json" })
+common.Step("Check that HMI capability cache file exists: new_hmi_capabilities_cache.json",
+  common.checkIfCapabilityCacheFileExists, { true, "NEW_hmi_capabilities_cache.json" })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

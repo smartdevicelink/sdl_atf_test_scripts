@@ -19,16 +19,16 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 local cacheFileNames = { "hmi_capabilities.json", "file.txt", "json" }
 
 --[[ Scenario ]]
-for _, cashFile in pairs(cacheFileNames) do
+for _, cacheFile in pairs(cacheFileNames) do
   common.Title("Preconditions")
   common.Step("Clean environment", common.preconditions)
-  common.Step("Update HMICapabilitiesCacheFile in SDL.ini file " .. cashFile, common.setSDLIniParameter,
-    { "HMICapabilitiesCacheFile", cashFile })
+  common.Step("Update HMICapabilitiesCacheFile in SDL.ini file " .. cacheFile, common.setSDLIniParameter,
+    { "HMICapabilitiesCacheFile", cacheFile })
 
   common.Title("Test")
   common.Step("Start SDL, HMI", common.start)
-  common.Step("Check that SDL creates capability file with name-" .. cashFile,
-    common.checkIfCapabilityCashFileExists, { true, cashFile })
+  common.Step("Check that SDL creates capability file with name-" .. cacheFile,
+    common.checkIfCapabilityCacheFileExists, { true, cacheFile })
   common.Step("Ignition off", common.ignitionOff)
   common.Step("Ignition on, SDL doesn't send HMI capabilities requests",
   common.start, { common.noRequestsGetHMIParams() })

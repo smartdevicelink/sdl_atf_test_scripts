@@ -6,7 +6,7 @@
 
 -- Preconditions:
 -- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cash file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 2. HMI capability cache file (hmi_capabilities_cache.json) doesn't exist on file system
 -- 3. SDL and HMI are started
 -- 4. HMI does not provide one of HMI capabilities (VR/TTS/RC/UI etc)
 -- 5. App is registered

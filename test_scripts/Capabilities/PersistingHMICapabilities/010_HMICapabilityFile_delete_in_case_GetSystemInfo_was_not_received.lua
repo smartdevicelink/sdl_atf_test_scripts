@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL is requested all capability in case HMI does not send BC.GetSystemInfo notification
+-- Description: Check that SDL deletes HMI capability cache (hmi_capabilities_cache.json)
+--  in case ccpu_version do not match
 --
 -- Preconditions:
 -- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
@@ -13,7 +14,6 @@
 -- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_2" to SDL
 --   a) send requested to HMI for all capability
 --   b) delete hmi capability cache file in AppStorageFolder
-
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -40,7 +40,7 @@ common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, GetSystemInfo notification",
   common.start, { noResponseGetHMIParams("cppu_version_2") })
-common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCashFileExists, { false })
+common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

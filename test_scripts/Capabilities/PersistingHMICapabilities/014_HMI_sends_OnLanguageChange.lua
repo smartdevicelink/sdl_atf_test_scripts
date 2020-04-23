@@ -28,7 +28,7 @@ common.Title("Test")
 
 for _, pLanguage in pairs(language) do
   common.Step("OnLanguageChange notification " .. pLanguage , common.changeLanguage, { pLanguage })
-  common.Step("Check stored value to cache file", common.updateHMILanguageCapability, { pLanguage })
+  common.Step("Check stored value to cache file", common.checkLanguageCapability, { pLanguage })
 end
 
 common.Title("Postconditions")

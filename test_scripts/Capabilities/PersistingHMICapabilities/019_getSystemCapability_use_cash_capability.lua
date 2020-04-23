@@ -7,7 +7,7 @@
 --
 -- Preconditions:
 -- 1. Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cash file (hmi_capabilities_cache.json) exists on file system
+-- 2. HMI capability cache file (hmi_capabilities_cache.json) exists on file system
 -- 3. All HMI Capabilities (VR/TTS/RC/UI etc) are presented in hmi_capabilities_cache.json
 -- 4. SDL and HMI are started
 -- 5. App is registered
@@ -42,7 +42,7 @@ common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start)
-common.Step("Check that capability file exists", common.checkIfCapabilityCashFileExists)
+common.Step("Check that capability file exists", common.checkIfCapabilityCacheFileExists)
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.noRequestsGetHMIParams() })
 common.Step("App registration", common.registerApp)

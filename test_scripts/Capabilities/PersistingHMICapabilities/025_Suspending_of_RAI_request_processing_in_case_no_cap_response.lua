@@ -1,17 +1,17 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that the SDL use default capabilities from hmi_capabilities.json in case
--- HMI does not send successful GetCapabilities/GetLanguage/GetVehicleType responses due to timeout
-
+-- Check that SDL suspend of RAI request processing from mobile app in case HMI does not provide all HMI capabilities
+--  (VR/TTS/RC/UI etc) and ccpu_version do not match
+--
 -- Preconditions:
--- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cache file (hmi_capabilities_cache.json) doesn't exist on file system
--- 3. SDL and HMI are started
--- 4. HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc)
+-- 1. HMI capabilities cache file doesn't exist on file system
+-- 2. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
 -- Sequence:
 -- 1. Mobile sends RegisterAppInterface request to SDL
---  a. SDL sends RegisterAppInterface response with correspond capabilities (stored in capabilities_cache.json) to Mobile
+--  a. SDL suspend of RAI request processing from mobile
+-- 2. HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc)
+--  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities.json) from HMI to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -51,14 +51,27 @@ local capRaiResponse = {
   prerecordedSpeech = hmiCapabilities.TTS.prerecordedSpeechCapabilities
 }
 
+--[[ Local Functions ]]
+local function noResponseGetHMIParams(pVersion)
+  local hmiValues = common.noResponseGetHMIParams()
+  hmiValues.BasicCommunication.GetSystemInfo = {
+    params = {
+      ccpu_version = pVersion,
+      language = "EN-US",
+      wersCountryCode = "wersCountryCode"
+    }
+  }
+  return hmiValues
+end
+
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI", common.startWoHMIonReady)
 
 common.Title("Test")
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParams() })
-common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
-common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
+common.Step("Check suspending App registration", common.registerAppSuspend,
+  { appSessionId, capRaiResponse, noResponseGetHMIParams("cppu_version_1") })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

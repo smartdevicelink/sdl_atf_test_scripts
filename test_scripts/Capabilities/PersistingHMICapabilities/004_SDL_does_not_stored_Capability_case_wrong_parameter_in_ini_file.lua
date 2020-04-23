@@ -4,7 +4,7 @@
 -- Description: Processing of HMICapabilitiesCacheFile parameter in SmartDeviceLink.ini if this variable is null/empty
 --
 -- Preconditions:
--- 1. HMI capability cash file doesn't exist on file system
+-- 1. HMI capability cache file doesn't exist on file system
 -- 2. Update HMICapabilitiesCacheFile parameter value in smartDeviceLink.ini file
 -- 3. SDL and HMI are started
 -- Sequence:
