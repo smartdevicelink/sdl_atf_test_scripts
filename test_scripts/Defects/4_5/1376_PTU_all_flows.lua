@@ -263,6 +263,10 @@ local function raiPTU(self)
         { application = { appName = config.application1.registerAppInterfaceParams.appName } })
       :Do(function()
           log("SDL->HMI: N: BC.OnAppRegistered")
+        end)
+      -- Expect RegisterAppInterface response on mobile side with resultCode SUCCESS
+      self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
           if sdl.buildOptions.extendedPolicy == "PROPRIETARY"
           or sdl.buildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" then
             -- Expect PolicyUpdate request on HMI side
@@ -303,10 +307,6 @@ local function raiPTU(self)
               end)
             :Times(2)
           end
-        end)
-      -- Expect RegisterAppInterface response on mobile side with resultCode SUCCESS
-      self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-      :Do(function()
           log("SDL->MOB: RS: RegisterAppInterface")
           -- Expect OnHMIStatus with hmiLevel NONE on mobile side form SDL
           self.mobileSession:ExpectNotification("OnHMIStatus",
