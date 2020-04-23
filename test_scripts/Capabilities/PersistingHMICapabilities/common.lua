@@ -90,7 +90,7 @@ function m.checkContentOfCapabilityCacheFile(pExpHmiCapabilities)
         GetLanguage = { "language" },
         GetSupportedLanguages = { "languages" },
         GetCapabilities = { "displayCapabilities", "hmiCapabilities", "hmiZoneCapabilities",
-        "softButtonCapabilities", "systemCapabilities" ,"audioPassThruCapabilitiesList"
+        "softButtonCapabilities", "systemCapabilities" ,"audioPassThruCapabilitiesList", "pcmStreamCapabilities"
         }
       },
       VR = {
