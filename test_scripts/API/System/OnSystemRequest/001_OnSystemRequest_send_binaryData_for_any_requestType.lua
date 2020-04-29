@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Script covers https://github.com/SmartDeviceLink/sdl_core/issues/1714
--- SDL core should be capable of sending binary data using the OnSystemRequest RPC for any requestType.
+-- Description: SDL core should be capable of sending binary data using the OnSystemRequest RPC for any requestType.
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -46,7 +46,11 @@ local function onSystemRequest(request_type, self)
   self.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = request_type })
   :ValidIf(function(_, d)
       local actual_binary_data = common.convertTableToString(d.binaryData, 1)
-      return exp_binary_data == actual_binary_data
+      if exp_binary_data ~= actual_binary_data then
+        utils.cprint(35, "SDL does not send binary data for " .. request_type .. " requestType")
+      else
+        return true
+      end
     end)
 end
 
@@ -64,7 +68,7 @@ local function onSystemRequest_PROPRIETARY(self)
       if exp_binary_data ~= actual_binary_data then
         utils.cprint(35, "SDL does not send binary data for PROPRIETARY requestType")
       else
-        return exp_binary_data == actual_binary_data
+        return true
       end
     end)
 end
