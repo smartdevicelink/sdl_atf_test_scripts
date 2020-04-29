@@ -2,35 +2,34 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2399
 --
 -- Description:
--- SDL must respond UNSUPPORTED_RESOURCE to mobile app in case SDL 4.0 feature is required to be ommited in implementation
+-- SDL must respond UNSUPPORTED_RESOURCE to SystemRequest(QUERY_APPS) in case app is registered with protocol version
+-- less than 4.0
 -- Precondition:
 -- SDL and HMI are started.
--- App registered and activated.
+-- App is registered and activated.
 -- In case:
--- 1) Application sends SystemRequest (QUERY_APPS)
+-- 1) Application sends SystemRequest(QUERY_APPS)
 -- SDL must:
--- 1) Respond SystemRequest (UNSUPPORTED_RESOURCE, success:false) to modile application.
+-- 1) Respond SystemRequest (UNSUPPORTED_RESOURCE, success:false) to mobile application.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('user_modules/sequences/actions')
 local runner = require('user_modules/script_runner')
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local count_of_requests = 3
+local protocol_version = 3
 
 --[[ Local Functions ]]
 local function updateINIFile()
-    commonFunctions:write_parameter_to_smart_device_link_ini("MaxSupportedProtocolVersion", count_of_requests)
+  commonFunctions:write_parameter_to_smart_device_link_ini("MaxSupportedProtocolVersion", protocol_version)
 end
 
 local function systemRequest()
   local cid = common.getMobileSession():SendRPC("SystemRequest", { requestType = "QUERY_APPS" })
-
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
 end
 
@@ -43,7 +42,7 @@ runner.Step("Register App", common.registerApp)
 
 -- [[ Test ]]
 runner.Title("Test")
-runner.Step("SystemRequest_(QUERY_APPS)_request", systemRequest)
+runner.Step("SystemRequest (QUERY_APPS) request", systemRequest)
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
