@@ -75,7 +75,15 @@ local function expectEndService(pServiceId)
     and data.sessionId == common.getMobileSession().mobile_session_impl.control_services.session.sessionId.get()
     and data.frameInfo == constants.FRAME_INFO.END_SERVICE
   end
-  return common.getMobileSession():ExpectEvent(event, "EndService")
+  local ret = common.getMobileSession():ExpectEvent(event, "EndService")
+  ret:Do(function()
+      common.getMobileSession():Send({
+          frameType = constants.FRAME_TYPE.CONTROL_FRAME,
+          serviceType = pServiceId,
+          frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
+        })
+    end)
+  return ret
 end
 
 local function changeAudioSource()

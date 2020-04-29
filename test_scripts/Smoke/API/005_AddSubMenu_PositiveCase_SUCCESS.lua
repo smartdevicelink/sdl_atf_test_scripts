@@ -29,51 +29,55 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
-	menuID = 1000,
-	position = 500,
-	menuName ="SubMenupositive"
+  menuID = 1000,
+  position = 500,
+  menuName ="SubMenupositive"
 }
 
 local responseUiParams = {
-	menuID = requestParams.menuID,
-	menuParams = {
-		position = requestParams.position,
-		menuName = requestParams.menuName
-	}
+  menuID = requestParams.menuID,
+  menuParams = {
+    position = requestParams.position,
+    menuName = requestParams.menuName
+  }
 }
 
 local allParams = {
-	requestParams = requestParams,
-	responseUiParams = responseUiParams
+  requestParams = requestParams,
+  responseUiParams = responseUiParams
 }
 
 --[[ Local Functions ]]
-local function addSubMenu(params, self)
-	local cid = self.mobileSession1:SendRPC("AddSubMenu", params.requestParams)
+local function addSubMenu(pParams)
+  local cid = common.getMobileSession():SendRPC("AddSubMenu", pParams.requestParams)
 
-	params.responseUiParams.appID = commonSmoke.getHMIAppId()
-	EXPECT_HMICALL("UI.AddSubMenu", params.responseUiParams)
-	:Do(function(_,data)
-		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
+  pParams.responseUiParams.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("UI.AddSubMenu", pParams.responseUiParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-	self.mobileSession1:ExpectNotification("OnHashChange")
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("AddSubMenu Positive Case", addSubMenu, {allParams})
+runner.Step("AddSubMenu Positive Case", addSubMenu, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

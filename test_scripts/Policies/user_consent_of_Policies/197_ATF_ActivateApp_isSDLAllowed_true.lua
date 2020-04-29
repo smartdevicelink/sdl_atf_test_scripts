@@ -21,6 +21,8 @@
 -- Expected result:
 -- PoliciesManager must respond with "isSDLAllowed: true" in the response to HMI without consent request
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

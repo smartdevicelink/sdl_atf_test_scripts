@@ -24,7 +24,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
@@ -33,7 +36,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 --[[ Local Variables ]]
 local moduleData = {
   moduleType = "CLIMATE",
-  moduleId = commonSmoke.getRcModuleId("CLIMATE", 1),
+  moduleId = common.getRcModuleId("CLIMATE", 1),
   climateControlData = {
     fanSpeed = 18
   }
@@ -44,7 +47,6 @@ local params = {
     moduleData = moduleData
   },
   hmiRequest = {
-    appID = commonSmoke.getHMIAppId(1),
     moduleData = moduleData
   },
   hmiResponse = {
@@ -58,18 +60,20 @@ local params = {
 }
 
 --[[ Local Functions ]]
-local function allocateInteriorVehicleDataModule(self)
-  local mobSession = commonSmoke.getMobileSession(1, self)
+local function allocateInteriorVehicleDataModule()
+  local mobSession = common.getMobileSession()
+  local hmi = common.getHMIConnection()
   local cid = mobSession:SendRPC("SetInteriorVehicleData", params.mobRequest)
-  EXPECT_HMICALL("RC.SetInteriorVehicleData", params.hmiRequest)
+  params.hmiRequest.appID = common.getHMIAppId(1)
+  hmi:ExpectRequest("RC.SetInteriorVehicleData", params.hmiRequest)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", params.hmiResponse)
+      hmi:SendResponse(data.id, data.method, "SUCCESS", params.hmiResponse)
     end)
   mobSession:ExpectResponse(cid, params.mobResponse)
 end
 
-local function releaseInteriorVehicleDataModule(self)
-  local mobSession = commonSmoke.getMobileSession(1, self)
+local function releaseInteriorVehicleDataModule()
+  local mobSession = common.getMobileSession()
   local cid = mobSession:SendRPC("ReleaseInteriorVehicleDataModule",
       { moduleType = moduleData.moduleType, moduleId = moduleData.moduleId })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
@@ -77,15 +81,16 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Prepare preloaded policy table", commonSmoke.preparePreloadedPTForRC)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Prepare preloaded policy table", common.preparePreloadedPTForRC)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 runner.Step("AllocateInteriorVehicleDataModule CLIMATE module", allocateInteriorVehicleDataModule)
 
 runner.Title("Test")
 runner.Step("ReleaseInteriorVehicleDataModule CLIMATE module Positive Case", releaseInteriorVehicleDataModule)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

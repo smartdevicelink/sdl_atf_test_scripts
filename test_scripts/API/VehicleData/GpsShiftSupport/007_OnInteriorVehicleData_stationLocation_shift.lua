@@ -14,7 +14,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/GpsShiftSupport/commonGpsShift')
-local commonRC = require("test_scripts/RC/commonRC")
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -33,7 +32,7 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonRC.preconditions)
+runner.Step("Clean environment", common.preconditionsRC)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
@@ -45,4 +44,4 @@ for _, v in pairs(common.shiftValue) do
 end
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonRC.postconditions)
+runner.Step("Stop SDL", common.postconditionsRC)

@@ -16,11 +16,13 @@
 -- PoliciesManager must initiate the PT Update through the app from consented device,
 -- second(non-consented) device should not be used e.i. no second query for user consent should be sent to HMI
 ---------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General Settings for configuration ]]
 Test = require('user_modules/connecttest_resumption')
 require('cardinalities')
 local mobile_session = require('mobile_session')
-local tcp = require('tcp_connection')
+local mobile_adapter_controller = require("mobile_adapter/mobile_adapter_controller")
 local file_connection = require('file_connection')
 local mobile = require('mobile_connection')
 local events = require('events')
@@ -41,8 +43,9 @@ commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ Local variables ]]
-local deviceMAC2 = "54286cb92365be544aa7008b92854b9648072cf8d8b17b372fd0786bef69d7a2"
 local mobileHost = "1.0.0.1"
+local deviceMAC2 = "9cc72994ab9ca68c1daaf02834f7a94552e82aad3250778f2e12d14afee0a5c6"
+local deviceName2 = mobileHost .. ":" .. config.mobilePort
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
@@ -50,20 +53,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_Connect_device1()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_Register_app_1()
@@ -101,8 +96,8 @@ function Test:Precondition_Activate_app_1()
 end
 
 function Test:Precondition_Connect_device_2()
-  local tcpConnection = tcp.Connection(mobileHost, config.mobilePort)
-  local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
+  local mobileAdapter = self.getDefaultMobileAdapter(mobileHost, config.mobilePort)
+  local fileConnection = file_connection.FileConnection("mobile.out", mobileAdapter)
   self.connection2 = mobile.MobileConnection(fileConnection)
   self.mobileSession2 = mobile_session.MobileSession(self, self.connection2)
   event_dispatcher:AddConnection(self.connection2)
@@ -112,15 +107,18 @@ function Test:Precondition_Connect_device_2()
     {
       deviceList = {
         {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
+          id = deviceMAC2,
+          name = deviceName2 ,
+          transportType = utils.getDeviceTransportType()
         },
         {
-          id = deviceMAC2,
-          name = mobileHost,
-          transportType = "WIFI"
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
+          transportType = utils.getDeviceTransportType()
         },
+        {
+          transportType = "WEBENGINE_WEBSOCKET",
+        }
       }
     }
     ):Do(function(_,data)
@@ -146,13 +144,13 @@ end
 
 function Test:Teat_Activate_app_2()
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.HMIAppID2})
-  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { id = deviceMAC2, name = mobileHost }, isSDLAllowed = false, method ="SDL.ActivateApp" }})
+  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { id = deviceMAC2, name = deviceName2 }, isSDLAllowed = false, method ="SDL.ActivateApp" }})
   :Do(function()
       local RequestIdGetMes = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
       EXPECT_HMIRESPONSE(RequestIdGetMes)
       :Do(function()
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = false, source = "GUI", device = {id = deviceMAC2, name = mobileHost}})
+            {allowed = false, source = "GUI", device = {id = deviceMAC2, name = deviceName2}})
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_, data)
               self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -160,7 +158,6 @@ function Test:Teat_Activate_app_2()
           :Times(AtLeast(1))
         end)
     end)
-
 end
 
 function Test:Test_Start_PTU()
@@ -171,7 +168,6 @@ function Test:Test_Start_PTU()
       self.mobileSession2:ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
       :Times(0)
       self.mobileSession:ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
-      :Times(1)
       :Do(function(_, data)
           self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
         end)

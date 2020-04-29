@@ -6,8 +6,7 @@ local actions = require("user_modules/sequences/actions")
 local security = require("user_modules/sequences/security")
 local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local SDL = require("SDL")
 local constants = require("protocol_handler/ford_protocol_constants")
 local events = require("events")
 local json = require("modules/json")
@@ -22,9 +21,6 @@ local m = actions
 
 m.frameInfo = security.frameInfo
 m.readFile = utils.readFile
-
---[[ Variables ]]
-local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
 
 --[[ Functions ]]
 local function getSystemTimeValue()
@@ -68,7 +64,7 @@ end
 
 function m.start()
   test:runSDL()
-  commonFunctions:waitForSDLStart(test)
+  SDL.WaitForSDLStart(test)
   :Do(function()
       test:initHMI()
       :Do(function()
@@ -117,73 +113,28 @@ function m.activateAppProtected()
     hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
 end
 
-local function saveFile(pContent, pFileName)
-  local f = io.open(pFileName, "w")
-  f:write(pContent)
-  f:close()
-end
-
-local function getAllCrtsFromPEM(pCrtsFileName)
-  local crts = utils.readFile(pCrtsFileName)
-  local o = {}
-  local i = 1
-  local s = crts:find("-----BEGIN RSA PRIVATE KEY-----", i, true)
-  local _, e = crts:find("-----END RSA PRIVATE KEY-----", i, true)
-  o.key = crts:sub(s, e) .. "\n"
-  for _, v in pairs({ "crt", "rootCA", "issuingCA" }) do
-    i = e
-    s = crts:find("-----BEGIN CERTIFICATE-----", i, true)
-    _, e = crts:find("-----END CERTIFICATE-----", i, true)
-    o[v] = crts:sub(s, e) .. "\n"
-  end
-  return o
-end
-
-local function createCrtHashes()
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  os.execute("cd " .. sdlBin .. " && c_rehash .")
-end
-
-local function updateSDLIniFile()
-  m.setSDLIniParameter("KeyPath", "module_key.pem")
-  m.setSDLIniParameter("CertificatePath", "module_crt.pem")
-end
-
 function m.initSDLCertificates(pCrtsFileName, pIsModuleCrtDefined)
-  if pIsModuleCrtDefined == nil then pIsModuleCrtDefined = true end
-  local allCrts = getAllCrtsFromPEM(pCrtsFileName)
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  saveFile(allCrts.rootCA, sdlBin .. "rootCA.pem")
-  saveFile(allCrts.issuingCA, sdlBin .. "issuingCA.pem")
-  createCrtHashes()
-  if pIsModuleCrtDefined then
-    saveFile(allCrts.key, sdlBin .. "module_key.pem")
-    saveFile(allCrts.crt, sdlBin .. "module_crt.pem")
-  end
-  updateSDLIniFile()
+  SDL.CRT.set(pCrtsFileName, pIsModuleCrtDefined)
 end
 
 function m.cleanUpCertificates()
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  os.execute("cd " .. sdlBin .. " && find . -type l -not -name 'lib*' -exec rm -f {} \\;")
-  os.execute("cd " .. sdlBin .. " && rm -rf *.pem")
+  SDL.CRT.clean()
 end
 
 local preconditionsOrig = m.preconditions
 local postconditionsOrig = m.postconditions
 
 function m.preloadedPTUpdate(pPTUpdateFunc)
-  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
-  local pt = utils.jsonFileToTable(preloadedFile)
+  local pt = actions.sdl.getPreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   if pPTUpdateFunc then pPTUpdateFunc(pt) end
-  utils.tableToJsonFile(pt, preloadedFile)
+  actions.sdl.setPreloadedPT(pt)
 end
 
 function m.preconditions(pPTUpdateFunc)
   preconditionsOrig()
+  m.setSDLIniParameter("Protocol", "DTLSv1.0")
   m.cleanUpCertificates()
-  commonPreconditions:BackupFile(preloadedPT)
   if pPTUpdateFunc == nil then
     pPTUpdateFunc = function(pPT)
       pPT.policy_table.app_policies["default"].encryption_required = true
@@ -196,7 +147,6 @@ end
 function m.postconditions()
   postconditionsOrig()
   m.cleanUpCertificates()
-  commonPreconditions:RestoreFile(preloadedPT)
 end
 
 function m.defaultExpNotificationFunc()

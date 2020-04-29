@@ -30,8 +30,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local putFileParams = {
@@ -69,13 +71,13 @@ local requestParams = {
   }
 }
 
-local responseUiParams = commonFunctions:cloneTable(requestParams)
+local responseUiParams = common.cloneTable(requestParams)
 responseUiParams.turnList[1].navigationText = {
   fieldText = requestParams.turnList[1].navigationText,
   fieldName = "turnText"
 }
-responseUiParams.turnList[1].turnIcon.value = commonSmoke.getPathToFileInStorage(requestParams.turnList[1].turnIcon.value)
-responseUiParams.softButtons[1].image.value = commonSmoke.getPathToFileInStorage(requestParams.softButtons[1].image.value)
+responseUiParams.turnList[1].turnIcon.value = common.getPathToFileInAppStorage(requestParams.turnList[1].turnIcon.value)
+responseUiParams.softButtons[1].image.value = common.getPathToFileInAppStorage(requestParams.softButtons[1].image.value)
 
 local allParams = {
   requestParams = requestParams,
@@ -83,25 +85,26 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function updateTurnList(pParams, self)
-  local cid = self.mobileSession1:SendRPC("UpdateTurnList", pParams.requestParams)
-  EXPECT_HMICALL("Navigation.UpdateTurnList", pParams.responseUiParams)
-  :Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS")
-  end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+local function updateTurnList(pParams)
+  local cid = common.getMobileSession():SendRPC("UpdateTurnList", pParams.requestParams)
+  common.getHMIConnection():ExpectRequest("Navigation.UpdateTurnList", pParams.responseUiParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+    end)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
-runner.Step("Upload icon file", commonSmoke.putFile, { putFileParams })
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Upload icon file", common.putFile, { putFileParams })
 
 runner.Title("Test")
 runner.Step("UpdateTurnList Positive Case", updateTurnList, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

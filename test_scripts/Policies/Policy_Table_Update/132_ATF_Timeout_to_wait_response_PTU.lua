@@ -14,6 +14,8 @@
 -- To define the timeout to wait a response on PTU, Policies manager must refer PTS
 -- "module_config" section, key <timeout_after_x_seconds>.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')

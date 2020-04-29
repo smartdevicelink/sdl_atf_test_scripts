@@ -25,16 +25,19 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local addSubMenuParams = { 
+local addSubMenuParams = {
   menuLayout = "TILES",
   menuID = 44991234,
   menuName = "sickMenu"
 }
 
-local setGlobalPropertiesParams = { 
+local setGlobalPropertiesParams = {
   menuLayout = "TILES"
 }
 
@@ -113,40 +116,43 @@ local onSystemCapabilityUpdatedParams = {
 }
 
 --[[ Local Functions ]]
-local function setMenuLayoutTiles(self)
-  onSystemCapabilityUpdatedParams.appID = commonSmoke.getHMIAppId()
-  self.hmiConnection:SendNotification("BasicCommunication.OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
-  
+local function setMenuLayoutTiles()
+  local mobileSession = common.getMobileSession()
+  local hmi = common.getHMIConnection()
+  onSystemCapabilityUpdatedParams.appID = common.getHMIAppId()
+  hmi:SendNotification("BasicCommunication.OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
+
   onSystemCapabilityUpdatedParams.appID = nil
-  self.mobileSession1:ExpectNotification("OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated", onSystemCapabilityUpdatedParams)
   :Do(function()
-    local cid = self.mobileSession1:SendRPC("SetGlobalProperties", setGlobalPropertiesParams)
-  
-    EXPECT_HMICALL("UI.SetGlobalProperties", {})
+    local cid = mobileSession:SendRPC("SetGlobalProperties", setGlobalPropertiesParams)
+
+    hmi:ExpectRequest("UI.SetGlobalProperties", {})
     :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-      self.mobileSession1:ExpectResponse(cid, successResponse)
+      hmi:SendResponse(data.id, data.method, "SUCCESS", {})
+      mobileSession:ExpectResponse(cid, successResponse)
     end)
 
-    local cid2 = self.mobileSession1:SendRPC("AddSubMenu", addSubMenuParams)
-  
-    EXPECT_HMICALL("UI.AddSubMenu", {})
+    local cid2 = mobileSession:SendRPC("AddSubMenu", addSubMenuParams)
+
+    hmi:ExpectRequest("UI.AddSubMenu", {})
     :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-      self.mobileSession1:ExpectResponse(cid2, successResponse)
+      hmi:SendResponse(data.id, data.method, "SUCCESS", {})
+      mobileSession:ExpectResponse(cid2, successResponse)
     end)
   end)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Setting Menu Layout to supported TILES", setMenuLayoutTiles)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

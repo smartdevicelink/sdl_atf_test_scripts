@@ -18,6 +18,8 @@
 -- SDL.GetURLs({urls[] = default}, (<urls>, appID))
 -- SDL-> <app ID> ->OnSystemRequest(params, url, timeout)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

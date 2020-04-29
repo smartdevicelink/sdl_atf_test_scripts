@@ -29,7 +29,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
@@ -41,34 +44,37 @@ local requestParams = {
 }
 
 --[[ Local Functions ]]
-local function slider(params, self)
-  local cid = self.mobileSession1:SendRPC("Slider", params)
-  params.appID = commonSmoke.getHMIAppId()
-  EXPECT_HMICALL("UI.Slider", params)
-  :Do(function(_,data)
-      self.hmiConnection:SendNotification("UI.OnSystemContext",{ appID = params.appID, systemContext = "HMI_OBSCURED" })
+local function slider(pParams)
+  local cid = common.getMobileSession():SendRPC("Slider", pParams)
+  pParams.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("UI.Slider", pParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendNotification("UI.OnSystemContext",
+        { appID = pParams.appID, systemContext = "HMI_OBSCURED" })
       local function sendReponse()
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {sliderPosition = 1})
-        self.hmiConnection:SendNotification("UI.OnSystemContext",{ appID = params.appID, systemContext = "MAIN" })
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { sliderPosition = 1 })
+        common.getHMIConnection():SendNotification("UI.OnSystemContext",
+          { appID = pParams.appID, systemContext = "MAIN" })
       end
-      RUN_AFTER(sendReponse, 1000)
+      common.runAfter(sendReponse, 1000)
     end)
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
-    { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = commonSmoke.GetAudibleState() },
-    { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = commonSmoke.GetAudibleState() })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
+    { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
   :Times(2)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS", sliderPosition = 1 })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", sliderPosition = 1 })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Slider Positive Case", slider, {requestParams})
+runner.Step("Slider Positive Case", slider, { requestParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

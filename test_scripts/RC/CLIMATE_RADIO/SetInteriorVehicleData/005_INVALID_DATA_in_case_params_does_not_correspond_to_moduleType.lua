@@ -19,7 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -36,16 +35,15 @@ local function setVehicleData(pModuleType)
   local moduleData = commonRC.getSettableModuleControlData(moduleType2)
   moduleData.moduleType = pModuleType
 
-	local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {
-		moduleData = moduleData
-	})
+  local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {
+    moduleData = moduleData
+  })
 
-	EXPECT_HMICALL("RC.SetInteriorVehicleData")
-	:Times(0)
+  EXPECT_HMICALL("RC.SetInteriorVehicleData")
+  :Times(0)
 
-	commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-
-	commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
+  commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

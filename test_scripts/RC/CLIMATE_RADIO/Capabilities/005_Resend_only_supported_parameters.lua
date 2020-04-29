@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local common_functions = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -50,11 +49,11 @@ local absent_params = {
 
 --[[ Local Functions ]]
 local function setVehicleData(params)
-	local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {moduleData = params})
+  local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {moduleData = params})
 
   if params.radioControlData.frequencyInteger then
-    EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-            appID = commonRC.getHMIAppId(1),
+    EXPECT_HMICALL("RC.SetInteriorVehicleData", {
+      appID = commonRC.getHMIAppId(1),
       moduleData = params})
     :Do(function(_, data)
         commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
@@ -64,7 +63,7 @@ local function setVehicleData(params)
   else
     EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
     commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-        common_functions.DelayedExp(commonRC.timeout)
+    commonRC.wait(commonRC.timeout)
   end
 end
 

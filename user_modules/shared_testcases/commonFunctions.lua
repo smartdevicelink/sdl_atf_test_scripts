@@ -7,10 +7,8 @@ local commonFunctions = {}
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 require('atf.util')
 local json = require('json4lua/json/json')
-local expectations = require('expectations')
+local SDL = require("SDL")
 local events = require('events')
-
-require('modules/config')
 local NewTestSuiteNumber = 0 -- use as subfix of test case "NewTestSuite" to make different test case name.
 local path_config = commonPreconditions:GetPathToSDL()
 ---------------------------------------------------------------------------------------------
@@ -62,25 +60,7 @@ end
 
 --check that SDL ports are open then raise else RUN after timeout configured by step variable
 function commonFunctions:waitForSDLStart(test)
-  local step = 100
-  local hmiPort = config.hmiPort
-  local event = events.Event()
-  event.matches = function(self, e) return self == e end
-  local function raise_event()
-    assert(hmiPort ~= nil or hmiPort ~= "")
-    local output = os.execute ("netstat -vatn  | grep " .. hmiPort .. " | grep LISTEN")
-    if (output) then
-      RAISE_EVENT(event, event)
-    else
-      RUN_AFTER(raise_event, step)
-    end
-  end
-  RUN_AFTER(raise_event, step)
-  local ret = expectations.Expectation("Wait for SDL start", test.mobileConnection)
-  ret.event = event
-  event_dispatcher:AddEvent(test.mobileConnection, ret.event, ret)
-  test:AddExpectation(ret)
-  return ret
+  return SDL.WaitForSDLStart(test)
 end
 
 function commonFunctions:createMultipleExpectationsWaiter(test, name)
@@ -101,8 +81,9 @@ function commonFunctions:createMultipleExpectationsWaiter(test, name)
   function exp_waiter:AddExpectation(exp)
     table.insert(exp_waiter.expectation_list, exp)
     exp:Do(function()
-      exp_waiter:RemoveExpectation(exp)
-      exp_waiter:CheckStatus()
+      if exp_waiter:RemoveExpectation(exp) then
+        exp_waiter:CheckStatus()
+      end
     end)
   end
 
@@ -113,9 +94,9 @@ function commonFunctions:createMultipleExpectationsWaiter(test, name)
       end
       return nil
     end
-
-    table.remove(exp_waiter.expectation_list,
-                 AnIndexOf(exp_waiter.expectation_list, exp))
+    local index = AnIndexOf(exp_waiter.expectation_list, exp)
+    if index then table.remove(exp_waiter.expectation_list, index) end
+    return index
   end
 
   exp_waiter.event = events.Event()
@@ -276,6 +257,7 @@ function commonFunctions:cloneTable(original)
         end
         copy[k] = v
     end
+    if getmetatable(original) ~= nil then setmetatable(copy, getmetatable(original)) end
     return copy
 end
 

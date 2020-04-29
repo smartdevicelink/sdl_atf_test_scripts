@@ -19,6 +19,9 @@
 local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
 local function getRequestParams()
   return {
     displayLayout = "ONSCREEN_PRESETS",
@@ -45,23 +48,23 @@ local function getRequestParams2()
   }
 end
 
-local function setDisplayWithColorsSuccess(self)
+local function setDisplayWithColorsSuccess()
   local responseParams = {}
-  local cid = self.mobileSession1:SendRPC("SetDisplayLayout", getRequestParams())
+  local cid = commonSmoke.getMobileSession():SendRPC("SetDisplayLayout", getRequestParams())
   EXPECT_HMICALL("UI.SetDisplayLayout", getRequestParams())
   :Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", responseParams)
+    commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
   end)
-  self.mobileSession1:ExpectResponse(cid, {
+  commonSmoke.getMobileSession():ExpectResponse(cid, {
     success = true,
     resultCode = "WARNINGS"
   })
 end
 
-local function setDisplayWithColorsRejected(self)
+local function setDisplayWithColorsRejected()
   local responseParams = {}
-  local cid = self.mobileSession1:SendRPC("SetDisplayLayout", getRequestParams2())
-  self.mobileSession1:ExpectResponse(cid, {
+  local cid = commonSmoke.getMobileSession():SendRPC("SetDisplayLayout", getRequestParams2())
+  commonSmoke.getMobileSession():ExpectResponse(cid, {
     success = false,
     resultCode = "REJECTED"
   })

@@ -16,7 +16,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local json = require('modules/json')
 local common = require("test_scripts/RC/commonRC")
 
 --[[ Test Configuration ]]
@@ -29,7 +28,7 @@ local modules = { "CLIMATE", "AUDIO", "LIGHT", "HMI_SETTINGS" }
 --[[ Local Functions ]]
 local function PTUfunc(tbl)
   tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID] = common.getRCAppConfig()
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].moduleType = json.EMPTY_ARRAY
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].moduleType = common.json.EMPTY_ARRAY
 end
 
 --[[ Scenario ]]

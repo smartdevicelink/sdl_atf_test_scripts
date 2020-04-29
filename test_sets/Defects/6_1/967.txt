@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/967_OnButtonPress_OnButtonEvent_in_background.lua

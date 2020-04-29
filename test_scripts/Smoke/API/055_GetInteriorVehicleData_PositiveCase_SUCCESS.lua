@@ -23,14 +23,17 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Local Variables ]]
-local moduleId = commonSmoke.getRcModuleId("CLIMATE", 1)
+local moduleId = common.getRcModuleId("CLIMATE", 1)
 
 local moduleData = {
   moduleType = "CLIMATE",
@@ -83,26 +86,28 @@ local params = {
 }
 
 --[[ Local Functions ]]
-local function getInteriorVehicleData(self)
-  local mobSession = commonSmoke.getMobileSession(1, self)
+local function getInteriorVehicleData()
+  local mobSession = common.getMobileSession()
+  local hmi = common.getHMIConnection()
   local cid = mobSession:SendRPC("GetInteriorVehicleData", params.mobRequest)
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", params.hmiRequest)
+  hmi:ExpectRequest("RC.GetInteriorVehicleData", params.hmiRequest)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", params.hmiResponse)
+      hmi:SendResponse(data.id, data.method, "SUCCESS", params.hmiResponse)
     end)
   mobSession:ExpectResponse(cid, params.mobResponse)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Prepare preloaded policy table", commonSmoke.preparePreloadedPTForRC)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Prepare preloaded policy table", common.preparePreloadedPTForRC)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetInteriorVehicleData CLIMATE module Positive Case", getInteriorVehicleData)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

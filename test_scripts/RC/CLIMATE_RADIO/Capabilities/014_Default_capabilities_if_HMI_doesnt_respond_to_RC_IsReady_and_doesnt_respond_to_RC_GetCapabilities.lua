@@ -14,10 +14,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require('user_modules/hmi_values')
-local utils = require("user_modules/utils")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,21 +23,18 @@ local defaultHMIcapabilitiesRC
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
-  params.RC.IsReady.params.available = true
-  params.RC.GetCapabilities = nil
-  return params
+  local hmiCaps = commonRC.buildHmiRcCapabilities({})
+  hmiCaps.RC.IsReady.params.available = true
+  hmiCaps.RC.GetCapabilities = nil
+  return hmiCaps
 end
 
 local function updateDefaultHMIcapabilities()
-  local hmiCapabilitiesFile = commonPreconditions:GetPathToSDL()
-    .. commonFunctions:read_parameter_from_smart_device_link_ini("HMICapabilities")
-  local defaultHMIcapabilities = utils.jsonFileToTable(hmiCapabilitiesFile)
+  local defaultHMIcapabilities = commonRC.HMICap.get()
   defaultHMIcapabilitiesRC = defaultHMIcapabilities.UI.systemCapabilities.remoteControlCapability
   defaultHMIcapabilitiesRC.climateControlCapabilities[1].climateEnableAvailable = false
   defaultHMIcapabilitiesRC.radioControlCapabilities[1].availableHdChannelsAvailable = false
-  utils.tableToJsonFile(defaultHMIcapabilities, hmiCapabilitiesFile)
-
+  commonRC.HMICap.set(defaultHMIcapabilities)
 end
 
 local function rpcSuccess()
@@ -61,8 +54,8 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Update default hmi capabilities", updateDefaultHMIcapabilities)
+runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
 runner.Step("RAI", commonRC.registerAppWOPTU)
 runner.Step("Activate App", commonRC.activateApp)

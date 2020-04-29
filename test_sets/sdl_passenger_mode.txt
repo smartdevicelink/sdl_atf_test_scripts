@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/API/SDL_Passenger_Mode/001_OnDD_PT_true.lua
 ./test_scripts/API/SDL_Passenger_Mode/002_OnDD_PT_false.lua
 ./test_scripts/API/SDL_Passenger_Mode/003_OnDD_PT_missing.lua

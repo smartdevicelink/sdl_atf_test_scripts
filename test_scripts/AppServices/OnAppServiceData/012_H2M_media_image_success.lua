@@ -24,7 +24,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local deviceMAC = utils.getDeviceMAC()
-local storagePath = config.pathToSDL .. "/" .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. deviceMAC .. "/")
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. deviceMAC .. "/")
 
 
 local putFileParams = {

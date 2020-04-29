@@ -16,14 +16,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require("user_modules/hmi_values")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local Module = "RADIO"
-local hmiValues = hmi_values.getDefaultHMITable()
+local hmiValues = commonRC.getDefaultHMITable()
 hmiValues.RC.GetCapabilities.params.remoteControlCapability.radioControlCapabilities[1].siriusxmRadioAvailable = nil
 
 --[[ Local Functions ]]

@@ -14,6 +14,8 @@
 -- No prompts or notification are observed on HMI
 -- Note: Requirement under clarification! Assumed that OnAppPermissionChanged and OnSDLConsentNeeded should not come
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -81,7 +83,7 @@ function Test:TestStep_Firs_Time_Register_App_And_Check_That_No_Permission_Notif
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }

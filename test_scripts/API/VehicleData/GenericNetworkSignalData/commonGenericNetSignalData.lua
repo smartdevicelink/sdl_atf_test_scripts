@@ -19,6 +19,7 @@ local SDL = require("modules/SDL")
 
 --[[ Local Variables ]]
 local common = {}
+common.getPolicyAppId = actions.app.getPolicyAppId
 common.start = actions.start
 common.setSDLIniParameter = actions.setSDLIniParameter
 common.activateApp = actions.activateApp
@@ -38,6 +39,7 @@ common.tableToString = utils.tableToString
 common.tableToJsonFile = utils.tableToJsonFile
 common.jsonFileToTable = utils.jsonFileToTable
 common.isFileExist = utils.isFileExist
+common.wait = utils.wait
 
 common.GetPathToSDL = commonPreconditions.GetPathToSDL
 
@@ -803,7 +805,7 @@ function common.ptuFuncWithCustomData(pTbl)
   rpcsGroupWithAllVehicleData.SubscribeVehicleData.parameters = customDataNames
   rpcsGroupWithAllVehicleData.UnsubscribeVehicleData.parameters = customDataNames
 
-  pTbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID].groups = {
+  pTbl.policy_table.app_policies[actions.app.getPolicyAppId(1)].groups = {
     "Base-4", "GroupWithAllRpcSpecVehicleData", "GroupWithAllVehicleData"
   }
 end
@@ -811,7 +813,7 @@ end
 function common.ptuFuncWithCustomData2Apps(pTbl)
   common.ptuFuncWithCustomData(pTbl)
 
-  pTbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID].groups = {
+  pTbl.policy_table.app_policies[actions.app.getPolicyAppId(2)].groups = {
     "Base-4", "GroupWithAllRpcSpecVehicleData", "GroupWithAllVehicleData"
   }
 end
@@ -829,7 +831,7 @@ function common.ignitionOff()
   :Do(function()
       removeSessions()
       StopSDL()
-      utils.wait(1000)
+      common.wait(1000)
     end)
   common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
@@ -859,13 +861,10 @@ function common.ignitionOff()
 end
 
 function common.unexpectedDisconnect()
-  test.mobileConnection:Close()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
-  :Do(function()
-      for i = 1, common.getAppsCount() do
-        test.mobileSession[i] = nil
-      end
-    end)
+  :Times(actions.mobile.getAppsCount())
+  actions.mobile.disconnect()
+  utils.wait(1000)
 end
 
 function common.connectMobile()
@@ -899,7 +898,7 @@ function common.cleanSessions()
         test.mobileSession[i] = nil
       end)
   end
-  utils.wait()
+  common.wait()
 end
 
 function common.updateCustomDataTypeSample(pName, dParam, pValue)
@@ -915,14 +914,7 @@ function common.updateCustomDataTypeSample(pName, dParam, pValue)
 end
 
 function common.expUpdateNeeded()
-  if test.sdlBuildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" then
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-      { status = "UPDATING" },
-      { status = "UPDATE_NEEDED" })
-    :Times(2)
-  else
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
-  end
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
 end
 
 function common.getCustomAndRpcSpecDataNames()
@@ -991,6 +983,15 @@ function common.getAllVehicleData()
     table.insert(allVDdata, value)
   end
   return allVDdata
+end
+
+function common.exitApps()
+  for appId = 1, common.getAppsCount() do
+    common.getMobileSession(appId):ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
+    common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication", {
+        appID = common.getHMIAppId(appId),
+        reason = "USER_EXIT" })
+  end
 end
 
 return common

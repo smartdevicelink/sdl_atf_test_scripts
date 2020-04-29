@@ -29,215 +29,219 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function getSoftButCapValues()
-	return {
-		{
-			shortPressAvailable = true,
-			longPressAvailable = true,
-			upDownAvailable = true,
-			imageSupported = true
-		}
-	}
+  return {
+    {
+      shortPressAvailable = true,
+      longPressAvailable = true,
+      upDownAvailable = true,
+      imageSupported = true
+    }
+  }
 end
 
 local function getPresetBankCapValues()
-	return { onScreenPresetsAvailable = true }
+  return { onScreenPresetsAvailable = true }
 end
 
 local function getButCapValues()
-	local names = {
-		"PRESET_0",
-		"PRESET_1",
-		"PRESET_2",
-		"PRESET_3",
-		"PRESET_4",
-		"PRESET_5",
-		"PRESET_6",
-		"PRESET_7",
-		"PRESET_8",
-		"PRESET_9",
-		"OK",
-		"SEEKLEFT",
-		"SEEKRIGHT",
-		"TUNEUP",
-		"TUNEDOWN"
-	}
-	local values = { }
-	for _, v in pairs(names) do
-		local item = {
-			name = v,
-			shortPressAvailable = true,
-			longPressAvailable = true,
-			upDownAvailable = true
-		}
-		table.insert(values, item)
-	end
+  local names = {
+    "PRESET_0",
+    "PRESET_1",
+    "PRESET_2",
+    "PRESET_3",
+    "PRESET_4",
+    "PRESET_5",
+    "PRESET_6",
+    "PRESET_7",
+    "PRESET_8",
+    "PRESET_9",
+    "OK",
+    "SEEKLEFT",
+    "SEEKRIGHT",
+    "TUNEUP",
+    "TUNEDOWN"
+  }
+  local values = { }
+  for _, v in pairs(names) do
+    local item = {
+      name = v,
+      shortPressAvailable = true,
+      longPressAvailable = true,
+      upDownAvailable = true
+    }
+    table.insert(values, item)
+  end
   return values
 end
 
 local function getDisplayCapImageFieldsValues()
-	local names = {
-		"softButtonImage",
-		"choiceImage",
-		"choiceSecondaryImage",
-		"vrHelpItem",
-		"turnIcon",
-		"menuIcon",
-		"cmdIcon",
-		"graphic",
-		"secondaryGraphic",
-		"showConstantTBTIcon",
-		"showConstantTBTNextTurnIcon"
-	}
-	local values = { }
-	for _, v in pairs(names) do
-		local item = {
-			imageResolution = {
-				resolutionHeight = 64,
-				resolutionWidth = 64
-			},
-			imageTypeSupported = {
-				"GRAPHIC_BMP",
-				"GRAPHIC_JPEG",
-				"GRAPHIC_PNG"
-			},
-			name = v
-		}
-		table.insert(values, item)
-	end
+  local names = {
+    "softButtonImage",
+    "choiceImage",
+    "choiceSecondaryImage",
+    "vrHelpItem",
+    "turnIcon",
+    "menuIcon",
+    "cmdIcon",
+    "graphic",
+    "secondaryGraphic",
+    "showConstantTBTIcon",
+    "showConstantTBTNextTurnIcon"
+  }
+  local values = { }
+  for _, v in pairs(names) do
+    local item = {
+      imageResolution = {
+        resolutionHeight = 64,
+        resolutionWidth = 64
+      },
+      imageTypeSupported = {
+        "GRAPHIC_BMP",
+        "GRAPHIC_JPEG",
+        "GRAPHIC_PNG"
+      },
+      name = v
+    }
+    table.insert(values, item)
+  end
   return values
 end
 
 local function getDisplayCapTextFieldsValues()
-	-- some text fields are excluded due to SDL issue
+  -- some text fields are excluded due to SDL issue
   local names = {
-		"alertText1",
-		"alertText2",
-		"alertText3",
-		"audioPassThruDisplayText1",
-		"audioPassThruDisplayText2",
-		"ETA",
-		"initialInteractionText",
-		-- "phoneNumber",
-		"mainField1",
-		"mainField2",
-		"mainField3",
-		"mainField4",
-		"mediaClock",
-		"mediaTrack",
-		"menuName",
-		"menuTitle",
-		-- "addressLines",
-		-- "locationName",
-		"navigationText1",
-		"navigationText2",
-		-- "locationDescription",
-		"scrollableMessageBody",
-		"secondaryText",
-		"sliderFooter",
-		"sliderHeader",
-		"statusBar",
-		"tertiaryText",
-		"totalDistance",
-		-- "notificationText",
-		-- "navigationText",
-		-- "timeToDestination",
-		-- "turnText"
-	}
-	local values = { }
-	for _, v in pairs(names) do
-		local item = {
-			characterSet = "TYPE2SET",
-			name = v,
-			rows = 1,
-			width = 500
-		}
-		table.insert(values, item)
-	end
+    "alertText1",
+    "alertText2",
+    "alertText3",
+    "audioPassThruDisplayText1",
+    "audioPassThruDisplayText2",
+    "ETA",
+    "initialInteractionText",
+    -- "phoneNumber",
+    "mainField1",
+    "mainField2",
+    "mainField3",
+    "mainField4",
+    "mediaClock",
+    "mediaTrack",
+    "menuName",
+    "menuTitle",
+    -- "addressLines",
+    -- "locationName",
+    "navigationText1",
+    "navigationText2",
+    -- "locationDescription",
+    "scrollableMessageBody",
+    "secondaryText",
+    "sliderFooter",
+    "sliderHeader",
+    "statusBar",
+    "tertiaryText",
+    "totalDistance",
+    -- "notificationText",
+    -- "navigationText",
+    -- "timeToDestination",
+    -- "turnText"
+  }
+  local values = { }
+  for _, v in pairs(names) do
+    local item = {
+      characterSet = "TYPE2SET",
+      name = v,
+      rows = 1,
+      width = 500
+    }
+    table.insert(values, item)
+  end
   return values
 end
 
 local function getDisplayCapValues()
-	-- some capabilities are excluded due to SDL issue
-	return {
-		displayType = "GEN2_8_DMA",
-		displayName = "GENERIC_DISPLAY",
-		graphicSupported = true,
-		-- imageCapabilities = {
-		-- 	"DYNAMIC",
-		-- 	"STATIC"
-		-- },
-		imageFields = getDisplayCapImageFieldsValues(),
-		mediaClockFormats =	{
-			"CLOCK1",
-			"CLOCK2",
-			"CLOCK3",
-			"CLOCKTEXT1",
-			"CLOCKTEXT2",
-			"CLOCKTEXT3",
-			"CLOCKTEXT4"
-		},
-		numCustomPresetsAvailable = 10,
-		screenParams = {
-			resolution = {
-				resolutionHeight = 480,
-				resolutionWidth = 800
-			},
-			touchEventAvailable =	{
-				doublePressAvailable = false,
-				multiTouchAvailable = true,
-				pressAvailable = true
-			}
-		},
-		templatesAvailable = {
-			"ONSCREEN_PRESETS"
-		},
-		textFields = getDisplayCapTextFieldsValues()
-	}
+  -- some capabilities are excluded due to SDL issue
+  return {
+    displayType = "GEN2_8_DMA",
+    displayName = "GENERIC_DISPLAY",
+    graphicSupported = true,
+    -- imageCapabilities = {
+    --  "DYNAMIC",
+    --  "STATIC"
+    -- },
+    imageFields = getDisplayCapImageFieldsValues(),
+    mediaClockFormats = {
+      "CLOCK1",
+      "CLOCK2",
+      "CLOCK3",
+      "CLOCKTEXT1",
+      "CLOCKTEXT2",
+      "CLOCKTEXT3",
+      "CLOCKTEXT4"
+    },
+    numCustomPresetsAvailable = 10,
+    screenParams = {
+      resolution = {
+        resolutionHeight = 480,
+        resolutionWidth = 800
+      },
+      touchEventAvailable = {
+        doublePressAvailable = false,
+        multiTouchAvailable = true,
+        pressAvailable = true
+      }
+    },
+    templatesAvailable = {
+      "ONSCREEN_PRESETS"
+    },
+    textFields = getDisplayCapTextFieldsValues()
+  }
 end
 
 local function getRequestParams()
-	return { displayLayout = "ONSCREEN_PRESETS" }
+  return { displayLayout = "ONSCREEN_PRESETS" }
 end
 
 local function getResponseParams()
-	return {
-		displayCapabilities = getDisplayCapValues(),
-		buttonCapabilities = getButCapValues(),
-		softButtonCapabilities = getSoftButCapValues(),
-		presetBankCapabilities = getPresetBankCapValues()
-	}
+  return {
+    displayCapabilities = getDisplayCapValues(),
+    buttonCapabilities = getButCapValues(),
+    softButtonCapabilities = getSoftButCapValues(),
+    presetBankCapabilities = getPresetBankCapValues()
+  }
 end
 
-local function setDisplaySuccess(self)
-	local responseParams = getResponseParams()
-	local cid = self.mobileSession1:SendRPC("SetDisplayLayout", getRequestParams())
-	EXPECT_HMICALL("UI.SetDisplayLayout", getRequestParams())
-	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", responseParams)
-		end)
-	self.mobileSession1:ExpectResponse(cid, {
-		success = true,
-		resultCode = "WARNINGS",
-		displayCapabilities = responseParams.displayCapabilities,
-		buttonCapabilities = responseParams.buttonCapabilities,
-		softButtonCapabilities = responseParams.softButtonCapabilities,
-		presetBankCapabilities = responseParams.presetBankCapabilities
-	})
+local function setDisplaySuccess()
+  local responseParams = getResponseParams()
+  local cid = common.getMobileSession():SendRPC("SetDisplayLayout", getRequestParams())
+  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout", getRequestParams())
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
+    end)
+  common.getMobileSession():ExpectResponse(cid, {
+    success = true,
+    resultCode = "WARNINGS",
+    displayCapabilities = responseParams.displayCapabilities,
+    buttonCapabilities = responseParams.buttonCapabilities,
+    softButtonCapabilities = responseParams.softButtonCapabilities,
+    presetBankCapabilities = responseParams.presetBankCapabilities
+  })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("SetDisplay Positive Case", setDisplaySuccess)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

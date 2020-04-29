@@ -515,7 +515,7 @@
 ./test_scripts/API/ShowAppMenu/009_Show_App_Menu_RPC_without_HMI_response_GENERIC_ERROR.lua
 ./test_scripts/API/ShowAppMenu/010_Show_App_Menu_RPC_different_MenuID_with_Sub_Menu_ID_INVALID_ID.lua
 ./test_scripts/API/ShowAppMenu/011_Show_App_Menu_RPC_with_invalid_data_type_MenuID_INVALID_DATA.lua
-./test_scripts/API/ShowAppMenu/012_Show_App_Menu_RPC_hmi_Level_FULL_SC_VRSESSION_HMI_OBSCURED_ALERT_REJECTED.
+./test_scripts/API/ShowAppMenu/012_Show_App_Menu_RPC_hmi_Level_FULL_SC_VRSESSION_HMI_OBSCURED_ALERT_REJECTED.lua
 ;
 ; Update & Unpublish App Services
 ;
@@ -535,7 +535,7 @@
 ; Navigation Subscription Buttons
 ;
 ./test_scripts/Smoke/API/046_NavApp_SubscribeButtonRequest_SUCCESS.lua
-./test_scripts/Smoke/API/047_NonNavApp_SubscribeButtonRequest_REJECTED.
+./test_scripts/Smoke/API/047_NonNavApp_SubscribeButtonRequest_REJECTED.lua
 ;
 ; SDL Passenger Mode
 ;

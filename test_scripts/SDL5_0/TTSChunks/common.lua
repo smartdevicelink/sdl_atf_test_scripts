@@ -10,6 +10,7 @@ config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 5
 local actions = require("user_modules/sequences/actions")
 local hmi_values = require('user_modules/hmi_values')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local utils = require ('user_modules/utils')
 
 --[[ Module ]]
 local m = actions
@@ -49,17 +50,9 @@ function m.getPathToFileInStorage(fileName)
   .. m.getDeviceMAC() .. "/" .. fileName
 end
 
-function m.getDeviceName()
-  return config.mobileHost .. ":" .. config.mobilePort
-end
+m.getDeviceName = utils.getDeviceName
 
-function m.getDeviceMAC()
-  local cmd = "echo -n " .. m.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-  local handle = io.popen(cmd)
-  local result = handle:read("*a")
-  handle:close()
-  return result
-end
+m.getDeviceMAC = utils.getDeviceMAC
 
 function m.getMobileAppId(pAppId)
   if not pAppId then pAppId = 1 end

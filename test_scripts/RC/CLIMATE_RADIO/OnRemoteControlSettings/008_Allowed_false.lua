@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -52,8 +51,7 @@ local function disableRcFromHmi()
   mobileSession1:ExpectNotification("OnHMIStatus"):Times(0)
   mobileSession2:ExpectNotification("OnHMIStatus"):Times(0)
   mobileSession3:ExpectNotification("OnHMIStatus"):Times(0) -- NAVIGATION app
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

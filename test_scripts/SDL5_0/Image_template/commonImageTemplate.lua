@@ -178,6 +178,7 @@ function m.alert(pIsTemplate, pParams)
 	mobSession:ExpectNotification("OnHMIStatus",
         { systemContext = "ALERT"},
         { systemContext = "MAIN"})
+	:Times(2)
 	mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 

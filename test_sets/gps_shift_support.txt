@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/API/VehicleData/GpsShiftSupport/001_GetVehicleData_gps_shift.lua
 ./test_scripts/API/VehicleData/GpsShiftSupport/002_GetVehicleData_gps_without_shift.lua
 ./test_scripts/API/VehicleData/GpsShiftSupport/003_OnVehicleData_gps_shift.lua

@@ -33,6 +33,8 @@
 -- Expected result:
 -- a) PTS has correct values.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -56,7 +58,6 @@ commonSteps:DeletePolicyTable()
 local pathToSnapshot
 local consentDeviceSystemTimeStamp
 local consentGroupSystemTimeStamp
-local MACHash
 local appID = config.application1.registerAppInterfaceParams["fullAppID"]
 
 --[[ Local Functions ]]
@@ -93,7 +94,7 @@ local function GetDataFromSnapshot(pathToFile)
   file:close()
   local json = require("modules/json")
   local data = json.decode(json_data)
-  local ucr = data.policy_table.device_data[MACHash].user_consent_records
+  local ucr = data.policy_table.device_data[utils.getDeviceMAC()].user_consent_records
   local res = {
     deviceConsentTimeStamp = dateToTimeStamp(getData(ucr.device, "time_stamp")),
     deviceInput = getData(ucr.device, "input"),
@@ -109,21 +110,12 @@ end
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_Get_List_Of_Connected_Devices()
   self.hmiConnection:SendNotification("BasicCommunication.OnStartDeviceDiscovery")
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-
-          name = utils.getDeviceName(),
-          transportType = "WIFI",
-          isSDLAllowed = false
-        }
-      }
-    }
-    ):Do(function(_,data)
-      MACHash = data.params.deviceList[1].id
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
@@ -133,7 +125,7 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
       local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
       EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
-          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = utils.getDeviceName()}})
+          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
           GetCurrentTimeStampDeviceConsent()
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_,data1)

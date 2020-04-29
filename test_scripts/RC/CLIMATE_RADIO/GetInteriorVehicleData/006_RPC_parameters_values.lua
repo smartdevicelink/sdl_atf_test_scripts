@@ -19,7 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -35,8 +34,7 @@ local function invalidParamName(pModuleType)
   :Times(0)
 
   commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 local function invalidParamType(pModuleType)
@@ -49,8 +47,7 @@ local function invalidParamType(pModuleType)
   :Times(0)
 
   commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 local function missingMandatoryParam()
@@ -63,8 +60,7 @@ local function missingMandatoryParam()
   :Times(0)
 
   commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 local function fakeParam(pModuleType)

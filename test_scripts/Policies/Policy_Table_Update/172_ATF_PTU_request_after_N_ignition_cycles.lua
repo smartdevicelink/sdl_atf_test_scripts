@@ -19,6 +19,8 @@
 -- HMI->SDL:BasicCommunication.OnIgnitionCycleOver->
 -- SDL must trigger a PolicyTableUpdate sequence
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"

@@ -6,7 +6,6 @@ require('cardinalities')
 require('user_modules/AppTypes')
 local events = require('events')
 local mobile_session = require('mobile_session')
-local config = require('config')
 
 local commonPreconditions = require ('/user_modules/shared_testcases/commonPreconditions')
 local commonFunctions = require ('/user_modules/shared_testcases/commonFunctions')

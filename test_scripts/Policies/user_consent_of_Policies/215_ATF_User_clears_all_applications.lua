@@ -20,6 +20,8 @@
 -- SDL->HMI: BC.UpdateDeviceList(device1, device2)
 -- HMI->SDL: BC.UpdateDeviceList(SUCCESS)
 --------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -39,14 +41,15 @@ require('cardinalities')
 require('user_modules/AppTypes')
 
 local mobile_session = require('mobile_session')
-local tcp = require('tcp_connection')
+local mobile_adapter_controller = require("mobile_adapter/mobile_adapter_controller")
 local file_connection = require('file_connection')
 local mobile = require('mobile_connection')
 local events = require('events')
 
 --[[ Local variables ]]
-local deviceMAC2 = "54286cb92365be544aa7008b92854b9648072cf8d8b17b372fd0786bef69d7a2"
+local deviceMAC2 = "9cc72994ab9ca68c1daaf02834f7a94552e82aad3250778f2e12d14afee0a5c6"
 local mobileHost = "1.0.0.1"
+local deviceName2 = mobileHost .. ":" .. config.mobilePort
 
 -- Creation dummy connection
 os.execute("ifconfig lo:1 1.0.0.1")
@@ -54,20 +57,12 @@ os.execute("ifconfig lo:1 1.0.0.1")
 function Test:Precondition_Connect_device1()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI",
-          isSDLAllowed = false
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_Register_app1()
@@ -116,8 +111,8 @@ end
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Check_two_devices_visible_on_device2_connect()
-  local tcpConnection = tcp.Connection(mobileHost, config.mobilePort)
-  local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
+  local mobileAdapter = self.getDefaultMobileAdapter(mobileHost, config.mobilePort)
+  local fileConnection = file_connection.FileConnection("mobile.out", mobileAdapter)
   local connection = mobile.MobileConnection(fileConnection)
   event_dispatcher:AddConnection(connection)
   connection:Connect()
@@ -128,17 +123,20 @@ function Test:TestStep_Check_two_devices_visible_on_device2_connect()
     {
       deviceList = {
         {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI",
+          id = deviceMAC2,
+          name = deviceName2,
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         },
         {
-          id = deviceMAC2,
-          name = mobileHost,
-          transportType = "WIFI",
+          id = utils.getDeviceMAC(),
+          name = utils.getDeviceName(),
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         },
+        {
+          transportType = "WEBENGINE_WEBSOCKET",
+        }
     }})
   :Do(function(_,data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})

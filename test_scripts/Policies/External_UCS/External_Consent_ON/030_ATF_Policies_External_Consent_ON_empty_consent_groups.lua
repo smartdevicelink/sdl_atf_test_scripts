@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 -------------------------------------- Requirement summary -------------------------------------------
 -- [Policies] External UCS: empty "consent_groups" changes after externalConsentStatus was received
 --

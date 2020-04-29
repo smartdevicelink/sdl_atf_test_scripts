@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2990_PerfomInteraction_with_choiceID.lua

@@ -15,9 +15,13 @@
 --
 -- Expected result:
 -- PTU is requested. PTS is created.
--- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
+-- HMI->SDL: SDL.UpdateSDL
+-- SDL->HMI: SDL.UpdateSDL(UPDATE_NEEDED)
 -- SDL->HMI: BasicCommunication.PolicyUpdate
+-- SDL->HMI: SDL.OnStatusUpdate(UPDATING)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -63,7 +67,7 @@ function Test:TestStep_OnStatusUpdate_UPDATE_NEEDED_new_PTU_request()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function(_,data) self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {}) end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}):Times(0)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"})
   commonTestCases:DelayedExp(10000)
 end
 

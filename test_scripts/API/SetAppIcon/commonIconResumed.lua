@@ -165,7 +165,7 @@ end
 --]]
 function m.closeConnection()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
-  test.mobileConnection:Close()
+  actions.mobile.disconnect()
 end
 
 --[[ @openConnection: Open mobile connection successfully

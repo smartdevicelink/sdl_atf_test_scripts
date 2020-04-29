@@ -34,6 +34,8 @@ local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 3
 config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
@@ -122,8 +124,8 @@ end
 --! self - test object,
 --! ctx - systemContext value
 --! @return: none
-local function SendOnSystemContext(self, ctx)
-  self.hmiConnection:SendNotification("UI.OnSystemContext",
+local function SendOnSystemContext(ctx)
+  commonSmoke.getHMIConnection():SendNotification("UI.OnSystemContext",
     { appID = commonSmoke.getHMIAppId(), systemContext = ctx })
 end
 
@@ -152,9 +154,9 @@ end
 --! self - test object,
 --! request - interaction mode,
 --! @return: none
-local function ExpectOnHMIStatusWithAudioStateChanged_PI(self, request)
+local function ExpectOnHMIStatusWithAudioStateChanged_PI(request)
   if "BOTH" == request then
-    self.mobileSession1:ExpectNotification("OnHMIStatus",
+    commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION" },
       { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "VRSESSION" },
@@ -163,7 +165,7 @@ local function ExpectOnHMIStatusWithAudioStateChanged_PI(self, request)
       { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
     :Times(6)
   elseif "VR" == request then
-    self.mobileSession1:ExpectNotification("OnHMIStatus",
+    commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
       { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
@@ -171,7 +173,7 @@ local function ExpectOnHMIStatusWithAudioStateChanged_PI(self, request)
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
     :Times(5)
   elseif "MANUAL" == request then
-    self.mobileSession1:ExpectNotification("OnHMIStatus",
+    commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
@@ -185,9 +187,9 @@ end
 --! choiceSetID - id for choice set
 --! self - test object
 --! @return: none
-local function CreateInteractionChoiceSet(choiceSetID, self)
+local function CreateInteractionChoiceSet(choiceSetID)
   local choiceID = choiceSetID
-  local cid = self.mobileSession1:SendRPC("CreateInteractionChoiceSet", {
+  local cid = commonSmoke.getMobileSession():SendRPC("CreateInteractionChoiceSet", {
       interactionChoiceSetID = choiceSetID,
       choiceSet = setChoiceSet(choiceID),
     })
@@ -197,9 +199,9 @@ local function CreateInteractionChoiceSet(choiceSetID, self)
       vrCommands = { "VrChoice" .. tostring(choiceID) }
     })
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
-  self.mobileSession1:ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
+  commonSmoke.getMobileSession():ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
 end
 
 --! @PI_PerformViaVR_ONLY: Processing PI with interaction mode VR_ONLY with performing selection
@@ -207,9 +209,9 @@ end
 --! paramsSend - parameters for PI request
 --! self - test object
 --! @return: none
-local function PI_PerformViaVR_ONLY(paramsSend, self)
+local function PI_PerformViaVR_ONLY(paramsSend)
   paramsSend.interactionMode = "VR_ONLY"
-  local cid = self.mobileSession1:SendRPC("PerformInteraction",paramsSend)
+  local cid = commonSmoke.getMobileSession():SendRPC("PerformInteraction",paramsSend)
   EXPECT_HMICALL("VR.PerformInteraction", {
       helpPrompt = paramsSend.helpPrompt,
       initialPrompt = paramsSend.initialPrompt,
@@ -218,14 +220,14 @@ local function PI_PerformViaVR_ONLY(paramsSend, self)
     })
   :Do(function(_,data)
       local function vrResponse()
-        self.hmiConnection:SendNotification("TTS.Started")
-        self.hmiConnection:SendNotification("VR.Started")
-        SendOnSystemContext(self, "VRSESSION")
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+        commonSmoke.getHMIConnection():SendNotification("TTS.Started")
+        commonSmoke.getHMIConnection():SendNotification("VR.Started")
+        SendOnSystemContext("VRSESSION")
+        commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
           { choiceID = paramsSend.interactionChoiceSetIDList[1] })
-        self.hmiConnection:SendNotification("TTS.Stopped")
-        self.hmiConnection:SendNotification("VR.Stopped")
-        SendOnSystemContext(self, "MAIN")
+        commonSmoke.getHMIConnection():SendNotification("TTS.Stopped")
+        commonSmoke.getHMIConnection():SendNotification("VR.Stopped")
+        SendOnSystemContext("MAIN")
       end
       RUN_AFTER(vrResponse, 1000)
     end)
@@ -236,10 +238,10 @@ local function PI_PerformViaVR_ONLY(paramsSend, self)
       vrHelpTitle = paramsSend.initialText,
     })
   :Do(function(_,data)
-      self.hmiConnection:SendResponse( data.id, data.method, "SUCCESS", { } )
+      commonSmoke.getHMIConnection():SendResponse( data.id, data.method, "SUCCESS", { } )
     end)
-  ExpectOnHMIStatusWithAudioStateChanged_PI(self, "VR")
-  self.mobileSession1:ExpectResponse(cid,
+  ExpectOnHMIStatusWithAudioStateChanged_PI("VR")
+  commonSmoke.getMobileSession():ExpectResponse(cid,
     { success = true, resultCode = "SUCCESS", choiceID = paramsSend.interactionChoiceSetIDList[1] })
 end
 
@@ -248,9 +250,9 @@ end
 --! paramsSend - parameters for PI request
 --! self - test object
 --! @return: none
-local function PI_PerformViaMANUAL_ONLY(paramsSend, self)
+local function PI_PerformViaMANUAL_ONLY(paramsSend)
   paramsSend.interactionMode = "MANUAL_ONLY"
-  local cid = self.mobileSession1:SendRPC("PerformInteraction", paramsSend)
+  local cid = commonSmoke.getMobileSession():SendRPC("PerformInteraction", paramsSend)
   EXPECT_HMICALL("VR.PerformInteraction", {
       helpPrompt = paramsSend.helpPrompt,
       initialPrompt = paramsSend.initialPrompt,
@@ -258,8 +260,8 @@ local function PI_PerformViaMANUAL_ONLY(paramsSend, self)
       timeoutPrompt = paramsSend.timeoutPrompt
     })
   :Do(function(_,data)
-      self.hmiConnection:SendNotification("TTS.Started")
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+      commonSmoke.getHMIConnection():SendNotification("TTS.Started")
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
   EXPECT_HMICALL("UI.PerformInteraction", {
       timeout = paramsSend.timeout,
@@ -270,17 +272,17 @@ local function PI_PerformViaMANUAL_ONLY(paramsSend, self)
       }
     })
   :Do(function(_,data)
-      SendOnSystemContext(self,"HMI_OBSCURED")
+      SendOnSystemContext("HMI_OBSCURED")
       local function uiResponse()
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+        commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
           { choiceID = paramsSend.interactionChoiceSetIDList[1] })
-        self.hmiConnection:SendNotification("TTS.Stopped")
-        SendOnSystemContext(self,"MAIN")
+        commonSmoke.getHMIConnection():SendNotification("TTS.Stopped")
+        SendOnSystemContext("MAIN")
       end
       RUN_AFTER(uiResponse, 1000)
     end)
-  ExpectOnHMIStatusWithAudioStateChanged_PI(self, "MANUAL")
-  self.mobileSession1:ExpectResponse(cid,
+  ExpectOnHMIStatusWithAudioStateChanged_PI("MANUAL")
+  commonSmoke.getMobileSession():ExpectResponse(cid,
     { success = true, resultCode = "SUCCESS", choiceID = paramsSend.interactionChoiceSetIDList[1] })
 end
 
@@ -289,9 +291,9 @@ end
 --! paramsSend - parameters for PI request
 --! self - test object
 --! @return: none
-local function PI_PerformViaBOTH(paramsSend, self)
+local function PI_PerformViaBOTH(paramsSend)
   paramsSend.interactionMode = "BOTH"
-  local cid = self.mobileSession1:SendRPC("PerformInteraction",paramsSend)
+  local cid = commonSmoke.getMobileSession():SendRPC("PerformInteraction",paramsSend)
   EXPECT_HMICALL("VR.PerformInteraction", {
       helpPrompt = paramsSend.helpPrompt,
       initialPrompt = paramsSend.initialPrompt,
@@ -299,17 +301,17 @@ local function PI_PerformViaBOTH(paramsSend, self)
       timeoutPrompt = paramsSend.timeoutPrompt
     })
   :Do(function(_,data)
-      self.hmiConnection:SendNotification("VR.Started")
-      self.hmiConnection:SendNotification("TTS.Started")
-      SendOnSystemContext(self,"VRSESSION")
+      commonSmoke.getHMIConnection():SendNotification("VR.Started")
+      commonSmoke.getHMIConnection():SendNotification("TTS.Started")
+      SendOnSystemContext("VRSESSION")
       local function firstSpeakTimeOut()
-        self.hmiConnection:SendNotification("TTS.Stopped")
-        self.hmiConnection:SendNotification("TTS.Started")
+        commonSmoke.getHMIConnection():SendNotification("TTS.Stopped")
+        commonSmoke.getHMIConnection():SendNotification("TTS.Started")
       end
       RUN_AFTER(firstSpeakTimeOut, 5)
       local function vrResponse()
-        self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
-        self.hmiConnection:SendNotification("VR.Stopped")
+        commonSmoke.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
+        commonSmoke.getHMIConnection():SendNotification("VR.Stopped")
       end
       RUN_AFTER(vrResponse, 20)
     end)
@@ -325,18 +327,18 @@ local function PI_PerformViaBOTH(paramsSend, self)
     })
   :Do(function(_,data)
       local function choiceIconDisplayed()
-        SendOnSystemContext(self,"HMI_OBSCURED")
+        SendOnSystemContext("HMI_OBSCURED")
       end
       RUN_AFTER(choiceIconDisplayed, 25)
       local function uiResponse()
-        self.hmiConnection:SendNotification("TTS.Stopped")
-        self.hmiConnection:SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
-        SendOnSystemContext(self,"MAIN")
+        commonSmoke.getHMIConnection():SendNotification("TTS.Stopped")
+        commonSmoke.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
+        SendOnSystemContext("MAIN")
       end
       RUN_AFTER(uiResponse, 30)
     end)
-  ExpectOnHMIStatusWithAudioStateChanged_PI(self, "BOTH")
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT" })
+  ExpectOnHMIStatusWithAudioStateChanged_PI("BOTH")
+  commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT" })
 end
 
 --[[ Scenario ]]

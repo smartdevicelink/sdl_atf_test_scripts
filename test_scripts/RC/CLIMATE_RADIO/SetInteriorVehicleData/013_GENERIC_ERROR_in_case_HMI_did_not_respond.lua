@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -36,8 +35,7 @@ local function setVehicleData(pModuleType)
     end)
 
   commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
-
-  commonTestCases:DelayedExp(11000)
+  commonRC.wait(11000)
 end
 
 --[[ Scenario ]]

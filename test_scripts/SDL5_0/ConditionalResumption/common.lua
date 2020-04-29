@@ -17,6 +17,12 @@ local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local test = require("user_modules/dummy_connecttest")
 local utils = require('user_modules/utils')
+local runner = require('user_modules/script_runner')
+
+--[[ Conditions to skip tests ]]
+if config.defaultMobileAdapterType ~= "TCP" then
+  runner.skipTest("Test is applicable only for TCP connection")
+end
 
 --[[ Local Variables ]]
 local hmiAppIds = {}
@@ -45,7 +51,7 @@ common.appHMITypesByOption = {
 common.wait = utils.wait
 
 --[[Module functions]]
-local basePreconditions = actions.preconditions 
+local basePreconditions = actions.preconditions
 function common.preconditions()
   basePreconditions()
   commonPreconditions:BackupFile("smartDeviceLink.ini")

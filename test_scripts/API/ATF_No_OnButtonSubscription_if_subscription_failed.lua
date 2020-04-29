@@ -5,7 +5,6 @@
 --local mobile  = require('mobile_connection')
 --local tcp = require('tcp_connection')
 --local file_connection  = require('file_connection')
---local config = require('config')
 
 
 --function Test:ActivationApp()
@@ -114,7 +113,6 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 
 
 config.deviceMAC      = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"

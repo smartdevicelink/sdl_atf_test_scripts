@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2442_Fix_mem_seg_fault_error_in_jsoncpp.lua

@@ -17,6 +17,8 @@
 -- Expected result:
 -- a) SDL send HB with time specified in pre_DataConsent section (4000 ms)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -121,7 +123,7 @@ function Test:TestStep_Get_HeartBeat_Time()
   end
 
 function Test:TestStep_Check_HB_Time()
-  if ( (HBTime_min < 3850) or (HBTime_max > 4150) ) then
+  if ( (HBTime_min < 3850) or (HBTime_max > 4200) ) then
     self:FailTestCase("Wrong HearBeat time! Expected: 4000ms, Actual: ["..HBTime_min.." ; "..HBTime_max.."]ms ")
   else
     print("HearBeat is in range ["..HBTime_min.." ; "..HBTime_max.."]ms ")

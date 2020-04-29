@@ -63,7 +63,7 @@
 ./test_scripts/Policies/Policy_Table_Update/136_ATF_Define_urls_PTS_will_sent_hmi.lua
 ./test_scripts/Policies/Policy_Table_Update/137_ATF_Sending_PTS_to_mobile_application.lua
 ./test_scripts/Policies/Policy_Table_Update/138_ATF_Sending_PTS_to_app_OnSystemRequest_appID_default.lua
-./test_scripts/Policies/Policy_Table_Update/139_ATF_PoliciesManager_changes_status_UPDATING.lua
+;139 test script became obsolete after the introduction of the HMI PTU feature and was removed
 ./test_scripts/Policies/Policy_Table_Update/140_ATF_timeout_countdown_start.lua
 ./test_scripts/Policies/Policy_Table_Update/141_ATF_Got_PTU_from_mobile_application.lua
 ./test_scripts/Policies/Policy_Table_Update/142_ATF_PoliciesManager_changes_status_to_UP_TO_DATE.lua
@@ -81,7 +81,7 @@
 ./test_scripts/Policies/Policy_Table_Update/154_ATF_PTU_SDL_Must_Remove_PTU_File_Got_From_Sync_After_Getting_The_Updates.lua
 ./test_scripts/Policies/Policy_Table_Update/155_ATF_PTU_Policies_Manager_Changes_Status_To_UPDATE_NEEDED.lua
 ./test_scripts/Policies/Policy_Table_Update/156_ATF_PTU_OnStatusUpdate_Trigger.lua
-./test_scripts/Policies/Policy_Table_Update/157_ATF_PTU_Policies_Manager_Changes_Status_To_UPDATING.lua
+;157 test script became obsolete after the introduction of the HMI PTU feature and was removed
 ./test_scripts/Policies/Policy_Table_Update/158_ATF_PTU_Policies_Manager_Changes_Status_To_UP_TO_DATE.lua
 ./test_scripts/Policies/Policy_Table_Update/159_ATF_PTU_Requirements_For_HMILevel_Of_The_Application_Taking_Part_In_Policy_Update.lua
 ./test_scripts/Policies/Policy_Table_Update/160_ATF_Default_Policy_For_The_App_After_PTU.lua

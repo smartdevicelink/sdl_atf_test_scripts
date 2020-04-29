@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/3196_SDL_responds_resultCode_GENERIC_ERROR_while_dataType_VEHICLEDATA_EXTERNTEMP_is_VEHICLE_DATA_NOT_AVAILABLE_and_not_in_subscribed_list_store.lua

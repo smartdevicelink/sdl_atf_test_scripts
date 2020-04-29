@@ -15,6 +15,8 @@
 -- Expected result:
 --SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -70,11 +72,11 @@ function Test:RAI_PTU()
             function()
               self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PTU" })
               self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
-              :Do(
+              :DoOnce(
                 function()
                   local OnSystemRequest_time = timestamp()
                   print("OnSystemRequest: " .. tostring(OnSystemRequest_time))
-                  EXPECT_HMINOTIFICATION ("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+                  EXPECT_HMINOTIFICATION ("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"})
                   :ValidIf(
                     function()
                       local OnStatusUpdate_time = timestamp()
@@ -87,8 +89,11 @@ function Test:RAI_PTU()
                         return false, "Expected timeout '60000' ms, actual '" .. diff .. "' ms (tolerance = 500ms)"
                       end
                     end)
+                  :Times(2)
                   :Timeout(63000)
                 end)
+              :Times(2)
+              :Timeout(63000)
             end)
         end)
     end)

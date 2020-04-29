@@ -8,7 +8,6 @@ local websocket      = require('websocket_connection')
 local hmi_connection = require('hmi_connection')
 local events         = require("events")
 local expectations   = require('expectations')
-local config         = require('config')
 local functionId     = require('function_id')
 local Event = events.Event
 

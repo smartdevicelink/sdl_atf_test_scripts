@@ -1,10 +1,11 @@
+local ATF = require('ATF')
 require('atf.util')
 local module = require('testbase')
 local mobile = require("mobile_connection")
-local tcp = require("tcp_connection")
+local mobile_adapter_controller = require("mobile_adapter/mobile_adapter_controller")
 local file_connection = require("file_connection")
 local mobile_session = require("mobile_session")
-local websocket = require('websocket_connection')
+local hmi_adapter_controller = require("hmi_adapter/hmi_adapter_controller")
 local hmi_connection = require('hmi_connection')
 local events = require("events")
 local expectations = require('expectations')
@@ -22,9 +23,13 @@ local Expectation = expectations.Expectation
 local SUCCESS = expectations.SUCCESS
 local FAILED = expectations.FAILED
 
-module.hmiConnection = hmi_connection.Connection(websocket.WebSocketConnection(config.hmiUrl, config.hmiPort))
-local tcpConnection = tcp.Connection(config.mobileHost, config.mobilePort)
-local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
+module.hmiConnection = hmi_connection.Connection(hmi_adapter_controller.getHmiAdapter({connection = ATF.remoteConnection}))
+
+--- Default mobile connection
+module.getDefaultMobileAdapter = mobile_adapter_controller.getDefaultAdapter
+
+local mobileAdapter = module.getDefaultMobileAdapter()
+local fileConnection = file_connection.FileConnection("mobile.out", mobileAdapter)
 module.mobileConnection = mobile.MobileConnection(fileConnection)
 event_dispatcher:AddConnection(module.hmiConnection)
 event_dispatcher:AddConnection(module.mobileConnection)
@@ -620,6 +625,10 @@ function module:initHMI_onReady()
       end
     end)
 
+  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+  :Do(function(_, data) self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {}) end)
+  :Times(SDL.buildOptions.webSocketServerSupport == "ON" and AtLeast(1) or AnyNumber())
+
   self.hmiConnection:SendNotification("BasicCommunication.OnReady")
 end
 
@@ -631,8 +640,9 @@ function module:connectMobile()
   :Do(function()
       print("Disconnected!!!")
     end)
+  local ret = EXPECT_EVENT(events.connectedEvent, "Connected")
   self.mobileConnection:Connect()
-  return EXPECT_EVENT(events.connectedEvent, "Connected")
+  return ret
 end
 
 function module:startSession()

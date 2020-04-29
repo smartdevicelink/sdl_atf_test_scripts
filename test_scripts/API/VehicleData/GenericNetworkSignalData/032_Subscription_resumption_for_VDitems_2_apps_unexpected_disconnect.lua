@@ -72,7 +72,9 @@ local function registerApps()
   common.getMobileSession(appSessionIdForApp2):ExpectResponse(corId2, { success = true, resultCode = "SUCCESS" })
   :Do(function()
       common.getMobileSession(appSessionIdForApp2):ExpectNotification("OnHMIStatus",
-        { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+        { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
+        { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
+      :Times(2)
       common.getMobileSession(appSessionIdForApp2):ExpectNotification("OnPermissionsChange")
     end)
 

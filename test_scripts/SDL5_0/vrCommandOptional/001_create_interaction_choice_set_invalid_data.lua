@@ -27,6 +27,8 @@
 local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 5
 config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
@@ -67,9 +69,9 @@ local requestParams = {
 }
 
 --[[ Local Functions ]]
-local function createInteractionChoiceSet_mixedVR(params, self)
-	local cid = self.mobileSession1:SendRPC("CreateInteractionChoiceSet", params)
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+local function createInteractionChoiceSet_mixedVR(params)
+	local cid = commonSmoke.getMobileSession():SendRPC("CreateInteractionChoiceSet", params)
+	commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 end
 
 --[[ Scenario ]]

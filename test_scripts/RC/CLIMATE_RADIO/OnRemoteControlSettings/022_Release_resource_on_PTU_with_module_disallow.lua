@@ -42,6 +42,7 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions, { false })
+runner.Step("Update SDL config", commonRC.setSDLIniParameter, { "ApplicationListUpdateTimeout", 5000 })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI1", commonRC.registerApp)
 runner.Step("PTU with RADIO for App1", commonRC.policyTableUpdate, { PTUfunc1 })

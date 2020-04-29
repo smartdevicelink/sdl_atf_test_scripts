@@ -29,7 +29,7 @@
 ./test_scripts/Policies/build_options/080_ATF_PTU_OnStatsusUpdate_Trigger_UPDATE_NEEDED_HTTP.lua
 ./test_scripts/Policies/build_options/081_ATF_PTU_OnStatsusUpdate_Trigger_UPDATING_HTTP.lua
 ./test_scripts/Policies/build_options/082_ATF_PTU_OnStatsusUpdate_Trigger_UP_TO_DATE_HTTP.lua
-;./test_scripts/Policies/build_options/083_ATF_PTU_UTF8_Encoding_Check_HTTP.lua 1222
+./test_scripts/Policies/build_options/083_ATF_PTU_UTF8_Encoding_Check_HTTP.lua
 ./test_scripts/Policies/build_options/084_ATF_Default_Policy_For_The_App_After_PTU_HTTP.lua
 ./test_scripts/Policies/build_options/085_ATF_PTU_In_Progress_New_App_Registers_HTTP.lua
 ./test_scripts/Policies/build_options/086_ATF_PTU_Merging_wtih_LPT_HTTP.lua

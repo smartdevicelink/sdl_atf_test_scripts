@@ -163,7 +163,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Set ApplicationListUpdateTimeout=4000", common.setSDLIniParameter,
   { "ApplicationListUpdateTimeout", 4000 })
 runner.Step("App1 registration", common.registerAppWOPTU, {appSessionId1})
-runner.Step("App2 registration", common.registerApp, { appSessionId2 })
+runner.Step("App2 registration", common.registerAppWOPTU, {appSessionId2})
 runner.Step("App1 activation", common.activateApp, {appSessionId1})
 runner.Step("App2 activation", common.activateApp, {appSessionId2})
 runner.Step("PTU with VehicleDataItems", common.policyTableUpdateWithOnPermChange,
@@ -198,6 +198,7 @@ runner.Step("App1 SubscribeVehicleData " .. itemToRemove .. " after VD was remov
 runner.Step("App2 SubscribeVehicleData " .. itemToRemove .. " after VD was removed", common.errorRPCprocessing,
   { appSessionId2, itemToRemove, "SubscribeVehicleData", "INVALID_DATA" })
 
+runner.Step("Exit apps", common.exitApps)
 runner.Step("Ignition off", common.ignitionOff)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App1 registration after ign_off", registerApp1WithResumption)

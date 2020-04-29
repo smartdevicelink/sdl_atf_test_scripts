@@ -1,0 +1,2 @@
+./test_scripts/Defects/6_1/3142_01_Absence_of_misplaced_OnVideoDataStreaming.lua
+./test_scripts/Defects/6_1/3142_02_Absence_of_misplaced_OnAudioDataStreaming.lua

@@ -142,6 +142,7 @@ function m.unexpectedDisconnect(pAppId)
     appID = m.getHMIAppId(pAppId)
   })
   m.getMobileSession(pAppId):Stop()
+  utils.wait(1000)
 end
 
 --[[ @unregisterApp: unregister application sequence
@@ -175,11 +176,11 @@ end
 --! @return: none
 --]]
 function m.connectMobile()
-  test.mobileConnection:Connect()
   EXPECT_EVENT(events.connectedEvent, "Connected")
   :Do(function()
       utils.cprint(35, "Mobile connected")
     end)
+  test.mobileConnection:Connect()
 end
 
 --[[ @reRegisterApp: re-register application

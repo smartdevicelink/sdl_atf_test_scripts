@@ -7,6 +7,8 @@
 -- re-assign updated "default" policies to this app
 -- In case Policies Manager assigns the "default" policies to app AND the value of "default" policies was updated in case of PolicyTable update
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

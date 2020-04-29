@@ -3,7 +3,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local utils = require("user_modules/utils")
 local rc = require('user_modules/sequences/remote_control')
 
@@ -61,11 +60,11 @@ function commonRC.disableRCFromHMI(pAppId)
 end
 
 function commonRC.getModules()
-  return commonFunctions:cloneTable({ "RADIO", "CLIMATE" })
+  return { "RADIO", "CLIMATE" }
 end
 
 function commonRC.getAllModules()
-  return commonFunctions:cloneTable({ "RADIO", "CLIMATE", "SEAT", "AUDIO", "LIGHT", "HMI_SETTINGS" })
+  return { "RADIO", "CLIMATE", "SEAT", "AUDIO", "LIGHT", "HMI_SETTINGS" }
 end
 
 function commonRC.getHMIAppIdsRC()

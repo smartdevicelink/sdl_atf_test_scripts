@@ -18,6 +18,7 @@ local sdl = require("SDL")
 local mobile_session = require("mobile_session")
 local events = require("events")
 local json = require("modules/json")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 
@@ -161,21 +162,13 @@ end
 --! @parameters: none
 --! @return: device name
 --]]
-function commonDefect.getDeviceName()
-  return config.mobileHost .. ":" .. config.mobilePort
-end
+commonDefect.getDeviceName = utils.getDeviceName
 
 --[[ @getDeviceMAC: provides device MAC address
 --! @parameters: none
 --! @return: device MAC address
 --]]
-function commonDefect.getDeviceMAC()
-  local cmd = "echo -n " .. commonDefect.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-  local handle = io.popen(cmd)
-  local result = handle:read("*a")
-  handle:close()
-  return result
-end
+commonDefect.getDeviceMAC = utils.getDeviceMAC
 
 --[[ @allow_sdl: sequence that allows SDL functionality
 --! @parameters:
@@ -192,6 +185,7 @@ function commonDefect.allow_sdl(self)
       name = commonDefect.getDeviceName()
     }
   })
+  commonDefect.delayedExp(commonDefect.minTimeout)
 end
 
 --[[ @preconditions: precondition steps
@@ -400,9 +394,8 @@ end
 --! self - test object
 --! @return: none
 --]]
-function commonDefect.unsuccessfulPTU(ptu_update_func, self)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
-  :Times(2)
+function commonDefect.unsuccessfulPTU(ptu_update_func, expec_func, self)
+  expec_func()
   ptu(self, ptu_update_func)
 end
 
@@ -432,6 +425,7 @@ function commonDefect.rai_n(id, expect_dd, self)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          :Times(AtLeast(1))
           if expect_dd then
             self["mobileSession" .. id]:ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
           else
@@ -545,6 +539,16 @@ end
 function commonDefect.getMobileSession(self, pAppId)
   if not pAppId then pAppId = 1 end
   return self["mobileSession" .. pAppId]
+end
+
+--[[ @ptu: perform policy table update
+--! @parameters:
+--! pUpdateFunction - additional function for update
+--! self - test object
+--! @return: mobile session
+--]]
+function commonDefect.ptu(pUpdateFunction, self)
+  ptu(self, pUpdateFunction)
 end
 
 return commonDefect

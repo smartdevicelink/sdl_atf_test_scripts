@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/API/ServiceStatusUpdateToHMI/001_1_Video_service_protected.lua
 ./test_scripts/API/ServiceStatusUpdateToHMI/001_2_Audio_service_protected.lua
 ./test_scripts/API/ServiceStatusUpdateToHMI/001_3_RPC_service_protected.lua

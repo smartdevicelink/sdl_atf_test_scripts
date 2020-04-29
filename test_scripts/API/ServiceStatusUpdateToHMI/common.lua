@@ -5,7 +5,7 @@
 local common = require("test_scripts/Security/SSLHandshakeFlow/common")
 local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local SDL = require("SDL")
 local constants = require("protocol_handler/ford_protocol_constants")
 local atf_logger = require("atf_logger")
 
@@ -27,6 +27,7 @@ m.const = constants
 m.pt = utils.printTable
 m.cprint = utils.cprint
 m.readFile = utils.readFile
+m.SDL = { PTS = SDL.PTS }
 
 --[[ Common Functions ]]
 function m.failTestCase(pReason)
@@ -50,7 +51,7 @@ end
 
 function m.start()
   test:runSDL()
-  commonFunctions:waitForSDLStart(test)
+  SDL.WaitForSDLStart(test)
   :Do(function()
       utils.cprint(35, "SDL started")
       test:initHMI()

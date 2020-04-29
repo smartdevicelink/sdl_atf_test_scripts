@@ -39,6 +39,11 @@ local runner = require('user_modules/script_runner')
 local common = require('test_scripts/iAP2TransportSwitch/common')
 local mobSession = require("mobile_session")
 
+--[[ Conditions to skip test ]]
+if config.defaultMobileAdapterType ~= "TCP" then
+  runner.skipTest("Test is applicable only for TCP connection")
+end
+
 --[[ Local Variables ]]
 local deviceBluetooth
 local sessionBluetooth
@@ -49,13 +54,13 @@ local function connectBluetoothDevice(self)
     common.device.bluetooth.port, common.device.bluetooth.out)
 
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
-    deviceList = {
+    deviceList = common.getUpdatedDeviceList({
       {
         id = config.deviceMAC,
         name = common.device.bluetooth.uid,
         transportType = common.device.bluetooth.type
       }
-    }
+    })
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
@@ -101,7 +106,7 @@ local function connectUSBDevice(self)
   local is_switching_done = false
 
   EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
-    deviceList = {
+    deviceList = common.getUpdatedDeviceList({
       {
         id = config.deviceMAC,
         name = common.device.usb.uid,
@@ -112,16 +117,16 @@ local function connectUSBDevice(self)
         name = common.device.bluetooth.uid,
         transportType = common.device.bluetooth.type
       }
-    }
+    })
   },
   {
-    deviceList = {
+    deviceList = common.getUpdatedDeviceList({
       {
         id = config.deviceMAC,
         name = common.device.usb.uid,
         transportType = common.device.usb.type
       }
-    }
+    })
   })
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })

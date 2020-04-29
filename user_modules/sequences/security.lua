@@ -28,21 +28,25 @@ local origGetMobileSession = actions.getMobileSession
 --! @return: none
 --]]
 local function registerStartSecureServiceFunc(pMobSession)
-  function pMobSession.mobile_session_impl.control_services:StartSecureService(pServiceId)
+  function pMobSession.mobile_session_impl.control_services:StartSecureService(pServiceId, pData)
     local msg = {
       serviceType = pServiceId,
       frameInfo = constants.FRAME_INFO.START_SERVICE,
       sessionId = self.session.sessionId.get(),
-      encryption = true
+      encryption = true,
+      binaryData = pData
     }
     self:Send(msg)
   end
-  function pMobSession.mobile_session_impl:StartSecureService(pServiceId)
+  function pMobSession.mobile_session_impl:StartSecureService(pServiceId, pData)
     if not self.isSecuredSession then
       self.security:registerSessionSecurity()
       self.security:prepareToHandshake()
     end
-    return self.control_services:StartSecureService(pServiceId)
+    return self.control_services:StartSecureService(pServiceId, pData)
+  end
+  function pMobSession:StartSecureService(pServiceId, pData)
+    return self.mobile_session_impl:StartSecureService(pServiceId, pData)
   end
 end
 

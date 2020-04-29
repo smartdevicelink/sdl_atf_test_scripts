@@ -39,6 +39,11 @@
 local runner = require('user_modules/script_runner')
 local common = require("test_scripts/RC/MultipleModules/commonRCMulModules")
 
+--[[ Conditions to scik test ]]
+if config.defaultMobileAdapterType == "WS" or config.defaultMobileAdapterType == "WSS" then
+  runner.skipTest("Test is not applicable for WS/WSS connection")
+end
+
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 

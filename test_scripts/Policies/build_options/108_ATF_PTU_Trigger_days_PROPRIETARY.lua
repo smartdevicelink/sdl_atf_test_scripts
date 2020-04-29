@@ -17,6 +17,8 @@
 -- Expected result:
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED) //start PTU flow
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -124,6 +126,9 @@ function Test:TestStep_Register_App_And_Check_That_PTU_Triggered()
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",{status = "UPDATE_NEEDED"},{status = "UPDATING"}):Times(2)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 --[[ Postcondition ]]

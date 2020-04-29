@@ -17,6 +17,8 @@
 -- PoliciesManager must respond with 1)"isSDLAllowed:false", 2) "device" param containing the device`s name and ID previously sent by SDL via UpdateDeviceList
 -- in the response to HMI without consent request
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
@@ -36,29 +38,18 @@ require('mobile_session')
 
 --[[ Local variables ]]
 local mobile_session = require('mobile_session')
-local device_id = utils.getDeviceMAC()
-local server_address = utils.getDeviceName()
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_UpdateDeviceList_on_device_connect()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          isSDLAllowed = false,
-          name = server_address,
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-      device_id = data.params.deviceList[1].id
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_RegisterApp1()
@@ -83,7 +74,7 @@ function Test:ActivateApp_isSDLAllowed_false()
   local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
   EXPECT_HMIRESPONSE(RequestId,
     {result = { code = 0,
-    device = { id = device_id, name = server_address },
+    device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() },
     isAppPermissionsRevoked = false, isAppRevoked = false, isSDLAllowed = false, isPermissionsConsentNeeded = false, method ="SDL.ActivateApp"}})
   :Do(function(_,data)
       --Consent for device is needed
@@ -95,7 +86,7 @@ function Test:ActivateApp_isSDLAllowed_false()
         EXPECT_HMIRESPONSE(RequestId1)
         :Do(function(_,_)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = server_address}})
+              {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_,_data1)
                 self.hmiConnection:SendResponse(_data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})

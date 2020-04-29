@@ -144,7 +144,7 @@ end
 function m.cleanUpCertificates()
   local sdlBin = commonPreconditions:GetPathToSDL()
   os.execute("cd " .. sdlBin .. " && find . -type l -not -name 'lib*' -exec rm -f {} \\;")
-  os.execute("cd " .. sdlBin .. " && rm -rf *.pem")
+  os.execute("cd " .. sdlBin .. " && rm -rf rootCA.pem issuingCA.pem module_key.pem module_crt.pem")
 end
 
 local postconditionsOrig = m.postconditions
@@ -165,9 +165,10 @@ local function saveFile(pContent, pFileName)
   f:close()
 end
 
-local function createCrtHashes()
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  os.execute("cd " .. sdlBin .. " && c_rehash .")
+local function createCrtHash(pCrtFilePath, pCrtFileName)
+  os.execute("cd " .. pCrtFilePath
+    .. " && openssl x509 -in " .. pCrtFileName
+    .. " -hash -noout | awk '{print $0\".0\"}' | xargs ln -sf " .. pCrtFileName)
 end
 
 local function updateSDLIniFile()
@@ -195,9 +196,11 @@ function m.initSDLCertificates(pCrtsFileName, pIsModuleCrtDefined)
   if pIsModuleCrtDefined == nil then pIsModuleCrtDefined = true end
   local allCrts = getAllCrtsFromPEM(pCrtsFileName)
   local sdlBin = commonPreconditions:GetPathToSDL()
-  saveFile(allCrts.rootCA, sdlBin .. "rootCA.pem")
-  saveFile(allCrts.issuingCA, sdlBin .. "issuingCA.pem")
-  createCrtHashes()
+  local ext = ".pem"
+  for _, v in pairs({ "rootCA", "issuingCA" }) do
+    saveFile(allCrts[v], sdlBin .. v .. ext)
+    createCrtHash(sdlBin, v .. ext)
+  end
   if pIsModuleCrtDefined then
     saveFile(allCrts.key, sdlBin .. "module_key.pem")
     saveFile(allCrts.crt, sdlBin .. "module_crt.pem")

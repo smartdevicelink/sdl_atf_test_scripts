@@ -28,10 +28,13 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function changeRegistrationSuccess(self)
+local function changeRegistrationSuccess()
   local requestParams = {
     language ="EN-US",
     hmiDisplayLanguage ="EN-US",
@@ -48,48 +51,49 @@ local function changeRegistrationSuccess(self)
     }
   }
 
-  local cid = self.mobileSession1:SendRPC("ChangeRegistration", requestParams)
+  local cid = common.getMobileSession():SendRPC("ChangeRegistration", requestParams)
 
-  EXPECT_HMICALL("UI.ChangeRegistration", {
+  common.getHMIConnection():ExpectRequest("UI.ChangeRegistration", {
     appName = requestParams.appName,
     language = requestParams.hmiDisplayLanguage,
     ngnMediaScreenAppName = requestParams.ngnMediaScreenAppName,
-    appID = commonSmoke.getHMIAppId()
+    appID = common.getHMIAppId()
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
 
-  EXPECT_HMICALL("VR.ChangeRegistration", {
+  common.getHMIConnection():ExpectRequest("VR.ChangeRegistration", {
     language = requestParams.language,
     vrSynonyms = requestParams.vrSynonyms,
-    appID = commonSmoke.getHMIAppId()
+    appID = common.getHMIAppId()
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
 
-  EXPECT_HMICALL("TTS.ChangeRegistration", {
+  common.getHMIConnection():ExpectRequest("TTS.ChangeRegistration", {
     language = requestParams.language,
     ttsName = requestParams.ttsName,
-    appID = commonSmoke.getHMIAppId()
+    appID = common.getHMIAppId()
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("ChangeRegistration Positive Case", changeRegistrationSuccess)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

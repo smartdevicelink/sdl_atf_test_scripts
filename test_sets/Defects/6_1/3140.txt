@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/3140_01_1st_app_is_able_to_continue_streaming_after_activate_deactivate_2nd_app.lua

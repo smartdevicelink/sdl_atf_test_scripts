@@ -7,17 +7,15 @@ config.checkAllValidations = true
 
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local utils = require("user_modules/utils")
 local json = require("modules/json")
 local test = require("user_modules/dummy_connecttest")
+local SDL = require("SDL")
 
 --[[ Module ]]
 local c = actions
 
 --[[ Variables ]]
-local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
 local wrnMsg
 c.language = "EN-US"
 
@@ -69,13 +67,13 @@ end
 local preconditionsOrig = c.preconditions
 function c.preconditions()
   preconditionsOrig()
-  commonPreconditions:BackupFile(preloadedPT)
+  SDL.PreloadedPT.backup()
 end
 
 local postconditionsOrig = c.postconditions
 function c.postconditions()
   postconditionsOrig()
-  commonPreconditions:RestoreFile(preloadedPT)
+  SDL.PreloadedPT.restore()
 end
 
 local function setLockScreenWrnMsg(pMessages)
@@ -99,15 +97,14 @@ local function setLockScreenWrnMsg(pMessages)
 end
 
 function c.updatePreloadedPT(pLockScreenDismissalEnabled, pUpdateFunc)
-  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
-  local pt = utils.jsonFileToTable(preloadedFile)
+  local pt = SDL.PreloadedPT.get()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   pt.policy_table.module_config.lock_screen_dismissal_enabled = pLockScreenDismissalEnabled
   if pUpdateFunc then
     pUpdateFunc(pt)
   end
   setLockScreenWrnMsg(pt.policy_table.consumer_friendly_messages.messages)
-  utils.tableToJsonFile(pt, preloadedFile)
+  SDL.PreloadedPT.set(pt)
 end
 
 local function deactivateAppToLimited()

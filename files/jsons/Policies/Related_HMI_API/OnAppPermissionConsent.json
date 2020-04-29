@@ -5,7 +5,7 @@
       "exchange_after_x_ignition_cycles": 100,
       "exchange_after_x_kilometers": 1800,
       "exchange_after_x_days": 20,
-      "timeout_after_x_seconds": 60,
+      "timeout_after_x_seconds": 5,
       "seconds_between_retries": [
         1,
         5,

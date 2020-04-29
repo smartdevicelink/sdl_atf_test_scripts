@@ -17,7 +17,6 @@
 
 local runner = require('user_modules/script_runner')
 local common = require("test_scripts/RC/commonRC")
-local hmi_values = require("user_modules/hmi_values")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,7 +28,7 @@ local Module = "LIGHT"
 local function removeLightValueFromCapabilities()
   local lightParams = common.getModuleControlData(Module)
   local lightName = lightParams.lightControlData.lightState[1].id
-  local hmiValues = hmi_values.getDefaultHMITable()
+  local hmiValues = common.getDefaultHMITable()
   for key, value in pairs (hmiValues.RC.GetCapabilities.params.remoteControlCapability.lightControlCapabilities.supportedLights) do
     if value.name == lightName then
       table.remove(hmiValues.RC.GetCapabilities.params.remoteControlCapability.lightControlCapabilities.supportedLights,

@@ -21,6 +21,8 @@
 -- Expected result:
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATING) right after SDL->app: OnSystemRequest
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -57,25 +59,25 @@ function Test:TestStep_PoliciesManager_changes_status_UPDATING()
 
   self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
 
+  EXPECT_NOTIFICATION("OnSystemRequest")--, {requestType = "LOCK_SCREEN_ICON_URL"}, {requestType = "HTTP"})
+  :Do(function(_,data)
+      print("SDL -> MOB: OnSystemRequest, requestType: " .. data.payload.requestType)
+    end)
+  :Times(2)
+
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", {application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(function()
 
-      EXPECT_NOTIFICATION("OnSystemRequest")--, {requestType = "LOCK_SCREEN_ICON_URL"}, {requestType = "HTTP"})
-      :Do(function(_,data)
-          print("SDL -> MOB: OnSystemRequest, requestType: " .. data.payload.requestType)
-        end)
-      :Times(2)
-
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
-      :Do(function(exp,data)
-          print("SDL -> HMI: OnStatusUpdate, status: " .. data.params.status)
-          if(data.params.status == "UPDATE_NEEDED" and exp.occurences ~= 1) then
-            self:FailTestCase("SDL.OnStatusUpdate(UPDATE_NEEDED) is not received for first OnStatusUpdate, Received at occurences: " .. exp.occurences)
-          elseif(data.params.status == "UPDATING" and exp.occurences ~= 2) then
-            self:FailTestCase("SDL.OnStatusUpdate(UPDATING) is not received for second OnStatusUpdate, Received at occurences: " .. exp.occurences)
-          end
-        end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
+  :Do(function(exp,data)
+      print("SDL -> HMI: OnStatusUpdate, status: " .. data.params.status)
+      if(data.params.status == "UPDATE_NEEDED" and exp.occurences ~= 1) then
+        self:FailTestCase("SDL.OnStatusUpdate(UPDATE_NEEDED) is not received for first OnStatusUpdate, Received at occurences: " .. exp.occurences)
+      elseif(data.params.status == "UPDATING" and exp.occurences ~= 2) then
+        self:FailTestCase("SDL.OnStatusUpdate(UPDATING) is not received for second OnStatusUpdate, Received at occurences: " .. exp.occurences)
+      end
     end)
+  end)
 end
 
 --[[ Postconditions ]]

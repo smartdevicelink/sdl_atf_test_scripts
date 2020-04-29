@@ -24,7 +24,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -41,7 +40,7 @@ local function rpcTimedOutHMIResponse(pModuleType, pAppId, pRPC)
       EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
     end)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT", info = info })
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

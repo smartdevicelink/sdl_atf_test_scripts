@@ -61,8 +61,7 @@ function common.serviceResponseFunc(pServiceId)
 end
 
 local function startServiceWithOnServiceUpdate_INVALID_CERT_2nd_try(pServiceId, pHandShakeExpeTimes, pGSTExpTimes)
-  local ptsFileName = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
-    .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
+  local ptsFileName = common.SDL.PTS.file()
   local function getPTUFromPTS(pPTS)
     local pTbl = json.decode(pPTS)
     if next(pTbl) ~= nil then

@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,7 +28,7 @@ local enabledModule = "RADIO"
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
+  local params = commonRC.getDefaultHMITable()
   params.RC.IsReady.params.available = true
   params.RC.GetCapabilities = nil
   return params

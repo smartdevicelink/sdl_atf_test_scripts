@@ -24,7 +24,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local navCapabilities = {
@@ -71,30 +74,31 @@ local function getSystemCapabilityResponse(capabilities)
   return temp
 end
 
-local function getSystemCapability(capabilities, self)
+local function getSystemCapability(capabilities)
   local type = capabilities.systemCapabilityType
   local paramsSend = getSystemCapabilityRequest(type)
   local response = getSystemCapabilityResponse(capabilities)
-  local cid = self.mobileSession1:SendRPC("GetSystemCapability", paramsSend)
+  local mobileSession = common.getMobileSession()
+  local cid = mobileSession:SendRPC("GetSystemCapability", paramsSend)
 
   local expectedResult = response
   expectedResult.success = true
   expectedResult.resultCode = "SUCCESS"
-  self.mobileSession1:ExpectResponse(cid, expectedResult)
+  mobileSession:ExpectResponse(cid, expectedResult)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetSystemCapability NAVIGATION Positive Case", getSystemCapability, {navCapabilities})
 runner.Step("GetSystemCapability PHONE_CALL Positive Case", getSystemCapability, {phoneCapabilities})
 runner.Step("GetSystemCapability VIDEO_STREAMING Positive Case", getSystemCapability, {videoCapabilities})
 
-
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

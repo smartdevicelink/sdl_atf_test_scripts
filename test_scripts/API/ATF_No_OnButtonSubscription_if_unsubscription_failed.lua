@@ -5,7 +5,6 @@
 --local mobile  = require('mobile_connection')
 --local tcp = require('tcp_connection')
 --local file_connection  = require('file_connection')
---local config = require('config')
 
 
 --function Test:ActivationApp()
@@ -109,7 +108,6 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 
 local iTimeout = 5000
 local buttonName = {"OK","PLAY_PAUSE","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}

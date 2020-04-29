@@ -17,7 +17,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("test_scripts/RC/commonRC")
-local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,7 +26,7 @@ config.checkAllValidations = true
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
+  local params = common.getDefaultHMITable()
   params.RC.IsReady.params.available = false -- RC interface is unavailable
   params.RC.GetCapabilities.params = { }
   params.RC.GetCapabilities.occurrence = 0
