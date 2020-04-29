@@ -12,6 +12,8 @@ local events = require("events")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
+local utils = require("user_modules/utils")
+local actions = require("user_modules/sequences/actions")
 local common = {}
 
 --[[ Constants ]]
@@ -19,7 +21,6 @@ common.timeout = 2000
 common.minTimeout = 500
 
 --[[ Variables ]]
-local ptu_table = {}
 local hmiAppIds = {}
 
 --[[ Functions ]]
@@ -39,27 +40,29 @@ end
 --! pTbl - table with policy table snapshot (PTS)
 --! @return: table with PTU
 --]]
-local function getPTUFromPTS(pTbl)
-  pTbl.policy_table.consumer_friendly_messages.messages = nil
-  pTbl.policy_table.device_data = nil
-  pTbl.policy_table.module_meta = nil
-  pTbl.policy_table.usage_and_error_counts = nil
-  pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
-  pTbl.policy_table.module_config.preloaded_pt = nil
-  pTbl.policy_table.module_config.preloaded_date = nil
-  pTbl.policy_table.vehicle_data = nil
-end
-
---[[ @jsonFileToTable: convert .json file to table
---! @parameters:
---! pFileName - file name
---! @return: table
---]]
-local function jsonFileToTable(pFileName)
-  local f = io.open(pFileName, "r")
-  local content = f:read("*all")
-  f:close()
-  return json.decode(content)
+local function getPTUFromPTS()
+  local pTbl = actions.sdl.getPTS()
+  if pTbl == nil then
+    utils.cprint(35, "PTS file was not found, PreloadedPT is used instead")
+    pTbl = actions.sdl.getPreloadedPT()
+    if pTbl == nil then
+      utils.cprint(35, "PreloadedPT was not found, PTU file has not been created")
+      return nil
+    end
+  end
+  if type(pTbl.policy_table) == "table" then
+    pTbl.policy_table.consumer_friendly_messages = nil
+    pTbl.policy_table.device_data = nil
+    pTbl.policy_table.module_meta = nil
+    pTbl.policy_table.usage_and_error_counts = nil
+    pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = utils.json.null
+    pTbl.policy_table.module_config.preloaded_pt = nil
+    pTbl.policy_table.module_config.preloaded_date = nil
+    pTbl.policy_table.vehicle_data = nil
+  else
+    utils.cprint(35, "PTU file has incorrect structure")
+  end
+  return pTbl
 end
 
 --[[ @tableToJsonFile: convert table to .json file
@@ -79,23 +82,20 @@ end
 --! self - test object
 --]]
 local function ptu(pPTUpdateFunc, self)
-  local policy_file_name = "PolicyTableUpdate"
-  local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
-  local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptu_file_name = os.tmpname()
   local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
       { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-        { requestType = "PROPRIETARY", fileName = pts_file_name })
-      getPTUFromPTS(ptu_table)
+        { requestType = "PROPRIETARY", fileName = actions.sdl.getPTSFilePath() })
+      local ptuTable = getPTUFromPTS()
 
       if pPTUpdateFunc then
-        pPTUpdateFunc(ptu_table)
+        pPTUpdateFunc(ptuTable)
       end
 
-      tableToJsonFile(ptu_table, ptu_file_name)
+      tableToJsonFile(ptuTable, ptu_file_name)
 
       local event = events.Event()
       event.matches = function(self, e) return self == e end
@@ -117,12 +117,12 @@ local function ptu(pPTUpdateFunc, self)
             RAISE_EVENT(event, event, "PTU event")
             checkIfPTSIsSentAsBinary(d2.binaryData)
             local corIdSystemRequest = mobileSession:SendRPC("SystemRequest",
-              { requestType = "PROPRIETARY", fileName = policy_file_name }, ptu_file_name)
+              { requestType = "PROPRIETARY" }, ptu_file_name)
             EXPECT_HMICALL("BasicCommunication.SystemRequest")
             :Do(function(_, d3)
                 self.hmiConnection:SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
                 self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
-                  { policyfile = policy_file_path .. "/" .. policy_file_name })
+                  { policyfile = d3.params.fileName })
               end)
             mobileSession:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
           end)
@@ -225,7 +225,6 @@ function common.registerAppWithPTU(pAppId, pPTUpdateFunc, self)
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
           :Do(function(_, d2)
               self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
-              ptu_table = jsonFileToTable(d2.params.file)
               ptu(pPTUpdateFunc, self)
             end)
         end)
@@ -324,19 +323,5 @@ function common.convertTableToString(tbl, i)
   end
   return strReturn
 end
---[[ @protect: make table immutable
---! @parameters:
---! pTbl - mutable table
---! @return: immutable table
---]]
-local function protect(pTbl)
-  local mt = {
-    __index = pTbl,
-    __newindex = function(_, k, v)
-      error("Attempting to change item " .. tostring(k) .. " to " .. tostring(v), 2)
-    end
-  }
-  return setmetatable({}, mt)
-end
 
-return protect(common)
+return common
