@@ -2,13 +2,12 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1833
 --
 -- In case:
--- Change HMI to not respond to VR.DeleteCommand
--- Create Interaction choice set
--- Delete Interaction choice set
+-- Mobile app is registered and activated
+-- Interaction choice set is added
+-- Mobile app requests a delete Interaction choice set
+-- HMI does not respond to VR.DeleteCommend triggered by DeleteInteractionChoiceSet
 -- Expected result:
 -- Mobile should receive error from core (Timed out or generic error)
--- Actual result:
--- Mobile receives success from core.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -71,40 +70,40 @@ local deleteAllParams = {
 }
 
 --[[ Local Functions ]]
-local function putFile(params)
-  local cid = common.getMobileSession():SendRPC("PutFile", params.requestParams, params.filePath)
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+local function putFile(pParams)
+  local cid = common.getMobileSession():SendRPC("PutFile", pParams.requestParams, pParams.filePath)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-local function createInteractionChoiceSet(params)
-  local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", params.requestParams)
-  params.responseVrParams.appID = common.getHMIAppId()
-  EXPECT_HMICALL("VR.AddCommand", params.responseVrParams)
+local function createInteractionChoiceSet(pParams)
+  local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", pParams.requestParams)
+  pParams.responseVrParams.appID = common.getHMIAppId()
+  EXPECT_HMICALL("VR.AddCommand", pParams.responseVrParams)
   :Do(function(_,data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
   :ValidIf(function(_,data)
-    if data.params.grammarID ~= nil then
-      deleteResponseVrParams.grammarID = data.params.grammarID
-      return true
-    else
-      return false, "grammarID should not be empty"
-    end
-  end)
+      if data.params.grammarID ~= nil then
+        deleteResponseVrParams.grammarID = data.params.grammarID
+        return true
+      else
+        return false, "grammarID should not be empty"
+      end
+    end)
 
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-local function deleteInteractionChoiceSet(params)
-  local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
-  params.responseVrParams.appID = common.getHMIAppId()
-  EXPECT_HMICALL("VR.DeleteCommand", params.responseVrParams)
+local function deleteInteractionChoiceSet(pParams)
+  local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", pParams.requestParams)
+  pParams.responseVrParams.appID = common.getHMIAppId()
+  EXPECT_HMICALL("VR.DeleteCommand", pParams.responseVrParams)
   :Do(function(_,_)
-    -- HMI does not respond
-  end)
+      -- HMI does not respond
+    end)
 
-  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 --[[ Scenario ]]
@@ -113,11 +112,11 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
-runner.Step("Upload icon file", putFile, {putFileParams})
-runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet, {createAllParams})
+runner.Step("Upload icon file", putFile, { putFileParams })
+runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet, { createAllParams })
 
 runner.Title("Test")
-runner.Step("DeleteInteractionChoiceSet", deleteInteractionChoiceSet, {deleteAllParams})
+runner.Step("DeleteInteractionChoiceSet", deleteInteractionChoiceSet, { deleteAllParams })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
