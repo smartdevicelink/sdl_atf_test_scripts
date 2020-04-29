@@ -1,0 +1,32 @@
+./test_scripts/API/VehicleData/WindowStatus/001_GetVehicleData_success_flow_with_windowStatus_param.lua
+./test_scripts/API/VehicleData/WindowStatus/002_GetVehicleData_boundary_values_SUCCESS.lua
+./test_scripts/API/VehicleData/WindowStatus/003_GetVehicleData_GENERIC_ERROR_in_case_HMI_respond_with_invalid_data.lua
+./test_scripts/API/VehicleData/WindowStatus/004_GetVehicleData_RPC_disallowed.lua
+./test_scripts/API/VehicleData/WindowStatus/005_GetVehicleData_RPC_disallowed_after_PTU.lua
+./test_scripts/API/VehicleData/WindowStatus/006_GetVehicleData_RPCs_invalid_request.lua
+./test_scripts/API/VehicleData/WindowStatus/007_SubscribeVD_success_flow_with_windowStatus_param.lua
+./test_scripts/API/VehicleData/WindowStatus/008_SubscribeVD_invalid_response_GENERIC_ERROR.lua
+./test_scripts/API/VehicleData/WindowStatus/009_SubscribeVD_RPC_disallowed.lua
+./test_scripts/API/VehicleData/WindowStatus/010_SubscribeVD_RPC_disallowed_after_PTU.lua
+./test_scripts/API/VehicleData/WindowStatus/011_SubscribeVD_RPC_invalid_request.lua
+;./test_scripts/API/VehicleData/WindowStatus/012_SubscribeVD_not_success_codes_for_windowStatus_data.lua https://github.com/smartdevicelink/sdl_core/issues/3384
+./test_scripts/API/VehicleData/WindowStatus/013_SubscribeVD_RPC_2_apps.lua
+./test_scripts/API/VehicleData/WindowStatus/014_UnsubscribeVD_success_flow_with_windowStatus_param.lua
+./test_scripts/API/VehicleData/WindowStatus/015_UnsubscribeVD_invalid_response_GENERIC_ERROR.lua
+./test_scripts/API/VehicleData/WindowStatus/016_UnsubscribeVD_RPC_disallowed.lua
+./test_scripts/API/VehicleData/WindowStatus/017_UnsubscribeVD_disallowed_after_PTU.lua
+./test_scripts/API/VehicleData/WindowStatus/018_UnsubscribeVD_RPC_invalid_request.lua
+;./test_scripts/API/VehicleData/WindowStatus/019_UnsubscribeVD_not_success_codes_for_windowStatus_data.lua https://github.com/smartdevicelink/sdl_core/issues/3384
+./test_scripts/API/VehicleData/WindowStatus/020_UnsubscribeVD_RPC_2_apps.lua
+./test_scripts/API/VehicleData/WindowStatus/021_OnVehicleData_with_windowStatus_structure.lua
+./test_scripts/API/VehicleData/WindowStatus/022_OnVehicleData_notification_boundary_values.lua
+./test_scripts/API/VehicleData/WindowStatus/023_OnVehicleData_notification_with_invalid_data.lua
+;./test_scripts/API/VehicleData/WindowStatus/024_OnVehicleData_RPC_disallowed.lua https://github.com/smartdevicelink/sdl_core/issues/3365
+;./test_scripts/API/VehicleData/WindowStatus/025_OnVehicleData_disallowed_after_PTU.lua https://github.com/smartdevicelink/sdl_core/issues/3365
+./test_scripts/API/VehicleData/WindowStatus/026_App_version_is_equal_to_windowStatus_param_version_is_listed_in_DB_and_API.lua
+./test_scripts/API/VehicleData/WindowStatus/027_App_version_is_greater_than_version_windowStatus_in_DB_and_API.lua
+./test_scripts/API/VehicleData/WindowStatus/028_App_version_is_less_than_windowStatus_param_version_is_listed_in_DB_and_API.lua
+./test_scripts/API/VehicleData/WindowStatus/029_Resumption_subscription_to_windowStatus_param_Unexpected_Disconnect.lua
+./test_scripts/API/VehicleData/WindowStatus/030_Resumption_subscription_to_windowStatus_param_IGN_OFF_ON_cycle.lua
+;./test_scripts/API/VehicleData/WindowStatus/031_Resumption_of_subscription_for_2_apps_to_the_windowStatus_param_after_an_Unexpected_Disconnect.lua https://github.com/smartdevicelink/sdl_core/issues/2283
+;./test_scripts/API/VehicleData/WindowStatus/032_Resumption_of_subscription_for_2_apps_to_the_windowStatus_param_after_IGN_OFF_ON_cycle.lua https://github.com/smartdevicelink/sdl_core/issues/2283
