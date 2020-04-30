@@ -1,17 +1,17 @@
 -- User story: https://github.com/SmartDeviceLink/sdl_core/issues/1907
 --
+-- Description:
+-- Non-media app must be activated during active embedded navigation
+--
 -- Precondition:
 -- 1) SDL and HMI are started.
 -- 2) Non-media app is registered.
 -- 3) Non-media app in BACKGROUND and NOT_AUDIBLE due to active embedded navigation
--- Description:
--- Non-media app must be activated during active embedded navigation
+--
 -- Steps to reproduce:
 -- 1) SDL receives SDL.ActivateApp(<appID_of_non-media_app>) from HMI
--- Expected result:
--- SDL must respond SDL.ActivateApp (SUCCESS) to HMI send OnHMIStatus (FULL, NOT_AUDIBLE).
--- Actual result:
--- SDL does not set required HMILevel and audioStreamingState.
+-- SDL does:
+-- a. respond SDL.ActivateApp (SUCCESS) to HMI send OnHMIStatus (FULL, NOT_AUDIBLE) to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -32,15 +32,12 @@ local function activate_app()
     { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
-local function deactivateApp()
-  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
-  common.getMobileSession():ExpectNotification("OnHMIStatus",
-	{ hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
-end
-
 local function onEventChange()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId() })
 	common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
-	{eventName = "EMBEDDED_NAVI", isActive = true})
+    { eventName = "EMBEDDED_NAVI", isActive = true })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
 end
 
 --[[ Scenario ]]
@@ -49,7 +46,6 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", activate_app)
-runner.Step("Deactivate App BACKGROUND", deactivateApp)
 runner.Step("onEventChange EMBEDDED_NAVI true", onEventChange)
 
 runner.Title("Test")
