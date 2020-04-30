@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2612_Activate_non-media_app_during_embedded_audio_source.lua
