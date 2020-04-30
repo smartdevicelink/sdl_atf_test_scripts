@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1907_Non_media_app_must_be_activated_during_active_embedded_navigation.lua
