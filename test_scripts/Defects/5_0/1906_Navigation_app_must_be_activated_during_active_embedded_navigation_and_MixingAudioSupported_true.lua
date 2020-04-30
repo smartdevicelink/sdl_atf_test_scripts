@@ -1,18 +1,18 @@
 -- User story: https://github.com/SmartDeviceLink/sdl_core/issues/1906
 --
+-- Description:
+-- Navigation app must be activated during active embedded navigation and "MixingAudioSupported" = true.
+--
 -- Precondition:
 -- 1) MixingAudioSupported" = true at .ini file
 -- 2) SDL and HMI are started.
 -- 3) Navigation app is registered.
 -- 4) Navigation app in LIMITED and NOT_AUDIBLE due to active embedded audio source
--- Description:
--- Navigation app must be activated during active embedded navigation and "MixingAudioSupported" = true.
+--
 -- Steps to reproduce:
 -- 1) SDL receives SDL.ActivateApp (<appID_of_navigation_app>) from HMI
--- Expected result:
--- SDL must send OnHMIStatus (FULL, AUDIBLE) to mobile app.
--- Actual result:
--- SDL does not set required HMILevel and audioStreamingState.
+-- SDL does:
+-- a. send OnHMIStatus (FULL, AUDIBLE) to mobile app.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -25,7 +25,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
-local function getHMIValues()
+local function hmiCapabilitiesUpdate()
   local params = hmi_values.getDefaultHMITable()
   params.BasicCommunication.MixingAudioSupported.attenuatedSupported = true
   return params
@@ -52,14 +52,22 @@ local function start(getHMIParams, self)
 end
 
 local function onEventChange(self)
-  self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
-  self.mobileSession1:ExpectNotification("OnHMIStatus", { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
+  self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged",
+    { eventName = "AUDIO_SOURCE", isActive = true })
+  self.mobileSession1:ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
+end
+
+local function setMixingAudioSupportedTrue()
+  commonFunctions:write_parameter_to_smart_device_link_ini("MixingAudioSupported", "true")
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { getHMIValues() })
+runner.Step("Backup .ini file", common.backupINIFile)
+runner.Step("Set MixingAudioSupported=true in .ini file", setMixingAudioSupportedTrue)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { hmiCapabilitiesUpdate() })
 runner.Step("RAI", common.rai_n)
 runner.Step("Activate App", common.activate_app)
 
@@ -68,4 +76,5 @@ runner.Step("onEventChange AUDIO_SOURCE true", onEventChange)
 runner.Step("Activate App", common.activate_app)
 
 runner.Title("Postconditions")
+runner.Step("Restore .ini file", common.restoreINIFile)
 runner.Step("Stop SDL", common.postconditions)
