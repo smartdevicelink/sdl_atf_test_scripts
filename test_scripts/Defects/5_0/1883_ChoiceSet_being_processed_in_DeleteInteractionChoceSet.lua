@@ -11,20 +11,16 @@
 
 -- Expected Behavior:
 -- SDL must respond to mobile REJECTED (success:false) to this PerfromInteraction
+
 ---------------------------------------------------------------------------------------------------
-
---[[ Required Shared libraries ]]
-
 --[[ Required Shared libraries ]]
 local runner = require("user_modules/script_runner")
 local common = require("user_modules/sequences/actions")
 
 --[[ Test Configuration ]]
-
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-
 local requestchoiceParams = {
   interactionChoiceSetID = 1,
   choiceSet = {
@@ -41,7 +37,7 @@ local deleteRequestParams = {
 }
 
 local deleteResponseVrParams = {
-  cmdID = requestchoiceParams.interactionChoiceSetID,
+  cmdID = requestchoiceParams.choiceID,
   type = "Choice"
 }
 
@@ -76,12 +72,17 @@ local function createInteractionChoiceSet()
 end
 
 local function deleteInteractionChoiceSetAndSendPerfomInteraction(params)
-    local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
+  local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
 
-  EXPECT_HMICALL("VR.DeleteCommand", { cmdID = 111, type = "Choice" })
-    :Do(function()
-        sendPerformInteraction_REJECTED()
+  EXPECT_HMICALL("VR.DeleteCommand", params.responseVrParams)
+  :Do(function(_, data)
+      sendPerformInteraction_REJECTED()
+      local function deleteCommandResp()
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end
+      RUN_AFTER(deleteCommandResp, 1000)
     end)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
@@ -93,7 +94,7 @@ runner.Step("Activate App1", common.activateApp, { 1 })
 runner.Step("PTU", common.policyTableUpdate)
 
 runner.Title("Test")
-runner.Step("Create InteractionChoiceSet", createInteractionChoiceSet, {createAllParams})
+runner.Step("Create InteractionChoiceSet", createInteractionChoiceSet, {})
 runner.Step("Delete InteractionChoiseSet", deleteInteractionChoiceSetAndSendPerfomInteraction, {deleteAllParams})
 
 runner.Title("Postconditions")
