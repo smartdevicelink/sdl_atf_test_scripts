@@ -698,7 +698,7 @@ function m.app.activate(pAppId)
   local requestId = m.hmi.getConnection():SendRequest("SDL.ActivateApp", { appID = m.app.getHMIId(pAppId) })
   m.hmi.getConnection():ExpectResponse(requestId)
   m.mobile.getSession(pAppId):ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", systemContext = "MAIN" })
-  if m.mobile.getAppsCount() > 1 then m.run.wait(500) end
+  if m.mobile.getAppsCount() > 1 then m.run.wait(m.minTimeout) end
 end
 
 --[[ @app.unRegister: perform unregistration of application sequence
