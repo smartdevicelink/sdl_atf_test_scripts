@@ -114,24 +114,32 @@ function m.checkContentOfCapabilityCacheFile(pExpHmiCapabilities)
       }
     }
     local errorMessages = ""
+    local function validationCapabilities(pMessage, pActual, pExpect)
+      if not utils.isTableEqual(pActual, pExpect) then
+        errorMessages = errorMessages .. errorMessage(pMessage, pActual, pExpect)
+      end
+    end
     for mod, requests  in pairs(hmiCheckingParametersMap) do
       for req, params in pairs(requests) do
         for _, param in ipairs(params) do
           local message = mod .. "." .. param
-          if param == "audioPassThruCapabilitiesList" then
-            if not utils.isTableEqual(cacheTable[mod].audioPassThruCapabilities, expHmiCapabilities[mod][req].params[param]) then
-              errorMessages = errorMessages ..
-                errorMessage(message, cacheTable[mod].audioPassThruCapabilities,
-                  expHmiCapabilities[mod][req].params[param])
-            end
+          local expectedResult = expHmiCapabilities[mod][req].params[param]
+          if not cacheTable[mod][param] then
+            errorMessages = errorMessages ..
+              errorMessage(message, "does not exist", expectedResult)
           else
-            if not cacheTable[mod][param] then
-              errorMessages = errorMessages ..
-                errorMessage(message, "does not exist", expHmiCapabilities[mod][req].params[param])
+            if param == "audioPassThruCapabilitiesList" then
+              validationCapabilities(message, cacheTable[mod].audioPassThruCapabilitie, expectedResult)
             else
-              if not utils.isTableEqual(cacheTable[mod][param], expHmiCapabilities[mod][req].params[param]) then
-                errorMessages = errorMessages ..
-                  errorMessage(message, cacheTable[mod][param], expHmiCapabilities[mod][req].params[param])
+              if param == "remoteControlCapability" then
+              for _, buttonCap in ipairs(expectedResult.buttonCapabilities) do
+                if buttonCap.moduleInfo.allowMultipleAccess == nil then
+                  buttonCap.moduleInfo.allowMultipleAccess = true
+                end
+              end
+              validationCapabilities(message, cacheTable[mod][param], expectedResult)
+              else
+                validationCapabilities(message, cacheTable[mod][param], expectedResult)
               end
             end
           end
