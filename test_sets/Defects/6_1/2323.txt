@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2323_SDL_must_set_NOT_AUDIBLE_to_media_app_in_case_this_app_is_activated_during_phone_call.lua
