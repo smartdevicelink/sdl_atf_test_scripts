@@ -2,7 +2,7 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2432
 --
 -- Description:
--- SDL is crashed when HMI responds DialNumber(info value is not string)
+-- Successful processing of DialNumber in case info value is not string
 -- Steps to reproduce:
 -- 1) MOB -> SDL:DialNumber()
 -- 2) SDL -> BC:DialNumber()
@@ -12,7 +12,7 @@
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('user_modules/sequences/actions')
+local common = require('test_scripts/Smoke/commonSmoke')
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -42,6 +42,7 @@ end
 -- [[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("Activate App", common.activateApp)
