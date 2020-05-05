@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1906_Navigation_app_must_be_activated_during_active_embedded_navigation_and_MixingAudioSupported_true.lua
