@@ -121,12 +121,12 @@ function m.checkContentOfCapabilityCacheFile(pExpHmiCapabilities)
         for _, param in ipairs(params) do
           local message = mod .. "." .. param
           local expectedResult = expHmiCapabilities[mod][req].params[param]
-          if not cacheTable[mod][param] then
-            errorMessages = errorMessages ..
-              errorMessage(message, "does not exist", expectedResult)
+          if param == "audioPassThruCapabilitiesList" then
+            validationCapabilities(message, cacheTable[mod].audioPassThruCapabilities, expectedResult)
           else
-            if param == "audioPassThruCapabilitiesList" then
-              validationCapabilities(message, cacheTable[mod].audioPassThruCapabilitie, expectedResult)
+            if not cacheTable[mod][param] then
+              errorMessages = errorMessages ..
+                errorMessage(message, "does not exist", expectedResult)
             else
               if param == "remoteControlCapability" then
               for _, buttonCap in ipairs(expectedResult.buttonCapabilities) do
