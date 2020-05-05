@@ -26,9 +26,6 @@ m.setSDLIniParameter = actions.sdl.setSDLIniParameter
 m.cloneTable = utils.cloneTable
 m.getDefaultHMITable = hmi_values.getDefaultHMITable
 
---[[ Local Variables ]]
-local hmiCapCacheFile = SDL.AppStorage.path() .. SDL.INI.get("HMICapabilitiesCacheFile")
-
 --[[ Common Functions ]]
 function m.noRequestsGetHMIParams()
   local params = m.getDefaultHMITable()
@@ -83,8 +80,8 @@ function m.checkContentOfCapabilityCacheFile(pExpHmiCapabilities)
   else
     expHmiCapabilities = pExpHmiCapabilities
   end
-  if SDL.AppStorage.isFileExist(actions.sdl.getSDLIniParameter("HMICapabilitiesCacheFile")) then
-    local  cacheTable = utils.jsonFileToTable(hmiCapCacheFile)
+  local cacheTable = SDL.HMICapCache.get()
+  if cacheTable ~= nil then
     local hmiCheckingParametersMap = {
       UI = {
         GetLanguage = { "language" },
@@ -241,8 +238,10 @@ function m.changeLanguage(pLanguage)
 end
 
 function m.checkLanguageCapability(pLanguage)
-  local data = utils.jsonFileToTable(hmiCapCacheFile)
-  if data.VR.language == pLanguage and data.TTS.language == pLanguage and data.UI.language == pLanguage then
+  local data = SDL.HMICapCache.get()
+  if data and data.VR and data.VR.language == pLanguage
+      and data.TTS and data.TTS.language == pLanguage
+      and data.UI and data.UI.language == pLanguage then
     utils.cprint(35, "Languages were changed")
   else
     actions.run.fail("SDL doesn't updated cache file")
