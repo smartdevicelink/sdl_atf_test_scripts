@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1883_ChoiceSet_being_processed_in_DeleteInteractionChoceSet.lua
