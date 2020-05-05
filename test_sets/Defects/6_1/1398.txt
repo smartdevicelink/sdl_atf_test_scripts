@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1398_RegisterAppInterface_SDL_returns_DISALLOWED_instead_of_DUPLICATE_NAME.lua
