@@ -24,7 +24,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/commonDefects')
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local actions = require("user_modules/sequences/actions")
 
 --[[ Local Variables ]]
@@ -52,29 +51,53 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function getValueFromIniFile(path_to_ini, parameter_name)
-	local f = assert(io.open(path_to_ini, "r"))
-	local fileContent = f:read("*all")
-	local ParameterValue
-	ParameterValue = string.match(fileContent, parameter_name .. " =.- (.-)\n")
-	f:close()
-	return ParameterValue
+local function splitString(pInputStr, pSep)
+  if pSep == nil then
+    pSep = "%s"
+  end
+  local out, i = {}, 1
+  for str in string.gmatch(pInputStr, "([^" .. pSep .. "]+)") do
+    out[i] = str
+    i = i + 1
+  end
+  return out
 end
 
-local pathToIniFile = commonPreconditions:GetPathToSDL() .. "smartDeviceLink.ini"
+local function getResetGlobalPropertiesParams()
+	local uiParams = {
+		vrHelpTitle = actions.sdl.getSDLIniParameter("HelpTitle"),
+		vrHelp = {{ position = 1, text = actions.getConfigAppParams().appName }}
+	}
 
-local requesUIparams = {
-	vrHelpTitle = getValueFromIniFile(pathToIniFile, "HelpTitle"),
-	vrHelp = {{ position = 1, text = actions.getConfigAppParams(pAppId).appName }}
-}
+	local paramHP = splitString(
+		actions.sdl.getSDLIniParameter("HelpPromt"),
+		actions.sdl.getSDLIniParameter("TTSDelimiter")
+	)
+	local paramTP = splitString(
+		actions.sdl.getSDLIniParameter("TimeOutPromt"),
+		actions.sdl.getSDLIniParameter("TTSDelimiter")
+	)
+	local helpPromptArray = {}
+	local timeoutPromptArray = {}
 
-local paramHP = getValueFromIniFile(pathToIniFile, "HelpPromt")
-local paramTP = getValueFromIniFile(pathToIniFile, "TimeOutPromt")
+	if next(paramHP) then
+		for i=1, #paramHP do
+			helpPromptArray[i] = { text = paramHP[i], type = "TEXT" }
+		end
+	end
 
-local requesTTSparams = {
-	helpPrompt = {{ text = paramHP[1], type = "TEXT"}, {text = paramHP[2], type = "TEXT"}},
-	timeoutPrompt = {{ text = paramTP[1], type = "TEXT"}, {text = paramTP[2], type = "TEXT"}}
-}
+	if next(paramTP) then
+		for i=1, #paramTP do
+			timeoutPromptArray[i] = { text = paramTP[i], type = "TEXT" }
+		end
+	end
+
+	local ttsParams = {
+		helpPrompt = helpPromptArray,
+		timeoutPrompt = timeoutPromptArray
+	}
+	return uiParams, ttsParams
+end
 
 local function setGlobalPropertiesSUCCES(params, self)
 	local cid = self.mobileSession1:SendRPC("SetGlobalProperties", params.requestParams)
@@ -94,17 +117,13 @@ local function setGlobalPropertiesSUCCES(params, self)
 	self.mobileSession1:ExpectNotification("OnHashChange")
 end
 
-local function sdlStop(self)
-	StopSDL()
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = common.getHMIAppId(), unexpectedDisconnect = true })
-	self.mobileSession1:ExpectNotification("OnAppInterfaceUnregistered", {{}})
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose",{})
-end
-
 local function ResetGlobalProperties(self)
+	local requesUIparams, requesTTSparams = getResetGlobalPropertiesParams()
+
 	local cid = self.mobileSession1:SendRPC("ResetGlobalProperties", {
 		properties = { "VRHELPTITLE", "HELPPROMPT", "TIMEOUTPROMPT", "VRHELPITEMS" }
 	})
+
 	EXPECT_HMICALL("UI.SetGlobalProperties", requesUIparams)
 	:Do(function(_,data)
 		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
@@ -127,7 +146,7 @@ runner.Step("Activate App", common.activate_app)
 
 runner.Title("Test")
 runner.Step("Send SetGlobalProperties", setGlobalPropertiesSUCCES, { allParams })
-runner.Step("Stop SDL", sdlStop)
+runner.Step("Stop SDL", StopSDL)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI, PTU", common.rai_n)
 runner.Step("Activate App", common.activate_app)
