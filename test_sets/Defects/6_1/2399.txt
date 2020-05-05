@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2399_SDL_mus_respond_UNSUPPORTED_RESOURCE_to_mobile_app_in_case_SDL_4_0_feature_is_required_to_be-ommited_in_implementation.lua
