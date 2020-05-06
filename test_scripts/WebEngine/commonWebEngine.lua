@@ -410,5 +410,3 @@ function common.verifyPTSnapshot(appProperties, appPropExpected)
 end
 
 return common
-
-
