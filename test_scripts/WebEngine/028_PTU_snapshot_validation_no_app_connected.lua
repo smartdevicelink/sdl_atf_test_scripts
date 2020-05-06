@@ -10,11 +10,13 @@
 -- 1. HMI sends BC.SetAppProperties request with new application properties of the policyAppID to SDL
 --  a. SDL sends successful response to HMI
 --  b. PTU is triggered, SDL sends UPDATE_NEDDED to HMI
---  с. PTS is created with application properties of the policyAppID and other mandatory fields
+--  с. PTS is created with application properties of the policyAppID and other mandatory pts
 --------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/WebEngine/commonWebEngine')
+local hmi_ptu = require('test_scripts/Policies/HMI_PTU/common_hmi_ptu')
+
 
 --[[ Local Variables ]]
 local  appStoreConfig = {
@@ -62,8 +64,6 @@ common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI, connect regular mobile, start Session", common.start)
 
 common.Title("Test")
-common.Step("RAI", common.registerApp)
-common.Step("PTU", common.policyTableUpdate, { PTUfunc })
 common.Step("SetAppProperties request to check: PTU is triggered", setAppProperties, { appProperties })
 common.Step("Validate PTS", common.verifyPTSnapshot, { appProperties, appPropExpected })
 
