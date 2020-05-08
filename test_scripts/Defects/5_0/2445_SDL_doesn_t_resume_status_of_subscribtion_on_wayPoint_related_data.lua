@@ -2,131 +2,155 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2445
 --
 -- Description:
--- SDL doesn't resume status of subscribtion on wayPoint-related data
+-- Check a resumption of subscription on wayPoint-related data
+--
 -- Precondition:
--- 1) Into sdl_preloaded_pt.json add additional information about SubscribeWayPoints and UnSubscribeWayPoints.
--- 2) SDL and HMI are started.
--- 3) App registered and activated.
+-- 1) SDL and HMI are started.
+-- 2) App registered and activated.
+-- 3) PTU with permissions for wayPoint-related RPCs is performed
+--
 -- Steps to reproduce:
--- 1) Do SubscribeWayPoints for this app.
--- 2) Do Unexpected disconnect via CloseMobileSession() and receive UnSubscribeWayPoints in this way.
--- 3) Register app with the same ID once more.
--- Expected:
--- 1) Register an application successfully and resume status of subscribtion on wayPoint-related data, also 
---    resume HMIlevel being before unexpected disconnect (it means "FULL" level)
+-- 1) Mobile app requests SubscribeWayPoints
+-- 2) Unexpected disconnect is performed and  receive UnSubscribeWayPoints in this way.
+-- SDL does:
+--  a) send UnsubscribeWayPoints to HMI
+-- 3) App registers with actual hashId
+-- SDL does:
+--  a) register app successfully
+--  b) resume HMI level FULL by sending BC.ActivateApp to HMI
+--  c) resumes subscription for wayPoints and sends Navi.SubscribeWayPoints to HMI
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
-local test = require("user_modules/dummy_connecttest")
-local utils = require("user_modules/utils")
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+-- [[ Local Variables ]]
+local hashId
 local notifParams = {
-    wayPoints =
-    {
-        {
-            coordinate = {
-                latitudeDegrees = -90,
-                longitudeDegrees = -180
-            },
-            locationName = "Ho Chi Minh",
-            addressLines = {"182 Le Dai Hanh"},
-            locationDescription = "Toa nha Flemington",
-            phoneNumber = "1231414",
-            locationImage = {
-                value = common.getPathToFileInStorage("icon.png"),
-                imageType = "DYNAMIC"
-            },
-            searchAddress = {
-                countryName = "aaa",
-                countryCode = "084",
-                postalCode = "test",
-                administrativeArea = "aa",
-                subAdministrativeArea = "a",
-                locality = "a",
-                subLocality = "a",
-                thoroughfare = "a",
-                subThoroughfare = "a"      
-            }
-        }  
+  wayPoints = {{
+    coordinate = {
+      latitudeDegrees = -90,
+      longitudeDegrees = -180
+    },
+    locationName = "Ho Chi Minh",
+    addressLines = {"182 Le Dai Hanh"},
+    locationDescription = "Toa nha Flemington",
+    phoneNumber = "1231414",
+    locationImage = {
+      value = common.getPathToFileInStorage("icon.png"),
+      imageType = "DYNAMIC"
+    },
+    searchAddress = {
+      countryName = "Some country",
+      countryCode = "084",
+      postalCode = "test",
+      administrativeArea = "adm area",
+      subAdministrativeArea = "sub adm area",
+      locality = "a",
+      subLocality = "a",
+      thoroughfare = "a",
+      subThoroughfare = "a"
     }
+  }}
 }
 
 -- [[ Local Functions ]]
-local function cleanSessions()
-    for i = 1, common.getAppsCount() do
-      test.mobileSession[i] = nil
-    end
-    utils.wait()
-end
-
 local function pTUpdateFunc(tbl)
-    local OWgroup = {
-        rpcs = {
-            GetWayPoints = {
-                hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
-            },
-            SubscribeWayPoints = {
-                hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
-            },
-            UnsubscribeWayPoints = {
-                hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
-            },
-            OnWayPointChange =  {
-                hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
-            }
-        }
+  local OWgroup = {
+  rpcs = {
+      GetWayPoints = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
+      },
+      SubscribeWayPoints = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
+      },
+      UnsubscribeWayPoints = {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
+      },
+      OnWayPointChange =  {
+          hmi_levels = { "BACKGROUND", "FULL", "LIMITED" }
+      }
     }
-    tbl.policy_table.functional_groupings["NewTestCaseGroup"] = OWgroup
-    tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups = { "Base-4", "NewTestCaseGroup" }
+  }
+  tbl.policy_table.functional_groupings["NewTestCaseGroup"] = OWgroup
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups = {
+    "Base-4", "NewTestCaseGroup" }
 end
 
 local function subscribeWayPoints()
-    local cid = common.getMobileSession():SendRPC("SubscribeWayPoints", {})
-    common.getHMIConnection():ExpectRequest("Navigation.SubscribeWayPoints")
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",{})
+  local cid = common.getMobileSession():SendRPC("SubscribeWayPoints", {})
+  common.getHMIConnection():ExpectRequest("Navigation.SubscribeWayPoints")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-    common.getMobileSession():ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
-    common.getMobileSession():ExpectNotification("OnHashChange")
+  common.getMobileSession():ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+      hashId = data.payload.hashID
+    end)
 end
 
 local function onWayPointChange()
-    common.getHMIConnection():SendNotification("Navigation.OnWayPointChange", notifParams)
-    common.getMobileSession():ExpectNotification("OnWayPointChange", notifParams)
+  common.getHMIConnection():SendNotification("Navigation.OnWayPointChange", notifParams)
+  common.getMobileSession():ExpectNotification("OnWayPointChange", notifParams)
 end
 
-local function closeMobileSession()
-    local cid = common.getMobileSession():SendRPC("UnregisterAppInterface", {})
-    common.getHMIConnection():ExpectRequest("Navigation.UnsubscribeWayPoints")
-    :Do(function(_, data)
-        common.getMobileSession():ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
-        :Do(function(_, data)
-          common.getMobileSession():Stop()
+local function registerAppWithResumption()
+  local session = common.mobile.createSession()
+  session:StartService(7)
+  :Do(function()
+      common.app.getParams().hashID = hashId
+      local corId = session:SendRPC("RegisterAppInterface", common.app.getParams())
+      common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        { application = { appName = common.app.getParams().appName } })
+      session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
+          session:ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
+            { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
+          :Times(2)
         end)
     end)
+
+  common.getHMIConnection():ExpectRequest("Navigation.SubscribeWayPoints")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+end
+
+local function unexpectedDisconnect()
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
+  common.getHMIConnection():ExpectNotification("Navigation.UnsubscribeWayPoints")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+    end)
+  common.mobile.disconnect()
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("Register App", common.registerApp, { 1 })
+runner.Step("Register App", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { pTUpdateFunc })
-runner.Step("Activate App", common.activateApp, { 1 })
+runner.Step("Activate App", common.activateApp)
 runner.Step("SubscribeWayPoints", subscribeWayPoints)
-runner.Step("On Way Point Change", onWayPointChange)
-runner.Step("Close mobile session", closeMobileSession)
-runner.Step("Clean sessions", cleanSessions)
+runner.Step("OnWayPointChange", onWayPointChange)
+runner.Step("Unexpected disconnect", unexpectedDisconnect)
+runner.Step("Open mobile connection", common.init.connectMobile)
 
 -- [[ Test ]]
 runner.Title("Test")
-runner.Step("Register App", common.registerAppWOPTU, { 1 })
-runner.Step("Activate App", common.activateApp, { 1 })
-runner.Step("On Way Point Change after re-registration", onWayPointChange)
+runner.Step("Register App with resumption", registerAppWithResumption)
+runner.Step("OnWayPointChange after re-registration", onWayPointChange)
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
