@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2381_OnVehicleData_Functional_Requirements_SDL_behevior_in_case_HMI_sends_empty_gpsData.lua
