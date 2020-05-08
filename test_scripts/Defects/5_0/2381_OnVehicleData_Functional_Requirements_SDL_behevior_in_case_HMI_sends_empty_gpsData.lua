@@ -55,7 +55,7 @@ local function subscribeVehicleData()
 end
 
 local function sendOnVehicleDataFull(param)
-  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = param})
+  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = param })
   common.getMobileSession():ExpectNotification("OnVehicleData", { gps = param })
 end
 
@@ -65,11 +65,17 @@ local function sendOnVehicleDataEmpty()
   :Times(0)
 end
 
+local function ptuFunc(pTbl)
+  pTbl.policy_table.functional_groupings["Location-1"].user_consent_prompt = nil
+  pTbl.policy_table.app_policies[common.app.getParams().fullAppID].groups = { "Base-4", "Location-1" }
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
+runner.Step("PTU", common.ptu.policyTableUpdate, { ptuFunc })
 runner.Step("Activate App", common.activateApp)
 
 -- [[ Test ]]
