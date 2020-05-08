@@ -327,81 +327,75 @@ function common.verifyPTSnapshot(appProperties, appPropExpected)
   local result = {}
   local msg = ""
 
-  result.app_policies = snp_tbl.policy_table.app_policies ~= nil
-  if not (result.app_policies) then
+  if (snp_tbl.policy_table.app_policies == nil) then
     msg = msg .. "Incorrect app_policies value\n" ..
       " Expected: exists \n" ..
-      " Actual: " .. result.hybrid_app_preference .. "\n"
+      " Actual: nil \n"
   end
 
-  result.consumer_friendly_messages = snp_tbl.policy_table.consumer_friendly_messages ~= nil
-  if not (result.consumer_friendly_messages) then
+  if (snp_tbl.policy_table.consumer_friendly_messages == nil) then
     msg = msg .. "Incorrect consumer_friendly_messages value\n" ..
       " Expected: exists \n" ..
-      " Actual: " .. result.consumer_friendly_messages .. "\n"
+      " Actual: nil \n"
   end
 
-  result.device_data = snp_tbl.policy_table.device_data ~= nil
-  if not (result.device_data) then
+  if (snp_tbl.policy_table.device_data == nil) then
     msg = msg .. "Incorrect device_data value\n" ..
       " Expected: exists \n" ..
-      " Actual: " .. result.device_data .. "\n"
+      " Actual: nil \n"
   end
 
-  result.functional_groupings = snp_tbl.policy_table.functional_groupings ~= nil
-  if not (result.functional_groupings) then
+  if (snp_tbl.policy_table.functional_groupings == nil) then
     msg = msg .. "Incorrect functional_groupings value\n" ..
       " Expected: exists \n" ..
-      " Actual: " .. result.functional_groupings .. "\n"
+      " Actual: nil \n"
   end
 
-  result.module_config = snp_tbl.policy_table.module_config ~= nil
-  if not (result.module_config) then
+  if (snp_tbl.policy_table.module_config == nil) then
     msg = msg .. "Incorrect module_config value\n" ..
       " Expected: exists \n" ..
-      " Actual: " .. result.module_config .. "\n"
+      " Actual: nil \n"
   end
 
-  result.usage_and_error_counts = snp_tbl.policy_table.usage_and_error_counts ~= nil
-  if not (result.usage_and_error_counts) then
+  if (snp_tbl.policy_table.usage_and_error_counts == nil) then
     msg = msg .. "Incorrect usage_and_error_counts value\n" ..
       " Expected: exists \n" ..
-      " Actual: " .. result.usage_and_error_counts .. "\n"
+      " Actual: nil \n"
   end  
 
-  result.nicknames = snp_tbl.policy_table.app_policies[app_id].nicknames
-  if not common.isTableEqual(result.nicknames, appPropExpected.nicknames) then
+  local nicknames = snp_tbl.policy_table.app_policies[app_id].nicknames
+  if not common.isTableEqual(nicknames, appPropExpected.nicknames) then
     msg = msg .. "Incorrect nicknames\n" ..
       " Expected: " .. common.tableToString(appPropExpected.nicknames) .. "\n" ..
-      " Actual: " .. common.tableToString(result.nicknames) .. "\n"
+      " Actual: " .. common.tableToString(nicknames) .. "\n"
   end
 
-  result.auth_token = snp_tbl.policy_table.app_policies[app_id].auth_token
-  if not (result.auth_token == appPropExpected.auth_token) then
+  local auth_token = snp_tbl.policy_table.app_policies[app_id].auth_token
+  if not (auth_token == appPropExpected.auth_token) then
     msg = msg .. "Incorrect auth token value\n" ..
       " Expected: " .. appPropExpected.auth_token .. "\n" ..
-      " Actual: " .. result.auth_token .. "\n"
+      " Actual: " .. auth_token .. "\n"
   end
 
-  result.cloud_transport_type = snp_tbl.policy_table.app_policies[app_id].cloud_transport_type
-  if not (result.cloud_transport_type == appPropExpected.cloud_transport_type) then
+  local cloud_transport_type = snp_tbl.policy_table.app_policies[app_id].cloud_transport_type
+  if not (cloud_transport_type == appPropExpected.cloud_transport_type) then
     msg = msg ..     "Incorrect cloud_transport_type value\n" ..
       " Expected: " .. appPropExpected.cloud_transport_type .. "\n" ..
-      " Actual: " .. result.cloud_transport_type .. "\n"
+      " Actual: " .. cloud_transport_type .. "\n"
   end
 
-  result.enabled = tostring(snp_tbl.policy_table.app_policies[app_id].enabled)
-  if not (result.enabled == appPropExpected.enabled) then
+  local enabled = tostring(snp_tbl.policy_table.app_policies[app_id].enabled)
+  if not (enabled == appPropExpected.enabled) then
     msg = msg .. "Incorrect enabled value\n"..
       " Expected: " .. appPropExpected.enabled .. "\n" ..
-      " Actual: " .. result.enabled .. "\n"
+      " Actual: " .. enabled .. "\n"
   end
 
-  result.hybrid_app_preference = snp_tbl.policy_table.app_policies[app_id].hybrid_app_preference
-  if not (result.hybrid_app_preference == appPropExpected.hybrid_app_preference) then
+  local hybrid_app_preference = snp_tbl.policy_table.app_policies[app_id].hybrid_app_preference
+  if not (hybrid_app_preference == appPropExpected.hybrid_app_preference) then
     msg = msg .. "Incorrect hybrid_app_preference value\n" ..
       " Expected: " .. appPropExpected.hybrid_app_preference .. "\n" ..
-      " Actual: " .. result.hybrid_app_preference .. "\n"
+      " Actual: " .. hybrid_app_preference .. "\n"
   end
 
   if string.len(msg) > 0 then
