@@ -19,6 +19,7 @@ local mobile_session = require("mobile_session")
 local events = require("events")
 local json = require("modules/json")
 local actions = require("user_modules/sequences/actions")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 
@@ -49,6 +50,7 @@ local function getPTUFromPTS(tbl)
   tbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   tbl.policy_table.module_config.preloaded_pt = nil
   tbl.policy_table.module_config.preloaded_date = nil
+  tbl.policy_table.vehicle_data = nil
 end
 
 --[[ @DefaultStruct: provide default values for application required in PTU
@@ -71,7 +73,7 @@ end
 --! @return: none
 --]]
 local function updatePTU(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = commonDefect.DefaultStruct()
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID] = commonDefect.DefaultStruct()
 end
 
 --[[ @jsonFileToTable: convert .json file to table
@@ -117,7 +119,8 @@ local function ptu(self, ptu_update_func)
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptu_file_name = os.tmpname()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
@@ -160,21 +163,13 @@ end
 --! @parameters: none
 --! @return: device name
 --]]
-function commonDefect.getDeviceName()
-  return config.mobileHost .. ":" .. config.mobilePort
-end
+commonDefect.getDeviceName = utils.getDeviceName
 
 --[[ @getDeviceMAC: provides device MAC address
 --! @parameters: none
 --! @return: device MAC address
 --]]
-function commonDefect.getDeviceMAC()
-  local cmd = "echo -n " .. commonDefect.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-  local handle = io.popen(cmd)
-  local result = handle:read("*a")
-  handle:close()
-  return result
-end
+commonDefect.getDeviceMAC = utils.getDeviceMAC
 
 --[[ @allow_sdl: sequence that allows SDL functionality
 --! @parameters:
@@ -191,6 +186,7 @@ function commonDefect.allow_sdl(self)
       name = commonDefect.getDeviceName()
     }
   })
+  commonDefect.delayedExp(commonDefect.minTimeout)
 end
 
 --[[ @preconditions: precondition steps
@@ -333,7 +329,7 @@ function commonDefect.rai_ptu_n(id, ptu_update_func, self)
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
         { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
-          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
+          hmiAppIds[config["application" .. id].registerAppInterfaceParams.fullAppID] = d1.params.application.appID
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
           :DoOnce(function(_, d2)
               self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
@@ -375,7 +371,7 @@ function commonDefect.rai_ptu_n_without_OnPermissionsChange(id, ptu_update_func,
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
         { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
-          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
+          hmiAppIds[config["application" .. id].registerAppInterfaceParams.fullAppID] = d1.params.application.appID
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
           :DoOnce(function(_, d2)
               self.hmiConnection:SendResponse(d2.id, d2.method, "SUCCESS", { })
@@ -422,7 +418,7 @@ function commonDefect.rai_n(id, self)
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
         { application = { appName = config["application" .. id].registerAppInterfaceParams.appName } })
       :Do(function(_, d1)
-          hmiAppIds[config["application" .. id].registerAppInterfaceParams.appID] = d1.params.application.appID
+          hmiAppIds[config["application" .. id].registerAppInterfaceParams.fullAppID] = d1.params.application.appID
         end)
       self["mobileSession" .. id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :Do(function()
@@ -430,6 +426,7 @@ function commonDefect.rai_n(id, self)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
         end)
     end)
@@ -470,7 +467,7 @@ end
 function commonDefect.activate_app(pAppId, self)
   self, pAppId = commonDefect.getSelfAndParams(pAppId, self)
   if not pAppId then pAppId = 1 end
-  local pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
+  local pHMIAppId = hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.fullAppID]
   local mobSession = commonDefect.getMobileSession(self, pAppId)
   local requestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = pHMIAppId })
   EXPECT_HMIRESPONSE(requestId)
@@ -527,7 +524,7 @@ end
 --]]
 function commonDefect.getHMIAppId(pAppId)
   if not pAppId then pAppId = 1 end
-  return hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.appID]
+  return hmiAppIds[config["application" .. pAppId].registerAppInterfaceParams.fullAppID]
 end
 
 --[[ @getMobileSession: get mobile session

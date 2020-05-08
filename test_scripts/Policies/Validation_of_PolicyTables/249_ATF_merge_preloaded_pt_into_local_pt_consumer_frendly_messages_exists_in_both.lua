@@ -17,6 +17,8 @@
 -- Expected result:
 -- SDL must overwrite fields&values of "consumer_friendly_messages" section at LocalPT based on updated PreloadedPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -224,7 +226,6 @@ prepareInitialPreloadedPT()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 
 function Test.checkLocalPT(checkTable)

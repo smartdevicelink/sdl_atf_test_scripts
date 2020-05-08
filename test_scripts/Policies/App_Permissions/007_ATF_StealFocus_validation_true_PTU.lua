@@ -14,6 +14,8 @@
 -- Expected result
 -- SDL must response: success = true, resultCode = "SUCCESS"
 --------------------------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -46,11 +48,12 @@ local mobile_session = require("mobile_session")
 function Test:Precondition_Connect_device()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
-      deviceList = { { id = utils.getDeviceMAC(), name = utils.getDeviceName(), transportType = "WIFI", isSDLAllowed = false} } })
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_StartNewSession()
@@ -59,7 +62,7 @@ function Test:Precondition_StartNewSession()
 end
 
 function Test:Precondition_ActivateApplication()
-  config.application1.registerAppInterfaceParams.appID = "123456"
+  config.application1.registerAppInterfaceParams.fullAppID = "123456"
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { policyAppID = "123456"} })
   :Do(function(_,data)
@@ -94,8 +97,9 @@ function Test:Preconditions_Update_Policy_With_Steal_Focus_FalseValue_for_Curren
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {
           requestType = "PROPRIETARY",
@@ -116,13 +120,16 @@ function Test:Preconditions_Update_Policy_With_Steal_Focus_FalseValue_for_Curren
     end)
 end
 
---[[Test]]
-commonFunctions:newTestCasesGroup("Test")
+function Test.Wait()
+  os.execute("sleep 2")
+end
 
+--[[Test]]
 function Test:TestStep_UpdatePTS()
   testCasesForPolicyTable:trigger_user_request_update_from_HMI(self)
 end
 
+commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_Verify_appid_section()
   local test_fail = false
   local steal_focus = testCasesForPolicyTableSnapshot:get_data_from_PTS("app_policies.123456.steal_focus")

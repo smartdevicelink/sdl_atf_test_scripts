@@ -16,50 +16,32 @@
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
---[[ Local Functions ]]
-local function step1(self)
-	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
-		moduleType = "CLIMATE",
-		buttonName = "VOLUME_UP",
-		buttonPressMode = "SHORT"
-	})
-
-	EXPECT_HMICALL("Buttons.ButtonPress")
-	:Times(0)
-
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-
-	commonTestCases:DelayedExp(commonRC.timeout)
-end
-
-local function step2(self)
-	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
-		moduleType = "RADIO",
-		buttonName = "AC",
-		buttonPressMode = "LONG"
-	})
-
-	EXPECT_HMICALL("Buttons.ButtonPress")
-	:Times(0)
-
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-
-	commonTestCases:DelayedExp(commonRC.timeout)
-end
+-- [[ Local Variables ]]
+local paramsStep1 = {
+	moduleType = "CLIMATE",
+	buttonName = "VOLUME_UP",
+	buttonPressMode = "SHORT"
+}
+local paramsStep2 = {
+	moduleType = "RADIO",
+	buttonName = "AC",
+	buttonPressMode = "LONG"
+}
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
-runner.Step("ButtonPress_CLIMATE", step1)
-runner.Step("ButtonPress_RADIO", step2)
+runner.Step("ButtonPress_CLIMATE", commonRC.rpcDeniedWithCustomParams, {paramsStep1, 1, "ButtonPress", "INVALID_DATA"})
+runner.Step("ButtonPress_RADIO", commonRC.rpcDeniedWithCustomParams, {paramsStep2, 1, "ButtonPress", "INVALID_DATA"})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

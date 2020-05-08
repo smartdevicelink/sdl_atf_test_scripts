@@ -16,22 +16,29 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
+-- [[ Local Variables ]]
+local capParams = {}
+capParams.CLIMATE = commonRC.DEFAULT
+capParams.RADIO = commonRC.DEFAULT
+capParams.BUTTONS = commonRC.DEFAULT
+local hmiRcCapabilities = commonRC.buildHmiRcCapabilities(capParams)
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" } })
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" }, true })
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI (HMI has all posible RC capabilities), connect Mobile, start Session", commonRC.start,
-	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, commonRC.DEFAULT)})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App1", commonRC.activate_app)
+runner.Step("Start SDL, HMI (HMI has all possible RC capabilities), connect Mobile, start Session", commonRC.start,
+  {hmiRcCapabilities})
+runner.Step("RAI, PTU", commonRC.registerAppWOPTU)
+runner.Step("Activate App1", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules) do
   runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod, 1 })
   runner.Step("SetInteriorVehicleData " .. mod, commonRC.rpcAllowed, { mod, 1, "SetInteriorVehicleData" })
   runner.Step("ButtonPress " .. mod, commonRC.rpcAllowed, { mod, 1, "ButtonPress" })

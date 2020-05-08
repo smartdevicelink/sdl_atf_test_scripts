@@ -20,6 +20,8 @@
 -- Expected result:
 -- LPT is updated successfully
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -30,7 +32,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local json = require("modules/json")
 
 --[[ Local Variables ]]
-local app_id = config.application1.registerAppInterfaceParams.appID
+local app_id = config.application1.registerAppInterfaceParams.fullAppID
 local sequence = { }
 local ptu_table
 local actual_request_type = ""
@@ -63,6 +65,7 @@ local function updatePTU(ptu)
   ptu.policy_table.consumer_friendly_messages.messages = nil
   ptu.policy_table.device_data = nil
   ptu.policy_table.module_meta = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies[app_id] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Base-6" }
@@ -121,7 +124,7 @@ function Test:RAI_PTU()
   :Do(
     function(_, d1)
       log("SDL->HMI: N: BC.OnAppRegistered")
-      self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
+      self.applications[config.application1.registerAppInterfaceParams.fullAppID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, {status = "UP_TO_DATE" })
       :Do(
         function(_, d2)

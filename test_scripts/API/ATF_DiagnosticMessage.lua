@@ -27,7 +27,7 @@ require('user_modules/AppTypes')
 ---------------------------------------------------------------------------------------------
 APIName = "DiagnosticMessage" -- set request name
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 local messageData = {1, 2, 3, 5, 6, 7, 9, 10, 24, 25, 34, 62}
 
 ---------------------------------------------------------------------------------------------

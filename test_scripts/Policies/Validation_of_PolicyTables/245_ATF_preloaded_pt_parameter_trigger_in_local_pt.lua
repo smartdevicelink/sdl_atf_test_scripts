@@ -16,6 +16,8 @@
 -- Expected result:
 -- SDL must change the value of "preloaded_pt" field to "false"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -30,7 +32,6 @@ testCasesForPolicyTable.Delete_Policy_table_snapshot()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 
 
@@ -137,7 +138,8 @@ function Test:updatePolicyTable(pathToPolicyFile)
     end)
   :Times(Between(1,2))
 
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
 
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)

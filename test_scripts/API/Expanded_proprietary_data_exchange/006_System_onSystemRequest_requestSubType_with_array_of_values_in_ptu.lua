@@ -39,7 +39,7 @@ local requestSubTypeArray = { "TYPE1", "TYPE2", "TYPE3" }
 
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestSubType = requestSubTypeArray
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestSubType = requestSubTypeArray
 end
 
 local function policyUpdate()

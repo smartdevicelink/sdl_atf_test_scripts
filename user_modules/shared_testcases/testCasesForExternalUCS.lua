@@ -72,13 +72,14 @@ local m = { }
     local filePath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") ..
       "/" .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
     os.execute("rm -rf " .. filePath)
+    m.pts = nil
   end
 
 --[[@updatePTU: Update Policy Table Snapshot (PTS) in the way it can be used as Policy Table Update (PTU)
 --! @parameters: NO
 --]]
   local function updatePTU()
-    local appId = config.application1.registerAppInterfaceParams.appID
+    local appId = config.application1.registerAppInterfaceParams.fullAppID
     m.pts.policy_table.consumer_friendly_messages.messages = nil
     m.pts.policy_table.device_data = nil
     m.pts.policy_table.module_meta = nil
@@ -92,6 +93,7 @@ local m = { }
     m.pts.policy_table.app_policies[appId]["groups"] = { "Base-4", "Base-6" }
     m.pts.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
     m.pts.policy_table.module_config.preloaded_pt = nil
+    m.pts.policy_table.vehicle_data = nil
   end
 
 --[[@ptu: Perform Policy Table Update process
@@ -102,13 +104,14 @@ local m = { }
     local policy_file_name = "PolicyTableUpdate"
     local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
     local ptu_file_name = os.tmpname()
-    local requestId = test.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    local requestId = test.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
     EXPECT_HMIRESPONSE(requestId)
     :Do(function()
         test.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
           { requestType = "PROPRIETARY", fileName = policy_file_name })
         m.createJsonFileFromTable(m.pts, ptu_file_name)
-        EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = status }):Times(2)
+        EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = status })
         test.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
         :Do(function()
             local corIdSystemRequest = test.mobileSession1:SendRPC("SystemRequest",
@@ -144,7 +147,7 @@ local m = { }
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
       { application = { appName = RAIParams.appName } })
     :Do(function(_, d)
-        m.HMIAppIds[RAIParams.appID] = d.params.application.appID
+        m.HMIAppIds[RAIParams.fullAppID] = d.params.application.appID
       end)
     test["mobileSession"..id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
     :Do(function()
@@ -165,7 +168,7 @@ local m = { }
 --! that has to be passed as an input parameter
 --]]
   function m.activateApp(test, id, status, updateFunc)
-    local appId = config["application"..id].registerAppInterfaceParams.appID
+    local appId = config["application"..id].registerAppInterfaceParams.fullAppID
     local reqId = test.hmiConnection:SendRequest("SDL.ActivateApp", { appID = m.HMIAppIds[appId] })
     EXPECT_HMIRESPONSE(reqId)
     :Do(function(_, d1)
@@ -188,9 +191,9 @@ local m = { }
     EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
     :Do(function(exp, d)
       if(exp.occurences == 1) then
+        test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
         m.pts = m.createTableFromJsonFile(d.params.file)
         if status then
-          test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
           updatePTU()
           if updateFunc then
             updateFunc(m.pts)

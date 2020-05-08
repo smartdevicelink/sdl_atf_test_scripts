@@ -121,7 +121,7 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
 
-local strAppFolder = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local strAppFolder = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 
 
 ---------------------------------------------------------------------------------------------
@@ -134,7 +134,7 @@ function Check_menuIconParams(data, type_icon, value)
 	if(type_icon == nil) then type_icon = "DYNAMIC" end
 
 	local result = true
-	local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+	local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 	local value_Icon = value--"action.png"
 	
 	if (type_icon == "DYNAMIC") then

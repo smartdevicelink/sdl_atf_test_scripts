@@ -27,7 +27,7 @@ local iTimeout = 5000
 local strMaxLengthFileName242 = string.rep("a", 238)  .. ".png" -- max is 242 since docker limitation
 local textPromtValue = {"Please speak one of the following commands,", "Please say a command,"}
 
-local storagePath = commonPreconditions:GetPathToSDL() .. "storage/" .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
+local storagePath = commonPreconditions:GetPathToSDL() .. "storage/" .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/"
 
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
@@ -1120,7 +1120,7 @@ function Test:CreateInteractionChoiceSet_PositiveCase()
 					EXPECT_HMICALL("VR.AddCommand",
 									{
 										cmdID = 1001,
-										appID = self.applications[config.application1.registerAppInterfaceParams.appID],
+										appID = self.applications[config.application1.registerAppInterfaceParams.fullAppID],
 										type = "Choice",
 										vrCommands = {"Choice1001" }
 									})

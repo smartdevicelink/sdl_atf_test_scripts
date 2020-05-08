@@ -19,8 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
-local commonRC = require('test_scripts/RC/commonRC')
-local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,36 +27,26 @@ config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Functions ]]
 local function disableRCFromHMI()
-  common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
+  common.getHMIConnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
   common.wait(2000)
 end
 
 local function registerRCAppRCDisallowed()
   local pModuleStatusForApp = {
     freeModules = {},
-    allocatedModules = { },
+    allocatedModules = {},
     allowed = false
   }
 
-  commonRC.rai_n(1, test)
-  common.validateOnRCStatusForApp(1, pModuleStatusForApp, true)
+  common.registerAppWOPTU(1)
+  common.validateOnRCStatusForApp(1, pModuleStatusForApp, false)
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
   :Times(0)
 end
 
 local function enableRCFromHMI()
-  local pModuleStatus = {
-  freeModules = common.getModulesArray(common.getAllModules()),
-    allocatedModules = { },
-    allowed = true
-  }
-  local pModuleStatusHMI = {
-    freeModules = common.getModulesArray(common.getAllModules()),
-    allocatedModules = { }
-  }
-  common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
-  common.validateOnRCStatusForApp(1, pModuleStatus, true)
-  common.validateOnRCStatusForHMI(1, { pModuleStatusHMI })
+  common.getHMIConnection():SendNotification("RC.OnRemoteControlSettings", { allowed = true })
+  common.validateOnRCStatus({ 1 })
   common.getMobileSession(2):ExpectNotification("OnRCStatus")
   :Times(0)
 end

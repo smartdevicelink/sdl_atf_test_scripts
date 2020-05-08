@@ -14,6 +14,8 @@
 -- Expected result:
 -- a) pt_exchanged_x_days_after_epoch value is equal to time of successfully updating
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -49,7 +51,15 @@ local function getDaysAfterEpochFromPTS(pathToFile)
 end
 
 local function getSystemDaysAfterEpoch()
-  return math.floor(os.time()/86400)
+  local function getTimezoneOffset(ts)
+    local utcdate = os.date("!*t", ts)
+    local localdate = os.date("*t", ts)
+    localdate.isdst = false
+    return os.difftime(os.time(localdate), os.time(utcdate))
+  end
+  local t = os.time()
+  local ofs = getTimezoneOffset(t)
+  return math.floor((t+ofs)/(60*60*24))
 end
 
 --[[ Preconditions ]]
@@ -78,8 +88,9 @@ function Test:Precondition_Activate_App_Consent_Device_And_Update_Policy()
       pathToSnapshot = data.params.file
       days_after_epoch_prev = getDaysAfterEpochFromPTS(pathToSnapshot)
 
-      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-      EXPECT_HMIRESPONSE(RequestIdGetURLS)
+      local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
+      EXPECT_HMIRESPONSE(requestId)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

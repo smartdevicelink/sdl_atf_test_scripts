@@ -2049,7 +2049,7 @@ local function SequenceOnPemissionsChange()
 		-- Description: RegisterAppInterface and checking the OnPemissionChange notification
 		function Test:APPLINK_19918_RegisterApp_CheckOnPermissionChange()
 
-			config.application2.registerAppInterfaceParams.appID = "0000002"
+			config.application2.registerAppInterfaceParams.fullAppID = "0000002"
 			--mobile side: sending request
 			local CorIdRegister = self.mobileSession1:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
 

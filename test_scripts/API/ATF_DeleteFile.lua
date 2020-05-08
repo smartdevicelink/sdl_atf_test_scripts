@@ -27,7 +27,7 @@ local appID0
 local iPutFile_SpaceAvailable = 0
 local iSpaceAvailable_BeforePutFile = 0
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 --local strAppFolder = config.SDLStoragePath..appIDAndDeviceMac
 strAppFolder = config.pathToSDL ..  "storage/"..appIDAndDeviceMac
 

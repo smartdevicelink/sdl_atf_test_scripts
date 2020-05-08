@@ -18,6 +18,8 @@
 -- Expected result:
 -- a) SDL send HB with time specified in pre_DataConsent section (4000 ms)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -84,7 +86,7 @@ function Test:Precondition_Activate_Consent_App()
 end
 
 function Test:Precondition_Update_Policy_With_heart_beat_timeout_ms_Param()
-  testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, config.application1.registerAppInterfaceParams.appID, utils.getDeviceMAC(),
+  testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, config.application1.registerAppInterfaceParams.fullAppID, utils.getDeviceMAC(),
     self.HMIAppID, nil, nil, "ptu_heart_beat_timeout_ms_app_1234567.json")
 end
 

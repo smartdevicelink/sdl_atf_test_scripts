@@ -19,7 +19,7 @@ local mobile_session = require('mobile_session')
 
 require('user_modules/AppTypes')
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 config.SDLStoragePath = config.pathToSDL .. "storage/"
 local storagePath = config.SDLStoragePath..appIDAndDeviceMac
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

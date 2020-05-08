@@ -15,12 +15,15 @@
 -- Expected result:
 -- SDL must leave all fields & their values of "usage_and_error_count" section as it was in the database without changes
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require ('user_modules/shared_testcases/commonPreconditions')
 local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCasesForPolicyTable')
 local json = require("modules/json")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 local TESTED_DATA = {
@@ -205,6 +208,17 @@ prepareInitialPreloadedPT()
 Test = require('connecttest')
 require('cardinalities')
 require('user_modules/AppTypes')
+
+local connectMobile_Orig = Test.connectMobile
+function Test:connectMobile()
+  local ret = connectMobile_Orig(self)
+  ret:Do(function()
+      self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+        { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }} )
+      utils.wait(500)
+    end)
+  return ret
+end
 
 function Test.checkLocalPT(checkTable)
   local expectedLocalPtValues

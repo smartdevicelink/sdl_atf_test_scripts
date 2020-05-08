@@ -18,179 +18,90 @@
 --     App is registered successfully,  SDL sends OnAppRegistered on HMI with "resumeVrGrammars"=true.
 --     SDL resumes all app's data and sends BC.ActivateApp to HMI. App gets FULL HMI Level
 ---------------------------------------------------------------------------------------------------
---[[ General Precondition before ATF start ]]
-config.defaultProtocolVersion = 2
-config.application1.registerAppInterfaceParams.isMediaApplication = true
 
--- [[ Required Shared Libraries ]]
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
-local mobile_session = require('mobile_session')
+--[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
+local common = require('test_scripts/Smoke/commonSmoke')
 
---[[ General Settings for configuration ]]
-Test = require('user_modules/dummy_connecttest')
-require('cardinalities')
-require('user_modules/AppTypes')
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
--- [[Local variables]]
-local default_app_params = config.application1.registerAppInterfaceParams
-
---[[ Preconditions ]]
-commonFunctions:newTestCasesGroup("Preconditions")
-commonSteps:DeletePolicyTable()
-commonSteps:DeleteLogsFiles()
-
-function Test:StartSDL_With_One_Activated_App()
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self):Do(function()
-    self:initHMI():Do(function()
-      commonFunctions:userPrint(35, "HMI initialized")
-      self:initHMI_onReady():Do(function ()
-        commonFunctions:userPrint(35, "HMI is ready")
-        self:connectMobile():Do(function ()
-          commonFunctions:userPrint(35, "Mobile Connected")
-          self:startSession():Do(function ()
-            commonFunctions:userPrint(35, "App is registered")
-            commonSteps:ActivateAppInSpecificLevel(self, self.applications[default_app_params.appName])
-            EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL",audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
-            commonFunctions:userPrint(35, "App is activated")
-          end)
-        end)
-      end)
+-- [[ Local Functions ]]
+function common.addCommand(pId)
+  local params = { cmdID = pId, vrCommands = { "OnlyVRCommand_" .. pId }}
+  local cid = common.getMobileSession():SendRPC("AddCommand", params)
+  common.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-  end)
-end
-
-function Test:AddCommand()
-  for i = 1, 20 do
-    self.mobileSession:SendRPC("AddCommand", { cmdID = i, vrCommands = {"VRCommand" .. tostring(i)}})
-  end
-  local on_hmi_call = EXPECT_HMICALL("VR.AddCommand"):Times(20)
-  on_hmi_call:Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
-  EXPECT_RESPONSE("AddCommand", { success = true, resultCode = "SUCCESS" }):Times(20)
-  EXPECT_NOTIFICATION("OnHashChange"):Do(function(_, data)
-    self.currentHashID = data.payload.hashID
-  end):Times(20)
-end
-
-function Test:AddSubMenu()
-  for i = 1, 20 do
-    self.mobileSession:SendRPC("AddSubMenu", { menuID = i, position = 500,
-                menuName = "SubMenu" .. tostring(i)})
-  end
-  local on_hmi_call = EXPECT_HMICALL("UI.AddSubMenu"):Times(20)
-  on_hmi_call:Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
-  EXPECT_RESPONSE("AddSubMenu", { success = true, resultCode = "SUCCESS" }):Times(20)
-  EXPECT_NOTIFICATION("OnHashChange"):Do(function(_, data)
-    self.currentHashID = data.payload.hashID
-  end):Times(20)
-end
-
-function Test:AddChoiceSet()
-  for i = 1, 20 do
-    self.mobileSession:SendRPC("CreateInteractionChoiceSet", {interactionChoiceSetID = i,
-        choiceSet = { { choiceID = i, menuName = "Choice" .. tostring(i), vrCommands = { "VrChoice" .. tostring(i)}}}})
-  end
-    local on_hmi_call = EXPECT_HMICALL("VR.AddCommand"):Times(20)
-    on_hmi_call:Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+      common.hashId = data.payload.hashID
     end)
-    EXPECT_RESPONSE("CreateInteractionChoiceSet", { success = true, resultCode = "SUCCESS" }):Times(20)
-    EXPECT_NOTIFICATION("OnHashChange"):Do(function(_, data)
-      self.currentHashID = data.payload.hashID
-    end):Times(20)
 end
 
---[[ Test ]]
-commonFunctions:newTestCasesGroup("Transport unexpected disconnect. App resume at FULL level")
-
-function Test:Close_Session()
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = true,
-    appID = self.applications[default_app_params]})
-  self.mobileSession:Stop()
+function common.addSubMenu(pId)
+  local params = { menuID = pId, position = 500, menuName = "SubMenu_" .. pId }
+  local cid = common.getMobileSession():SendRPC("AddSubMenu", params)
+  common.getHMIConnection():ExpectRequest("UI.AddSubMenu")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+      common.hashId = data.payload.hashID
+    end)
 end
 
-function Test:Register_And_Resume_App_And_Data()
-  local mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
-  local on_rpc_service_started = mobileSession:StartRPC()
-  on_rpc_service_started:Do(function()
-    config.application1.registerAppInterfaceParams.hashID = self.currentHashID
-    Test:expect_Resumption_Data()
-    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectResumeAppFULL, true)
-  end)
+local function expResData()
+  common.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+    end)
+  :Times(20)
+  common.getHMIConnection():ExpectRequest("UI.AddSubMenu")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+    end)
+  :Times(20)
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-function Test:expect_Resumption_Data()
-  local on_ui_sub_menu_added = EXPECT_HMICALL("UI.AddSubMenu"):Times(20)
-  on_ui_sub_menu_added:Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS")
-  end)
-  on_ui_sub_menu_added:ValidIf(function(_,data)
-    if data.params.menuParams.position == 500 then
-      if data.params.appID == default_app_params.hmi_app_id then
-        return true
-      else
-        commonFunctions:userPrint(31, "App is registered with wrong appID " )
-        return false
-      end
-    end
-  end)
-  local is_command_received = 20
-  local is_choice_received = 20
-  local on_vr_commands_added = EXPECT_HMICALL("VR.AddCommand"):Times(40)
-  on_vr_commands_added:Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS")
-  end)
-  on_vr_commands_added:ValidIf(function(_,data)
-    if (data.params.type == "Command" and is_command_received ~= 0) then
-      if (data.params.appID == default_app_params.hmi_app_id) then
-        is_command_received = is_command_received - 1
-        return true
-      else
-        commonFunctions:userPrint(31, "Received the same notification or App is registered with wrong appID")
-        return false
-      end
-    elseif (data.params.type == "Choice" and is_choice_received ~= 0) then
-      if (data.params.appID == default_app_params.hmi_app_id) then
-        is_choice_received = is_choice_received - 1
-        return true
-      else
-        commonFunctions:userPrint(31, "Received the same notification or App is registered with wrong appID")
-        return false
-      end
-    end
-  end)
-   self.mobileSession:ExpectNotification("OnHashChange")
+local function expResLvl()
+  common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp")
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
+    end)
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
+    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
+  :Times(2)
 end
 
-function Test:OnCommand()
-  self.hmiConnection:SendNotification("UI.OnCommand",{ cmdID = 20, appID = default_app_params.hmi_app_id})
-  EXPECT_NOTIFICATION("OnCommand", {cmdID = 20, triggerSource= "MENU"})
+local function onCommand()
+  common.getHMIConnection():SendNotification("UI.OnCommand", { cmdID = 20, appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnCommand", { cmdID = 20, triggerSource= "MENU" })
 end
 
-function Test:PerformInteraction()
-  self.mobileSession:SendRPC("PerformInteraction",{
-                            initialText = "StartPerformInteraction",
-                            initialPrompt = {
-                              { text = "Makeyourchoice", type = "TEXT"}},
-                            interactionMode = "BOTH",
-                            interactionChoiceSetIDList = { 20 },
-                            timeout = 5000
-                          })
-  EXPECT_HMICALL("VR.PerformInteraction", {appID = default_app_params.hmi_app_id}):Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {choiceID = 20})
-  end)
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+for i = 1, 20 do
+  runner.Step("Add Command " .. i, common.addCommand, { i })
+end
+for i = 1, 20 do
+  runner.Step("Add SubMenu " .. i, common.addSubMenu, { i })
 end
 
--- [[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postcondition")
-function Test.Stop_SDL()
-  StopSDL()
-end
+runner.Title("Test")
+runner.Step("Unexpected Disconnect", common.unexpectedDisconnect)
+runner.Step("ReRegister App", common.reregisterApp, { "SUCCESS", expResData, expResLvl })
+runner.Step("OnCommand", onCommand)
 
-return Test
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)

@@ -1,0 +1,2 @@
+./test_scripts/API/CloseApplication/001_Success_flow.lua
+./test_scripts/API/CloseApplication/002_HMI_error_response.lua

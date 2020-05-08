@@ -12,7 +12,7 @@
 -- PTU is requested.
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 -- SDL->HMI:SDL.PolicyUpdate(file, timeout, retry[])
--- HMI -> SDL: SDL.GetURLs (<service>)
+-- HMI -> SDL: SDL.GetPolicyConfigurationData (policyType = "module_config", property = "endpoints")
 -- HMI->SDL: BasicCommunication.OnSystemRequest ('url', requestType:PROPRIETARY, appID="default")
 -- SDL->app: OnSystemRequest ('url', requestType:PROPRIETARY, fileType="JSON", appID)
 -- 2. Performed steps
@@ -22,6 +22,8 @@
 -- SDL waits for SystemRequest response from <app ID> within 'timeout' value, if no obtained,
 -- it starts retry sequence
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -53,7 +55,6 @@ commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_Sending_PTS_to_mobile_application()
   local time_update_needed = {}
   local time_system_request = {}
-  local endpoints = {}
   local is_test_fail = false
   local SystemFilesPath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local PathToSnapshot = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
@@ -67,15 +68,13 @@ function Test:TestStep_Sending_PTS_to_mobile_application()
   local time_wait = (timeout_pts*seconds_between_retries[1]*1000 + 2000)
   commonTestCases:DelayedExp(time_wait) -- tolerance 10 sec
 
-  for i = 1, #testCasesForPolicyTableSnapshot.pts_endpoints do
-    if (testCasesForPolicyTableSnapshot.pts_endpoints[i].service == "0x07") then
-      endpoints[#endpoints + 1] = { url = testCasesForPolicyTableSnapshot.pts_endpoints[i].value, appID = nil}
-    end
-  end
-
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS", urls = endpoints} } )
+  local expUrls = commonFunctions:getUrlsTableFromPtFile(file_pts)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId,{result = {code = 0, method = "SDL.GetPolicyConfigurationData"} })
+  :ValidIf(function(_,data)
+      return commonFunctions:validateUrls(expUrls, data)
+    end)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{ requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })
       --first retry sequence
@@ -98,7 +97,7 @@ function Test:TestStep_Sending_PTS_to_mobile_application()
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY", fileType = "JSON"})
       :Do(function(_,_) time_system_request[#time_system_request + 1] = timestamp() end)
 
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UPDATE_NEEDED"}):Times(2):Timeout(64000)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}):Times(1):Timeout(64000)
       :Do(function(exp_pu, data)
           print(exp_pu.occurences..":"..data.params.status)
           if(data.params.status == "UPDATE_NEEDED") then

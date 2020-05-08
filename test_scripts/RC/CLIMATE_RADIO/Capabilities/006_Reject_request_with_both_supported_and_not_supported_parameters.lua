@@ -17,18 +17,30 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
 --[[ Local Variables ]]
+local moduleId = commonRC.getModuleId("CLIMATE")
 local climate_capabilities = {{
   moduleName = "Climate",
+  moduleInfo = {
+    moduleId = moduleId
+  },
   fanSpeedAvailable = true,
   acEnableAvailable = true,
   acMaxEnableAvailable = true
 }}
-local rc_capabilities = commonRC.buildHmiRcCapabilities(climate_capabilities, commonRC.DEFAULT, commonRC.DEFAULT)
+local capParams = {}
+capParams.CLIMATE = climate_capabilities
+capParams.RADIO = commonRC.DEFAULT
+capParams.BUTTONS = commonRC.DEFAULT
+local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
 local climate_params =
 {
-	moduleType = "CLIMATE",
-	climateControlData =
+  moduleType = "CLIMATE",
+  moduleId = moduleId,
+  climateControlData =
   {
     fanSpeed = 30,
     acEnable = true,
@@ -37,24 +49,20 @@ local climate_params =
   }
 }
 
---[[ Local Functions ]]
-local function setVehicleData(params, self)
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = params})
-
-		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-end
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, {rc_capabilities})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate_App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate_App", commonRC.activateApp)
 
 runner.Title("Test")
 for _, module_name in pairs({"CLIMATE", "RADIO"}) do
     runner.Step("GetInteriorVehicleData for " .. module_name, commonRC.subscribeToModule, {module_name, 1})
     runner.Step("ButtonPress for " .. module_name, commonRC.rpcAllowed, {module_name, 1, "ButtonPress"})
 end
-runner.Step("SetInteriorVehicleData rejected if at least one prameter unsuported", setVehicleData, { climate_params })
+runner.Step("SetInteriorVehicleData rejected if at least one prameter unsuported", commonRC.rpcDeniedWithCustomParams,
+  { climate_params, 1, "SetInteriorVehicleData", resultCode = "UNSUPPORTED_RESOURCE"})
+
+runner.Title("Postconditions")
+runner.Step("Stop SDL", commonRC.postconditions)

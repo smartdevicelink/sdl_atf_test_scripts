@@ -6,6 +6,9 @@ local runner = require('user_modules/script_runner')
 local commonDefects = require('test_scripts/Defects/4_5/commonDefects')
 local json = require("json")
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 local gpsDataResponse = {
   longitudeDegrees = 100,
@@ -51,7 +54,7 @@ local function ptuUpdateFuncDisallowedRPC(tbl)
     }
   }
   tbl.policy_table.functional_groupings.NewTestCaseGroup = VDgroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
   {"Base-4", "NewTestCaseGroup"}
 end
 
@@ -67,7 +70,9 @@ local function SubscribeVD(self)
   EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
   :Do(function(_,data)
       -- Send SubscribeVehicleData response from HMI to SDL with resultCode SUCCESS
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        gps = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_GPS" }
+      })
     end)
   -- Expect successful SubscribeVehicleData response on mobile app
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })

@@ -12,7 +12,7 @@ local functionId = require('function_id')
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
-local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 ---------------------------------------------------------------------------------------------
 -----------------------------Required Shared Libraries---------------------------------------
 ---------------------------------------------------------------------------------------------
@@ -25,7 +25,7 @@ local enumerationParameter = require('user_modules/shared_testcases/testCasesFor
 local stringParameter = require('user_modules/shared_testcases/testCasesForStringParameter')
 require('user_modules/AppTypes')
 
-local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 local strIvsu_cacheFolder = "/tmp/fs/mp/images/ivsu_cache/"
 
 APIName = "SystemRequest" -- set API name
@@ -34,7 +34,7 @@ local PTFile = "./files/PTU_ForSystemRequest.json"
 
 Apps = {}
 Apps[1] = {}
-Apps[1].storagePath = config.pathToSDL .. "storage/" .. "/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+Apps[1].storagePath = config.pathToSDL .. "storage/" .. "/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 Apps[1].appName = config.application1.registerAppInterfaceParams.appName
 local SystemFilesPath = SDLConfig:GetValue("SystemFilesPath")
 
@@ -2163,7 +2163,7 @@ end
 		--Precondition: Build policy table file
 		local PermissionLinesForBase4 = nil
 		local PermissionLinesForGroup1 = PermissionLines_SystemRequest .. "\n"
-		local appID = config.application1.registerAppInterfaceParams.appID
+		local appID = config.application1.registerAppInterfaceParams.fullAppID
 		local PermissionLinesForApplication =
 		[[			"]]..appID ..[[" : {
 						"keep_context" : false,
@@ -2198,7 +2198,7 @@ end
 	----------------------------------------------------------------------------------------------
 		local PermissionLinesForBase4 = nil
 		local PermissionLinesForGroup1 = PermissionLines_SystemRequest .. "\n"
-		local appID = config.application1.registerAppInterfaceParams.appID
+		local appID = config.application1.registerAppInterfaceParams.fullAppID
 		local PermissionLinesForApplication =
 		[[			"]]..appID ..[[" : {
 						"keep_context" : false,

@@ -99,9 +99,10 @@ function external_consent_common_functions:UpdatePolicy(self, json_file_path, in
   if not input_app_id then
     input_app_id = common_functions:GetHmiAppId(config.application1.registerAppInterfaceParams.appName, self)
   end
-  --hmi side: sending SDL.GetURLS request
-  local request_id_get_urls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  --hmi side: expect SDL.GetURLS response from HMI
+  --hmi side: sending SDL.GetPolicyConfigurationData request
+  local request_id_get_urls = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  --hmi side: expect SDL.GetPolicyConfigurationData response from HMI
   EXPECT_HMIRESPONSE(request_id_get_urls)
   :Do(function(_,data)
     --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
@@ -173,7 +174,7 @@ function external_consent_common_functions:UpdatePolicy(self, json_file_path, in
         EXPECT_HMIRESPONSE(request_id_GetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage", messages = {{line1 = "Up-To-Date", messageCode = "StatusUpToDate", textBody = "Up-To-Date"}}}})
       end) -- Do EXPECT_RESPONSE: SystemRequest response
     end) -- Do EXPECT_NOTIFICATION: "OnSystemRequest" notification
-  end) -- Do EXPECT_HMIRESPONSE: SDL.GetURLS response from HMI
+  end) -- Do EXPECT_HMIRESPONSE: SDL.GetPolicyConfigurationData response from HMI
 end
 
 --------------------------------------------------------------------------

@@ -16,6 +16,9 @@ local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local json = require("modules/json")
 
+--[[ General configuration parameters ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY" } } }
+
 --[[ Local variables ]]
 -- define path to policy table snapshot
 local pathToPTS = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
@@ -27,6 +30,28 @@ local SendLocationParams = {
 }
 local unknownAPI = "UnknownAPI"
 local unknownParameter = "unknownParameter"
+
+local gpsDataResponse = {
+  longitudeDegrees = 100,
+  latitudeDegrees = 20,
+  utcYear = 2050,
+  utcMonth = 10,
+  utcDay = 30,
+  utcHours = 20,
+  utcMinutes = 50,
+  utcSeconds = 50,
+  compassDirection = "NORTH",
+  pdop = 5,
+  hdop = 5,
+  vdop = 5,
+  actual = false,
+  satellites = 30,
+  dimension = "2D",
+  altitude = 9500,
+  heading = 350,
+  speed = 450,
+  shifted = true
+}
 
 --[[ Local Functions ]]
 
@@ -60,7 +85,7 @@ local function ptuUpdateFuncRPC(tbl)
     }
   }
   tbl.policy_table.functional_groupings["NewTestCaseGroup1"] = VDgroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
     { "Base-4", "NewTestCaseGroup1" }
 end
 
@@ -79,7 +104,7 @@ local function ptuUpdateFuncParams(tbl)
     }
   }
   tbl.policy_table.functional_groupings["NewTestCaseGroup2"] = VDgroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
     { "Base-4", "NewTestCaseGroup1", "NewTestCaseGroup2" }
 end
 
@@ -108,7 +133,7 @@ local function ptuUpdateFuncNotValid(tbl)
     }
   }
   tbl.policy_table.functional_groupings["NewTestCaseGroup3"] = VDgroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
     { "Base-4", "NewTestCaseGroup1", "NewTestCaseGroup2", "NewTestCaseGroup3" }
 end
 
@@ -125,18 +150,16 @@ local function contains(pTbl, pValue)
   return false
 end
 
---[[ @CheckCuttingUnknowValues: Perform app registration, PTU and check absence of unknown values in
---! OnPermissionsChange notification
+--[[ @CheckCuttingUnknownValues: expectation of OnPermissionsChange notification and check its content
 --! @parameters:
+--! pNotifTimes - expected number of OnPermissionsChange notification
 --! self - test object
 --! @return: none
 --]]
-local function CheckCuttingUnknowValues(ptuUpdateFunc, self)
-  commonDefects.rai_ptu_n_without_OnPermissionsChange(1, ptuUpdateFunc, self)
+local function CheckCuttingUnknownValues(pNotifTimes, self)
   self.mobileSession1:ExpectNotification("OnPermissionsChange")
-  :Times(2)
-  :ValidIf(function(exp, data)
-      if exp.occurences == 2 then
+    :Times(pNotifTimes)
+    :ValidIf(function(_, data)
         local isError = false
         local ErrorMessage = ""
         if #data.payload.permissionItem ~= 0 then
@@ -159,10 +182,18 @@ local function CheckCuttingUnknowValues(ptuUpdateFunc, self)
         else
           return true
         end
-      else
-        return true
-      end
-    end)
+      end)
+end
+
+--[[ @rai_with_OnPermissionChange: Perform app registration, check received OnPermissionsChange notification
+--! @parameters:
+--! pUpdateFunction - update table for PTU
+--! self - test object
+--! @return: none
+--]]
+local function rai_with_OnPermissionChange(ptuUpdateFunc, self)
+  commonDefects.rai_ptu_n_without_OnPermissionsChange(1, ptuUpdateFunc, self)
+  CheckCuttingUnknownValues(2, self)
 end
 
 --[[ @SuccessfulProcessingRPC: Successful processing API
@@ -170,16 +201,40 @@ end
 --! RPC - RPC name
 --! params - RPC params for mobile request
 --! interface - interface of RPC on HMI
+--! responseParams - parameters for sent response
 --! self - test object
 --! @return: none
 --]]
-local function SuccessfulProcessingRPC(RPC, params, interface, self)
+local function SuccessfulProcessingRPC(RPC, params, interface, responseParams, self)
   local cid = self.mobileSession1:SendRPC(RPC, params)
   EXPECT_HMICALL(interface .. "." .. RPC, params)
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", responseParams)
     end)
   self.mobileSession1:ExpectResponse(cid,{ success = true, resultCode = "SUCCESS" })
+end
+
+--[[ @triggerPTU: Trigger PTU from HMI via OnPolicyUpdate notification
+--! @parameters:
+--! self - test object
+--! @return: none
+--]]
+local function triggerPTU(self)
+  self.hmiConnection:SendNotification("SDL.OnPolicyUpdate", { })
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
+  :Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = pathToPTS })
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+end
+
+--[[ @ptuExpUnsuccessFlow: Expectations of OnStatusUpdate notifications during unsuccessful PTU
+--! @parameters: none
+--! @return: none
+--]]
+local function ptuExpUnsuccessFlow()
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
 end
 
 --[[ @removeSnapshotAndTriggerPTUFromHMI: Remove snapshot and trigger PTU from HMI for creation new snapshot,
@@ -193,7 +248,8 @@ local function removeSnapshotAndTriggerPTUFromHMI(self)
   os.execute("rm -f " .. pathToPTS)
   -- expect PolicyUpdate request on HMI side
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = pathToPTS })
-  :Do(function()
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
       if (commonSteps:file_exists(pathToPTS) == false) then
         self:FailTestCase(pathToPTS .. " is not created")
       else
@@ -210,6 +266,7 @@ local function removeSnapshotAndTriggerPTUFromHMI(self)
     end)
   -- Sending OnPolicyUpdate notification form HMI
   self.hmiConnection:SendNotification("SDL.OnPolicyUpdate", { })
+
   -- Expect OnStatusUpdate notifications on HMI side
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
   :Times(2)
@@ -231,25 +288,38 @@ local function DisallowedRPC(RPC, params, interface, self)
   commonDefects.delayedExp()
 end
 
+--[[ @ptu: Policy table update
+--! @parameters:
+--! pUpdateFunction - update table for PTU
+--! self - test object
+--! @return: none
+--]]
+local function ptu(pUpdateFunction, self)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
+  commonDefects.ptu(pUpdateFunction, self)
+  CheckCuttingUnknownValues(1, self)
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonDefects.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonDefects.start)
 
 runner.Title("Test")
-runner.Step("App registration, PTU with unknown API", CheckCuttingUnknowValues, { ptuUpdateFuncRPC })
+runner.Step("App registration, PTU with unknown API", rai_with_OnPermissionChange, { ptuUpdateFuncRPC })
 runner.Step("Check applying of PT by processing SendLocation", SuccessfulProcessingRPC,
-  { "SendLocation", SendLocationParams, "Navigation" })
-runner.Step("Unregister application", commonDefects.unregisterApp)
+  { "SendLocation", SendLocationParams, "Navigation", {} })
+runner.Step("Trigger PTU from HMI", triggerPTU)
 
-runner.Step("App registration, PTU with unknown parameters", CheckCuttingUnknowValues, { ptuUpdateFuncParams })
+runner.Step("PTU with unknown parameters", ptu, { ptuUpdateFuncParams })
 runner.Step("Check applying of PT by processing GetVehicleData", SuccessfulProcessingRPC,
-  { "GetVehicleData", { gps = true }, "VehicleInfo" })
+  { "GetVehicleData", { gps = true }, "VehicleInfo", { gps = gpsDataResponse } })
 runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC,
   { "SubscribeVehicleData", { gps = true }, "VehicleInfo" })
 
 runner.Step("Remove Snapshot and trigger PTU, check new created PTS", removeSnapshotAndTriggerPTUFromHMI)
-runner.Step("Invalid_PTU_after_cutting_of_unknown_values", commonDefects.unsuccessfulPTU, { ptuUpdateFuncNotValid })
+runner.Step("Invalid_PTU_after_cutting_off_unknown_values", commonDefects.unsuccessfulPTU,
+  { ptuUpdateFuncNotValid, ptuExpUnsuccessFlow })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonDefects.postconditions)

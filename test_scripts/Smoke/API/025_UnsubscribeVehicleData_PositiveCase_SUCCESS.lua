@@ -30,7 +30,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local VDValues = {
@@ -93,41 +96,42 @@ local function setVDResponse()
   return temp
 end
 
-local function subscribeVD(pParams, self)
+local function subscribeVD(pParams)
   pParams.requestParams = setVDRequest()
-  local cid = self.mobileSession1:SendRPC("SubscribeVehicleData", pParams.requestParams)
+  local cid = common.getMobileSession():SendRPC("SubscribeVehicleData", pParams.requestParams)
   pParams.responseUiParams = setVDResponse()
-  EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData", pParams.requestParams)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData", pParams.requestParams)
   :Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
-  end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  self.mobileSession1:ExpectNotification("OnHashChange")
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
+    end)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-local function unsubscribeVD(pParams, self)
-  local cid = self.mobileSession1:SendRPC("UnsubscribeVehicleData", pParams.requestParams)
-  EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData", pParams.requestParams)
+local function unsubscribeVD(pParams)
+  local cid = common.getMobileSession():SendRPC("UnsubscribeVehicleData", pParams.requestParams)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", pParams.requestParams)
   :Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
-  end)
-  local MobResp = pParams.responseUiParams
-  MobResp.success = true
-  MobResp.resultCode = "SUCCESS"
-  self.mobileSession1:ExpectResponse(cid, MobResp)
-  self.mobileSession1:ExpectNotification("OnHashChange")
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
+    end)
+  local mobResp = pParams.responseUiParams
+  mobResp.success = true
+  mobResp.resultCode = "SUCCESS"
+  common.getMobileSession():ExpectResponse(cid, mobResp)
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 runner.Step("SubscribeVehicleData", subscribeVD, { allParams })
 
 runner.Title("Test")
 runner.Step("UnsubscribeVehicleData Positive Case", unsubscribeVD, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

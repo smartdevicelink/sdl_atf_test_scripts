@@ -1,6 +1,0 @@
-./test_scripts/Image_template/001_isTemplate_is_true.lua
-./test_scripts/Image_template/002_isTemplate_is_false.lua
-./test_scripts/Image_template/003_isTemplate_is_absent.lua
-./test_scripts/Image_template/004_isTemplate_invalid_type.lua
-./test_scripts/Image_template/005_isTemplate_is_true_with_not_png_image.lua
-./test_scripts/Image_template/006_isTemplate_is_true_with_STATIC_image.lua

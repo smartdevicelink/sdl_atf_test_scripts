@@ -17,19 +17,19 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules) do
   runner.Step("GetInteriorVehicleData " .. mod, commonRC.subscribeToModule, { mod })
 end
 

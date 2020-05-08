@@ -27,7 +27,7 @@ config.deviceMAC      = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a
 
 Apps = {}
 Apps[1] = {}
-Apps[1].storagePath = config.pathToSDL .. "storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+Apps[1].storagePath = config.pathToSDL .. "storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 Apps[1].appName = config.application1.registerAppInterfaceParams.appName 
 Apps[1].isMedia = commonFunctions:isMediaApp()
 --Set audioStreamingState
@@ -63,7 +63,7 @@ local function RegisterApplication(UILanguage, VRTTSLanguage)
 										appName = config.application1.registerAppInterfaceParams.appName,
 										ngnMediaScreenAppName = config.application1.registerAppInterfaceParams.ngnMediaScreenAppName,
 										--deviceInfo = config.application1.registerAppInterfaceParams.deviceInfo,
-										policyAppID = config.application1.registerAppInterfaceParams.appID,
+										policyAppID = config.application1.registerAppInterfaceParams.fullAppID,
 										hmiDisplayLanguageDesired = config.application1.registerAppInterfaceParams.hmiDisplayLanguageDesired,
 										isMediaApplication = config.application1.registerAppInterfaceParams.isMediaApplication,
 										appType = config.application1.registerAppInterfaceParams.appHMIType

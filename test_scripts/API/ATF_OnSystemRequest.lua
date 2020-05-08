@@ -879,7 +879,7 @@ APPLINK_21366()
 		--Precondition: Build policy table file
 		local PermissionLinesForBase4 = nil
 		local PermissionLinesForGroup1 = PermissionLines_OnSystemRequest .. "\n"
-		local appID = config.application1.registerAppInterfaceParams.appID
+		local appID = config.application1.registerAppInterfaceParams.fullAppID
 		local PermissionLinesForApplication =
 		[[			"]]..appID ..[[" : {
 						"keep_context" : false,

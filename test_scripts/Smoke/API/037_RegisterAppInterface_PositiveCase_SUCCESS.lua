@@ -26,91 +26,96 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
-	syncMsgVersion = {
-		majorVersion = 2,
-		minorVersion = 2,
-	},
-	appName = "SyncProxyTester",
-	ttsName = {
-		{
-			text ="SyncProxyTester",
-			type ="TEXT",
-		},
-	},
-	ngnMediaScreenAppName = "SPT",
-	vrSynonyms = {
-		"VRSyncProxyTester",
-	},
-	isMediaApplication = true,
-	languageDesired = "EN-US",
-	hmiDisplayLanguageDesired = "EN-US",
-	appHMIType = {
-		"DEFAULT",
-	},
-	appID = "123456",
-	deviceInfo = {
-		hardware = "hardware",
-		firmwareRev = "firmwareRev",
-		os = "os",
-		osVersion = "osVersion",
-		carrier = "carrier",
-		maxNumberRFCOMMPorts = 5
-	}
+  syncMsgVersion = {
+    majorVersion = 5,
+    minorVersion = 0,
+  },
+  appName = "SyncProxyTester",
+  ttsName = {
+    {
+      text ="SyncProxyTester",
+      type ="TEXT",
+    },
+  },
+  ngnMediaScreenAppName = "SPT",
+  vrSynonyms = {
+    "VRSyncProxyTester",
+  },
+  isMediaApplication = true,
+  languageDesired = "EN-US",
+  hmiDisplayLanguageDesired = "EN-US",
+  appHMIType = {
+    "DEFAULT",
+  },
+  appID = "123",
+  fullAppID = "123456",
+  deviceInfo = {
+    hardware = "hardware",
+    firmwareRev = "firmwareRev",
+    os = "os",
+    osVersion = "osVersion",
+    carrier = "carrier",
+    maxNumberRFCOMMPorts = 5
+  }
 }
 
 local function SetNotificationParams()
-	local notificationParams = {
-		application = {}
-	}
-	notificationParams.application.appName = requestParams.appName
-	notificationParams.application.ngnMediaScreenAppName = requestParams.ngnMediaScreenAppName
-	notificationParams.application.isMediaApplication = requestParams.isMediaApplication
-	notificationParams.application.hmiDisplayLanguageDesired = requestParams.hmiDisplayLanguageDesired
-	notificationParams.application.appType = requestParams.appHMIType
-	notificationParams.application.deviceInfo = {
-		name = commonSmoke.getDeviceName(),
-		id = commonSmoke.getDeviceMAC(),
-		transportType = "WIFI",
-		isSDLAllowed = true
-	}
-	notificationParams.application.policyAppID = requestParams.appID
-	notificationParams.ttsName = requestParams.ttsName
-	notificationParams.vrSynonyms = requestParams.vrSynonyms
-	return notificationParams
+  local notificationParams = {
+    application = {}
+  }
+  notificationParams.application.appName = requestParams.appName
+  notificationParams.application.ngnMediaScreenAppName = requestParams.ngnMediaScreenAppName
+  notificationParams.application.isMediaApplication = requestParams.isMediaApplication
+  notificationParams.application.hmiDisplayLanguageDesired = requestParams.hmiDisplayLanguageDesired
+  notificationParams.application.appType = requestParams.appHMIType
+  notificationParams.application.deviceInfo = {
+    name = common.getDeviceName(),
+    id = common.getDeviceMAC(),
+    transportType = common.getDeviceTransportType(),
+    isSDLAllowed = true
+  }
+  notificationParams.application.policyAppID = requestParams.fullAppID
+  notificationParams.ttsName = requestParams.ttsName
+  notificationParams.vrSynonyms = requestParams.vrSynonyms
+  return notificationParams
 end
 
 --[[ Local Functions ]]
-local function unregisterAppInterface(self)
-	local cid = self.mobileSession1:SendRPC("UnregisterAppInterface", { })
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-		{ appID = commonSmoke.getHMIAppId(), unexpectedDisconnect = false })
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+local function unregisterAppInterface()
+  local cid = common.getMobileSession():SendRPC("UnregisterAppInterface", { })
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
+    { appID = common.getHMIAppId(), unexpectedDisconnect = false })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-local function RegisterAppInterface(self)
-	local CorIdRAI = self.mobileSession1:SendRPC("RegisterAppInterface", requestParams)
-	local notificationParams = SetNotificationParams()
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", notificationParams)
-	self.mobileSession1:ExpectResponse(CorIdRAI, { success = true, resultCode = "SUCCESS" })
-	self.mobileSession1:ExpectNotification("OnHMIStatus",
-		{ hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-	self.mobileSession1:ExpectNotification("OnPermissionsChange")
+local function registerAppInterface()
+  local CorIdRAI = common.getMobileSession():SendRPC("RegisterAppInterface", requestParams)
+  local notificationParams = SetNotificationParams()
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered", notificationParams)
+  common.getMobileSession():ExpectResponse(CorIdRAI, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+  common.getMobileSession():ExpectNotification("OnPermissionsChange")
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 runner.Step("UnregisterAppInterface Positive Case", unregisterAppInterface)
 
 runner.Title("Test")
-runner.Step("RegisterAppInterface Positive Case", RegisterAppInterface)
+runner.Step("RegisterAppInterface Positive Case", registerAppInterface)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

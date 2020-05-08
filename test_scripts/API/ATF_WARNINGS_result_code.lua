@@ -24,7 +24,7 @@ local arrayStringParameterInResponse = require('user_modules/shared_testcases/te
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 
-local storagePath = config.pathToSDL .. "storage/" .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
+local storagePath = config.pathToSDL .. "storage/" .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/"
 local imageValues = {"i", "icon.png", "qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=QWERTYUIOPASDFGHJKLZXCVBNM{}|?>:<qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=QWERTY"}
 local grammarIDValue
 local appId2

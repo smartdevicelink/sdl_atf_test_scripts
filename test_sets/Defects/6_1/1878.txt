@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1878_AddCommand_resumption_order.lua

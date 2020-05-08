@@ -131,7 +131,7 @@ strMaxLengthFileName255 = string.rep("a", 251)  .. ".png" -- set max length file
 
 
 local iTimeout = 5000
-local strAppFolder = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
+local strAppFolder = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/"
 
 local str1000Chars = 
 	"1".. --1

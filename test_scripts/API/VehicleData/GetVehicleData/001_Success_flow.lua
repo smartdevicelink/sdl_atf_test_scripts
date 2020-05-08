@@ -16,68 +16,41 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 
---[[ Local Variables ]]
-local rpc = {
-  name = "GetVehicleData",
-  params = {
-    engineOilLife = true,
-    fuelRange = true,
-    tirePressure = true,
-    electronicParkBrakeStatus = true,
-    turnSignal = true
-  }
-}
-
-local vehicleDataValues = {
-  engineOilLife = 50.30,
-  fuelRange = {
-    {
-      type = "GASOLINE",
-      range = 400.00
-    }
-  },
-  tirePressure = {
-    leftFront = {
-      status = "NORMAL",
-      tpms = "SYSTEM_ACTIVE",
-      pressure = 35.00
-    },
-    rightFront = {
-      status = "NORMAL",
-      tpms = "SYSTEM_ACTIVE",
-      pressure = 35.00
-    }
-  },
-  electronicParkBrakeStatus = "CLOSED",
-  turnSignal = "LEFT"
-}
-
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params)
+local function processRPCSuccess(pData)
+  local reqParams = {
+    [pData] = true
+  }
+  local hmiResParams = {
+    [pData] = common.allVehicleData[pData].value
+  }
+  local cid = common.getMobileSession():SendRPC("GetVehicleData", reqParams)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", reqParams)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", vehicleDataValues )
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
     end)
-  local responseParams = vehicleDataValues
-  responseParams.success = true
-  responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
+  local mobResParams = common.cloneTable(hmiResParams)
+  mobResParams.success = true
+  mobResParams.resultCode = "SUCCESS"
+  common.getMobileSession():ExpectResponse(cid, mobResParams)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("`100, 1` in GetVehicleDataRequest in ini file", common.setSDLIniParameter,
+  { "GetVehicleDataRequest", "100, 1" })
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
-runner.Step("RPC " .. rpc.name, processRPCSuccess)
+common.Title("Test")
+for vehicleDataName in pairs(common.allVehicleData) do
+  common.Step("RPC GetVehicleData " .. vehicleDataName, processRPCSuccess, { vehicleDataName })
+end
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

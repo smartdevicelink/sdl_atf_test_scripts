@@ -23,29 +23,22 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {
-	[1] = {}
-}
-
 --[[ Local Functions ]]
 local function disableRCFromHMI()
-  common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
+  common.disableRCFromHMI()
   common.getMobileSession():ExpectNotification("OnRCStatus",
-	{ allowed = false, freeModules = {}, allocatedModules = {} })
+  { allowed = false, freeModules = {}, allocatedModules = {} })
   local pModuleStatusHMI = {
-    freeModules = common.getModulesArray(common.getAllModules()),
+    freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { }
   }
-  common.validateOnRCStatusForHMI(1, { pModuleStatusHMI })
+  common.validateOnRCStatusForHMI(1, pModuleStatusHMI)
 end
 
 local function setVehicleData(pModuleType)
-	local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.validateOnRCStatusForApp(1, pModuleStatus)
-	common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]

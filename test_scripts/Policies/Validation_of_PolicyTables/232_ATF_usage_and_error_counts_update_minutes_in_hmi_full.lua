@@ -25,10 +25,10 @@
 -- Expected result:
 -- SDL must: increment value of "minutes_in_hmi_full" for this <X+N> minutes in Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -447,18 +447,19 @@ function Test:StopSDL2()
 end
 
 function Test:CheckPTUinLocalPT()
+  os.execute("sleep 5")
   TestData:store("Store LocalPT after test", constructPathToDatabase(), "final_policy.sqlite" )
   local checks = {
     {
       query = table.concat(
         {
           'select minutes_in_hmi_full from app_level where application_id = "',
-          config.application1.registerAppInterfaceParams.appID,
+          config.application1.registerAppInterfaceParams.fullAppID,
           '"'
         }),
       expectedValues = {table.concat(
           {
-            TESTED_DATA.expected.policy_table.usage_and_error_counts.app_level[config.application1.registerAppInterfaceParams.appID].minutes_in_hmi_full, ""
+            TESTED_DATA.expected.policy_table.usage_and_error_counts.app_level[config.application1.registerAppInterfaceParams.fullAppID].minutes_in_hmi_full, ""
           })
       }
     }

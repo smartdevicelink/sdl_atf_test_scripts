@@ -2294,7 +2294,8 @@
         "priority": "NONE",
         "default_hmi": "NONE",
         "groups": ["Base-4"],
-        "RequestType": []
+        "RequestType": [],
+        "RequestSubType": []
       },
       "device": {
         "keep_context": false,

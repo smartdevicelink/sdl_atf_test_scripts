@@ -19,6 +19,8 @@
 -- Expected result:
 -- SDL must respond with the following data: success = true, resultCode = "SUCCESS"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
@@ -53,7 +55,7 @@ end
 commonFunctions:newTestCasesGroup("Test")
 function Test:RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "MediAAPP"
-  config.application2.registerAppInterfaceParams.appID = "123_xyz"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_xyz"
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "MediAAPP" }})
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })

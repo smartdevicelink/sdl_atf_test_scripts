@@ -22,24 +22,14 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(common.getAllModules(), {{ }}, pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatus()
 end
 
 local function userExit()
-  local hmiAppId = common.getHMIAppId()
-  common.getHMIconnection():SendNotification("BasicCommunication.OnExitApplication",
-    { appID = hmiAppId, reason = "USER_EXIT" })
-  common.getMobileSession(1):ExpectNotification("OnHMIStatus",
-    { systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE" })
-  local pModuleStatus = {
-    freeModules = common.getModulesArray(common.getAllModules()),
-    allocatedModules = { }
-  }
-  common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.userExit()
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]

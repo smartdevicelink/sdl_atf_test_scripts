@@ -10,12 +10,11 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 
 require('user_modules/AppTypes')
 
 local iTimeout = 5000
-local buttonName = {"OK","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
+local buttonName = {"OK","PLAY_PAUSE","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
 local buttonNameNonMediaApp = {"OK", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
 local UnsupportButtonName = {"PRESET_9", "SEARCH"}
 
@@ -132,7 +131,8 @@ local function Precondition_TC_SubscribeButton(self, btnName)
 					return true
 			elseif
 				self.isMediaApplication == false and
-				(btnName == "SEEKLEFT" or 
+				(btnName == "PLAY_PAUSE" or
+				btnName == "SEEKLEFT" or 
 				btnName == "SEEKRIGHT" or 
 				btnName == "TUNEUP" or 
 				btnName == "TUNEDOWN") then
@@ -232,7 +232,8 @@ local function TC_UnsubscribeButtonSUCCESS(self, btnName, strTestCaseName)
 
 		if
 			self.isMediaApplication == false and
-			(btnName == "SEEKLEFT" or 
+			(btnName == "PLAY_PAUSE" or
+			btnName == "SEEKLEFT" or 
 			btnName == "SEEKRIGHT" or 
 			btnName == "TUNEUP" or 
 			btnName == "TUNEDOWN") then
@@ -473,7 +474,8 @@ function RegisterAppInterface(self, appNumber)
 
 						if
 							self.isMediaApplication == false and
-							(buttonName[i] == "SEEKLEFT" or 
+							(buttonName[i] == "PLAY_PAUSE" or
+							buttonName[i] == "SEEKLEFT" or 
 							buttonName[i] == "SEEKRIGHT" or 
 							buttonName[i] == "TUNEUP" or 
 							buttonName[i] == "TUNEDOWN") then
@@ -537,7 +539,8 @@ function RegisterAppInterface(self, appNumber)
 
 						if
 							self.isMediaApplication == false and
-							(buttonName[i] == "SEEKLEFT" or 
+							(buttonName[i] == "PLAY_PAUSE" or
+							buttonName[i] == "SEEKLEFT" or 
 							buttonName[i] == "SEEKRIGHT" or 
 							buttonName[i] == "TUNEUP" or 
 							buttonName[i] == "TUNEDOWN") then

@@ -34,8 +34,8 @@ local paramsProprietary = {
 }
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestType = nil
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestSubType = { "TYPE1" }
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestType = nil
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestSubType = { "TYPE1" }
 end
 
 local function policyUpdate()

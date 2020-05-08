@@ -39,8 +39,8 @@ local policyTable = require('user_modules/shared_testcases/testCasesForPolicyTab
 
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
-local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
-local storagePath = config.pathToSDL .. "storage/" .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
+local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.pathToSDL .. "storage/" .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/"
 local strAppFolder = storagePath..appIDAndDeviceMac
 local strIvsu_cacheFolder = "/tmp/fs/mp/images/ivsu_cache/"
 

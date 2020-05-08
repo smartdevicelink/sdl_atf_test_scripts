@@ -25,6 +25,8 @@
 -- Expected result:
 -- PTU flow started
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: Should be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -106,7 +108,9 @@ function Test:Preconditions_Set_Odometer_Value1()
   local cid_vehicle = self.mobileSession:SendRPC("SubscribeVehicleData", {odometer = true})
   EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        odometer = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_ODOMETER" }
+      })
     end)
   EXPECT_RESPONSE(cid_vehicle, { success = true, resultCode = "SUCCESS" })
 end

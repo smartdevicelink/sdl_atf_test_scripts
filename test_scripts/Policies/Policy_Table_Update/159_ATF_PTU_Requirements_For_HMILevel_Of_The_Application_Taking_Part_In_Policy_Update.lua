@@ -18,6 +18,8 @@
 -- SDL choose between the app_2, app_3, app_4 randomly to send OnSystemRequest
 -- app_1 doesn't take part in PTU (except of the case when app_1 is the only application being run on SDL)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -160,7 +162,8 @@ for time = 1, 10 do
   function Test:TestStep_CheckOnSystemRequest_AppLevel()
     print("Check OnSystemRequest sent to application. Time: "..time.."/10")
     local received_onsystemrequest = 0
-    local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
     EXPECT_HMIRESPONSE(requestId)
     :Do(function()
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })

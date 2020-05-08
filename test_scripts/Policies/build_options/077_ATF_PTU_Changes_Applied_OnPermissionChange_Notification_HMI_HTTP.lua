@@ -21,6 +21,8 @@
 -- SDL->app: onPermissionChange(<permisssionItem>)
 -- SDL->HMI: SDL.OnAppPermissionChanged(appID, params)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -31,7 +33,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local json = require("modules/json")
 
 --[[ Local Variables ]]
-local app_id = config.application1.registerAppInterfaceParams.appID
+local app_id = config.application1.registerAppInterfaceParams.fullAppID
 local ptu_table
 
 --[[ Local Functions ]]
@@ -39,6 +41,7 @@ local function updatePTU(ptu)
   ptu.policy_table.consumer_friendly_messages.messages = nil
   ptu.policy_table.device_data = nil
   ptu.policy_table.module_meta = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies[app_id] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Base-6" }
@@ -91,22 +94,22 @@ function Test:RAI_PTU()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(
     function(_, d1)
-      self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
+      self.applications[config.application1.registerAppInterfaceParams.fullAppID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, {status = "UP_TO_DATE" })
       :Times(3)
-
-      local onSystemRequestRecieved = false
-      self.mobileSession:ExpectNotification("OnSystemRequest")
-      :Do(
-        function(_, d2)
-          if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
-            onSystemRequestRecieved = true
-            ptu_table = json.decode(d2.binaryData)
-            ptu(self)
-          end
-        end)
-      :Times(2)
     end)
+
+  local onSystemRequestRecieved = false
+  self.mobileSession:ExpectNotification("OnSystemRequest")
+  :Do(
+    function(_, d2)
+      if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
+        onSystemRequestRecieved = true
+        ptu_table = json.decode(d2.binaryData)
+        ptu(self)
+      end
+    end)
+  :Times(2)
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(
     function()

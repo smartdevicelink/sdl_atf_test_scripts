@@ -810,7 +810,7 @@ end
 -----------------------------------------------------------------------------
 function CommonFunctions:GetFullPathIcon(image_file_name, appId)
   if not appId then
-    appId = config.application1.registerAppInterfaceParams.appID
+    appId = config.application1.registerAppInterfaceParams.fullAppID
   end
   local full_path_icon = table.concat({config.pathToSDL, "storage/", appId, "_", config.deviceMAC, "/", image_file_name})
   return full_path_icon

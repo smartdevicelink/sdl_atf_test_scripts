@@ -2,6 +2,14 @@ local testCasesForPolicyTableSnapshot = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local expectations = require('expectations')
+
+local expOrig = expectations.Expectation
+function expectations.Expectation(name, connection)
+  local e = expOrig(name, connection)
+  e.timeout = e.timeout + 10000
+  return e
+end
 
 testCasesForPolicyTableSnapshot.preloaded_elements = {}
 testCasesForPolicyTableSnapshot.pts_elements = {}
@@ -137,6 +145,8 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     { name = "module_config.vehicle_model", elem_required = "optional"},
     { name = "module_config.vehicle_year", elem_required = "optional"},
     { name = "module_config.display_order", elem_required = "optional"},
+    { name = "module_config.full_app_id_supported", elem_required = "required"},
+    { name = "module_config.lock_screen_dismissal_enabled", elem_required = "optional"},
 
     { name = "consumer_friendly_messages.version", elem_required = "required"},
 
@@ -176,7 +186,10 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     { name = "app_policies.pre_consent_passengersRC.certificate", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.priority", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.groups.1", elem_required = "optional"},
-    { name = "app_policies.pre_consent_passengersRC.AppHMIType.1", elem_required = "optional"}
+    { name = "app_policies.pre_consent_passengersRC.AppHMIType.1", elem_required = "optional"},
+    -- custom vehicle_data
+    { name = "module_config.endpoint_properties.custom_vehicle_data_mapping_url.version", elem_required = "optional"},
+    { name = "vehicle_data.schema_version", elem_required = "optional"}
   }
 
   if(flag ~= "PROPRIETARY" and flag ~= "HTTP") then
@@ -448,7 +461,15 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     local pts = '/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json'
     if ( commonSteps:file_exists(pts) ) then
       testCasesForPolicyTableSnapshot:extract_pts()
-
+      -- Skip other devices
+      if device_IDs ~= nil then
+        for i = #testCasesForPolicyTableSnapshot.pts_elements, 1, -1 do
+          local item = testCasesForPolicyTableSnapshot.pts_elements[i].name
+          if string.find(item, "^device_data") and not string.find(item, device_IDs[1]) then
+            table.remove(testCasesForPolicyTableSnapshot.pts_elements, i)
+          end
+        end
+      end
       --Check for ommited parameters
       for i = 1, #testCasesForPolicyTableSnapshot.pts_elements do
         local is_existing = false

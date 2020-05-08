@@ -11,6 +11,8 @@
 -- Expected result:
 -- SDL must send BasicCommunication.SystemRequest (<path to UpdatedPT>, PROPRIETARY, params) to HMI
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -37,16 +39,9 @@ commonFunctions:newTestCasesGroup("Preconditions")
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Update_Policy()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
-    result = {
-      code = 0,
-      method = "SDL.GetURLS",
-      urls = {
-        { url = commonFunctions.getURLs("0x07")[1] }
-      }
-    }
-  })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId, { result = { code = 0, method = "SDL.GetPolicyConfigurationData" }})
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = testData.fileName})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

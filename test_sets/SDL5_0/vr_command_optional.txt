@@ -1,0 +1,2 @@
+./test_scripts/SDL5_0/vrCommandOptional/001_create_interaction_choice_set_invalid_data.lua
+./test_scripts/SDL5_0/vrCommandOptional/002_perform_interaction_invalid_data.lua

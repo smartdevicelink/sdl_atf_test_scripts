@@ -17,6 +17,8 @@
 -- SDL->HMI: SDL.ActivateApp_response {priority: NONE, params}
 -- SDL->HMI: SDL.OnAppPermissionsChanged {priority: NONE, params}
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2

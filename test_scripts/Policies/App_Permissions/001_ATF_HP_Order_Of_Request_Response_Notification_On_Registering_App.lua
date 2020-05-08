@@ -27,6 +27,8 @@
 -- 4. SDL assigns the appropriate policies and notifies application:
 -- SDL->app: OnPermissionsChange (params) - as specified in "pre_DataConsent" section.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -76,11 +78,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_Connect_device()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
-      deviceList = { { id = utils.getDeviceMAC(), name = utils.getDeviceName(), transportType = "WIFI", isSDLAllowed = false} } })
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_StartNewSession()
@@ -96,7 +99,7 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
 
   config.application1.registerAppInterfaceParams.appName = "SPT"
   config.application1.registerAppInterfaceParams.isMediaApplication = true
-  config.application1.registerAppInterfaceParams.appID = "1234567"
+  config.application1.registerAppInterfaceParams.fullAppID = "1234567"
 
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
@@ -109,21 +112,12 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
     } } })
-  :Do(function(_,data)
-      if(order_communication ~= 1 and order_communication ~= 2) then
-        commonFunctions:printError("BasicCommunication.OnAppRegistered is not received 1 or 2 in message order. Real: received number: "..order_communication)
-        is_test_fail = true
-      end
-      order_communication = order_communication + 1
-      self.applications["SPT"] = data.params.application.appID
-    end)
-
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   :Do(function(_,_)
-      if(order_communication ~= 2 and order_communication ~= 1) then
+      if(order_communication ~= 1) then
         commonFunctions:printError("RAI response is not received 1 or 2 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
@@ -132,7 +126,7 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
 
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   :Do(function(_,_)
-      if(order_communication ~= 3) then
+      if(order_communication ~= 2) then
         commonFunctions:printError("OnHMIStatus is not received 3 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
@@ -141,7 +135,7 @@ function Test:Register_App_And_Check_Order_Of_Request_Response_Notiofications()
 
   EXPECT_NOTIFICATION("OnPermissionsChange", {})
   :Do(function(_,_data2)
-      if(order_communication ~= 4) then
+      if(order_communication ~= 3) then
         commonFunctions:printError("OnPermissionsChange is not received 4 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end

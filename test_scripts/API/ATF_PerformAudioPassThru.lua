@@ -28,7 +28,7 @@ APIName = "PerformAudioPassThru" -- set request name
 
 local infoMessage = string.rep("a", 1000)
 local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
-local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. tostring(config.deviceMAC) .. "/")
 local function SendOnSystemContext(self, ctx)
 	self.hmiConnection:SendNotification("UI.OnSystemContext",{ appID = self.applications["Test Application"], systemContext = ctx })
 end

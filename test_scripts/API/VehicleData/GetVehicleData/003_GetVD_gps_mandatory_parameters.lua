@@ -18,7 +18,6 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 
 --[[ Local Variables ]]
@@ -63,38 +62,39 @@ local vehicleDataValuesMissedMandatory = {
 }
 
 --[[ Local Functions ]]
-local function processRPC(pParams, isSuccess, self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params)
+local function processRPC(pParams, isSuccess)
+  local cid = common.getMobileSession():SendRPC(rpc.name, rpc.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc.name, rpc.params)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { gps = pParams })
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { gps = pParams })
     end)
   if isSuccess == true then
     local responseParams = {}
     responseParams.gps = pParams
     responseParams.success = true
     responseParams.resultCode = "SUCCESS"
-    mobileSession:ExpectResponse(cid, responseParams)
+    common.getMobileSession():ExpectResponse(cid, responseParams)
   else
-    mobileSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle" })
+    common.getMobileSession():ExpectResponse(cid,
+      { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle" })
   end
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
+common.Title("Test")
 for key, value in pairs(vehicleDataValues) do
-  runner.Step("RPC GetVehicleData gps " .. key, processRPC, { value, true })
+  common.Step("RPC GetVehicleData gps " .. key, processRPC, { value, true })
 end
 for key, value in pairs(vehicleDataValuesMissedMandatory) do
-  runner.Step("RPC GetVehicleData gps " .. key, processRPC, { value, false })
+  common.Step("RPC GetVehicleData gps " .. key, processRPC, { value, false })
 end
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

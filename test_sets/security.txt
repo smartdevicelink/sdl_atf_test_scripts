@@ -1,10 +1,10 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/Security/DTLS/001_StartRPC_service.lua
 ./test_scripts/Security/DTLS/002_Start_Audio_service.lua
 ./test_scripts/Security/DTLS/003_Start_Video_service.lua
 ./test_scripts/Security/DTLS/004_Processing_of_RPC.lua
 ./test_scripts/Security/DTLS/005_Ignore_malformed_packet.lua
 ./test_scripts/Security/DTLS/006_Ignore_unexpected_packet.lua
-./test_scripts/Security/DTLS/007_Processing_multiple_frames.lua
 ./test_scripts/Security/GetSystemTime/001_GetSystemTime_is_sent.lua
 ./test_scripts/Security/GetSystemTime/002_GetSystemTime_is_not_sent.lua
 ./test_scripts/Security/GetSystemTime/003_GetSystemTime_mobile_sdl_cer_are_expired.lua
@@ -47,3 +47,4 @@
 ./test_scripts/Security/SSLHandshakeFlow/015_Navi-Predefined_cert_valid_PTU_is_not_started.lua
 ./test_scripts/Security/SSLHandshakeFlow/016_Non-Navi-Predefined_cert_valid_PTU_is_not_started.lua
 ./test_scripts/Security/SSLHandshakeFlow/017_App_Name_no_impact_SUCCESS.lua
+./test_scripts/Security/SSLHandshakeFlow/018_V5_happy_path_SUCCESS.lua

@@ -23,6 +23,8 @@
 -- Expected result:
 -- SDL sends to HMI empty array
 -----------------------------------------------------------------------------------------------[[ General configuration parameters ]]
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 -- ToDo (vvvakulenko): remove after issue "ATF does not stop HB timers by closing session and connection" is resolved
 config.defaultProtocolVersion = 2
 

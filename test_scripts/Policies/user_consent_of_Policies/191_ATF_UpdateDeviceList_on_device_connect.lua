@@ -14,6 +14,8 @@
 -- Expected result:
 -- SDL sends UpdateDeviceList to HMI right after new device connects over WiFi
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
@@ -36,20 +38,12 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:UpdateDeviceList_on_device_connect()
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          isSDLAllowed = false,
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
   commonTestCases:DelayedExp(60*1000)
 end
 

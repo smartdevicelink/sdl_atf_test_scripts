@@ -14,9 +14,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local rpc = {
@@ -32,86 +30,84 @@ local rpc = {
 
 local vehicleDataResults = {
   engineOilLife = {
-    dataType = "VEHICLEDATA_ENGINEOILLIFE", 
+    dataType = "VEHICLEDATA_ENGINEOILLIFE",
     resultCode = "SUCCESS"
   },
   fuelRange = {
-    dataType = "VEHICLEDATA_FUELRANGE", 
+    dataType = "VEHICLEDATA_FUELRANGE",
     resultCode = "SUCCESS"
   },
   tirePressure = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
+    dataType = "VEHICLEDATA_TIREPRESSURE",
     resultCode = "SUCCESS"
   },
   electronicParkBrakeStatus = {
     dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS",
     resultCode = "SUCCESS"
-  }, 
+  },
   turnSignal = {
-    dataType = "VEHICLEDATA_TURNSIGNAL", 
+    dataType = "VEHICLEDATA_TURNSIGNAL",
     resultCode = "SUCCESS"
   }
 }
 
 local vehicleDataResults2 = {
   engineOilLife = {
-    dataType = "VEHICLEDATA_ENGINEOILLIFE", 
+    dataType = "VEHICLEDATA_ENGINEOILLIFE",
     resultCode = "DATA_ALREADY_SUBSCRIBED"
   },
   fuelRange = {
-    dataType = "VEHICLEDATA_FUELRANGE", 
+    dataType = "VEHICLEDATA_FUELRANGE",
     resultCode = "DATA_ALREADY_SUBSCRIBED"
   },
   tirePressure = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
+    dataType = "VEHICLEDATA_TIREPRESSURE",
     resultCode = "DATA_ALREADY_SUBSCRIBED"
   },
   turnSignal = {
-    dataType = "VEHICLEDATA_TURNSIGNAL", 
+    dataType = "VEHICLEDATA_TURNSIGNAL",
     resultCode = "DATA_ALREADY_SUBSCRIBED"
   },
   electronicParkBrakeStatus = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
+    dataType = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS",
     resultCode = "DATA_ALREADY_SUBSCRIBED"
   }
 }
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params)
+local function processRPCSuccess()
+  local cid = common.getMobileSession():SendRPC(rpc.name, rpc.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc.name, rpc.params)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
         vehicleDataResults)
     end)
   local responseParams = vehicleDataResults
   responseParams.success = true
   responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
-local function processRPCIgnored(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params):Times(0)
-  commonTestCases:DelayedExp(common.timeout)
+local function processRPCIgnored()
+  local cid = common.getMobileSession():SendRPC(rpc.name, rpc.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc.name, rpc.params):Times(0)
   local responseParams = vehicleDataResults2
   responseParams.success = false
   responseParams.resultCode = "IGNORED"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
-runner.Step("RPC " .. rpc.name .. " 1st time" , processRPCSuccess)
-runner.Step("RPC " .. rpc.name .. " 2nd time" , processRPCIgnored)
+common.Title("Test")
+common.Step("RPC " .. rpc.name .. " 1st time" , processRPCSuccess)
+common.Step("RPC " .. rpc.name .. " 2nd time" , processRPCIgnored)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

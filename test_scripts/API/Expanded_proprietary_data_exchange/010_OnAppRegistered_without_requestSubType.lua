@@ -21,7 +21,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-	local appId = config.application2.registerAppInterfaceParams.appID
+	local appId = config.application2.registerAppInterfaceParams.fullAppID
   tbl.policy_table.app_policies[appId] = utils.cloneTable(tbl.policy_table.app_policies.default)
   tbl.policy_table.app_policies[appId].RequestSubType = nil
 end

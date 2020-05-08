@@ -31,7 +31,7 @@ local arrayTTSChunks = require('user_modules/shared_testcases/testCasesForArrayT
 APIName = "Speak" -- set request name
 strMaxLengthFileName255 = string.rep("a", 251)  .. ".png" -- set max length file name
 
-local storagePath = config.pathToSDL .. "storage/" .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/"
+local storagePath = config.pathToSDL .. "storage/" .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/"
 
 --Debug = {"graphic", "value"} --use to print request before sending to SDL.
 Debug = {} -- empty {}: script will do not print request on console screen.

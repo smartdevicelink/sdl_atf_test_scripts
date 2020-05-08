@@ -15,6 +15,8 @@
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 -- SDL->HMI:BC.PolicyUpdate(file, timeout, retry[]) where
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -49,7 +51,7 @@ function Test:RAI()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(
     function(_, d1)
-      self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
+      self.applications[config.application1.registerAppInterfaceParams.fullAppID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" } )
       :Times(2)
       local exp = self.mobileSession:ExpectNotification("OnSystemRequest")

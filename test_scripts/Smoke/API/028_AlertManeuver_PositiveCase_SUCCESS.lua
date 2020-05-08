@@ -31,8 +31,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local putFileParams = {
@@ -83,10 +85,10 @@ local requestParams = {
 }
 
 local function naviParamsSet(tbl)
-  local Params = commonFunctions:cloneTable(tbl)
+  local Params = common.cloneTable(tbl)
   for k, _ in pairs(Params) do
     if Params[k].image then
-      Params[k].image.value = commonSmoke.getPathToFileInStorage(Params[k].image.value)
+      Params[k].image.value = common.getPathToFileInAppStorage(Params[k].image.value)
     end
   end
   return Params
@@ -107,41 +109,42 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function alertManeuver(pParams, self)
-  local cid = self.mobileSession1:SendRPC("AlertManeuver", pParams.requestParams)
-  EXPECT_HMICALL("Navigation.AlertManeuver", pParams.responseNaviParams)
+local function alertManeuver(pParams)
+  local cid = common.getMobileSession():SendRPC("AlertManeuver", pParams.requestParams)
+  common.getHMIConnection():ExpectRequest("Navigation.AlertManeuver", pParams.responseNaviParams)
   :Do(function(_, data)
-    local function alertResp()
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
-    end
-    RUN_AFTER(alertResp, 2000)
-  end)
-  EXPECT_HMICALL("TTS.Speak", pParams.responseTtsParams)
+      local function alertResp()
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
+      common.runAfter(alertResp, 2000)
+    end)
+  common.getHMIConnection():ExpectRequest("TTS.Speak", pParams.responseTtsParams)
   :Do(function(_, data)
-    self.hmiConnection:SendNotification("TTS.Started")
-    local function SpeakResp()
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
-      self.hmiConnection:SendNotification("TTS.Stopped")
-    end
-    RUN_AFTER(SpeakResp, 1000)
-  end)
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
+      common.getHMIConnection():SendNotification("TTS.Started")
+      local function SpeakResp()
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+        common.getHMIConnection():SendNotification("TTS.Stopped")
+      end
+      common.runAfter(SpeakResp, 1000)
+    end)
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
     { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
     { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
   :Times(2)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
-runner.Step("Upload icon file", commonSmoke.putFile, { putFileParams })
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Upload icon file", common.putFile, { putFileParams })
 
 runner.Title("Test")
 runner.Step("AlertManeuver Positive Case", alertManeuver, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

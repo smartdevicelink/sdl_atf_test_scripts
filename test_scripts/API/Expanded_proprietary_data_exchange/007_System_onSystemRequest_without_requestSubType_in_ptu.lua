@@ -31,8 +31,8 @@ local params = {
 
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestType = { "PROPRIETARY", "OEM_SPECIFIC" }
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestSubType = nil
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestType = { "PROPRIETARY", "OEM_SPECIFIC" }
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestSubType = nil
 end
 
 local function policyUpdate()

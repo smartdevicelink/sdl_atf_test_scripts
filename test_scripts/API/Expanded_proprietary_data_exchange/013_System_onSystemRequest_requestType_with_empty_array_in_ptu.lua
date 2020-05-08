@@ -30,7 +30,7 @@ local params = {
 }
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestType = json.EMPTY_ARRAY
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestType = json.EMPTY_ARRAY
 end
 
 local function policyUpdate(pPtuFunc)

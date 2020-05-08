@@ -17,19 +17,19 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function setVehicleData(pModuleType, self)
+local function setVehicleData(pModuleType)
 	local moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	moduleData.fakeParam = 123
-	self.mobileSession1:SendRPC("SetInteriorVehicleData", {
+	commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {
 		moduleData = moduleData
 	})
 
 	EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-		appID = self.applications["Test Application"],
+		appID = commonRC.getHMIAppId(),
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 	:ValidIf(function(_, data)
@@ -44,12 +44,12 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules)  do
   runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
 end
 

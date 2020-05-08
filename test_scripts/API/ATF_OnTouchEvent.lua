@@ -7,7 +7,6 @@ Test = require('connecttest')
 require('cardinalities')
 local events = require('events')
 local mobile_session = require('mobile_session')
-local config = require('config')
 
 --ToDo: Remove below line when heartbeat function work well on protocol 3.
 config.defaultProtocolVersion = 2 -- to avoid error with heartbeat function
@@ -1093,7 +1092,7 @@ end
 						]
 					  }]] .. "\n"
 					  
-		local appID = config.application1.registerAppInterfaceParams.appID
+		local appID = config.application1.registerAppInterfaceParams.fullAppID
 		local PermissionLinesForApplication = 
 		[[			"]]..appID ..[[" : {
 						"keep_context" : false,

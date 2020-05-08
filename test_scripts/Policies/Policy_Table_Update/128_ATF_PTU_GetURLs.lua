@@ -1,8 +1,8 @@
 ---------------------------------------------------------------------------------------------
 -- Requirements summary:
--- [PolicyTableUpdate] Policy Manager responds on GetURLs from HMI
--- In case HMI sends GetURLs and at least one app is registered SDL must return only default url and url related to registered app
--- [HMI API] GetURLs request/response
+-- [PolicyTableUpdate] Policy Manager responds on GetPolicyConfigurationData from HMI
+-- In case HMI sends SDL.GetPolicyConfigurationData SDL must return endpoints json as value
+-- [HMI API] SDL.GetPolicyConfigurationData request/response
 --
 -- Description:
 -- SDL should request PTU in case getting device consent
@@ -10,12 +10,14 @@
 -- SDL is built with "-DEXTENDED_POLICY: EXTERNAL_PROPRIETARY" flag
 -- Application is registered.
 -- User request device consent
--- HMI->SDL: SDL.GetURLs(service=0x07)
+-- HMI->SDL: SDL.GetPolicyConfigurationData(policyType = "module_config", property = "endpoints")
 --
 -- Expected result:
 -- PTU is requested. PTS is created.
--- SDL.GetURLs({urls[] = registered_App1, default})
+-- SDL.GetPolicyConfigurationData({value = <endpoints json>})
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -44,17 +46,13 @@ end
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_PTU_GetURLs()
-  local endpoints = {}
-
-  for i = 1, #testCasesForPolicyTableSnapshot.pts_endpoints do
-    if (testCasesForPolicyTableSnapshot.pts_endpoints[i].service == "0x07") then
-      endpoints[#endpoints + 1] = { url = testCasesForPolicyTableSnapshot.pts_endpoints[i].value, appID = nil}
-    end
-  end
-
-  local RequestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-
-  EXPECT_HMIRESPONSE(RequestId,{result = {code = 0, method = "SDL.GetURLS", urls = endpoints} } )
+  local expUrls = commonFunctions:getUrlsTableFromPtFile()
+  local RequestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(RequestId,{result = {code = 0, method = "SDL.GetPolicyConfigurationData" } })
+  :ValidIf(function(_,data)
+    return commonFunctions:validateUrls(expUrls, data)
+  end)
 end
 
 --[[ Postconditions ]]

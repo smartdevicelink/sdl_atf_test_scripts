@@ -14,7 +14,7 @@ local appHMIType = "NAVIGATION"
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appName = "server"
-config.application1.registerAppInterfaceParams.appID = "SPT"
+config.application1.registerAppInterfaceParams.fullAppID = "SPT"
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
 
 --[[ Local Functions ]]

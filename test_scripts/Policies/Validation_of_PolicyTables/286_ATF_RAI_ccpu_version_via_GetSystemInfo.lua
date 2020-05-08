@@ -14,6 +14,8 @@
 -- SDL must request 'ccpu_version' parameter from HMI via GetSystemInfo HMI API;
 -- SDL must request 'ccpu_version' ONLY once in ign cycle
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2

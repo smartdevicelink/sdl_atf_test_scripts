@@ -16,40 +16,55 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local common_functions = require('user_modules/shared_testcases/commonTestCases')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local climate_capabilities = {{moduleName = "Climate", fanSpeedAvailable = true}}
-local rc_capabilities = commonRC.buildHmiRcCapabilities(climate_capabilities, commonRC.DEFAULT, commonRC.DEFAULT)
-local available_params = {moduleType = "CLIMATE", climateControlData = {fanSpeed = 30}}
-local absent_params = {moduleType = "CLIMATE", climateControlData = {acMaxEnable = true}}
+local moduleId = commonRC.getModuleId("CLIMATE")
+local climate_capabilities = {
+{moduleName = "Climate", moduleInfo = {moduleId = moduleId}, fanSpeedAvailable = true}
+}
+local capParams = {}
+capParams.CLIMATE = climate_capabilities
+capParams.RADIO = commonRC.DEFAULT
+capParams.BUTTONS = commonRC.DEFAULT
+local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
+local available_params = {
+  moduleType = "CLIMATE",
+  moduleId = moduleId,
+  climateControlData = {fanSpeed = 30}
+}
+local absent_params = {
+  moduleType = "CLIMATE", moduleId = moduleId, climateControlData = {acMaxEnable = true}
+}
 
 --[[ Local Functions ]]
-local function setVehicleData(params, self)
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = params})
+local function setVehicleData(pParams)
+  local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {moduleData = pParams})
 
-	if params.climateControlData.fanSpeed then
-		EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-			appID = commonRC.getHMIAppId(1),
-			moduleData = params})
-		:Do(function(_, data)
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-					moduleData = params})
-			end)
-		self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-	else
-		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-		common_functions:DelayedExp(commonRC.timeout)
-	end
+  if pParams.climateControlData.fanSpeed then
+    EXPECT_HMICALL("RC.SetInteriorVehicleData", {
+      appID = commonRC.getHMIAppId(1),
+      moduleData = pParams})
+    :Do(function(_, data)
+        commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+          moduleData = pParams})
+      end)
+    commonRC.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  else
+    EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
+    commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+    commonRC.wait(commonRC.timeout)
+  end
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, {rc_capabilities})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate_App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate_App", commonRC.activateApp)
 
 runner.Title("Test")
 for _, module_name in pairs({"CLIMATE", "RADIO"}) do

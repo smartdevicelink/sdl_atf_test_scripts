@@ -18,7 +18,6 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 
 --[[ Local Variables ]]
@@ -70,46 +69,45 @@ local vehicleDataValuesMissedMandatory = {
 }
 
 --[[ Local Functions ]]
-local function processRPCSubscribeSuccess(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc1.name, rpc1.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc1.name, rpc1.params)
+local function processRPCSubscribeSuccess()
+  local cid = common.getMobileSession():SendRPC(rpc1.name, rpc1.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc1.name, rpc1.params)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", vehicleDataResults)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", vehicleDataResults)
     end)
 
   local responseParams = vehicleDataResults
   responseParams.success = true
   responseParams.resultCode = "SUCCESS"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
-local function checkNotification(pParams, isNotificationExpect, self)
-  local mobileSession = common.getMobileSession(self, 1)
-  self.hmiConnection:SendNotification("VehicleInfo.OnVehicleData", { gps = pParams })
+local function checkNotification(pParams, isNotificationExpect)
+  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { gps = pParams })
   if isNotificationExpect == true then
-    mobileSession:ExpectNotification("OnVehicleData", { gps = pParams })
+    common.getMobileSession():ExpectNotification("OnVehicleData", { gps = pParams })
   else
-    mobileSession:ExpectNotification("OnVehicleData")
+    common.getMobileSession():ExpectNotification("OnVehicleData")
     :Times(0)
   end
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
-runner.Step("SubscribeVehicleData gps", processRPCSubscribeSuccess)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
+common.Step("SubscribeVehicleData gps", processRPCSubscribeSuccess)
 
-runner.Title("Test")
+common.Title("Test")
 for key, value in pairs(vehicleDataValues) do
-  runner.Step("RPC OnVehicleData gps " .. key, checkNotification, { value, true })
+  common.Step("RPC OnVehicleData gps " .. key, checkNotification, { value, true })
 end
 for key, value in pairs(vehicleDataValuesMissedMandatory) do
-  runner.Step("RPC OnVehicleData gps " .. key, checkNotification, { value, false })
+  common.Step("RPC OnVehicleData gps " .. key, checkNotification, { value, false })
 end
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

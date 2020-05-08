@@ -19,6 +19,8 @@
 -- Expected:
 -- 4. PolciesManager writes <languageDesired> to "app_registration_language_gui" field at LocalPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.defaultProtocolVersion = 2
@@ -64,6 +66,7 @@ local application1 =
     hmiDisplayLanguageDesired = language_desired,
     appHMIType = { "NAVIGATION" },
     appID = "0000001",
+    fullAppID = "0000001",
     deviceInfo =
     {
       os = "Android",
@@ -123,7 +126,7 @@ function Test:Precondition_StartSession()
 end
 
 function Test.Precondition_PreparePTData()
-  PrepareJsonPTU1(application1.registerAppInterfaceParams.appID, ptu_first_app_registered)
+  PrepareJsonPTU1(application1.registerAppInterfaceParams.fullAppID, ptu_first_app_registered)
 end
 
 function Test:RegisterFirstApp()
@@ -138,6 +141,11 @@ function Test:RegisterFirstApp()
       EXPECT_RESPONSE(correlationId, { success = true })
       EXPECT_NOTIFICATION("OnPermissionsChange")
     end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 function Test:CheckDB_app_registration_language_gui()
@@ -150,7 +158,7 @@ function Test:CheckDB_app_registration_language_gui()
 end
 
 function Test.Precondition_PreparePTData()
-  PrepareJsonPTU1(application1.registerAppInterfaceParams.appID, ptu_first_app_registered)
+  PrepareJsonPTU1(application1.registerAppInterfaceParams.fullAppID, ptu_first_app_registered)
 end
 
 --[[ Test ]]
@@ -162,13 +170,13 @@ end
 
 function Test:InitiatePTUForGetSnapshot()
   local SystemFilesPath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS"} } )
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId,{result = {code = 0, method = "SDL.GetPolicyConfigurationData"} } )
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"})
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-        {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
       EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
       :Do(function(_,_)
           local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = self.applications[application1.registerAppInterfaceParams.appName]},

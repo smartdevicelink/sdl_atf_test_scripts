@@ -50,7 +50,7 @@ local function start(getHMIParams, self)
 end
 
 local function pTUpdateFunc(tbl)
-  table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups, "Location-1")
+  table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups, "Location-1")
 end
 
 local function setSubscribeVehicleDataUnsupportedResource(self)

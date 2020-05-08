@@ -20,7 +20,6 @@
 
 local commonSteps = {}
 local mobile_session = require('mobile_session')
-local config = require('config')
 local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 
 ---------------------------------------------------------------------------------------------

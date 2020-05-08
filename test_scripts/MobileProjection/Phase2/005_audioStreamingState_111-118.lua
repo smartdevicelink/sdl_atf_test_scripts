@@ -89,9 +89,13 @@ local function appStartStreaming(pTC, pStreamingAppId, pAudioSSApp)
   :Times(0)
   common.getMobileSession(notStreamingAppId):ExpectNotification("OnHMIStatus")
   :ValidIf(function(_, data)
-      common.getMobileSession(pStreamingAppId):StopStreaming("files/MP3_1140kb.mp3")
       return common.checkAudioSS(pTC, "App" .. notStreamingAppId, pAudioSSApp, data.payload.audioStreamingState)
     end)
+end
+
+local function stopStreaming(pStreamingAppId)
+  common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false })
+  common.getMobileSession(pStreamingAppId):StopStreaming("files/MP3_1140kb.mp3")
 end
 
 --[[ Scenario ]]
@@ -109,6 +113,7 @@ for n, tc in common.spairs(testCases) do
   runner.Step("Activate App 1", common.activateApp, { 1 })
   runner.Step("Activate App 2", common.activateApp, { 2 })
   runner.Step("App " .. tc.a .. " starts streaming", appStartStreaming, { n, tc.a, tc.s })
+  runner.Step("Stop streaming", stopStreaming, { tc.a })
   runner.Step("Clean sessions", common.cleanSessions)
   runner.Step("Stop SDL", common.postconditions)
 end

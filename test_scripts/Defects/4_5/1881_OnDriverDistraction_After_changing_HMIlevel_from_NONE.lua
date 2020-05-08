@@ -6,6 +6,9 @@ local runner = require('user_modules/script_runner')
 local commonDefects = require('test_scripts/Defects/4_5/commonDefects')
 local mobile_session = require("mobile_session")
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}

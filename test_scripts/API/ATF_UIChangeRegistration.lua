@@ -454,7 +454,7 @@ end
 			function Test:Precondition_Change_App1_Params_Case_Without_Response()
 				config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = true
-				config.application1.registerAppInterfaceParams.appID ="3_1"
+				config.application1.registerAppInterfaceParams.fullAppID ="3_1"
 			end
 			
 			commonSteps:RegisterAppInterface("Precondition_Register_App_Case_Without_Response")
@@ -506,7 +506,7 @@ end
 			function Test:Precondition_Change_App1_Params_Case_Response_IsEmpty()
 				config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = true
-				config.application1.registerAppInterfaceParams.appID ="3_2"
+				config.application1.registerAppInterfaceParams.fullAppID ="3_2"
 			end
 			
 			commonSteps:RegisterAppInterface("Precondition_Register_App_Case_Response_IsEmpty")
@@ -577,7 +577,7 @@ end
 				Test["Change_App1_Params_Case_Response_Is_" .. resultCodes[i].resultCode] = function(self)	
 					config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 					config.application1.registerAppInterfaceParams.isMediaApplication = true
-					config.application1.registerAppInterfaceParams.appID =resultCodes[i].AppID
+					config.application1.registerAppInterfaceParams.fullAppID =resultCodes[i].AppID
 				end
 			
 				commonSteps:RegisterAppInterface("Register_App_Case_Response_Is_"..resultCodes[i].resultCode)
@@ -627,7 +627,7 @@ end
 				Test["Change_App1_Params_Case_Response_Is_" ..testData[i].name] = function(self)
 					config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 					config.application1.registerAppInterfaceParams.isMediaApplication = true
-					config.application1.registerAppInterfaceParams.appID =testData[i].AppID
+					config.application1.registerAppInterfaceParams.fullAppID =testData[i].AppID
 				end
 				
 				commonSteps:RegisterAppInterface("Register_App_Case_Response_Is_" ..testData[i].name)
@@ -692,7 +692,7 @@ end
 			function Test:Change_App1_Params_Case_Response_IsInvalidJson()
 				config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = true
-				config.application1.registerAppInterfaceParams.appID ="4_1"
+				config.application1.registerAppInterfaceParams.fullAppID ="4_1"
 			end
 			
 			commonSteps:RegisterAppInterface("Register_App_Case_Response_IsInvalidJson")
@@ -750,7 +750,7 @@ end
 			function Test:Change_App1_Params_Case_Response_Is_InvalidStructure()
 				config.application1.registerAppInterfaceParams.appHMIType = {"NAVIGATION"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = false
-				config.application1.registerAppInterfaceParams.appID ="4_2"
+				config.application1.registerAppInterfaceParams.fullAppID ="4_2"
 			end
 			
 			commonSteps:RegisterAppInterface("Register_App_Case_Response_IsInvalidStructure")
@@ -807,7 +807,7 @@ end
 			function Test:Change_App1_Params_Case_Response_FakeParam_IsNotFromAnyAPI()
 				config.application1.registerAppInterfaceParams.appHMIType = {"NAVIGATION"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = false
-				config.application1.registerAppInterfaceParams.appID ="4_3"
+				config.application1.registerAppInterfaceParams.fullAppID ="4_3"
 			end
 			
 			commonSteps:RegisterAppInterface("Register_App_Case_Response_FakeParam_IsNotFromAnyAPI")
@@ -864,7 +864,7 @@ end
 			function Test:Change_App1_Params_Case_Response_With_FakeParam_FromAnotherAPI()
 				config.application1.registerAppInterfaceParams.appHMIType = {"NAVIGATION"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = false
-				config.application1.registerAppInterfaceParams.appID ="4_4"
+				config.application1.registerAppInterfaceParams.fullAppID ="4_4"
 			end
 			
 			commonSteps:RegisterAppInterface("RegisterApp_Case_Response_With_FakeParam_FromAnotherAPI")
@@ -922,7 +922,7 @@ end
 			function Test:Change_App1_Params()
 				config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = true
-				config.application1.registerAppInterfaceParams.appID ="4_5"
+				config.application1.registerAppInterfaceParams.fullAppID ="4_5"
 			end
 			
 			commonSteps:RegisterAppInterface("RegisterApp_Several_Different_Response")
@@ -979,7 +979,7 @@ end
 			function Test:Change_App1_Params()
 				config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = true
-				config.application1.registerAppInterfaceParams.appID ="4_6"
+				config.application1.registerAppInterfaceParams.fullAppID ="4_6"
 			end
 		
 			commonSteps:RegisterAppInterface("RegisterApp_Several_Same_Response")
@@ -1123,7 +1123,7 @@ end
 		function Test:TC_APPLINK_18410_Case1_Precondition1_Change_App1_Params()
 			config.application1.registerAppInterfaceParams.appHMIType = {"NAVIGATION"} 
 			config.application1.registerAppInterfaceParams.isMediaApplication = false
-			config.application1.registerAppInterfaceParams.appID = "6_4"
+			config.application1.registerAppInterfaceParams.fullAppID = "6_4"
 		end
 		
 		commonSteps:RegisterAppInterface("TC_APPLINK_18410_Case1_Register_NON_MEDIA_NAVIGATION_App")
@@ -1185,7 +1185,7 @@ end
 			function Test:TC_APPLINK_18410_Case2_Precondition_Change_App1_Params()
 				config.application1.registerAppInterfaceParams.appHMIType = testData[i].AppHMIType
 				config.application1.registerAppInterfaceParams.isMediaApplication = testData[i].IsMedia
-				config.application1.registerAppInterfaceParams.appID =testData[i].AppID
+				config.application1.registerAppInterfaceParams.fullAppID =testData[i].AppID
 			end
 			
 			commonSteps:RegisterAppInterface("TC_APPLINK_18410_Case_Single_App"..i.."_Register_App")
@@ -1246,7 +1246,7 @@ end
 		function Test:TC_APPLINK_18410_Case_Three_Apps_Precondition1_Change_App1_Params()
 			config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"} 
 			config.application1.registerAppInterfaceParams.isMediaApplication = true
-			config.application1.registerAppInterfaceParams.appID = "6_1"
+			config.application1.registerAppInterfaceParams.fullAppID = "6_1"
 		end
 	
 		commonSteps:RegisterAppInterface("TC_APPLINK_18410_Case_Three_Apps_Register_Media_Media_App")
@@ -1254,14 +1254,14 @@ end
 		function Test:TC_APPLINK_18410_Case_Three_Apps_Precondition2_Register_Non_Media_Navigation()
 			config.application2.registerAppInterfaceParams.appHMIType = {"NAVIGATION"} 
 			config.application2.registerAppInterfaceParams.isMediaApplication = false
-			config.application2.registerAppInterfaceParams.appID = "6_2"
+			config.application2.registerAppInterfaceParams.fullAppID = "6_2"
 			self:registerAppInterface2()		
 		end
 		
 		function Test:TC_APPLINK_18410_Case_Three_Apps_Precondition3_Register_Non_Media_Communication()
 			config.application3.registerAppInterfaceParams.appHMIType = {"COMMUNICATION"} 
 			config.application3.registerAppInterfaceParams.isMediaApplication = false
-			config.application3.registerAppInterfaceParams.appID = "6_3"
+			config.application3.registerAppInterfaceParams.fullAppID = "6_3"
 			self:registerAppInterface3()		
 		end
 	
@@ -1327,7 +1327,7 @@ commonFunctions:newTestCasesGroup("After PTU, the AppHMITypes of two apps are ch
 		function Test:TC_APPLINK_18410_Case_Two_Apps_1_Precondition1_Change_App1_To_Media_Media()
 			config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"} 
 			config.application1.registerAppInterfaceParams.isMediaApplication = true
-			config.application1.registerAppInterfaceParams.appID = "6_7"
+			config.application1.registerAppInterfaceParams.fullAppID = "6_7"
 		end
 		
 		commonSteps:RegisterAppInterface("TC_APPLINK_18410_Case_Two_Apps_1_Precondition1_Register_Media_Media_App")
@@ -1335,7 +1335,7 @@ commonFunctions:newTestCasesGroup("After PTU, the AppHMITypes of two apps are ch
 		function Test:Precondition2_Register_Non_Media_Communication()
 			config.application2.registerAppInterfaceParams.appHMIType = {"COMMUNICATION"} 
 			config.application2.registerAppInterfaceParams.isMediaApplication = false
-			config.application2.registerAppInterfaceParams.appID = "6_8"
+			config.application2.registerAppInterfaceParams.fullAppID = "6_8"
 			self:registerAppInterface2()		
 		end
 
@@ -1395,7 +1395,7 @@ commonFunctions:newTestCasesGroup("After PTU, the AppHMITypes of two apps are ch
 		function Test:TC_APPLINK_18410_Case_Two_Apps_2_Precontidion1_Change_App1_To_Non_Media_Communication()
 			config.application1.registerAppInterfaceParams.appHMIType = {"COMMUNICATION"} 
 			config.application1.registerAppInterfaceParams.isMediaApplication = false
-			config.application1.registerAppInterfaceParams.appID = "6_9"
+			config.application1.registerAppInterfaceParams.fullAppID = "6_9"
 		end
 		
 		commonSteps:RegisterAppInterface("TC_APPLINK_18410_Case_Two_Apps_2_Precontidion1_Register_NoneMedia_Communication_App")
@@ -1403,7 +1403,7 @@ commonFunctions:newTestCasesGroup("After PTU, the AppHMITypes of two apps are ch
 		function Test:TC_APPLINK_18410_Case_Two_Apps_2_Precondition2_Register_Non_Media_Navigation()
 			config.application2.registerAppInterfaceParams.appHMIType = {"NAVIGATION"} 
 			config.application2.registerAppInterfaceParams.isMediaApplication = false
-			config.application2.registerAppInterfaceParams.appID = "6_10"
+			config.application2.registerAppInterfaceParams.fullAppID = "6_10"
 			self:registerAppInterface2()		
 		end
 	
@@ -1463,7 +1463,7 @@ commonFunctions:newTestCasesGroup("After PTU, the AppHMITypes of two apps are ch
 		function Test:TC_APPLINK_18410_Case_Two_Apps_3_Precondition1_Change_App1_To_Media_Media()
 			config.application1.registerAppInterfaceParams.appHMIType = {"MEDIA"} 
 			config.application1.registerAppInterfaceParams.isMediaApplication = true
-			config.application1.registerAppInterfaceParams.appID = "6_11"
+			config.application1.registerAppInterfaceParams.fullAppID = "6_11"
 		end
 	
 		commonSteps:RegisterAppInterface("TC_APPLINK_18410_Case_Two_Apps_3_Precondition1_Register_Media_Media_App")
@@ -1471,7 +1471,7 @@ commonFunctions:newTestCasesGroup("After PTU, the AppHMITypes of two apps are ch
 		function Test:TC_APPLINK_18410_Case_Two_Apps_3_Precondition2_Register_Non_Media_Navigation()
 			config.application2.registerAppInterfaceParams.appHMIType = {"NAVIGATION"} 
 			config.application2.registerAppInterfaceParams.isMediaApplication = false
-			config.application2.registerAppInterfaceParams.appID = "6_12"
+			config.application2.registerAppInterfaceParams.fullAppID = "6_12"
 			self:registerAppInterface2()		
 		end
 	
@@ -1856,7 +1856,7 @@ commonFunctions:newTestCasesGroup("****************************** END TEST BLOCK
 			function Test:Case_FULL_Precondition1_Change_App1_Params()
 				config.application1.registerAppInterfaceParams.appHMIType = testData[i].AppHMIType
 				config.application1.registerAppInterfaceParams.isMediaApplication = testData[i].IsMedia
-				config.application1.registerAppInterfaceParams.appID =testData[i].AppID
+				config.application1.registerAppInterfaceParams.fullAppID =testData[i].AppID
 			end
 			
 			commonSteps:RegisterAppInterface("Case_FULL_Precondition1_Register_App"..i)
@@ -1898,7 +1898,7 @@ commonFunctions:newTestCasesGroup("****************************** END TEST BLOCK
 		function Test:Case_BACKGROUND1_Precondition1_Change_App1_Params()
 			config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 			config.application1.registerAppInterfaceParams.isMediaApplication = true
-			config.application1.registerAppInterfaceParams.appID ="7_6"
+			config.application1.registerAppInterfaceParams.fullAppID ="7_6"
 		end
 		
 		commonSteps:RegisterAppInterface("Case_BACKGROUND1_Precondition1_Register_Media_Default_App")
@@ -1908,7 +1908,7 @@ commonFunctions:newTestCasesGroup("****************************** END TEST BLOCK
 		function Test:Case_BACKGROUND1_Precondition3_Register_Second_Media_Default_App()
 			config.application2.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 			config.application2.registerAppInterfaceParams.isMediaApplication = true
-			config.application2.registerAppInterfaceParams.appID ="7_7"
+			config.application2.registerAppInterfaceParams.fullAppID ="7_7"
 			self:registerAppInterface2()
 		end
 	
@@ -1960,7 +1960,7 @@ commonFunctions:newTestCasesGroup("****************************** END TEST BLOCK
 		function Test:Case_BACKGROUND2_precondition1_Change_App1_Params()
 			config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 			config.application1.registerAppInterfaceParams.isMediaApplication = false
-			config.application1.registerAppInterfaceParams.appID ="7_4"
+			config.application1.registerAppInterfaceParams.fullAppID ="7_4"
 		end
 		
 		commonSteps:RegisterAppInterface("Case_BACKGROUND2_Precondition2_Register_NonMedia_Default_App_")
@@ -2023,7 +2023,7 @@ commonFunctions:newTestCasesGroup("****************************** END TEST BLOCK
 			function Test:Case_BACKGROUND3_Precondition1_Change_App1_Params_To_NonMedia_Social()
 				config.application1.registerAppInterfaceParams.appHMIType = {"SOCIAL"}
 				config.application1.registerAppInterfaceParams.isMediaApplication = false
-				config.application1.registerAppInterfaceParams.appID ="7_5"
+				config.application1.registerAppInterfaceParams.fullAppID ="7_5"
 			end
 			
 			commonSteps:RegisterAppInterface("Case_BACKGROUND3_Precondition2_Register_NonMedia_Social_App")

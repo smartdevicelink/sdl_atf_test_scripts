@@ -20,31 +20,24 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local allocatedModules = {
-  [1] = {},
-  [2] = {}
-}
-
 --[[ Local Functions ]]
 local function alocateModule(pModuleType)
-  local pModuleStatusAllocatedApp, pModuleStatusAnotherApp = common.setModuleStatus(common.getAllModules(), allocatedModules, pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(1, pModuleStatusAllocatedApp)
-  common.validateOnRCStatusForApp(2, pModuleStatusAnotherApp)
-  common.validateOnRCStatusForHMI(2, { pModuleStatusAllocatedApp, pModuleStatusAnotherApp }, 1)
+  common.validateOnRCStatus({ 1, 2 })
 end
 
 local function unregistration()
-  local pModuleStatus = {
-    freeModules = common.getModulesArray(common.getAllModules()),
-    allocatedModules = { }
-  }
-  common.unregisterApp()
+  common.unregisterApp(1)
   common.getMobileSession(1):ExpectNotification("OnRCStatus")
   :Times(0)
+
+  local pModuleStatus = {
+    freeModules = common.getModulesAllocationByApp(2).freeModules,
+    allocatedModules = { }
+  }
   common.validateOnRCStatusForApp(2, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatusForHMI(2, pModuleStatus)
 end
 
 --[[ Scenario ]]
@@ -53,7 +46,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register RC application 1", common.registerRCApplication, { 1 })
 runner.Step("Register RC application 2", common.registerRCApplication, { 2 })
-runner.Step("Activate App 1", common.activateApp)
+runner.Step("Activate App 1", common.activateApp, { 1 })
 runner.Step("Allocating module CLIMATE", alocateModule, { "CLIMATE" })
 
 runner.Title("Test")

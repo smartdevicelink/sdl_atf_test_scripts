@@ -481,7 +481,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.."/icon.png",
+											value = config.SDLStoragePath..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.."/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -504,7 +504,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										softButtonID = 5,
@@ -1202,7 +1202,7 @@ end
 											 image = 
 								
 											{ 
-												value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+												value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 												imageType = "DYNAMIC",
 											},]] 
 											isHighlighted = true,
@@ -1584,7 +1584,7 @@ end
 						 image = 
 			
 						{ 
-							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 							imageType = "DYNAMIC",
 						},]] 
 						softButtonID = 1111,
@@ -1599,7 +1599,7 @@ end
 						 image = 
 			
 						{ 
-							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 							imageType = "DYNAMIC",
 						},]] 
 						isHighlighted = true,
@@ -1615,7 +1615,7 @@ end
 						 image = 
 			
 						{ 
-							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 							imageType = "DYNAMIC",
 						},]] 
 						softButtonID = 1113,
@@ -1630,7 +1630,7 @@ end
 						 image = 
 			
 						{ 
-							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+							value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 							imageType = "DYNAMIC",
 						},]] 
 						isHighlighted = false,
@@ -3418,7 +3418,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -3434,7 +3434,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = false,
@@ -3457,7 +3457,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 824,
@@ -3666,7 +3666,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -3912,7 +3912,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/a",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/a",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 1124,
@@ -3927,7 +3927,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 1125,
@@ -4062,7 +4062,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/a",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/a",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -4085,7 +4085,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/a",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/a",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 2,
@@ -4748,7 +4748,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -4771,7 +4771,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 65534,
@@ -4786,7 +4786,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -5705,7 +5705,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType ="DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -5962,7 +5962,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -5987,7 +5987,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 873,
@@ -6611,7 +6611,7 @@ end
 								 image = 
 					
 								{ 
-									value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+									value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 									imageType = "DYNAMIC",
 								},]] 
 								isHighlighted = false,
@@ -8140,7 +8140,7 @@ end
 									 image = 
 						
 									{ 
-										value =  config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value =  config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									softButtonID = 931,
@@ -9364,7 +9364,7 @@ end
 
 									image = 
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									}]]
 								}
@@ -9555,7 +9555,7 @@ end
 
 									image = 
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									}]]
 								}
@@ -9942,7 +9942,7 @@ end
 								 image = 
 					
 								{ 
-									value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+									value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 									imageType = "DYNAMIC",
 								},]] 
 								softButtonID = 12345,
@@ -12136,7 +12136,7 @@ end
 												 image = 
 									
 												{ 
-													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 													imageType = "DYNAMIC",
 												},]=] 
 												isHighlighted = true,
@@ -13769,7 +13769,7 @@ end
 										 image = 
 							
 										{ 
-											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -13792,7 +13792,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										softButtonID = 5,
@@ -13970,7 +13970,7 @@ end
 										 image = 
 							
 										{ 
-											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -13993,7 +13993,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										softButtonID = 5,
@@ -14481,7 +14481,7 @@ end
 									 image = 
 						
 									{ 
-										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+										value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 										imageType = "DYNAMIC",
 									},]] 
 									isHighlighted = true,
@@ -14671,7 +14671,7 @@ end
 											 image = 
 								
 											{ 
-												value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+												value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 												imageType ="DYNAMIC",
 											},]] 
 											isHighlighted = true,
@@ -14833,7 +14833,7 @@ end
 													 image = 
 										
 													{ 
-														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 														imageType ="DYNAMIC",
 													},]] 
 													isHighlighted = true,
@@ -14853,7 +14853,7 @@ end
 													 image = 
 										
 													{ 
-														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 														imageType ="DYNAMIC",
 													},]] 
 													softButtonID = 2,
@@ -15018,7 +15018,7 @@ end
 													 image = 
 										
 													{ 
-														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 														imageType ="DYNAMIC",
 													},]] 
 													isHighlighted = true,
@@ -15038,7 +15038,7 @@ end
 													 image = 
 										
 													{ 
-														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+														value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 														imageType ="DYNAMIC",
 													},]] 
 													softButtonID = 2,
@@ -15282,7 +15282,7 @@ end
 												 image = 
 									
 												{ 
-													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 													imageType ="DYNAMIC",
 												},]] 
 												isHighlighted = true,
@@ -15303,7 +15303,7 @@ end
 												 image = 
 									
 												{ 
-													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 													imageType ="DYNAMIC",
 												},]] 
 												softButtonID = 3,
@@ -15317,7 +15317,7 @@ end
 												 image = 
 									
 												{ 
-													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+													value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 													imageType ="DYNAMIC",
 												},]] 
 												isHighlighted = true,
@@ -17574,7 +17574,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType ="DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -17595,7 +17595,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType ="DYNAMIC",
 										},]] 
 										softButtonID = 3,
@@ -17609,7 +17609,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType ="DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -17771,7 +17771,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType ="DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -17792,7 +17792,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType ="DYNAMIC",
 										},]] 
 										softButtonID = 3,
@@ -17806,7 +17806,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType ="DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -17996,7 +17996,7 @@ end
 										 image = 
 							
 										{ 
-											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -18019,7 +18019,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										softButtonID = 5,
@@ -18247,7 +18247,7 @@ end
 										 image = 
 							
 										{ 
-											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -18270,7 +18270,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										softButtonID = 5,
@@ -18443,7 +18443,7 @@ end
 										 image = 
 							
 										{ 
-											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value =config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										isHighlighted = true,
@@ -18466,7 +18466,7 @@ end
 										 image = 
 							
 										{ 
-											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.appID .. "_" .. config.deviceMAC .. "/icon.png",
+											value = config.SDLStoragePath .. config.application1.registerAppInterfaceParams.fullAppID .. "_" .. config.deviceMAC .. "/icon.png",
 											imageType = "DYNAMIC",
 										},]] 
 										softButtonID = 5,

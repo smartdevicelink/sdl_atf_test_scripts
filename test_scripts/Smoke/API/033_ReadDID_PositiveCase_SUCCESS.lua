@@ -29,57 +29,60 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function setReadDIDRequest()
-  local temp = {
+  return {
     ecuName = 2000,
     didLocation = {
       56832
     }
   }
-  return temp
 end
 
-local function setReadDIDSuccessResponse(didLocationValues)
+local function setReadDIDSuccessResponse(pDIdLocationValues)
   local temp = {
     didResult = {}
   }
-  for i = 1, #didLocationValues do
+  for i = 1, #pDIdLocationValues do
     temp.didResult[i] = {
       resultCode = "SUCCESS",
-      didLocation = didLocationValues[i],
+      didLocation = pDIdLocationValues[i],
       data = "123"
     }
   end
   return temp
 end
 
-local function readDID(self)
+local function readDID()
   local paramsSend = setReadDIDRequest()
   local response = setReadDIDSuccessResponse(paramsSend.didLocation)
-  local cid = self.mobileSession1:SendRPC("ReadDID",paramsSend)
-  paramsSend.appID = commonSmoke.getHMIAppId()
-  EXPECT_HMICALL("VehicleInfo.ReadDID",paramsSend)
-  :Do(function(_,data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", response)
-  end)
+  local cid = common.getMobileSession():SendRPC("ReadDID",paramsSend)
+  paramsSend.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("VehicleInfo.ReadDID",paramsSend)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", response)
+    end)
   local expectedResult = response
   expectedResult.success = true
   expectedResult.resultCode = "SUCCESS"
-  self.mobileSession1:ExpectResponse(cid, expectedResult)
+  common.getMobileSession():ExpectResponse(cid, expectedResult)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("ReadDID Positive Case", readDID)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

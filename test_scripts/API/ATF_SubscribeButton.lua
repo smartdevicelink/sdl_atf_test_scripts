@@ -39,7 +39,7 @@ APIName = "SubscribeButton" -- set request name
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 
 local iTimeout = 5000
-local buttonName = {"OK","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
+local buttonName = {"OK","PLAY_PAUSE","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
 local buttonNameNonMediaApp = {"OK", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8"}
 local UnsupportButtonName = {"PRESET_9", "SEARCH"}
 
@@ -1066,10 +1066,11 @@ function RegisterAppInterface(self, appNumber)
 			--Requirement id in JAMA/or Jira ID: SDLAQ-CRS-538
 
 			--Verification criteria: 
-				--1. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (SEEKLEFT) in case such RPC comes from non-media app.
-				--2. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (SEEKRIGHT) in case such RPC comes from non-media app.
-				--3. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (TUNEUP) in case such RPC comes from non-media app.
-				--4. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (TUNEDOWN) in case such RPC comes from non-media app.						
+				--1. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (PLAY_PAUSE) in case such RPC comes from non-media app.
+				--2. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (SEEKLEFT) in case such RPC comes from non-media app.
+				--3. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (SEEKRIGHT) in case such RPC comes from non-media app.
+				--4. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (TUNEUP) in case such RPC comes from non-media app.
+				--5. SDL must return "resultCode: REJECTED, success: false" to SubscribeButton (TUNEDOWN) in case such RPC comes from non-media app.						
 			
 	
 			-- register non-media application 2
@@ -1083,7 +1084,7 @@ function RegisterAppInterface(self, appNumber)
 				ActivateApplication(self, application2_nonmedia.registerAppInterfaceParams.appName)
 			end
 			
-			buttonName1 = {"SEEKLEFT", "SEEKRIGHT", "TUNEUP", "TUNEDOWN"}
+			buttonName1 = {"PLAY_PAUSE", "SEEKLEFT", "SEEKRIGHT", "TUNEUP", "TUNEDOWN"}
 			for i=1,#buttonName1 do
 										
 				Test["SubscribeButton_resultCode_REJECTED_" .. tostring(buttonName1[i]).."_REJECTED"] = function(self)

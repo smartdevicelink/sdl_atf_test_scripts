@@ -19,6 +19,8 @@
 -- SDL must allow application registration, not considering the case letters when comparing
 -- with appID from policies: SDL->appID: SUCCESS: RegisterAppInterface()
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
@@ -53,7 +55,7 @@ end
 commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "Media Application"
-  config.application2.registerAppInterfaceParams.appID = "123_XYZ"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_XYZ"
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "Media Application" }})
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })

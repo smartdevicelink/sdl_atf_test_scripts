@@ -1,0 +1,8 @@
+./test_scripts/API/PutFile/001_PutFile_with_crc_singleFrame.lua
+./test_scripts/API/PutFile/002_PutFile_with_crc_MultiFrame.lua
+./test_scripts/API/PutFile/003_PutFile_without_crc.lua
+./test_scripts/API/PutFile/004_PutFile_chunks.lua
+./test_scripts/API/PutFile/005_PutFile_with_negative_crc_singleFrame.lua
+./test_scripts/API/PutFile/006_PutFile_with_negative_crc_multiFrame.lua
+./test_scripts/API/PutFile/007_PutFile_with_crc_more_than_maxvalue.lua
+./test_scripts/API/PutFile/008_PutFile_corrupted_data.lua

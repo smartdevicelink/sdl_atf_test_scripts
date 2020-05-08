@@ -16,14 +16,14 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function invalidParamName(pModuleType)
-  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
+  commonRC.getHMIConnection():SendNotification("RC.OnInteriorVehicleData", {
     modduleData = commonRC.getAnotherModuleControlData(pModuleType) -- invalid name of parameter
   })
 
@@ -34,7 +34,7 @@ local function invalidParamType(pModuleType)
   local moduleData = commonRC.getAnotherModuleControlData(pModuleType)
   moduleData.moduleType = {} -- invalid type of parameter
 
-  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
+  commonRC.getHMIConnection():SendNotification("RC.OnInteriorVehicleData", {
     moduleData = moduleData
   })
 
@@ -45,7 +45,7 @@ local function missingMandatoryParam(pModuleType)
   local moduleData = commonRC.getAnotherModuleControlData(pModuleType)
   moduleData.moduleType = nil -- mandatory parameter missing
 
-  commonRC.getHMIconnection():SendNotification("RC.OnInteriorVehicleData", {
+  commonRC.getHMIConnection():SendNotification("RC.OnInteriorVehicleData", {
     moduleData = moduleData
   })
 
@@ -56,8 +56,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT" })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 

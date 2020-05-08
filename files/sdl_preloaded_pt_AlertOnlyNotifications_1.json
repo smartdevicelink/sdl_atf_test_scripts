@@ -294,7 +294,7 @@
                     "Alert": {
                         "hmi_levels": ["BACKGROUND"]
                     },
-		    "DiagnosticMessage": {
+            "DiagnosticMessage": {
                         "hmi_levels": ["BACKGROUND",
                         "FULL",
                         "LIMITED"]
@@ -2253,7 +2253,8 @@
                 "priority": "NONE",
                 "default_hmi": "NONE",
                 "groups": ["Base-4"],
-                "RequestType": []
+                "RequestType": [],
+                "RequestSubType": []
             },
             "device": {
                 "keep_context": false,

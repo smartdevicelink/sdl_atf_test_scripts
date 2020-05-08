@@ -27,7 +27,7 @@ local params = {
 }
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestType = { "HTTP", "PROPRIETARY" }
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestType = { "HTTP", "PROPRIETARY" }
 end
 
 --[[ Scenario ]]

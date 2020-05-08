@@ -27,7 +27,7 @@ require('user_modules/AppTypes')
 ---------------------------------------------------------------------------------------------
 APIName="UnsubcribleWayPoints"
 strMaxLengthFileName255 = string.rep("a", 251)  .. ".png" -- set max length file name
-local storagePath = config.pathToSDL..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"	
+local storagePath = config.pathToSDL..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"	
 
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2

@@ -16,9 +16,10 @@
 -- SDL must: must write "languageDesired" value received via RegisterAppInterface into Local Policy Table
 -- as "app_registration_language_vui" key value of "usage_and_error_counts"- >"app_level" - > <app id> section.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -96,7 +97,7 @@ local TESTED_DATA = {
     }
   }
 }
-config.application1.registerAppInterfaceParams.appID = APP_ID
+config.application1.registerAppInterfaceParams.fullAppID = APP_ID
 config.application1.registerAppInterfaceParams.languageDesired = APP_LANGUAGE
 
 local TestData = {
@@ -279,8 +280,9 @@ end
 function Test:updatePolicyInDifferentSessions(PTName, appName, mobileSession)
 
   local iappID = self.applications[appName]
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"} )
 
@@ -309,8 +311,7 @@ function Test:updatePolicyInDifferentSessions(PTName, appName, mobileSession)
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 
 end
 
@@ -395,6 +396,11 @@ end
 function Test:ActivateApp()
   HMIAppId = self.applications[config.application1.registerAppInterfaceParams.appName]
   activateAppInSpecificLevel(self,HMIAppId,"FULL")
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 function Test:TestStep_Check_app_registration_language_vui_PTS()

@@ -68,7 +68,7 @@ SetPendingRequestsAmountto2()
 --Script cheks TOO_MANY_PENDING_REQUEST resultCode in SubscribeButton response from SDL
 --///////////////////////////////////////////////////////////////////////////--
 
-local buttonName = {"OK","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8","PRESET_9"}
+local buttonName = {"OK","PLAY_PAUSE","SEEKLEFT","SEEKRIGHT","TUNEUP","TUNEDOWN", "PRESET_0","PRESET_1","PRESET_2","PRESET_3","PRESET_4","PRESET_5","PRESET_6","PRESET_7","PRESET_8","PRESET_9"}
 
 
 

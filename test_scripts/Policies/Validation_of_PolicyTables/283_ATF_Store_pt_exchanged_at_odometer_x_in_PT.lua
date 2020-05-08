@@ -17,6 +17,8 @@
 -- Pollicies Manager requests the value of 'pt_exchanged_at_odometer_x' via VehicleInfo.GetVehicleData ("odometer");
 -- <odometer> value must be stored in LocalPT in "pt_exchanged_at_odometer_x" of "meta_data" section
 ---------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2
@@ -48,6 +50,10 @@ function Test:Precondition_Activate_app()
         :Do(function()
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
               {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
+            EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+            :Do(function(_,data3)
+                self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+              end)
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_,data1)
                 self.hmiConnection:SendResponse(data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -56,11 +62,13 @@ function Test:Precondition_Activate_app()
       end
     end)
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN", audioStreamingState = "AUDIBLE"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 function Test:Precondition_PolicyUpdateRAI()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = "filename"})
@@ -85,8 +93,7 @@ function Test:Precondition_PolicyUpdateRAI()
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 --[[ Test ]]

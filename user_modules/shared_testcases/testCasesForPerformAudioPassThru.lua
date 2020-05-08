@@ -8,7 +8,7 @@ local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigur
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local config_path_sdl = commonPreconditions:GetPathToSDL()
-local PathToAppFolder = config_path_sdl .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+local PathToAppFolder = config_path_sdl .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. tostring(config.deviceMAC) .. "/")
 
 local testCasesForPerformAudioPassThru = {}
 

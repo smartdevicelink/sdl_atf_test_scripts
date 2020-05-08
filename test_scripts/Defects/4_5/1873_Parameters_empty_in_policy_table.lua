@@ -6,6 +6,9 @@ local runner = require('user_modules/script_runner')
 local commonDefects = require('test_scripts/Defects/4_5/commonDefects')
 local json = require("json")
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Functions ]]
 --! @ptuUpdateFuncDisallowedRPC: Update PT with empty parameters
 --! @parameters:
@@ -25,7 +28,7 @@ local function ptuUpdateFuncDisallowedRPC(tbl)
     }
   }
   tbl.policy_table.functional_groupings.NewTestCaseGroup = VDgroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
   {"Base-4", "NewTestCaseGroup"}
 end
 

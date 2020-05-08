@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 -------------------------------------- Requirement summary -------------------------------------------
 -- [Policies] External UCS: externalConsentStatus change for the whole "functional_group"
 --
@@ -204,7 +205,9 @@ Test[TEST_NAME_ON .. "MainCheck_RPC_Of_Group002_is_allowed"] = function(self)
   corid = self.mobileSession:SendRPC("SubscribeVehicleData", {rpm = true})
   EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",{})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM" }
+      })
     end)
   EXPECT_RESPONSE("SubscribeVehicleData", {success = true , resultCode = "SUCCESS"})
   EXPECT_NOTIFICATION("OnHashChange")

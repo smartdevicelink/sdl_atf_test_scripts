@@ -16,7 +16,6 @@ local mobile_session = require('mobile_session')
 local m = actions
 
 --[[ Variables ]]
-local hmiAppIds = {}
 
 --[[ @getPathToFileInStorage: Get path of app icon from storage
 --! @parameters:
@@ -27,7 +26,7 @@ local hmiAppIds = {}
 function m.getPathToFileInStorage(pFileName, pAppId)
   if not pAppId then pAppId = 1 end
   return commonPreconditions:GetPathToSDL() .. "storage/"
-    .. m.getConfigAppParams(pAppId).appID .. "_"
+    .. m.getConfigAppParams(pAppId).fullAppID .. "_"
     .. utils.getDeviceMAC() .. "/" .. pFileName
 end
 
@@ -38,7 +37,7 @@ end
 --]]
 function m.getIconValueForResumption(pAppId)
   if not pAppId then pAppId = 1 end
-  return commonPreconditions:GetPathToSDL() .. "storage/" .. m.getConfigAppParams(pAppId).appID
+  return commonPreconditions:GetPathToSDL() .. "storage/" .. m.getConfigAppParams(pAppId).fullAppID
 end
 
 --[[ @registerAppWOPTU: register mobile application
@@ -62,9 +61,6 @@ function m.registerAppWOPTU(pAppId, pIconResumed, pReconnection)
           icon = pIconValue
         }
       })
-      :Do(function(_, d1)
-          hmiAppIds[m.getConfigAppParams(pAppId).appID] = d1.params.application.appID
-        end)
       :ValidIf(function(_,data)
         if false == pIconResumed and
           data.params.application.icon then
@@ -169,7 +165,7 @@ end
 --]]
 function m.closeConnection()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
-  test.mobileConnection:Close()
+  actions.mobile.disconnect()
 end
 
 --[[ @openConnection: Open mobile connection successfully

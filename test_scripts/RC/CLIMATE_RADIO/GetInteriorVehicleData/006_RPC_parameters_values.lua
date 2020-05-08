@@ -19,14 +19,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function invalidParamName(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function invalidParamName(pModuleType)
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     modduleType = pModuleType, -- invalid name of parameter
     subscribe = true
   })
@@ -34,13 +33,12 @@ local function invalidParamName(pModuleType, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+  commonRC.wait(commonRC.timeout)
 end
 
-local function invalidParamType(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function invalidParamType(pModuleType)
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = 17 -- invalid type of parameter
   })
@@ -48,13 +46,12 @@ local function invalidParamType(pModuleType, self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+  commonRC.wait(commonRC.timeout)
 end
 
-local function missingMandatoryParam(self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function missingMandatoryParam()
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     -- moduleType = "CLIMATE", --  mandatory parameter absent
     subscribe = true
   })
@@ -62,31 +59,29 @@ local function missingMandatoryParam(self)
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {})
   :Times(0)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+  commonRC.wait(commonRC.timeout)
 end
 
-local function fakeParam(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function fakeParam(pModuleType)
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     fakeParam = 7,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+      commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = commonRC.getModuleControlData(pModuleType),
         isSubscribed = true
       })
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  commonRC.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
     isSubscribed = true,
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
@@ -96,12 +91,12 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules) do
   runner.Step("GetInteriorVehicleData " .. mod .. " invalid name of parameter", invalidParamName, { mod })
   runner.Step("GetInteriorVehicleData " .. mod .. " invalid type of parameter", invalidParamType, { mod })
   runner.Step("GetInteriorVehicleData " .. mod .. " fake parameter", fakeParam, { mod })

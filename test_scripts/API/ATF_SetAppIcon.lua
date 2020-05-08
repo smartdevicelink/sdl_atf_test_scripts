@@ -17,7 +17,7 @@ local policyTable = require('user_modules/shared_testcases/testCasesForPolicyTab
 
 APIName = "SetAppIcon" -- use for above required scripts.
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
-local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local appIDAndDeviceMac = config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 config.SDLStoragePath = config.pathToSDL .. "storage/"
 local strAppFolder = config.SDLStoragePath..appIDAndDeviceMac
 local strIvsu_cacheFolder = "/tmp/fs/mp/images/ivsu_cache/"
@@ -42,7 +42,7 @@ local OutBoundFile = {"", str255Chars.. "a", str501Chars}
 local OutBoundFileName = {"Empty", "256Characters", "UpperBound"}
 local appID0, appId2
 
-local storagePath = config.SDLStoragePath..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.SDLStoragePath..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 
 
 ---------------------------------------------------------------------------------------------

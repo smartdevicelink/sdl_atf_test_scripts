@@ -19,6 +19,8 @@
 -- Expected result:
 -- PoliciesManager must apply <functional grouping> only after the User has consented it -> RPC should be allowed
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 ---[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -175,7 +177,7 @@ function Test:Precondition_IsPermissionsConsentNeeded_false_on_app_activation()
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function()
-      local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
+      local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID)
       if(app_permission ~= nil) then
         self:FailTestCase("Consented gropus are assigned to application")
       end
@@ -196,8 +198,9 @@ end
 
 function Test:Precondition_PTU_user_consent_prompt_present()
   local is_test_passed = true
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{ requestType = "PROPRIETARY", fileName = "filename"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -296,8 +299,8 @@ function Test:Precondition_PTU_user_consent_prompt_present()
 
   function Test.TestStep_verify_PermissionConsent()
     local is_test_passed = true
-    local app_permission_Location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
-    local app_permission_Notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
+    local app_permission_Location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.Location-1")
+    local app_permission_Notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.Notifications")
     if(app_permission_Location ~= nil) then
       commonFunctions:printError("Location-1 is assigned user_consent_records")
       is_test_passed = false
@@ -317,6 +320,7 @@ function Test:Precondition_PTU_user_consent_prompt_present()
     local RequestAlert = self.mobileSession:SendRPC("Alert", {alertText1 = "alertText1"})
 
     EXPECT_RESPONSE(RequestAlert, {success = false, resultCode = "GENERIC_ERROR"})
+    :Timeout(20000)
   end
 
   --Location-1 is disallowed by user

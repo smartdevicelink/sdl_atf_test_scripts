@@ -22,6 +22,8 @@
 -- SDL adds application with App 2 data into LocalPT according to general rules
 -- of adding app data into LocalPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -59,7 +61,7 @@ end
 
 function Test:TestStep_CheckThatAppID_SecondApp_Present_In_DataBase()
   local db_file = config.pathToSDL .. "/storage/policy.sqlite"
-  local sql = "SELECT id FROM application WHERE id = '" .. config.application2.registerAppInterfaceParams.appID .. "'"
+  local sql = "SELECT id FROM application WHERE id = '" .. config.application2.registerAppInterfaceParams.fullAppID .. "'"
   local AppIdValue_2 = commonFunctions:get_data_policy_sql(db_file, sql)
   if AppIdValue_2 == nil then
     self:FailTestCase("Value in DB is unexpected value " .. tostring(AppIdValue_2))

@@ -17,11 +17,13 @@
 -- a) PutFile SUCCESS resultCode - memory_kb parameter is ignored for app
 -- b) PutFile OUT_OF_MEMORY resultCode - AppDirectoryQuota applies for app
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.appName = "SPT"
-config.application1.registerAppInterfaceParams.appID = "1234567"
+config.application1.registerAppInterfaceParams.fullAppID = "1234567"
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 --[[ Required Shared libraries ]]
@@ -73,8 +75,9 @@ function Test:TestStep_Default_Send_PutFile_Bigger_Than_AppDirectoryQuota_OUT_OF
 end
 
 function Test:Precondition_Update_Policy_With_memory_kb_Param()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -98,8 +101,7 @@ function Test:Precondition_Update_Policy_With_memory_kb_Param()
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:TestStep_PredataConsent_Send_PutFile_Bigger_Than_AppDirectoryQuota_OUT_OF_MEMORY()

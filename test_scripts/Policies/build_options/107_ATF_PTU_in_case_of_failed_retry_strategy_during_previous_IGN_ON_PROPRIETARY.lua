@@ -17,6 +17,8 @@
 -- 3. PTU sequence started: *SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)*
 -- 4. PTS is created by SDL.....//PTU started
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 
@@ -72,6 +74,10 @@ end
 function Test:RegisterApp()
   self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 --[[ Test ]]

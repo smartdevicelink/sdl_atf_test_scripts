@@ -33,7 +33,7 @@ require('user_modules/AppTypes')
 APIName="OnWayPointChange"
 strMaxLengthFileName255 = string.rep("a", 251)  .. ".png" -- set max length file name
 local SDLConfig = require ('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
-local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. tostring(config.deviceMAC) .. "/")
 
 ---------------------------------------------------------------------------------------------
 ------------------------------------ Common Functions ---------------------------------------

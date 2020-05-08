@@ -219,7 +219,7 @@ end
 					{
 						success = true, 
 						resultCode = "SUCCESS",
-						filenames = {config.application1.registerAppInterfaceParams.appID},
+						filenames = {config.application1.registerAppInterfaceParams.fullAppID},
 						spaceAvailable = 104857600
 					}
 				)
@@ -456,7 +456,7 @@ end
 					{
 						success = true, 
 						resultCode = "SUCCESS", 
-						filenames = {config.application1.registerAppInterfaceParams.appID, "a"}, 
+						filenames = {config.application1.registerAppInterfaceParams.fullAppID, "a"}, 
 						info = nil 
 					}
 				)							
@@ -486,7 +486,7 @@ end
 					{
 						success = true, 
 						resultCode = "SUCCESS", 
-						filenames = {config.application1.registerAppInterfaceParams.appID, str255Chars}, 
+						filenames = {config.application1.registerAppInterfaceParams.fullAppID, str255Chars}, 
 						info = nil 
 					}
 				)							
@@ -505,7 +505,7 @@ end
 			local arrFileNames_Report = {}
 			local str251Characters = "_255_characters_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
-			arrFileNames[1] = config.application1.registerAppInterfaceParams.appID
+			arrFileNames[1] = config.application1.registerAppInterfaceParams.fullAppID
 			for i = 2, 1000 do
 				if i<10 then
 					arrFileNames[i] = "000" ..tostring(i) .. str251Characters	
@@ -890,7 +890,7 @@ end
 						resultCode = "SUCCESS",
 						filenames = 
 						{
-							config.application1.registerAppInterfaceParams.appID,
+							config.application1.registerAppInterfaceParams.fullAppID,
 							"1action.png",
 							"2turn_forward.png",
 							"3turn_left.png",
@@ -915,7 +915,7 @@ end
 						resultCode = "SUCCESS",
 						filenames = 
 						{
-							config.application1.registerAppInterfaceParams.appID,
+							config.application1.registerAppInterfaceParams.fullAppID,
 							"1action.png",
 							"2turn_forward.png",
 							"3turn_left.png",
@@ -941,7 +941,7 @@ end
 						resultCode = "SUCCESS",
 						filenames = 
 						{
-							config.application1.registerAppInterfaceParams.appID,
+							config.application1.registerAppInterfaceParams.fullAppID,
 							"1action.png",
 							"2turn_forward.png",
 							"3turn_left.png",

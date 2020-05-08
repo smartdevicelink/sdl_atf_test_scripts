@@ -8,7 +8,6 @@ local websocket      = require('websocket_connection')
 local hmi_connection = require('hmi_connection')
 local events         = require("events")
 local expectations   = require('expectations')
-local config         = require('config')
 local functionId     = require('function_id')
 local Event = events.Event
 
@@ -306,6 +305,7 @@ function module:InitHMI_onReady()
       button_capability("PRESET_8"),
       button_capability("PRESET_9"),
       button_capability("OK", true, false, true),
+      button_capability("PLAY_PAUSE"),
       button_capability("SEEKLEFT"),
       button_capability("SEEKRIGHT"),
       button_capability("TUNEUP"),

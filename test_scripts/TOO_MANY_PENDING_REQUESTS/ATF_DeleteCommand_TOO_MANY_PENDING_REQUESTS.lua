@@ -47,7 +47,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
-local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 
 local TooManyPenReqCount = 0
 local IDsArray = {}
@@ -127,7 +127,7 @@ end
 					}
 				})
 				:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then

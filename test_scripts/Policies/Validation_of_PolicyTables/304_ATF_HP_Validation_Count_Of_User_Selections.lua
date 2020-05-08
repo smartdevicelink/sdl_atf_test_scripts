@@ -17,6 +17,8 @@
 -- Expected result:
 -- a) "count_of_user_selections" in PTS is equal actual numbers of app activation
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -37,7 +39,7 @@ commonSteps:DeleteLogsFiles()
 commonSteps:DeletePolicyTable()
 
 --[[ Local Variables ]]
-local appID = config.application1.registerAppInterfaceParams["appID"]
+local appID = config.application1.registerAppInterfaceParams["fullAppID"]
 local countAppActivation = 0
 
 --[[ Preconditions ]]

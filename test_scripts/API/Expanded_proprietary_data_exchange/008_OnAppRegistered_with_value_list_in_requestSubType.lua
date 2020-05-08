@@ -24,8 +24,8 @@ local requestSubTypeArray = { "TYPE1", "TYPE2", "TYPE3" }
 
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = tbl.policy_table.app_policies.default
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID].RequestSubType = requestSubTypeArray
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID] = tbl.policy_table.app_policies.default
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID].RequestSubType = requestSubTypeArray
 end
 
 --[[ Scenario ]]

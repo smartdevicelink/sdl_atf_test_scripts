@@ -16,14 +16,19 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local seat_capabilities = {{moduleName = "Seat", horizontalPositionAvailable = true, verticalPositionAvailable = false}}
-local rc_capabilities = commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, seat_capabilities, commonRC.DEFAULT)
+local capParams = {}
+capParams.CLIMATE = commonRC.DEFAULT
+capParams.RADIO = commonRC.DEFAULT
+capParams.BUTTONS = commonRC.DEFAULT
+capParams.SEAT = seat_capabilities
+local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
 local seat_params = {
   moduleType = "SEAT",
   seatControlData = {
@@ -44,8 +49,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, {rc_capabilities})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate_App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate_App", commonRC.activateApp)
 
 runner.Title("Test")
 runner.Step("SetInteriorVehicleData rejected if at least one prameter unsuported", setVehicleData, { seat_params })

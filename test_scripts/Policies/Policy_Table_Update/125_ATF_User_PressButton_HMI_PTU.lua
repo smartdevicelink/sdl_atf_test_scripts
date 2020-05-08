@@ -18,6 +18,8 @@
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 -- SDL->HMI: BasicCommunication.PolicyUpdate
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
@@ -26,6 +28,7 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
@@ -64,7 +67,7 @@ function Test:TC_User_PressButton_HMI_PTU()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" })
   :Do(function(_,data)
       testCasesForPolicyTableSnapshot:verify_PTS(true,
-        {config.application1.registerAppInterfaceParams.appID},
+        {config.application1.registerAppInterfaceParams.fullAppID},
         {utils.getDeviceMAC()},
         {hmi_app1_id})
 

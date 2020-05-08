@@ -85,7 +85,7 @@ end
 function Test:change_App(appType,isMedia,appID)
 	config.application1.registerAppInterfaceParams.appHMIType = appType
 	config.application1.registerAppInterfaceParams.isMediaApplication = isMedia
-	config.application1.registerAppInterfaceParams.appID=appID
+	config.application1.registerAppInterfaceParams.fullAppID=appID
 end
 
 -------------------------------------------------------Precondition--------------------------------------------------

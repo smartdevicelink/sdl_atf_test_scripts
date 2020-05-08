@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/995_OnSystemrequest_query_apps_after_unsuccessful_attempt.lua

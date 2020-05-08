@@ -19,6 +19,8 @@
 -- SDL choose between the app_2, app_3, app_4 randomly to send OnSystemRequest
 -- app_1 doesn't take part in PTU (except of the case when app_1 is the only application being run on SDL)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -173,11 +175,12 @@ function Test:RegisterOnSystemRequestNotifications()
 end
 
 function Test:StartPTU()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  log("HMI->SDL: SDL.GetURLS")
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  log("HMI->SDL: SDL.GetPolicyConfigurationData")
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
-      log("SDL->HMI: SDL.GetURLS")
+      log("SDL->HMI: SDL.GetPolicyConfigurationData")
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })
       log("HMI->SDL: BC.OnSystemRequest")
       requestId = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "StatusUpToDate" } })

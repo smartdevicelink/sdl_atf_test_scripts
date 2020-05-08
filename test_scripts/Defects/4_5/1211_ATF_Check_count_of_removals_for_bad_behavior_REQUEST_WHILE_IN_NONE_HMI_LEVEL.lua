@@ -10,6 +10,7 @@ local common = require("test_scripts/Defects/4_5/commonDefects")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ General configuration parameters ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } }
 -- switch ATF to mode when it will continue test script execution even if SDL crashes
 config.ExitOnCrash = false
 
@@ -104,7 +105,7 @@ local function Check_TOO_MANY_REQUESTS_in_DB(self)
   local db_path = config.pathToSDL.."storage/policy.sqlite"
   -- define query which is going to be executed
   local sql_query = "SELECT count_of_removals_for_bad_behavior FROM app_level WHERE application_id = '"
-    .. config.application1.registerAppInterfaceParams.appID .. "'"
+    .. config.application1.registerAppInterfaceParams.fullAppID .. "'"
   -- define expected value for the query
   -- it's expected that the value of 'count_of_removals_for_bad_behavior' parameter will be increased from '0' to '1'
   local exp_result = {"1"}

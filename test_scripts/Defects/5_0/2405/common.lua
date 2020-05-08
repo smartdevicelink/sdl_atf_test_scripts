@@ -23,7 +23,7 @@ function m.policyTableUpdate(pGrp)
       }
     }
     local fg = pTbl.policy_table.functional_groupings
-    local appId = common.getConfigAppParams().appID
+    local appId = common.getConfigAppParams().fullAppID
     if not pTbl.policy_table.app_policies[appId] then
       pTbl.policy_table.app_policies[appId] = utils.cloneTable(pTbl.policy_table.app_policies.default)
     end

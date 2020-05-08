@@ -20,20 +20,11 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {
-	[1] = {},
-	[2] = {}
-}
-
 --[[ Local Functions ]]
 local function buttonPress(pModuleType)
-	local pModuleStatusAllocatedApp, pModuleStatusAnotherApp = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
-	common.rpcAllowed(pModuleType, 1, "ButtonPress")
-	common.validateOnRCStatusForApp(1, pModuleStatusAllocatedApp)
-	common.validateOnRCStatusForApp(2, pModuleStatusAnotherApp)
-	common.validateOnRCStatusForHMI(2, { pModuleStatusAllocatedApp, pModuleStatusAnotherApp }, 1)
+  common.setModuleStatus(pModuleType)
+  common.rpcAllowed(pModuleType, 1, "ButtonPress")
+  common.validateOnRCStatus({ 1, 2 })
 end
 
 --[[ Scenario ]]
@@ -46,7 +37,7 @@ runner.Step("Register RC application 2", common.registerRCApplication, { 2 })
 
 runner.Title("Test")
 for _, mod in pairs(common.getModules()) do
-	runner.Step("ButtonPress " .. mod, buttonPress, { mod })
+  runner.Step("ButtonPress " .. mod, buttonPress, { mod })
 end
 
 runner.Title("Postconditions")

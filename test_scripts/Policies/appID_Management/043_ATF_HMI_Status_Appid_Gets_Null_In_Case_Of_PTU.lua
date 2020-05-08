@@ -20,6 +20,8 @@
 -- OnHMIStatus: hmiLevel="NONE", systemContext="MAIN", audioStreamingState="NOT_AUDIBLE"
 --
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appName = "App1"
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
@@ -59,7 +61,7 @@ end
 
 function Test:RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "Media Application"
-  config.application2.registerAppInterfaceParams.appID = "123_xyz"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_xyz"
   local correlationId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
   :Do(function(_,data)
@@ -84,48 +86,55 @@ function Test:TestStep_UpdatePolicy()
   local file = "files/jsons/Policies/appID_Management/ptu_013_2.json"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(requestId)
-  :Do(function()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate",
+  {
+    file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"
+  })
+  :Do(function(_, data1)
+    EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
+    self.hmiConnection:SendResponse(data1.id, data1.method, "SUCCESS", {})
+    local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
+    EXPECT_HMIRESPONSE(requestId)
+    :Do(function()
+        self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
 
-      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
+        local request_received = false
 
-      local request_received = false
+        -- Steps in case OnSystemRequest is sent to application 1
+        self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" }):Times(Between(0,1))
+        :Do(function()
+            print("OnSystemRequest for App1 is received")
+            if(request_received == true) then
+              self:FailTestCase("OnSystemRequest already received for application 2")
+            end
+            request_received = true
+            local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, file)
+            self.mobileSession:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+          end)
 
-      -- Steps in case OnSystemRequest is sent to application 1
-      self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" }):Times(Between(0,1))
-      :Do(function()
-          print("OnSystemRequest for App1 is received")
-          if(request_received == true) then
-            self:FailTestCase("OnSystemRequest already received for application 2")
-          end
-          request_received = true
-          local corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, file)
-          self.mobileSession:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
-        end)
+        -- Steps in case OnSystemRequest is sent to application 2
+        self.mobileSession2:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" }):Times(Between(0,1))
+        :Do(function()
+            print("OnSystemRequest for App2 is received")
+            if(request_received == true) then
+              self:FailTestCase("OnSystemRequest already received for application 1")
+            end
+            request_received = true
+            local corIdSystemRequest = self.mobileSession2:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, file)
+            self.mobileSession2:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+          end)
 
-      -- Steps in case OnSystemRequest is sent to application 2
-      self.mobileSession2:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" }):Times(Between(0,1))
-      :Do(function()
-          print("OnSystemRequest for App2 is received")
-          if(request_received == true) then
-            self:FailTestCase("OnSystemRequest already received for application 1")
-          end
-          request_received = true
-          local corIdSystemRequest = self.mobileSession2:SendRPC("SystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name }, file)
-          self.mobileSession2:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
-        end)
-
-      EXPECT_HMICALL("BasicCommunication.SystemRequest",{requestType = "PROPRIETARY", fileName = policy_file_path.."/"..policy_file_name },file)
-      :Do(function(_, data)
-          self.hmiConnection:SendResponse(data.id, "BasicCommunication.SystemRequest", "SUCCESS", {})
-          self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = policy_file_path.."/"..policy_file_name} )
-        end)
+        EXPECT_HMICALL("BasicCommunication.SystemRequest",{requestType = "PROPRIETARY", fileName = policy_file_path.."/"..policy_file_name },file)
+        :Do(function(_, data)
+            self.hmiConnection:SendResponse(data.id, "BasicCommunication.SystemRequest", "SUCCESS", {})
+            self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = policy_file_path.."/"..policy_file_name} )
+          end)
+      end)
     end)
 
   EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged", { appID = HMIAppID, appRevoked = true})
-  EXPECT_HMICALL("BasicCommunication.ActivateApp", { level = "NONE" })
+  EXPECT_HMICALL("BasicCommunication.CloseApplication", {})
   :Do(function(_, data) self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {}) end)
   self.mobileSession2:ExpectNotification("OnHMIStatus", { hmiLevel ="NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE" })
 end

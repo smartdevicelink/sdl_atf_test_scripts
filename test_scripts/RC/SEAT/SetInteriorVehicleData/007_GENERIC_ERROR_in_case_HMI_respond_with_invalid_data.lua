@@ -13,7 +13,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -32,7 +32,7 @@ local function invalidParamType(pModuleType)
   :Do(function(_, data)
       local modData = commonRC.getSettableModuleControlData(pModuleType)
       modData.moduleType = "MODULE" -- invalid value of parameter
-      commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
+      commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = modData,
         isSubscribed = "yes" -- fake parameter
       })
@@ -54,7 +54,7 @@ local function missingMandatoryParam(pModuleType)
   :Do(function(_, data)
       local moduleData = commonRC.getModuleControlData(pModuleType)
       moduleData.moduleType = nil -- missing mandatory parameter
-      commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", {
+      commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = moduleData
       })
     end)
@@ -66,8 +66,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 runner.Step("SetInteriorVehicleData SEAT Invalid response from HMI-Invalid type of parameter", invalidParamType,

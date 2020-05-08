@@ -19,64 +19,62 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function invalidParamType(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function invalidParamType(pModuleType)
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+      commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = commonRC.getModuleControlData(pModuleType),
         isSubscribed = "yes" -- invalid type of parameter
       })
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
-local function missingMandatoryParam(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function missingMandatoryParam(pModuleType)
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = pModuleType,
     subscribe = true
   })
   :Do(function(_, data)
       local moduleData = commonRC.getModuleControlData(pModuleType)
       moduleData.moduleType = nil -- missing mandatory parameter
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+      commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
         moduleData = moduleData,
         isSubscribed = true
       })
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules) do
   runner.Step("GetInteriorVehicleData " .. mod .. " Invalid response from HMI-Invalid type of parameter", invalidParamType, { mod })
   runner.Step("GetInteriorVehicleData " .. mod .. " Invalid response from HMI-Missing mandatory parameter", missingMandatoryParam, { mod })
 end

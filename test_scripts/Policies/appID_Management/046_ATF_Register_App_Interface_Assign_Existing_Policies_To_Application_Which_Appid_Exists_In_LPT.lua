@@ -18,6 +18,8 @@
 -- Expected result:
 -- Permissions in payload of OnPermissionsChange() notification is the same as defined in LPT (specific)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -58,7 +60,7 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 --[[ General Settings for configuration ]]
 Test = require("connecttest")
 require("user_modules/AppTypes")
-config.application2.registerAppInterfaceParams.appID = "123_xyz"
+config.application2.registerAppInterfaceParams.fullAppID = "123_xyz"
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
@@ -87,7 +89,8 @@ end
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep1_PTU()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)
   self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })

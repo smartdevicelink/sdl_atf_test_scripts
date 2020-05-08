@@ -18,12 +18,15 @@
 -- SDL initiates PTU: SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 -- PTS is created by SDL: SDL-> HMI: SDL.PolicyUpdate() //PTU sequence started
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
+local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local exchangeDays = 30
@@ -64,6 +67,7 @@ local mobile_session = require('mobile_session')
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test.Preconditions_Set_Exchange_After_X_Days_For_PTU()
   CreatePTUFromExisted()
+  commonTestCases:DelayedExp(500)
 end
 
 function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
@@ -116,7 +120,7 @@ function Test:TestStep_Register_App_And_Check_That_PTU_Triggered()
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate"):Times(0)
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status="UPDATE_NEEDED" }, { status="UPDATING" }):Times(2)
-  EXPECT_NOTIFICATION("OnSystemRequest"):Times(2) -- { requestType = "LOCK_SCREEN_ICON_URL" }, { requestType = "HTTP" }
+  EXPECT_NOTIFICATION("OnSystemRequest")
 
 end
 

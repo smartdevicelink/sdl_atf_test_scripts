@@ -61,7 +61,7 @@ local mobile_session = require('mobile_session')
 require('user_modules/AppTypes')
 
 
-local strAppFolder = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local strAppFolder = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 ---------------------------------------------------------------------------------------------
 -------------------------------------------Common function-----------------------------------
 ---------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ function Check_menuIconParams(data, type_icon, value)
 	if(type_icon == nil) then type_icon = "DYNAMIC" end
 	
 	local result = true
-	local path = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+	local path = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 	local value_Icon = value--"action.png"
 	
 	if (type_icon == "DYNAMIC") then

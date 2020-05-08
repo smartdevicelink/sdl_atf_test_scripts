@@ -13,7 +13,6 @@ local mobile_session = require('mobile_session')
 local mobile = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection = require('file_connection')
-local config = require('config')
 local json = require('json')
 local module = require('testbase')
 
@@ -42,7 +41,7 @@ local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigur
 APIName = "GetWayPoints" -- set request name
 strMaxLengthFileName255 = string.rep("a", 251) .. ".png" -- set max length file name
 
-local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. tostring(config.deviceMAC) .. "/")
 
 
 ---------------------------------------------------------------------------------------------

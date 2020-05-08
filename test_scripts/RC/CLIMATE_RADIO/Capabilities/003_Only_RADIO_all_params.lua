@@ -21,15 +21,25 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
+-- [[ Local Variables ]]
+local capParams = {}
+capParams.CLIMATE = nil
+capParams.RADIO = commonRC.DEFAULT
+capParams.BUTTONS = commonRC.DEFAULT
+local hmiRcCapabilities = commonRC.buildHmiRcCapabilities(capParams)
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
-runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" } })
+runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { "CLIMATE", "RADIO" }, true })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has all CLIMATE RC capabilities), connect Mobile, start Session", commonRC.start,
-	{commonRC.buildHmiRcCapabilities(nil, commonRC.DEFAULT, commonRC.DEFAULT)})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App1", commonRC.activate_app)
+  {hmiRcCapabilities})
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App1", commonRC.activateApp)
 
 runner.Title("Test")
 

@@ -17,6 +17,8 @@
 -- Expected result:
 -- SDL must leave fields&values of "consumer_friendly_messages" section in LocalPT base without changes
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -216,7 +218,6 @@ prepareInitialPreloadedPT()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 
 function Test.checkLocalPT(checkTable)

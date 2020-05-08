@@ -20,6 +20,8 @@
 -- 3. SDL replaces the following sections of the Local Policy Table with the corresponding sections from PTU: module_config, functional_groupings, app_policies
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -61,21 +63,13 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup ("Preconditions")
 function Test:Precondition_PolicyUpdateStarted()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS, {
-    result = {
-      code = 0,
-      method = "SDL.GetURLS",
-      urls = {
-        { url = commonFunctions.getURLs("0x07")[1] }
-      }
-    }
-  })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId, { result = { code = 0, method = "SDL.GetPolicyConfigurationData" }})
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
-          url = commonFunctions.getURLs("0x07")[1],
           appID = self.applications ["Test Application"],
           fileName = "sdl_snapshot.json"
         })
@@ -114,7 +108,12 @@ function Test:TestStep_FinishPTU_ForAppId1()
       self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/ptu.json" })
       -- PTU will be restarted because of new AppID is registered
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"})
+      :Times(2)
     end)
+end
+
+function Test.Postcondition_StopSDL()
+  StopSDL()
 end
 
 function Test:TestStep_CheckThatAppID_Present_In_DataBase()
@@ -130,12 +129,6 @@ function Test:TestStep_CheckThatAppID_Present_In_DataBase()
   if result == false then
     self:FailTestCase("DB doesn't contain special id")
   end
-end
-
---[[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postconditions")
-function Test.Postcondition_StopSDL()
-  StopSDL()
 end
 
 return Test

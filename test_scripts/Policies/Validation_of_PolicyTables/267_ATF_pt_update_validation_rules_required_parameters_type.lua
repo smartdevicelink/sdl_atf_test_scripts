@@ -16,6 +16,8 @@
 -- Expected result:
 -- SDL must invalidate this received PolicyTableUpdated and log corresponding error internally
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -28,7 +30,6 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('cardinalities')
 require('user_modules/AppTypes')
 config.defaultProtocolVersion = 2
@@ -154,8 +155,9 @@ end
 function Test:updatePolicyInDifferentSessions(_, appName, mobileSession)
 
   local iappID = self.applications[appName]
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"} )
 
@@ -184,8 +186,7 @@ function Test:updatePolicyInDifferentSessions(_, appName, mobileSession)
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UPDATE_NEEDED"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 end
 
 local function constructPathToDatabase()
@@ -365,6 +366,10 @@ function Test:Precondition_ActivateAppInFULL()
   activateAppInSpecificLevel(self,HMIAppId,"FULL")
   TestData:store("Store LocalPT before PTU", constructPathToDatabase(), "beforePTU_policy.sqlite" )
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 --[[ Test ]]

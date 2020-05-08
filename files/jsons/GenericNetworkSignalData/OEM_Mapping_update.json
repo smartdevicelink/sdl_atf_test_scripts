@@ -1,0 +1,143 @@
+{
+   "version":"0.0.1_Draft",
+   "date":"mm-dd-yyyy",
+   "vehicleDataTable":[
+      {
+         "defaultArchitecture":{
+            "defaultPowertrain":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  }
+               ]
+            },
+            "gas":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  }
+               ]
+            },
+            "hev":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  }
+               ]
+            },
+            "phev":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  }
+               ]
+            },
+            "bev":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  }
+               ]
+            }
+         },
+         "CGEA1.3c":{
+            "defaultPowertrain":{
+               "vehicleData":[
+
+               ]
+            },
+            "PHEV":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  },
+                  {
+                     "key":"OEM_REF_FUELLEVEL",
+                     "type":"Integer",
+                     "minFrequency":200,
+                     "maxLatency":10,
+                     "messageName":"Cluster_Info3",
+                     "messageID":"0x434",
+                     "signalName":"FuelLvl_Pc_Dsply",
+                     "transportChannel":"HS3",
+                     "resolution":0.109,
+                     "offset":-5.2174
+                  }
+               ]
+            }
+         },
+         "<MY>_<VehicleNameNoSpaces>":{
+            "defaultPowertrain":{
+               "vehicleData":[
+                  {
+                     "key":"OEM_REF_VEHICLEDATA",
+                     "type":"dataType",
+                     "minFrequency":"Minimum signal update frequency",
+                     "maxLatency":"maximum delay to receive the value",
+                     "messageName":"CAN message Name",
+                     "messageID":"CAN message ID",
+                     "signalName":"CAN signal name",
+                     "transportChannel":"Bus name",
+                     "resolution":"CAN signal value resolution",
+                     "offset":"CAN signal value offset"
+                  }
+               ]
+            }
+         }
+      }
+   ]
+}

@@ -16,6 +16,8 @@
  -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
  -- SDL->HMI: BasicCommunication.PolicyUpdate
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -61,8 +63,9 @@ local registerAppInterfaceParams =
 
 local function policyUpdate(self)
   local pathToSnaphot = "files/ptu.json"
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-   EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {

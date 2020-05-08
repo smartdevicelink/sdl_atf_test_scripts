@@ -29,11 +29,15 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local updateMode = {"COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR"}
+local updateMode = { "COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR" }
+
+local indicator = { "PLAY_PAUSE", "PLAY", "PAUSE", "STOP" }
 
 local requestParams = {
   startTime = {
@@ -48,38 +52,38 @@ local requestParams = {
   }
 }
 
-local indicator = {"PLAY_PAUSE", "PLAY", "PAUSE", "STOP"}
-
 --[[ Local Functions ]]
-local function SetMediaClockTimer(pParams, pMode, pIndicator, self)
-  local Parameters = commonFunctions:cloneTable(pParams)
-  Parameters.updateMode = pMode
-  Parameters.audioStreamingIndicator = pIndicator
+local function setMediaClockTimer(pParams, pMode, pIndicator)
+  local params = common.cloneTable(pParams)
+  params.updateMode = pMode
+  params.audioStreamingIndicator = pIndicator
   if pMode == "COUNTDOWN" then
-    Parameters.endTime.minutes = Parameters.startTime.minutes - 1
+    params.endTime.minutes = params.startTime.minutes - 1
   end
-  local cid = self.mobileSession1:SendRPC("SetMediaClockTimer", Parameters)
-  Parameters.appID = commonSmoke.getHMIAppId()
-  EXPECT_HMICALL("UI.SetMediaClockTimer", Parameters)
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+  local cid = common.getMobileSession():SendRPC("SetMediaClockTimer", params)
+  params.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("UI.SetMediaClockTimer", params)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, value in pairs (updateMode) do
   for _, value2 in pairs (indicator) do
-    runner.Step("SetMediaClockTimer Positive Case with udate mode " .. value .. " " .. value2 , SetMediaClockTimer, { requestParams,value,value2 })
+    runner.Step("SetMediaClockTimer Positive Case with udate mode " .. value
+      .. " " .. value2, setMediaClockTimer, { requestParams,value,value2 })
   end
 end
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

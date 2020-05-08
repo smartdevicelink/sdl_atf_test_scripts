@@ -21,6 +21,8 @@
 -- currently registered appName is different from value in policy table ->
 -- SDL->app: OnAppInterfaceUnregistered (APP_UNAUTHORIZED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -40,7 +42,7 @@ local mobileSession = require("mobile_session")
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 
-function Test:Pecondition_trigger_getting_device_consent()
+function Test:Precondition_trigger_getting_device_consent()
   testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
 end
 
@@ -57,7 +59,7 @@ end
 commonFunctions:newTestCasesGroup("Test")
 function Test:RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "App1"
-  config.application2.registerAppInterfaceParams.appID = "123_abc"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_abc"
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "App1" }})
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})

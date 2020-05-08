@@ -15,8 +15,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
-local hmi_values = require('user_modules/hmi_values')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,7 +26,7 @@ local enabledModule = "SEAT"
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
+  local params = commonRC.getDefaultHMITable()
   params.RC.IsReady.params.available = true
   params.RC.GetCapabilities = nil
   return params
@@ -47,7 +46,7 @@ local function rpcSuccess(pModuleType, pRPC)
   local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
   EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), commonRC.getHMIRequestParams(pRPC, pModuleType, pAppId))
   :Do(function(_, data)
-      commonRC.getHMIconnection():SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(pRPC, pModuleType))
+      commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", commonRC.getHMIResponseParams(pRPC, pModuleType))
     end)
   mobSession:ExpectResponse(cid, commonRC.getAppResponseParams(pRPC, true, "SUCCESS", pModuleType))
 end
@@ -58,8 +57,8 @@ runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { disabledModule } })
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test - Module enabled: " .. enabledModule .. ", disabled: " .. disabledModule)
 runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", rpcUnsupportedResource,

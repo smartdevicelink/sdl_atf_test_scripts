@@ -29,6 +29,8 @@
 -- 5. SDL->appID_1: onPermissionChange(permisssions)
 -- 6. SDL->HMI: SDL.OnAppPermissionChanged(appID_1, permissions)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -69,7 +71,7 @@ require('user_modules/AppTypes')
 commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test.Precondition_PreparePTData()
-  PrepareJsonPTU1(config.application1.registerAppInterfaceParams.appID, ptu_app_registered)
+  PrepareJsonPTU1(config.application1.registerAppInterfaceParams.fullAppID, ptu_app_registered)
 end
 
 function Test:ConnectMobile()

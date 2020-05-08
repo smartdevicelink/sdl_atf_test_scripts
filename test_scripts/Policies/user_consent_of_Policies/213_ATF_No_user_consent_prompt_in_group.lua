@@ -19,6 +19,8 @@
 -- Expected result:
 -- PoliciesManager must apply such <functional grouping> without asking User`s consent for it
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -63,7 +65,7 @@ function Test:TestStep1_PTU_lack_of_user_consent_prompt()
 end
 
 function Test:TestStep_app_no_consent()
-  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID)
+  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID)
   if(app_permission ~= nil) then
     self:FailTestCase("Consented gropus are assigned to application")
   end

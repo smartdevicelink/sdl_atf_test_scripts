@@ -1545,7 +1545,7 @@ local function TC_APPLINK_18428_WrongAppName()
 
 	function Test:TC_APPLINK_18428_WrongAppName_ChangeAppName()
 		config.application1.registerAppInterfaceParams.appName = "WrongAppName" 
-		config.application1.registerAppInterfaceParams.appID = "18428_1" 
+		config.application1.registerAppInterfaceParams.fullAppID = "18428_1" 
 	end
 	
 	commonSteps:RegisterAppInterface("TC_APPLINK_18428_WrongAppName_RegisterApp")
@@ -1669,7 +1669,7 @@ local function TC_APPLINK_18428_AppPermissionIsNull()
 	
     function Test:TC_APPLINK_18428_AppPermissionIsNull_ChangeAppName()
 		config.application1.registerAppInterfaceParams.appName = "AppNullPermission" 
-		config.application1.registerAppInterfaceParams.appID = "18428_2" 
+		config.application1.registerAppInterfaceParams.fullAppID = "18428_2" 
 	end
 	
 	commonSteps:RegisterAppInterface("TC_APPLINK_18428_AppPermissionIsNull_RegisterApp")

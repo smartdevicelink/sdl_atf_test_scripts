@@ -24,7 +24,7 @@ require('user_modules/AppTypes')
 --[[ Local Variables ]]------------------------------------------------------------------------------------------------
 local applicationName = config.application1.registerAppInterfaceParams.appName
 local pathToAppFolder = commonPreconditions:GetPathToSDL() .. SDLConfig:GetValue("AppStorageFolder") .. "/"
-	.. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(config.deviceMAC) .. "/")
+	.. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. tostring(config.deviceMAC) .. "/")
 local spaceAvailable = tonumber(SDLConfig:GetValue("AppDirectoryQuota"))
 local fileTypes = {
 		{ typeV = "GRAPHIC_BMP", file = "files/PutFile/bmp_6kb.bmp" },
@@ -36,7 +36,7 @@ local fileTypes = {
 		{ typeV = "BINARY", file = "files/PutFile/binaryFile" },
 		{ typeV = "JSON", file = "files/PutFile/luxoftPT.json" }
 	}
-local buttonArray = { "OK", "SEEKLEFT", "SEEKRIGHT", "TUNEUP", "TUNEDOWN", "PRESET_0", "PRESET_1", "PRESET_2", "PRESET_3",
+local buttonArray = { "OK", "PLAY_PAUSE", "SEEKLEFT", "SEEKRIGHT", "TUNEUP", "TUNEDOWN", "PRESET_0", "PRESET_1", "PRESET_2", "PRESET_3",
 	"PRESET_4", "PRESET_5", "PRESET_6", "PRESET_7", "PRESET_8", "PRESET_9" }
 local updateModeNotRequireStartEndTime = { "PAUSE", "RESUME", "CLEAR" }
 local updateMode = { "COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR" }
@@ -6389,8 +6389,9 @@ local blockId = 1
 
 				      	EXPECT_NOTIFICATION("OnHashChange")
 				  else
-				  	if
-				  		buttonArray[i] == "SEEKLEFT" or
+				  	if 
+				  		buttonArray[i] == "PLAY_PAUSE" or
+				  		buttonArray[i] == "SEEKLEFT" or 
 				  		buttonArray[i] == "SEEKRIGHT" or
 				  		buttonArray[i] == "TUNEUP" or
 				  		buttonArray[i] == "TUNEDOWN" then
@@ -6457,8 +6458,9 @@ local blockId = 1
 				      	--mobile side: expect SubscribeButton response
 				      	self.mobileSession:ExpectResponse(cid, { success = false, resultCode = "IGNORED"})
 				  else
-				  	if
-				  		buttonArray[i] == "SEEKLEFT" or
+				  	if 
+				  		buttonArray[i] == "PLAY_PAUSE" or 
+				  		buttonArray[i] == "SEEKLEFT" or 
 				  		buttonArray[i] == "SEEKRIGHT" or
 				  		buttonArray[i] == "TUNEUP" or
 				  		buttonArray[i] == "TUNEDOWN" then
@@ -6522,8 +6524,9 @@ local blockId = 1
 
 				      	EXPECT_NOTIFICATION("OnHashChange")
 				  else
-				  	if
-				  		buttonArray[i] == "SEEKLEFT" or
+				  	if 
+				  		buttonArray[i] == "PLAY_PAUSE" or 
+				  		buttonArray[i] == "SEEKLEFT" or 
 				  		buttonArray[i] == "SEEKRIGHT" or
 				  		buttonArray[i] == "TUNEUP" or
 				  		buttonArray[i] == "TUNEDOWN" then

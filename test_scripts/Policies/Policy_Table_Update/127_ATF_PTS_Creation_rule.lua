@@ -14,6 +14,8 @@
 -- Expected result:
 -- PTU is requested. PTS is created.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -56,7 +58,7 @@ function Test:TestStep_PTS_Creation_rule()
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" })
       :Do(function(_,data)
         result = testCasesForPolicyTableSnapshot:verify_PTS(true,
-          {config.application1.registerAppInterfaceParams.appID},
+          {config.application1.registerAppInterfaceParams.fullAppID},
           {utils.getDeviceMAC()},
           {hmi_app1_id},
           "print")

@@ -28,7 +28,7 @@ APIName = "OnVehicleData" -- set API name
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 Apps = {}
 Apps[1] = {}
-Apps[1].storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+Apps[1].storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 Apps[1].appName = config.application1.registerAppInterfaceParams.appName 
 
 
@@ -2131,7 +2131,7 @@ end
 		--Precondition: Build policy table file
 		local PermissionLinesForBase4 = PermissionLines_SubscribeVehicleData .. ", \n"
 		local PermissionLinesForGroup1 = PermissionLines_OnVehicleData .. "\n"
-		local appID = config.application1.registerAppInterfaceParams.appID
+		local appID = config.application1.registerAppInterfaceParams.fullAppID
 		local PermissionLinesForApplication = 
 		[[			"]]..appID ..[[" : {
 						"keep_context" : false,

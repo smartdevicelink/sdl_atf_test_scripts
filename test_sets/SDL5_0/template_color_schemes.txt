@@ -1,0 +1,3 @@
+./test_scripts/SDL5_0/TemplateColorSchemes/001_TemplateColorSchemes_setDisplayWithColorsAndNewLayoutSuccess.lua
+./test_scripts/SDL5_0/TemplateColorSchemes/002_TemplateColorSchemes_setDisplayWithColorsRejected.lua
+./test_scripts/SDL5_0/TemplateColorSchemes/003_TemplateColorSchemes_setDisplayWithSameColorsSuccess.lua

@@ -15,6 +15,8 @@
 -- Number and values of the "retry" elements are provided as appropriate elements in
 -- "seconds_between_retries" section of Local PT.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -55,7 +57,7 @@ function Test:TestStep_PTS_Timeout_wait_response_PTU()
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})
       :Do(function(_,_)
         testCasesForPolicyTableSnapshot:verify_PTS(true,
-            {config.application1.registerAppInterfaceParams.appID},
+            {config.application1.registerAppInterfaceParams.fullAppID},
             {utils.getDeviceMAC()},
             {hmi_app_id})
         local seconds_between_retries_pts = testCasesForPolicyTableSnapshot.seconds_between_retries

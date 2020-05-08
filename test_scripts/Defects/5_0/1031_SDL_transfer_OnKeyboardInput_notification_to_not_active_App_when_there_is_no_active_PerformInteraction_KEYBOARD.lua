@@ -20,6 +20,9 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/commonDefects')
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 local requestParams = {
   initialText = "StartPerformInteraction",
@@ -43,11 +46,11 @@ local function ptuForApp(tbl)
     }
   }
   tbl.policy_table.functional_groupings.NewTestCaseGroup = AppGroup
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
   { "Base-4", "NewTestCaseGroup" }
 
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = common.DefaultStruct()
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID].groups =
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID] = common.DefaultStruct()
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID].groups =
   { "Base-4", "NewTestCaseGroup" }
 end
 

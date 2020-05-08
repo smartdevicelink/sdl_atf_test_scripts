@@ -44,8 +44,8 @@ config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
-  pTbl.policy_table.app_policies[common.getConfigAppParams().appID].AppHMIType = { appHMIType }
-  pTbl.policy_table.app_policies[common.getConfigAppParams().appID].groups = { "Base-4", "OnTouchEventOnlyGroup" }
+  pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].AppHMIType = { appHMIType }
+  pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].groups = { "Base-4", "OnTouchEventOnlyGroup" }
 end
 
 local function OnTouchEvent(parameters)

@@ -1,9 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Utils
 ---------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.mobileHost = "127.0.0.1"
-
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local events = require('events')
@@ -15,6 +12,7 @@ local m = {}
 m.timeout = 2000
 
 --[[ Functions ]]
+m.json = json
 
 --[[ @jsonFileToTable: convert .json file to table
 --! @parameters:
@@ -72,41 +70,195 @@ function m.cloneTable(pTbl)
     end
     copy[k] = v
   end
+  if getmetatable(pTbl) ~= nil then
+    setmetatable(copy, getmetatable(pTbl))
+  end
   return copy
 end
 
+-- Get table size on top level
+local function getTableSize(T)
+  local count = 0
+  for _ in pairs(T) do count = count + 1 end
+  return count
+end
+
+--[[ @isTableEqual: check equality of two tables does not taking into account their metatables
+--! @parameters:
+--! pTable1 - table one
+--! pTable2 - table two
+--! @return: boolean which represents equality of two tables
+--]]
+function m.isTableEqual(pTable1, pTable2)
+  -- compare value types
+  local type1 = type(pTable1)
+  local type2 = type(pTable2)
+  if type1 ~= type2 then return false end
+  if type1 ~= 'table' and type2 ~= 'table' then return pTable1 == pTable2 end
+  local size_tab1 = getTableSize(pTable1)
+  local size_tab2 = getTableSize(pTable2)
+  if size_tab1 ~= size_tab2 then return false end
+
+  --compare arrays
+  if json.isArray(pTable1) and json.isArray(pTable2) then
+    local found_element
+    local copy_table2 = m.cloneTable(pTable2)
+    for i, _  in pairs(pTable1) do
+      found_element = false
+      for j, _ in pairs(copy_table2) do
+        if m.isTableEqual(pTable1[i], copy_table2[j]) then
+          copy_table2[j] = nil
+          found_element = true
+          break
+        end
+      end
+      if found_element == false then
+        break
+      end
+    end
+    if getTableSize(copy_table2) == 0 then
+      return true
+    else
+      return false
+    end
+  end
+
+  -- compare tables by elements
+  local already_compared = {} --optimization
+  for _,v1 in pairs(pTable1) do
+    for k2,v2 in pairs(pTable2) do
+      if not already_compared[k2] and m.isTableEqual(v1,v2) then
+        already_compared[k2] = true
+      end
+    end
+  end
+  if size_tab2 ~= getTableSize(already_compared) then
+    return false
+  end
+  return true
+end
+
+--[[ @isTableContains: check whether table contains value
+--! @parameters:
+--! pTable - table
+--! pValue - value
+--! @return: boolean which represents whether table contains value
+--]]
+function m.isTableContains(pTable, pValue)
+  if not pTable then return false end
+  for _,val in pairs(pTable) do
+    if val == pValue then return true end
+  end
+  return false
+end
+
+--- [DEPRECATED]
 --[[ @wait: delay test step for specific timeout
 --! @parameters:
 --! pTimeOut - time to wait in ms
---! @return: none
+--! @return: Expectation object
 --]]
 function m.wait(pTimeOut)
   if not pTimeOut then pTimeOut = m.timeout end
   local event = events.Event()
   event.matches = function(event1, event2) return event1 == event2 end
-  EXPECT_EVENT(event, "Delayed event")
+  local ret = EXPECT_EVENT(event, "Delayed event")
   :Timeout(pTimeOut + 60000)
   RUN_AFTER(function() RAISE_EVENT(event, event) end, pTimeOut)
+  return ret
 end
 
+--- [DEPRECATED]
 --[[ @getDeviceName: provide device name
 --! @parameters: none
 --! @return: name of the device
 --]]
-function m.getDeviceName()
-  return config.mobileHost .. ":" .. config.mobilePort
+function m.getDeviceName(pHost, pPort)
+  if not pHost then pHost = config.mobileHost end
+  if not pPort then pPort = config.mobilePort end
+  if config.defaultMobileAdapterType == "TCP" then
+    local parameters = {
+      host = pHost,
+      port = pPort
+    }
+    return m.buildDeviceName("TCP", parameters)
+  else
+    return m.buildDeviceName("WS")
+  end
 end
 
+--- [DEPRECATED]
 --[[ @getDeviceMAC: provide device MAC address
 --! @parameters: none
 --! @return: MAC address of the device
 --]]
-function m.getDeviceMAC()
-  local cmd = "echo -n " .. m.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-  local handle = io.popen(cmd)
-  local result = handle:read("*a")
-  handle:close()
-  return result
+function m.getDeviceMAC(pHost, pPort)
+  if not pHost then pHost = config.mobileHost end
+  if not pPort then pPort = config.mobilePort end
+  local parameters = nil
+  if config.defaultMobileAdapterType == "TCP" then
+    parameters = { host = pHost, port = pPort }
+  end
+  return m.buildDeviceMAC(config.defaultMobileAdapterType, parameters)
+end
+
+--[[ @buildDeviceName: provide device name
+--! @parameters:
+--! pDeviceType - device type (TCP, WS)
+--! pParams - device specific parameters
+--! TCP:
+--!   host - host of connection
+--!   port - port of connection
+--! WS: none
+--! @return: name of the device
+--]]
+function m.buildDeviceName(pDeviceType, pParams)
+  if pDeviceType == "TCP" then
+    local host = config.mobileHost
+    local port = config.mobilePort
+    if type(pParams) == "table" then
+      host = pParams.host or host
+      port = pParams.port or port
+    end
+    return host .. ":" .. port
+  elseif pDeviceType == "WS" or pDeviceType == "WSS" then
+    return "Web Engine"
+  else
+    m.cprint(35, "Unknown device type " .. tostring(pDeviceType)
+      .. "\n Possible values: TCP, WS, WSS")
+  end
+  return nil
+end
+
+--[[ @buildDeviceMAC: provide device MAC address
+--! @parameters:
+--! pDeviceType - device type (TCP, WS)
+--! pParams - device specific parameters
+--! TCP:
+--!   host - host of connection
+--!   port - port of connection
+--! WS:
+--!   vin - vin of vehicle
+--! @return: MAC address of the device
+--]]
+function m.buildDeviceMAC(pDeviceType, pParams)
+  local function makeHash(pValue)
+    local cmd = "echo -n " .. tostring(pValue) .. " | sha256sum | awk '{printf $1}'"
+    local handle = io.popen(cmd)
+    local result = handle:read("*a")
+    handle:close()
+    return result
+  end
+
+  if pDeviceType == "TCP" then
+    return makeHash(pParams.host .. ":" .. pParams.port)
+  elseif pDeviceType == "WS" or pDeviceType == "WSS" then
+    return makeHash(config.webengineUniqueId)
+  else
+    m.cprint(35, "ERROR: Unknown device type " .. tostring(pDeviceType)
+      .. "\n Possible values: TCP, WS, WSS")
+    return makeHash(nil)
+  end
 end
 
 --[[ @protect: make table immutable
@@ -160,26 +312,30 @@ end
 --! @return: string
 --]]
 function m.tableToString(pTbl)
+  local function toString(v)
+    if type(v) == "string" then
+      return "'" .. tostring(v) .. "'"
+    end
+      return tostring(v)
+  end
+
   local s = ""
   local function tPrint(tbl, level)
-    if not level then level = 0 end
+    local indent = string.rep(" ", level * 4)
+    s = s .. "{\n"
     for k, v in m.spairs(tbl) do
-      local indent = string.rep(" ", level * 4)
-      s = s .. indent .. "[" .. k .. "]: "
+      s = s .. indent .. "[" .. toString(k) .. "]: "
       if type(v) == "table" then
-        s = s .. "{\n"
         tPrint(v, level + 1)
-        s = s .. indent .. "}"
-      elseif type(v) == "string" then
-        s = s .. "'" .. tostring(v) .. "'"
       else
-        s = s .. tostring(v)
+        s = s .. toString(v)
       end
       s = s .. "\n"
     end
+    s = s .. string.rep(" ", (level - 1) * 4) .. "}"
   end
-  tPrint(pTbl)
-  return string.sub(s, 1, string.len(s) - 1)
+  tPrint(pTbl, 1)
+  return string.sub(s, 1, string.len(s))
 end
 
 --[[ @printTable: print table
@@ -203,6 +359,18 @@ function m.printTable(pTbl)
   m.cprintTable(39, pTbl)
 end
 
+--[[ @toString: create string representation for Lua variable
+--! @parameters:
+--! pVar - variable to string
+--! @return: string
+--]]
+function m.toString(pVar)
+  if type(pVar) == "table" then
+    return m.tableToString(pVar)
+  end
+    return tostring(pVar)
+end
+
 --[[ @isFileExist: check if file or directory exists
 --! @parameters:
 --! pFile - path to file or directory
@@ -215,6 +383,48 @@ function m.isFileExist(pFile)
   else
     file:close()
     return true
+  end
+end
+
+--[[ @addNetworkInterface: add network interface for new connection emulation
+--! @parameters:
+--! pId - unique id of connection
+--! pAddress - network address
+--! @return: none
+--]]
+function m.addNetworkInterface(pId, pAddress)
+  if config.remoteConnection.enabled then
+    m.cprint(31, "!!! utils.addNetworkInterface has been not implemented yet !!!")
+  else
+    os.execute("ifconfig lo:" .. pId .." " .. pAddress)
+  end
+end
+
+--[[ @addNetworkInterface: remove network interface
+--! @parameters:
+--! pId - unique id of connection
+--! pAddress - network address
+--! @return: none
+--]]
+function m.deleteNetworkInterface(pId)
+  if config.remoteConnection.enabled then
+    m.cprint(31, "!!! utils.deleteNetworkInterface has been not implemented yet !!!")
+  else
+    os.execute("ifconfig lo:" .. pId .." down")
+  end
+end
+
+--[[ @getDeviceTransportType: provide transport type name
+--! @parameters: none
+--! @return: none
+--]]
+function m.getDeviceTransportType()
+  if config.defaultMobileAdapterType == "TCP" then
+    return "WIFI"
+  elseif config.defaultMobileAdapterType == "WS" then
+    return "WEBENGINE_WEBSOCKET"
+  elseif config.defaultMobileAdapterType == "WSS" then
+    return "WEBENGINE_WEBSOCKET"
   end
 end
 

@@ -18,6 +18,8 @@
 -- PTS is created by SDL:
 -- SDL-> HMI: SDL.PolicyUpdate() //PTU sequence started
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -85,12 +87,17 @@ function Test:Precondition_Activate_App_Consent_Device()
         end)
     end)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data2)
+      self.hmiConnection:SendResponse(data2.id, data2.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
   currentSystemDaysAfterEpoch = getSystemDaysAfterEpoch()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -106,8 +113,7 @@ function Test:Precondition_Update_Policy_With_Exchange_After_X_Days_Value()
             end)
         end)
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:Precondition_ExitApplication()

@@ -98,7 +98,7 @@ local function part1()
 	APIName = "OnExitApplication" -- set API name
 	Apps = {}
 	Apps[1] = {}
-	Apps[1].storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+	Apps[1].storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 	Apps[1].appName = config.application1.registerAppInterfaceParams.appName 
 
 

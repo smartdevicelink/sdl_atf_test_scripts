@@ -16,9 +16,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Variables ]]
 local rpc = {
@@ -34,15 +32,15 @@ local rpc = {
 
 local vehicleDataResults = {
   engineOilLife = {
-    dataType = "VEHICLEDATA_ENGINEOILLIFE", 
+    dataType = "VEHICLEDATA_ENGINEOILLIFE",
     resultCode = "DATA_NOT_SUBSCRIBED"
   },
   fuelRange = {
-    dataType = "VEHICLEDATA_FUELRANGE", 
+    dataType = "VEHICLEDATA_FUELRANGE",
     resultCode = "DATA_NOT_SUBSCRIBED"
   },
   tirePressure = {
-    dataType = "VEHICLEDATA_TIREPRESSURE", 
+    dataType = "VEHICLEDATA_TIREPRESSURE",
     resultCode = "DATA_NOT_SUBSCRIBED"
   },
   electronicParkBrakeStatus = {
@@ -50,32 +48,31 @@ local vehicleDataResults = {
     resultCode = "DATA_NOT_SUBSCRIBED"
   },
   turnSignal = {
-    dataType = "VEHICLEDATA_TURNSIGNAL", 
+    dataType = "VEHICLEDATA_TURNSIGNAL",
     resultCode = "DATA_NOT_SUBSCRIBED"
   }
 }
 
 --[[ Local Functions ]]
-local function processRPCFailure(self)
-  local mobileSession = common.getMobileSession(self, 1)
-  local cid = mobileSession:SendRPC(rpc.name, rpc.params)
-  EXPECT_HMICALL("VehicleInfo." .. rpc.name, rpc.params):Times(0)
-  commonTestCases:DelayedExp(common.timeout)
+local function processRPCFailure()
+  local cid = common.getMobileSession():SendRPC(rpc.name, rpc.params)
+  common.getHMIConnection():ExpectRequest("VehicleInfo." .. rpc.name, rpc.params):Times(0)
   local responseParams = vehicleDataResults
   responseParams.success = false
   responseParams.resultCode = "IGNORED"
-  mobileSession:ExpectResponse(cid, responseParams)
+  common.getMobileSession():ExpectResponse(cid, responseParams)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
-runner.Step("Activate App", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("RAI", common.registerApp)
+common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
+common.Step("Activate App", common.activateApp)
 
-runner.Title("Test")
-runner.Step("RPC " .. rpc.name , processRPCFailure)
+common.Title("Test")
+common.Step("RPC " .. rpc.name , processRPCFailure)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

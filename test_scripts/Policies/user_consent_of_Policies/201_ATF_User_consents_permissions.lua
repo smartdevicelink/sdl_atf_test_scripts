@@ -20,6 +20,8 @@
 -- Expected result:
 -- SDL must notify an application about the current permissions active on HMI via onPermissionsChange() notification
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -214,7 +216,7 @@ function Test:TestStep_trigger_user_request_update_from_HMI()
 end
 
 function Test:TestStep_verify_PermissionConsent()
-  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.DrivingCharacteristics-3")
+  local app_permission = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.DrivingCharacteristics-3")
   if(app_permission ~= true) then
     self:FailTestCase("DrivingCharacteristics-3 is not assigned to application, real: " ..app_permission)
   end

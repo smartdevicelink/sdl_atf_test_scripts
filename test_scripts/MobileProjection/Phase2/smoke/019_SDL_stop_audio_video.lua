@@ -75,7 +75,14 @@ local function expectEndService(pServiceId)
     and data.sessionId == common.getMobileSession().mobile_session_impl.control_services.session.sessionId.get()
     and data.frameInfo == constants.FRAME_INFO.END_SERVICE
   end
-  return common.getMobileSession():ExpectEvent(event, "EndService")
+  local ret = common.getMobileSession():ExpectEvent(event, "EndService")
+  ret:Do(function()
+      common.getMobileSession():Send({
+          frameType = constants.FRAME_TYPE.CONTROL_FRAME,
+          serviceType = pServiceId,
+          frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
+        })
+    end)
 end
 
 local function changeAudioSource()
@@ -89,10 +96,16 @@ local function changeAudioSource()
     videoStreamingState = "NOT_STREAMABLE"
   })
   common.wait(2000)
-  common.getHMIConnection():SendNotification("Navigation.OnAudioDataStreaming", { available = false })
-  common.getHMIConnection():SendNotification("Navigation.OnVideoDataStreaming", { available = false })
-  common.getHMIConnection():SendNotification("Navigation.StopAudioStream", { appID = common.getHMIAppId() })
-  common.getHMIConnection():SendNotification("Navigation.StopStream", { appID = common.getHMIAppId() })
+  common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false }):Times(AtLeast(1))
+  common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = false }):Times(AtLeast(1))
+  common.getHMIConnection():ExpectRequest("Navigation.StopAudioStream", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  common.getHMIConnection():ExpectRequest("Navigation.StopStream", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
   expectEndService(10)
   expectEndService(11)
 end

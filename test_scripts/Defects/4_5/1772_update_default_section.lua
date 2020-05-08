@@ -18,6 +18,32 @@
 local runner = require('user_modules/script_runner')
 local commonDefects = require('test_scripts/Defects/4_5/commonDefects')
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
+--[[ Local Variables ]]
+local gpsDataResponse = {
+  longitudeDegrees = 100,
+  latitudeDegrees = 20,
+  utcYear = 2050,
+  utcMonth = 10,
+  utcDay = 30,
+  utcHours = 20,
+  utcMinutes = 50,
+  utcSeconds = 50,
+  compassDirection = "NORTH",
+  pdop = 5,
+  hdop = 5,
+  vdop = 5,
+  actual = false,
+  satellites = 30,
+  dimension = "2D",
+  altitude = 9500,
+  heading = 350,
+  speed = 450,
+  shifted = true
+}
+
 --[[ Local Functions ]]
 -- Preparation policy table for Policy table update
 -- @tparam table tbl table to update
@@ -37,7 +63,7 @@ local function ptuUpdateFunc(tbl)
   -- for update default permissions with new GetVehicleData RPC
   tbl.policy_table.app_policies.default.groups = { "Base-4", "NewTestCaseGroup" }
   -- written nil in policy_table.app_policies[appID] to make sure that PT has no record with update related to appID
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = nil
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID] = nil
 end
 
 -- Successful processing of GetVehicleData RPC
@@ -45,10 +71,10 @@ local function GetVD(self)
   -- Request from mobile app
   local cid = self.mobileSession1:SendRPC("GetVehicleData", { gps = true })
   -- expectation of VehicleInfo.GetVehicleData request from SDL on HMI side
-  EXPECT_HMICALL("VehicleInfo.GetVehicleData")
+  EXPECT_HMICALL("VehicleInfo.GetVehicleData", { gps = true })
   :Do(function(_, data)
       -- sending VehicleInfo.GetVehicleData response from HMI with resultCode SUCCESS
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {gps = gpsDataResponse})
     end)
   -- expectation of GetVehicleData response on mobile app with resultCode SUCCESS
   self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })

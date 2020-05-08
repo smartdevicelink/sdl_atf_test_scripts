@@ -6,7 +6,7 @@
 local testCasesForImageParameter = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local enumerationParameter = require('user_modules/shared_testcases/testCasesForEnumerationParameterInNotification')
-local storagePath = config.pathToSDL..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"	
+local storagePath = config.pathToSDL..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"	
 ---------------------------------------------------------------------------------------------
 --Test cases to verify Image Parameter
 ---------------------------------------------------------------------------------------------

@@ -5,7 +5,6 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 local module = require('testbase')
 
 --ToDo: shall be removed when APPLINK-16610 is fixed
@@ -34,6 +33,7 @@ local ButtonNames = {
 						"PRESET_8",
 						"PRESET_9",
 						"OK",
+						"PLAY_PAUSE",
 						"SEEKLEFT",
 						"SEEKRIGHT",
 						"TUNEUP",
@@ -414,6 +414,7 @@ stopSDL()
 	--SDLAQ-N_CRS-148: ButtonName
 	--Description: Defines the hard (physical) and soft (touchscreen) buttons available from SYNC
 					--OK
+					--PLAY_PAUSE
 					--SEEKLEFT
 					--SEEKRIGHT
 					--TUNEUP
@@ -458,6 +459,7 @@ stopSDL()
 					button_capability("PRESET_8"),
 					button_capability("PRESET_9"),
 					button_capability("OK", true, false, true),
+					button_capability("PLAY_PAUSE"),
 					button_capability("SEEKLEFT"),
 					button_capability("SEEKRIGHT"),
 					button_capability("TUNEUP"),

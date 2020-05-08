@@ -6,14 +6,15 @@ local actions = require("user_modules/sequences/actions")
 local security = require("user_modules/sequences/security")
 local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local SDL = require("SDL")
 local constants = require("protocol_handler/ford_protocol_constants")
+local events = require("events")
+local json = require("modules/json")
 
 --[[ General configuration parameters ]]
 config.SecurityProtocol = "DTLS"
 config.application1.registerAppInterfaceParams.appName = "server"
-config.application1.registerAppInterfaceParams.appID = "SPT"
+config.application1.registerAppInterfaceParams.fullAppID = "SPT"
 
 --[[ Module ]]
 local m = actions
@@ -47,7 +48,9 @@ local function registerGetSystemTimeResponse()
 end
 
 function m.allowSDL()
-  actions.getHMIConnection():SendNotification("SDL.OnAllowSDLFunctionality", {
+  local event = events.Event()
+  event.matches = function(e1, e2) return e1 == e2 end
+  m.getHMIConnection():SendNotification("SDL.OnAllowSDLFunctionality", {
     allowed = true,
     source = "GUI",
     device = {
@@ -55,11 +58,13 @@ function m.allowSDL()
       name = utils.getDeviceName()
     }
   })
+  RUN_AFTER(function() m.getHMIConnection():RaiseEvent(event, "Allow SDL event") end, 500)
+  return m.getHMIConnection():ExpectEvent(event, "Allow SDL event")
 end
 
 function m.start()
   test:runSDL()
-  commonFunctions:waitForSDLStart(test)
+  SDL.WaitForSDLStart(test)
   :Do(function()
       test:initHMI()
       :Do(function()
@@ -108,64 +113,35 @@ function m.activateAppProtected()
     hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
 end
 
-local function saveFile(pContent, pFileName)
-  local f = io.open(pFileName, "w")
-  f:write(pContent)
-  f:close()
-end
-
-local function getAllCrtsFromPEM(pCrtsFileName)
-  local crts = utils.readFile(pCrtsFileName)
-  local o = {}
-  local i = 1
-  local s = crts:find("-----BEGIN RSA PRIVATE KEY-----", i, true)
-  local _, e = crts:find("-----END RSA PRIVATE KEY-----", i, true)
-  o.key = crts:sub(s, e) .. "\n"
-  for _, v in pairs({ "crt", "rootCA", "issuingCA" }) do
-    i = e
-    s = crts:find("-----BEGIN CERTIFICATE-----", i, true)
-    _, e = crts:find("-----END CERTIFICATE-----", i, true)
-    o[v] = crts:sub(s, e) .. "\n"
-  end
-  return o
-end
-
-local function createCrtHashes()
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  os.execute("cd " .. sdlBin .. " && c_rehash .")
-end
-
-local function updateSDLIniFile()
-  m.setSDLIniParameter("KeyPath", "module_key.pem")
-  m.setSDLIniParameter("CertificatePath", "module_crt.pem")
-end
-
 function m.initSDLCertificates(pCrtsFileName, pIsModuleCrtDefined)
-  if pIsModuleCrtDefined == nil then pIsModuleCrtDefined = true end
-  local allCrts = getAllCrtsFromPEM(pCrtsFileName)
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  saveFile(allCrts.rootCA, sdlBin .. "rootCA.pem")
-  saveFile(allCrts.issuingCA, sdlBin .. "issuingCA.pem")
-  createCrtHashes()
-  if pIsModuleCrtDefined then
-    saveFile(allCrts.key, sdlBin .. "module_key.pem")
-    saveFile(allCrts.crt, sdlBin .. "module_crt.pem")
-  end
-  updateSDLIniFile()
+  SDL.CRT.set(pCrtsFileName, pIsModuleCrtDefined)
 end
 
 function m.cleanUpCertificates()
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  os.execute("cd " .. sdlBin .. " && find . -type l -not -name 'lib*' -exec rm -f {} \\;")
-  os.execute("cd " .. sdlBin .. " && rm -rf *.pem")
+  SDL.CRT.clean()
 end
 
 local preconditionsOrig = m.preconditions
 local postconditionsOrig = m.postconditions
 
-function m.preconditions()
+function m.preloadedPTUpdate(pPTUpdateFunc)
+  local pt = actions.sdl.getPreloadedPT()
+  pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  if pPTUpdateFunc then pPTUpdateFunc(pt) end
+  actions.sdl.setPreloadedPT(pt)
+end
+
+function m.preconditions(pPTUpdateFunc)
   preconditionsOrig()
+  m.setSDLIniParameter("Protocol", "DTLSv1.0")
   m.cleanUpCertificates()
+  if pPTUpdateFunc == nil then
+    pPTUpdateFunc = function(pPT)
+      pPT.policy_table.app_policies["default"].encryption_required = true
+      pPT.policy_table.functional_groupings["Base-4"].encryption_required = true
+    end
+  end
+  m.preloadedPTUpdate(pPTUpdateFunc)
 end
 
 function m.postconditions()
@@ -173,25 +149,29 @@ function m.postconditions()
   m.cleanUpCertificates()
 end
 
-function m.policyTableUpdateSuccess(pPTUpdateFunc)
-  local function expNotificationFunc()
-    m.getHMIConnection():ExpectRequest("BasicCommunication.DecryptCertificate")
-    :Do(function(_, d)
-        m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
-      end)
-    :Times(AnyNumber())
-    m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-  end
-  m.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-  :Do(function(e, d)
-      if e.occurences == 1 then
-        m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
-        m.setPTUTable(utils.jsonFileToTable(d.params.file))
-        m.policyTableUpdate(pPTUpdateFunc, expNotificationFunc)
-      end
+function m.defaultExpNotificationFunc()
+  m.getHMIConnection():ExpectRequest("BasicCommunication.DecryptCertificate")
+  :Do(function(_, d)
+      m.getHMIConnection():SendResponse(d.id, d.method, "SUCCESS", { })
+    utils.wait(1000) -- time for SDL to save certificates
     end)
+  :Times(AnyNumber())
+  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
 end
 
+local policyTableUpdateOrig = m.policyTableUpdate
+function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
+  local func = m.defaultExpNotificationFunc
+  if pExpNotificationFunc then func = pExpNotificationFunc end
+  policyTableUpdateOrig(pPTUpdateFunc, func)
+end
+
+function m.policyTableUpdateSuccess(pPTUpdateFunc)
+  m.isPTUStarted()
+  :Do(function()
+      m.policyTableUpdate(pPTUpdateFunc)
+    end)
+end
 
 local function registerStartSecureServiceFunc(pMobSession)
   function pMobSession.mobile_session_impl.control_services:StartSecureService(pServiceId, pPayload)

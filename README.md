@@ -20,33 +20,6 @@ This repository contains ATF scripts and data to run it.
 |Start/End Service    |  Not Covered  | Planned   |
 |Transport    | Not Covered   |    |
 
-## Start in Auto mode
-### Preconditions:
-For test script automation workstation should be able to build SDL and ATF, also python fabric should be installed.
-To install all dependencies please execute setup_env.sh. Note that it will ask sudo password to install missed software
-Note that internet access should be available. 
-
-```
-./setup_env.sh
-```
-
-### Run all scripts from test_scripts automatically
-
-```
-$ fab -H localhost prepare tests_run
-```
-
-This goals will build all required stuff (SDL, ATF) and execute all scripts.
-Note that this command will execute test scripts not from you local test_scripts directory but from github.
-
-All parameters like an SDL commit, ATF commit, test scripts commit, work, build, source directories may be changed.
-For this purpose you can use you own config
-
-```
-fab -H localhost prepare:custom_config=develop_config.py
-```
-
-
 ## Manual usage:
 
 * [Setup SDL](https://github.com/smartdevicelink/sdl_core).
@@ -60,23 +33,24 @@ fab -H localhost prepare:custom_config=develop_config.py
 * Copy all files from `<sdl_atf_test_scripts>` to `<sdl_atf>` :
 
 ``` cp -r <sdl_atf_test_scripts>/* <sdl_atf>/ ```
-* Place actual HMI_API.xml, MOBILE_API.xml from `<sdl_core>/src/components/interfaces/` to `<sdl_atf>/data/` :
+* Include the path to your local HMI_API.xml, MOBILE_API.xml (ex. `<sdl_core>/src/components/interfaces/`) and the path to your local SDL Core binary (ex. `<sdl_build>/bin/`) in your `<sdl_atf>/modules/config.lua` :
 
 ```
-cp <sdl_core>/src/components/interfaces/HMI_API.xml <sdl_atf>/data/
-cp <sdl_core>/src/components/interfaces/MOBILE_API.xml <sdl_atf>/data/
+--- Define path to SDL binary
+-- Example: "/home/user/sdl_build/bin"
+config.pathToSDL = "/home/user/sdl_build/bin"
+--- Define path to SDL interfaces
+-- Example: "/home/user/sdl_panasonic/src/components/interfaces"
+config.pathToSDLInterfaces = "/home/user/sdl_core/src/components/interfaces"
 ```
 * Run ATF.
 
  _Mandatory options:_
-  * Pass path to sdl binary dir with --sdl-core command line parameter
   * Pass path to test script as first command line parameter
 ```
 cd <sdl_atf>/
-./start.sh --sdl-core=<sdl_core>/build/bin  ./test_scripts/ATF_Speak.lua
+./start.sh ./test_scripts/Smoke/API/021_Speak_PositiveCase_SUCCESS.lua
 ```
-
-__Note, that path to SDL binary dir may be different__
 
 You can get additional help of usage ATF:
 ```

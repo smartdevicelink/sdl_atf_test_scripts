@@ -14,10 +14,10 @@
 -- Expected result:
 -- SDL must check the 'preloaded_date' param in Preloaded PT on IVSU during every start of SDL
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 config.defaultProtocolVersion = 2
 

@@ -16,9 +16,10 @@
 -- Expected result:
 -- SDL must: cut off the invalid value of "RequestType" array
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -131,8 +132,9 @@ end
 function Test:updatePolicyInDifferentSessions(PTName, appName, mobileSession)
 
   local iappID = self.applications[appName]
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
@@ -331,7 +333,7 @@ function Test:updatePolicyInDifferentSessions(PTName, appName, mobileSession)
   end
 
   function Test.Precondition_PreparePTUfile()
-    prepareJsonPTU(config.application1.registerAppInterfaceParams.appID, ptuAppRegistered)
+    prepareJsonPTU(config.application1.registerAppInterfaceParams.fullAppID, ptuAppRegistered)
     TestData:store("Store prepared PTU", ptuAppRegistered, "prepared_ptu.json")
   end
 
@@ -397,7 +399,7 @@ function Test:updatePolicyInDifferentSessions(PTName, appName, mobileSession)
     TestData:store("Store LocalPT after PTU", constructPathToDatabase(), "afterPTU_policy.sqlite" )
     local checks = {
       {
-        query = table.concat({'select request_type from request_type a where application_id = "', config.application1.registerAppInterfaceParams.appID, '"'}),
+        query = table.concat({'select request_type from request_type a where application_id = "', config.application1.registerAppInterfaceParams.fullAppID, '"'}),
         expectedValues = {"TRAFFIC_MESSAGE_CHANNEL", "PROPRIETARY", "QUERY_APPS"}
       }
     }

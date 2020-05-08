@@ -29,6 +29,8 @@
 --
 -- Note: Script is designed for EXTERNAL_PROPRIETARY flow
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
@@ -75,7 +77,7 @@ function Test.UpdatePreloadedPT_Add_section()
     preloadedTable.policy_table.device_data = {
       [utils.getDeviceMAC()] = {
         user_consent_records = {
-          [config.application1.registerAppInterfaceParams.appID] = {
+          [config.application1.registerAppInterfaceParams.fullAppID] = {
             external_consent_status_groups = {
               Location = false
             }

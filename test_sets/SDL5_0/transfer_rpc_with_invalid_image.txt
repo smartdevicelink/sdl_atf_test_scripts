@@ -1,0 +1,15 @@
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/001_AddCommand.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/002_AddSubMenu.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/003_Alert.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/004_CreateInteractionChoiceSet.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/005_PerfomInteraction.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/006_ScrollableMessage.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/007_Show.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/008_ShowConstantTBT.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/009_SendLocation.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/010_SetAppIcon.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/011_UpdateTurnList.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/012_AlertManeuver.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/013_GetWayPoints.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/014_OnWayPointChange.lua
+./test_scripts/SDL5_0/Transfer_RPC_with_invalid_image/015_SetGlobalProperties.lua

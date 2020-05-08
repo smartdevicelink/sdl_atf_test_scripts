@@ -16,7 +16,9 @@
 --[[ Required Shared libraries ]]
 local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local variables for tests ]]
 local climate_button_names = {
@@ -52,49 +54,21 @@ local function reset_radio_params()
     return {moduleType = "RADIO", buttonName = "VOLUME_UP", buttonPressMode = "SHORT"}
 end
 
-local function SendButtonPressPositive(button_press_params, self)
-    local cid = self.mobileSession1:SendRPC("ButtonPress", button_press_params)
-
-    EXPECT_HMICALL("Buttons.ButtonPress", {
-        appID = self.applications["Test Application"],
-        moduleType = button_press_params.moduleType,
-        buttonName = button_press_params.buttonName,
-        buttonPressMode = button_press_params.buttonPressMode
-    })
-    :Times(1)
-    :Do(function(_, data)
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-
-    self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-end
-
-local function SendButtonPressNegative(button_press_params, self)
-    local cid = self.mobileSession1:SendRPC("ButtonPress", button_press_params)
-
-    EXPECT_HMICALL("Buttons.ButtonPress")
-    :Times(0)
-
-    self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-
-    commonTestCases:DelayedExp(commonRC.timeout)
-end
-
 --[[ Positive Scenario - check all positive climate names params]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 for _, button_name_value in pairs( climate_button_names ) do
     local climate_params = reset_climate_params()
     climate_params.buttonPressMode = "SHORT"
     climate_params.buttonName = button_name_value
     runner.Title("Test - ButtonPress with buttonName " .. button_name_value)
-    runner.Step("ButtonPress_CLIMATE_" .. button_name_value .. "_SHORT", SendButtonPressPositive, {climate_params})
+    runner.Step("ButtonPress_CLIMATE_" .. button_name_value .. "_SHORT", commonRC.rpcButtonPress, {climate_params, 1})
     climate_params.buttonPressMode = "LONG"
-    runner.Step("ButtonPress_CLIMATE_" .. button_name_value .. "_LONG", SendButtonPressPositive, {climate_params})
+    runner.Step("ButtonPress_CLIMATE_" .. button_name_value .. "_LONG", commonRC.rpcButtonPress, {climate_params, 1})
 end
 
 --[[ Positive Scenario - check all positive radio names params]]
@@ -103,9 +77,9 @@ for _, button_name_value in pairs( radio_button_names ) do
     radio_params.buttonPressMode = "SHORT"
     radio_params.buttonName = button_name_value
     runner.Title("Test - ButtonPress with buttonName " .. button_name_value)
-    runner.Step("ButtonPress_RADIO_" .. button_name_value .. "_SHORT", SendButtonPressPositive, {radio_params})
+    runner.Step("ButtonPress_RADIO_" .. button_name_value .. "_SHORT", commonRC.rpcButtonPress, {radio_params, 1})
     radio_params.buttonPressMode = "LONG"
-    runner.Step("ButtonPress_RADIO_" .. button_name_value .. "_LONG", SendButtonPressPositive, {radio_params})
+    runner.Step("ButtonPress_RADIO_" .. button_name_value .. "_LONG", commonRC.rpcButtonPress, {radio_params, 1})
 end
 
 --[[ Negative Scenario - invalid value of buttonName in mobile request]]
@@ -114,8 +88,8 @@ local radio_params = reset_radio_params()
 climate_params.buttonName = "invalid_name"
 radio_params.buttonName = "invalid_name"
 runner.Title("Test - negative, invalid value of buttonName in mobile request")
-runner.Step("ButtonPress_CLIMATE", SendButtonPressNegative, {climate_params})
-runner.Step("ButtonPress_RADIO", SendButtonPressNegative, {radio_params})
+runner.Step("ButtonPress_CLIMATE", commonRC.rpcDeniedWithCustomParams, {climate_params, 1, "ButtonPress", "INVALID_DATA"})
+runner.Step("ButtonPress_RADIO", commonRC.rpcDeniedWithCustomParams, {radio_params, 1, "ButtonPress", "INVALID_DATA"})
 climate_params = reset_climate_params()
 radio_params = reset_radio_params()
 
@@ -123,7 +97,7 @@ radio_params = reset_radio_params()
 climate_params.buttonPressMode = "invalid_name"
 radio_params.buttonPressMode = "invalid_name"
 runner.Title("Test - negative, invalid value of buttonPressMode in mobile request")
-runner.Step("ButtonPress_CLIMATE", SendButtonPressNegative, {climate_params})
-runner.Step("ButtonPress_RADIO", SendButtonPressNegative, {radio_params})
+runner.Step("ButtonPress_CLIMATE", commonRC.rpcDeniedWithCustomParams, {climate_params, 1, "ButtonPress", "INVALID_DATA"})
+runner.Step("ButtonPress_RADIO", commonRC.rpcDeniedWithCustomParams, {radio_params, 1, "ButtonPress", "INVALID_DATA"})
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

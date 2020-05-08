@@ -10,7 +10,6 @@ local mobile_session = require('mobile_session')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
 local mobile  = require('mobile_connection')
-local config = require('config')
 local json = require("modules/json")
 local SDL = require('SDL')
 ---------------------------------------------------------------------------------------------
@@ -31,7 +30,7 @@ local utils = require ('user_modules/utils')
 --Set 2 protocol as default for script:
 config.defaultProtocolVersion = 2
 
-local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.appID .. "_" .. tostring(utils.getDeviceMAC()) .. "/")
+local storagePath = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. tostring(config.application1.registerAppInterfaceParams.fullAppID .. "_" .. tostring(utils.getDeviceMAC()) .. "/")
 
 ---------------------------------------------------------------------------------------------
 -------------------------------------Common functions-----------------------------------------

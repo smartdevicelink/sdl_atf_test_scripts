@@ -297,7 +297,7 @@
                         "LIMITED",
                         "NONE"]
                     },
-		"DiagnosticMessage": {
+        "DiagnosticMessage": {
                         "hmi_levels": ["BACKGROUND",
                         "FULL",
                         "LIMITED"]
@@ -2243,23 +2243,24 @@
             }
         },
         "app_policies": {
-	   "0000001": {
-		"keep_context": false,
-		"steal_focus": false,
-		"priority": "NONE",
-		"default_hmi": "NONE",
-		"groups": [
-		  "Base-4", "Notifications", "Location-1"
-		],
-		"RequestType": []
-	      },
+            "0000001": {
+        		"keep_context": false,
+        		"steal_focus": false,
+        		"priority": "NONE",
+        		"default_hmi": "NONE",
+        		"groups": [
+        		  "Base-4", "Notifications", "Location-1"
+        		],
+                "RequestType": []
+            },
             "default": {
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NONE",
                 "default_hmi": "NONE",
                 "groups": ["Base-4"],
-                "RequestType": []
+                "RequestType": [],
+                "RequestSubType": []
             },
             "device": {
                 "keep_context": false,

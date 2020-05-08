@@ -33,6 +33,8 @@
 -- Expected result:
 -- a) PTS has correct values.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -44,6 +46,7 @@ require('cardinalities')
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
+local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 local utils = require ('user_modules/utils')
 require('user_modules/AppTypes')
 
@@ -55,17 +58,21 @@ commonSteps:DeletePolicyTable()
 local pathToSnapshot
 local consentDeviceSystemTimeStamp
 local consentGroupSystemTimeStamp
-local MACHash
-local appID = config.application1.registerAppInterfaceParams["appID"]
+local appID = config.application1.registerAppInterfaceParams["fullAppID"]
 
 --[[ Local Functions ]]
+local function dateToTimeStamp(date)
+  local year, month, day, hour, min, sec = date:match("(%d+)-(%d+)-(%d+)T(%d+):(%d+):(%d+)Z")
+  return os.time({year = year, month = month, day = day, hour = hour, min = min, sec = sec})
+end
+
 local function GetCurrentTimeStampDeviceConsent()
-  consentDeviceSystemTimeStamp = os.date("%Y-%m-%dT%H:%M:%SZ")
+  consentDeviceSystemTimeStamp = os.time()
   return consentDeviceSystemTimeStamp
 end
 
 local function GetCurrentTimeStampGroupConsent()
-  consentGroupSystemTimeStamp = os.date("%Y-%m-%dT%H:%M:%SZ")
+  consentGroupSystemTimeStamp = os.time()
   return consentGroupSystemTimeStamp
 end
 
@@ -87,13 +94,13 @@ local function GetDataFromSnapshot(pathToFile)
   file:close()
   local json = require("modules/json")
   local data = json.decode(json_data)
-  local ucr = data.policy_table.device_data[MACHash].user_consent_records
+  local ucr = data.policy_table.device_data[utils.getDeviceMAC()].user_consent_records
   local res = {
-    deviceConsentTimeStamp = getData(ucr.device, "time_stamp"),
+    deviceConsentTimeStamp = dateToTimeStamp(getData(ucr.device, "time_stamp")),
     deviceInput = getData(ucr.device, "input"),
     deviceGroups = getTableData(ucr.device, "consent_groups"),
     inputOfAppIdConsent = getData(ucr[appID], "input"),
-    groupUserconsentTimeStamp = getData(ucr[appID], "time_stamp"),
+    groupUserconsentTimeStamp = dateToTimeStamp(getData(ucr[appID], "time_stamp")),
     userConsentGroup = getTableData(ucr[appID], "consent_groups")
   }
   return res
@@ -103,21 +110,12 @@ end
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_Get_List_Of_Connected_Devices()
   self.hmiConnection:SendNotification("BasicCommunication.OnStartDeviceDiscovery")
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-
-          name = utils.getDeviceName(),
-          transportType = "WIFI",
-          isSDLAllowed = false
-        }
-      }
-    }
-    ):Do(function(_,data)
-      MACHash = data.params.deviceList[1].id
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
@@ -127,7 +125,7 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
       local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
       EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
-          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = MACHash, name = utils.getDeviceName()}})
+          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
           GetCurrentTimeStampDeviceConsent()
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_,data1)
@@ -139,8 +137,9 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,_)
-      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-      EXPECT_HMIRESPONSE(RequestIdGetURLS)
+      local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
+      EXPECT_HMIRESPONSE(requestId)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -172,9 +171,12 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
                               EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
                               :Do(function(_,_)
                                   local functionalGroupID = data1.result.allowedFunctions[1].id
-                                  self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent",
-                                    { appID = self.applications["Test Application"], source = "GUI", consentedFunctions = {{name = "Location", allowed = true, id = functionalGroupID} }})
-                                  GetCurrentTimeStampGroupConsent()
+                                  local function sendConsent()
+                                    self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent",
+                                      { appID = self.applications["Test Application"], source = "GUI", consentedFunctions = {{name = "Location", allowed = true, id = functionalGroupID} }})
+                                    GetCurrentTimeStampGroupConsent()
+                                  end
+                                  RUN_AFTER(sendConsent, 2000)
                                 end)
                             end)
                         end)
@@ -186,7 +188,7 @@ function Test:Precondition_Activate_App_Consent_Device_Make_PTU_Consent_Group()
             end)
         end)
     end)
-
+  commonTestCases:DelayedExp(4000)
 end
 
 --[[ Test ]]
@@ -208,10 +210,11 @@ function Test:Validate_Snapshot_Values()
       local msg = ""
       local result = true
       for k, v in pairs(verificationValues) do
-        if v ~= valuesFromPTS[k] then
-          if string.len(msg) > 0 then msg = msg .. "\n" end
-          msg = msg .. "Wrong value from snapshot " .. k .. "! Expected: " .. v .. " Actual: " .. tostring(valuesFromPTS[k])
-          result = false
+        if (type(v) == "number" and (valuesFromPTS[k] > v + 1 or valuesFromPTS[k] < v - 1))
+          or (type(v) ~= "number" and v ~= valuesFromPTS[k]) then
+            if string.len(msg) > 0 then msg = msg .. "\n" end
+            msg = msg .. "Wrong value from snapshot " .. k .. "! Expected: " .. v .. " Actual: " .. tostring(valuesFromPTS[k])
+            result = false
         end
       end
       return result, msg

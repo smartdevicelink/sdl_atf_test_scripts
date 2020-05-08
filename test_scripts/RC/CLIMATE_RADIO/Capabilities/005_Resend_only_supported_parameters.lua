@@ -16,45 +16,63 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local common_functions = require('user_modules/shared_testcases/commonTestCases')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local radio_capabilities = {{moduleName = "Radio", radioFrequencyAvailable = true, radioBandAvailable = true}}
-
-local rc_capabilities = commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, radio_capabilities, commonRC.DEFAULT)
+local moduleId = commonRC.getModuleId("RADIO")
+local radio_capabilities = {
+  {
+    moduleName = "Radio",
+    moduleInfo = {moduleId = moduleId},
+    radioFrequencyAvailable = true,
+    radioBandAvailable = true
+  }
+}
+local capParams = {}
+capParams.CLIMATE = commonRC.DEFAULT
+capParams.RADIO = radio_capabilities
+capParams.BUTTONS = commonRC.DEFAULT
+local rc_capabilities = commonRC.buildHmiRcCapabilities(capParams)
 local available_params =
 {
     moduleType = "RADIO",
+    moduleId = moduleId,
     radioControlData = {frequencyInteger = 1, frequencyFraction = 2, band = "AM"}
 }
-local absent_params = {moduleType = "RADIO", radioControlData = {frequencyInteger = 1, frequencyFraction = 2}}
+local absent_params = {
+  moduleType = "RADIO",
+  moduleId = moduleId,
+  radioControlData = {frequencyInteger = 1, frequencyFraction = 2}
+}
 
 --[[ Local Functions ]]
-local function setVehicleData(params, self)
-	local cid = self.mobileSession1:SendRPC("SetInteriorVehicleData", {moduleData = params})
+local function setVehicleData(params)
+  local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {moduleData = params})
 
-	if params.radioControlData.frequencyInteger then
-		EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-            appID = commonRC.getHMIAppId(1),
-			moduleData = params})
-		:Do(function(_, data)
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
-					moduleData = params})
-			end)
-		self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-	else
-		EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
-		self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-        common_functions.DelayedExp(commonRC.timeout)
-	end
+  if params.radioControlData.frequencyInteger then
+    EXPECT_HMICALL("RC.SetInteriorVehicleData", {
+      appID = commonRC.getHMIAppId(1),
+      moduleData = params})
+    :Do(function(_, data)
+        commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+          moduleData = params})
+      end)
+    commonRC.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  else
+    EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
+    commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
+    commonRC.wait(commonRC.timeout)
+  end
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, {rc_capabilities})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate_App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate_App", commonRC.activateApp)
 
 runner.Title("Test")
 for _, module_name in pairs({"CLIMATE", "RADIO"}) do

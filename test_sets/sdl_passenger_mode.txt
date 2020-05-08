@@ -1,0 +1,13 @@
+; Supported Configurations: [Local, Remote]
+./test_scripts/API/SDL_Passenger_Mode/001_OnDD_PT_true.lua
+./test_scripts/API/SDL_Passenger_Mode/002_OnDD_PT_false.lua
+./test_scripts/API/SDL_Passenger_Mode/003_OnDD_PT_missing.lua
+./test_scripts/API/SDL_Passenger_Mode/004_OnDD_PTU_true.lua
+./test_scripts/API/SDL_Passenger_Mode/005_OnDD_PTU_false.lua
+./test_scripts/API/SDL_Passenger_Mode/006_OnDD_PTU_missing.lua
+./test_scripts/API/SDL_Passenger_Mode/007_OnDD_hmiLevel_NONE_to_FULL_DD_OFF.lua
+./test_scripts/API/SDL_Passenger_Mode/008_OnDD_hmiLevel_NONE_to_FULL_DD_ON.lua
+./test_scripts/API/SDL_Passenger_Mode/009_OnDD_PTU_several_apps.lua
+./test_scripts/API/SDL_Passenger_Mode/010_OnDD_PT_another_language_exists.lua
+./test_scripts/API/SDL_Passenger_Mode/011_OnDD_PT_another_language_not_exists.lua
+./test_scripts/API/SDL_Passenger_Mode/012_OnDD_PT_another_language_exists_ChangeRegistration.lua

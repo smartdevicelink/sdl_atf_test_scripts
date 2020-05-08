@@ -17,40 +17,40 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, self)
-  local cid = self.mobileSession1:SendRPC("ButtonPress", {
+local function getDataForModule(pModuleType)
+  local cid = commonRC.getMobileSession():SendRPC("ButtonPress", {
     moduleType = pModuleType,
     buttonName = commonRC.getButtonNameByModule(pModuleType),
     buttonPressMode = "SHORT"
   })
 
   EXPECT_HMICALL("Buttons.ButtonPress", {
-    appID = self.applications["Test Application"],
+    appID = commonRC.getHMIAppId(),
     moduleType = pModuleType,
     buttonName = commonRC.getButtonNameByModule(pModuleType),
     buttonPressMode = "SHORT"
   })
   :Do(function(_, _)
-      self.hmiConnection:Send('{"jsonrpc";"2.0","result":{"cod":0,"method":"Buttons.ButtonPress"},"id":32}')
+      commonRC.getHMIConnection():Send('{"jsonrpc";"2.0","result":{"cod":0,"method":"Buttons.ButtonPress"},"id":32}')
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR"})
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules) do
   runner.Step("ButtonPress " .. mod, getDataForModule, { mod })
 end
 

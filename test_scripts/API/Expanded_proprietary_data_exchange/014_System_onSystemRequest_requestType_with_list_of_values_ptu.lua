@@ -37,7 +37,7 @@ local paramsUnsuccess = {
 
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID].RequestType = { "HTTP", "PROPRIETARY", "OEM_SPECIFIC" }
+	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestType = { "HTTP", "PROPRIETARY", "OEM_SPECIFIC" }
 end
 
 local function policyUpdate()

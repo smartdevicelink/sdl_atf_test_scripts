@@ -24,6 +24,8 @@
 -- Expected:
 -- 3. PoliciesManager increments value of <count_of_removals_for_bad_behavior>
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -124,7 +126,7 @@ end
 function Test:Check_TOO_MANY_REQUESTS_in_DB()
   os.execute("sleep 3")
   local db_path = config.pathToSDL.."storage/policy.sqlite"
-  local sql_query = "SELECT count_of_removals_for_bad_behavior FROM app_level WHERE application_id = '" .. config.application1.registerAppInterfaceParams.appID .. "'"
+  local sql_query = "SELECT count_of_removals_for_bad_behavior FROM app_level WHERE application_id = '" .. config.application1.registerAppInterfaceParams.fullAppID .. "'"
   local exp_result = {"1"}
   if commonFunctions:is_db_contains(db_path, sql_query, exp_result) ==false then
     self:FailTestCase("DB doesn't include expected value")

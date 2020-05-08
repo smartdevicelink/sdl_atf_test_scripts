@@ -23,6 +23,8 @@
 -- Status of response: sucess = false, resultCode = "DISALLOWED"
 
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
@@ -58,12 +60,15 @@ end
 commonFunctions:newTestCasesGroup("Test")
 function Test:RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "ABC Application"
-  config.application2.registerAppInterfaceParams.appID = "456_abc"
+  config.application2.registerAppInterfaceParams.fullAppID = "456_abc"
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "ABC Application" }})
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   self.mobileSession2:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+    end)
 end
 
 function Test:CheckPermissions()

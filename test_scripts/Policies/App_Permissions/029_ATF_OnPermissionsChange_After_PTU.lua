@@ -16,6 +16,8 @@
 -- Expected result:
 -- SDL notify app with new changed permissions via OnPermissionsChange
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -65,8 +67,9 @@ function Test:TestStep_Assign_To_App_Default_Permissions_And_Check_Them_In_OnPer
 end
 
 function Test:TestStep_Update_Policy_With_New_Permissions_And_Check_Them_In_OnPermissionsChange()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {

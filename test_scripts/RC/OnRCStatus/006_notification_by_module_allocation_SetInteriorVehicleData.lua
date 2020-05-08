@@ -19,18 +19,11 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {
-	[1] = {}
-}
-
 --[[ Local Functions ]]
 local function setVehicleData(pModuleType)
-	local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.validateOnRCStatusForApp(1, pModuleStatus)
-	common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]
@@ -42,7 +35,7 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for _, mod in pairs(common.getAllModules()) do
-	runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
+  runner.Step("SetInteriorVehicleData " .. mod, setVehicleData, { mod })
 end
 
 runner.Title("Postconditions")

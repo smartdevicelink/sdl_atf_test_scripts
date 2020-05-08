@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/974_updateDeviceList_after_closingConnection.lua

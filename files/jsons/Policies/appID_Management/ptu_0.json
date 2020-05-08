@@ -4,9 +4,9 @@
             "0000001": "default",
             "123_xyz": {
                 "groups": ["Base-6"],
-				"keep_context": false,
+                "keep_context": false,
                 "steal_focus": false,
-				"default_hmi": "NONE",
+                "default_hmi": "NONE",
                 "priority": "NONE",
                 "nicknames": ["Media Application", "MediaApp"],
                 "RequestType": []
@@ -16,8 +16,9 @@
                 "steal_focus": false,
                 "priority": "NONE",
                 "default_hmi": "NONE",
-                "groups": ["Base-4"],
-                "RequestType": []
+                "groups": ["Base-4"], 
+                "RequestType": [],
+                "RequestSubType": []
             },
             "device": {
                 "keep_context": false,

@@ -19,6 +19,8 @@
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 -- SDL-> HMI: SDL.PolicyUpdate()
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -69,7 +71,7 @@ function Test:TestStep_PTU_AppID_NotListed_PT_WiFi()
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" })
       :Do(function(_,_data1)
         testCasesForPolicyTableSnapshot:verify_PTS(true,
-        {config.application1.registerAppInterfaceParams.appID, config.application1.registerAppInterfaceParams.appID},
+        {config.application1.registerAppInterfaceParams.fullAppID, config.application1.registerAppInterfaceParams.fullAppID},
         {utils.getDeviceMAC()},
         {hmi_app_id1, hmi_app_id2})
 

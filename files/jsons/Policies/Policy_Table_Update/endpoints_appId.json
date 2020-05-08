@@ -14,7 +14,7 @@
             "endpoints": {
                 "0x07": {
                     "default": ["http://policies.telematics.ford.com/api/policies"],
-		    "0000001": ["http://policies.telematics.ford.com/api/test_apllication"]
+            "0000001": ["http://policies.telematics.ford.com/api/test_apllication"]
                 },
                 "0x04": {
                     "default": ["http://ivsu.software.ford.com/api/getsoftwareupdates"]
@@ -2247,7 +2247,8 @@
                 "priority": "NONE",
                 "default_hmi": "NONE",
                 "groups": ["Base-4"],
-                "RequestType": []
+                "RequestType": [],
+                "RequestSubType": []
             },
             "device": {
                 "keep_context": false,

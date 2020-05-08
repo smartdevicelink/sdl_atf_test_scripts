@@ -1102,7 +1102,7 @@ function Test:PrecondCheckAppInfoDat(...)
   repeat
 	Timeout = Timeout - 1
     --do
-    --if IsStringInAppInfoDat("appID\" : " .. "\"" .. config.application1.registerAppInterfaceParams.appID) then
+    --if IsStringInAppInfoDat("appID\" : " .. "\"" .. config.application1.registerAppInterfaceParams.fullAppID) then
 	if IsStringInAppInfoDat("appID\" : " .. "\"" .. applicationData.mediaApp.appID) then
 	
       cond = false
@@ -1139,7 +1139,7 @@ end
 
 function Test:CheckAppInfoDatAfterUHR(...)
   -- body
-  if IsStringInAppInfoDat("appID\" : " .. "\"" .. config.application1.registerAppInterfaceParams.appID) then
+  if IsStringInAppInfoDat("appID\" : " .. "\"" .. config.application1.registerAppInterfaceParams.fullAppID) then
     self:FailTestCase("App's data is present")
   end
 end

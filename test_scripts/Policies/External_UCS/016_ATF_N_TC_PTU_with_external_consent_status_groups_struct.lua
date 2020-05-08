@@ -24,6 +24,8 @@
 --
 -- Note: Script is designed for EXTERNAL_PROPRIETARY flow
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -34,7 +36,7 @@ local testCasesForExternalUCS = require('user_modules/shared_testcases/testCases
 local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
-local appId = config.application1.registerAppInterfaceParams.appID
+local appId = config.application1.registerAppInterfaceParams.fullAppID
 local grpId = "Location"
 local checkedStatus = "UPDATE_NEEDED"
 local checkedSection = "external_consent_status_groups"
@@ -92,12 +94,8 @@ function Test.RemovePTS()
   testCasesForExternalUCS.removePTS()
 end
 
-function Test:StartSession_2()
-  testCasesForExternalUCS.startSession(self, 2)
-end
-
-function Test:RAI_2()
-  testCasesForExternalUCS.registerApp(self, 2)
+function Test:CreateNewPTS()
+  self.hmiConnection:SendNotification("SDL.OnPolicyUpdate")
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_, d) testCasesForExternalUCS.pts = testCasesForExternalUCS.createTableFromJsonFile(d.params.file) end)
 end

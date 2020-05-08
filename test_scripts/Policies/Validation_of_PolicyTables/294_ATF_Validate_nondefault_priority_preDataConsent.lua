@@ -17,6 +17,8 @@
 -- Expected result:
 -- PoliciesManager must not provide to HMI the app`s priority value
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -48,19 +50,12 @@ end
 function Test:Precondition_Connect_device()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 --[[ Test ]]
@@ -94,7 +89,7 @@ function Test:TestStep2_Priority_NORMAL_ActivateApp()
 end
 
 function Test:Precondition_Check_priority_pre_DataConsent()
-  local app_group_table = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", "select functional_group_id from app_group where application_id = '"..config.application1.registerAppInterfaceParams.appID.."'")
+  local app_group_table = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", "select functional_group_id from app_group where application_id = '"..config.application1.registerAppInterfaceParams.fullAppID.."'")
   local app_group
   for _,value in pairs(app_group_table) do
     app_group = value
@@ -105,7 +100,7 @@ function Test:Precondition_Check_priority_pre_DataConsent()
     self:FailTestCase("Application is not assigned to pre_DataConsent. Real: "..app_group)
   end
 
-  local priority_id_table = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", "select priority_value from application where id = '"..config.application1.registerAppInterfaceParams.appID.."'")
+  local priority_id_table = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", "select priority_value from application where id = '"..config.application1.registerAppInterfaceParams.fullAppID.."'")
   local priority_id
   for _, value in pairs(priority_id_table) do
     priority_id = value
@@ -115,7 +110,7 @@ function Test:Precondition_Check_priority_pre_DataConsent()
     self:FailTestCase("Priority for pre_DataConsent is not NORMAL. Real: "..priority_id)
   end
 
-  local is_predata_table = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", "select is_predata from application where id = '"..config.application1.registerAppInterfaceParams.appID.."'")
+  local is_predata_table = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", "select is_predata from application where id = '"..config.application1.registerAppInterfaceParams.fullAppID.."'")
   local is_predata
   for _,value in pairs(is_predata_table) do
     is_predata = value

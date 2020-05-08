@@ -14,6 +14,8 @@
 -- Expected result:
 -- Policy Manager must clear all user consent records in "user_consent_records" section of the LocalPT, other content of the LocalPT must be unchanged
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
@@ -26,6 +28,7 @@ local testCasesForPolicyTable = require ('user_modules/shared_testcases/testCase
 local mobile_session = require('mobile_session')
 local sdl = require('SDL')
 local utils = require ('user_modules/utils')
+local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 
 --[[ Local Functions ]]
 
@@ -33,7 +36,7 @@ local function ReplacePreloadedFile()
   os.execute('cp ' .. config.pathToSDL .. 'sdl_preloaded_pt.json' .. ' ' .. config.pathToSDL .. 'backup_sdl_preloaded_pt.json')
   --os.execute('cp -f ' .. 'files/jsons/Policy/Related_HMI_API/OnAppPermissionConsent.json' .. ' ' .. config.pathToSDL .. 'sdl_preloaded_pt.json')
   os.execute('cp files/jsons/Policies/Related_HMI_API/OnAppPermissionConsent.json ' .. config.pathToSDL .. 'sdl_preloaded_pt.json')
-  os.execute('rm ' .. config.pathToSDL .. 'policy.sqlite')
+  os.execute('rm ' .. config.pathToSDL .. 'storage/policy.sqlite')
 end
 
 local function RestorePreloadedPT()
@@ -42,15 +45,14 @@ local function RestorePreloadedPT()
 end
 
 local function FACTORY_DEFAULTS(self)--, appNumber)
-  -- if appNumber == nil then
-  -- appNumber = 1
-  -- end
   self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
     {
       reason = "FACTORY_DEFAULTS"
     })
-  --EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose", {})
-  --DelayedExp(1000)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered")
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
+  EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+  commonTestCases:DelayedExp(5000)
 end
 
 --[[ General preconditions before ATF start]]
@@ -118,10 +120,6 @@ end
 
 function Test:Precondition_Execute_Factory_reset()
   FACTORY_DEFAULTS(self)
-end
-
-function Test.Precondition_Wait_SDL_stop()
-  os.execute("sleep 15")
 end
 
 --TODO(istoimenova): Remove when "[ATF] ATF stops execution of scripts at IGNITION_OFF." is resolved.
@@ -217,8 +215,8 @@ function Test:Check_no_user_consent_records_in_PT()
     self:FailTestCase(config.pathToSDL .."sdl_preloaded_pt.json ".."is not created")
   else
     testCasesForPolicyTableSnapshot:extract_pts({self.applications[config.application1.registerAppInterfaceParams.appName]})
-    local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
-    local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
+    local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.Location-1")
+    local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.Notifications")
 
     if(app_consent_location == true) then
       commonFunctions:printError("Error: user_consent_records.consent_groups.Location was not reset in LPT")

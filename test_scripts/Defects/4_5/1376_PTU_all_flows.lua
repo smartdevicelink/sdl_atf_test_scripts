@@ -10,6 +10,8 @@ local json = require("modules/json")
 local atf_logger = require("atf_logger")
 local sdl = require("SDL")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local utils = require ('user_modules/utils')
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ General configuration parameters ]]
 config.mobileHost = "127.0.0.1"
@@ -34,25 +36,16 @@ end
 
 -- Allow device from HMI
 local function allowSDL(self)
-  local function getDeviceName()
-    return config.mobileHost .. ":" .. config.mobilePort
-  end
-  local function getDeviceMAC()
-    local cmd = "echo -n " .. getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-    local handle = io.popen(cmd)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-  end
   -- sending notification OnAllowSDLFunctionality from HMI to allow connected device
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
     allowed = true,
     source = "GUI",
     device = {
-      id = getDeviceMAC(),
-      name = getDeviceName()
+      id = utils.getDeviceMAC(),
+      name = utils.getDeviceName()
     }
   })
+  commonTestCases:DelayedExp(500)
 end
 
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP
@@ -114,16 +107,18 @@ local function getPTUFromPTS(ptu)
   -- remove preloaded_date
   ptu.policy_table.module_config.preloaded_date = nil
   -- Create structure in app_policies related to registered application
-  ptu.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID] = {
+  ptu.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID] = {
     keep_context = false,
     steal_focus = false,
     priority = "NONE",
     default_hmi = "NONE"
   }
   -- Added permissions for registered app from "Base-4", "Base-6" groups
-  ptu.policy_table.app_policies[config.application1.registerAppInterfaceParams.appID]["groups"] = {
+  ptu.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID]["groups"] = {
     "Base-4", "Base-6"
   }
+  -- remove vehicle_data
+  ptu.policy_table.vehicle_data = nil
 end
 
 -- Save created PT in file
@@ -164,14 +159,15 @@ local function ptuProprietary(ptu_table, self, pFlow)
   .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   -- create ptu_file_name as tmp file
   local ptu_file_name = os.tmpname()
-  -- Send GetURLS request from HMI to SDL with service 7
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  log("HMI->SDL: RQ: SDL.GetURLS")
-  -- Expect response GetURLS on HMI side
+  -- Send GetPolicyConfigurationData request from HMI to SDL
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  log("HMI->SDL: RQ: SDL.GetPolicyConfigurationData")
+  -- Expect response GetPolicyConfigurationData on HMI side
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
-      log("SDL->HMI: RS: SDL.GetURLS")
-      -- After receiving GetURLS response send OnSystemRequest notification from HMI
+      log("SDL->HMI: RS: SDL.GetPolicyConfigurationData")
+      -- After receiving GetPolicyConfigurationData response send OnSystemRequest notification from HMI
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = pts_file_name })
       log("HMI->SDL: N: BC.OnSystemRequest")
@@ -269,6 +265,10 @@ local function raiPTU(self)
         { application = { appName = config.application1.registerAppInterfaceParams.appName } })
       :Do(function()
           log("SDL->HMI: N: BC.OnAppRegistered")
+        end)
+      -- Expect RegisterAppInterface response on mobile side with resultCode SUCCESS
+      self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
           if sdl.buildOptions.extendedPolicy == "PROPRIETARY"
           or sdl.buildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" then
             -- Expect PolicyUpdate request on HMI side
@@ -309,10 +309,6 @@ local function raiPTU(self)
               end)
             :Times(2)
           end
-        end)
-      -- Expect RegisterAppInterface response on mobile side with resultCode SUCCESS
-      self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-      :Do(function()
           log("SDL->MOB: RS: RegisterAppInterface")
           -- Expect OnHMIStatus with hmiLevel NONE on mobile side form SDL
           self.mobileSession:ExpectNotification("OnHMIStatus",

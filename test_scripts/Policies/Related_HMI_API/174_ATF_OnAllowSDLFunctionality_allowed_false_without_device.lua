@@ -10,6 +10,8 @@
 -- In case PoliciesManager receives SDL.OnAllowSDLFunctionality with 'allowed=false' and without 'device' param from HMI, PoliciesManager must record
 -- all of currently registered devices as NOT consented in Local PT ("device_data" - > "<device_id_1>", "<device_id_2>", etc. - >"user_consent_records"- > "device" sub-section).
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

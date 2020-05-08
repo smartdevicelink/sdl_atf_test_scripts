@@ -14,7 +14,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -35,7 +35,7 @@ local function stepSuccessfull(pModuleType, pResultCode)
 		moduleData = commonRC.getSettableModuleControlData(pModuleType)
 	})
 	:Do(function(_, data)
-			commonRC.getHMIconnection():SendResponse(data.id, data.method, pResultCode, {
+			commonRC.getHMIConnection():SendResponse(data.id, data.method, pResultCode, {
 				moduleData = commonRC.getSettableModuleControlData(pModuleType)
 			})
 		end)
@@ -55,7 +55,7 @@ local function stepUnsuccessfull(pModuleType, pResultCode)
     moduleData = commonRC.getSettableModuleControlData(pModuleType)
   })
   :Do(function(_, data)
-      commonRC.getHMIconnection():SendError(data.id, data.method, pResultCode, "Error error")
+      commonRC.getHMIConnection():SendError(data.id, data.method, pResultCode, "Error error")
     end)
 
   mobileSession:ExpectResponse(cid, { success = false, resultCode = pResultCode })
@@ -65,8 +65,8 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 for _, code in pairs(success_codes) do

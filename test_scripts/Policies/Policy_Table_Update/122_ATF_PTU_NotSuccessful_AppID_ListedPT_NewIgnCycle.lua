@@ -20,6 +20,8 @@
 -- PTU is requested. PTS is created.
 -- SDL-> HMI: SDL.PolicyUpdate()
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -72,7 +74,7 @@ function Test:Precondition_RegisterNewApplication()
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{ file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" })
       :Do(function(_,_data3)
           testCasesForPolicyTableSnapshot:verify_PTS(true,
-            {config.application1.registerAppInterfaceParams.appID, config.application2.registerAppInterfaceParams.appID},
+            {config.application1.registerAppInterfaceParams.fullAppID, config.application2.registerAppInterfaceParams.fullAppID},
             {utils.getDeviceMAC()},
             {hmi_app_id1, hmi_app_id2})
 
@@ -144,7 +146,7 @@ function Test:TestStep_PTU_NotSuccessful_AppID_ListedPT_NewIgnCycle()
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json" })
       :Do(function(_,_data4)
           testCasesForPolicyTableSnapshot:verify_PTS(true,
-            {config.application1.registerAppInterfaceParams.appID, config.application2.registerAppInterfaceParams.appID},
+            {config.application1.registerAppInterfaceParams.fullAppID, config.application2.registerAppInterfaceParams.fullAppID},
             {utils.getDeviceMAC()},
             {hmi_app_id1, hmi_app_id2})
 

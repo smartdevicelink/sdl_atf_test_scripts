@@ -29,7 +29,7 @@ config.application3.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 -- [[ Local Functions]]
 local function registerAppOnRCStatusAllowFalse(pAppId)
-  common.rai_n(pAppId)
+  common.registerAppWOPTU(pAppId)
   common.getMobileSession(pAppId):ExpectNotification("OnRCStatus",
 	{ allowed = false, freeModules = {}, allocatedModules = {} })
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
@@ -45,7 +45,7 @@ local function registerRCapp()
 end
 
 local function disableRCFromHMI()
-  common.getHMIconnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
+  common.getHMIConnection():SendNotification("RC.OnRemoteControlSettings", { allowed = false })
   common.wait(2000)
 end
 

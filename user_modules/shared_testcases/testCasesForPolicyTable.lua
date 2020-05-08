@@ -304,13 +304,14 @@ function testCasesForPolicyTable:updatePolicy(PTName, iappID)
       iappID = self.applications[config.application1.registerAppInterfaceParams.appName]
     end
 
-    --hmi side: sending SDL.GetURLS request
-    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    --hmi side: sending SDL.GetPolicyConfigurationData request
+    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
 
-    --hmi side: expect SDL.GetURLS response from HMI
+    --hmi side: expect SDL.GetPolicyConfigurationData response from HMI
     EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
-        --print("SDL.GetURLS response is received")
+        --print("SDL.GetPolicyConfigurationData response is received")
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
         self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
           {
@@ -404,10 +405,11 @@ end
 --! @param mobile_session - session with registered app
 function testCasesForPolicyTable:updatePolicyInDifferentSessions(self, PTName, appName, mobile_session)
     local iappID = self.applications[appName]
-    --hmi side: sending SDL.GetURLS request
-    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    --hmi side: sending SDL.GetPolicyConfigurationData request
+    local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
 
-    --hmi side: expect SDL.GetURLS response from HMI
+    --hmi side: expect SDL.GetPolicyConfigurationData response from HMI
     EXPECT_HMIRESPONSE(RequestIdGetURLS)
     :Do(function(_,_)
         --hmi side: sending BasicCommunication.OnSystemRequest request to SDL
@@ -900,7 +902,7 @@ end
 -- Difference with PROPRIETARY flow is clarified in "Can you clarify is PTU flows for External_Proprietary and Proprietary have differences?"
 -- But this should be checked in appropriate scripts
 function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id, device_id, hmi_app_id, ptu_file_path, ptu_file_name, ptu_file)
-  if (app_id == nil) then app_id = config.application1.registerAppInterfaceParams.appID end
+  if (app_id == nil) then app_id = config.application1.registerAppInterfaceParams.fullAppID end
   if (device_id == nil) then device_id = utils.getDeviceMAC() end
   if (hmi_app_id == nil) then hmi_app_id = self.applications[config.application1.registerAppInterfaceParams.appName] end
   if (ptu_file_path == nil) then ptu_file_path = "files/" end
@@ -911,7 +913,7 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
 
   -- Check SDL snapshot is created correctly and get needed data
-  testCasesForPolicyTableSnapshot:verify_PTS(true, {app_id}, {device_id}, {hmi_app_id})
+  -- testCasesForPolicyTableSnapshot:verify_PTS(true, {app_id}, {device_id}, {hmi_app_id})
 
   local endpoints = {}
   for i = 1, #testCasesForPolicyTableSnapshot.pts_endpoints do
@@ -921,14 +923,17 @@ function testCasesForPolicyTable:flow_SUCCEESS_EXTERNAL_PROPRIETARY(self, app_id
   end
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :ValidIf(function(e, d)
-      if e.occurences == 1 and d.params.status == "UPDATING" then return true end
-      if e.occurences == 2 and d.params.status == "UP_TO_DATE" then return true end
+      if e.occurences == 1 and d.params.status == "UP_TO_DATE" then return true end
       local msg = table.concat({"Unexpected occurence '", e.occurences, "' of SDL.OnStatusUpdate with status '", d.params.status, "'"})
       return false, msg
     end)
-  :Times(2)
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetURLS", urls = endpoints} } )
+  :Times(1)
+  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(RequestId_GetUrls,{result = {code = 0, method = "SDL.GetPolicyConfigurationData" } } )
+  :ValidIf(function(_,data)
+      return commonFunctions:validateUrls(commonFunctions:getUrlsTableFromPtFile(), data)
+    end)
   :Do(function(_,_)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
     { requestType = "PROPRIETARY", fileName = SystemFilesPath .. pts_file_name})
@@ -963,13 +968,13 @@ function testCasesForPolicyTable:trigger_user_request_update_from_HMI(self)
 
   testCasesForPolicyTable.time_trigger = timestamp()
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
   :Do(function(_,_) testCasesForPolicyTable.time_onstatusupdate = timestamp() end)
 
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", { file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function(_,data)
     testCasesForPolicyTableSnapshot:verify_PTS(true,
-    {config.application1.registerAppInterfaceParams.appID },
+    {config.application1.registerAppInterfaceParams.fullAppID },
     {utils.getDeviceMAC()},
     {hmi_app1_id})
 
@@ -1024,7 +1029,7 @@ function testCasesForPolicyTable:trigger_getting_device_consent(self, app_name, 
     EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
     :Do(function(_,data)
       testCasesForPolicyTableSnapshot:verify_PTS(true,
-      {config.application1.registerAppInterfaceParams.appID },
+      {config.application1.registerAppInterfaceParams.fullAppID },
       {utils.getDeviceMAC()},
       {hmi_app1_id})
 
@@ -1047,10 +1052,10 @@ function testCasesForPolicyTable:trigger_getting_device_consent(self, app_name, 
 
       testCasesForPolicyTable.time_policyupdate = timestamp()
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
     end)
   end)
-
-  EXPECT_HMICALL("BasicCommunication.ActivateApp")
+  EXPECT_HMICALL("BasicCommunication.ActivateApp"):Times(Between(0,1))
   :Do(function(_,data) self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {}) end)
 
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
@@ -1079,7 +1084,7 @@ function testCasesForPolicyTable:trigger_PTU_user_press_button_HMI(self, execute
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
   :Do(function(_,data)
     testCasesForPolicyTableSnapshot:verify_PTS(true,
-      {config.application1.registerAppInterfaceParams.appID },
+      {config.application1.registerAppInterfaceParams.fullAppID },
       {utils.getDeviceMAC()},
       {hmi_app1_id})
 

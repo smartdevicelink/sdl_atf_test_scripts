@@ -18,6 +18,9 @@ local mobile_session = require("mobile_session")
 local common = require('test_scripts/Defects/4_5/commonDefects')
 local sdl = require('SDL')
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 
 --[[ Local Functions ]]

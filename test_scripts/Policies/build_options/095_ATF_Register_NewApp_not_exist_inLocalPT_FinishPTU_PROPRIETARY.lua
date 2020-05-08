@@ -19,6 +19,8 @@
 -- 3. SDL replaces the following sections of the Local Policy Table with the corresponding sections from PTU: module_config, functional_groupings, app_policies
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -65,8 +67,9 @@ Test = require('connecttest')
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_PolicyUpdateStarted_ForDefaultApplication()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
@@ -116,7 +119,13 @@ function Test:TestStep_PolicyUpdateFinished_ForDefaultApplication()
 
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(3)
 
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+      end)
+
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
 
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()

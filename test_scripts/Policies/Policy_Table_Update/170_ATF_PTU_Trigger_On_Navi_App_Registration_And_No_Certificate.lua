@@ -17,6 +17,8 @@
 -- Expected result:
 -- a) SDL send SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -55,8 +57,9 @@ function Test:Precondition_Activate_App_And_Consent_Device()
 end
 
 function Test:Precondition_UpdatePolicyWithPTU()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

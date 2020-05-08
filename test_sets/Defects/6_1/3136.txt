@@ -1,0 +1,11 @@
+./test_scripts/Defects/6_1/3136_01_Proprietary.lua
+./test_scripts/Defects/6_1/3136_02_External_Proprietary.lua
+./test_scripts/Defects/6_1/3136_03_Http.lua
+./test_scripts/Defects/6_1/3136_04_Proprietary_3apps.lua
+./test_scripts/Defects/6_1/3136_05_External_Proprietary_3apps.lua
+./test_scripts/Defects/6_1/3136_06_Http_3apps.lua
+./test_scripts/TheSameApp/Policies/AppId/001_PTU_is_not_triggered_after_registration_app_with_the_same_id.lua
+./test_scripts/TheSameApp/Policies/AppId/002_PTU_is_triggered_after_registration_app_with_different_app_id.lua
+./test_scripts/TheSameApp/Policies/AppId/003_PTU_is_not_triggered_after_registration_app_with_the_same_id_after_PTU.lua
+./test_scripts/TheSameApp/Policies/AppId/004_PTU_is_triggered_after_registration_app_with_different_app_id_after_PTU.lua
+./test_scripts/TheSameApp/Policies/AppId/005_PTU_is_not_triggered_after_registration_app_with_different_app_id_during_timeout.lua

@@ -19,6 +19,8 @@
 -- 3. SDL replaces the following sections of the Local Policy Table with the corresponding sections from PTU: module_config, functional_groupings, app_policies
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -69,19 +71,18 @@ function Test:Precondition_trigger_getting_device_consent()
 end
 
 function Test:Precondition_PolicyUpdateStarted()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
-  :Do(function(_, data)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
+  :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {
           requestType = "PROPRIETARY",
-          url = data.result.urls[1].url,
           appID = self.applications [config.application1.registerAppInterfaceParams.appName],
           fileName = "sdl_snapshot.json"
         })
   end)
   EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY" })
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"})
 end
 
 function Test:Precondition_OpenNewSession()
@@ -100,8 +101,8 @@ end
 
 function Test:TestStep_FinishPTU_ForAppId1()
   local SystemFilesPath = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
-  local CorIdSystemRequest = self.mobileSession:SendRPC ("SystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = config.application1.registerAppInterfaceParams.appID },
-    "files/jsons/Policies/Policy_Table_Update/ptu.json")
+  local CorIdSystemRequest = self.mobileSession:SendRPC ("SystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = config.application1.registerAppInterfaceParams.fullAppID },
+    "files/jsons/Policies/Policy_Table_Update/ptu_without_preloaded.json")
 
   EXPECT_HMICALL("BasicCommunication.SystemRequest")
   :Do(function(_,data)
@@ -115,7 +116,7 @@ function Test:TestStep_FinishPTU_ForAppId1()
         })
     end)
   --PTU is restarted because of trigger new application added.
-  :Do(function(_,_) EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}) end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"}):Times(2)
 end
 
 function Test:TestStep_CheckThatAppID_BothApps_Present_In_DataBase()
@@ -123,7 +124,7 @@ function Test:TestStep_CheckThatAppID_BothApps_Present_In_DataBase()
   local PolicyDBPath = tostring(config.pathToSDL) .. "/storage/policy.sqlite"
   os.execute(" sleep 2 ")
 
-  local query = " select functional_group_id from app_group where application_id = '"..tostring(config.application1.registerAppInterfaceParams.appID).."' "
+  local query = " select functional_group_id from app_group where application_id = '"..tostring(config.application1.registerAppInterfaceParams.fullAppID).."' "
   local AppId_1 = commonFunctions:get_data_policy_sql(PolicyDBPath, query)
   local AppIdValue_1
   for _,v in pairs(AppId_1) do
@@ -131,12 +132,12 @@ function Test:TestStep_CheckThatAppID_BothApps_Present_In_DataBase()
   end
 
   if AppIdValue_1 == nil then
-    commonFunctions:printError("ERROR: Value in DB for app: "..tostring(config.application1.registerAppInterfaceParams.appID).."is unexpected value nil")
+    commonFunctions:printError("ERROR: Value in DB for app: "..tostring(config.application1.registerAppInterfaceParams.fullAppID).."is unexpected value nil")
     is_test_fail = true
   else
     -- default group
     if(AppIdValue_1 ~= "686787169") then
-      commonFunctions:printError("ERROR: Application: "..tostring(config.application1.registerAppInterfaceParams.appID).."is not assigned to default group(686787169). Real: "..AppIdValue_1)
+      commonFunctions:printError("ERROR: Application: "..tostring(config.application1.registerAppInterfaceParams.fullAppID).."is not assigned to default group(686787169). Real: "..AppIdValue_1)
       is_test_fail = true
     end
   end

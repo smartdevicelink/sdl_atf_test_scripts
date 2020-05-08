@@ -23,16 +23,18 @@
 -- 9. HMI->SDL: OnAppPermissionConsent {params}
 -- 10. PoliciesManager: update "<appID>" subsection of "user_consent_records" subsection of "<device_identifier>" section of "device_data" section in Local PT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
+local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
 local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
-testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("files/jsons/Policies/Related_HMI_API/OnAppPermissionConsent.json")
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -41,8 +43,13 @@ require('user_modules/AppTypes')
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
+
 function Test:Precondition_trigger_getting_device_consent()
   testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
+end
+
+function Test:UpdatePolicy()
+  testCasesForPolicyAppIdManagament:updatePolicyTable(self, "files/jsons/Policies/Related_HMI_API/OnAppPermissionConsent_ptu.json")
 end
 
 function Test:Precondition_ExitApplication()
@@ -64,7 +71,7 @@ function Test:TestStep_User_consent_on_activate_app()
       EXPECT_HMIRESPONSE( RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
 
-          local request_id_list_of_permissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", { appID = self.applications[config.application1.registerAppInterfaceParams.appName] })
+          local request_id_list_of_permissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", { appID = nil })
           EXPECT_HMIRESPONSE(request_id_list_of_permissions)
           :Do(function(_,data)
               local groups = {}
@@ -80,7 +87,7 @@ function Test:TestStep_User_consent_on_activate_app()
               self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", {
                 consentedFunctions = groups,
                 source = "GUI",
-                appID = self.applications[config.application1.registerAppInterfaceParams.appName]
+                appID = nil
               })
               EXPECT_NOTIFICATION("OnPermissionsChange")
             end)
@@ -91,6 +98,7 @@ function Test:TestStep_User_consent_on_activate_app()
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
 end
 
+
 function Test:TestStep_check_LocalPT_for_updates()
   local RequestId = self.hmiConnection:SendRequest("SDL.UpdateSDL", {} )
   EXPECT_HMIRESPONSE(RequestId, { result = { result = "UPDATE_NEEDED" }})
@@ -98,8 +106,8 @@ function Test:TestStep_check_LocalPT_for_updates()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})
   :Do(function(_,data)
       local is_test_fail = false
-      local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Location-1")
-      local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.appID..".consent_groups.Notifications")
+      local app_consent_location = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.Location-1")
+      local app_consent_notifications = testCasesForPolicyTableSnapshot:get_data_from_PTS("device_data."..utils.getDeviceMAC()..".user_consent_records."..config.application1.registerAppInterfaceParams.fullAppID..".consent_groups.Notifications")
 
       if(app_consent_location ~= true) then
         commonFunctions:printError("Error: consent_groups.Location function for appID should be true")
@@ -118,9 +126,9 @@ function Test:TestStep_check_LocalPT_for_updates()
     end)
 end
 
+
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")
-testCasesForPolicyTable:Restore_preloaded_pt()
 function Test.Postcondition_Stop()
   StopSDL()
 end

@@ -20,6 +20,8 @@
 -- PoliciesManager must respond with the list of <groupName>s that have the field "user_consent_prompt" in corresponding <functional grouping> and
 -- are assigned to the specified application (section "<appID>" -> "groups")
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -47,10 +49,11 @@ end
 commonFunctions:newTestCasesGroup("Test")
 function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
 
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
       :Do(function(_,data)
           if(data.params.status == "UP_TO_DATE") then
 

@@ -20,13 +20,9 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {{}}
-
 --[[ Local Functions ]]
-local function pTUfunc(tbl)
-  local appId = config.application1.registerAppInterfaceParams.appID
+local function PTUfunc(tbl)
+  local appId = config.application1.registerAppInterfaceParams.fullAppID
   tbl.policy_table.app_policies[appId] = common.getRCAppConfig()
   local HMILevels = { "NONE", "BACKGROUND", "FULL", "LIMITED" }
   local RCgroup = {
@@ -43,15 +39,15 @@ local function pTUfunc(tbl)
 end
 
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(freeModules, allocatedModules, pModuleType)
+  local pModuleStatus = common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
   common.getMobileSession(1):ExpectNotification("OnRCStatus")
   :Times(0)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatusForHMI(1, pModuleStatus)
 end
 
 local function registerApp()
-  common.raiPTU_n(pTUfunc, 1)
+  common.registerApp()
   common.getMobileSession(1):ExpectNotification("OnRCStatus")
   :Times(0)
   EXPECT_HMICALL("RC.OnRCStatus")
@@ -60,11 +56,12 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions, { 0 })
+runner.Step("Clean environment", common.preconditions, { true, 0 })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
 runner.Step("Register RC application", registerApp)
+runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Activate App", common.activateApp)
 runner.Step("Allocation of module CLIMATE", alocateModule, { "CLIMATE" })
 

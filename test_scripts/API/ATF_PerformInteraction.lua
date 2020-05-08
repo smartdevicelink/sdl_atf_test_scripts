@@ -3,7 +3,6 @@ Test = require('connecttest')
 require('cardinalities')
 local events = require('events')	
 local mobile_session = require('mobile_session')
-local config = require('config')
 require('user_modules/AppTypes')
 
 local SmartDeviceLinkConfigurations = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
@@ -23,7 +22,7 @@ end
 config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
-local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 
 function DelayedExp()
   local event = events.Event()

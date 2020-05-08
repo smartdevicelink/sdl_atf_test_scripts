@@ -21,6 +21,8 @@
 -- SDL must successfully register such application:
 -- RegisterAppInterface_response (<applicable resultCode>, success: true)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -55,7 +57,7 @@ end
 commonFunctions:newTestCasesGroup("Test")
 function Test:RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "Media Application"
-  config.application2.registerAppInterfaceParams.appID = "123_xyz"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_xyz"
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = "Media Application" }})
   self.mobileSession2:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })

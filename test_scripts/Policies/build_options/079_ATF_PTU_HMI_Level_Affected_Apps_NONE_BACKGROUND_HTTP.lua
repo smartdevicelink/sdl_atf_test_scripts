@@ -20,6 +20,8 @@
 -- 1) SDL->appID_1: NONE OnHMIStatus -- should keep last value BACKGROUND
 -- 1) SDL->appID_2: NONE OnHMIStatus -- should keep last value NONE
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
@@ -104,6 +106,7 @@ local function updatePTU(ptu, id)
   end
   ptu.policy_table.device_data = nil
   ptu.policy_table.module_meta = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies[app_id] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Location-1" }

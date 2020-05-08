@@ -20,8 +20,8 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = tbl.policy_table.app_policies.default
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID].RequestSubType = json.EMPTY_ARRAY
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID] = tbl.policy_table.app_policies.default
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID].RequestSubType = json.EMPTY_ARRAY
 end
 
 --[[ Scenario ]]

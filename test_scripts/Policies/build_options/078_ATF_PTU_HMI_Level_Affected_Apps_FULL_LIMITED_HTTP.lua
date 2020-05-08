@@ -19,6 +19,8 @@
 -- 1) Mobile application 1 remains in FULL
 -- 2) Mobile application 2 remains in LIMITED
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
@@ -81,8 +83,8 @@ function Test:Precondition_StartSession()
 end
 
 function Test.Precondition_PreparePTData()
-  PrepareJsonPTU1(config.application1.registerAppInterfaceParams.appID, ptu_first_app_registered)
-  PrepareJsonPTU1(config.application2.registerAppInterfaceParams.appID, ptu_second_app_registered)
+  PrepareJsonPTU1(config.application1.registerAppInterfaceParams.fullAppID, ptu_first_app_registered)
+  PrepareJsonPTU1(config.application2.registerAppInterfaceParams.fullAppID, ptu_second_app_registered)
 end
 --[[ end of Preconditions ]]
 
@@ -141,7 +143,7 @@ function Test:TestStep_RegisterSecondApp()
       self.mobileSession1:ExpectNotification("OnPermissionsChange")
     end)
 
-  self.mobileSession1:ExpectNotification("OnSystemRequest"):Times(Between(1,2)) --"LOCK_SCREEN_ICON_URL" + HTTP
+  self.mobileSession1:ExpectNotification("OnSystemRequest"):Times(Between(0,1)) --HTTP
   :Do(function(_,data)
       print("SDL -> MOB2: OnSystemRequest, requestType: " .. data.payload.requestType)
       if(data.payload.requestType == "HTTP") then

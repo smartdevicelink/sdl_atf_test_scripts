@@ -14,6 +14,8 @@
 -- Expected result:
 -- SDL adds application with app_2 data into LocalPT according to general rules of adding app data into LocalPT
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -65,12 +67,12 @@ end
 
 function Test:Precondition_PolicyUpdateStarted()
 
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
-  :Do(function(_, data)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
+  :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{
           requestType = "PROPRIETARY",
-          url = data.result.urls[1].url,
           appID = self.applications [config.application1.registerAppInterfaceParams.appName],
           fileName = "sdl_snapshot.json"
         })
@@ -97,7 +99,7 @@ function Test:TestStep_CheckThatAppID_BothApps_Present_In_DataBase()
   local PolicyDBPath = tostring(config.pathToSDL) .. "/storage/policy.sqlite"
   os.execute(" sleep 2 ")
 
-  local query = " select functional_group_id from app_group where application_id = '"..tostring(config.application1.registerAppInterfaceParams.appID).."' "
+  local query = " select functional_group_id from app_group where application_id = '"..tostring(config.application1.registerAppInterfaceParams.fullAppID).."' "
   local AppId_1 = commonFunctions:get_data_policy_sql(PolicyDBPath, query)
   local AppIdValue_1
   for _,v in pairs(AppId_1) do
@@ -105,12 +107,12 @@ function Test:TestStep_CheckThatAppID_BothApps_Present_In_DataBase()
   end
 
   if AppIdValue_1 == nil then
-    commonFunctions:printError("ERROR: Value in DB for app: "..tostring(config.application1.registerAppInterfaceParams.appID).."is unexpected value nil")
+    commonFunctions:printError("ERROR: Value in DB for app: "..tostring(config.application1.registerAppInterfaceParams.fullAppID).."is unexpected value nil")
     is_test_fail = true
   else
     -- default group
     if(AppIdValue_1 ~= "686787169") then
-      commonFunctions:printError("ERROR: Application: "..tostring(config.application1.registerAppInterfaceParams.appID).."is not assigned to default group(686787169). Real: "..AppIdValue_1)
+      commonFunctions:printError("ERROR: Application: "..tostring(config.application1.registerAppInterfaceParams.fullAppID).."is not assigned to default group(686787169). Real: "..AppIdValue_1)
       is_test_fail = true
     end
   end

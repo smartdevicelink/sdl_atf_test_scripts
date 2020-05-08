@@ -16,6 +16,8 @@
 -- Expected result:
 -- SDL.OnStatusUpdate(UPDATING) notification is send right after SDL->MOB: OnSystemRequest
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -73,7 +75,7 @@ function Test:RAI()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(
     function(_, d1)
-      self.applications[config.application1.registerAppInterfaceParams.appID] = d1.params.application.appID
+      self.applications[config.application1.registerAppInterfaceParams.fullAppID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
       :Do(
         function(_, d2)
@@ -82,7 +84,8 @@ function Test:RAI()
       :Times(2)
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
       :Do(
-        function()
+        function(_, d3)
+          self.hmiConnection:SendResponse(d3.id, d3.method, "SUCCESS", {})
           table.insert(r_actual, "BC.PolicyUpdate")
         end)
     end)

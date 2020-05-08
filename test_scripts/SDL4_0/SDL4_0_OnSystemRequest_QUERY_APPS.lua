@@ -137,7 +137,7 @@ local function AppRegistration(self, sessionName , iappName , iappID, isMediaFla
 		iappName = config.application1.registerAppInterfaceParams.appName
 	end
 	if iappID == nil then
-		iappID = config.application1.registerAppInterfaceParams.appID
+		iappID = config.application1.registerAppInterfaceParams.fullAppID
 	end
 	if isMediaFlag == nil then
 		isMediaFlag = config.application1.registerAppInterfaceParams.isMediaApplication
@@ -417,7 +417,7 @@ Precondition_UnregisterRegisterApp("OnSystemRequestQueryAppsOnlyToForegroundApp"
 
 function Test:Precondition_RegisterSecondApp()
 
-	AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.appID, config.application2.registerAppInterfaceParams.isMediaApplication)
+	AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.fullAppID, config.application2.registerAppInterfaceParams.isMediaApplication)
 
 	self.mobileSession1:ExpectNotification("OnHMIStatus",
 		{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})
@@ -678,7 +678,7 @@ function Test:AbsenceOnSystemRequestQueryAppsNewRegisteredAppInForeground()
 
 	SendingOnHMIStatusFromMobile(self, "BACKGROUND", _, _)
 
-	AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.appID, config.application2.registerAppInterfaceParams.isMediaApplication)
+	AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.fullAppID, config.application2.registerAppInterfaceParams.isMediaApplication)
 
 	self.mobileSession1:ExpectNotification("OnHMIStatus",
 		{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})
@@ -742,7 +742,7 @@ end
 function Test:AbsenceOnSystemRequestQueryAppsToBackgroundApp_SecondApp()
 	userPrint(34, "=================================== Test  Case ===================================")
 
-	AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.appID, config.application2.registerAppInterfaceParams.isMediaApplication)
+	AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.fullAppID, config.application2.registerAppInterfaceParams.isMediaApplication)
 
 	self.mobileSession1:ExpectNotification("OnHMIStatus",
 		{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})
@@ -935,7 +935,7 @@ function Test:Precondition_OpenFirstConnectionCreateSession()
   function Test:OnSystemRequestQueryAppsOnSecondDevice()
   	userPrint(34, "=================================== Test  Case ===================================")
 
-  	AppRegistration(self, self.mobileSession2 , config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.appID)
+  	AppRegistration(self, self.mobileSession2 , config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.fullAppID)
 
 	self.mobileSession2:ExpectNotification("OnHMIStatus",
 		{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})
@@ -1145,7 +1145,7 @@ local function TC_APPLINK_17903()
 
 	function Test:APPLINK_17903_Step2_RegisterSecondApp()
 
-		AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.appID, config.application2.registerAppInterfaceParams.isMediaApplication)
+		AppRegistration(self, self.mobileSession1, config.application2.registerAppInterfaceParams.appName , config.application2.registerAppInterfaceParams.fullAppID, config.application2.registerAppInterfaceParams.isMediaApplication)
 
 		self.mobileSession1:ExpectNotification("OnHMIStatus",
 			{ systemContext = "MAIN", hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE"})

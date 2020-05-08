@@ -15,15 +15,21 @@
 -- Expected result:
 -- respond SDL.GetURLs_response (SUCCESS, urls: array(<SDL-chosen appID> + <url from policy database for service 7>)) to HMI
 ---------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
+
+local testPtFilePath = "files/jsons/Policies/Policy_Table_Update/endpoints_appId.json"
+testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt(testPtFilePath)
 
 --[[ General Settings for configuration ]]
 Test = require("user_modules/connecttest_resumption")
@@ -35,20 +41,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:ConnectMobile()
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    })
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 --[[ Test ]]
@@ -68,23 +66,18 @@ function Test:RegisterApp()
     end)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function()
-      local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+      local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
       EXPECT_HMIRESPONSE(requestId)
       :ValidIf(function(_, d)
-          local r_expected = commonFunctions.getURLs("0x07")[1]
-          local r_actual = d.result.urls[1].url
-          if r_expected ~= r_actual then
-            local msg = table.concat({"\nExpected: ", r_expected, "\nActual: ", tostring(r_actual)})
-            return false, msg
-          end
-          return true
+          return commonFunctions:validateUrls(commonFunctions:getUrlsTableFromPtFile(testPtFilePath), d)
         end)
     end)
 end
 
 --[[ Postconditions ]]
 commonFunctions:newTestCasesGroup("Postconditions")
-
+testCasesForPolicyTable:Restore_preloaded_pt()
 function Test.Postconditions_StopSDL()
   StopSDL()
 end

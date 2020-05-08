@@ -3,11 +3,9 @@
 	--1. local SmartDeviceLinkConfigurations = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 	--2. SmartDeviceLinkConfigurations:GetValue(parameterName) --example
 ---------------------------------------------------------------------------------------------
-	
+
 local SmartDeviceLinkConfigurations = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-
-local config = require('config')
 
 ---------------------------------------------------------------------------------------------
 ------------------------------------------ Functions ----------------------------------------
@@ -25,7 +23,7 @@ function SmartDeviceLinkConfigurations:GetValue(parameterName)
 	if string.sub(config.pathToSDL,findresult) ~= "/" then
 		config.pathToSDL = config.pathToSDL..tostring("/")
 	end
-		 
+
 	-- Opens a file in read mode
 	local file = io.open(config.pathToSDL .. "smartDeviceLink.ini", "r")
 	local value = ""
@@ -33,21 +31,21 @@ function SmartDeviceLinkConfigurations:GetValue(parameterName)
 
 		local line = file:read()
 		if line == nil then break end
-		
+
 		if string.find(line, parameterName) ~= nil then
 			value = string.sub(line, string.find(line, "=") + 2 , string.len(line))
 			break
 		end
 	end
-	
+
 	file:close()
-	
+
 	if value == "" then
 		commonFunctions:printError(" smartDeviceLink.ini does not have parameter name: " ..  tostring(parameterName))
 	end
-	
+
 	return value
-			
+
 end
 
 

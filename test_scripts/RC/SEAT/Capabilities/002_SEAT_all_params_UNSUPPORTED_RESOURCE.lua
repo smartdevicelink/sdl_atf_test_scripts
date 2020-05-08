@@ -13,18 +13,26 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonRC = require('test_scripts/RC/SEAT/commonRC')
+local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+
+-- [[ Local Variables ]]
+local capParams = {}
+capParams.CLIMATE = commonRC.DEFAULT
+capParams.RADIO = commonRC.DEFAULT
+capParams.BUTTONS = commonRC.DEFAULT
+capParams.SEAT = nil
+local hmiRcCapabilities = commonRC.buildHmiRcCapabilities(capParams)
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI (HMI has not SEAT RC capabilities), connect Mobile, start Session", commonRC.start,
-	{commonRC.buildHmiRcCapabilities(commonRC.DEFAULT, commonRC.DEFAULT, nil, commonRC.DEFAULT)})
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App1", commonRC.activate_app)
+	{hmiRcCapabilities})
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App1", commonRC.activateApp)
 
 runner.Title("Test")
 runner.Step("GetInteriorVehicleData SEAT(UNSUPPORTED_RESOURCE)", commonRC.rpcDenied,

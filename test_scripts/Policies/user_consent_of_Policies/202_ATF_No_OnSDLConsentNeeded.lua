@@ -22,6 +22,8 @@
 -- SDL must NOT send the PoliciesSnapshot over OnSystemRequest to any of the apps,
 -- SDL must NOT send the OnSDLConsentNeeded to HMI
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 
@@ -45,20 +47,20 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:PTU_requested_through_HMI()
   local RequestIdUpdateSDL = self.hmiConnection:SendRequest("SDL.UpdateSDL")
-
   EXPECT_HMIRESPONSE(RequestIdUpdateSDL,{result = {code = 0, method = "SDL.UpdateSDL", result = "UPDATE_NEEDED" }})
 
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
+  :Do(function()
+      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
+        { requestType = "PROPRIETARY", fileName = "dummyfile" })
+    end)
+
   EXPECT_HMINOTIFICATION("SDL.OnSDLConsentNeeded"):Times(0)
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {}):Times(0)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}):Times(0)
-
-  local function to_run()
-    if ( commonSteps:file_exists( '/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json') ) then
-      self:FailTestCase(" \27[31m /tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json is created \27[0m")
-    end
-  end
-
-  RUN_AFTER(to_run, 10000)
+  self.mobileSession:ExpectRequest("OnSystemRequest"):Times(0)
   commonTestCases:DelayedExp(11000)
 end
 

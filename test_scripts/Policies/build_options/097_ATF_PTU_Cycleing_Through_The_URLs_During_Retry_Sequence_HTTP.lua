@@ -18,6 +18,8 @@
 -- Expected result:
 -- Url parameter is taken cyclically from list of available URLs
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -26,7 +28,7 @@ local commonSteps = require("user_modules/shared_testcases/commonSteps")
 --[[ Local Variables ]]
 local ptu_file = "files/jsons/Policies/build_options/ptu_18269.json"
 local sequence = { }
-local attempts = 16
+local attempts = 6
 local r_expected = {
   commonFunctions.getURLs("0x07")[1],
   "http://policies.domain1.ford.com/api/policies",
@@ -55,9 +57,11 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 Test = require("connecttest")
 require("user_modules/AppTypes")
 config.defaultProtocolVersion = 2
+local startSession = Test.startSession
 
 --[[ Specific Notifications ]]
-function Test:RegisterNotification()
+function Test:startSession()
+  startSession(self)
   self.mobileSession:ExpectNotification("OnSystemRequest")
   :Do(function(_, d)
       if d.payload.requestType == "HTTP" then
@@ -76,6 +80,12 @@ function Test:Update_LPT()
   local policy_file_name = "PolicyTableUpdate"
   local corId = self.mobileSession:SendRPC("SystemRequest", { requestType = "HTTP", fileName = policy_file_name }, ptu_file)
   EXPECT_RESPONSE(corId, { success = true, resultCode = "SUCCESS" })
+end
+
+function Test:ActivateNewApp()
+  local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications["Test Application"] })
+  EXPECT_HMIRESPONSE(RequestId)
+  self.mobileSession:ExpectNotification("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 --[[ Test ]]
@@ -123,20 +133,20 @@ function Test.ShowSequence()
   print("--------------------------------------------------")
 end
 
--- function Test.print()
---   print_table(r_expected)
---   print_table(r_actual)
--- end
-
-for i = 1, 4 do
-  Test["ValidateResult" .. i] = function(self)
-    if(r_actual[i] ~= nil) then
-      if r_expected[i] ~= r_actual[i] then
-        local m = table.concat({"\nExpected url:\n", tostring(r_expected[i]), "\nActual:\n", tostring(r_actual[i]), "\n"})
-        self:FailTestCase(m)
+function Test:ValidateResult()
+  local function contains(pTbl, pItem)
+    for _, e in pairs(pTbl) do
+      if e == pItem then return true end
+    end
+    return false
+  end
+  if #r_actual ~= #r_expected then
+    self:FailTestCase("\nExpected number of requests: " .. #r_expected .. ", actual: " .. #r_actual)
+  else
+    for _, e in pairs(r_expected) do
+      if not contains(r_actual, e) then
+        self:FailTestCase("\nExpected item '" .. e .."' is not found")
       end
-    else
-      self:FailTestCase("Actual url is empty")
     end
   end
 end

@@ -12,7 +12,7 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 --ToDo: shall be removed when APPLINK-16610 is fixed
 config.defaultProtocolVersion = 2
 
-local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+local storagePath = config.pathToSDL .. "storage/" ..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
 local imageValues = {"i", "icon.png", "qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=QWERTYUIOPASDFGHJKLZXCVBNM{}|?>:<qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=qwertyuiopasdfghjklzxcvbnm1234567890[]'.!@#$%^&*()_+-=QWERTY"}
 local grammarIDValue
 local appId2
@@ -114,7 +114,7 @@ end
 					-- }
 				})
 				:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -639,7 +639,7 @@ end
 										}
 									})
 					:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -893,7 +893,7 @@ end
 						}
 					})
 					:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -1384,7 +1384,7 @@ end
 						}
 					})
 					:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -1501,7 +1501,7 @@ end
 										}
 									})
 					:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -1766,7 +1766,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -1852,7 +1852,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -1938,7 +1938,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2024,7 +2024,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2111,7 +2111,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2198,7 +2198,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2288,7 +2288,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2428,7 +2428,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2514,7 +2514,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2600,7 +2600,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2686,7 +2686,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -2871,7 +2871,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3158,7 +3158,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3343,7 +3343,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3429,7 +3429,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3520,7 +3520,7 @@ end
 								self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
 						end)
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3623,7 +3623,7 @@ end
 					-- 						}
 					-- 					})
 					-- 	:ValidIf(function(_,data)
-     --      				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+     --      				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
      --      				local value_Icon = path .. "action.png"
           
      --      				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3712,7 +3712,7 @@ end
 											}
 										})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3802,7 +3802,7 @@ end
 					-- 						}
 					-- 					})
 					-- 	:ValidIf(function(_,data)
-     --      				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+     --      				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
      --      				local value_Icon = path .. "action.png"
           
      --      				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3892,7 +3892,7 @@ end
 					-- 						}
 					-- 					})
 					-- 	:ValidIf(function(_,data)
-     --      				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+     --      				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
      --      				local value_Icon = path .. "action.png"
           
      --      				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -3981,7 +3981,7 @@ end
 											}
 										})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -4070,7 +4070,7 @@ end
 											}
 										})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -4863,7 +4863,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -4974,7 +4974,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -5174,7 +5174,7 @@ end
 							}
 						})
 						:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then
@@ -9265,7 +9265,7 @@ end
 					}
 				})
 				:ValidIf(function(_,data)
-          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.appID.. "_" .. config.deviceMAC.. "/"
+          				local path  = "bin/storage/"..config.application1.registerAppInterfaceParams.fullAppID.. "_" .. config.deviceMAC.. "/"
           				local value_Icon = path .. "action.png"
           
           				if(data.params.cmdIcon.imageType == "DYNAMIC") then

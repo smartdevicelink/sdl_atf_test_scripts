@@ -17,38 +17,37 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(module_type, self)
-  local cid = self.mobileSession1:SendRPC("GetInteriorVehicleData", {
+local function getDataForModule(module_type)
+  local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     moduleType = module_type,
     subscribe = true
   })
 
   EXPECT_HMICALL("RC.GetInteriorVehicleData", {
-    appID = self.applications["Test Application"],
     moduleType = module_type,
     subscribe = true
   })
   :Do(function(_, data)
-      self.hmiConnection:SendError(data.id, data.method, "READ_ONLY", "Info message")
+      commonRC.getHMIConnection():SendError(data.id, data.method, "READ_ONLY", "Info message")
     end)
 
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Info message" })
+  commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Info message" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules) do
   runner.Step("GetInteriorVehicleData " .. mod, getDataForModule, { mod })
 end
 

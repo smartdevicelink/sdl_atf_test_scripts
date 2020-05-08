@@ -19,6 +19,8 @@
 -- Expected result:
 -- PTU file is deleted
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
@@ -64,6 +66,10 @@ function Test:Precondition_ActivateApp()
         :Do(function(_, _)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
               { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
+            EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+            :Do(function(_,data3)
+                self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+              end)
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
@@ -78,7 +84,8 @@ end
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_PTU_Success_PTUfile_removed()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
@@ -93,7 +100,7 @@ function Test:TestStep_PTU_Success_PTUfile_removed()
           EXPECT_RESPONSE(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
         end)
   end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
   :Do(function(_,data)
     if(data.params.status == "UP_TO_DATE") then
       local result = check_file_exists(policy_file_path .. "/" .. policy_file_name)

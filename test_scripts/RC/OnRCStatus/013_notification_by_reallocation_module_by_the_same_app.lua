@@ -22,18 +22,17 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function alocateModuleWithoutNot(pModuleType)
-	common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.getMobileSession(1):ExpectNotification("OnRCStatus")
-	:Times(0)
-	EXPECT_HMINOTIFICATION("RC.OnRCStatus")
-	:Times(0)
+  common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
+  common.getMobileSession(1):ExpectNotification("OnRCStatus")
+  :Times(0)
+  EXPECT_HMINOTIFICATION("RC.OnRCStatus")
+  :Times(0)
 end
 
 local function alocateModule(pModuleType)
-	local pModuleStatus = common.setModuleStatus(common.getAllModules(), {{}}, pModuleType)
-	common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-	common.validateOnRCStatusForApp(1, pModuleStatus)
-	common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.setModuleStatus(pModuleType)
+  common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
+  common.validateOnRCStatus()
 end
 
 --[[ Scenario ]]

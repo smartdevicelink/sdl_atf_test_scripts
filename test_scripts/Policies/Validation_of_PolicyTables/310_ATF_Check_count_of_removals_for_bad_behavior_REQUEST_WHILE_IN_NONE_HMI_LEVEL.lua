@@ -28,6 +28,8 @@
 
 -- Thic
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
@@ -119,7 +121,7 @@ end
 
 function Test:Check_TOO_MANY_REQUESTS_in_DB()
   local db_path = config.pathToSDL.."storage/policy.sqlite"
-  local sql_query = "SELECT count_of_removals_for_bad_behavior FROM app_level WHERE application_id = '" .. config.application1.registerAppInterfaceParams.appID .. "'"
+  local sql_query = "SELECT count_of_removals_for_bad_behavior FROM app_level WHERE application_id = '" .. config.application1.registerAppInterfaceParams.fullAppID .. "'"
   local exp_result = {"1"}
   if commonFunctions:is_db_contains(db_path, sql_query, exp_result) == false then
     self:FailTestCase("DB doesn't include expected value")
@@ -130,7 +132,7 @@ function Test.Postcondition_Stop_SDL()
   StopSDL()
 end
 function Test.RestoreIniFile()
-  -- Preconditions:RestoreFile("smartDeviceLink.ini")
+  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

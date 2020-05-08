@@ -1,0 +1,4 @@
+./test_scripts/API/AutoCompleteList/001_SetGlobalProperties_SUCCESS.lua
+./test_scripts/API/AutoCompleteList/002_SetGlobalProperties_autoCompleteText_replace.lua
+./test_scripts/API/AutoCompleteList/003_SetGlobalProperties_autoCompleteList_empty.lua
+./test_scripts/API/AutoCompleteList/004_ResetGlobalProperties_SUCCESS.lua

@@ -18,6 +18,8 @@
 -- Expected result:
 -- On successful PolicyTable exchange, Policies Manager must reset to "0" the value in 'ignition_cycles_since_last_exchange"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2
@@ -123,6 +125,11 @@ function Test:Precondition_Registering_app()
       self.applications[config.application1.registerAppInterfaceParams.appName] = d.params.application.appID
     end)
   self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 --[[ Test ]]
@@ -148,8 +155,9 @@ function Test:TestStep_Ignition_cycles_since_last_exchange_not_reset_after_RAI()
     end
   end
 end
-function Test:TestStep_trigger_getting_device_consent()
-  testCasesForPolicyTable:trigger_getting_device_consent(self, config.application1.registerAppInterfaceParams.appName, utils.getDeviceMAC())
+
+function Test:ActivateAppInFULLLevel()
+  commonSteps:ActivateAppInSpecificLevel(self,self.applications[config.application1.registerAppInterfaceParams.appName],"FULL")
 end
 
 function Test:TestStep_flow_SUCCEESS_EXTERNAL_PROPRIETARY()

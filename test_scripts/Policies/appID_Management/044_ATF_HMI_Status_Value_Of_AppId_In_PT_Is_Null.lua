@@ -18,6 +18,8 @@
 -- 1. status = "REJECTED"
 -- 2. hmiLevel = "NONE"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appName = "App1"
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
@@ -57,7 +59,7 @@ end
 
 function Test:RegisterNewApp()
   config.application2.registerAppInterfaceParams.appName = "Media Application"
-  config.application2.registerAppInterfaceParams.appID = "123_xyz"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_xyz"
   local correlationId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
   :Do(function(_,data)
@@ -83,7 +85,8 @@ function Test:Precondition_UpdatePolicy()
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
 
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
 
@@ -123,7 +126,7 @@ function Test:Precondition_UpdatePolicy()
     end)
 
   EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged", { appID = HMIAppID, appRevoked = true})
-  EXPECT_HMICALL("BasicCommunication.ActivateApp", { level = "NONE" })
+  EXPECT_HMICALL("BasicCommunication.CloseApplication", {})
   :Do(function(_, data)
       self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
       self.mobileSession2:ExpectNotification("OnHMIStatus", { hmiLevel ="NONE", systemContext = "MAIN", audioStreamingState = "NOT_AUDIBLE" })

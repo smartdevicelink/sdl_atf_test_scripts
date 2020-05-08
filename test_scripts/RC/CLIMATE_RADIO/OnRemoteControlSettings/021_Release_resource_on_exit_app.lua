@@ -17,19 +17,23 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
 --[[ Local Variables ]]
 local exitAppReasons = {"USER_EXIT", "DRIVER_DISTRACTION_VIOLATION"}
 
 --[[ Local Functions ]]
-local function ptu_update_func(tbl)
-  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.appID] = commonRC.getRCAppConfig()
+local function PTUfunc(tbl)
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID] = commonRC.getRCAppConfig()
+  tbl.policy_table.app_policies[config.application2.registerAppInterfaceParams.fullAppID] = commonRC.getRCAppConfig()
   table.insert(tbl.policy_table.functional_groupings.RemoteControl.rpcs.OnInteriorVehicleData.hmi_levels, "NONE")
 end
 
-local function exitApp(pReason, pAppId, self)
+local function exitApp(pReason, pAppId)
 	local hmiAppId = commonRC.getHMIAppId(pAppId)
-	local mobSession = commonRC.getMobileSession(self, pAppId)
-	self.hmiConnection:SendNotification("BasicCommunication.OnExitApplication",
+	local mobSession = commonRC.getMobileSession(pAppId)
+	commonRC.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication",
 		{ appID = hmiAppId, reason = pReason })
 	mobSession:ExpectNotification("OnHMIStatus",
 		{ hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
@@ -37,17 +41,18 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonRC.preconditions)
+runner.Step("Clean environment", commonRC.preconditions, { false })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI1, PTU", commonRC.rai_ptu, { ptu_update_func })
-runner.Step("RAI2", commonRC.rai_n, { 2 })
+runner.Step("RAI1", commonRC.registerApp)
+runner.Step("PTU", commonRC.policyTableUpdate, { PTUfunc })
+runner.Step("RAI2", commonRC.registerAppWOPTU, { 2 })
 
 runner.Title("Test")
 runner.Step("Enable RC from HMI with AUTO_DENY access mode", commonRC.defineRAMode, { true, "AUTO_DENY"})
 for _, reason in pairs(exitAppReasons) do
 	runner.Title("Exit reason " .. reason)
-	runner.Step("Activate App2", commonRC.activate_app, { 2 })
-	runner.Step("Activate App1", commonRC.activate_app)
+	runner.Step("Activate App2", commonRC.activateApp, { 2 })
+	runner.Step("Activate App1", commonRC.activateApp)
 	-- App1: FULL, App2: BACKGROUND
 	runner.Step("Module CLIMATE App1 ButtonPress allowed", commonRC.rpcAllowed, { "CLIMATE", 1, "ButtonPress" })
 	runner.Step("Subscribe App1 to CLIMATE", commonRC.subscribeToModule, { "CLIMATE", 1 })

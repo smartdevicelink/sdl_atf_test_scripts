@@ -18,6 +18,8 @@
 -- On getting BasicCommunication.OnIgnitionCycleOver from HMI,
 -- Pollicies Manager must increment the value in 'ignition_cycles_since_last_exchange' section of LocalPT
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2

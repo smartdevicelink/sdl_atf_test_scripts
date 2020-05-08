@@ -17,26 +17,17 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require('user_modules/hmi_values')
 
---[[ Local Variables ]]
-local modules = { "CLIMATE", "RADIO" }
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
+  local params = commonRC.getDefaultHMITable()
   params.RC.IsReady.params.available = false
   params.RC.GetCapabilities.params = { }
   params.RC.GetCapabilities.occurrence = 0
   return params
-end
-
-local function rpcUnsupportedResource(pModuleType, pRPC, self)
-  local pAppId = 1
-  local mobSession = commonRC.getMobileSession(self, pAppId)
-  local cid = mobSession:SendRPC(commonRC.getAppEventName(pRPC), commonRC.getAppRequestParams(pRPC, pModuleType))
-  EXPECT_HMICALL(commonRC.getHMIEventName(pRPC), {}):Times(0)
-  mobSession:ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
 end
 
 --[[ Scenario ]]
@@ -44,16 +35,19 @@ runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
 
-for _, mod in pairs(modules) do
+for _, mod in pairs(commonRC.modules)  do
   runner.Title("Module: " .. mod)
-  runner.Step("GetInteriorVehicleData", rpcUnsupportedResource, { mod, "GetInteriorVehicleData" })
-  runner.Step("SetInteriorVehicleData", rpcUnsupportedResource, { mod, "SetInteriorVehicleData" })
-  runner.Step("ButtonPress", rpcUnsupportedResource, { mod, "ButtonPress" })
+  runner.Step("GetInteriorVehicleData_UNSUPPORTED_RESOURCE", commonRC.rpcDenied,
+  { mod, 1, "GetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
+runner.Step("SetInteriorVehicleData_UNSUPPORTED_RESOURCE", commonRC.rpcDenied,
+  { mod, 1, "SetInteriorVehicleData", "UNSUPPORTED_RESOURCE" })
+runner.Step("ButtonPress_UNSUPPORTED_RESOURCE", commonRC.rpcDenied,
+  { mod, 1, "ButtonPress", "UNSUPPORTED_RESOURCE" })
 end
 
 runner.Title("Postconditions")

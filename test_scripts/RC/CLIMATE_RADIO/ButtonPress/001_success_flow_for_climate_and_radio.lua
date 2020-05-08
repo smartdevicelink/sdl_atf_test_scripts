@@ -18,57 +18,31 @@
 local commonRC = require('test_scripts/RC/commonRC')
 local runner = require('user_modules/script_runner')
 
---[[ Local Functions ]]
-local function step1(self)
-	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
-		moduleType = "CLIMATE",
-		buttonName = "AC",
-		buttonPressMode = "SHORT"
-	})
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
-	EXPECT_HMICALL("Buttons.ButtonPress",	{
-		appID = self.applications["Test Application"],
-		moduleType = "CLIMATE",
-		buttonName = "AC",
-		buttonPressMode = "SHORT"
-	})
-	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
-
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-end
-
-local function step2(self)
-	local cid = self.mobileSession1:SendRPC("ButtonPress",	{
-		moduleType = "RADIO",
-		buttonName = "VOLUME_UP",
-		buttonPressMode = "LONG"
-	})
-
-	EXPECT_HMICALL("Buttons.ButtonPress",	{
-		appID = self.applications["Test Application"],
-		moduleType = "RADIO",
-		buttonName = "VOLUME_UP",
-		buttonPressMode = "LONG"
-	})
-	:Do(function(_, data)
-			self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
-
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-end
+--[[ Local Variables ]]
+local paramsStep1 = {
+	moduleType = "CLIMATE",
+	buttonName = "AC",
+	buttonPressMode = "SHORT"
+}
+local paramsStep2 = {
+	moduleType = "RADIO",
+	buttonName = "VOLUME_UP",
+	buttonPressMode = "LONG"
+}
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
-runner.Step("RAI, PTU", commonRC.rai_ptu)
-runner.Step("Activate App", commonRC.activate_app)
+runner.Step("RAI", commonRC.registerAppWOPTU)
+runner.Step("Activate App", commonRC.activateApp)
 
 runner.Title("Test")
-runner.Step("ButtonPress_CLIMATE", step1)
-runner.Step("ButtonPress_RADIO", step2)
+runner.Step("ButtonPress_CLIMATE", commonRC.rpcButtonPress, { paramsStep1, 1})
+runner.Step("ButtonPress_RADIO", commonRC.rpcButtonPress, { paramsStep2, 1 })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonRC.postconditions)

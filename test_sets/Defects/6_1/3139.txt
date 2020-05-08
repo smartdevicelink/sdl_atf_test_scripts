@@ -1,0 +1,4 @@
+./test_scripts/Defects/6_1/3139_01_Stop_streaming_gracefully_1st_timer.lua
+./test_scripts/Defects/6_1/3139_02_Stop_streaming_gracefully_2nd_timer.lua
+./test_scripts/Defects/6_1/3139_03_Stop_streaming_forcibly_app_continue_streaming.lua
+./test_scripts/Defects/6_1/3139_04_Stop_streaming_forcibly_app_does_not_send_EndServiceAck.lua

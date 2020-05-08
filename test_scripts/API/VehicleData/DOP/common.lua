@@ -59,4 +59,8 @@ function m.checkAbsenceOfParam(pParam, pData)
   return true
 end
 
+function m.ptUpdate(pTbl)
+  pTbl.policy_table.functional_groupings["Location-1"].user_consent_prompt = nil
+end
+
 return m

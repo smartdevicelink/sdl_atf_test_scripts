@@ -17,6 +17,8 @@
 -- Status changes in a wollowing way:
 -- "UPDATE_NEEDED" -> "UPDATING" -> "UP_TO_DATE" -> "UPDATE_NEEDED" -> "UPDATING"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -77,11 +79,11 @@ function Test:TestStep_Trigger_Device_consent()
 end
 
 function Test:TestStep_PTU_Success()
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-        {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = policy_file_name})
@@ -111,7 +113,7 @@ end
 
 function Test:TestStep_RegisteNewApp()
   config.application2.registerAppInterfaceParams.appName = "App1"
-  config.application2.registerAppInterfaceParams.appID = "123_abc"
+  config.application2.registerAppInterfaceParams.fullAppID = "123_abc"
 
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered",
