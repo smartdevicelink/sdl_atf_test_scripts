@@ -16,10 +16,8 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/WebEngine/commonWebEngine')
 local hmi_ptu = require('test_scripts/Policies/HMI_PTU/common_hmi_ptu')
-
-
 --[[ Local Variables ]]
-local  appStoreConfig = {
+local appStoreConfig = {
   keep_context = false,
   steal_focus = false,
   priority = "NONE",
