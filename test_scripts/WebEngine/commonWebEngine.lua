@@ -384,7 +384,7 @@ function common.verifyPTSnapshot(appProperties, appPropExpected)
       " Actual: " .. cloud_transport_type .. "\n"
   end
 
-  local enabled = tostring(snp_tbl.policy_table.app_policies[app_id].enabled)
+  local enabled = snp_tbl.policy_table.app_policies[app_id].enabled
   if not (enabled == appPropExpected.enabled) then
     msg = msg .. "Incorrect enabled value\n"..
       " Expected: " .. appPropExpected.enabled .. "\n" ..
