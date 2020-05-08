@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2445_SDL_doesn_t_resume_status_of_subscribtion_on_wayPoint_related_data.lua
