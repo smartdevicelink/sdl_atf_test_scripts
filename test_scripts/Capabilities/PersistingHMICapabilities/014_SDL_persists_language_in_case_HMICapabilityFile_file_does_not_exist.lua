@@ -5,9 +5,10 @@
 --  TTS/VR/UI.OnLanguageChange notification with appropriate language
 --
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. SDL and HMI are started
--- 3. HMI does not provide any Capability
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) file file doesn't exist on file system
+-- 3. SDL and HMI are started
+-- 4. HMI does not provide any capabilities
 -- Sequence:
 -- 1. HMI sends "TTS/VR/UI.OnLanguageChange" notifications with language to SDL
 --  a. SDL persists TTS/VR/UI.language in "hmi_capabilities_cache.json" file
@@ -18,8 +19,8 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Start SDL, HMI", common.start, { common.noResponseGetHMIParams()})
-common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
+common.Step("Start SDL, HMI", common.start, { common.getHMIParamsWithOutResponse()})
+common.Step("Check that capabilities file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
 
 common.Title("Test")
 common.Step("OnLanguageChange notification FR-FR", common.changeLanguage, { "FR-FR" })

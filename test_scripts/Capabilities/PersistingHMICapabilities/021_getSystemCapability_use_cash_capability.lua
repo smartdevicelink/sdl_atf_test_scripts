@@ -7,7 +7,7 @@
 --
 -- Preconditions:
 -- 1. Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cache file (hmi_capabilities_cache.json) exists on file system
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) exists on file system
 -- 3. All HMI Capabilities (VR/TTS/RC/UI etc) are presented in hmi_capabilities_cache.json
 -- 4. SDL and HMI are started
 -- 5. App is registered
@@ -22,6 +22,16 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 --[[ Local Variables ]]
 local hmiCap = common.getDefaultHMITable()
 
+local function getRcCapabilitiesWithUpdatedAllowMultipleAccess()
+  local buttonsCap = hmiCap.RC.GetCapabilities.params.remoteControlCapability.buttonCapabilities
+  for _, buttonCap in ipairs(buttonsCap) do
+    if buttonCap.moduleInfo.allowMultipleAccess == nil then
+      buttonCap.moduleInfo.allowMultipleAccess = true
+    end
+  end
+  return hmiCap.RC.GetCapabilities.params.remoteControlCapability
+end
+
 local systemCapabilities = {
   NAVIGATION = {
     navigationCapability = hmiCap.UI.GetCapabilities.params.systemCapabilities.navigationCapability },
@@ -30,7 +40,7 @@ local systemCapabilities = {
   VIDEO_STREAMING = {
     videoStreamingCapability = hmiCap.UI.GetCapabilities.params.systemCapabilities.videoStreamingCapability },
   REMOTE_CONTROL = {
-    remoteControlCapability = hmiCap.RC.GetCapabilities.params.remoteControlCapability },
+    remoteControlCapability = getRcCapabilitiesWithUpdatedAllowMultipleAccess() },
   SEAT_LOCATION = {
     seatLocationCapability = hmiCap.RC.GetCapabilities.params.seatLocationCapability }
 }
@@ -38,13 +48,13 @@ local systemCapabilities = {
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
+common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile)
 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start)
-common.Step("Check that capability file exists", common.checkIfCapabilityCacheFileExists)
+common.Step("Check that capabilities file exists", common.checkIfCapabilityCacheFileExists)
 common.Step("Ignition off", common.ignitionOff)
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noRequestsGetHMIParams() })
+common.Step("Ignition on, Start SDL, HMI", common.start, { common.getHMIParamsWithOutRequests() })
 common.Step("App registration", common.registerApp)
 common.Step("App activation", common.activateApp)
 

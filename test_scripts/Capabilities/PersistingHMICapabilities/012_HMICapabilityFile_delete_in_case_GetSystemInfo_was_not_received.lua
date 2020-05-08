@@ -1,26 +1,27 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL deletes HMI capability cache (hmi_capabilities_cache.json)
+-- Description: Check that SDL deletes HMI capabilities cache (hmi_capabilities_cache.json)
 --  in case ccpu_version do not match
 --
 -- Preconditions:
--- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
--- 2. HMI sends all capability to SDL
--- 3. SDL persists capability to "hmi_capabilities_cache.json" file in AppStorageFolder
--- 4. Ignition OFF/ON cycle performed
--- 5. SDL is started and send GetSystemInfo request
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
+-- 3. HMI sends all capabilities to SDL
+-- 4. SDL persists capabilities to "hmi_capabilities_cache.json" file in AppStorageFolder
+-- 5. Ignition OFF/ON cycle performed
+-- 6. SDL is started and send GetSystemInfo request
 -- Sequence:
 -- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_2" to SDL
---   a) send requested to HMI for all capability
---   b) delete hmi capability cache file in AppStorageFolder
+--   a) send requested to HMI for all capabilities
+--   b) delete hmi capabilities cache file in AppStorageFolder
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Functions ]]
-local function noResponseGetHMIParams(pVersion)
-  local hmiValues = common.noResponseGetHMIParams()
+local function getHMIParamsWithOutResponse(pVersion)
+  local hmiValues = common.getHMIParamsWithOutResponse()
   hmiValues.BasicCommunication.GetSystemInfo = {
     params = {
       ccpu_version = pVersion,
@@ -39,8 +40,8 @@ common.Step("Start SDL, HMI", common.start, { common.updateHMISystemInfo("cppu_v
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, GetSystemInfo notification",
-  common.start, { noResponseGetHMIParams("cppu_version_2") })
-common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
+  common.start, { getHMIParamsWithOutResponse("cppu_version_2") })
+common.Step("Check that capabilities file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

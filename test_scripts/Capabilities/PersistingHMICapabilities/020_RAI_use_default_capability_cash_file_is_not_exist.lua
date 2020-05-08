@@ -6,12 +6,13 @@
 
 -- Preconditions:
 -- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cache file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist on file system
 -- 3. SDL and HMI are started
 -- 4. HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc)
 -- Sequence:
 -- 1. Mobile sends RegisterAppInterface request to SDL
---  a. SDL sends RegisterAppInterface response with correspond capabilities (stored in capabilities_cache.json) to Mobile
+--  a. SDL sends RegisterAppInterface response with correspond capabilities (stored in capabilities_cache.json)
+--  to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -45,7 +46,7 @@ local capRaiResponse = {
   pcmStreamCapabilities = changeInternalNameRate(hmiCapabilities.UI.pcmStreamCapabilities),
   hmiZoneCapabilities = hmiCapabilities.UI.hmiZoneCapabilities,
   softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
-  displayCapabilities = hmiCapabilities.UI.displayCapabilities,
+  displayCapabilities = common.buildDisplayCapForMobileExp(hmiCapabilities.UI.displayCapabilities),
   vrCapabilities = hmiCapabilities.VR.vrCapabilities,
   speechCapabilities = hmiCapabilities.TTS.speechCapabilities,
   prerecordedSpeech = hmiCapabilities.TTS.prerecordedSpeechCapabilities
@@ -56,7 +57,7 @@ common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
-common.Step("Ignition on, Start SDL, HMI", common.start, { common.noResponseGetHMIParams() })
+common.Step("Ignition on, Start SDL, HMI", common.start, { common.getHMIParamsWithOutResponse() })
 common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
 common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
 

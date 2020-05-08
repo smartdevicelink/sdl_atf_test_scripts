@@ -6,7 +6,7 @@
 
 -- Preconditions:
 -- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cache file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist on file system
 -- 3. SDL and HMI are started
 -- 4. HMI does not provide one of HMI capabilities (VR/TTS/RC/UI etc)
 -- 5. App is registered
@@ -21,7 +21,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 --[[ Local Variables ]]
 local appSessionId = 1
 local hmiDefaultCap = common.getDefaultHMITable()
-local hmiCapabilities = common.updatedHMICapabilitiesTable()
+local hmiCapabilities = common.updateHMICapabilitiesTable()
 
 local requests = {
   UI = { "GetCapabilities" },
@@ -58,13 +58,7 @@ local function changeInternalNameRateArray(pCapabilities)
   return capTableArray
 end
 
-local function removedRaduantParameters()
-  hmiCapabilities.UI.displayCapabilities.imageCapabilities = nil  -- no Mobile_API.xml
-  hmiCapabilities.UI.displayCapabilities.menuLayoutsAvailable = nil --since 6.0
-  return hmiCapabilities.UI.displayCapabilities
-end
-
-local function expCapRaiResponse(pMod, pReq)
+local function buildCapRaiResponse(pMod, pReq)
   local capRaiResponse = {
     UI = {
       GetCapabilities = {
@@ -72,7 +66,7 @@ local function expCapRaiResponse(pMod, pReq)
         pcmStreamCapabilities = changeInternalNameRate(hmiCapabilities.UI.pcmStreamCapabilities),
         hmiZoneCapabilities = hmiCapabilities.UI.hmiZoneCapabilities,
         softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
-        displayCapabilities = removedRaduantParameters(),
+        displayCapabilities = common.buildDisplayCapForMobileExp(hmiCapabilities.UI.displayCapabilities),
       },
       GetLanguage = {
         hmiDisplayLanguage =  hmiCapabilities.UI.language }},
@@ -103,12 +97,12 @@ for mod, request  in pairs(requests) do
     common.Title("Preconditions")
     common.Title("TC processing " .. tostring(mod) .. " " .. tostring(req) .. "]")
     common.Step("Clean environment", common.preconditions)
-    common.Step("Update HMI capabilities", common.updatedHMICapabilitiesFile)
+    common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile)
     common.Step("HMI does not response on " .. mod .. "." .. req, updateHMICaps, { mod, req })
 
     common.Title("Test")
     common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
-    common.Step("App registration", common.registerApp, { appSessionId, expCapRaiResponse(mod, req) })
+    common.Step("App registration", common.registerApp, { appSessionId, buildCapRaiResponse(mod, req) })
 
     common.Title("Postconditions")
     common.Step("Stop SDL", common.postconditions)

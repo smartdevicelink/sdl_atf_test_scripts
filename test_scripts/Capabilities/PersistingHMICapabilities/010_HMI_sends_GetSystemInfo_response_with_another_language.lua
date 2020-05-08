@@ -5,17 +5,19 @@
 --  in case HMI sends BC.GetSystemInfo response with another language/wersCountryCode
 --
 -- Preconditions:
--- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1", language = "EN-US", wersCountryCode = "wersCountryCode_1" to SDL
--- 2. HMI sends all HMI capabilities (VR/TTS/RC/UI etc)
--- 3. SDL persists capabilities to HMI capabilities cache file ("hmi_capabilities_cache.json") in AppStorageFolder
--- 4. Ignition OFF/ON cycle performed
--- 5. SDL is started and send GetSystemInfo request
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1", language = "EN-US",
+--   wersCountryCode = "wersCountryCode_1" to SDL
+-- 3. HMI sends all HMI capabilities (VR/TTS/RC/UI etc)
+-- 4. SDL persists capabilities to HMI capabilities cache file ("hmi_capabilities_cache.json") in AppStorageFolder
+-- 5. Ignition OFF/ON cycle performed
+-- 6. SDL is started and send GetSystemInfo request
 -- Sequence:
 -- 1. HMI sends GetSystemInfo with another language = "FR-FR" to SDL
---   a) does not send requests for any HMI capabilities (VR/TTS/RC/UI etc) to HMI
+--   a) SDL does not send requests for any HMI capabilities (VR/TTS/RC/UI etc) to HMI
 -- 2. Ignition OFF/ON cycle performed
 -- 3. HMI sends GetSystemInfo with another wersCountryCode = wersCountryCode_2 to SDL
---   a) does not send requests for any HMI capabilities (VR/TTS/RC/UI etc) to HMI
+--   a) SDL does not send requests for any HMI capabilities (VR/TTS/RC/UI etc) to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -23,7 +25,7 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 --[[ Local Variables ]]
 local ccpuVersion = "cppu_version_1"
 local defaultHMIParams = common.getDefaultHMITable()
-local noRequestHMIParams = common.noRequestsGetHMIParams()
+local HMIParamsWithOutRequests = common.getHMIParamsWithOutRequests()
 
 --[[ Local Functions ]]
 local function updateHMIParams(pHMIParams, pVersion, pLanguage, pWersCountryCode)
@@ -47,10 +49,10 @@ common.Step("Start SDL, HMI", common.start,
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI sends GetSystemInfo with another language ",
-  common.start, { updateHMIParams(noRequestHMIParams, ccpuVersion, "FR-FR", "wersCountryCode_1") })
+  common.start, { updateHMIParams(HMIParamsWithOutRequests, ccpuVersion, "FR-FR", "wersCountryCode_1") })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, Start SDL, HMI sends GetSystemInfo with another wersCountryCode ",
-  common.start, { updateHMIParams(noRequestHMIParams, ccpuVersion, "FR-FR", "wersCountryCode_2") })
+  common.start, { updateHMIParams(HMIParamsWithOutRequests, ccpuVersion, "FR-FR", "wersCountryCode_2") })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

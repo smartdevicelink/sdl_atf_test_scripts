@@ -5,13 +5,15 @@
 --  in case HMI sends TTS/VR/UI.OnLanguageChange notification with appropriate language
 --
 -- Preconditions:
--- 1. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist on file system
--- 2. SDL and HMI are started
--- 3. HMI does not provide language capabilities (VR/TTS/UI.GetLanguage)
--- 4. SDL persists capabilities to HMI capabilities cache file ("hmi_capabilities_cache.json") in AppStorageFolder
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 3. SDL and HMI are started
+-- 4. HMI does not provide language capabilities (VR/TTS/UI.GetLanguage)
+-- 5. SDL persists capabilities to HMI capabilities cache file ("hmi_capabilities_cache.json") in AppStorageFolder
 -- Sequence:
 -- 1. HMI sends "TTS/VR/UI.OnLanguageChange" notifications with language to SDL
---  a. SDL persists TTS/VR/UI.language to HMI capabilities cache file ("hmi_capabilities_cache.json") in AppStorageFolder
+--  a. SDL persists TTS/VR/UI.language to HMI capabilities cache file ("hmi_capabilities_cache.json")
+--  in AppStorageFolder
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -28,7 +30,7 @@ end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Start SDL, HMI", common.start, { noResponseGetLanguageHMIParams })
+common.Step("Start SDL, HMI", common.start, { noResponseGetLanguageHMIParams() })
 
 common.Title("Test")
 common.Step("OnLanguageChange notification ", common.changeLanguage, { "FR-FR" })

@@ -5,13 +5,15 @@
 --  (VR/TTS/RC/UI etc) and ccpu_version do not match
 --
 -- Preconditions:
--- 1. HMI capabilities cache file doesn't exist on file system
--- 2. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capabilities cache file doesn't exist on file system
+-- 3. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
 -- Sequence:
 -- 1. Mobile sends RegisterAppInterface request to SDL
 --  a. SDL suspend of RAI request processing from mobile
 -- 2. HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc)
---  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities.json) from HMI to Mobile
+--  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities.json)
+--  from HMI to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
@@ -45,15 +47,15 @@ local capRaiResponse = {
   pcmStreamCapabilities = changeInternalNameRate(hmiCapabilities.UI.pcmStreamCapabilities),
   hmiZoneCapabilities = hmiCapabilities.UI.hmiZoneCapabilities,
   softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
-  displayCapabilities = hmiCapabilities.UI.displayCapabilities,
+  displayCapabilities = common.buildDisplayCapForMobileExp(hmiCapabilities.UI.displayCapabilities),
   vrCapabilities = hmiCapabilities.VR.vrCapabilities,
   speechCapabilities = hmiCapabilities.TTS.speechCapabilities,
   prerecordedSpeech = hmiCapabilities.TTS.prerecordedSpeechCapabilities
 }
 
 --[[ Local Functions ]]
-local function noResponseGetHMIParams(pVersion)
-  local hmiValues = common.noResponseGetHMIParams()
+local function getHMIParamsWithOutResponse(pVersion)
+  local hmiValues = common.getHMIParamsWithOutResponse()
   hmiValues.BasicCommunication.GetSystemInfo = {
     params = {
       ccpu_version = pVersion,
@@ -71,7 +73,7 @@ common.Step("Start SDL, HMI", common.startWoHMIonReady)
 
 common.Title("Test")
 common.Step("Check suspending App registration", common.registerAppSuspend,
-  { appSessionId, capRaiResponse, noResponseGetHMIParams("cppu_version_1") })
+  { appSessionId, capRaiResponse, getHMIParamsWithOutResponse("cppu_version_1") })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

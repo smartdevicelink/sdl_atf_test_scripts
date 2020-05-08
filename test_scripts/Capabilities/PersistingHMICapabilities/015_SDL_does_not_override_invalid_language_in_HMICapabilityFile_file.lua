@@ -5,13 +5,14 @@
 -- in case HMI sends TTS/VR/UI.OnLanguageChange notification with invalid language
 --
 -- Preconditions:
--- 1. hmi_capabilities_cache.json file doesn't exist on file system
--- 2. SDL and HMI are started
--- 3. HMI sends all HMI capability to SDL
+-- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 3. SDL and HMI are started
+-- 4. HMI sends all HMI capabilities to SDL
 --
 -- Sequence:
 -- 1. HMI sends "TTS/VR/UI.OnLanguageChange" notifications with invalid language to SDL
---   a. SDL does not override TTS/VR/UI.language in "hmi_capabilities_cache.json" file
+--   a. SDL does not override TTS/VR/UI.language in HMI capabilities cache file ("hmi_capabilities_cache.json")
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')

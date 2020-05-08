@@ -1,11 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Description: Check that SDL creates new capability cache file in AppStorageFolder in second
--- ignition cycle
+-- Description: Check that SDL creates new capabilities cache file in AppStorageFolder in second ignition cycle
 --
 -- Preconditions:
--- 1. HMI capability cache file (hmi_capabilities_cache.json) exists on file system
+-- 1. HMI capabilities cache file (hmi_capabilities_cache.json) exists on file system
 -- Sequence:
 -- 1. SDL and HMI are started
 --  SDL sends all HMI capabilities request (VR/TTS/RC/UI etc) to HMI
@@ -29,13 +28,13 @@ common.Step("Update HMICapabilitiesCacheFile in SDL.ini file ", common.setSDLIni
 
 common.Title("Test")
 common.Step("Start SDL and HMI", common.start)
-common.Step("Check that HMI capability cache file exists: hmi_capabilities_cache.json",
+common.Step("Check that HMI capabilities cache file exists: hmi_capabilities_cache.json",
   common.checkIfCapabilityCacheFileExists, { true, "hmi_capabilities_cache.json" })
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Update HMICapabilitiesCacheFile in SDL.ini file ", common.setSDLIniParameter,
   { "HMICapabilitiesCacheFile", "NEW_hmi_capabilities_cache.json" })
 common.Step("Ignition on, Start SDL, HMI", common.start)
-common.Step("Check that HMI capability cache file exists: new_hmi_capabilities_cache.json",
+common.Step("Check that HMI capabilities cache file exists: new_hmi_capabilities_cache.json",
   common.checkIfCapabilityCacheFileExists, { true, "NEW_hmi_capabilities_cache.json" })
 
 common.Title("Postconditions")

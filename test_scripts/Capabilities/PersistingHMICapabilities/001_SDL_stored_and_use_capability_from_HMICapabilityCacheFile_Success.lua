@@ -3,12 +3,12 @@
 --
 -- Description: Check that SDL persists all HMI Capabilities (VR/TTS/RC/UI/Buttons.GetCapabilities/,
 --  VR/TTS/UI.GetSupportedLanguages/GetLanguage, VehicleInfo.GetVehicleType) received from HMI
---  in HMI capability cache file.
+--  in HMI capabilities cache file.
 -- SDL does not send correspond HMI Capabilities (VR/TTS/RC/UI etc) request to HMI for subsequent ignition cycles.
 --
 -- Preconditions:
 -- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
--- 2. HMI capability cache file (hmi_capabilities_cache.json) doesn't exist on file system
+-- 2. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist on file system
 -- 3. SDL and HMI are started
 -- Sequence:
 -- 1. HMI responds with available = true on VR/TTS/RC/UI/VehicleInfo.IsReady requests from SDL
@@ -27,10 +27,10 @@ common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
 common.Step("Start SDL and HMI, SDL sends HMI capabilities requests to HMI", common.start)
-common.Step("Validate stored capability file", common.checkContentOfCapabilityCacheFile)
+common.Step("Validate stored capabilities file", common.checkContentOfCapabilityCacheFile)
 common.Step("Ignition off", common.ignitionOff)
 common.Step("Ignition on, SDL doesn't send HMI capabilities requests to HMI",
-  common.start, { common.noRequestsGetHMIParams() })
+  common.start, { common.getHMIParamsWithOutRequests() })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
