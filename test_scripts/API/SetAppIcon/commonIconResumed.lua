@@ -166,6 +166,7 @@ end
 function m.closeConnection()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
   actions.mobile.disconnect()
+  actions.run.wait(1000)
 end
 
 --[[ @openConnection: Open mobile connection successfully
@@ -173,12 +174,10 @@ end
 --! return: none
 --]]
 function m.openConnection()
-  test.mobileSession[1] = mobile_session.MobileSession(
-    test,
-    test.mobileConnection,
-    config.application1.registerAppInterfaceParams)
-  test.mobileConnection:Connect()
-  test.mobileSession[1]:StartRPC()
+  actions.mobile.connect()
+  :Do(function()
+      m.mobile.createSession():StartRPC()
+    end)
 end
 
 local preconditionsOrig = m.preconditions
