@@ -371,28 +371,28 @@ function common.verifyPTSnapshot(appProperties, appPropExpected)
   end
 
   local auth_token = snp_tbl.policy_table.app_policies[app_id].auth_token
-  if not (auth_token == appPropExpected.auth_token) then
+  if (auth_token ~= appPropExpected.auth_token) then
     msg = msg .. "Incorrect auth token value\n" ..
       " Expected: " .. appPropExpected.auth_token .. "\n" ..
       " Actual: " .. auth_token .. "\n"
   end
 
   local cloud_transport_type = snp_tbl.policy_table.app_policies[app_id].cloud_transport_type
-  if not (cloud_transport_type == appPropExpected.cloud_transport_type) then
+  if (cloud_transport_type ~= appPropExpected.cloud_transport_type) then
     msg = msg ..     "Incorrect cloud_transport_type value\n" ..
       " Expected: " .. appPropExpected.cloud_transport_type .. "\n" ..
       " Actual: " .. cloud_transport_type .. "\n"
   end
 
-  local enabled = tostring(snp_tbl.policy_table.app_policies[app_id].enabled)
-  if not (enabled == appPropExpected.enabled) then
+  local enabled = snp_tbl.policy_table.app_policies[app_id].enabled
+  if (enabled ~= appPropExpected.enabled) then
     msg = msg .. "Incorrect enabled value\n"..
-      " Expected: " .. appPropExpected.enabled .. "\n" ..
-      " Actual: " .. enabled .. "\n"
+      " Expected: " .. tostring(appPropExpected.enabled) .. "\n" ..
+      " Actual: " .. tostring(enabled) .. "\n"
   end
 
   local hybrid_app_preference = snp_tbl.policy_table.app_policies[app_id].hybrid_app_preference
-  if not (hybrid_app_preference == appPropExpected.hybrid_app_preference) then
+  if (hybrid_app_preference ~= appPropExpected.hybrid_app_preference) then
     msg = msg .. "Incorrect hybrid_app_preference value\n" ..
       " Expected: " .. appPropExpected.hybrid_app_preference .. "\n" ..
       " Actual: " .. hybrid_app_preference .. "\n"

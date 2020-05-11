@@ -38,7 +38,7 @@ local appPropExpected = {
   nicknames = { "Test Web Application_21", "Test Web Application_22" },
   auth_token = "ABCD12345",
   cloud_transport_type = "WS",
-  enabled = "true",
+  enabled = true,
   hybrid_app_preference = "CLOUD"
 }
 
