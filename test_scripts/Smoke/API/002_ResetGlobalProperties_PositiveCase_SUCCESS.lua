@@ -83,11 +83,6 @@ local responseTtsParams = {
   timeoutPrompt = {}
 }
 
-local vrHelpArray = {
-  position = 1,
-  text = "Test Application"
-}
-
 local allParams = {
   requestParams = requestParams,
   responseUiParams = responseUiParams,
