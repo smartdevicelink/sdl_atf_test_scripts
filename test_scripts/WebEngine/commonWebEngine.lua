@@ -385,11 +385,7 @@ function common.verifyPTSnapshot(appProperties, appPropExpected)
   end
 
   local enabled = snp_tbl.policy_table.app_policies[app_id].enabled
-<<<<<<< HEAD
   if (enabled ~= appPropExpected.enabled) then
-=======
-  if not (enabled == appPropExpected.enabled) then
->>>>>>> d9e55795a736d48f675b39f7b75475bb0d803ed6
     msg = msg .. "Incorrect enabled value\n"..
       " Expected: " .. tostring(appPropExpected.enabled) .. "\n" ..
       " Actual: " .. tostring(enabled) .. "\n"
