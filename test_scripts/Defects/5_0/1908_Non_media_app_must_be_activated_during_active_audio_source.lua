@@ -1,17 +1,17 @@
 -- User story: https://github.com/SmartDeviceLink/sdl_core/issues/1908
 --
+-- Description:
+-- Non-media app activation during active audio source
+
 -- Precondition:
 -- 1) SDL and HMI are started.
 -- 2) Non-media app is registered.
 -- 3) Non-media app in BACKGROUND and NOT_AUDIBLE due to active embedded audio source
--- Description:
--- Non-media app must be activated during active audio source
 -- Steps to reproduce:
 -- 1) SDL receives SDL.ActivateApp(<appID_of_non-media_app>) from HMI
--- Expected result:
--- SDL must respond SDL.ActivateApp (SUCCESS) to HMI send OnHMIStatus (FULL, NOT_AUDIBLE).
--- Actual result:
--- SDL does not set required HMILevel and audioStreamingState.
+-- SDL does:
+-- a) respond SDL.ActivateApp (SUCCESS) to HMI
+-- b) send OnHMIStatus(FULL, NOT_AUDIBLE) to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
