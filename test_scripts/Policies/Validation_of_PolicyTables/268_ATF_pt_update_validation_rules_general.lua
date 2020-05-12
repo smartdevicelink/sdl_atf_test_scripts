@@ -84,6 +84,7 @@ function Test:ActivateApp()
   HMIAppId = self.applications[config.application1.registerAppInterfaceParams.appName]
 
   commonSteps:ActivateAppInSpecificLevel(Test, HMIAppId)
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,data3)
       self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
