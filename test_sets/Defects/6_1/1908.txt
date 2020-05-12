@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1908_Non_media_app_must_be_activated_during_active_audio_source.lua
