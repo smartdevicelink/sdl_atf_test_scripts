@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2429_Fix_crash_in_libusb_callback_handling.lua
