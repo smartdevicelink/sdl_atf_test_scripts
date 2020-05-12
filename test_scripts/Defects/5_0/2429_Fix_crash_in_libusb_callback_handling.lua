@@ -2,42 +2,37 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2429
 --
 -- Description:
--- SDL must respond UNSUPPORTED_RESOURCE to mobile app in case SDL 4.0 feature is required to be ommited in implementation
--- Precondition:
--- SDLCore and HMI are started.
--- Start SDL with command ./smartDeviceLinkCore | grep -e '.eart.eat' to check heartbeat only
+-- Successful processing of Heartbeat messages during 5 minutes
 -- In case:
--- 1) Start application with "HeartBeat" is switched on
--- 2) Wait 30 minutes
--- Expected result:
 -- 1) Application is registered
--- 2) Heartbeat is sent
--- 3) Connection is not closed by HB timeout reason.
--- 4) No core dumps
--- Actual result:
--- Connection is closed with core dump
+-- 2) "HeartBeat" is switched on
+-- 3) Wait 5 minutes
+-- SDL does:
+-- a) send Heartbeat related messages
+-- b) not close connection by HB timeout reason.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('user_modules/sequences/actions')
 local runner = require('user_modules/script_runner')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+local utils = require("user_modules/utils")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 3
+config.heartbeatTimeout = 100
 
 --[[ Local Functions ]]
 local function heartbeatOn()
-    commonFunctions:write_parameter_to_smart_device_link_ini("HeartBeatTimeout", 0)
+  common.sdl.setSDLIniParameter("HeartBeatTimeout", 100)
 end
 
-local function wait30Minutes()
-    commonTestCases:DelayedExp(1800000)
-    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-    {appID = common.getHMIAppId(), unexpectedDisconnect = true}):Times(0)
+local function wait5Minutes()
+  utils.wait(300000)
+  utils.cprint(35, "Waiting 5 minutes ...")
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
+  { appID = common.getHMIAppId(), unexpectedDisconnect = true }):Times(0)
 end
 
 --[[ Scenario ]]
@@ -49,8 +44,8 @@ runner.Step("Register App", common.registerApp)
 
 -- [[ Test ]]
 runner.Title("Test")
-runner.Step("Wait 30 minutes", wait30Minutes)
-runner.Step("Register App", common.activateApp)
+runner.Step("Wait 5 minutes", wait5Minutes)
+runner.Step("Activate App", common.activateApp)
 
 -- [[ Postconditions ]]
 runner.Title("Postconditions")
