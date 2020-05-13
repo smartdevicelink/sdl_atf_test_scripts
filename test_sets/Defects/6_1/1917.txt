@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1917_Media_navigation_and_nonmedia_apps_must_be_activated_during_active_embedded_audio_source.lua
