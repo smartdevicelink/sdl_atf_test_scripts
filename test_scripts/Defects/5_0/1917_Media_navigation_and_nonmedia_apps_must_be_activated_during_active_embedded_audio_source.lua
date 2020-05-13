@@ -25,8 +25,6 @@
 -- 2) SDL -> HMI: SDL.ActivateApp (SUCCESS)
 -- 3) SDL -> non-media app_3 : OnHMIStatus (FULL, NOT_AUDIBLE)
 -- Note: navigation app_2 still at LIMITED and AUDIBLE
--- Actual result:
--- SDL does not set required HMILevel and audioStreamingState.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -36,13 +34,18 @@ local hmi_values = require('user_modules/hmi_values')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
+--[[ Local Variables ]]
+local mediaAppId = 1
+local naviAppId = 2
+local nonMediaAppId = 3
+
 --[[ Applications Configuration ]]
-config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
-config.application1.registerAppInterfaceParams.isMediaApplication = true
-config.application2.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
-config.application2.registerAppInterfaceParams.isMediaApplication = false
-config.application3.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
-config.application3.registerAppInterfaceParams.isMediaApplication = false
+common.getConfigAppParams(mediaAppId).appHMIType = { "MEDIA" }
+common.getConfigAppParams(mediaAppId).isMediaApplication = true
+common.getConfigAppParams(naviAppId).appHMIType = { "NAVIGATION" }
+common.getConfigAppParams(naviAppId).isMediaApplication = false
+common.getConfigAppParams(nonMediaAppId).appHMIType = { "DEFAULT" }
+common.getConfigAppParams(nonMediaAppId).isMediaApplication = false
 
 --[[ Local Functions ]]
 local function getHMIValues()
@@ -73,10 +76,12 @@ end
 
 local function deactivateApp(pAppId)
   if not pAppId then pAppId = 1 end
-  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId(pAppId) })
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated",
+    { appID = common.getHMIAppId(pAppId) })
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus")
   :ValidIf(function(_, data)
-    if config["application"..pAppId].registerAppInterfaceParams.isMediaApplication == true
+    if config["application"..pAppId].registerAppInterfaceParams.isMediaApplication == true or
+      config["application"..pAppId].registerAppInterfaceParams.appHMIType[1] == "NAVIGATION"
       then
         return data.payload.audioStreamingState == "AUDIBLE" and
           data.payload.videoStreamingState == "NOT_STREAMABLE" and
@@ -92,13 +97,12 @@ local function deactivateApp(pAppId)
 end
 
 local function embededAudioActivated()
-  common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
-  common.getMobileSession(1):ExpectNotification("OnHMIStatus", {
-    hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE"
-  })
-  common.getMobileSession(2):ExpectNotification("OnHMIStatus", {
-    hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE"
-  })
+  common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
+    { eventName = "AUDIO_SOURCE", isActive = true})
+  common.getMobileSession(1):ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE" })
+  common.getMobileSession(2):ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE" })
 end
 
 local function activateNaviApp()
@@ -110,10 +114,10 @@ end
 
 local function activateMediaApp()
   common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
-  {eventName = "AUDIO_SOURCE", isActive = false})
+  { eventName = "AUDIO_SOURCE", isActive = false })
   common.getMobileSession(1):ExpectNotification("OnHMIStatus",
-    {hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE"},
-    {hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
+    { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" },
+    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
   :Times(2)
   :Do(function(exp)
     if exp.occurences == 1 then
@@ -122,31 +126,31 @@ local function activateMediaApp()
     end
   end)
   common.getMobileSession(2):ExpectNotification("OnHMIStatus",
-    {hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE"})
+    { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" })
 end
 
 --[[ Test ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Set MixingAudioSupported=true in ini file", common.setSDLIniParameter, { "MixingAudioSupported", "true" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues })
-runner.Step("Register App 1 (media)", common.registerAppWOPTU, { 1 })
-runner.Step("Register App 2 (navi)", common.registerAppWOPTU, { 2 })
-runner.Step("Register App 3 (non media)", common.registerAppWOPTU, { 3 })
+runner.Step("Register App 1 (media)", common.registerAppWOPTU, { mediaAppId })
+runner.Step("Register App 2 (navi)", common.registerAppWOPTU, { naviAppId })
+runner.Step("Register App 3 (non media)", common.registerAppWOPTU, { nonMediaAppId })
 
-runner.Step("Activate App 3 (non media)", activateApp, { 3 })
-runner.Step("Activate App 2 (navi)", activateApp, { 2 })
-runner.Step("Activate App 1 (media)", activateApp, { 1 })
+runner.Step("Activate App 3 (non media)", activateApp, { nonMediaAppId })
+runner.Step("Activate App 2 (navi)", activateApp, { naviAppId })
+runner.Step("Activate App 1 (media)", activateApp, { mediaAppId })
 
-runner.Step("Deactivate media app", deactivateApp, { 1 })
+runner.Step("Deactivate media app", deactivateApp, { mediaAppId })
 runner.Step("Embedded audio activated", embededAudioActivated)
 
-runner.Step("Activate navi app", activateNaviApp)
-runner.Step("Deactivate navi app", deactivateApp, { 2 })
-runner.Step("Activate media app", activateMediaApp)
-
 runner.Title("Test")
-runner.Step("Deactivate media app", deactivateApp, { 1 })
-runner.Step("Activate non-media app", activateApp, { 3 })
+runner.Step("Activate navi app", activateNaviApp)
+runner.Step("Deactivate navi app", deactivateApp, { naviAppId })
+runner.Step("Activate media app", activateMediaApp)
+runner.Step("Deactivate media app", deactivateApp, { mediaAppId })
+runner.Step("Activate non-media app", activateApp, { nonMediaAppId })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
