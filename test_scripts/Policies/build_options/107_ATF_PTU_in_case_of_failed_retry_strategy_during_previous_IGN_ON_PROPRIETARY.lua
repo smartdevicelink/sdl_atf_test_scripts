@@ -121,12 +121,6 @@ function Test:TestStep_RegisterApp_failed_retry_strategy_in_prev_IGN_cycle()
   self.mobileSession.correlationId = self.mobileSession.correlationId + 1
 
   local correlationId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.appName } })
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
   self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
 end
 
