@@ -56,7 +56,7 @@ local function appStartAudioStreaming(pApp1Id, pApp2Id)
 end
 
 local function appStopStreaming()
-  common.getMobileSession():StopStreaming("files/MP3_1140kb.mp3")
+  common.getMobileSession(2):StopStreaming("files/MP3_1140kb.mp3")
   common.getMobileSession():ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
   common.getMobileSession(2):ExpectNotification("OnHMIStatus")
   :Times(0)
