@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1385_SDL_doesnt_deactivate_app_when_receives_OnEventChange_PHONE_CALL_from_HMI.lua
