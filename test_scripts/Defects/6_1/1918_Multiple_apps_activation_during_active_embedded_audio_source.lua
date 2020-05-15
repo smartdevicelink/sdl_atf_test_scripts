@@ -1,8 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1918
+--
 -- Description:
--- Multiple media and navigation apps activation
+-- Check multiple media and navigation apps activation
 --    during active embedded audio source+audio mixing supported
+--
 -- Precondition:
 -- 1) "MixingAudioSupported" = true at .ini file.
 -- 2) SDL and HMI are started.
