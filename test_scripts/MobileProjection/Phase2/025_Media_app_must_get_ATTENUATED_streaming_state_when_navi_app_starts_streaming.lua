@@ -18,7 +18,9 @@ local isMixingAudioSupported = true
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType[1] }
+config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application2.registerAppInterfaceParams.appHMIType = { appHMIType[2] }
+config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
 local function getHMIParams(pIsMixingSupported)
@@ -47,15 +49,16 @@ local function appStartAudioStreaming(pApp1Id, pApp2Id)
         end)
     end)
   common.getMobileSession(pApp1Id):ExpectNotification("OnHMIStatus", {
-  	hmiLevel = "FULL",
-  	audioStreamingState = "ATTENUATED"
-  	})
+    hmiLevel = "FULL",
+    audioStreamingState = "ATTENUATED"
+    })
   :Times(1)
 end
 
 local function appStopStreaming()
   common.getMobileSession():StopStreaming("files/MP3_1140kb.mp3")
-  common.getMobileSession():ExpectNotification("OnHMIStatus")
+  common.getMobileSession():ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
+  common.getMobileSession(2):ExpectNotification("OnHMIStatus")
   :Times(0)
 end
 
@@ -73,7 +76,7 @@ runner.Step("Set App Config", common.setAppConfig, { 1, "MEDIA", true })
 runner.Step("Register " .. appHMIType[1] .. " App", common.registerApp, { 1 })
 runner.Step("Activate App1, audioState:" .. "AUDIBLE", activateApp, { 1, 001, "AUDIBLE", "App1" })
 
-runner.Step("App starts Audio streaming", appStartAudioStreaming, {1, 2})
+runner.Step("App starts Audio streaming", appStartAudioStreaming, { 1, 2 })
 
 runner.Step("App stops streaming", appStopStreaming)
 
