@@ -50,7 +50,7 @@ function registerAppExCustom(pAppId, pAppParams, pMobConnId, pResult)
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL and HMI", common.start)
-runner.Step("Connect six mobile devices to SDL", common.connectMobDevices, {devices})
+runner.Step("Connect mobile device to SDL", common.connectMobDevices, {devices})
 
 for i = 1, 3 do
     runner.Step("Register existing app " .. i, common.registerAppExVrSynonyms, { i, appParams[i], 1 })
