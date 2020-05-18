@@ -24,13 +24,13 @@ local devices = {
 }
 
 local appParams = {
-  [1] = { appName = "EXISTING1", appID = "0001", vrSynonyms = {"VRSYNONYM1"} },
-  [2] = { appName = "EXISTING2", appID = "0002", vrSynonyms = {"VRSYNONYM2"} },
-  [3] = { appName = "EXISTING3", appID = "0003", vrSynonyms = {"VRSYNONYM3"} },
-  [4] = { appName = "EXISTING1", appID = "0001" },
-  [5] = { appName = "EXISTING2", appID = "0005" },
-  [6] = { appName = "VRSYNONYM3", appID = "0006" },
-  [7] = { appName = "UNIQUE1", appID = "0007", vrSynonyms = {"EXISTING1"} }
+  [1] = { appName = "EXISTING1", appID = "00000001", fullAppID = "00000001", vrSynonyms = {"VRSYNONYM1"} },
+  [2] = { appName = "EXISTING2", appID = "00000002", fullAppID = "00000002", vrSynonyms = {"VRSYNONYM2"} },
+  [3] = { appName = "EXISTING3", appID = "00000003", fullAppID = "00000003", vrSynonyms = {"VRSYNONYM3"} },
+  [4] = { appName = "EXISTING1", appID = "00000001", fullAppID = "00000001" },
+  [5] = { appName = "EXISTING2", appID = "00000005", fullAppID = "00000005" },
+  [6] = { appName = "VRSYNONYM3", appID = "0000006", fullAppID = "0000006" },
+  [7] = { appName = "UNIQUE1", appID = "00000007", fullAppID = "00000007", vrSynonyms = {"EXISTING1"} }
 }
 
 function registerAppExCustom(pAppId, pAppParams, pMobConnId, pResult)
