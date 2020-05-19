@@ -8,8 +8,10 @@
 -- Steps to reproduce:
 -- 1) App1 received SubscribeWayPoints response(SUCCESS)
 -- 2) App2 disconnects
+-- 3) App1 disconnects
 -- Expected:
--- 1) HMI does not receive UnsubscribeWayPoints request after app un-registered
+-- 1) HMI does not receive UnsubscribeWayPoints request after App2 un-registeres
+-- 2) HMI does receive UnsubscribeWayPoints request after App1 un-registers
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 require('user_modules/all_common_modules')
@@ -48,8 +50,8 @@ local function addWayPointsSubsription()
   end)
 end
 
-local function unregisterApp(pAppId)
-  EXPECT_HMICALL("Navigation.UnsubscribeWayPoints"):Times(0)
+local function unregisterApp(pAppId, unSubWayPoints)
+  EXPECT_HMICALL("Navigation.UnsubscribeWayPoints"):Times(unSubWayPoints)
   common.app.unRegister(pAppId)
 end
 	
@@ -66,7 +68,8 @@ runner.Step("Subscribe waypoints", addWayPointsSubsription)
 
 --[[Test]]
 runner.Title("Test")
-runner.Step("Unregister App 2", unregisterApp, { 2 })
+runner.Step("Unregister App 2", unregisterApp, { 2, 0 })
+runner.Step("Unregister App 1", unregisterApp, { 1, 1 })
 
 --[[Postconditions]]
 runner.Title("Postconditions")
