@@ -27,6 +27,7 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 
 --[[ Local Variables ]]
 local appSessionId = 1
+local delayRaiResponse = 9500
 
 --[[ Local Functions ]]
 local function updateHMISystemInfo(pVersion)
@@ -52,6 +53,17 @@ local function updateHMISystemInfo(pVersion)
   return hmiCapabilities
 end
 
+local function updateHMISystemInfoWithDelayResponse(pVersion)
+  local hmiValues = common.getHMIParamsWithDelayResponse(delayRaiResponse)
+  hmiValues.BasicCommunication.GetSystemInfo = {
+    params = {
+      ccpu_version = pVersion,
+      language = "EN-US",
+      wersCountryCode = "wersCountryCode"
+    }
+  }
+  return hmiValues
+end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -63,7 +75,8 @@ common.Title("Test")
 common.Step("Start SDL, HMI", common.startWoHMIonReady)
 common.Step("Check that capabilities file exists", common.checkIfCapabilityCacheFileExists)
 common.Step("Check suspending App registration", common.registerAppSuspend,
-  { appSessionId, common.buildCapRaiResponse(), common.updateHMISystemInfo("cppu_version_2") })
+  { appSessionId, common.buildCapRaiResponse(), updateHMISystemInfoWithDelayResponse("cppu_version_2"),
+    delayRaiResponse })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

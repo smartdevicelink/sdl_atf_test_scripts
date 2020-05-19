@@ -392,6 +392,7 @@ function module:initHMI_onReady(hmi_table)
       return data.method == name
     end
 
+    local delay = hmi_table_element.delay or 0
     local occurrence = hmi_table_element.occurrence
     if occurrence == nil then
       occurrence = hmi_table_element.mandatory and 1 or AnyNumber()
@@ -405,7 +406,10 @@ function module:initHMI_onReady(hmi_table)
           ["mandatory"] = hmi_table_element.mandatory,
           ["params"] = hmi_table_element.params
         })
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        local function sendHMIResponse()
+          self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        end
+        RUN_AFTER(sendHMIResponse, delay)
       end)
     if hmi_table_element.mandatory then
       exp_waiter:AddExpectation(exp)

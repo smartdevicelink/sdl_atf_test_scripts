@@ -43,6 +43,24 @@ function m.getHMIParamsWithOutRequests()
   return params
 end
 
+function m.getHMIParamsWithDelayResponse(pDelayTime)
+  local params = m.getDefaultHMITable()
+  local delayTime = pDelayTime or 0
+  params.RC.GetCapabilities.delay = delayTime
+  params.UI.GetSupportedLanguages.delay = delayTime
+  params.UI.GetCapabilities.delay = delayTime
+  params.VR.GetSupportedLanguages.delay = delayTime
+  params.VR.GetCapabilities.delay = delayTime
+  params.TTS.GetSupportedLanguages.delay = delayTime
+  params.TTS.GetCapabilities.delay = delayTime
+  params.Buttons.GetCapabilities.delay = delayTime
+  params.VehicleInfo.GetVehicleType.delay = delayTime
+  params.UI.GetLanguage.delay = delayTime
+  params.VR.GetLanguage.delay = delayTime
+  params.TTS.GetLanguage.delay = delayTime
+  return params
+end
+
 function m.getHMIParamsWithOutResponse()
   local hmiCaps = m.getDefaultHMITable()
     hmiCaps.RC.IsReady.params.available = true
@@ -424,7 +442,7 @@ function m.startWoHMIonReady()
   return actions.hmi.getConnection():ExpectEvent(event, "Start event")
 end
 
-function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pMobConnId, hasPTU)
+function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pDelayRaiResponse, pMobConnId, hasPTU)
   if not pCapResponse then pCapResponse = {} end
   if not pAppId then pAppId = 1 end
   if not pMobConnId then pMobConnId = 1 end
@@ -441,9 +459,14 @@ function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pMobConnId, hasP
   }
 
   local function HMIonReady()
-  actions.init.HMI_onReady(pHMIParams)
+    if not pDelayRaiResponse then pDelayRaiResponse = 0 end
+    actions.init.HMI_onReady(pHMIParams)
     :Do(function()
-      isHMIonReady = true
+        actions.run.wait(pDelayRaiResponse)
+        :Do(function()
+            timeHMIonReady = timestamp()
+            isHMIonReady = true
+          end)
       end)
   end
   actions.run.runAfter(HMIonReady, timeRunAfter)
@@ -463,8 +486,15 @@ function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pMobConnId, hasP
       local errorMessages = ""
       session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" }):Timeout(timeout)
       :ValidIf(function(_,data)
+        local timeRAIResponse = timestamp()
         if isHMIonReady == false then
           actions.run.fail("RegisterAppInterface response was received before HMI on ready")
+        else
+          local timeBetweenHMIonReadyRAIResponse = timeRAIResponse - timeHMIonReady
+          if timeBetweenHMIonReadyRAIResponse > timeRAIResponseAfterHMIonReady then
+            actions.run.fail("RegisterAppInterface response was received with delay more than " ..
+              timeRAIResponseAfterHMIonReady .. " msec after HMI on ready")
+          end
         end
 
         for param, value in pairs (pCapResponse) do
@@ -560,8 +590,15 @@ function m.registerAppsSuspend( pCapResponse, pHMIParams )
   local function processingRAIresponse(pSession, pCorId)
     pSession:ExpectResponse(pCorId, { success = true, resultCode = "SUCCESS" }):Timeout(timeout)
     :ValidIf(function(_,data)
+      local timeRAIResponse = timestamp()
       if isHMIonReady == false then
         actions.run.fail("RegisterAppInterface response was received before HMI on ready")
+      else
+        local timeBetweenHMIonReadyRAIResponse = timeRAIResponse - timeHMIonReady
+        if timeBetweenHMIonReadyRAIResponse > timeRAIResponseAfterHMIonReady then
+          actions.run.fail("RegisterAppInterface response was received with delay more than "
+            .. timeRAIResponseAfterHMIonReady .. " msec after HMI on ready")
+        end
       end
       return validateCapResponse(data)
     end)
@@ -580,6 +617,7 @@ function m.registerAppsSuspend( pCapResponse, pHMIParams )
   local function HMIonReady()
     actions.init.HMI_onReady(pHMIParams)
     :Do(function()
+        timeHMIonReady = timestamp()
         isHMIonReady = true
       end)
   end

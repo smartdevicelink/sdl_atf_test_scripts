@@ -33,6 +33,8 @@ local appSessionId2 = 2
 local appSessionId3 = 3
 local mobConnId1 = 1
 local mobConnId2 = 2
+local delayRaiResponse = 9500
+
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -46,7 +48,7 @@ common.Step("Start service App3 on mobile device 2", common.startService, { appS
 
 common.Title("Test")
 common.Step("Check suspending multiple Apps registration", common.registerAppsSuspend,
-  { common.buildCapRaiResponse(), common.updateHMISystemInfo("cppu_version_1") })
+  { common.buildCapRaiResponse(), common.getHMIParamsWithDelayResponse(), delayRaiResponse })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
