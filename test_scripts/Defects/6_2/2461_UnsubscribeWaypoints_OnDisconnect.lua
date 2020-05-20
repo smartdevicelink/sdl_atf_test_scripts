@@ -28,7 +28,7 @@ local function pTUpdateFunc(tbl)
       SubscribeWayPoints = {
         hmi_levels = {"BACKGROUND", "FULL", "LIMITED", "NONE"}
       },
-      UnSubscribeWayPoints = {
+      UnsubscribeWayPoints = {
         hmi_levels = {"BACKGROUND", "FULL", "LIMITED", "NONE"}
       }
     }
