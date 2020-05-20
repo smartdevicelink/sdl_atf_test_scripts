@@ -10,6 +10,11 @@ local json = require("json")
 runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 
 --[[ Local Functions ]]
+local function updateINIFile()
+  commonDefects.backupINIFile()
+  commonDefects.clear_HMICapabilitiesCacheFile_parameter_in_INIFile()
+end
+
 --! @ptuUpdateFuncDisallowedRPC: Update PT with empty parameters
 --! @parameters:
 --! tbl - policy table
@@ -68,6 +73,7 @@ end
 runner.Title("Preconditions")
 -- Stop SDL if process is still running, delete local policy table and log files
 runner.Step("Clean environment", commonDefects.preconditions)
+runner.Step("Update INI file", updateINIFile)
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP and create mobile session
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonDefects.start)
 -- Register application, perform PTU with policy table from ptuUpdateFuncDisallowedRPC
@@ -90,3 +96,4 @@ runner.Step("GEtVD_parameters_empty_in_policy_table", GetVD)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", commonDefects.postconditions)
+runner.Step("Restore INI file", commonDefects.restoreINIFile)

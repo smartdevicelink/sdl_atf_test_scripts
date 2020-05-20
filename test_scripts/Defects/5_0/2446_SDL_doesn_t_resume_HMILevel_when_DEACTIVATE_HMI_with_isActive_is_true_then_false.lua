@@ -17,7 +17,6 @@
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
 local utils = require("user_modules/utils")
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local test = require("user_modules/dummy_connecttest")
 
 -- [[ Test Configuration ]]
@@ -27,7 +26,8 @@ config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 -- [[ Local Functions ]]
 local function updateSDLfile()
-  commonFunctions:write_parameter_to_smart_device_link_ini("ApplicationResumingTimeout", 5000)
+  common.sdl.setSDLIniParameter("ApplicationResumingTimeout", 5000)
+  common.sdl.setSDLIniParameter("HMICapabilitiesCacheFile", "")
 end
 
 local function cleanSessions()
