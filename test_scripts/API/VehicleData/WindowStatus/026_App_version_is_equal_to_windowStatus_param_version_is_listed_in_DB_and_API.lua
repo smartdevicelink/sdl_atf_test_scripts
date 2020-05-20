@@ -5,8 +5,8 @@
 --  in case app version is equal to parameter version
 --
 -- Preconditions:
--- 1) App is registered with syncMsgVersion=6.0
--- 2) The parameter `windowStatus` has since=6.0 in DB and API
+-- 1) App is registered with syncMsgVersion=6.2
+-- 2) The parameter `windowStatus` has since=6.2 in DB and API
 -- In case:
 -- 1) App requests Get/Sub/UnsubVehicleData with windowStatus=true.
 -- 2) HMI sends valid OnVehicleData notification with all parameters of `windowStatus` structure.
@@ -19,7 +19,7 @@ local common = require('test_scripts/API/VehicleData/WindowStatus/common')
 
 -- [[ Test Configuration ]]
 common.getParams().syncMsgVersion.majorVersion = 6
-common.getParams().syncMsgVersion.minorVersion = 0
+common.getParams().syncMsgVersion.minorVersion = 2
 
 --[[ Scenario ]]
 common.Title("Preconditions")
