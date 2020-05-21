@@ -69,6 +69,7 @@ end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
+common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true })
 common.Step("Start SDL, HMI", common.startWoHMIonReady)
 
 common.Title("Test")

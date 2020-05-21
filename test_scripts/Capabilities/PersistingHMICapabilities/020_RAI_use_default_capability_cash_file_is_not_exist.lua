@@ -55,6 +55,7 @@ local capRaiResponse = {
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
+common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true })
 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.getHMIParamsWithOutResponse() })

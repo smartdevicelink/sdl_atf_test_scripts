@@ -20,12 +20,33 @@ m.Step = runner.Step
 m.postconditions = actions.postconditions
 m.getHMICapabilitiesFromFile = actions.sdl.getHMICapabilitiesFromFile
 m.activateApp = actions.app.activate
-m.start = actions.start
 m.setSDLIniParameter = actions.sdl.setSDLIniParameter
 m.cloneTable = utils.cloneTable
-m.getDefaultHMITable = hmi_values.getDefaultHMITable
 
 --[[ Common Functions ]]
+local function excludeAbsentInMobApiTextFields(pTextFields)
+  if type(pTextFields) == "table" then
+    local textFieldsToExclude = { "timeToDestination", "turnText", "navigationText", "notificationText" }
+    for _, excludeTextFieldName in ipairs(textFieldsToExclude) do
+      local isFound = false
+      local i = #pTextFields
+      repeat
+        if pTextFields[i].name == excludeTextFieldName then
+          table.remove(pTextFields, i)
+          isFound = true
+        end
+        i = i - 1
+      until (isFound or i < 1)
+    end
+  end
+end
+
+function m.getDefaultHMITable()
+  local hmiCaps = hmi_values.getDefaultHMITable()
+  excludeAbsentInMobApiTextFields(hmiCaps.UI.GetCapabilities.params.displayCapabilities.textFields)
+  return hmiCaps
+end
+
 function m.getHMIParamsWithOutRequests()
   local params = m.getDefaultHMITable()
   params.RC.GetCapabilities.occurrence = 0
@@ -92,6 +113,7 @@ function m.buildDisplayCapForMobileExp(pDisplayCapabilities)
   local displayCapabilities = pDisplayCapabilities
   displayCapabilities.imageCapabilities = nil  -- no Mobile_API.xml
   displayCapabilities.menuLayoutsAvailable = nil --since 6.0
+  excludeAbsentInMobApiTextFields(displayCapabilities.textFields)
   return displayCapabilities
 end
 
@@ -211,8 +233,9 @@ function m.updateHMISystemInfo(pVersion)
   return hmiValues
 end
 
-function m.updateHMICapabilitiesTable()
+function m.updateHMICapabilitiesTable(isRemainData)
   local hmiCapTbl = m.getHMICapabilitiesFromFile()
+  if not isRemainData then
     table.remove(hmiCapTbl.UI.displayCapabilities.textFields, 1)
     hmiCapTbl.UI.hmiZoneCapabilities = "BACK"
     hmiCapTbl.UI.softButtonCapabilities.imageSupported = false
@@ -230,11 +253,13 @@ function m.updateHMICapabilitiesTable()
     hmiCapTbl.TTS.prerecordedSpeechCapabilities = { "POSITIVE_JINGLE" }
     table.remove(hmiCapTbl.RC.remoteControlCapability.buttonCapabilities, 1)
     hmiCapTbl.RC.seatLocationCapability.rows = 1
+  end
+  excludeAbsentInMobApiTextFields(hmiCapTbl.UI.displayCapabilities.textFields)
   return hmiCapTbl
 end
 
-function m.updateHMICapabilitiesFile()
-  local hmiCapTbl = m.updateHMICapabilitiesTable()
+function m.updateHMICapabilitiesFile(isRemainData)
+  local hmiCapTbl = m.updateHMICapabilitiesTable(isRemainData)
   actions.sdl.setHMICapabilitiesToFile(hmiCapTbl)
 end
 
@@ -422,6 +447,15 @@ function m.ignitionOff()
     end
   end
   actions.run.runAfter(forceStopSDL, timeout + 500)
+end
+
+function m.start(pHMIParams)
+  local hmiParams = pHMIParams or hmi_values.getDefaultHMITable()
+  if hmiParams and hmiParams.UI and hmiParams.UI.GetCapabilities
+      and hmiParams.UI.GetCapabilities.params.displayCapabilities then
+    excludeAbsentInMobApiTextFields(hmiParams.UI.GetCapabilities.params.displayCapabilities.textFields)
+  end
+  return actions.start(hmiParams)
 end
 
 function m.startWoHMIonReady()

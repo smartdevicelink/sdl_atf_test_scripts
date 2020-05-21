@@ -73,6 +73,7 @@ end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
+common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true })
 common.Step("Start SDL, HMI", common.start, { getHMIParamsWithOutResponse(ccpuVersion) })
 common.Step("Check that capabilities file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
 common.Step("Ignition off", common.ignitionOff)
