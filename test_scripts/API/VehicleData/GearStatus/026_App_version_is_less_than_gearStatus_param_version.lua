@@ -6,7 +6,7 @@
 --
 -- Preconditions:
 -- 1) App is registered with syncMsgVersion=5.0
--- 2) The parameter `gearStatus` has since=6.0 in DB and API.
+-- 2) The parameter `gearStatus` has since=6.2 in DB and API.
 -- In case:
 -- 1) App requests Get/Sub/UnsubscribeVehicleData with gearStatus=true.
 -- SDL does:

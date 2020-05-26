@@ -5,8 +5,8 @@
 --  in case app version is equal to parameter version
 --
 -- Preconditions:
--- 1) App is registered with syncMsgVersion=6.0
--- 2) The parameter `gearStatus` has since=6.0 in DB and API.
+-- 1) App is registered with syncMsgVersion=6.2
+-- 2) The parameter `gearStatus` has since=6.2 in DB and API.
 -- In case:
 -- 1) App requests Get/Sub/UnsubscribeVehicleData with gearStatus=true.
 -- SDL does:
@@ -20,7 +20,7 @@ local common = require('test_scripts/API/VehicleData/GearStatus/common')
 
 -- [[ Test Configuration ]]
 common.getAppParams().syncMsgVersion.majorVersion = 6
-common.getAppParams().syncMsgVersion.minorVersion = 0
+common.getAppParams().syncMsgVersion.minorVersion = 2
 
 -- [[ Local Variables ]]
 local rpc_sub = "SubscribeVehicleData"

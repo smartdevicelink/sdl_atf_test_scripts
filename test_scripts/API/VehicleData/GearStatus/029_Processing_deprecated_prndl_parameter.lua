@@ -5,7 +5,7 @@
 --
 -- In case:
 -- 1) App is registered with version is equal to/greater than/less than parameter version
--- 2) The parameter `prndl` is deprecated since=6.0 in API and DB.
+-- 2) The parameter `prndl` is deprecated since=6.2 in API and DB.
 -- 3) App requests Get/Sub/UnsubscribeVehicleData with prndl=true.
 -- 4) HMI sends valid OnVehicleData notification with prndl=<value since=2.0>
 -- SDL does:
@@ -15,11 +15,11 @@
 -- 6) App requests GetVehicleData(prndl)
 -- SDL does:
 --  a) send this request to HMI.
--- 7) HMI responds with prndl=<value since=6.0>
+-- 7) HMI responds with prndl=<value since=6.2>
 -- SDL does:
 --  a) process this value as invalid
 --  b) sends response GetVehicleData(success:false, resultCode:`GENERIC_ERROR`) to mobile app
--- 8) HMI sends a OnVehicleData notification with prndl=<value since=6.0>.
+-- 8) HMI sends a OnVehicleData notification with prndl=<value since=6.2>.
 -- SDL does:
 --  a) ignore this notification.
 --  b) not send OnVehicleData notification to mobile app.
@@ -39,11 +39,11 @@ local notExpected = 0
 local appVersions = {
   lessThanParamVersion = { major = 5, minor = 0 },
   greaterThanParamVersion = { major = 7, minor = 0 },
-  equalToParamVersion =  { major = 6, minor = 0 }
+  equalToParamVersion =  { major = 6, minor = 2 }
 }
 
 local parameterName = "prndl"
-local prndlSince60 = "NINTH"
+local prndlSince62 = "NINTH"
 local prndlSince20 = "PARK"
 
 -- [[ Local Functions ]]
@@ -81,15 +81,15 @@ for caseName, value in common.spairs(appVersions) do
   common.Step("Unregistration App" .. caseName, common.appUnregistration)
 end
 
-common.Title("Version of prndl value is since=6.0")
+common.Title("Version of prndl value is since=6.2")
 common.Step("Set app version less than version of parameter value", setAppVersion,
   { appVersions.lessThanParamVersion.major, appVersions.lessThanParamVersion.minor })
 common.Step("Register App less than version of parameter value", common.registerApp)
-common.Step("GetVehicleData less than version of parameter value", invalidDataFromHMIWithPRNDLparam, { prndlSince60 })
+common.Step("GetVehicleData less than version of parameter value", invalidDataFromHMIWithPRNDLparam, { prndlSince62 })
 common.Step("App subscribes less than version of parameter value", common.processSubscriptionRPC,
   { rpc_sub, appId1, isExpectedSubscribeVDonHMI, parameterName })
 common.Step("OnVehicleData less than version of parameter value", common.sendOnVehicleData,
-  { prndlSince60, notExpected, parameterName })
+  { prndlSince62, notExpected, parameterName })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
