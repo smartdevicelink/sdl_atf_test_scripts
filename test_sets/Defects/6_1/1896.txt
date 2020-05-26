@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1896_SDL_Not_Send_HeartBeat_request_to_Mobile_HeartBeatTimeout_is_Zero.lua
