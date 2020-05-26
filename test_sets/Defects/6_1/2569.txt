@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/2569_SmartDeviceLink_crashes_on_boot.lua
