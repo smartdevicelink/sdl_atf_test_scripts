@@ -27,14 +27,14 @@ end
 
 local function sendMsgWithProtocolAboveMax()
     local msg = {
-            version          = 3,
-			serviceType      = 7,
-			frameInfo        = 0,
-			rpcType          = 0,
-			rpcFunctionId    = 5,
-			rpcCorrelationId = common.getMobileSession().correlationId + 1,					
-			payload          = '{"cmdID":2,"vrCommands":["vrcmd2"],"menuParams":{"position":1000,"menuName":"cmd2"},"cmdIcon":{"value":"0xFF","imageType":"STATIC"}}'
-		}
+        version          = 3,
+        serviceType      = 7,
+        frameInfo        = 0,
+        rpcType          = 0,
+        rpcFunctionId    = 5,
+        rpcCorrelationId = common.getMobileSession().correlationId + 1,					
+        payload          = '{"cmdID":2,"vrCommands":["vrcmd2"],"menuParams":{"position":1000,"menuName":"cmd2"},"cmdIcon":{"value":"0xFF","imageType":"STATIC"}}'
+    }
     common.getMobileSession():Send(msg)
 
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { appID = common.getHMIAppId(), unexpectedDisconnect = false })
