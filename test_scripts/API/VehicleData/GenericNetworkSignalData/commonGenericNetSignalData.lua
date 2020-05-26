@@ -188,6 +188,11 @@ local function VehicleDataItemsWithDataTableCreation()
     beltStatusParams.middleRow1BeltDeployed.value = "NO_EVENT"
     beltStatusParams.middleRow1BuckleBelted.value = "NO_EVENT"
     common.VehicleDataItemsWithData.beltStatus.APItype = "VEHICLEDATA_BELTSTATUS"
+    local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
+    gearStatusParams.userSelectedGear.value = "NINTH"
+    gearStatusParams.actualGear.value = "TENTH"
+    gearStatusParams.transmissionType.value = "MANUAL"
+    common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
     local bodyInformationParams = common.VehicleDataItemsWithData.bodyInformation.params
     bodyInformationParams.parkBrakeActive.value = true
     bodyInformationParams.ignitionStableStatus.value = "IGNITION_SWITCH_STABLE"
