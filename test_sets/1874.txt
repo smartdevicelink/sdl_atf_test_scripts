@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_1/1874_SDL_does_not_respond_to_mobile_app_with_GENERIC_ERROR_in_case_of_invalid_HMI_response.lua
