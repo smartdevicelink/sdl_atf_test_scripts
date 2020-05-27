@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
-local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
 local mobile_session = require('mobile_session')
 local test = require("user_modules/dummy_connecttest")
@@ -57,29 +56,6 @@ local function StartWithoutMobile()
             end)
         end)
     return common.getHMIConnection():ExpectEvent(event, "Start event")
-end
-
-local function CreateMobileConnectionCreateSession()
-    local tcpConnection = tcp.Connection(config.mobileHost, config.mobilePort)
-    local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
-    test.mobileConnection = mobile.MobileConnection(fileConnection)
-    test.mobileSession[1] = mobile_session.MobileSession(test, test.mobileConnection)
-    test.mobileSession[1].activateHeartbeat = false
-    event_dispatcher:AddConnection(test.mobileConnection)
-    test.mobileSession[1]:ExpectEvent(events.connectedEvent, "Connection 1 started")
-    test.mobileConnection:Connect()
-    test.mobileSession[1]:StartService(7)
-    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-        {
-        deviceList = {
-            {
-                name = config.mobileHost .. ":" .. config.mobilePort
-            }
-        }
-    })
-    :Do(function(_,data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
-    end)
 end
 
 local function compareArrays(array1, array2)
@@ -191,8 +167,7 @@ end
 for _, v in pairs(pFiles) do
     runner.Title("Preconditions")
     runner.Step("Clean environment", common.preconditions)
-    runner.Step("Start SDL, HMI", StartWithoutMobile)
-    runner.Step("Create mobile connection and session", CreateMobileConnectionCreateSession)
+    runner.Step("Create mobile connection and session", common.start)
 
     runner.Title("Test")
     runner.Step("Register App with OnSystemRequest Query_Apps " .. _, RegisterAppWithOnSystemRequestQueryApps, {v})
