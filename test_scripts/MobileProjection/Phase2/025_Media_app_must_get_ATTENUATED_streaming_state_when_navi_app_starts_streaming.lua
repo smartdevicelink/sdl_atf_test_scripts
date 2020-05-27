@@ -18,9 +18,7 @@ local isMixingAudioSupported = true
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType[1] }
-config.application1.registerAppInterfaceParams.isMediaApplication = true
 config.application2.registerAppInterfaceParams.appHMIType = { appHMIType[2] }
-config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
 local function getHMIParams(pIsMixingSupported)
