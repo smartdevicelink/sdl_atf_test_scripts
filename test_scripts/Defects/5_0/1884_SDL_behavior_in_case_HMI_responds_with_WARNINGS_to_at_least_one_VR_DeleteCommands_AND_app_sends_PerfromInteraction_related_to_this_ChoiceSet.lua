@@ -17,8 +17,8 @@
 -- N/A
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local common = require('user_modules/sequences/actions')
 local runner = require('user_modules/script_runner')
+local common = require('user_modules/sequences/actions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -31,6 +31,11 @@ local requestchoiceParams = {
       choiceID = 111,
       menuName = "Choice111",
       vrCommands = { "Choice111" }
+    },
+    {
+      choiceID = 112,
+      menuName = "Choice112",
+      vrCommands = { "Choice112" }
     }
   }
 }
@@ -62,8 +67,9 @@ local performParams = {
 local function createInteractionChoiceSet()
   local corId = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", requestchoiceParams)
   common.getHMIConnection():ExpectRequest("VR.AddCommand",
-    { cmdID = 111, type = "Choice", vrCommands = { "Choice111" } })
-  -- :Times(1)
+    { cmdID = 111, type = "Choice", vrCommands = { "Choice111" } },
+    { cmdID = 112, type = "Choice", vrCommands = { "Choice112" } })
+  :Times(2)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
@@ -73,10 +79,13 @@ end
 local function deleteInteractionChoiceSet(params)
 	local cid = common.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params.requestParams)
 
-	EXPECT_HMICALL("VR.DeleteCommand", { cmdID = 111, type = "Choice" })
-	:Do(function(_,data)
-		common.getHMIConnection():SendResponse(data.id, data.method, "WARNINGS", {})
+	EXPECT_HMICALL("VR.DeleteCommand")
+	:Do(function(exp, data)
+    local result = "SUCCESS"
+    if exp.occurences == 1 then result = "WARNINGS" end
+    common.getHMIConnection():SendResponse(data.id, data.method, result, {})
 	end)
+  :Times(2)
 
 	common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 	common.getMobileSession():ExpectNotification("OnHashChange")
@@ -97,7 +106,7 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 runner.Step("CreateInteractionChoiceSet", createInteractionChoiceSet)
 runner.Step("DeleteInteractionChoiceSet", deleteInteractionChoiceSet, {deleteAllParams})
-runner.Step("PerformInteraction ", sendPerformInteraction)
+runner.Step("PerformInteraction REJECTED", sendPerformInteraction)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
