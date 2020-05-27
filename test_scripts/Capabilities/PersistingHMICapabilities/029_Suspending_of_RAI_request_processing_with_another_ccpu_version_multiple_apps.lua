@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Check that SDL suspend of multiple RAI requests processing from mobile apps until all HMI Capabilities
+-- Check that SDL suspends of multiple RAI requests processing from mobile apps until all HMI Capabilities
 --  (VR/TTS/RC/UI/Buttons.GetCapabilities/,VR/TTS/UI.GetSupportedLanguages/GetLanguage, VehicleInfo.GetVehicleType)
 --  are received from HMI in case ccpu_version do not match
 --
@@ -13,11 +13,11 @@
 -- 5. HMI sends "BasicCommunication.GetSystemInfo" response with the other ccpu_version than SDL has in its LPT
 -- Sequence:
 -- 1. Mobile App1 sends RegisterAppInterface request from Mobile device1 to SDL
---  a. SDL suspend of RAI request processing from mobile
+--  a. SDL suspends of RAI request processing from mobile
 -- 2. Mobile App2 sends RegisterAppInterface request from Mobile device1 to SDL
---  a. SDL suspend of RAI request processing from mobile
+--  a. SDL suspends of RAI request processing from mobile
 -- 3. Mobile App3 sends RegisterAppInterface request from Mobile device2 to SDL
---  a. SDL suspend of RAI requests processing from mobile device
+--  a. SDL suspends of RAI requests processing from mobile device
 -- 4. HMI sends all HMI capabilities (VR/TTS/RC/UI etc) to SDL
 --  a. SDL sends RegisterAppInterface response with corresponding capabilities received from HMI to Mobile App1
 --  b. SDL sends RegisterAppInterface response with corresponding capabilities received from HMI to Mobile App2
@@ -25,6 +25,9 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
+
+--[[ Test Configuration ]]
+common.checkDefaultMobileAdapterType({ "TCP" })
 
 --[[ Local Variables ]]
 local anotherDeviceParams = { host = "1.0.0.1", port = config.mobilePort }

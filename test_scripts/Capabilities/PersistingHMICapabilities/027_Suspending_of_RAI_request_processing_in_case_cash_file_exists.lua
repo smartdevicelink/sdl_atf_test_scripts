@@ -13,7 +13,7 @@
 -- 6. SDL is started and send GetSystemInfo request
 -- Sequence:
 -- 1. Mobile sends RegisterAppInterface request to SDL
---  a. SDL suspend of RAI request processing from mobile
+--  a. SDL suspends of RAI request processing from mobile
 -- 2. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
 --   SDL does not send HMI capabilities (VR/TTS/RC/UI etc) requests to HMI
 --   SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities_cache.json)
@@ -21,6 +21,9 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
+
+--[[ Test Configuration ]]
+common.checkDefaultMobileAdapterType({ "TCP" })
 
 --[[ Local Variables ]]
 local appSessionId = 1

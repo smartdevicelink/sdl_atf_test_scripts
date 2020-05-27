@@ -1,15 +1,16 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Check that SDL suspends of RAI request processing from mobile app in case HMI does not provide all HMI capabilities
---  (VR/TTS/RC/UI etc) and ccpu_version do not match
+-- Check that SDL suspends of RAI request processing from mobile app in case mobile device connected during OnReady
+--   communication, HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc) and ccpu_version do not match
 --
 -- Preconditions:
 -- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
 -- 2. HMI capabilities cache file doesn't exist on file system
 -- 3. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
 -- Sequence:
--- 1. Mobile sends RegisterAppInterface request to SDL
+-- 1. Mobile is connected just after HMI sends OnReady notification to SDL.
+-- Mobile sends RegisterAppInterface request to SDL
 --  a. SDL suspends of RAI request processing from mobile
 -- 2. HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc)
 --  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities.json)
@@ -17,9 +18,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
-
---[[ Test Configuration ]]
-common.checkDefaultMobileAdapterType({ "TCP" })
 
 --[[ Local Variables ]]
 local appSessionId = 1
@@ -73,10 +71,10 @@ end
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true })
-common.Step("Start SDL, HMI", common.startWoHMIonReady)
+common.Step("Start SDL, HMI", common.startWoHMIonReadyAndMobile)
 
 common.Title("Test")
-common.Step("Check suspending App registration", common.registerAppSuspend,
+common.Step("Connect mobile and check suspending App registration", common.connectMobileAndRegisterAppSuspend,
   { appSessionId, capRaiResponse, getHMIParamsWithOutResponse("cppu_version_1"), delayRaiResponse })
 
 common.Title("Postconditions")

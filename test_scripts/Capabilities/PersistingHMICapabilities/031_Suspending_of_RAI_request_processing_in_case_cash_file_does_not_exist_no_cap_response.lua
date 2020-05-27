@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Check that SDL suspend of RAI request processing from mobile app in case HMI does not send all HMI Capabilities
+-- Check that SDL suspends of RAI request processing from mobile app in case HMI does not send all HMI Capabilities
 --  (VR/TTS/RC/UI/Buttons.GetCapabilities/,VR/TTS/UI.GetSupportedLanguages/GetLanguage, VehicleInfo.GetVehicleType)
 --  response due to timeout. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist
 --  on file system and ccpu_version matches with received ccpu_version from HMI
@@ -13,13 +13,16 @@
 -- 4. Local ccpu_version matches with received ccpu_version from HMI
 -- Sequence:
 -- 1. Mobile sends RegisterAppInterface request to SDL
---  a. SDL suspend of RAI request processing from mobile
+--  a. SDL suspends of RAI request processing from mobile
 -- 2. HMI does not sends all HMI capabilities (VR/TTS/RC/UI etc) to SDL
 --  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities_cache.json)
 --   to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
+
+--[[ Test Configuration ]]
+common.checkDefaultMobileAdapterType({ "TCP" })
 
 --[[ Local Variables ]]
 local appSessionId = 1

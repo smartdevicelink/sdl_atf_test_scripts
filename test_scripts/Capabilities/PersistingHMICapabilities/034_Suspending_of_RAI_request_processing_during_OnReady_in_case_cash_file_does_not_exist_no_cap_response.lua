@@ -1,30 +1,33 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Check that SDL suspends of RAI request processing from mobile app in case HMI does not provide all HMI capabilities
---  (VR/TTS/RC/UI etc) and ccpu_version do not match
+-- Check that SDL suspends of RAI request processing from mobile app in case mobile device connected during OnReady
+--  communication, HMI does not send all HMI Capabilities
+--  (VR/TTS/RC/UI/Buttons.GetCapabilities/,VR/TTS/UI.GetSupportedLanguages/GetLanguage, VehicleInfo.GetVehicleType)
+--  response due to timeout. HMI capabilities cache file (hmi_capabilities_cache.json) doesn't exist
+--  on file system and ccpu_version matches with received ccpu_version from HMI
 --
 -- Preconditions:
 -- 1  Value of HMICapabilitiesCacheFile parameter is defined (hmi_capabilities_cache.json) in smartDeviceLink.ini file
 -- 2. HMI capabilities cache file doesn't exist on file system
--- 3. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
+-- 3. SDL and HMI are started
+-- 4. Local ccpu_version matches with received ccpu_version from HMI
 -- Sequence:
--- 1. Mobile sends RegisterAppInterface request to SDL
+-- 1. Mobile is connected just after HMI sends OnReady notification to SDL.
+-- Mobile sends RegisterAppInterface request to SDL
 --  a. SDL suspends of RAI request processing from mobile
--- 2. HMI does not provide all HMI capabilities (VR/TTS/RC/UI etc)
---  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities.json)
---  from HMI to Mobile
+-- 2. HMI does not sends all HMI capabilities (VR/TTS/RC/UI etc) to SDL
+--  a. SDL sends RegisterAppInterface response with corresponding capabilities (stored in hmi_capabilities_cache.json)
+--   to Mobile
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
---[[ Test Configuration ]]
-common.checkDefaultMobileAdapterType({ "TCP" })
-
 --[[ Local Variables ]]
 local appSessionId = 1
-local hmiCapabilities = common.getHMICapabilitiesFromFile()
+local ccpuVersion = "cppu_version_1"
 local delayRaiResponse = 10000
+local hmiCapabilities = common.getHMICapabilitiesFromFile()
 
 --[[ Local Functions ]]
 local function changeInternalNameRate(pCapabilities)
@@ -73,11 +76,14 @@ end
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true })
-common.Step("Start SDL, HMI", common.startWoHMIonReady)
+common.Step("Start SDL, HMI, connect mobile", common.start, { getHMIParamsWithOutResponse(ccpuVersion) })
+common.Step("Check that capabilities file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
+common.Step("Ignition off", common.ignitionOff)
 
 common.Title("Test")
-common.Step("Check suspending App registration", common.registerAppSuspend,
-  { appSessionId, capRaiResponse, getHMIParamsWithOutResponse("cppu_version_1"), delayRaiResponse })
+common.Step("Start SDL, HMI", common.startWoHMIonReadyAndMobile)
+common.Step("Connect mobile and check suspending App registration", common.connectMobileAndRegisterAppSuspend,
+  { appSessionId, capRaiResponse, getHMIParamsWithOutResponse(ccpuVersion), delayRaiResponse })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

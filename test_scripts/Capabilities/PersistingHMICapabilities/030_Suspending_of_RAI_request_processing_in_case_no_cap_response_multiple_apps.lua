@@ -10,14 +10,14 @@
 -- 3. HMI sends all capabilities to SDL
 -- 4. SDL persists capabilities to HMI capabilities cache file ("hmi_capabilities_cache.json") in AppStorageFolder
 -- 5. Ignition OFF/ON cycle performed
--- 6. SDL is started and send GetSystemInfo request
+-- 6. SDL is started and sends GetSystemInfo request
 -- Sequence:
 -- 1. Mobile App1 sends RegisterAppInterface request from Mobile device1 to SDL
---  a. SDL suspend of RAI request processing from mobile
+--  a. SDL suspends of RAI request processing from mobile
 -- 2. Mobile App2 sends RegisterAppInterface request from Mobile device1 to SDL
---  a. SDL suspend of RAI request processing from mobile
+--  a. SDL suspends of RAI request processing from mobile
 -- 3. Mobile App3 sends RegisterAppInterface request from Mobile device2 to SDL
---  a. SDL suspend of RAI requests processing from mobile
+--  a. SDL suspends of RAI requests processing from mobile
 -- 4. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_1" to SDL
 --   SDL does not send HMI capabilities (VR/TTS/RC/UI etc) requests to HMI
 --   a. SDL sends RegisterAppInterface response with corresponding capabilities received from HMI to Mobile App1
@@ -26,6 +26,9 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
+
+--[[ Test Configuration ]]
+common.checkDefaultMobileAdapterType({ "TCP" })
 
 --[[ Local Variables ]]
 local anotherDeviceParams = { host = "1.0.0.1", port = config.mobilePort }

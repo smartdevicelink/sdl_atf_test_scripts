@@ -41,6 +41,21 @@ local function excludeAbsentInMobApiTextFields(pTextFields)
   end
 end
 
+function m.checkDefaultMobileAdapterType(pApplicableMobileAdapterTypes)
+  if type(pApplicableMobileAdapterTypes) == "table" then
+    local isTransportDisallowed = true
+    for _, allowedTransportType in pairs(pApplicableMobileAdapterTypes) do
+      if config.defaultMobileAdapterType == allowedTransportType then
+        isTransportDisallowed = false
+        break
+      end
+    end
+    if isTransportDisallowed then
+      runner.skipTest("This test is not applicable for " .. config.defaultMobileAdapterType .. " mobile transport")
+    end
+  end
+end
+
 function m.getDefaultHMITable()
   local hmiCaps = hmi_values.getDefaultHMITable()
   excludeAbsentInMobApiTextFields(hmiCaps.UI.GetCapabilities.params.displayCapabilities.textFields)
@@ -467,22 +482,242 @@ function m.start(pHMIParams)
   return actions.start(hmiParams)
 end
 
-function m.startWoHMIonReady()
+local function incompleteStart(isConnectMobile)
   local event = actions.run.createEvent()
   actions.init.SDL()
   :Do(function()
-      actions.init.HMI()
-      :Do(function()
-          actions.init.connectMobile()
-          :Do(function()
-              actions.init.allowSDL()
-              :Do(function()
-                  actions.hmi.getConnection():RaiseEvent(event, "Start event")
-                end)
-            end)
+      local initHmiExp = actions.init.HMI()
+      if isConnectMobile then
+        initHmiExp:Do(function()
+            actions.init.connectMobile()
+            :Do(function()
+                actions.init.allowSDL()
+                :Do(function()
+                    actions.hmi.getConnection():RaiseEvent(event, "Start event")
+                  end)
+              end)
+          end)
+      else
+        initHmiExp:Do(function()
+            actions.hmi.getConnection():RaiseEvent(event, "Start event")
         end)
+      end
     end)
   return actions.hmi.getConnection():ExpectEvent(event, "Start event")
+end
+
+function m.startWoHMIonReady()
+  return incompleteStart(true)
+end
+
+function m.startWoHMIonReadyAndMobile()
+  return incompleteStart(false)
+end
+
+local function registerAppOnEvent(pEvent, pParams, pHmiOnReadyData)
+  local policyModes = {
+    P  = "PROPRIETARY",
+    EP = "EXTERNAL_PROPRIETARY",
+    H  = "HTTP"
+  }
+
+  actions.hmi.getConnection():ExpectEvent(pEvent, "Event")
+  :Do(function()
+    local session = actions.mobile.createSession(pParams.appId, pParams.mobConnId)
+    session:StartService(7)
+    :Do(function()
+        local corId = session:SendRPC("RegisterAppInterface", actions.app.getParams(pParams.appId))
+        actions.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+          { application = { appName = actions.app.getParams(pParams.appId).appName }}):Timeout(pParams.timeout)
+        :Do(function(_, d1)
+            actions.app.setHMIId(d1.params.application.appID, pParams.appId)
+            if pParams.hasPTU then
+              m.ptu.expectStart()
+            end
+        end)
+        local errorMessages = ""
+        session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" }):Timeout(pParams.timeout)
+        :ValidIf(function(_,data)
+          local timeRAIResponse = timestamp()
+          if pHmiOnReadyData.isReceived == false then
+            actions.run.fail("RegisterAppInterface response was received before HMI on ready")
+          else
+            local timeBetweenHMIonReadyRAIResponse = timeRAIResponse - pHmiOnReadyData.time
+            if timeBetweenHMIonReadyRAIResponse > pParams.timeRAIResponseAfterHMIonReady then
+              actions.run.fail("RegisterAppInterface response was received with delay more than " ..
+              pParams.timeRAIResponseAfterHMIonReady .. " msec after HMI on ready")
+            end
+          end
+          for param, value in pairs (pParams.capabilitiesResponse) do
+            if param == "hmiZoneCapabilities" then
+              if not data.payload[param] == value then
+                errorMessages = errorMessages ..
+                  errorMessage(param, data.payload[param], value)
+              end
+            else
+              if not utils.isTableEqual(data.payload[param], value) then
+                errorMessages = errorMessages ..
+                  errorMessage(param, data.payload[param], value)
+              end
+            end
+          end
+          if string.len(errorMessages) > 0 then
+            return false, errorMessages
+          else
+            return true
+          end
+        end)
+        :Do(function()
+            session:ExpectNotification("OnHMIStatus",
+              { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+            session:ExpectNotification("OnPermissionsChange")
+            :Times(AnyNumber())
+            local policyMode = SDL.buildOptions.extendedPolicy
+            if policyMode == policyModes.P or policyMode == policyModes.EP then
+              session:ExpectNotification("OnSystemRequest", { requestType = "LOCK_SCREEN_ICON_URL" })
+            end
+          end)
+      end)
+  end)
+end
+
+local function initHmiOnReady(hmi_table)
+  local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
+  local test = require("user_modules/dummy_connecttest")
+
+  local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(test, "HMI on ready")
+
+  local hmi = actions.hmi.getConnection()
+
+  local function ExpectRequest(name, hmi_table_element)
+    if hmi_table_element.occurrence == 0 then
+      hmi:ExpectRequest(name, hmi_table_element.params)
+      :Times(0)
+      return
+    end
+    local event = events.Event()
+    event.level = 1
+    event.matches = function(_, data)
+      return data.method == name
+    end
+
+    local delay = hmi_table_element.delay or 0
+    local occurrence = hmi_table_element.occurrence
+    if occurrence == nil then
+      occurrence = hmi_table_element.mandatory and 1 or AnyNumber()
+    end
+    local exp = hmi:ExpectEvent(event, name)
+    :Times(occurrence)
+    :Do(function(_, data)
+        local function sendHMIResponse()
+          hmi:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        end
+        actions.run.runAfter(sendHMIResponse, delay)
+      end)
+    if hmi_table_element.mandatory then
+      exp_waiter:AddExpectation(exp)
+    end
+    if hmi_table_element.pinned then
+      exp:Pin()
+    end
+    return exp
+  end
+
+  local hmi_table_internal
+  if type(hmi_table) == "table" then
+    hmi_table_internal = utils.cloneTable(hmi_table)
+  else
+    hmi_table_internal = hmi_values.getDefaultHMITable()
+  end
+
+  local bc_update_app_list
+  if hmi_table_internal.BasicCommunication then
+    bc_update_app_list = hmi_table_internal.BasicCommunication.UpdateAppList
+    hmi_table_internal.BasicCommunication.UpdateAppList = nil
+    local bc_update_device_list = hmi_table_internal.BasicCommunication.UpdateDeviceList
+    if SDL.buildOptions.webSocketServerSupport == "ON" and bc_update_device_list then
+      bc_update_device_list.mandatory = true
+      if not bc_update_device_list.occurrence then bc_update_device_list.occurrence = AtLeast(1) end
+    end
+  end
+
+  local additionalExp = nil
+  local additionalExpName = "BasicCommunication.UpdateDeviceList"
+  for k_module, v_module in pairs(hmi_table_internal) do
+    if type(v_module) ~= "table" then
+      break
+    end
+    for k_request, v_request in pairs(v_module) do
+      local request_name = k_module .. "." .. k_request
+      local exp = ExpectRequest(request_name, v_request)
+      if request_name == additionalExpName then
+        additionalExp = exp
+      end
+    end
+  end
+
+  if type(bc_update_app_list) == "table" then
+    ExpectRequest("BasicCommunication.UpdateAppList", bc_update_app_list)
+    :Do(function(_, data)
+      hmi:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  end
+
+  exp_waiter.expectation:Do(function()
+    utils.cprint(35, "HMI is ready")
+  end)
+
+  hmi:SendNotification("BasicCommunication.OnReady")
+  return exp_waiter.expectation, additionalExp
+end
+
+function m.connectMobileAndRegisterAppSuspend(pAppId, pCapResponse, pHMIParams, pDelayRaiResponse, pMobConnId, hasPTU)
+  if not pCapResponse then pCapResponse = {} end
+  if not pAppId then pAppId = 1 end
+  if not pMobConnId then pMobConnId = 1 end
+
+  local timeout = 15000
+  local timeRAIResponseAfterHMIonReady = 2000
+
+  local hmiOnReadyData = {
+    isReceived = false,
+    time = 0
+  }
+
+  local event = actions.run.createEvent()
+
+  local function hmiOnReady()
+    if not pDelayRaiResponse then pDelayRaiResponse = 0 end
+    local exp, additionalExp = initHmiOnReady(pHMIParams)
+    exp:Do(function()
+        actions.run.wait(pDelayRaiResponse)
+        :Do(function()
+            hmiOnReadyData.time = timestamp()
+            hmiOnReadyData.isReceived = true
+          end)
+      end)
+      additionalExp:DoOnce(function()
+        actions.init.connectMobile()
+        :Do(function()
+            actions.init.allowSDL()
+            :Do(function()
+                actions.hmi.getConnection():RaiseEvent(event, "Event")
+              end)
+          end)
+      end)
+  end
+
+  local params = {
+    appId = pAppId,
+    mobConnId = pMobConnId,
+    timeout = timeout,
+    hasPTU = hasPTU,
+    timeRAIResponseAfterHMIonReady = timeRAIResponseAfterHMIonReady,
+    capabilitiesResponse = pCapResponse,
+  }
+
+  registerAppOnEvent(event, params, hmiOnReadyData)
+  hmiOnReady()
 end
 
 function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pDelayRaiResponse, pMobConnId, hasPTU)
@@ -493,13 +728,13 @@ function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pDelayRaiRespons
   local timeout = 15000
   local timeRunAfter = 3000
   local timeRAIResponseAfterHMIonReady = 3000
-  local timeHMIonReady
-  local isHMIonReady = false
-  local policyModes = {
-    P  = "PROPRIETARY",
-    EP = "EXTERNAL_PROPRIETARY",
-    H  = "HTTP"
+
+  local hmiOnReadyData = {
+    isReceived = false,
+    time = 0
   }
+
+  local event = actions.run.createEvent()
 
   local function HMIonReady()
     if not pDelayRaiResponse then pDelayRaiResponse = 0 end
@@ -507,69 +742,24 @@ function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pDelayRaiRespons
     :Do(function()
         actions.run.wait(pDelayRaiResponse)
         :Do(function()
-            timeHMIonReady = timestamp()
-            isHMIonReady = true
+            hmiOnReadyData.time = timestamp()
+            hmiOnReadyData.isReceived = true
           end)
       end)
   end
   actions.run.runAfter(HMIonReady, timeRunAfter)
 
-  local session = actions.mobile.createSession(pAppId, pMobConnId)
-  session:StartService(7)
-  :Do(function()
-      local corId = session:SendRPC("RegisterAppInterface", actions.app.getParams(pAppId))
-      actions.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = actions.app.getParams(pAppId).appName }}):Timeout(timeout)
-      :Do(function(_, d1)
-          actions.app.setHMIId(d1.params.application.appID, pAppId)
-          if hasPTU then
-            m.ptu.expectStart()
-          end
-      end)
-      local errorMessages = ""
-      session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" }):Timeout(timeout)
-      :ValidIf(function(_,data)
-        local timeRAIResponse = timestamp()
-        if isHMIonReady == false then
-          actions.run.fail("RegisterAppInterface response was received before HMI on ready")
-        else
-          local timeBetweenHMIonReadyRAIResponse = timeRAIResponse - timeHMIonReady
-          if timeBetweenHMIonReadyRAIResponse > timeRAIResponseAfterHMIonReady then
-            actions.run.fail("RegisterAppInterface response was received with delay more than " ..
-              timeRAIResponseAfterHMIonReady .. " msec after HMI on ready")
-          end
-        end
+  local params = {
+    appId = pAppId,
+    mobConnId = pMobConnId,
+    timeout = timeout,
+    hasPTU = hasPTU,
+    timeRAIResponseAfterHMIonReady = timeRAIResponseAfterHMIonReady,
+    capabilitiesResponse = pCapResponse,
+  }
 
-        for param, value in pairs (pCapResponse) do
-          if param == "hmiZoneCapabilities" then
-            if not data.payload[param] == value then
-              errorMessages = errorMessages ..
-                errorMessage(param, data.payload[param], value)
-            end
-          else
-            if not utils.isTableEqual(data.payload[param], value) then
-              errorMessages = errorMessages ..
-                errorMessage(param, data.payload[param], value)
-            end
-          end
-        end
-        if string.len(errorMessages) > 0 then
-          return false, errorMessages
-        else
-          return true
-        end
-      end)
-      :Do(function()
-          session:ExpectNotification("OnHMIStatus",
-            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-          session:ExpectNotification("OnPermissionsChange")
-          :Times(AnyNumber())
-          local policyMode = SDL.buildOptions.extendedPolicy
-          if policyMode == policyModes.P or policyMode == policyModes.EP then
-            session:ExpectNotification("OnSystemRequest", { requestType = "LOCK_SCREEN_ICON_URL" })
-          end
-        end)
-    end)
+  registerAppOnEvent(event, params, hmiOnReadyData)
+  actions.hmi.getConnection():RaiseEvent(event, "Event")
 end
 
 function m.connectMobDevice(pMobConnId, pDeviceInfo, pIsSDLAllowed)
