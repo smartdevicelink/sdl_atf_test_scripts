@@ -13,6 +13,7 @@ config.defaultProtocolVersion = 2
 
 --[[ Local Variables ]]
 local m = {}
+m.hashIdArray = { }
 
 m.allVehicleData = {
   gps = {
@@ -274,6 +275,10 @@ m.cloneTable = utils.cloneTable
 m.cprint = utils.cprint
 m.getPreloadedPT = actions.sdl.getPreloadedPT
 m.setPreloadedPT = actions.sdl.setPreloadedPT
+m.disconnect = actions.mobile.disconnect
+m.connect = actions.mobile.connect
+m.setSDLIniParameter = actions.sdl.setSDLIniParameter
+m.isTableContains = utils.isTableContains
 
 --[[ Common Functions ]]
 local function getVDParams()
@@ -304,7 +309,7 @@ function m.ptUpdateMin(pTbl)
   pTbl.policy_table.vehicle_data = nil
 end
 
-function m.processRPCSubscriptionSuccess(pRpcName, pData)
+local function getVDForReqAndResp(pData)
   local reqParams = {
     [pData] = true
   }
@@ -320,28 +325,43 @@ function m.processRPCSubscriptionSuccess(pRpcName, pData)
       dataType = m.allVehicleData[pData].type
     }
   }
-  local cid = m.getMobileSession():SendRPC(pRpcName, reqParams)
-  m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRpcName, reqParams)
-  :Do(function(_, data)
-      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
-    end)
+  return reqParams, hmiResParams
+end
+
+function m.processRPCSubscriptionSuccess(pRpcName, pData, pAppId, pHMIsubscription)
+  if not pAppId then pAppId = 1 end
+  local reqParams, hmiResParams = getVDForReqAndResp(pData)
+  local cid = m.getMobileSession(pAppId):SendRPC(pRpcName, reqParams)
+  if pHMIsubscription == nil or pHMIsubscription == true then
+    m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRpcName, reqParams)
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
+      end)
+  else
+    m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRpcName):Times(0)
+  end
   local mobResParams = m.cloneTable(hmiResParams)
   mobResParams.success = true
   mobResParams.resultCode = "SUCCESS"
-  m.getMobileSession():ExpectResponse(cid, mobResParams)
+  m.getMobileSession(pAppId):ExpectResponse(cid, mobResParams)
+  m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+      m.hashIdArray[pAppId] = data.payload.hashID
+    end)
 end
 
-function m.checkNotificationSuccess(pData)
+function m.checkNotificationSuccess(pData, pAppId)
+  if not pAppId then pAppId = 1 end
   local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
   local mobNotParams = m.cloneTable(hmiNotParams)
-  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
-  m.getMobileSession():ExpectNotification("OnVehicleData", mobNotParams)
+  m.getHMIConnection(pAppId):SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getMobileSession(pAppId):ExpectNotification("OnVehicleData", mobNotParams)
 end
 
-function m.checkNotificationIgnored(pData)
+function m.checkNotificationIgnored(pData, pAppId)
   local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
-  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
-  m.getMobileSession():ExpectNotification("OnVehicleData")
+  m.getHMIConnection(pAppId):SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getMobileSession(pAppId):ExpectNotification("OnVehicleData")
   :Times(0)
 end
 
@@ -389,6 +409,72 @@ function m.processGetVDwithCustomDataSuccess()
   mobResParams.success = true
   mobResParams.resultCode = "SUCCESS"
   m.getMobileSession():ExpectResponse(cid, mobResParams)
+end
+
+local function raiWithoutOnHMIStatus(pAppId)
+  local session = actions.mobile.createSession(pAppId)
+  session:StartService(7)
+  :Do(function()
+      local corId = m.getMobileSession(pAppId):SendRPC("RegisterAppInterface", m.getConfigAppParams(pAppId))
+      m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
+        { application = { appName = m.getConfigAppParams(pAppId).appName } })
+      m.getMobileSession(pAppId):ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+    end)
+end
+
+function m.raiWithDataResumption(pRpcName, pData, pAppId, pHMIsubscription)
+  local reqParams, hmiResParams = getVDForReqAndResp(pData)
+  m.getConfigAppParams(pAppId).hashID = m.hashIdArray[pAppId]
+  raiWithoutOnHMIStatus(pAppId)
+  if pHMIsubscription == true or pHMIsubscription == nil  then
+    EXPECT_HMICALL("VehicleInfo." .. pRpcName, reqParams)
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
+      end)
+  else
+    EXPECT_HMICALL("VehicleInfo." .. pRpcName) :Times(0)
+  end
+end
+
+function m.checkNotificationSuccess2Apps(pData)
+  local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
+  local mobNotParams = m.cloneTable(hmiNotParams)
+  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getMobileSession(1):ExpectNotification("OnVehicleData", mobNotParams)
+  m.getMobileSession(2):ExpectNotification("OnVehicleData", mobNotParams)
+end
+
+function m.checkNotificationIgnored2Apps(pData)
+  local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
+  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getMobileSession(1):ExpectNotification("OnVehicleData") :Times(0)
+  m.getMobileSession(2):ExpectNotification("OnVehicleData") :Times(0)
+end
+
+function m.ptUpdateForApp2AndNotifLevel(pTbl)
+  m.ptUpdate(pTbl)
+  pTbl.policy_table.app_policies[m.getConfigAppParams(2).fullAppID].groups = { "Base-4", "Emergency-1" }
+  local levelsForNotif = pTbl.policy_table.functional_groupings["Emergency-1"].rpcs.OnVehicleData.hmi_levels
+  if m.isTableContains(levelsForNotif, "NONE") == false then
+    table.insert(levelsForNotif, "NONE")
+  end
+end
+
+function m.unregisterAppWithUnsubscription(pData, pAppId, pHMIunsubscription)
+  local reqParams, hmiResParams = getVDForReqAndResp(pData)
+  local mobileSession = m.getMobileSession(pAppId)
+  if pHMIunsubscription == true or pHMIunsubscription == nil then
+    EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData", reqParams)
+    :Do(function(_, data)
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
+      end)
+  else
+    EXPECT_HMICALL("VehicleInfo.UnsubscribeVehicleData") :Times(0)
+  end
+  local cid = mobileSession:SendRPC("UnregisterAppInterface",{})
+  actions.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
+    { unexpectedDisconnect = false })
+  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
 end
 
 return m
