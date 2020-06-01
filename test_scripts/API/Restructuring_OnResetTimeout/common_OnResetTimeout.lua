@@ -8,23 +8,39 @@ config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 config.application2.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Required Shared libraries ]]
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local json = require("modules/json")
 local utils = require('user_modules/utils')
 local actions = require("user_modules/sequences/actions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local runner = require('user_modules/script_runner')
+
+--[[ Tests Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Common Variables ]]
-local c = actions
-
-local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
+local c = {}
+c.start = actions.start
+c.registerAppWOPTU = actions.registerAppWOPTU
+c.activateApp = actions.activateApp
+c.postconditions = actions.postconditions
+c.getMobileSession = actions.mobile.getSession
+c.getHMIConnection = actions.hmi.getConnection
+c.getHMIAppId = actions.app.getHMIId
+c.defineRAMode = commonRC.defineRAMode
+c.rpcAllowed = commonRC.rpcAllowed
+c.getAppEventName = commonRC.getAppEventName
+c.getAppRequestParams = commonRC.getAppRequestParams
+c.getHMIEventName = commonRC.getHMIEventName
+c.getHMIRequestParams = commonRC.getHMIRequestParams
+c.getHMIResponseParams = commonRC.getHMIResponseParams
 
 c.notificationTime = 0
 c.jsonFileToTable = utils.jsonFileToTable
 c.tableToJsonFile = utils.tableToJsonFile
 c.cloneTable = utils.cloneTable
+c.Step = runner.Step
+c.Title = runner.Title
+
 c.modules = { "RADIO", "CLIMATE" }
 
 c.rpcs = {}
@@ -54,8 +70,7 @@ c.rpcsArrayWithoutRPCWithCustomTimeout = {
 --! @return: none
 --]]
 local function updatePreloadedPT()
-  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
-  local pt = utils.jsonFileToTable(preloadedFile)
+  local pt = actions.sdl.getPreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   local additionalRPCs = {
     "SendLocation", "DialNumber", "DiagnosticMessage"
@@ -79,7 +94,7 @@ local function updatePreloadedPT()
   pt.policy_table.app_policies["0000002"].moduleType = c.modules
   pt.policy_table.app_policies["0000002"].AppHMIType = { "REMOTE_CONTROL" }
 
-  utils.tableToJsonFile(pt, preloadedFile)
+  actions.sdl.setPreloadedPT(pt)
 end
 
 --[[ @preconditions: Remove policy DB, Logs, create backup and update for preloaded file
@@ -87,21 +102,8 @@ end
 --! @return: none
 --]]
 function c.preconditions()
-  commonFunctions:SDLForceStop()
-  commonSteps:DeletePolicyTable()
-  commonSteps:DeleteLogsFiles()
-  commonPreconditions:BackupFile(preloadedPT)
+  actions.preconditions()
   updatePreloadedPT()
-end
-
---[[ @postconditions: postcondition steps
---! @parameters: none
---! @return: none
---]]
-local originPostconditions = c.postconditions
-function c.postconditions()
-  originPostconditions()
-  commonPreconditions:RestoreFile(preloadedPT)
 end
 
 --[[ @onResetTimeoutNotification: Send OnResetTimeout notification from HMI
@@ -447,14 +449,14 @@ end
 --! @return: none
 --]]
 function c.rpcs.SetInteriorVehicleData( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
-  local cid = c.getMobileSession():SendRPC(commonRC.getAppEventName("SetInteriorVehicleData"),
-    commonRC.getAppRequestParams("SetInteriorVehicleData", "CLIMATE" ))
+  local cid = c.getMobileSession():SendRPC(c.getAppEventName("SetInteriorVehicleData"),
+    c.getAppRequestParams("SetInteriorVehicleData", "CLIMATE" ))
   local pRequestTime = timestamp()
 
-  EXPECT_HMICALL(commonRC.getHMIEventName("SetInteriorVehicleData"),
-    commonRC.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE"))
+  EXPECT_HMICALL(c.getHMIEventName("SetInteriorVehicleData"),
+    c.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE"))
   :Do(function(_, data)
-      pOnRTParams.respParams = commonRC.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE")
+      pOnRTParams.respParams = c.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE")
       pHMIRespFunc(data, pOnRTParams)
     end)
   c.getMobileSession():ExpectResponse(cid, pExpMobRespParams)
@@ -474,22 +476,21 @@ end
 --! @return: none
 --]]
 function c.rpcs.rpcAllowedWithConsent( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
-  local cid = c.getMobileSession(2):SendRPC(commonRC.getAppEventName("SetInteriorVehicleData"),
-    commonRC.getAppRequestParams("SetInteriorVehicleData", "CLIMATE"))
+  local cid = c.getMobileSession(2):SendRPC(c.getAppEventName("SetInteriorVehicleData"),
+    c.getAppRequestParams("SetInteriorVehicleData", "CLIMATE"))
   local pRequestTime = timestamp()
-
   local consentRPC = "GetInteriorVehicleDataConsent"
-  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, "CLIMATE", 2))
+  EXPECT_HMICALL(c.getHMIEventName(consentRPC), c.getHMIRequestParams(consentRPC, "CLIMATE", 2))
   :Do(function(_, data)
-      pOnRTParams.respParams = commonRC.getHMIResponseParams(consentRPC, true)
+      pOnRTParams.respParams = c.getHMIResponseParams(consentRPC, true)
       pHMIRespFunc(data, pOnRTParams)
     end)
 
-  EXPECT_HMICALL(commonRC.getHMIEventName("SetInteriorVehicleData"),
-    commonRC.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE", 2))
+  EXPECT_HMICALL(c.getHMIEventName("SetInteriorVehicleData"),
+    c.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE", 2))
   :Do(function(_, data)
       c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-        commonRC.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE"))
+        c.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE"))
     end)
   :Timeout(pExpTimoutForMobResp)
   :Times(AtMost(1))

@@ -5,21 +5,19 @@
 -- In case:
 -- 1) SetInteriorVehicleData is requested by mobile app1
 -- 2) SDL sends RC.GetInteriorVehicleDataConsent
--- 3) HMI sends BC.OnResetTimeout(resetPeriod =  25000) to SDL for RC.GetInteriorVehicleDataConsent right after receiving requests on HMI
--- 4) HMI responds to RC.GetInteriorVehicleDataConsent with SUCCESS resultCode in 23 seconds after receiving HMI requests
+-- 3) HMI sends BC.OnResetTimeout(resetPeriod =  25000) to SDL for RC.GetInteriorVehicleDataConsent
+--  right after receiving requests on HMI
+-- 4) HMI responds to RC.GetInteriorVehicleDataConsent with SUCCESS resultCode in 23 seconds
+--  after receiving HMI requests
 -- 5) SDL sends RC.SetInteriorVehicleData to HMI
--- 6) HMI sends BC.OnResetTimeout(resetPeriod =  15000) to SDL RC.SetInteriorVehicleData right after receiving requests on HMI
+-- 6) HMI sends BC.OnResetTimeout(resetPeriod =  15000) to SDL RC.SetInteriorVehicleData
+--  right after receiving requests on HMI
 -- 7) HMI responds to RC.SetInteriorVehicleData with SUCCESS resultCode in 13 seconds after receiving HMI requests
 -- SDL does:
 -- 1) Respond in 36 seconds with SUCCESS resultCode to mobile app.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
-local commonRC = require('test_scripts/RC/commonRC')
-
---[[ Test Configuration ]]
-runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
@@ -38,20 +36,20 @@ local RespParams = { success = true, resultCode = "SUCCESS" }
 
 --[[ Local Functions ]]
 local function SetInteriorVehicleDataWithConsentResetToBoth()
-  local cid = common.getMobileSession(2):SendRPC(commonRC.getAppEventName("SetInteriorVehicleData"),
-    commonRC.getAppRequestParams("SetInteriorVehicleData", "CLIMATE"))
+  local cid = common.getMobileSession(2):SendRPC(common.getAppEventName("SetInteriorVehicleData"),
+    common.getAppRequestParams("SetInteriorVehicleData", "CLIMATE"))
   local requestTime = timestamp()
   local delay
   local consentRPC = "GetInteriorVehicleDataConsent"
-  EXPECT_HMICALL(commonRC.getHMIEventName(consentRPC), commonRC.getHMIRequestParams(consentRPC, "CLIMATE", 2))
+  EXPECT_HMICALL(common.getHMIEventName(consentRPC), common.getHMIRequestParams(consentRPC, "CLIMATE", 2))
   :Do(function(_, data)
-      paramsForRespFunctionConsent.respParams = commonRC.getHMIResponseParams(consentRPC, true)
+      paramsForRespFunctionConsent.respParams = common.getHMIResponseParams(consentRPC, true)
       common.responseWithOnResetTimeout(data, paramsForRespFunctionConsent)
 
-      EXPECT_HMICALL(commonRC.getHMIEventName("SetInteriorVehicleData"),
-      commonRC.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE", 2))
+      EXPECT_HMICALL(common.getHMIEventName("SetInteriorVehicleData"),
+      common.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE", 2))
       :Do(function(_, dataSet)
-          paramsForRespFunction.respParams = commonRC.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE")
+          paramsForRespFunction.respParams = common.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE")
           delay = timestamp() - requestTime - paramsForRespFunctionConsent.respTime
           common.responseWithOnResetTimeout(dataSet, paramsForRespFunction)
         end)
@@ -66,19 +64,18 @@ local function SetInteriorVehicleDataWithConsentResetToBoth()
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App_1 registration", common.registerAppWOPTU)
-runner.Step("App_2 registration", common.registerAppWOPTU, { 2 })
-runner.Step("App_1 activation", common.activateApp)
-runner.Step("Set RA mode: ASK_DRIVER", commonRC.defineRAMode, { true, "ASK_DRIVER" })
-runner.Step("SetInteriorVehicleData CLIMATE",
-  commonRC.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("App_1 registration", common.registerAppWOPTU)
+common.Step("App_2 registration", common.registerAppWOPTU, { 2 })
+common.Step("App_1 activation", common.activateApp)
+common.Step("Set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
+common.Step("SetInteriorVehicleData CLIMATE", common.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
 
-runner.Title("Test")
-runner.Step("App_2 activation", common.activateApp, { 2 })
-runner.Step("OnResetTimeout to SetInteriorVehicleData and Consent" , SetInteriorVehicleDataWithConsentResetToBoth)
+common.Title("Test")
+common.Step("App_2 activation", common.activateApp, { 2 })
+common.Step("OnResetTimeout to SetInteriorVehicleData and Consent" , SetInteriorVehicleDataWithConsentResetToBoth)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

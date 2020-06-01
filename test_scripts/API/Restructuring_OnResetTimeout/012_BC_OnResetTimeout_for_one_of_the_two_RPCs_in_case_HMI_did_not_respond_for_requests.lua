@@ -14,11 +14,7 @@
 -- 2) Respond in 13 seconds with GENERIC_ERROR resultCode to mobile app to second request
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
-
---[[ Test Configuration ]]
-runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function diagnosticMessage()
@@ -53,16 +49,16 @@ local function diagnosticMessage()
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration", common.registerAppWOPTU)
-runner.Step("App2 registration", common.registerAppWOPTU, { 2 })
-runner.Step("App activation", common.activateApp)
-runner.Step("App2 activation", common.activateApp, { 2 })
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("App registration", common.registerAppWOPTU)
+common.Step("App2 registration", common.registerAppWOPTU, { 2 })
+common.Step("App activation", common.activateApp)
+common.Step("App2 activation", common.activateApp, { 2 })
 
-runner.Title("Test")
-runner.Step("App1 and App2 send DiagnosticMessage", diagnosticMessage)
+common.Title("Test")
+common.Step("App1 and App2 send DiagnosticMessage", diagnosticMessage)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)

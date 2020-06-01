@@ -15,11 +15,7 @@
 -- 1) Respond in 10 seconds with GENERIC_ERROR resultCode to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
-
---[[ Test Configuration ]]
-runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local pOnResetTimeOut = {
@@ -55,18 +51,18 @@ local function getOnResetTimeoutParams(pCaseName, pValue)
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration", common.registerAppWOPTU)
-runner.Step("App activation", common.activateApp)
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("App registration", common.registerAppWOPTU)
+common.Step("App activation", common.activateApp)
 
-runner.Title("Test")
+common.Title("Test")
 for k, value in pairs(pOnResetTimeOut) do
-  runner.Step("Set params for OnResetTimeout notification", getOnResetTimeoutParams, { k, value })
-  runner.Step("Send SendLocation " .. k, common.rpcs.SendLocation,
+  common.Step("Set params for OnResetTimeout notification", getOnResetTimeoutParams, { k, value })
+  common.Step("Send SendLocation " .. k, common.rpcs.SendLocation,
     { 11000, 10000, invalidParamOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
 end
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)
