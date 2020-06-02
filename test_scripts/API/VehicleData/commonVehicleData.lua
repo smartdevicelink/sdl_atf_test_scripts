@@ -354,13 +354,14 @@ function m.checkNotificationSuccess(pData, pAppId)
   if not pAppId then pAppId = 1 end
   local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
   local mobNotParams = m.cloneTable(hmiNotParams)
-  m.getHMIConnection(pAppId):SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
   m.getMobileSession(pAppId):ExpectNotification("OnVehicleData", mobNotParams)
 end
 
 function m.checkNotificationIgnored(pData, pAppId)
+  if not pAppId then pAppId = 1 end
   local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
-  m.getHMIConnection(pAppId):SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
   m.getMobileSession(pAppId):ExpectNotification("OnVehicleData")
   :Times(0)
 end
