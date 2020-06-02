@@ -27,7 +27,7 @@ local hashId
 
 --[[ Local Functions ]]
 local function ptUpdateForApp(pTbl)
-  pTbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID].groups = { "Base-4", "WayPoints" }
+  pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].groups = { "Base-4", "WayPoints" }
 end
 
 local function sendSubscribeWaypoints()
@@ -43,31 +43,22 @@ local function sendSubscribeWaypoints()
     end)
 end
 
-local function rai()
-  common.getMobileSession():StartService(7)
-  :Do(function()
-      common.app.getParams().hashID = hashId
-      local corId = common.getMobileSession():SendRPC("RegisterAppInterface", common.app.getParams())
-        common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
-        { application = { appName = common.app.getParams().appName } })
-      common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-    end)
-end
-
 local function appResumption()
-  rai()
-  common.getMobileSession():ExpectNotification("OnHMIStatus",
-    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
-    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-  :Times(2)
-  common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp")
-  :Do(function(_,data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  common.app.getParams().hashID = hashId
+  common.registerAppWOPTU()
   common.getHMIConnection():ExpectRequest("Navigation.SubscribeWayPoints")
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
     end)
+end
+
+local function onWayPointNotif()
+  local wayPointParam = {
+    locationName = "Location Name",
+    coordinate = { latitudeDegrees = 1.1, longitudeDegrees = 1.1 }
+  }
+  common.getHMIConnection():SendNotification("Navigation.OnWayPointChange", { wayPoints = { wayPointParam }})
+  common.getMobileSession():ExpectNotification("OnWayPointChange",{ wayPoints = { wayPointParam }})
 end
 
 --[[ Scenario ]]
@@ -78,11 +69,13 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("PTU", common.policyTableUpdate, { ptUpdateForApp })
 runner.Step("App activation", common.activateApp)
 runner.Step("SubscribeWayPoints", sendSubscribeWaypoints)
+runner.Step("OnWayPointChange", onWayPointNotif)
 
 runner.Title("Test")
 runner.Step("Disconnect mobile device", common.mobile.disconnect)
 runner.Step("Connect mobile device", common.mobile.connect)
 runner.Step("Resumption app", appResumption)
+runner.Step("OnWayPointChange after resumption of subscription", onWayPointNotif)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
