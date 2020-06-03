@@ -37,8 +37,8 @@ m.getAppRequestParams = commonRC.getAppRequestParams
 
 --[[ Common Variables ]]
 m.hmiExpectResponse = {
-  errorCodeWithAvailable = true,
-  errorWithoutAvailable = false
+  "errorCodeWithAvailable",
+  "errorWithoutAvailable"
 }
 
 --[[ Common Functions ]]
@@ -57,7 +57,7 @@ function m.preconditions()
   m.updatePreloadedPT()
 end
 
-function m.start(pInterface, pHmiResponse)
+function m.start(pInterface, pCaseName)
   local function getHMIValues()
     local params = hmi_values.getDefaultHMITable()
     params[pInterface] = nil
@@ -66,7 +66,7 @@ function m.start(pInterface, pHmiResponse)
   m.startOrigin(getHMIValues())
   m.getHMIConnection():ExpectRequest(pInterface .. ".IsReady")
   :Do(function(_, data)
-    if pHmiResponse == true then
+    if pCaseName == "errorCodeWithAvailable" then
       m.getHMIConnection():SendResponse(data.id, data.method, "REJECTED", { available = true })
     else
       m.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "Error code")

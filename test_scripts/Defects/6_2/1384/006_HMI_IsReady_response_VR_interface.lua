@@ -1,38 +1,31 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1384
 --
--- Description: SDL doesn't check result code on VR.IsReady response from HMI
+-- Description: SDL doesn't check result code in VR.IsReady response from HMI
 --
 -- Precondition:
 -- 1) SDL and HMI are started.
--- 2) SDL receives VR.IsReady (error_result_code, available=true) from the HMI
+-- 2) SDL receives VR.IsReady (error_result_code, available=true)
+-- or with error code but without available parameter from the HMI
 -- 3) App is registered and activated
 -- In case:
--- 1) App requests CreateInteractionChoiceSet RPC
+-- 1) App requests AddCommand RPC
 -- SDL does:
 -- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: VR is not supported by system'
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variable ]]
+--[[ Local Variables ]]
 local interface = "VR"
 
---[[ Local Function ]]
-local function sendCreateInteractionChoiceSet()
+--[[ Local Functions ]]
+local function sendAddCommand()
   local requestParams = {
-    interactionChoiceSetID = 1001,
-    choiceSet = {
-      {
-        choiceID = 1001,
-        menuName ="Choice1001",
-        vrCommands = {
-          "Choice1001"
-        }
-      }
-    }
+    cmdID = 11,
+    vrCommands = { "VRCommandonepositive", "VRCommandonepositivedouble" },
   }
-  local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", requestParams)
+  local cid = common.getMobileSession():SendRPC("AddCommand", requestParams)
   common.getMobileSession():ExpectResponse(cid,
     { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VR is not supported by system" })
 end
@@ -46,7 +39,7 @@ for k, v in pairs(common.hmiExpectResponse) do
   common.Step("Activate App", common.activateApp)
 
   common.Title("Test")
-  common.Step("Sends CreateInteractionChoiceSet", sendCreateInteractionChoiceSet)
+  common.Step("Sends AddCommand", sendAddCommand)
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

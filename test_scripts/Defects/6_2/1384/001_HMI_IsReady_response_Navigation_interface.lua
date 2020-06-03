@@ -1,24 +1,25 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1384
 --
--- Description: SDL doesn't check result code on Navigation.IsReady response from HMI
+-- Description: SDL doesn't check result code in Navigation.IsReady response from HMI
 --
 -- Precondition:
 -- 1) SDL and HMI are started.
--- 2) SDL receives Navigation.IsReady (error_result_code, available=true) from the HMI
+-- 2) SDL receives Navigation.IsReady (error_result_code, available=true)
+-- or with error code but without available parameter from the HMI
 -- 3) App is registered and activated
 -- In case:
 -- 1) App requests SendLocation RPC
--- SDl does:
+-- SDL does:
 -- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: Navigation is not supported by system'
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variable ]]
+--[[ Local Variables ]]
 local interface = "Navigation"
 
---[[ Local Function ]]
+--[[ Local Functions ]]
 local function sendSendLocation()
   local requestParams = {
     longitudeDegrees = 1.1,

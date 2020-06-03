@@ -1,11 +1,12 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1384
 --
--- Description: SDL doesn't check result code on RC.IsReady response from HMI
+-- Description: SDL doesn't check result code in RC.IsReady response from HMI
 --
 -- Precondition:
 -- 1) SDL and HMI are started.
--- 2) SDL receives RC.IsReady (error_result_code, available=true) from the HMI
+-- 2) SDL receives RC.IsReady (error_result_code, available=true)
+-- or with error code but without available parameter from the HMI
 -- 3) App is registered and activated
 -- In case:
 -- 1) App requests GetInteriorVehicleData RPC
@@ -16,12 +17,12 @@
 local common = require('test_scripts/Defects/6_2/1384/common')
 
 --[[ Test Configuration ]]
-config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
+common.getConfigAppParams().appHMIType = { "REMOTE_CONTROL" }
 
---[[ Local Variable ]]
+--[[ Local Variables ]]
 local interface = "RC"
 
---[[ Local Function ]]
+--[[ Local Functions ]]
 local function sendGetInteriorVehicleData(pModuleType)
   local rpc = "GetInteriorVehicleData"
   local subscribe = true

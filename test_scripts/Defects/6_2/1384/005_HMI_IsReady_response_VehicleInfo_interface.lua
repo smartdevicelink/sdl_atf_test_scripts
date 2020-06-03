@@ -1,11 +1,12 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1384
 --
--- Description: SDL doesn't check result code on VehicleInfo.IsReady response from HMI
+-- Description: SDL doesn't check result code in VehicleInfo.IsReady response from HMI
 --
 -- Precondition:
 -- 1) SDL and HMI are started.
--- 2) SDL receives VehicleInfo.IsReady (error_result_code, available=true) from the HMI
+-- 2) SDL receives VehicleInfo.IsReady (error_result_code, available=true)
+-- or with error code but without available parameter from the HMI
 -- 3) App is registered and activated
 -- In case:
 -- 1) App requests GetVehicleData RPC
@@ -16,10 +17,10 @@
 -- local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variable ]]
+--[[ Local Variables ]]
 local interface = "VehicleInfo"
 
---[[ Local Function ]]
+--[[ Local Functions ]]
 local function getVehicleData()
   local cid = common.getMobileSession():SendRPC("GetVehicleData", { gps = true })
   common.getMobileSession():ExpectResponse(cid,
