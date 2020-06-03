@@ -18,15 +18,18 @@ local common = require('test_scripts/Defects/6_2/1384/common')
 --[[ Test Configuration ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
---[[ Local Variables ]]
+--[[ Local Variable ]]
 local interface = "RC"
 
---[[ Local Functions ]]
+--[[ Local Function ]]
 local function sendGetInteriorVehicleData(pModuleType)
   local rpc = "GetInteriorVehicleData"
   local subscribe = true
-  local cid = common.getMobileSession():SendRPC(common.getAppEventName(rpc), common.getAppRequestParams(rpc, pModuleType, subscribe))
-  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "RC is not supported by system" })
+  local cid = common.getMobileSession():SendRPC(common.getAppEventName(rpc),
+    common.getAppRequestParams(rpc, pModuleType, subscribe))
+
+  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE",
+    info = "RC is not supported by system" })
 end
 
 --[[ Test ]]

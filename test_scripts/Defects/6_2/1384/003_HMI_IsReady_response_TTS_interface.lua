@@ -15,7 +15,7 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variables ]]
+--[[ Local Variable ]]
 local interface = "TTS"
 
 local function getRequestParams()
@@ -29,10 +29,11 @@ local function getRequestParams()
   }
 end
 
+--[[ Local Function ]]
 local function sendSpeak()
   local cid = common.getMobileSession():SendRPC("Speak", getRequestParams())
   common.getMobileSession():ExpectResponse(cid,
-  { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "TTS is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "TTS is not supported by system" })
 end
 
 --[[ Test ]]

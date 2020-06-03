@@ -15,10 +15,10 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variables ]]
+--[[ Local Variable ]]
 local interface = "VR"
 
---[[ Local Functions ]]
+--[[ Local Function ]]
 local function sendCreateInteractionChoiceSet()
   local requestParams = {
     interactionChoiceSetID = 1001,
@@ -34,7 +34,7 @@ local function sendCreateInteractionChoiceSet()
   }
   local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", requestParams)
   common.getMobileSession():ExpectResponse(cid,
-  { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VR is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VR is not supported by system" })
 end
 
 --[[ Test ]]

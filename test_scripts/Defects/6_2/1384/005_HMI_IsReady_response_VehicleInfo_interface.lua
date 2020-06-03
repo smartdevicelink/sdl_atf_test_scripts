@@ -16,14 +16,14 @@
 -- local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variables ]]
+--[[ Local Variable ]]
 local interface = "VehicleInfo"
 
---[[ Local Functions ]]
+--[[ Local Function ]]
 local function getVehicleData()
   local cid = common.getMobileSession():SendRPC("GetVehicleData", { gps = true })
   common.getMobileSession():ExpectResponse(cid,
-  { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VehicleInfo is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VehicleInfo is not supported by system" })
 end
 
 --[[ Test ]]

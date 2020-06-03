@@ -15,10 +15,10 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variables ]]
+--[[ Local Variable ]]
 local interface = "Navigation"
 
---[[ Local Functions ]]
+--[[ Local Function ]]
 local function sendSendLocation()
   local requestParams = {
     longitudeDegrees = 1.1,
@@ -26,7 +26,7 @@ local function sendSendLocation()
   }
   local cid = common.getMobileSession():SendRPC("SendLocation", requestParams)
   common.getMobileSession():ExpectResponse(cid,
-  { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "Navigation is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "Navigation is not supported by system" })
 end
 
 --[[ Test ]]

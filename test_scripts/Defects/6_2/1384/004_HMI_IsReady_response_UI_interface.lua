@@ -15,10 +15,10 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/6_2/1384/common')
 
---[[ Local Variables ]]
+--[[ Local Variable ]]
 local interface = "UI"
 
---[[ Local Functions ]]
+--[[ Local Function ]]
 local function slider()
   local requestParams = {
     numTicks = 7,
@@ -29,7 +29,7 @@ local function slider()
   }
   local cid = common.getMobileSession():SendRPC("Slider", requestParams)
   common.getMobileSession():ExpectResponse(cid,
-  { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "UI is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "UI is not supported by system" })
 end
 
 --[[ Test ]]
