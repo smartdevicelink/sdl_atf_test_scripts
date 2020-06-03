@@ -27,6 +27,7 @@ local hashId
 
 --[[ Local Functions ]]
 local function ptUpdateForApp(pTbl)
+  pTbl.policy_table.functional_groupings.WayPoints.rpcs.OnWayPointChange.hmi_levels = { "FULL", "NONE" }
   pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].groups = { "Base-4", "WayPoints" }
 end
 
