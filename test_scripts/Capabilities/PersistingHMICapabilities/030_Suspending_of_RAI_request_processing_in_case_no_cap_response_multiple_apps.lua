@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal:https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0249-Persisting-HMI-Capabilities-specific-to-headunit.md
 --
--- Check that SDL suspend of multiple RAI requests processing from mobile apps in case HMI capabilities cache file
+-- Check that SDL does not suspend of multiple RAI requests processing from mobile apps in case HMI capabilities cache file
 --  exists on file system and ccpu_version matches with received ccpu_version from HMI
 --
 -- Preconditions:

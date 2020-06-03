@@ -11,14 +11,14 @@
 -- 4. HMI sends all HMI capabilities to SDL
 --
 -- Sequence:
--- 1. HMI sends "TTS/VR/UI.OnLanguageChange" notifications with invalid language to SDL
+-- 1. HMI sends "TTS/VR/UI.OnLanguageChange" notifications with unsupported language to SDL
 --   a. SDL does not override TTS/VR/UI.language in HMI capabilities cache file ("hmi_capabilities_cache.json")
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
 
 --[[ Local Variable ]]
-local invalidLanguage = "EN-EN"
+local unsupportedLanguage = "EN-EN"
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -26,7 +26,7 @@ common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI", common.start, { common.updateHMILanguageCapability("EN-US") })
 
 common.Title("Test")
-common.Step("OnLanguageChange notification invalid language EN-EN", common.changeLanguage, { invalidLanguage })
+common.Step("OnLanguageChange notification unsupported language EN-EN", common.changeLanguage, { unsupportedLanguage })
 common.Step("Check stored value to cache file", common.checkLanguageCapability, { "EN-US" })
 
 common.Title("Postconditions")
