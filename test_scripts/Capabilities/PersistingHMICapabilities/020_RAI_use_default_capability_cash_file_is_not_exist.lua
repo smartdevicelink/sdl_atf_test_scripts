@@ -60,7 +60,7 @@ common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true 
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.getHMIParamsWithOutResponse() })
 common.Step("Check that capability file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
-common.Step("App registration", common.registerApp, { appSessionId, capRaiResponse })
+common.Step("App registration", common.postponedRegisterApp, { appSessionId, capRaiResponse })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

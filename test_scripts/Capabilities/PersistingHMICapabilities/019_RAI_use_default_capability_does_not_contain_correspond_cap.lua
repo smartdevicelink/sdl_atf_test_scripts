@@ -102,7 +102,7 @@ for mod, request  in pairs(requests) do
 
     common.Title("Test")
     common.Step("Ignition on, Start SDL, HMI", common.start, { hmiDefaultCap })
-    common.Step("App registration", common.registerApp, { appSessionId, buildCapRaiResponse(mod, req) })
+    common.Step("App registration", common.postponedRegisterApp, { appSessionId, buildCapRaiResponse(mod, req) })
 
     common.Title("Postconditions")
     common.Step("Stop SDL", common.postconditions)

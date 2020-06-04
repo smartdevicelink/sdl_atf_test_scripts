@@ -35,7 +35,7 @@ common.Step("Clean environment", common.preconditions)
 common.Title("Test")
 common.Step("Ignition on, Start SDL, HMI", common.start, { common.getHMIParamsWithOutResponse() })
 common.Step("Check that capabilities file doesn't exist", common.checkIfCapabilityCacheFileExists, { false })
-common.Step("App registration", common.registerApp)
+common.Step("App registration", common.postponedRegisterApp)
 common.Step("App activation", common.activateApp)
 for sysCapType, cap  in pairs(systemCapabilities) do
   common.Title("TC processing " .. tostring(sysCapType) .. "]")

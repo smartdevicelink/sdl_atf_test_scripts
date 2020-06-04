@@ -44,6 +44,7 @@ end
 function m.getDefaultHMITable()
   local hmiCaps = hmi_values.getDefaultHMITable()
   excludeAbsentInMobApiTextFields(hmiCaps.UI.GetCapabilities.params.displayCapabilities.textFields)
+  hmiCaps.VehicleInfo.GetVehicleData.mandatory = false
   return hmiCaps
 end
 
@@ -387,6 +388,14 @@ function m.registerApp(pAppId, pCapResponse, pMobConnId, hasPTU)
     end)
 end
 
+function m.postponedRegisterApp(pAppId, pCapResponse, pMobConnId, hasPTU)
+  local RAI_POSTPONE_DELAY = 3000
+  actions.run.wait(RAI_POSTPONE_DELAY)
+  :Do(function()
+      m.registerApp(pAppId, pCapResponse, pMobConnId, hasPTU)
+    end)
+end
+
 function m.masterReset(pExpFunc)
   local isOnSDLCloseSent = false
   if pExpFunc then pExpFunc() end
@@ -483,7 +492,7 @@ function m.registerAppSuspend(pAppId, pCapResponse, pHMIParams, pDelayRaiRespons
 
   local timeout = 15000
   local timeRunAfter = 3000
-  local timeRAIResponseAfterHMIonReady = 2000
+  local timeRAIResponseAfterHMIonReady = 3000
   local timeHMIonReady
   local isHMIonReady = false
   local policyModes = {
@@ -590,7 +599,7 @@ function m.registerAppsSuspend( pCapResponse, pHMIParams )
 
   local timeout = 15000
   local timeRunAfter = 3000
-  local timeRAIResponseAfterHMIonReady = 2000
+  local timeRAIResponseAfterHMIonReady = 3000
   local timeHMIonReady
   local isHMIonReady = false
   local policyModes = {
