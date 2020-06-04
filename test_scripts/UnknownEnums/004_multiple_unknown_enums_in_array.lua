@@ -10,7 +10,7 @@
 -- appID sends a RegisterAppInterface with only unknown appHMIType enum.
 
 -- Expected:
--- SDL Core filters out the unknown enum. The app registers successfully.
+-- SDL Core filters out the array. The app registers successfully.
 -- WARNINGS result is returned to mobile.
 ---------------------------------------------------------------------------------------------------
 

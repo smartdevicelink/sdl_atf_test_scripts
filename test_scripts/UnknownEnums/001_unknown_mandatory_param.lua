@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Description:
--- Mobile sends an unknown enum as a mandatory param. The enum will be filtered out and
+-- Mobile sends a mandatory param with an unknown enum value. The enum will be filtered out and
 -- INVALID_DATA will be returned because the parameter was mandatory
 
 -- Pre-conditions:
@@ -12,7 +12,7 @@
 
 -- Expected:
 -- SDL Core attempts to filter out the unknown enum. INVALID_DATA is returned because the filtered
--- enum was mandatory.
+-- parameter was mandatory.
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

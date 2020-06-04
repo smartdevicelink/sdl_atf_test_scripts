@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Description:
--- Mobile sends an unknown enum as a non-mandatory param. The enum will be filtered out and
+-- Mobile sends a non-mandatory param with an unknown enum value. The enum will be filtered out and
 -- WARNINGS will be returned because the parameter was not mandatory
 
 -- Pre-conditions:

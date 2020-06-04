@@ -11,8 +11,8 @@
 -- appID requests SetMediaClockTimer with an unknown updateMode enum
 
 -- Expected:
--- SDL Core attempts to filter out the unknown enum. INVALID_DATA is returned because the filtered
--- enum was mandatory.
+-- SDL Core filters out the unknown enum. The HMI receives the request without the containing struct.
+-- WARNINGS result is returned to mobile.
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
