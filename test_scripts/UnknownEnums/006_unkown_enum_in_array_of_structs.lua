@@ -140,6 +140,9 @@ local function show(pParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
+  :ValidIf(function(_, data)
+      return #data.params["softButtons"] == 1
+    end)
   common.getMobileSession():ExpectResponse(cid, { 
     success = true, 
     resultCode = "WARNINGS"

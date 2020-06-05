@@ -45,6 +45,8 @@ local function SetGlobalPropertiesUnknownMenuIcon()
     EXPECT_HMICALL("UI.SetGlobalProperties", requestUiParams)
     :Do(function(_,data)
         commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end):ValidIf(function(_, data)
+      return data.params["menuIcon"] == nil
     end)
 
     mobileSession:ExpectResponse(cid, { 
