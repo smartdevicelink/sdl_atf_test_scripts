@@ -49,10 +49,11 @@ local function SetGlobalPropertiesUnknownMenuIcon()
 
     mobileSession:ExpectResponse(cid, { 
       success = true, 
-      resultCode = "WARNINGS", 
-      info = "RPC.msg_params.menuIcon.imageType: Filtered invalid value - UNKNOWN" 
-    })
-  end
+      resultCode = "WARNINGS"
+    }):ValidIf(function(_, data)
+      return string.match(data.payload.info, "imageType")
+    end)
+end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")

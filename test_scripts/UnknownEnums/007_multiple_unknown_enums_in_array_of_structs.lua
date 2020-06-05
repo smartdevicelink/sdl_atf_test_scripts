@@ -136,9 +136,12 @@ local function show(pParams)
     end)
   common.getMobileSession():ExpectResponse(cid, { 
     success = true, 
-    resultCode = "WARNINGS", 
-    info = "RPC.msg_params.softButtons.0.type: Filtered invalid value - UNKNOWN_1\nRPC.msg_params.softButtons.1.type: Filtered invalid value - UNKNOWN_2" 
-  })
+    resultCode = "WARNINGS"
+  }):ValidIf(function(_, data)
+    local res1 = string.match(data.payload.info, "softButtons.0")
+    local res2 = string.match(data.payload.info, "softButtons.1")
+    return res1 and res2
+  end)
 end
 
 --[[ Scenario ]]

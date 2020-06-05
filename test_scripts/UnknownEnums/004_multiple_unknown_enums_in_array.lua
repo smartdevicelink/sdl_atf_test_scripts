@@ -33,9 +33,12 @@ local function RAIWithUnknownEnum()
         local CorIdRAI = commonSmoke.getMobileSession():SendRPC("RegisterAppInterface", requestParams)
         commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { 
             success = true, 
-            resultCode = "WARNINGS", 
-            info = "RPC.msg_params.appHMIType.0: Filtered invalid value - UNKOWN_1\nRPC.msg_params.appHMIType.1: Filtered invalid value - UNKNOWN_2"
-        })
+            resultCode = "WARNINGS"
+        }):ValidIf(function(_, data)
+            local res1 = string.match(data.payload.info, "appHMIType.0")
+            local res2 = string.match(data.payload.info, "appHMIType.1")
+            return res1 and res2
+        end)
     end)
 end
 

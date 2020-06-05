@@ -32,9 +32,10 @@ local function UnknownMediaClockTimer()
     local CorIdRAI = commonSmoke.getMobileSession():SendRPC("SetMediaClockTimer", requestParams)
 	commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { 
         success = false, 
-        resultCode = "INVALID_DATA", 
-        info = "RPC.msg_params.updateMode: Filtered invalid value - UNKNOWN\nRPC.msg_params.updateMode: Invalid enum value: UNKNOWN"
-    })
+        resultCode = "INVALID_DATA"
+    }):ValidIf(function(_, data)
+        return string.match(data.payload.info, "updateMode")
+    end)
 end
 
 --[[ Scenario ]]

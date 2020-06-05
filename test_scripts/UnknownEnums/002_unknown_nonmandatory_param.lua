@@ -51,9 +51,10 @@ local function UnknownMediaClockTimer()
     end)
 	commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { 
         success = true, 
-        resultCode = "WARNINGS", 
-        info = "RPC.msg_params.audioStreamingIndicator: Filtered invalid value - UNKNOWN"
-    })
+        resultCode = "WARNINGS"
+    }):ValidIf(function(_, data)
+        return string.match(data.payload.info, "audioStreamingIndicator")
+    end)
 end
 
 --[[ Scenario ]]
