@@ -149,17 +149,16 @@ local function subscribeWayPointsAlreadySubscribed()
   common.getMobileSession(2):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
   common.getMobileSession(2):ExpectNotification("OnHashChange")
   common.getMobileSession(2):ExpectNotification("OnWayPointChange", notifParams)
-  common.getMobileSession(1):ExpectNotification("OnWayPointChange", notifParams)
-  :Times(0)
+  common.getMobileSession(1):ExpectNotification("OnWayPointChange"):Times(0)
 end
 
 local function subscribeWayPointsAlreadySubscribed2apps()
   local cid = common.getMobileSession(3):SendRPC("SubscribeWayPoints", {})
   common.getMobileSession(3):ExpectResponse(cid, { success = true , resultCode = "SUCCESS" })
   common.getMobileSession(3):ExpectNotification("OnHashChange")
-  common.getMobileSession(3):ExpectNotification("OnWayPointChange", notifParams)
-  common.getMobileSession(2):ExpectNotification("OnWayPointChange", notifParams) :Times(0)
-  common.getMobileSession(1):ExpectNotification("OnWayPointChange", notifParams) :Times(0)
+  common.getMobileSession(3):ExpectNotification("OnWayPointChange", notifParamsUpd)
+  common.getMobileSession(2):ExpectNotification("OnWayPointChange"):Times(0)
+  common.getMobileSession(1):ExpectNotification("OnWayPointChange"):Times(0)
 end
 
 --[[ Scenario ]]
