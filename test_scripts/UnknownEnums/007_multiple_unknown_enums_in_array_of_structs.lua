@@ -1,7 +1,8 @@
 ---------------------------------------------------------------------------------------------------
 -- Description:
 -- Mobile sends multiple unknown enum included in an array of structs. The structs containing the
--- enums will be filtered out because the invalid enum was mandatory.
+-- enums will be filtered out because the invalid enum was mandatory. An empty softbuttons array
+-- will still be transfered to the HMI because the minsize of the softbutton array is 0.
 
 -- Pre-conditions:
 -- a. HMI and SDL are started
@@ -12,7 +13,7 @@
 
 -- Expected:
 -- SDL Core attempts to filter out the unknown enum and removes all invalid softbutton objects.
--- HMI receives the show request with no softbuttons parameter.
+-- HMI receives the show request with an empty softbutton array.
 -- Mobile receives a WARNINGS result code.
 ---------------------------------------------------------------------------------------------------
 
@@ -135,7 +136,7 @@ local function show(pParams)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
   :ValidIf(function(_, data)
-      return data.params["softButtons"] == nil
+      return #data.params["softButtons"] == 0
     end)
   common.getMobileSession():ExpectResponse(cid, { 
     success = true, 
