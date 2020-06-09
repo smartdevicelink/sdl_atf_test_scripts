@@ -10,7 +10,7 @@
 -- 4. All HMI Capabilities (VR/TTS/RC/UI etc) are presented in hmi_capabilities_cache.json
 -- Sequence:
 -- 1. HMI sends OnExitAllApplications with reason MASTER_RESET
--- - a. SDL deletes "hmi_capabilities_cache.json" file in AppStorageFolder
+--  a. SDL deletes "hmi_capabilities_cache.json" file in AppStorageFolder
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')

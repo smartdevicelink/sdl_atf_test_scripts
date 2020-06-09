@@ -7,7 +7,7 @@
 -- 1. HMI capabilities cache file (hmi_capabilities_cache.json) exists on file system
 -- Sequence:
 -- 1. SDL and HMI are started
---  SDL sends all HMI capabilities request (VR/TTS/RC/UI etc) to HMI
+--  a. SDL sends all HMI capabilities request (VR/TTS/RC/UI etc) to HMI
 -- 2. HMI sends all HMI capabilities (VR/TTS/RC/UI etc)
 --  a. SDL persists HMI capabilities to "hmi_capabilities_cache.json" file in AppStorageFolder
 -- 2. Ignition OFF

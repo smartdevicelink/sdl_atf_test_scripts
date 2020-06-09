@@ -13,8 +13,8 @@
 -- 6. SDL is started and send GetSystemInfo request
 -- Sequence:
 -- 1. HMI sends GetSystemInfo with ccpu_version = "ccpu_version_2" to SDL
---   a) send requested to HMI for all capabilities
---   b) delete hmi capabilities cache file in AppStorageFolder
+--   a) SDL sends requested to HMI for all capabilities
+--   b) SDL deletes hmi capabilities cache file in AppStorageFolder
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
