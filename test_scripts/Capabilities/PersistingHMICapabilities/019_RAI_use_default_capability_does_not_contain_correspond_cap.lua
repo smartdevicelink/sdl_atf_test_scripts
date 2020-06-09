@@ -33,12 +33,10 @@ local requests = {
 
 --[[ Local Functions ]]
 local function updateHMICaps(pMod, pRequest)
-  for key, _ in pairs (hmiDefaultCap) do
-    if key == pMod then
-      hmiDefaultCap[pMod][pRequest] = nil
-      if not pMod == "Buttons" then
-        hmiDefaultCap[pMod].IsReady.params.available = true
-      end
+  hmiDefaultCap[pMod][pRequest] = nil
+  for mod, _ in pairs (hmiDefaultCap) do
+    if not mod == "Buttons" then
+      hmiDefaultCap[mod].IsReady.params.available = true
     end
   end
 end

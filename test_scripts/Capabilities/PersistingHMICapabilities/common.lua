@@ -19,6 +19,7 @@ m.Title = runner.Title
 m.Step = runner.Step
 m.postconditions = actions.postconditions
 m.getHMICapabilitiesFromFile = actions.sdl.getHMICapabilitiesFromFile
+m.setHMICapabilitiesToFile = actions.sdl.setHMICapabilitiesToFile
 m.activateApp = actions.app.activate
 m.setSDLIniParameter = actions.sdl.setSDLIniParameter
 m.cloneTable = utils.cloneTable
