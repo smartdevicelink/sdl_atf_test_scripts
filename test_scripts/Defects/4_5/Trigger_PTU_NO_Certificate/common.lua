@@ -80,13 +80,14 @@ function m.startServiceSecuredUnsuccess(pServiceId, pData)
     pTbl.policy_table.module_config.seconds_between_retries = nil
   end
 
-  local function expNotificationFunc()
-    m.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-      { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UPDATE_NEEDED" })
-    :Times(3)
-  end
+  m.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
+    { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UPDATE_NEEDED" })
+  :Times(3)
 
-  m.policyTableUpdate(ptUpdateFunc, expNotificationFunc)
+  m.isPTUStarted()
+  :Do(function()
+      m.policyTableUpdate(ptUpdateFunc, function() end)
+    end)
   m.delayedExp()
 end
 
