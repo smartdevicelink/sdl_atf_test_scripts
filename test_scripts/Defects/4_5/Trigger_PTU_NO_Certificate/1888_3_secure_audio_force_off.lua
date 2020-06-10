@@ -22,13 +22,11 @@ runner.Step("Set ForceProtectedService OFF", common.setForceProtectedServicePara
 runner.Step("Init SDL certificates", common.initSDLCertificates,
   { "./files/Security/client_credential_expired.pem", false })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-
-runner.Title("Test")
-
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate without certificate", common.policyTableUpdate, { common.ptUpdateWOcert })
 runner.Step("Activate App", common.activateApp)
 
+runner.Title("Test")
 runner.Step("StartService Secured ACK", common.startServiceSecured, { serviceId, common.ackData })
 
 runner.Title("Postconditions")

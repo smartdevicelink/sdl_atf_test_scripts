@@ -40,19 +40,15 @@ runner.Step("Set ForceProtectedService OFF", common.setForceProtectedServicePara
 runner.Step("Init SDL certificates", common.initSDLCertificates,
   { "./files/Security/client_credential_expired.pem", false })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-
-runner.Title("Test")
-
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate without certificate", common.policyTableUpdate, { common.ptUpdateWOcert })
 runner.Step("Activate App", common.activateApp)
 
+runner.Title("Test")
 runner.Step("StartService Secured, PTU wo cert, NACK, no Handshake", common.startServiceSecured,
   { serviceId, common.nackData, common.ptUpdateWOcert })
-
 runner.Step("StartService Secured, PTU with cert, ACK, Handshake", common.startServiceSecured,
   { serviceId, common.ackData })
-
 runner.Step("AddCommand Secured", sendRPCAddCommandSecured)
 
 runner.Title("Postconditions")

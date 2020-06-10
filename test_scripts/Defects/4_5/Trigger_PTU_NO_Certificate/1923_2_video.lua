@@ -20,11 +20,11 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Set ForceProtectedService ON", common.setForceProtectedServiceParam, { "0x0B" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-
-runner.Title("Test")
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate without certificate", common.policyTableUpdate, { common.ptUpdateWOcert })
 runner.Step("Activate App", common.activateApp)
+
+runner.Title("Test")
 runner.Step("StartService Secured, PTU started and fails, NACK, no Handshake", common.startServiceSecuredUnsuccess,
   { serviceId, common.nackData })
 
