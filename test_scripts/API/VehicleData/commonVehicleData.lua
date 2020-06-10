@@ -6,6 +6,7 @@ local actions = require("user_modules/sequences/actions")
 local runner = require('user_modules/script_runner')
 local utils = require("user_modules/utils")
 local sdl = require("SDL")
+local events = require("events")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -246,6 +247,13 @@ m.allVehicleData = {
     },
     type = "VEHICLEDATA_CLUSTERMODESTATUS"
   },
+  stabilityControlsStatus = {
+    value = {
+      escSystem = "ON",
+      trailerSwayControl = "OFF"
+    },
+    type = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+  },
   myKey = {
     value = { e911Override = "ON" },
     type = "VEHICLEDATA_MYKEY"
@@ -274,9 +282,11 @@ m.cloneTable = utils.cloneTable
 m.cprint = utils.cprint
 m.getPreloadedPT = actions.sdl.getPreloadedPT
 m.setPreloadedPT = actions.sdl.setPreloadedPT
+m.getHMIAppId = actions.getHMIAppId
 
 --[[ Common Functions ]]
-local function getVDParams()
+
+function m.getVDParams()
   local out = {}
   for k in pairs(m.allVehicleData) do
     table.insert(out, k)
@@ -288,7 +298,7 @@ function m.ptUpdate(pTbl)
   pTbl.policy_table.app_policies[m.getConfigAppParams().fullAppID].groups = { "Base-4", "Emergency-1" }
   local grp = pTbl.policy_table.functional_groupings["Emergency-1"]
   for _, v in pairs(grp.rpcs) do
-    v.parameters = getVDParams()
+    v.parameters = m.getVDParams()
   end
   pTbl.policy_table.vehicle_data = nil
 end
@@ -304,45 +314,124 @@ function m.ptUpdateMin(pTbl)
   pTbl.policy_table.vehicle_data = nil
 end
 
-function m.processRPCSubscriptionSuccess(pRpcName, pData)
-  local reqParams = {
-    [pData] = true
+function m.getSubscribeVehicleDataHmiResponse(pResult, pName)
+  return { resultCode = pResult, dataType = m.allVehicleData[pName].type }
+end
+
+local function buildHmiResponseWithResulCode(pHmiResponse, pResultCode)
+  return {
+    data = pHmiResponse,
+    resultCode = pResultCode
   }
-  local respData
-  if pData == "clusterModeStatus" then
-    respData = "clusterModes"
-  else
-    respData = pData
-  end
-  local hmiResParams = {
-    [respData] = {
+end
+
+local function buildSubscriptionRpcParams(pVdItems)
+  local requestParams = {}
+  local responseParams = {}
+  for _, item in pairs(pVdItems) do
+    requestParams[item] = true
+    local paramName = item
+    if item == "clusterModeStatus" then
+      paramName = "clusterModes"
+    end
+    responseParams[paramName] = {
       resultCode = "SUCCESS",
-      dataType = m.allVehicleData[pData].type
+      dataType = m.allVehicleData[item].type
     }
+  end
+  local mobileResponseParams = m.cloneTable(responseParams)
+  mobileResponseParams.success = true
+  mobileResponseParams.resultCode = "SUCCESS"
+  return {
+    mobileRequest = requestParams,
+    hmiRequest = m.cloneTable(requestParams),
+    hmiResponse = responseParams,
+    mobileResponse = mobileResponseParams
   }
-  local cid = m.getMobileSession():SendRPC(pRpcName, reqParams)
-  m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRpcName, reqParams)
+end
+
+local function processVehicleDataRpc(pRpcName, pMobileRequest, pHmiRequest, pHmiResponse, pMobileResponse, pAppid)
+  pAppid = pAppid or 1
+  pHmiRequest = pHmiRequest or {}
+  local mobileSession = m.getMobileSession(pAppid)
+  local hmiConnection = m.getHMIConnection()
+  local cid = mobileSession:SendRPC(pRpcName, pMobileRequest)
+  hmiConnection:ExpectRequest("VehicleInfo." .. pRpcName, pHmiRequest)
+  :Times(next(pHmiRequest) and 1 or 0)
   :Do(function(_, data)
-      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
+      hmiConnection:SendResponse(data.id, data.method, pHmiResponse.resultCode, pHmiResponse.data)
     end)
-  local mobResParams = m.cloneTable(hmiResParams)
-  mobResParams.success = true
-  mobResParams.resultCode = "SUCCESS"
-  m.getMobileSession():ExpectResponse(cid, mobResParams)
+  mobileSession:ExpectResponse(cid, pMobileResponse)
+end
+
+function m.processSubscribeVD(pMobileRequest, pHmiRequest, pHmiResponse, pMobileResponse)
+  local hmiResponse = buildHmiResponseWithResulCode(pHmiResponse, "SUCCESS")
+  processVehicleDataRpc("SubscribeVehicleData", pMobileRequest, pHmiRequest, hmiResponse, pMobileResponse)
+end
+
+function m.processRPCSubscriptionSuccess(pRpcName, pData)
+  local params = buildSubscriptionRpcParams(pData)
+  local hmiResponse = buildHmiResponseWithResulCode(params.hmiResponse, "SUCCESS")
+  processVehicleDataRpc(pRpcName, params.mobileRequest, params.hmiRequest, hmiResponse, params.mobileResponse)
+  m.getMobileSession():ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+      m.hashId = data.payload.hashID
+    end)
+end
+
+function m.processRPCSubscriptionDisallowed(pRpcName, pData)
+  local params = buildSubscriptionRpcParams({ pData })
+  local mobileResponse = {}
+  mobileResponse.resultCode = "DISALLOWED"
+  mobileResponse.success = false
+  processVehicleDataRpc(pRpcName, params.mobileRequest, nil, nil, mobileResponse)
+  m.getMobileSession():ExpectNotification("OnHashChange") :Times(0)
+end
+
+function m.processRPCSubscriptionGenericError(pRpcName, pReqParams, pHmiResParams)
+  local params = buildSubscriptionRpcParams(pReqParams)
+  local mobileResponse = {}
+  mobileResponse.resultCode = "GENERIC_ERROR"
+  mobileResponse.success = false
+  local hmiResponse = buildHmiResponseWithResulCode(pHmiResParams, "SUCCESS")
+  processVehicleDataRpc(pRpcName, params.mobileRequest, params.hmiRequest, hmiResponse, mobileResponse)
+  m.getMobileSession():ExpectNotification("OnHashChange") :Times(0)
 end
 
 function m.checkNotificationSuccess(pData)
-  local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
+  local hmiNotParams = {}
+  for _, item in pairs(pData) do
+    hmiNotParams[item] = m.allVehicleData[item].value
+  end
   local mobNotParams = m.cloneTable(hmiNotParams)
   m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
   m.getMobileSession():ExpectNotification("OnVehicleData", mobNotParams)
 end
 
 function m.checkNotificationIgnored(pData)
-  local hmiNotParams = { [pData] = m.allVehicleData[pData].value }
+  local hmiNotParams = {}
+  for _, item in pairs(pData) do
+    hmiNotParams[item] = m.allVehicleData[item].value
+  end
   m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
   m.getMobileSession():ExpectNotification("OnVehicleData")
   :Times(0)
+end
+
+function m.checkNotificationPartiallyIgnored(pAllowedData, pDisallowedData)
+  local hmiNotParams = {}
+  for _, item in pairs(pAllowedData) do
+    hmiNotParams[item] = m.allVehicleData[item].value
+  end
+  for _, item in pairs(pDisallowedData) do
+    hmiNotParams[item] = m.allVehicleData[item].value
+  end
+  local mobNotParams = {}
+  for _, item in pairs(pAllowedData) do
+    mobNotParams[item] = m.allVehicleData[item].value
+  end
+  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", hmiNotParams)
+  m.getMobileSession():ExpectNotification("OnVehicleData", mobNotParams)
 end
 
 function m.updatePreloadedFile(pUpdateFunc)
@@ -352,31 +441,66 @@ function m.updatePreloadedFile(pUpdateFunc)
   m.setPreloadedPT(pt)
 end
 
-function m.processGetVDsuccess(pData)
-  local reqParams = {
-     [pData] = true
-  }
-  local hmiResParams = {
-    [pData] = m.allVehicleData[pData].value
-  }
-  local cid = m.getMobileSession():SendRPC("GetVehicleData", reqParams)
-  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", reqParams)
-  :Do(function(_, data)
-      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", hmiResParams)
-    end)
-  local mobResParams = m.cloneTable(hmiResParams)
-  mobResParams.success = true
-  mobResParams.resultCode = "SUCCESS"
-  m.getMobileSession():ExpectResponse(cid, mobResParams)
+function m.processGetVDBaseSuccess(pReqParams, pExpectReqParams, pHmiResParams, pInfo)
+  local hmiResponse = buildHmiResponseWithResulCode(pHmiResParams, "SUCCESS")
+  local mobileResponse = m.cloneTable(pHmiResParams)
+  mobileResponse.success = true
+  mobileResponse.resultCode = "SUCCESS"
+  if pInfo then
+    mobileResponse.info = pInfo
+  end
+  processVehicleDataRpc("GetVehicleData", pReqParams, pExpectReqParams, hmiResponse, mobileResponse)
 end
 
-function m.processGetVDunsuccess(pData)
+function m.processGetVDsuccess(pData, pHmiResParams)
+  pHmiResParams = pHmiResParams or m.allVehicleData[pData]
+
+  local hmiResParams = {
+    [pData] = pHmiResParams.value
+  }
+  local reqParams = {
+    [pData] = true
+  }
+  m.processGetVDBaseSuccess(reqParams, reqParams, hmiResParams)
+end
+
+function m.processGetVDsuccessManyParameters( ... )
+  local reqParams = {}
+  local hmiResParams = {}
+
+  for _, vehicleData in ipairs( { ... } ) do
+    reqParams[vehicleData] = true
+    hmiResParams[vehicleData] = m.allVehicleData[vehicleData].value
+  end
+  m.processGetVDBaseSuccess(reqParams, reqParams, hmiResParams)
+end
+
+function m.processGetVDsuccessCutDisallowedParameters(pDisallowedData, pAllowedData)
+  local reqParams = {
+    [pDisallowedData] = true,
+    [pAllowedData] = true
+  }
+  local expectReqParams = {
+    [pAllowedData] = true
+  }
+  local hmiResParams = {
+    [pAllowedData] = m.allVehicleData[pAllowedData].value
+  }
+
+  local info = '\'' .. pDisallowedData .. '\'' ..  " disallowed by policies."
+  m.processGetVDBaseSuccess(reqParams, expectReqParams, hmiResParams, info)
+end
+
+function m.processGetVDunsuccess(pData, pResultCode)
+  pResultCode = pResultCode or "INVALID_DATA"
+
   local reqParams = {
      [pData] = true
   }
+
   local cid = m.getMobileSession():SendRPC("GetVehicleData", reqParams)
   m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", reqParams) :Times(0)
-  m.getMobileSession():ExpectResponse(cid, { resultCode = "INVALID_DATA", success = false })
+  m.getMobileSession():ExpectResponse(cid, { resultCode = pResultCode, success = false })
 end
 
 function m.processGetVDwithCustomDataSuccess()
@@ -389,6 +513,78 @@ function m.processGetVDwithCustomDataSuccess()
   mobResParams.success = true
   mobResParams.resultCode = "SUCCESS"
   m.getMobileSession():ExpectResponse(cid, mobResParams)
+end
+
+function m.processGetVDGenericError(pReqParams, pHmiResParams)
+  local cid = m.getMobileSession():SendRPC("GetVehicleData", pReqParams)
+  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", pReqParams)
+  :Do(function(_, data)
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", pHmiResParams)
+    end)
+  m.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
+end
+
+function m.hmiLeveltoLimited(pAppId, pSystemContext)
+  pAppId = pAppId or 1
+  pSystemContext = pSystemContext or "MAIN"
+  m.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated",
+    { appID = m.getHMIAppId(pAppId) })
+  m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
+    { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = pSystemContext })
+end
+
+function m.hmiLeveltoBackground(pAppId, pSystemContext)
+  pAppId = pAppId or 1
+  pSystemContext = pSystemContext or "MAIN"
+  m.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
+    { eventName = "AUDIO_SOURCE", isActive = true })
+  m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = pSystemContext })
+end
+
+function m.ignitionOff()
+  local hmiConnection = actions.hmi.getConnection()
+  local mobileConnection = actions.mobile.getConnection()
+  config.ExitOnCrash = false
+  local timeout = 5000
+  local function removeSessions()
+    for i = 1, actions.mobile.getAppsCount() do
+      actions.mobile.deleteSession(i)
+    end
+  end
+  local event = events.Event()
+  event.matches = function(event1, event2) return event1 == event2 end
+  mobileConnection:ExpectEvent(event, "SDL shutdown")
+  :Do(function()
+    removeSessions()
+    StopSDL()
+    config.ExitOnCrash = true
+  end)
+  hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
+  hmiConnection:ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
+  :Do(function()
+    hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
+    for i = 1, actions.mobile.getAppsCount() do
+      actions.mobile.getSession(i):ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+    end
+  end)
+  hmiConnection:ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  :Times(actions.mobile.getAppsCount())
+  local isSDLShutDownSuccessfully = false
+  hmiConnection:ExpectNotification("BasicCommunication.OnSDLClose")
+  :Do(function()
+    utils.cprint(35, "SDL was shutdown successfully")
+    isSDLShutDownSuccessfully = true
+    mobileConnection:RaiseEvent(event, event)
+  end)
+  :Timeout(timeout)
+  local function forceStopSDL()
+    if isSDLShutDownSuccessfully == false then
+      utils.cprint(35, "SDL was shutdown forcibly")
+      mobileConnection:RaiseEvent(event, event)
+    end
+  end
+  actions.run.runAfter(forceStopSDL, timeout + 500)
 end
 
 return m
