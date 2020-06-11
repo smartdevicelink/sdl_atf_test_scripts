@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_core/issues/2379
+-- User story: https://github.com/smartdevicelink/sdl_core/issues/2479
 --
 -- Description:
 -- 1) SDL does not respond ACK on second service.
@@ -39,8 +39,31 @@ local function startServiceProtectedSecond(pServiceId)
     frameInfo = common.frameInfo.START_SERVICE_ACK,
     encryption = true
   })
+
+  common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming",
+    { available = false }, { available = true })
+  :Times(2)
+
+  common.getHMIConnection():ExpectRequest("Navigation.StopStream", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  common.getHMIConnection():ExpectRequest("Navigation.StartStream", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnServiceUpdate",
+    { appID = common.getHMIAppId(), serviceEvent = "REQUEST_RECEIVED", serviceType = "VIDEO" },
+    { appID = common.getHMIAppId(), serviceEvent = "REQUEST_ACCEPTED", serviceType = "VIDEO" })
+  :Times(2)
+
   common.getMobileSession():ExpectNotification("OnAppInterfaceUnregistered")
   :Times(0)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus")
+  :Times(0)
+
   utils.wait(10000)
 end
 
