@@ -7,7 +7,7 @@
 -- 3. Send SystemRequest(PROPRIETARY, "/test")
 --
 -- Expected:
--- SDL responses with INVALID DATA result code
+-- SDL responds to SystemRequest with INVALID DATA result code
 ---------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require("user_modules/script_runner")
