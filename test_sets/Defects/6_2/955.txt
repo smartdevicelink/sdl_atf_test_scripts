@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_2/955_incorrect_response_on_send_SystemRequest.lua
