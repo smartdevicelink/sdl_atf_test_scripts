@@ -49,6 +49,7 @@ function m.updatePreloadedPT()
   pt.policy_table.app_policies[m.getConfigAppParams().fullAppID].moduleType = { "CLIMATE" }
   pt.policy_table.app_policies[m.getConfigAppParams().fullAppID].groups =
     { "Base-4", "SendLocation", "RemoteControl", "Location-1" }
+    pt.policy_table.functional_groupings["Location-1"].user_consent_prompt = nil
   m.setPreloadedPT(pt)
 end
 
