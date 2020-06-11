@@ -24,17 +24,17 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
-    updateMode = "UNKNOWN",
-    audioStreamingIndicator = "PLAY"
+  updateMode = "UNKNOWN",
+  audioStreamingIndicator = "PLAY"
 }
 
 local function UnknownMediaClockTimer()
-    local CorIdRAI = commonSmoke.getMobileSession():SendRPC("SetMediaClockTimer", requestParams)
-	commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { 
-        success = false, 
-        resultCode = "INVALID_DATA"
-    }):ValidIf(function(_, data)
-        return string.match(data.payload.info, "updateMode")
+  local CorIdRAI = commonSmoke.getMobileSession():SendRPC("SetMediaClockTimer", requestParams)
+	commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, {
+    success = false,
+    resultCode = "INVALID_DATA"
+  }):ValidIf(function(_, data)
+      return string.match(data.payload.info, "updateMode")
     end)
 end
 

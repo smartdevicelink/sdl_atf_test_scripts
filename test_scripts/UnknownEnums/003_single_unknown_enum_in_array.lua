@@ -25,19 +25,19 @@ runner.testSettings.isSelfIncluded = false
 local appID = 1
 
 local function RAIWithUnknownEnum()
-    commonSmoke.createMobileSession(appID, nil, appID)
-    commonSmoke.getMobileSession(appID):StartService(7)
-    :Do(function()
-        local requestParams = commonSmoke.app.getParams(appID)
-        requestParams["appHMIType"] = {"DEFAULT", "UNKNOWN"}
-        local CorIdRAI = commonSmoke.getMobileSession():SendRPC("RegisterAppInterface", requestParams)
-        commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { 
-            success = true, 
-            resultCode = "WARNINGS"
-        }):ValidIf(function(_, data)
-            return string.match(data.payload.info, "appHMIType")
-        end)
+  commonSmoke.createMobileSession(appID, nil, appID)
+  commonSmoke.getMobileSession(appID):StartService(7)
+  :Do(function()
+    local requestParams = commonSmoke.app.getParams(appID)
+    requestParams["appHMIType"] = {"DEFAULT", "UNKNOWN"}
+    local CorIdRAI = commonSmoke.getMobileSession():SendRPC("RegisterAppInterface", requestParams)
+    commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, {
+      success = true,
+      resultCode = "WARNINGS"
+    }):ValidIf(function(_, data)
+      return string.match(data.payload.info, "appHMIType")
     end)
+  end)
 end
 
 --[[ Scenario ]]

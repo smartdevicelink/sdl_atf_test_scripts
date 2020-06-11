@@ -24,37 +24,37 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
-    keyboardProperties = {
-      autoCompleteList = { "Daemon" , "Freedom" }
-    },
-    menuIcon = {
-        value = "img.jpg",
-        imageType = "UNKNOWN"
-    }
+  keyboardProperties = {
+    autoCompleteList = { "Daemon" , "Freedom" }
+  },
+  menuIcon = {
+    value = "img.jpg",
+    imageType = "UNKNOWN"
   }
+}
 
 local requestUiParams = {
-    keyboardProperties = requestParams.keyboardProperties
-  }
+  keyboardProperties = requestParams.keyboardProperties
+}
 
 local function SetGlobalPropertiesUnknownMenuIcon()
-    local mobileSession = commonSmoke.getMobileSession(1)
-    local cid = mobileSession:SendRPC("SetGlobalProperties", requestParams)
-  
-    requestUiParams.appID = commonSmoke.getHMIAppId()
-    EXPECT_HMICALL("UI.SetGlobalProperties", requestUiParams)
-    :Do(function(_,data)
-        commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end):ValidIf(function(_, data)
-      return data.params["menuIcon"] == nil
-    end)
+  local mobileSession = commonSmoke.getMobileSession(1)
+  local cid = mobileSession:SendRPC("SetGlobalProperties", requestParams)
 
-    mobileSession:ExpectResponse(cid, { 
-      success = true, 
-      resultCode = "WARNINGS"
-    }):ValidIf(function(_, data)
-      return string.match(data.payload.info, "imageType")
-    end)
+  requestUiParams.appID = commonSmoke.getHMIAppId()
+  EXPECT_HMICALL("UI.SetGlobalProperties", requestUiParams)
+  :Do(function(_,data)
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end):ValidIf(function(_, data)
+    return data.params["menuIcon"] == nil
+  end)
+
+  mobileSession:ExpectResponse(cid, {
+    success = true,
+    resultCode = "WARNINGS"
+  }):ValidIf(function(_, data)
+    return string.match(data.payload.info, "imageType")
+  end)
 end
 
 --[[ Scenario ]]

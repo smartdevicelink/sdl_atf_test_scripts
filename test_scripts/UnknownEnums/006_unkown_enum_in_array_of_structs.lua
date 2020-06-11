@@ -59,7 +59,7 @@ local requestParams = {
     mainField3 = { "mediaAlbum" },
     mainField4 = { "mediaYear" },
   },
-  softButtons = { 
+  softButtons = {
     {
     softButtonID = 1,
     type = "UNKNOWN"
@@ -143,8 +143,8 @@ local function show(pParams)
   :ValidIf(function(_, data)
       return #data.params["softButtons"] == 1
     end)
-  common.getMobileSession():ExpectResponse(cid, { 
-    success = true, 
+  common.getMobileSession():ExpectResponse(cid, {
+    success = true,
     resultCode = "WARNINGS"
   }):ValidIf(function(_, data)
     return string.match(data.payload.info, "softButtons")
@@ -154,7 +154,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Update Preloaded PT", common.updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)

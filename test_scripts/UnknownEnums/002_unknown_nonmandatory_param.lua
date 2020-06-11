@@ -23,38 +23,38 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
-    updateMode = "COUNTUP",
-    startTime = {
-        hours = 0,
-        minutes = 0,
-        seconds = 0
-    },
-    audioStreamingIndicator = "UNKNOWN"
+  updateMode = "COUNTUP",
+  startTime = {
+    hours = 0,
+    minutes = 0,
+    seconds = 0
+  },
+  audioStreamingIndicator = "UNKNOWN"
 }
 
 local hmiRequestParams = {
-    updateMode = "COUNTUP",
-    startTime = {
-        hours = 0,
-        minutes = 0,
-        seconds = 0
-    }
+  updateMode = "COUNTUP",
+  startTime = {
+    hours = 0,
+    minutes = 0,
+    seconds = 0
+  }
 }
 
 local function UnknownMediaClockTimer()
-    local CorIdRAI = commonSmoke.getMobileSession():SendRPC("SetMediaClockTimer", requestParams)
-    -- Todo: Add info string
-    EXPECT_HMICALL("UI.SetMediaClockTimer", hmiRequestParams)
-    :Do(function(_,data)
-        --hmi side: sending UI.SetMediaClockTimer response
-        commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-	commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { 
-        success = true, 
-        resultCode = "WARNINGS"
-    }):ValidIf(function(_, data)
-        return string.match(data.payload.info, "audioStreamingIndicator")
-    end)
+  local CorIdRAI = commonSmoke.getMobileSession():SendRPC("SetMediaClockTimer", requestParams)
+  -- Todo: Add info string
+  EXPECT_HMICALL("UI.SetMediaClockTimer", hmiRequestParams)
+  :Do(function(_,data)
+    --hmi side: sending UI.SetMediaClockTimer response
+    commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, {
+    success = true,
+    resultCode = "WARNINGS"
+  }):ValidIf(function(_, data)
+    return string.match(data.payload.info, "audioStreamingIndicator")
+  end)
 end
 
 --[[ Scenario ]]
