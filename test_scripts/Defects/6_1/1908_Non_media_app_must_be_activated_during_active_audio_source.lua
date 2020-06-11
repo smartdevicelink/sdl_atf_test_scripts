@@ -53,7 +53,7 @@ runner.Step("Activate App FULL", activateApp)
 runner.Step("Deactivate App BACKGROUND", deactivateApp)
 
 runner.Title("Test")
-runner.Step("AUDIO sourse is activated", onEventChange)
+runner.Step("AUDIO source is activated", onEventChange)
 runner.Step("Activate App FULL", activateApp)
 
 runner.Title("Postconditions")
