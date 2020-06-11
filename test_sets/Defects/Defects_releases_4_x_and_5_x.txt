@@ -80,7 +80,7 @@
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_5_SDL_respond_NACK_from_not_protected_to_not_protected.lua
 ;./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_6_SDL_respond_ACK_from_not_protected_to_protected.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2366
 ;HeartBeat
-;./test_scripts/Defects/4_5/1893_ATF_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2374
+./test_scripts/Defects/4_5/1893_ATF_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua
 ;./test_scripts/Defects/4_5/1892_HB_from_SDL_after_receiving_HB_from_mobile.lua https://github.com/smartdevicelink/sdl_core/issues/1892
 ;Remote Controol
 ./test_scripts/Defects/5_0/2670_GetInteriorVD_after_ignition_off.lua
