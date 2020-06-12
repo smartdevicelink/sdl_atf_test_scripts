@@ -21,8 +21,10 @@ common.Step("Activate App", common.activateApp)
 common.Step("App subscribes to fuelRange data", common.subUnScribeVD, { "SubscribeVehicleData", common.subUnsubParams })
 
 common.Title("Test")
-common.Step("Send OnVehicleData with all new fuelRange parameters", common.sendOnVehicleData, { { common.allVehicleData } })
-common.Step("App unsubscribes from fuelRange data", common.subUnScribeVD, { "UnsubscribeVehicleData", common.subUnsubParams })
+common.Step("Send OnVehicleData with all new fuelRange parameters", common.sendOnVehicleData,
+  { { common.allVehicleData } })
+common.Step("App unsubscribes from fuelRange data", common.subUnScribeVD,
+  { "UnsubscribeVehicleData", common.subUnsubParams })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

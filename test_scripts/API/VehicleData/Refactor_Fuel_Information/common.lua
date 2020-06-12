@@ -34,10 +34,28 @@ m.cloneTable = utils.cloneTable
 m.allVehicleData = {
   type = "GASOLINE",
   range = 5000,
-  level = -6,
+  level = 10,
   levelState = "NORMAL",
-  capacity = 0,
+  capacity = 10,
   capacityUnit = "LITERS"
+}
+
+m.allVehicleDataBoundaryValues = {
+  type = { "GASOLINE", "DIESEL", "CNG", "LPG", "HYDROGEN", "BATTERY" },
+  range = { 0, 10000 },
+  level = { -6, 1000000 },
+  levelState = { "UNKNOWN", "NORMAL", "LOW", "FAULT", "ALERT", "NOT_SUPPORTED" },
+  capacity = { 0, 1000000 },
+  capacityUnit = { "LITERS", "KILOWATTHOURS", "KILOGRAMS" }
+}
+
+m.allVehicleDataOutOfBoundaryValues = {
+  type = { "GASOLINE_TYPE" },
+  range = { -1, 10001 },
+  level = { -7, 1000001 },
+  levelState = { "UNKNOWN_TYPE" },
+  capacity = { -1, 1000001 },
+  capacityUnit = { "LITERS_TYPE"}
 }
 
 m.subUnsubParams = {
@@ -69,16 +87,14 @@ end
 
 --[[ checkParam: Check the absence of unexpected params in GetVehicleData and OnVehicleData on the mobile app side
 --! @parameters:
---! pData - parameters for mobile response/notification
+--! pExpData - expected parameters for mobile response/notification
+--! pExpDapActualDatata - received parameters for mobile response/notification
 --! pRPC - RPC for mobile request/notification
 --! @return: true - in case response/notification does not contain unexpected params, otherwise - false
 --]]
-function m.checkParam(pData, pRPC)
-  local count = 0
-  for _ in pairs(pData.payload.fuelRange[1]) do
-    count = count + 1
-  end
-  if count ~= 1 then
+local function checkParam(pExpData, pActualData, pRPC)
+  utils.isTableEqual(pExpData, pActualData)
+  if false == utils.isTableEqual(pExpData, pActualData) then
     return false, "Unexpected params are received in " .. pRPC
   else
     return true
@@ -99,6 +115,9 @@ function m.getVehicleData(pData, pParam)
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [pParam] = pData })
     end)
     m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", [pParam] = pData })
+    :ValidIf(function(_, data)
+      return checkParam(pData, data.payload[pParam], "GetVehicleData")
+    end)
 end
 
 --[[ subUnScribeVD: Processing SubscribeVehicleData and UnsubscribeVehicleData RPCs
@@ -131,6 +150,9 @@ function m.sendOnVehicleData(pData, pExpTime, pParam)
 
   m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { [pParam] = pData })
   m.getMobileSession():ExpectNotification("OnVehicleData", { [pParam] = pData })
+  :ValidIf(function(_, data)
+    return checkParam(pData, data.payload[pParam], "OnVehicleData")
+  end)
   :Times(pExpTime)
 end
 

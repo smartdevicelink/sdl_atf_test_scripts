@@ -15,7 +15,14 @@ local common = require('test_scripts/API/VehicleData/Refactor_Fuel_Information/c
 
 --[[ Local Variables ]]
 local expTime = 0
-local boolValue = true
+local invalidTypeValue = true
+
+--[[ Local Functions ]]
+local function setData(pParameterName, pValue)
+  local vehicleData = common.cloneTable(common.allVehicleData)
+  vehicleData[pParameterName] = pValue
+  return vehicleData
+end
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -27,9 +34,13 @@ common.Step("Activate App", common.activateApp)
 common.Step("App subscribes to fuelRange data", common.subUnScribeVD, { "SubscribeVehicleData", common.subUnsubParams})
 
 common.Title("Test")
-for k,_ in pairs(common.allVehicleData) do
-  common.Step("HMI sends OnVehicleData with invalid " .. k .. "=" .. tostring(boolValue), common.sendOnVehicleData,
-    { { { [k] = boolValue } }, expTime })
+for parameterName in pairs(common.allVehicleData) do
+  common.Step("HMI sends OnVehicleData with invalid type for " .. parameterName, common.sendOnVehicleData,
+    { {  [parameterName] = invalidTypeValue }, expTime })
+  for _, value in pairs (common.allVehicleDataOutOfBoundaryValues[parameterName]) do
+    common.Step("HMI sends OnVehicleData with invalid data " .. parameterName .. "=" .. value,
+      common.sendOnVehicleData, { { setData(parameterName, value) }, expTime })
+  end
 end
 
 common.Title("Postconditions")
