@@ -86,9 +86,19 @@ local invalidParam = {
       state = { ApproximatePositioN = 50, deviation = 50 }
     }
   },
+  ["missing_approximatePosition"] = { -- without approximatePosition parameter
+    { location = common.getWindowStatusParams()[1].location,
+      state = { deviation = 50 }
+    }
+  },
   ["invalidName_deviation"] = { -- invalid name for deviation parameter from WindowState structure
     { location = common.getWindowStatusParams()[1].location,
       state = { approximatePosition = 50, DeviatioN = 50 }
+    }
+  },
+  ["missing_deviation"] = { -- without deviation parameter
+    { location = common.getWindowStatusParams()[1].location,
+      state = { approximatePosition = 50 }
     }
   },
   ["missing_col"] = { -- without col parameter from Grid structure
