@@ -20,6 +20,9 @@ local common = require('test_scripts/Defects/commonDefects')
 local hmi_values = require('user_modules/hmi_values')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Functions ]]
 local function getHMIValues()
   local params = hmi_values.getDefaultHMITable()
@@ -50,6 +53,7 @@ local function start(getHMIParams, self)
 end
 
 local function pTUpdateFunc(tbl)
+  tbl.policy_table.functional_groupings["Location-1"].user_consent_prompt = nil
   table.insert(tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups, "Location-1")
 end
 
