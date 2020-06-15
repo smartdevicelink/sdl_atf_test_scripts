@@ -29,3 +29,5 @@
 ./test_scripts/API/VehicleData/HandsOffSteering/029_SubscribeVD_during_resumption_IGN_OFF_ON.lua
 ;./test_scripts/API/VehicleData/HandsOffSteering/030_SubscribeVD_during_resumption_unexpected_disconnect_for_two_Apps.lua https://github.com/smartdevicelink/sdl_core/issues/2283
 ;./test_scripts/API/VehicleData/HandsOffSteering/031_SubscribeVD_during_resumption_IGN_OFF_ON_for_two_Apps.lua https://github.com/smartdevicelink/sdl_core/issues/2283
+./test_scripts/API/VehicleData/HandsOffSteering/032_SubscribeVD_IGNORED_app_already_subscribed.lua
+./test_scripts/API/VehicleData/HandsOffSteering/033_UnsubscribeVD_IGNORED_app_already_unsubscribed.lua
