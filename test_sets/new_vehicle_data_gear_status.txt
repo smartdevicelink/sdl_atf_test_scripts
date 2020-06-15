@@ -31,3 +31,5 @@
 ./test_scripts/API/VehicleData/GearStatus/031_Resumption_subscription_to_gearStatus_param_IGN_OFF_ON.lua
 ;./test_scripts/API/VehicleData/GearStatus/032_Resumption_of_subscription_for_2_apps_to_the_gearStatus_param_after_an_Unexpected_Disconnect.lua https://github.com/smartdevicelink/sdl_core/issues/2283
 ;./test_scripts/API/VehicleData/GearStatus/033_Resumption_of_subscription_for_2_apps_to_the_gearStatus_param_after_IGN_OFF_ON.lua https://github.com/smartdevicelink/sdl_core/issues/2283
+./test_scripts/API/VehicleData/GearStatus/034_SubscribeVD_IGNORED_app_already_subscribed.lua
+./test_scripts/API/VehicleData/GearStatus/035_UnsubscribeVD_IGNORED_app_already_subscribed.lua
