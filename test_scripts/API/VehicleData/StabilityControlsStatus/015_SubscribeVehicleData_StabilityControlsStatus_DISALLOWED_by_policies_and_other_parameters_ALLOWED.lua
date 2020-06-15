@@ -27,6 +27,10 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 
+--[[ Test Configuration ]]
+config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
+config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 2
+
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
   pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].groups = { "Base-4", "Emergency-1" }
