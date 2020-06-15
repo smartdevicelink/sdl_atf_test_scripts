@@ -34,7 +34,7 @@ local invalidAppPropType = {
   authToken = 12345,
   -- value type is updated to integer instead of string
   transportType = 123,
-  -- value type is updated to "INVALID_TYPE" instead of ("BOTH", "CLOUD", "MOBILE")
+  -- value type is updated to array instead of individual value ("BOTH", "CLOUD", "MOBILE")
   hybridAppPreference = {"CLOUD", "MOBILE"},
   -- value type is updated to integer instead of string
   endpoint = 8080
