@@ -7,8 +7,8 @@
 --  1) Application sends a SetCloudAppProperties RPC request(with invalid param)
 --
 --  Expected:
---  1) SDL responds to mobile app with "ResultCode: INVALID_DATA,
---        success: false
+--  1) SDL responds to mobile app with "ResultCode: WARNINGS and success: true
+--  2) The invalid enum was filtered out from the message
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -41,9 +41,11 @@ local function processRPCSuccess()
   local cid = mobileSession:SendRPC(rpc.name, rpc.params)
 
   local responseParams = {}
-  responseParams.success = false
-  responseParams.resultCode = "INVALID_DATA"
-  mobileSession:ExpectResponse(cid, responseParams)
+  responseParams.success = true
+  responseParams.resultCode = "WARNINGS"
+  mobileSession:ExpectResponse(cid, responseParams):ValidIf(function(_, data)
+    return string.match(data.payload.info, "hybridAppPreference")
+  end)
 end
 
 local function PTUfunc(tbl)
