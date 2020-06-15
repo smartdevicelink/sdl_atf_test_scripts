@@ -388,6 +388,15 @@ function m.processRPCSubscriptionDisallowed(pRpcName, pData)
   m.getMobileSession():ExpectNotification("OnHashChange") :Times(0)
 end
 
+function m.processRPCSubscriptionIgnored(pRpcName, pData)
+  local params = buildSubscriptionRpcParams({ pData })
+  local mobileResponse = {}
+  mobileResponse.resultCode = "IGNORED"
+  mobileResponse.success = false
+  processVehicleDataRpc(pRpcName, params.mobileRequest, nil, nil, mobileResponse)
+  m.getMobileSession():ExpectNotification("OnHashChange") :Times(0)
+end
+
 function m.processRPCSubscriptionGenericError(pRpcName, pReqParams, pHmiResParams)
   local params = buildSubscriptionRpcParams(pReqParams)
   local mobileResponse = {}
