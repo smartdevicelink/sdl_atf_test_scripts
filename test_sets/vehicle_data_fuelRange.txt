@@ -12,3 +12,5 @@
 ./test_scripts/API/VehicleData/Refactor_Fuel_Information/012_App_version_is_more_than_version_deprecated_params_in_DB_and_API.lua
 ;./test_scripts/API/VehicleData/Refactor_Fuel_Information/013_SubscribeVD_not_success_codes_for_fuelRange_data.lua https://github.com/smartdevicelink/sdl_core/issues/3384
 ;./test_scripts/API/VehicleData/Refactor_Fuel_Information/014_UnsubscribeVD_not_success_codes_for_fuelRange_data.lua https://github.com/smartdevicelink/sdl_core/issues/3384
+./test_scripts/API/VehicleData/Refactor_Fuel_Information/015_SubscribeVD_IGNORED_in_case_app_is_already_subscribed.lua
+./test_scripts/API/VehicleData/Refactor_Fuel_Information/016_UnsubscribeVD_IGNORED_in_case_app_is_already_unsubscribed.lua
