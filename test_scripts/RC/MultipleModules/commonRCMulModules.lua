@@ -538,7 +538,7 @@ function common.releaseModuleWithInfoCheck(pAppId, pModuleType, pModuleId, pResu
       { moduleType = pModuleType, moduleId = pModuleId })
   mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
   :ValidIf(function(_, data)
-    return string.find(data.payload.info, infoMsg, 1, true) and true or false
+    return string.find(data.payload.info, infoMsg, 1, true) ~= nil
   end)
 end
 
