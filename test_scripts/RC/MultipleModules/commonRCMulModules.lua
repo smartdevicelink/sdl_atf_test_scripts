@@ -507,8 +507,7 @@ local function getInfo(pModuleType, pModuleId, pInfoType)
   }
 
   if pInfoType == "INCORRECT_MODULE_TYPE" then
-    return "RPC.msg_params.moduleType: Ignored invalid value - " .. pModuleType
-      .."\nRPC.msg_params: Missing mandatory parameter: moduleType"
+    return "Ignored invalid value"
   elseif pInfoType == "NOT_EXISTING_MODULE" then
     return "Accessing not supported module"
   end
@@ -537,7 +536,10 @@ function common.releaseModuleWithInfoCheck(pAppId, pModuleType, pModuleId, pResu
   end
   local cid = mobSession:SendRPC("ReleaseInteriorVehicleDataModule",
       { moduleType = pModuleType, moduleId = pModuleId })
-  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode, info = infoMsg })
+  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
+  :ValidIf(function(_, data)
+    return string.find(data.payload.info, infoMsg, 1, true) and true or false
+  end)
 end
 
 function common.releaseModuleNoModuleId(pAppId, pModuleType, pModuleId, pResultCode, pInfoType, pRCAppIds)
