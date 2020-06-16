@@ -370,6 +370,7 @@ function m.processSubscribeVD(pMobileRequest, pHmiRequest, pHmiResponse, pMobile
 end
 
 function m.processRPCSubscriptionSuccess(pRpcName, pData)
+  if type(pData) ~= "table" then pData = { pData } end
   local params = buildSubscriptionRpcParams(pData)
   local hmiResponse = buildHmiResponseWithResulCode(params.hmiResponse, "SUCCESS")
   processVehicleDataRpc(pRpcName, params.mobileRequest, params.hmiRequest, hmiResponse, params.mobileResponse)
@@ -408,6 +409,7 @@ function m.processRPCSubscriptionGenericError(pRpcName, pReqParams, pHmiResParam
 end
 
 function m.checkNotificationSuccess(pData)
+  if type(pData) ~= "table" then pData = { pData } end
   local hmiNotParams = {}
   for _, item in pairs(pData) do
     hmiNotParams[item] = m.allVehicleData[item].value
@@ -418,6 +420,7 @@ function m.checkNotificationSuccess(pData)
 end
 
 function m.checkNotificationIgnored(pData)
+  if type(pData) ~= "table" then pData = { pData } end
   local hmiNotParams = {}
   for _, item in pairs(pData) do
     hmiNotParams[item] = m.allVehicleData[item].value
