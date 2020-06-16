@@ -26,10 +26,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/commonVehicleData')
 
---[[ Test Configuration ]]
-config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
-config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 2
-
 --[[ Local variables ]]
 local vdName1 = "gps"
 local vdName2 = "stabilityControlsStatus"

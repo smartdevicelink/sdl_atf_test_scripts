@@ -11,6 +11,10 @@ local events = require("events")
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 config.defaultProtocolVersion = 2
+config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
+config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 2
+config.application2.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
+config.application2.registerAppInterfaceParams.syncMsgVersion.minorVersion = 2
 
 --[[ Local Variables ]]
 local m = {}
