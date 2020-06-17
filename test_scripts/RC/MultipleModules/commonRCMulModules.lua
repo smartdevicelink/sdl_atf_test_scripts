@@ -423,7 +423,7 @@ function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleCo
   if pAccessMode == "ASK_DRIVER" then
     if type(pSdlDecisions) == "table" then
       for moduleId, isSdlDecision in pairs(pSdlDecisions) do
-        if not isSdlDecision then 
+        if not isSdlDecision then
           isHmiRequestExpected = true
           filteredConsentsArray[moduleId] = pModuleConsentArray[moduleId]
         end
@@ -538,7 +538,7 @@ function common.releaseModuleWithInfoCheck(pAppId, pModuleType, pModuleId, pResu
       { moduleType = pModuleType, moduleId = pModuleId })
   mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
   :ValidIf(function(_, data)
-    return string.match(data.payload.info, infoMsg)
+    return string.find(data.payload.info, infoMsg, 1, true) ~= nil
   end)
 end
 
