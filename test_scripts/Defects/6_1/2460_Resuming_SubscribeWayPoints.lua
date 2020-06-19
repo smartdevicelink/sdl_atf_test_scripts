@@ -66,7 +66,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration", common.registerAppWOPTU)
+runner.Step("App registration", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { ptUpdateForApp })
 runner.Step("App activation", common.activateApp)
 runner.Step("SubscribeWayPoints", sendSubscribeWaypoints)
