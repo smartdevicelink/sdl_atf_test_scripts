@@ -14,14 +14,30 @@
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Capabilities/pcmStreamCapabilities/commonPcmStreamCapabilities")
 
+--[[ Local Functions ]]
+local function getCaseName(pCaseTable)
+  local name = "TC == "
+  local isNotFirst = false
+  for k, v in pairs(pCaseTable) do
+    if isNotFirst then name = name .. ", " else isNotFirst = true end
+    name = name .. tostring(k) .. ": " .. tostring(v)
+  end
+  name = name .. " ==\n"
+  return name
+end
+
 --[[ Scenario ]]
-common.Title("Preconditions")
-common.Step("Clean environment", common.preconditions)
+for _, data in common.spairs(common.getPcmStreamCapabilitiesValues()) do
+  common.Title(getCaseName(data))
+  common.Title("Preconditions")
+  common.Step("Clean environment", common.preconditions)
 
-common.Title("Test")
-common.Step("Set HMI Capabilities", common.setHMICapabilities, { common.pcmStreamCapabilitiesValue })
-common.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { common.hmiDefaultCapabilities })
-common.Step("App registration", common.registerApp, { common.pcmStreamCapabilitiesValue })
+  common.Title("Test")
+  common.Step("Set HMI Capabilities", common.setHMICapabilities, { data })
+  common.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { common.hmiDefaultCapabilities })
+  common.Step("App registration", common.registerApp, { data })
 
-common.Title("Postconditions")
-common.Step("Stop SDL", common.postconditions)
+  common.Title("Postconditions")
+  common.Step("Close mobile session", common.closeSession)
+  common.Step("Stop SDL", common.postconditions)
+end

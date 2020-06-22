@@ -34,13 +34,30 @@ for k, value in pairs(m.defaultPcmStreamCapabilities) do
   m.defaultPcmStreamCapabilities[k] = value:gsub("RATE_", "")
 end
 
-m.pcmStreamCapabilitiesValue = {
-  samplingRate = "8KHZ",
-  bitsPerSample = "8_BIT",
-  audioType = "PCM"
+local pcmStreamCapabilitiesValues = {
+  samplingRate = { "8KHZ", "16KHZ", "22KHZ", "44KHZ" },
+  bitsPerSample = { "8_BIT", "16_BIT" },
+  audioType = { "PCM" }
 }
 
 --[[ Common Functions ]]
+function m.getPcmStreamCapabilitiesValues()
+  local values = {}
+  for _, samplingRateValue in ipairs(pcmStreamCapabilitiesValues.samplingRate) do
+    for _, bitsPerSampleValue in ipairs(pcmStreamCapabilitiesValues.bitsPerSample) do
+      for _, audioTypeValue in ipairs(pcmStreamCapabilitiesValues.audioType) do
+        local data = {
+          samplingRate = samplingRateValue,
+          bitsPerSample = bitsPerSampleValue,
+          audioType = audioTypeValue
+        }
+        table.insert(values, data)
+      end
+    end
+  end
+  return values
+end
+
 function m.registerApp(pPcmStreamCapabilityValue)
   local session = m.mobile(1)
   session:StartService(7)
