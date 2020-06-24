@@ -36,19 +36,7 @@ local function getHMIParamsWithOutResponse(pMod, pReq)
 end
 
 local function getHMIParamsWithOutRequest(pMod, pReq)
-  local requestGetHMIParams = common.cloneTable(hmiDefaultCap)
-  requestGetHMIParams.UI.GetLanguage.occurrence = 0
-  requestGetHMIParams.UI.GetSupportedLanguages.occurrence = 0
-  requestGetHMIParams.UI.GetCapabilities.occurrence = 0
-  requestGetHMIParams.VR.GetLanguage.occurrence = 0
-  requestGetHMIParams.VR.GetSupportedLanguages.occurrence = 0
-  requestGetHMIParams.VR.GetCapabilities.occurrence = 0
-  requestGetHMIParams.TTS.GetLanguage.occurrence = 0
-  requestGetHMIParams.TTS.GetSupportedLanguages.occurrence = 0
-  requestGetHMIParams.TTS.GetCapabilities.occurrence = 0
-  requestGetHMIParams.Buttons.GetCapabilities.occurrence = 0
-  requestGetHMIParams.VehicleInfo.GetVehicleType.occurrence = 0
-  requestGetHMIParams.RC.GetCapabilities.occurrence = 0
+  local requestGetHMIParams = common.getHMIParamsWithOutRequests()
   requestGetHMIParams[pMod][pReq].occurrence = nil
   return requestGetHMIParams
 end

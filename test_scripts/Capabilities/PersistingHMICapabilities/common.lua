@@ -64,8 +64,8 @@ function m.getDefaultHMITable()
   return hmiCaps
 end
 
-function m.getHMIParamsWithOutRequests()
-  local params = m.getDefaultHMITable()
+function m.getHMIParamsWithOutRequests(pParams)
+  local params = pParams or m.getDefaultHMITable()
   params.RC.GetCapabilities.occurrence = 0
   params.UI.GetSupportedLanguages.occurrence = 0
   params.UI.GetCapabilities.occurrence = 0

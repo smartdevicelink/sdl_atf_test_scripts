@@ -23,20 +23,7 @@ local common = require('test_scripts/Capabilities/PersistingHMICapabilities/comm
 
 --[[ Local Functions ]]
 local function getHMIParamsWithOutRequests(pVersion)
-  local hmiCapabilities = common.updateHMISystemInfo(pVersion)
-  hmiCapabilities.RC.GetCapabilities.occurrence = 0
-  hmiCapabilities.UI.GetSupportedLanguages.occurrence = 0
-  hmiCapabilities.UI.GetCapabilities.occurrence = 0
-  hmiCapabilities.VR.GetSupportedLanguages.occurrence = 0
-  hmiCapabilities.VR.GetCapabilities.occurrence = 0
-  hmiCapabilities.TTS.GetSupportedLanguages.occurrence = 0
-  hmiCapabilities.TTS.GetCapabilities.occurrence = 0
-  hmiCapabilities.Buttons.GetCapabilities.occurrence = 0
-  hmiCapabilities.VehicleInfo.GetVehicleType.occurrence = 0
-  hmiCapabilities.UI.GetLanguage.occurrence = 0
-  hmiCapabilities.VR.GetLanguage.occurrence = 0
-  hmiCapabilities.TTS.GetLanguage.occurrence = 0
-  return hmiCapabilities
+  return common.getHMIParamsWithOutRequests(common.updateHMISystemInfo(pVersion))
 end
 
 --[[ Scenario ]]

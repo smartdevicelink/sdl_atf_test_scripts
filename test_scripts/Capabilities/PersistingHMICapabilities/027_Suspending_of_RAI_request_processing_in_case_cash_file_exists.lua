@@ -31,15 +31,7 @@ local ccpuVersion = "cppu_version_1"
 
 --[[ Local Functions ]]
 local function getHMIParamsWithOutRequests(pVersion)
-  local hmiValues = common.getHMIParamsWithOutRequests()
-  hmiValues.BasicCommunication.GetSystemInfo = {
-    params = {
-      ccpu_version = pVersion,
-      language = "EN-US",
-      wersCountryCode = "wersCountryCode"
-    }
-  }
-  return hmiValues
+  return common.getHMIParamsWithOutRequests(common.updateHMISystemInfo(pVersion))
 end
 
 --[[ Scenario ]]
