@@ -62,7 +62,7 @@ local function buildCapRaiResponse(pMod, pReq)
       GetCapabilities = {
         audioPassThruCapabilities = changeInternalNameRateArray(hmiCapabilities.UI.audioPassThruCapabilities),
         pcmStreamCapabilities = changeInternalNameRate(hmiCapabilities.UI.pcmStreamCapabilities),
-        hmiZoneCapabilities = hmiCapabilities.UI.hmiZoneCapabilities,
+        hmiZoneCapabilities = { hmiCapabilities.UI.hmiZoneCapabilities },
         softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
         displayCapabilities = common.buildDisplayCapForMobileExp(hmiCapabilities.UI.displayCapabilities),
       },

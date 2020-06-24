@@ -143,7 +143,7 @@ function m.buildCapRaiResponse()
     hmiDisplayLanguage =  hmiCapabilities.UI.GetCapabilities.params.language,
     language = hmiCapabilities.VR.GetLanguage.params.language, -- or TTS.language
     pcmStreamCapabilities = hmiCapabilities.UI.GetCapabilities.params.pcmStreamCapabilities,
-    hmiZoneCapabilities = hmiCapabilities.UI.GetCapabilities.params.hmiZoneCapabilities,
+    hmiZoneCapabilities = { hmiCapabilities.UI.GetCapabilities.params.hmiZoneCapabilities },
     softButtonCapabilities = hmiCapabilities.UI.GetCapabilities.params.softButtonCapabilities,
     displayCapabilities = m.buildDisplayCapForMobileExp(hmiCapabilities.UI.GetCapabilities.params.displayCapabilities),
     vrCapabilities = hmiCapabilities.VR.GetCapabilities.params.vrCapabilities,
@@ -373,16 +373,9 @@ function m.registerApp(pAppId, pCapResponse, pMobConnId, hasPTU)
       session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
       :ValidIf(function(_,data)
         for param, value in pairs (pCapResponse) do
-          if param == "hmiZoneCapabilities" then
-            if not data.payload[param] == value then
-              errorMessages = errorMessages ..
+          if not utils.isTableEqual(data.payload[param], value) then
+            errorMessages = errorMessages ..
                 errorMessage(param, data.payload[param], value)
-            end
-          else
-            if not utils.isTableEqual(data.payload[param], value) then
-              errorMessages = errorMessages ..
-                errorMessage(param, data.payload[param], value)
-            end
           end
         end
         if string.len(errorMessages) > 0 then
@@ -550,16 +543,9 @@ local function registerAppOnEvent(pEvent, pParams, pHmiOnReadyData)
             end
           end
           for param, value in pairs (pParams.capabilitiesResponse) do
-            if param == "hmiZoneCapabilities" then
-              if not data.payload[param] == value then
-                errorMessages = errorMessages ..
+            if not utils.isTableEqual(data.payload[param], value) then
+              errorMessages = errorMessages ..
                   errorMessage(param, data.payload[param], value)
-              end
-            else
-              if not utils.isTableEqual(data.payload[param], value) then
-                errorMessages = errorMessages ..
-                  errorMessage(param, data.payload[param], value)
-              end
             end
           end
           if string.len(errorMessages) > 0 then
@@ -802,16 +788,9 @@ function m.registerAppsSuspend( pCapResponse, pHMIParams )
   local function validateCapResponse(pData)
     local errorMessages = ""
     for param, value in pairs (pCapResponse) do
-      if param == "hmiZoneCapabilities" then
-        if not pData.payload[param] == value then
-          errorMessages = errorMessages ..
+      if not utils.isTableEqual(pData.payload[param], value) then
+        errorMessages = errorMessages ..
             errorMessage(param, pData.payload[param], value)
-        end
-      else
-        if not utils.isTableEqual(pData.payload[param], value) then
-          errorMessages = errorMessages ..
-            errorMessage(param, pData.payload[param], value)
-        end
       end
     end
     if string.len(errorMessages) > 0 then
