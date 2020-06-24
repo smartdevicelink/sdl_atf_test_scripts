@@ -27,7 +27,7 @@ common.Step("Start SDL, HMI", common.start, { common.updateHMILanguageCapability
 
 common.Title("Test")
 common.Step("OnLanguageChange notification unsupported language EN-EN", common.changeLanguage, { unsupportedLanguage })
-common.Step("Check stored value to cache file", common.checkLanguageCapability, { "EN-US" })
+common.Step("Check stored value to cache file", common.checkLanguageCapabilityInCache, { "EN-US" })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

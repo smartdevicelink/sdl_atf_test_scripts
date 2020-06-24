@@ -327,7 +327,7 @@ function m.changeLanguage(pLanguage)
   hmiConnection:SendNotification("UI.OnLanguageChange", { language = pLanguage })
 end
 
-function m.checkLanguageCapability(pLanguage)
+function m.checkLanguageCapabilityInCache(pLanguage)
   local data = SDL.HMICapCache.get()
   if data and data.VR and data.VR.language == pLanguage
       and data.TTS and data.TTS.language == pLanguage

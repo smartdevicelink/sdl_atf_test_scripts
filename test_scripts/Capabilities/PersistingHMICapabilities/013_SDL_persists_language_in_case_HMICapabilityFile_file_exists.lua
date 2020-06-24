@@ -34,7 +34,7 @@ common.Step("Start SDL, HMI", common.start, { noResponseGetLanguageHMIParams() }
 
 common.Title("Test")
 common.Step("OnLanguageChange notification ", common.changeLanguage, { "FR-FR" })
-common.Step("Check stored value to cache file", common.checkLanguageCapability, { "FR-FR" })
+common.Step("Check stored value to cache file", common.checkLanguageCapabilityInCache, { "FR-FR" })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

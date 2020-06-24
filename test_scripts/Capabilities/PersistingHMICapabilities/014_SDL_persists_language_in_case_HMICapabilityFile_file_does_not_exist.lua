@@ -24,7 +24,7 @@ common.Step("Check that capabilities file doesn't exist", common.checkIfCapabili
 
 common.Title("Test")
 common.Step("OnLanguageChange notification FR-FR", common.changeLanguage, { "FR-FR" })
-common.Step("Check stored value to cache file", common.checkLanguageCapability, { "FR-FR" })
+common.Step("Check stored value to cache file", common.checkLanguageCapabilityInCache, { "FR-FR" })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
