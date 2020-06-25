@@ -36,6 +36,7 @@ local utils = require ('user_modules/utils')
 local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
 Preconditions:BackupFile("smartDeviceLink.ini")
 commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 config.defaultProtocolVersion = 2
