@@ -107,7 +107,7 @@ setSyncMsgVersion()
 
 local function createDefaultRCCapabilitiesInFile()
   local hmiCapabilities = actions.sdl.getHMICapabilitiesFromFile()
-  local rcCapabilities = hmiCapabilities.UI.systemCapabilities.remoteControlCapability
+  local rcCapabilities = hmiCapabilities.RC.remoteControlCapability
   local defaultValue = "Default"
   for moduleType, params in pairs(rcCapabilities) do
     if moduleType ~= "buttonCapabilities"  then
@@ -126,7 +126,7 @@ local function createDefaultRCCapabilitiesInFile()
 end
 
 function common.getExpectedParameters()
-  local rcDefaultCapabilities = createDefaultRCCapabilitiesInFile().UI.systemCapabilities.remoteControlCapability
+  local rcDefaultCapabilities = createDefaultRCCapabilitiesInFile().RC.remoteControlCapability
   local expectedParameters = {
     remoteControlCapability = {
       climateControlCapabilities = rcDefaultCapabilities.climateControlCapabilities,
@@ -424,7 +424,7 @@ function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleCo
   if pAccessMode == "ASK_DRIVER" then
     if type(pSdlDecisions) == "table" then
       for moduleId, isSdlDecision in pairs(pSdlDecisions) do
-        if not isSdlDecision then 
+        if not isSdlDecision then
           isHmiRequestExpected = true
           filteredConsentsArray[moduleId] = pModuleConsentArray[moduleId]
         end
