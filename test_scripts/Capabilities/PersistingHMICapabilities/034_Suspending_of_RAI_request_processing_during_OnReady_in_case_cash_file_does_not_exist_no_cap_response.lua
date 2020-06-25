@@ -81,7 +81,7 @@ common.Step("Check that capabilities file doesn't exist", common.checkIfCapabili
 common.Step("Ignition off", common.ignitionOff)
 
 common.Title("Test")
-common.Step("Start SDL, HMI", common.startWoHMIonReadyAndMobile)
+common.Step("Start SDL, HMI", common.startWoBothHMIonReadyAndMobile)
 common.Step("Connect mobile and check suspending App registration", common.connectMobileAndRegisterAppSuspend,
   { appSessionId, capRaiResponse, getHMIParamsWithOutResponse(ccpuVersion), delayRaiResponse })
 

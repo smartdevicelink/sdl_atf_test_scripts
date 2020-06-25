@@ -71,7 +71,7 @@ end
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Update HMI capabilities", common.updateHMICapabilitiesFile, { true })
-common.Step("Start SDL, HMI", common.startWoHMIonReadyAndMobile)
+common.Step("Start SDL, HMI", common.startWoBothHMIonReadyAndMobile)
 
 common.Title("Test")
 common.Step("Connect mobile and check suspending App registration", common.connectMobileAndRegisterAppSuspend,

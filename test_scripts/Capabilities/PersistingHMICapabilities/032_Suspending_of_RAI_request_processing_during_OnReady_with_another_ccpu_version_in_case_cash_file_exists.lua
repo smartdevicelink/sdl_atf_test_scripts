@@ -73,7 +73,7 @@ common.Step("Start SDL, HMI, connect mobile", common.start, { updateHMISystemInf
 common.Step("Ignition off", common.ignitionOff)
 
 common.Title("Test")
-common.Step("Start SDL, HMI", common.startWoHMIonReadyAndMobile)
+common.Step("Start SDL, HMI", common.startWoBothHMIonReadyAndMobile)
 common.Step("Check that capabilities file exists", common.checkIfCapabilityCacheFileExists)
 common.Step("Connect mobile and check suspending App registration", common.connectMobileAndRegisterAppSuspend,
   { appSessionId, common.buildCapRaiResponse(), updateHMISystemInfoWithDelayResponse("cppu_version_2"),

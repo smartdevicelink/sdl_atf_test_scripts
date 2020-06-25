@@ -504,7 +504,7 @@ function m.startWoHMIonReady()
   return incompleteStart(true)
 end
 
-function m.startWoHMIonReadyAndMobile()
+function m.startWoBothHMIonReadyAndMobile()
   return incompleteStart(false)
 end
 
