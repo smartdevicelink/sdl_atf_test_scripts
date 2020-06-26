@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
---  Precondition:
+--  Precondition: 
 --  1) Application 1 with <appID> is registered on SDL.
 --  2) Application 2 with <appID> is registered on SDL.
 --  3) AppServiceProvider permissions for App 1 are assigned for <appID> with PublishAppService
@@ -76,7 +76,7 @@ local function processRPCSuccess(self)
   local requestParams = rpc.params
   requestParams.serviceID = service_id
 
-  local cid = common.getHMIConnection():SendRequest(rpc.name, requestParams)
+  local cid = common.getHMIConnection():SendRequest(rpc.name, requestParams)  
 
   EXPECT_HMIRESPONSE(cid, expectedResponse):Times(1)
 
@@ -141,8 +141,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.sdl.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })

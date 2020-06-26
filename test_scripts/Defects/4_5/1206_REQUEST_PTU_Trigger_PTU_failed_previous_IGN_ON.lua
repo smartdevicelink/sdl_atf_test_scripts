@@ -13,11 +13,6 @@ local color = require("user_modules/consts").color
 runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "HTTP" } } }
 
 --[[ Local Functions ]]
-local function updateINIFile()
-  common.backupINIFile()
-  common.clear_HMICapabilitiesCacheFile_parameter_in_INIFile()
-end
-
 --[[ @registerApplicationAndWaitPTUStart: create mobile session, start RPC service, register mobile application
 --! and check that 'SDL.OnStatusUpdate' notification is sent to HMI with 'UPDATE_NEEDED' status
 --! @parameters:
@@ -66,7 +61,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Update INI file", updateINIFile)
 runner.Step("Start SDL, HMI, connect Mobile", common.start)
 runner.Step("SDL Configuration", common.printSDLConfig)
 
@@ -77,4 +71,3 @@ runner.Step("Start SDL, HMI, connect Mobile and wait for UPDATE_NEEDED", start)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
-runner.Step("Restore INI file", common.restoreINIFile)

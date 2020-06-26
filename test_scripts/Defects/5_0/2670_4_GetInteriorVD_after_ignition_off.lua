@@ -35,21 +35,15 @@ local function updatePreloadedPT()
   actions.sdl.setPreloadedPT(preloadedTable)
 end
 
-local function preconditions()
-  actions.preconditions()
-  updatePreloadedPT()
-end
-
 local function ignitionOff()
-  local hmi = actions.getHMIConnection()
-  hmi:SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
-  hmi:ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
+  actions.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete")
   :Do(function()
-      hmi:SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
+      actions.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications",{ reason = "IGNITION_OFF" })
       actions.getMobileSession():ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
     end)
-  hmi:ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
-  hmi:ExpectNotification("BasicCommunication.OnSDLClose")
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
   :Do(function()
       actions.mobile.closeSession()
       StopSDL()
@@ -58,14 +52,13 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", preconditions)
-runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file",
-  actions.sdl.setSDLIniParameter, {"HMICapabilitiesCacheFile", ""})
+runner.Step("Clean environment", actions.preconditions)
+runner.Step("Update SDL preloadedPT", updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", actions.start)
 runner.Step("RAI", actions.registerAppWOPTU)
 runner.Step("Activate App", actions.activateApp)
 
-runner.Title("Test")
+-- runner.Title("Test")
 runner.Step("GetInteriorVehicleData SEAT", commonRC.rpcDenied,
   { "SEAT", 1, "GetInteriorVehicleData", "DISALLOWED" })
 runner.Step("GetInteriorVehicleData RADIO", commonRC.rpcDenied,

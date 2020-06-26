@@ -8,6 +8,7 @@ local events = require('events')
 local runner = require('user_modules/script_runner')
 local SDL = require('SDL')
 local hmi_values = require("user_modules/hmi_values")
+local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -23,6 +24,12 @@ m.setHMICapabilitiesToFile = actions.sdl.setHMICapabilitiesToFile
 m.activateApp = actions.app.activate
 m.setSDLIniParameter = actions.sdl.setSDLIniParameter
 m.cloneTable = utils.cloneTable
+
+--[[ Overridden Functions ]]
+local initHMI_onReady_Orig = test.initHMI_onReady
+function test:initHMI_onReady(hmi_table)
+  return initHMI_onReady_Orig(self, hmi_table, false)
+end
 
 --[[ Common Functions ]]
 local function excludeAbsentInMobApiTextFields(pTextFields)
@@ -570,7 +577,6 @@ end
 
 local function initHmiOnReady(hmi_table)
   local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-  local test = require("user_modules/dummy_connecttest")
 
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(test, "HMI on ready")
 

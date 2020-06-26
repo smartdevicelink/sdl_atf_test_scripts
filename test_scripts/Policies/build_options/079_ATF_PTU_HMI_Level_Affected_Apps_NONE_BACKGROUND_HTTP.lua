@@ -172,6 +172,7 @@ function Test.Precondition_Clean()
   if not check_file_exists(policy_file_path .. "/sdl_snapshot.json") then
     print("PTS is removed")
   end
+  os.execute("ls -la " .. config.pathToSDL .. "storage/")
 end
 
 function Test.Precondition_StartSDL()

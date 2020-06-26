@@ -375,8 +375,14 @@ end
 --[[ @initHMI_onReady: the function is HMI's onReady response
 --! @parameters:
 --! @hmi_table - hmi_table of hmi specification values, default one is specified in "user_modules/hmi_values"
+--! @is_cache_used - true if it's expected SDL will use HMI capabilities cache, otherwise false
 --! @example: self:initHMI_onReady(local_hmi_table) ]]
-function module:initHMI_onReady(hmi_table)
+function module:initHMI_onReady(hmi_table, is_cache_used)
+
+  if is_cache_used == nil and SDL.HMICapCache.file() ~= nil then
+    is_cache_used = SDL.HMICapCache.get() ~= nil
+  end
+
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(module, "HMI on ready")
 
   local function ExpectRequest(name, hmi_table_element)
@@ -436,6 +442,21 @@ function module:initHMI_onReady(hmi_table)
       bc_update_device_list.mandatory = true
       if not bc_update_device_list.occurrence then bc_update_device_list.occurrence = AtLeast(1) end
     end
+  end
+
+  if is_cache_used == true then
+    hmi_table_internal.UI.GetCapabilities = nil
+    hmi_table_internal.VR.GetCapabilities = nil
+    hmi_table_internal.TTS.GetCapabilities = nil
+    hmi_table_internal.RC.GetCapabilities = nil
+    hmi_table_internal.Buttons.GetCapabilities = nil
+    hmi_table_internal.VR.GetLanguage = nil
+    hmi_table_internal.UI.GetLanguage = nil
+    hmi_table_internal.TTS.GetLanguage = nil
+    hmi_table_internal.VR.GetSupportedLanguages = nil
+    hmi_table_internal.UI.GetSupportedLanguages = nil
+    hmi_table_internal.TTS.GetSupportedLanguages = nil
+    hmi_table_internal.VehicleInfo.GetVehicleType = nil
   end
 
   for k_module, v_module in pairs(hmi_table_internal) do

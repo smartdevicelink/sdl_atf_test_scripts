@@ -30,14 +30,11 @@ config.ExitOnCrash = false
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
-local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ General Precondition before ATF start ]]
 config.defaultProtocolVersion = 2
 commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
-Preconditions:BackupFile("smartDeviceLink.ini")
-commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -110,10 +107,6 @@ end
 commonFunctions:newTestCasesGroup("Postconditions")
 function Test.Postcondition_Stop_SDL()
   StopSDL()
-end
-
-function Test.RestoreIniFile()
-  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

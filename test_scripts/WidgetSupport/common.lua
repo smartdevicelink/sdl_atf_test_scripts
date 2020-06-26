@@ -38,7 +38,6 @@ m.getHMIConnection = actions.getHMIConnection
 m.getHMIAppId = actions.getHMIAppId
 m.getAppsCount = actions.getAppsCount
 m.getConfigAppParams = actions.getConfigAppParams
-m.setSDLIniParameter = actions.setSDLIniParameter
 
 --[[ Common Functions ]]
 

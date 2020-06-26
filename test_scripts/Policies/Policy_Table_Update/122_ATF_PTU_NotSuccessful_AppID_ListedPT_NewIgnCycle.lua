@@ -28,7 +28,6 @@ local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local testCasesForPolicyTable = require('user_modules/shared_testcases/testCasesForPolicyTable')
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local utils = require ('user_modules/utils')
-local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local Variables ]]
 local hmi_app_id1, hmi_app_id2
@@ -38,8 +37,6 @@ local hmi_app_id1, hmi_app_id2
 config.defaultProtocolVersion = 2
 commonSteps:DeleteLogsFileAndPolicyTable()
 testCasesForPolicyTable.Delete_Policy_table_snapshot()
-Preconditions:BackupFile("smartDeviceLink.ini")
-commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
@@ -180,10 +177,6 @@ end
 commonFunctions:newTestCasesGroup("Postconditions")
 function Test.Postcondition_Stop()
   StopSDL()
-end
-
-function Test.RestoreIniFile()
-  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

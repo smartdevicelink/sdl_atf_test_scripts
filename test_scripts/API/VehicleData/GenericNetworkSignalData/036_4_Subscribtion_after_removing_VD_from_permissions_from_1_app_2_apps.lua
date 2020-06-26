@@ -134,8 +134,6 @@ end
 -- [[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Set ApplicationListUpdateTimeout=4000", common.setSDLIniParameter,
   { "ApplicationListUpdateTimeout", 4000 })

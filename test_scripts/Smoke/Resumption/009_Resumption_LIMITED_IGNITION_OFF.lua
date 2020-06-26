@@ -62,8 +62,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "" })
 runner.Step("Start SDL, HMI, connect Mobile, 1st cycle", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)

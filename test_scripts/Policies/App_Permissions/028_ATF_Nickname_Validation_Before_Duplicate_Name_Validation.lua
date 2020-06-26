@@ -28,7 +28,6 @@ local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
-commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ General Settings for configuration ]]

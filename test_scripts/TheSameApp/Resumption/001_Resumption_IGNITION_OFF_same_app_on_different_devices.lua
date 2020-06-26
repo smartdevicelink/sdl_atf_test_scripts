@@ -171,8 +171,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.sdl.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "" })
 runner.Step("Prepare preloaded PT", common.modifyPreloadedPt, {modificationOfPreloadedPT})
 runner.Step("Start SDL and HMI 1st cycle", common.start)
 runner.Step("Connect two mobile Devices to SDL", common.connectMobDevices, {devices})

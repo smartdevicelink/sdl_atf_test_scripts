@@ -58,8 +58,6 @@ end
 --[[ Scenario ]]
 common.Title("Precondition")
 common.Step("Clean environment and Back-up/update PPT", common.precondition)
-common.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "" })
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("App registration", common.registerAppWOPTU)
 common.Step("App activation", common.activateApp)

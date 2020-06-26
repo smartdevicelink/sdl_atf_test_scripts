@@ -25,7 +25,6 @@ config.defaultProtocolVersion = 2
 --[[ Required Shared libraries ]]
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
-local Preconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local Variables ]]
 local exchangeDays = 30
@@ -35,8 +34,6 @@ local currentSystemDaysAfterEpoch
 commonFunctions:SDLForceStop()
 commonSteps:DeleteLogsFiles()
 commonSteps:DeletePolicyTable()
-Preconditions:BackupFile("smartDeviceLink.ini")
-commonFunctions:write_parameter_to_smart_device_link_ini("HMICapabilitiesCacheFile", "")
 
 --[[ Local Functions ]]
 local function CreatePTUFromExisted()
@@ -142,10 +139,6 @@ end
 
 function Test.Postcondition_StopSDL()
   StopSDL()
-end
-
-function Test.RestoreIniFile()
-  Preconditions:RestoreFile("smartDeviceLink.ini")
 end
 
 return Test

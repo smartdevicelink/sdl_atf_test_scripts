@@ -58,8 +58,6 @@ local testModules = common.buildTestModulesStruct(rcCapabilities)
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Clear HMICapabilitiesCacheFile parameter in INI file", common.setSDLIniParameter,
-  { "HMICapabilitiesCacheFile", "" })
 runner.Step("Prepare preloaded policy table", common.preparePreloadedPT, { rcAppIds })
 runner.Step("Prepare RC modules capabilities and initial modules data", common.initHmiDataState, { rcCapabilities })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { rcCapabilities })
