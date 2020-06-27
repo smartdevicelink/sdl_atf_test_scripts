@@ -36,7 +36,7 @@ end
 
 local function start(pHMIParams)
   commonRC.start(pHMIParams)
-  commonRC.wait(12000)
+  commonRC.wait(20000)
 end
 
 --[[ Scenario ]]
