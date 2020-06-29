@@ -17,9 +17,9 @@ local common = require("test_scripts/Capabilities/pcmStreamCapabilities/commonPc
 --[[ Local Functions ]]
 local function getCaseName(pCaseTable)
   local name = "TC == "
-  local isNotFirst = false
+  local isFirst = true
   for k, v in pairs(pCaseTable) do
-    if isNotFirst then name = name .. ", " else isNotFirst = true end
+    if isFirst then isFirst = false else name = name .. ", " end
     name = name .. tostring(k) .. ": " .. tostring(v)
   end
   name = name .. " ==\n"
