@@ -4,10 +4,10 @@
 -- Description: Check processing of OnSystemRequest notification with different length of url
 --
 -- In case:
--- 1. HMI sends OnSystemRequest notification with length of url is less than min value
+-- 1. HMI sends OnSystemRequest notification with a URL shorter than the minimum required length.
 -- SDL does:
--- - ignore notification and not send it to mobile app
--- 2. HMI sends OnSystemRequest notification with in bound value in url parameter
+-- - ignore the  notification and does not send it to mobile app
+-- 2. HMI sends OnSystemRequest notification with a URL longer than/the same length as the minimum required length.
 -- SDL does:
 -- - send notification with received url to mobile app
 ---------------------------------------------------------------------------------------------------
@@ -18,8 +18,8 @@ local common = require('test_scripts/API/RemoveUrlParameterMaxLength/commonRemov
 --[[ Local Variables ]]
 local expected = 1
 local notExpected = 0
-local outOfMinLength = ""
-local minlength = "u"
+local lessThanMinLengthString = ""
+local minLengthString = "u"
 local longString = string.rep("u", 100000)
 
 --[[ Local Functions ]]
@@ -39,10 +39,9 @@ common.Step("Activate App", common.activateApp)
 
 common.Title("Test")
 
-common.Step("OnSystemRequest url outOfMinLength", OnSystemRequest, { outOfMinLength, notExpected })
-common.Step("OnSystemRequest url minlength", OnSystemRequest, { minlength, expected })
+common.Step("OnSystemRequest url lessThanMinLengthString", OnSystemRequest, { lessThanMinLengthString, notExpected })
+common.Step("OnSystemRequest url minLengthString", OnSystemRequest, { minLengthString, expected })
 common.Step("OnSystemRequest url longString", OnSystemRequest, { longString, expected })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
-
