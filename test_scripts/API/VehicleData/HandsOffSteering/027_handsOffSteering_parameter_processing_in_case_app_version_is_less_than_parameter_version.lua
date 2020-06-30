@@ -7,7 +7,7 @@
 -- Preconditions:
 -- 1) SDL and HMI are started
 -- 2) Vehicle data RPCs and handsOffSteering parameter are allowed by policies
--- 3) handsOffSteering parameter has since = 6.2
+-- 3) handsOffSteering parameter has since = 7.0
 -- 4) App is registered with syncMsgVersion = 5.0
 --
 -- In case:

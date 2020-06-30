@@ -7,8 +7,8 @@
 -- Preconditions:
 -- 1) SDL and HMI are started
 -- 2) Vehicle data RPCs and handsOffSteering parameter are allowed by policies
--- 3) handsOffSteering parameter has since = 6.2
--- 4) App is registered with syncMsgVersion = 7.0
+-- 3) handsOffSteering parameter has since = 7.0
+-- 4) App is registered with syncMsgVersion = 8.0
 --
 -- In case:
 -- 1) App sends valid GetVehicleData(handsOffSteering=true) request to SDL
@@ -40,7 +40,7 @@
 local common = require('test_scripts/API/VehicleData/HandsOffSteering/common')
 
 --[[ Test Configuration ]]
-common.getAppParams().syncMsgVersion.majorVersion = 7
+common.getAppParams().syncMsgVersion.majorVersion = 8
 common.getAppParams().syncMsgVersion.minorVersion = 0
 
 --[[ Local Variables ]]
