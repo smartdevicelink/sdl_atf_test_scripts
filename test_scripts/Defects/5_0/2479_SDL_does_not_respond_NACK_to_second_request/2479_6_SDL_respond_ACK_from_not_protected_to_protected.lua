@@ -2,7 +2,7 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2479
 --
 -- Description:
--- 1) SDL does not respond ACK on second service.
+-- 1) SDL does respond ACK on second service.
 -- Steps to reproduce:
 -- 1) First service started as NOT Protected.
 -- 2) Start video sreaming.
