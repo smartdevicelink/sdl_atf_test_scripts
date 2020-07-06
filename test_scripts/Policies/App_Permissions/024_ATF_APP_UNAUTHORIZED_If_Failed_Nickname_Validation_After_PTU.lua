@@ -114,8 +114,7 @@ function Test.Precondition_RestorePreloadedPT()
 end
 
 --[[ Test ]]
-function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check_Unregistration_App()
-
+function Test:Precondition_RegisterApp()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface",
     {
       syncMsgVersion =
@@ -155,8 +154,13 @@ function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check
       }
     })
   :Do(function(_,data)
-      local function to_run()
-        local RequestIdActivateApp = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = data.params.application.appID})
+      self.applications["SPT"] = data.params.application.appID
+    end)
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+end
+
+function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check_Unregistration_App()
+        local RequestIdActivateApp = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications["SPT"]})
         EXPECT_HMIRESPONSE(RequestIdActivateApp, {result = {code = 0, isSDLAllowed = false}, method = "SDL.ActivateApp"})
         :Do(function(_,_)
             local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
@@ -170,10 +174,6 @@ function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check
                 EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
               end)
           end)
-      end
-      RUN_AFTER(to_run, 500)
-    end)
-  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,_)
       local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",

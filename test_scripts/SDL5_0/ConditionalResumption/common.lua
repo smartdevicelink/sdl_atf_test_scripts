@@ -213,9 +213,10 @@ end
 
 function common.reconnect(pAppId)
   if not pAppId then pAppId = 1 end
-  common.getMobileSession(pAppId):Stop()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     {appID = common.getHMIAppId(pAppId), unexpectedDisconnect = true})
+  actions.mobile.disconnect()
+  actions.run.wait(1000)
   :Do(function()
     test.mobileSession[pAppId] = mobile_session.MobileSession(
       test,

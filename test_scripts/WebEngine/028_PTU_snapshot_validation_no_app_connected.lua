@@ -14,17 +14,14 @@
 --------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
 local common = require('test_scripts/WebEngine/commonWebEngine')
-local hmi_ptu = require('test_scripts/Policies/HMI_PTU/common_hmi_ptu')
---[[ Local Variables ]]
-local appStoreConfig = {
-  keep_context = false,
-  steal_focus = false,
-  priority = "NONE",
-  default_hmi = "NONE",
-  groups = { "Base-4" }
-}
 
+--[[ General configuration parameters ]]
+runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = {{ extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" }}}
+
+--[[ Local Variables ]]
 local appProperties = {
   nicknames = { "Test Web Application_21", "Test Web Application_22" },
   policyAppID = "0000002",
@@ -43,10 +40,6 @@ local appPropExpected = {
 }
 
 --[[ Local Functions ]]
-local function PTUfunc(tbl)
-  tbl.policy_table.app_policies[common.getConfigAppParams().fullAppID] = appStoreConfig;
-end
-
 local function setAppProperties(pData)
   local corId = common.getHMIConnection():SendRequest("BasicCommunication.SetAppProperties",
     { properties = pData })

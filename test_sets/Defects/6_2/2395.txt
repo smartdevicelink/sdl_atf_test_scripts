@@ -1,0 +1,1 @@
+./test_scripts/Defects/6_2/2395_SDL_must_store_OnWayPointChange_internally_and_resend_this_notification_to_each_subscribed_apps.lua

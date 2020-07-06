@@ -423,7 +423,7 @@ function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleCo
   if pAccessMode == "ASK_DRIVER" then
     if type(pSdlDecisions) == "table" then
       for moduleId, isSdlDecision in pairs(pSdlDecisions) do
-        if not isSdlDecision then 
+        if not isSdlDecision then
           isHmiRequestExpected = true
           filteredConsentsArray[moduleId] = pModuleConsentArray[moduleId]
         end
@@ -507,7 +507,7 @@ local function getInfo(pModuleType, pModuleId, pInfoType)
   }
 
   if pInfoType == "INCORRECT_MODULE_TYPE" then
-    return "RPC.msg_params.moduleType: Invalid enum value: " .. pModuleType
+    return "Ignored invalid value"
   elseif pInfoType == "NOT_EXISTING_MODULE" then
     return "Accessing not supported module"
   end
@@ -536,7 +536,10 @@ function common.releaseModuleWithInfoCheck(pAppId, pModuleType, pModuleId, pResu
   end
   local cid = mobSession:SendRPC("ReleaseInteriorVehicleDataModule",
       { moduleType = pModuleType, moduleId = pModuleId })
-  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode, info = infoMsg })
+  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
+  :ValidIf(function(_, data)
+    return string.find(data.payload.info, infoMsg, 1, true) ~= nil
+  end)
 end
 
 function common.releaseModuleNoModuleId(pAppId, pModuleType, pModuleId, pResultCode, pInfoType, pRCAppIds)

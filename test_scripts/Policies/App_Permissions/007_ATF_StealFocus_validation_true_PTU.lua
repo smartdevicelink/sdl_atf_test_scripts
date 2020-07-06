@@ -61,12 +61,17 @@ function Test:Precondition_StartNewSession()
   self.mobileSession:StartService(7)
 end
 
-function Test:Precondition_ActivateApplication()
+function Test:Precondition_RegisterApp()
   config.application1.registerAppInterfaceParams.fullAppID = "123456"
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { policyAppID = "123456"} })
   :Do(function(_,data)
       self.applications[config.application1.registerAppInterfaceParams.appName] = data.params.application.appID
+    end)
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+end
+
+function Test:Precondition_ActivateApplication()
       local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
       EXPECT_HMIRESPONSE(RequestId, { result = {
             code = 0,
@@ -84,8 +89,6 @@ function Test:Precondition_ActivateApplication()
                 end)
             end)
         end)
-    end)
-  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
 end
 
 function Test:Precondition_DeactivateApp()

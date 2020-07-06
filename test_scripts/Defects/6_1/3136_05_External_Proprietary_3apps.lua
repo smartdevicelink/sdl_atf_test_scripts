@@ -36,7 +36,7 @@ runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTER
 --[[ Local Variables ]]
 local secondsBetweenRetries = { 1, 2 }
 local timeout_after_x_seconds = 4
-local expNumOfOnSysReq = #secondsBetweenRetries + 2
+local expNumOfOnSysReq = #secondsBetweenRetries + 1
 local numOfOnSysReq
 
 --[[ Local Functions ]]
@@ -96,8 +96,6 @@ local function unsuccessfulPTUviaMobile(pNewAppId)
   :Timeout(timeout)
 
   local exp = {
-    { status = "UPDATE_NEEDED" },
-    { status = "UPDATING" },
     { status = "UPDATE_NEEDED" },
     { status = "UPDATING" },
     { status = "UPDATE_NEEDED" },

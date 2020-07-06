@@ -33,9 +33,10 @@ local function cleanMobileSessions()
 end
 
 local function unexpectedDisconnect()
-  common.getMobileConnection():Close()
+  common.mobile.disconnect()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = true })
+  common.run.wait(1000)
 end
 
 local function reconnectMobileConnection()

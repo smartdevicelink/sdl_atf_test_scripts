@@ -269,13 +269,11 @@ function common.ignitionOff(pExpFunc)
           isOnSDLCloseSent = true
           SDL.DeleteFile()
         end)
-      :Times(AtMost(1))
     end)
   common.wait(3000)
   :Do(function()
       if isOnSDLCloseSent == false then common.cprint(35, "BC.OnSDLClose was not sent") end
-      if SDL:CheckStatusSDL() == SDL.RUNNING then SDL:StopSDL() end
-      common.getMobileConnection():Close()
+      StopSDL()
     end)
 end
 
@@ -288,12 +286,10 @@ function common.masterReset(pExpFunc)
       isOnSDLCloseSent = true
       SDL.DeleteFile()
     end)
-  :Times(AtMost(1))
   common.wait(3000)
   :Do(function()
       if isOnSDLCloseSent == false then common.cprint(35, "BC.OnSDLClose was not sent") end
-      if SDL:CheckStatusSDL() == SDL.RUNNING then SDL:StopSDL() end
-      common.getMobileConnection():Close()
+      StopSDL()
     end)
 end
 
