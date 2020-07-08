@@ -25,19 +25,14 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 local appSessionId = 1
 local appNotInPTSessionId = 2
 local appHMIType = { "MEDIA", "WEB_VIEW" }
-local appsRAIParams = {
-  appHMIType = appHMIType,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
+
+--[[ General configuration parameters ]]
+config.application1.registerAppInterfaceParams.appHMIType = appHMIType
+config.application2.registerAppInterfaceParams.appHMIType = appHMIType
 
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params for App1", common.setupRAIParams, { appSessionId, appsRAIParams })
-common.Step("Setup RegisterAppInterface params for App2", common.setupRAIParams, { appNotInPTSessionId, appsRAIParams })
 common.Step("Prepare preloaded policy table", common.updatePreloadedPT,
   { appSessionId, appHMIType })
 common.Step("Start SDL, HMI, connect Mobile", common.start)

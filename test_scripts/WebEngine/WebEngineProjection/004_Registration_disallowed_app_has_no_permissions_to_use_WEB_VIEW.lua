@@ -25,18 +25,13 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 local appSessionId = 1
 local appHMITypeWebView = { "WEB_VIEW", "MEDIA" }
 local appHMITypeMedia = { "MEDIA" }
-local appsRAIParams = {
-  appHMIType = appHMITypeWebView,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
+
+--[[ General configuration parameters ]]
+config.application1.registerAppInterfaceParams.appHMIType = appHMITypeWebView
 
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params", common.setupRAIParams, { appSessionId, appsRAIParams })
 common.Step("Add AppHMIType to preloaded policy table", common.updatePreloadedPT,
   { appSessionId, appHMITypeMedia })
 common.Step("Start SDL, HMI, connect Mobile", common.start)

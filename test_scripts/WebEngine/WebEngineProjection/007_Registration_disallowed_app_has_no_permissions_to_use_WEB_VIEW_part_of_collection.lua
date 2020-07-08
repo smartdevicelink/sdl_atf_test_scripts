@@ -26,18 +26,12 @@ local appSessionId = 1
 local appHMITypeInPolicy = { "MEDIA", "NAVIGATION" }
 local appHMIType = { "MEDIA", "NAVIGATION", "WEB_VIEW" }
 
-local appsRAIParams = {
-  appHMIType = appHMIType,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
+--[[ General configuration parameters ]]
+config.application1.registerAppInterfaceParams.appHMIType = appHMIType
 
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params", common.setupRAIParams, { appSessionId, appsRAIParams })
 common.Step("Add AppHMIType to preloaded policy table", common.updatePreloadedPT,
   { appSessionId, appHMITypeInPolicy })
 common.Step("Start SDL, HMI, connect Mobile", common.start)

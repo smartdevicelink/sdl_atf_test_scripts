@@ -23,14 +23,11 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 --[[ Local Variables ]]
 local appSessionId = 1
 local appHMIType = { "MEDIA", "WEB_VIEW" }
-local appsRAIParams = {
-  appHMIType = appHMIType,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
 
+--[[ General configuration parameters ]]
+config.application1.registerAppInterfaceParams.appHMIType = appHMIType
+
+--[[ Local Functions ]]
 local function updatePreloadedPT(pAppId)
   local preloadedTable = common.getPreloadedPT()
   local appId = config["application" .. pAppId].registerAppInterfaceParams.fullAppID
@@ -42,7 +39,6 @@ end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params", common.setupRAIParams, { appSessionId, appsRAIParams })
 common.Step("Add AppHMIType to preloaded policy table", updatePreloadedPT,
   { appSessionId, appHMIType })
 common.Step("Start SDL, HMI, connect Mobile", common.start)

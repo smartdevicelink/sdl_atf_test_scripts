@@ -22,8 +22,6 @@ local appHMIType = { "WEB_VIEW", "MEDIA" }
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = appHMIType
-config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 7
-config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
 --[[ Scenario ]]
 common.Title("Preconditions")

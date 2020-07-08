@@ -662,12 +662,6 @@ function common.verifyPTSnapshot(appProperties, appPropExpected)
   end
 end
 
-function common.setupRAIParams(pAppId, params)
-  for key, value in pairs(params) do
-    config["application" .. pAppId].registerAppInterfaceParams[key] = value
-  end
-end
-
 common.userActions = {
   activateApp = {
     name = "Activation",

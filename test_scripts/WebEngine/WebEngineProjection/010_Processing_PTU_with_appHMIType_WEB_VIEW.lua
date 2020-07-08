@@ -19,13 +19,9 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 local appSessionId1 = 1
 local appSessionId2 = 2
 local appHMIType = { "WEB_VIEW" }
-local app1RAIParams = {
-  appHMIType = appHMIType,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
+
+--[[ General configuration parameters ]]
+config.application1.registerAppInterfaceParams.appHMIType = appHMIType
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
@@ -36,7 +32,6 @@ end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params for App1", common.setupRAIParams, { appSessionId1, app1RAIParams })
 common.Step("Start SDL, HMI", common.start)
 
 common.Title("Test")

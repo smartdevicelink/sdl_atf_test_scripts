@@ -30,20 +30,10 @@ local appSessionId2 = 2
 local webEngineDevice = 1
 local appHMITypeWebView = { "WEB_VIEW" }
 local appHMITypeNavigation = { "NAVIGATION" }
-local app1RAIParams = {
-  appHMIType = appHMITypeWebView,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
-local app2RAIParams = {
-  appHMIType = appHMITypeNavigation,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
+
+--[[ General configuration parameters ]]
+config.application1.registerAppInterfaceParams.appHMIType = appHMITypeWebView
+config.application2.registerAppInterfaceParams.appHMIType = appHMITypeNavigation
 
 --[[ Local Functions ]]
 local function checkAbsenceOfPermissions()
@@ -58,8 +48,6 @@ end
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params for App1", common.setupRAIParams, { appSessionId1, app1RAIParams })
-common.Step("Setup RegisterAppInterface params for App2", common.setupRAIParams, { appSessionId2, app2RAIParams })
 common.Step("Start SDL, HMI", common.start)
 
 common.Title("Test")

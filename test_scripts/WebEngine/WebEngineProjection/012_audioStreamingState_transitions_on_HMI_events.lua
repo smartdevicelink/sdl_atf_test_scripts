@@ -19,10 +19,6 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 --[[ Test Configuration ]]
 config.checkAllValidations = true
 
---[[ General configuration parameters ]]
-config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 7
-config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
-
 --[[ Local Constants ]]
 local appSessionId = 1
 local webEngineDevice = 1

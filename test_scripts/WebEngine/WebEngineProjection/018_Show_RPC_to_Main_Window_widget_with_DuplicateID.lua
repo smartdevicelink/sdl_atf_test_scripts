@@ -29,14 +29,6 @@ local common = require('test_scripts/WebEngine/commonWebEngine')
 --[[ Local Variables ]]
 local appSessionId = 1
 local appHMIType = { "WEB_VIEW" }
-local appsRAIParams = {
-  appHMIType = appHMIType,
-  syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-  }
-}
-
 local createWindowsParams = {
   [1] = {
     windowID = 1,
@@ -54,13 +46,10 @@ local createWindowsParams = {
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = appHMIType
-config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 7
-config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("Setup RegisterAppInterface params for App1", common.setupRAIParams, { appSessionId, appsRAIParams })
 common.Step("Update WS Server Certificate parameters in smartDeviceLink.ini file", common.commentAllCertInIniFile)
 common.Step("Add AppHMIType to preloaded policy table", common.updatePreloadedPT, { appSessionId, appHMIType })
 common.Step("Start SDL, HMI, connect WebEngine device", common.start)
