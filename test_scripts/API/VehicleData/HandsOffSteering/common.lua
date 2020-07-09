@@ -38,6 +38,7 @@ m.deleteSession = actions.mobile.deleteSession
 m.connectMobile = actions.mobile.connect
 m.wait = utils.wait
 m.spairs = utils.spairs
+m.cprint = utils.cprint
 
 local handsOffSteeringResponseData = {
   dataType = "VEHICLEDATA_HANDSOFFSTEERING",
