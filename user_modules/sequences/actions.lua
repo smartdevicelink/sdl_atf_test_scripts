@@ -268,7 +268,15 @@ local function registerConnectionExpectations(pMobConnId)
       utils.cprint(35, "Mobile #" .. pMobConnId .. " disconnected")
     end)
 
-  local ret = connection:ExpectEvent(events.connectedEvent, "Connected")
+  local event = m.run.createEvent()
+  connection:ExpectEvent(events.connectedEvent, "Connected")
+  :Do(function()
+      local timeout = 0
+      local con_type = connection.type or config.defaultMobileAdapterType
+      if con_type == m.mobile.CONNECTION_TYPE.WSS then timeout = m.minTimeout end
+      m.run.runAfter(function() m.hmi.getConnection():RaiseEvent(event, "DelayedConnect") end, timeout)
+    end)
+  local ret = m.hmi.getConnection():ExpectEvent(event, "DelayedConnect")
   ret:Do(function()
     utils.cprint(35, "Mobile #" .. pMobConnId .. " connected")
   end)
