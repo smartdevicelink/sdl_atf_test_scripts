@@ -74,12 +74,12 @@ end
 function commonCloudAppRPCs.DeleteStorageFolder()
   local ExistDirectoryResult = commonCloudAppRPCs:Directory_exist( tostring(config.pathToSDL .. "storage"))
   if ExistDirectoryResult == true then
-    local RmFolder  = assert( os.execute( "rm -rf " .. tostring(config.pathToSDL .. "storage" )))
+    local RmFolder  = assert( os.execute( "rm -rf " .. tostring(config.pathToSDL .. "storage/*" )))
     if RmFolder ~= true then
       print("Folder 'storage' is not deleted")
     end
   else
-    print("Folder 'storage' is absent")
+    print("Folder 'storage' is empty")
   end
 end
 
