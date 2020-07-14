@@ -394,6 +394,10 @@ function module.getDefaultHMITable()
           diagonalScreenSize = 10,
           pixelPerInch = 150,
           scale = 2.5
+        },
+        driverDistractionCapability = {
+            subMenuDepth = 3,
+            menuLength = 10
         }
       }
     },
