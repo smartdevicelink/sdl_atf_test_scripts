@@ -1,0 +1,3 @@
+./test_scripts/API/Additional_Submenus/001_additional_submenu_success.lua
+./test_scripts/API/Additional_Submenus/002_legacy_app_parentID_filtered.lua
+./test_scripts/API/DriverDistractionCapability/001_get_driver_distraction_capability.lua
