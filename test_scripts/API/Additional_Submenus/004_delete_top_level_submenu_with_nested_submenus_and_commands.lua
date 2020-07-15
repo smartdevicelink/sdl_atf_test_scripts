@@ -70,7 +70,8 @@ local hmiAddSubMenuRequestParams = {
             menuName = "SubMenu3",
             parentID = 99 
         }
-    },
+    }
+}
 
 local hmiAddCommandRequestParams = {
     addCommand1 = {
@@ -110,51 +111,49 @@ local hmiDeleteCommandRequestParams = {
     }
 }
  
-local function AddNestedSubMenus()
-    for key, params in pairs(mobileAddSubMenuRequestParams) do
-        local cid = common.getMobileSession():SendRPC("AddSubMenu", params)
-        common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiAddSubMenuRequestParams[key])
-        :Do(function(_, data)
-            common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
-        common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-        common.getMobileSession():ExpectNotification("OnHashChange")
-        :Do(function(_, data)
-            common.hashId = data.payload.hashID
-        end)
-    end
+local function AddNestedSubMenus(key)
+    local cid = common.getMobileSession():SendRPC("AddSubMenu", mobileAddSubMenuRequestParams[key])
+    common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiAddSubMenuRequestParams[key])
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-local function AddNestedCommands()
-    for key, params in pairs(mobileAddCommandRequestParans) do
-        local cid = common.getMobileSession():SendRPC("AddSubMenu", params)
-        common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiAddCommandRequestParams[key])
-        :Do(function(_, data)
-            common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
-        common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-        common.getMobileSession():ExpectNotification("OnHashChange")
-        :Do(function(_, data)
-            common.hashId = data.payload.hashID
-        end)
-    end
+local function AddNestedCommands(key)
+    local cid = common.getMobileSession():SendRPC("AddCommand", mobileAddCommandRequestParans[key])
+    common.getHMIConnection():ExpectRequest("UI.AddCommand", hmiAddCommandRequestParams[key])
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+    common.getMobileSession():ExpectNotification("OnHashChange")
+    :Do(function(_, data)
+        common.hashId = data.payload.hashID
+    end)
 end
 
 local function DeleteSubMenu()
     local cid = common.getMobileSession():SendRPC("DeleteSubMenu", mobileDeleteSubMenuRequestParams)
-    for key, deleteCommandParams in pairs(hmiDeleteCommandRequestParams) do
-        common.getHMIConnection():ExpectRequest("UI.DeleteCommand", deleteCommandParams)
-        :Do(function(_, data)
-            common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
-    end
 
-    for key, deleteSubMenuParams in pairs(hmiDeleteCommandRequestParams) do
-        common.getHMIConnection():ExpectRequest("UI.DeleteSubMenu", deleteSubMenuParams)
-        :Do(function(_, data)
-            common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
-    end
+    common.getHMIConnection():ExpectRequest("UI.DeleteCommand", 
+        hmiDeleteCommandRequestParams[deleteCommand1], 
+        hmiDeleteCommandRequestParams[deleteCommand2]
+    )
+    :Times(2)
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+
+    common.getHMIConnection():ExpectRequest("UI.DeleteSubMenu",
+        hmiDeleteSubMenuRequestParams[deleteSubMenu1], 
+        hmiDeleteSubMenuRequestParams[deleteSubMenu2],
+        hmiDeleteSubMenuRequestParams[deleteSubMenu3]
+    )
+    :Times(3)
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
     
     common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
@@ -168,9 +167,13 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu", AddNestedSubMenus)
-runner.Step("Add Commands to nested submenus", AddNestedCommands)
-runner.Step("Send DeleteSubMenu", DeleteTopLevelSubMenu)
+for key, params in pairs(mobileAddSubMenuRequestParams) do
+    runner.Step("Add additional submenu", AddNestedSubMenus, { key })
+end
+for key, params in pairs(mobileAddCommandRequestParans) do
+  runner.Step("Add Commands to nested submenus", AddNestedCommands, { key })
+end
+runner.Step("Send DeleteSubMenu", DeleteSubMenu)
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

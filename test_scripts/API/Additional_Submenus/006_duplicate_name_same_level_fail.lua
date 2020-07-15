@@ -55,7 +55,7 @@ local function AdditionalSubmenu()
 end
 
 local function DuplicateNameMenu()
-    local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
+    local cid = common.getMobileSession():SendRPC("AddSubMenu", duplicateNameRequestParams)
     common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "DUPLICATE_NAME" })
 end
 

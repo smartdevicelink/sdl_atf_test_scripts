@@ -51,19 +51,17 @@ local hmiAddSubMenuRequestParams = {
     }
 }
  
-local function AddNestedSubMenus()
-    for key, params in pairs(mobileAddSubMenuRequestParams) do
-        local cid = common.getMobileSession():SendRPC("AddSubMenu", params)
-        common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiAddSubMenuRequestParams[key])
-        :Do(function(_, data)
-            common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
-        common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-        common.getMobileSession():ExpectNotification("OnHashChange")
-        :Do(function(_, data)
-            common.hashId = data.payload.hashID
-        end)
-    end
+local function AddNestedSubMenus(key)
+    local cid = common.getMobileSession():SendRPC("AddSubMenu", mobileAddSubMenuRequestParams[key])
+    common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiAddSubMenuRequestParams[key])
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+    common.getMobileSession():ExpectNotification("OnHashChange")
+    :Do(function(_, data)
+        common.hashId = data.payload.hashID
+    end)
 end
 
 --[[ Scenario ]]
@@ -75,7 +73,9 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu", AddNestedSubMenus)
+for key, params in pairs(mobileAddSubMenuRequestParams) do
+    runner.Step("Add additional submenu", AddNestedSubMenus, { key })
+end
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
