@@ -51,7 +51,7 @@ for mod, req  in pairs(cap) do
     common.Step("Ignition off", common.ignitionOff)
 
     common.Title("Test")
-    common.Step("Ignition on, SDL doesn't send " .. mod .. "." .. pReq .." request",
+    common.Step("Ignition on, SDL does send " .. mod .. "." .. pReq .." request",
       common.start, { getHMIParamsWithOutRequest(mod, pReq) })
 
     common.Title("Postconditions")
