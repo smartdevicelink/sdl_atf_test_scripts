@@ -77,7 +77,7 @@ function common.updatePreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   local additionalRPCs = {
     "SendLocation", "SubscribeVehicleData", "UnsubscribeVehicleData", "GetVehicleData", "UpdateTurnList",
-    "AlertManeuver", "DialNumber", "ReadDID", "GetDTCs", "ShowConstantTBT"
+    "AlertManeuver", "DialNumber", "ReadDID", "GetDTCs", "ShowConstantTBT", "Alert", "SubtleAlert"
   }
   pt.policy_table.functional_groupings.NewTestCaseGroup = { rpcs = { } }
   for _, v in pairs(additionalRPCs) do
@@ -89,6 +89,7 @@ function common.updatePreloadedPT()
   pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup" }
   pt.policy_table.app_policies["0000001"].keep_context = true
   pt.policy_table.app_policies["0000001"].steal_focus = true
+  pt.policy_table.app_policies["0000001"].priority = "NORMAL"
   SDL.PreloadedPT.set(pt)
 end
 
