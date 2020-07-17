@@ -968,7 +968,7 @@ end
 
 function commonRC.updateDefaultCapabilities(pDisabledModuleTypes, pIsHmiCapCorrect)
   local hmiCapTbl = SDL.HMICap.get()
-  local rcCapTbl = hmiCapTbl.UI.systemCapabilities.remoteControlCapability
+  local rcCapTbl = hmiCapTbl.RC.remoteControlCapability
   if not pIsHmiCapCorrect then
     updateModuleId(rcCapTbl)
   end

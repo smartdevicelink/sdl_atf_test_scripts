@@ -40,6 +40,7 @@ end
 --[[ General Precondition before ATF start ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
+commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
