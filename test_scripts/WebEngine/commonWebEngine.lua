@@ -784,4 +784,54 @@ function common.checkHMIStatus(pEventName, pAppId, pExpectVal)
   end
 end
 
+local function getPTUFromPTS()
+  local pTbl = common.ptsTable()
+  if pTbl == nil then
+    utils.cprint(35, "PTS file was not found, PreloadedPT is used instead")
+    pTbl = common.getPreloadedPT()
+  end
+  if next(pTbl) ~= nil then
+    pTbl.policy_table.consumer_friendly_messages = nil
+    pTbl.policy_table.device_data = nil
+    pTbl.policy_table.module_meta = nil
+    pTbl.policy_table.usage_and_error_counts = nil
+    pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = utils.json.null
+    pTbl.policy_table.module_config.preloaded_pt = nil
+    pTbl.policy_table.module_config.preloaded_date = nil
+    pTbl.policy_table.vehicle_data = nil
+  end
+  return pTbl
+end
+
+function common.ptuViaHMI(pPTUpdateFunc, pExpNotificationFunc)
+  local hmiConnection = common.getHMIConnection()
+  if pExpNotificationFunc then
+    pExpNotificationFunc()
+  end
+  local ptuFileName = os.tmpname()
+  local requestId = hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+    { policyType = "module_config", property = "endpoints" })
+  hmiConnection:ExpectResponse(requestId)
+  :Do(function()
+      local ptuTable = getPTUFromPTS()
+      for i, _ in pairs(actions.mobile.getApps()) do
+        ptuTable.policy_table.app_policies[actions.app.getParams(i).fullAppID] = actions.ptu.getAppData(i)
+      end
+      if pPTUpdateFunc then
+        pPTUpdateFunc(ptuTable)
+      end
+      utils.tableToJsonFile(ptuTable, ptuFileName)
+      if not pExpNotificationFunc then
+        hmiConnection:ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+        hmiConnection:ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
+      end
+      hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
+        { policyfile = ptuFileName })
+      common.runAfter(function() os.remove(ptuFileName) end, 250)
+      for id, _ in pairs(actions.mobile.getApps()) do
+        common.getMobileSession(id):ExpectNotification("OnPermissionsChange")
+      end
+    end)
+end
+
 return common
