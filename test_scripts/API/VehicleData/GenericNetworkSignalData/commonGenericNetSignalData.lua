@@ -985,5 +985,14 @@ function common.getAllVehicleData()
   return allVDdata
 end
 
+function common.exitApps()
+  for appId = 1, common.getAppsCount() do
+    common.getMobileSession(appId):ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
+    common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication", {
+        appID = common.getHMIAppId(appId),
+        reason = "USER_EXIT" })
+  end
+end
+
 return common
 

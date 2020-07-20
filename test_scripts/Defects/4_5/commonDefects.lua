@@ -185,6 +185,7 @@ function commonDefect.allow_sdl(self)
       name = commonDefect.getDeviceName()
     }
   })
+  commonDefect.delayedExp(commonDefect.minTimeout)
 end
 
 --[[ @preconditions: precondition steps
@@ -274,7 +275,7 @@ function commonDefect.ignitionOff(self)
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
       EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
       :Do(function()
-          sdl:StopSDL()
+          StopSDL()
         end)
     end)
 end
@@ -393,9 +394,8 @@ end
 --! self - test object
 --! @return: none
 --]]
-function commonDefect.unsuccessfulPTU(ptu_update_func, self)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
-  :Times(2)
+function commonDefect.unsuccessfulPTU(ptu_update_func, expec_func, self)
+  expec_func()
   ptu(self, ptu_update_func)
 end
 
@@ -425,6 +425,7 @@ function commonDefect.rai_n(id, expect_dd, self)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          :Times(AtLeast(1))
           if expect_dd then
             self["mobileSession" .. id]:ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
           else
@@ -538,6 +539,16 @@ end
 function commonDefect.getMobileSession(self, pAppId)
   if not pAppId then pAppId = 1 end
   return self["mobileSession" .. pAppId]
+end
+
+--[[ @ptu: perform policy table update
+--! @parameters:
+--! pUpdateFunction - additional function for update
+--! self - test object
+--! @return: mobile session
+--]]
+function commonDefect.ptu(pUpdateFunction, self)
+  ptu(self, pUpdateFunction)
 end
 
 return commonDefect

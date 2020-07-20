@@ -17,17 +17,20 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/commonDefects')
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 -- [[ Local Functions ]]
 local function GetUserFriendlyMessage(self)
 	local RequestId = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = 1} )
-	EXPECT_HMIRESPONSE(RequestId,{result = {code = 11, method = "SDL.GetUserFriendlyMessage"}})
+	EXPECT_HMIRESPONSE(RequestId,{result = {code = 11, data = {method = "SDL.GetUserFriendlyMessage"}}})
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("App registration, PTU", common.rai_n)
+runner.Step("App registration, PTU", common.rai_ptu)
 runner.Step("Activate App", common.activate_app)
 
 runner.Title("Test")

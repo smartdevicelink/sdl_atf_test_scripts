@@ -51,7 +51,7 @@ local function FACTORY_DEFAULTS(self)--, appNumber)
     })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered")
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-  EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+  EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "FACTORY_DEFAULTS" })
   commonTestCases:DelayedExp(5000)
 end
 

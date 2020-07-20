@@ -7,6 +7,7 @@ local common = require('test_scripts/Defects/5_0/2405/common')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } }
 
 --[[ Local Variables ]]
 local grp = {

@@ -25,3 +25,4 @@
 ./test_scripts/WebEngine/025_PTU_update_app_properties.lua
 ./test_scripts/WebEngine/026_PTU_snapshot_validation.lua
 ./test_scripts/WebEngine/027_UpdateAppList_unregister_2apps.lua
+./test_scripts/WebEngine/028_PTU_snapshot_validation_no_app_connected.lua

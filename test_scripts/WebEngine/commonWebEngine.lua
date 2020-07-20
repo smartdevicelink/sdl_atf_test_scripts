@@ -75,6 +75,11 @@ config.wssCertificateCAPath = aftCertPath.. common.wssCertificateCAname
 config.wssCertificateClientPath = aftCertPath .. common.wssCertificateClientName
 config.wssPrivateKeyPath = aftCertPath .. common.wssPrivateKeyName
 
+local isSDLCrtsCopied = {
+  { name = common.wssCertificateCAname, value = false },
+  { name = common.wssCertificateServerName, value  = false },
+  { name = common.wssServerPrivateKeyName, value  = false }
+}
 
 --[[ Common Functions ]]
 local function getWebEngineConParams(pConnectionType)
@@ -239,16 +244,20 @@ function common.postconditions()
 end
 
 function common.addAllCertInSDLbinFolder()
-  os.execute("cp -f " .. aftCertPath .. common.wssCertificateCAname .. " " .. common.GetPathToSDL())
-  os.execute("cp -f " .. aftCertPath .. common.wssCertificateServerName .. " " .. common.GetPathToSDL())
-  os.execute("cp -f " .. aftCertPath .. common.wssServerPrivateKeyName .. " " .. common.GetPathToSDL())
+  for _, crt in pairs(isSDLCrtsCopied) do
+    if not utils.isFileExist(common.GetPathToSDL() .. crt.name) then
+      os.execute("cp -f " .. aftCertPath .. crt.name .. " " .. common.GetPathToSDL())
+      crt.value = true
+    end
+  end
 end
 
 function common.removeAllCertFromSDLbinFolder()
-  local command = "rm -f " .. common.GetPathToSDL() .. common.wssCertificateCAname .. " "
-  .. common.GetPathToSDL() .. common.wssCertificateServerName .. " "
-  .. common.GetPathToSDL() .. common.wssServerPrivateKeyName
-  os.execute(command)
+  for _, crt in pairs(isSDLCrtsCopied) do
+    if crt.value == true then
+      os.execute("rm -f " .. common.GetPathToSDL() .. crt.name)
+    end
+  end
 end
 
 function common.addAllCertInIniFile()
@@ -310,6 +319,88 @@ function common.checkUpdateAppList(pPolicyAppID, pTimes, pExpNumOfApps)
     end
   end)
   common.wait()
+end
+
+function common.verifyPTSnapshot(appProperties, appPropExpected)
+  local snp_tbl = common.ptsTable()
+  local app_id = appProperties.policyAppID
+  local result = {}
+  local msg = ""
+
+  if (snp_tbl.policy_table.app_policies == nil) then
+    msg = msg .. "Incorrect app_policies value\n" ..
+      " Expected: exists \n" ..
+      " Actual: nil \n"
+  end
+
+  if (snp_tbl.policy_table.consumer_friendly_messages == nil) then
+    msg = msg .. "Incorrect consumer_friendly_messages value\n" ..
+      " Expected: exists \n" ..
+      " Actual: nil \n"
+  end
+
+  if (snp_tbl.policy_table.device_data == nil) then
+    msg = msg .. "Incorrect device_data value\n" ..
+      " Expected: exists \n" ..
+      " Actual: nil \n"
+  end
+
+  if (snp_tbl.policy_table.functional_groupings == nil) then
+    msg = msg .. "Incorrect functional_groupings value\n" ..
+      " Expected: exists \n" ..
+      " Actual: nil \n"
+  end
+
+  if (snp_tbl.policy_table.module_config == nil) then
+    msg = msg .. "Incorrect module_config value\n" ..
+      " Expected: exists \n" ..
+      " Actual: nil \n"
+  end
+
+  if (snp_tbl.policy_table.usage_and_error_counts == nil) then
+    msg = msg .. "Incorrect usage_and_error_counts value\n" ..
+      " Expected: exists \n" ..
+      " Actual: nil \n"
+  end  
+
+  local nicknames = snp_tbl.policy_table.app_policies[app_id].nicknames
+  if not common.isTableEqual(nicknames, appPropExpected.nicknames) then
+    msg = msg .. "Incorrect nicknames\n" ..
+      " Expected: " .. common.tableToString(appPropExpected.nicknames) .. "\n" ..
+      " Actual: " .. common.tableToString(nicknames) .. "\n"
+  end
+
+  local auth_token = snp_tbl.policy_table.app_policies[app_id].auth_token
+  if (auth_token ~= appPropExpected.auth_token) then
+    msg = msg .. "Incorrect auth token value\n" ..
+      " Expected: " .. appPropExpected.auth_token .. "\n" ..
+      " Actual: " .. auth_token .. "\n"
+  end
+
+  local cloud_transport_type = snp_tbl.policy_table.app_policies[app_id].cloud_transport_type
+  if (cloud_transport_type ~= appPropExpected.cloud_transport_type) then
+    msg = msg ..     "Incorrect cloud_transport_type value\n" ..
+      " Expected: " .. appPropExpected.cloud_transport_type .. "\n" ..
+      " Actual: " .. cloud_transport_type .. "\n"
+  end
+
+  local enabled = snp_tbl.policy_table.app_policies[app_id].enabled
+  if (enabled ~= appPropExpected.enabled) then
+    msg = msg .. "Incorrect enabled value\n"..
+      " Expected: " .. tostring(appPropExpected.enabled) .. "\n" ..
+      " Actual: " .. tostring(enabled) .. "\n"
+  end
+
+  local hybrid_app_preference = snp_tbl.policy_table.app_policies[app_id].hybrid_app_preference
+  if (hybrid_app_preference ~= appPropExpected.hybrid_app_preference) then
+    msg = msg .. "Incorrect hybrid_app_preference value\n" ..
+      " Expected: " .. appPropExpected.hybrid_app_preference .. "\n" ..
+      " Actual: " .. hybrid_app_preference .. "\n"
+  end
+
+  if string.len(msg) > 0 then
+    common.failTestStep("PTS is incorrect\n".. msg)
+  end
 end
 
 return common

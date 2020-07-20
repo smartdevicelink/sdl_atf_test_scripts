@@ -98,6 +98,7 @@ end
 
 function Test:ActivateAppInFull()
   commonSteps:ActivateAppInSpecificLevel(self, HMIAppID, "FULL")
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 function Test:UpdatePolicy_ExpectOnAppPermissionChangedWithAppID()

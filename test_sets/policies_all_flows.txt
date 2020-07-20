@@ -11,7 +11,7 @@
 ./test_scripts/Policies/build_options/054_ATF_Request_PTU_UPDATE_NEEDED_new_PTU_Request_HTTP.lua
 ./test_scripts/Policies/build_options/055_ATF_Policy_Table_Snapshot_Creation_HTTP.lua
 ./test_scripts/Policies/build_options/056_ATF_PTU_Transfer_Several_Apps_Different_HMI_Levels_HTTP.lua
-;./test_scripts/Policies/build_options/057_ATF_PTS_Define_URL_to_send_PTS_HTTP.lua 1219
+./test_scripts/Policies/build_options/057_ATF_PTS_Define_URL_to_send_PTS_HTTP.lua
 ./test_scripts/Policies/build_options/058_ATF_HMI_gets_URLs_via_GetPolicyConfigurationData_HTTP.lua
 ./test_scripts/Policies/build_options/060_ATF_Timeout_to_wait_response_PTU_HTTP.lua
 ./test_scripts/Policies/build_options/061_ATF_Sending_PTS_to_Mobile_Application_HTTP.lua
@@ -69,6 +69,7 @@
 ./test_scripts/Policies/build_options/116_ATF_DEXTENDED_POLICY_OFF_HTTP.lua
 ./test_scripts/Policies/build_options/117_ATF_DEXTENDED_POLICY_No_Flag_HTTP.lua
 ./test_scripts/Policies/build_options/118_ATF_Request_PTU_Trigger_App_Excluded_PT_HTTP.lua
+./test_scripts/Policies/build_options/119_ATF_Start_PTU_retry_sequence_HMI_URL_PROPRIETARY.lua
 ./test_scripts/Policies/appID_Management/031_ATF_Register_App_Interface_App_Unauthorized.lua
 ./test_scripts/Policies/appID_Management/032_ATF_Register_App_Interface_Successful_Nickname_Validation.lua
 ./test_scripts/Policies/appID_Management/033_ATF_Register_App_Interface_Order_Of_Nickname_Validation.lua

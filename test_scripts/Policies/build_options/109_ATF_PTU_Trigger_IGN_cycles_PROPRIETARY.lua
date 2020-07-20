@@ -142,6 +142,16 @@ for i = 1, exchange_after do
   end
   function Test:TestStep_InitHMI_onReady()
     self:initHMI_onReady()
+    if i == exchange_after then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
+      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+      :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    else
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(0)
+    end
+    commonTestCases:DelayedExp(5000)
   end
   function Test:TestStep_StartMobileSession()
     self:connectMobile()
@@ -154,16 +164,6 @@ for i = 1, exchange_after do
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
     self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
     self.mobileSession:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-    if i == exchange_after then
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
-      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-      :Do(function(_,data3)
-        self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
-        end)
-    else
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(0)
-    end
-    commonTestCases:DelayedExp(5000)
   end
 end
 

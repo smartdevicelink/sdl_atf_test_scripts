@@ -51,7 +51,7 @@ local function ignitionOff()
   end)
 end
 
-function registerAppWithDeactivatedHMI(pAppId)
+local function registerAppWithDeactivatedHMI(pAppId)
   if not pAppId then pAppId = 1 end
   common.getMobileSession(pAppId):StartService(7)
   :Do(function()
@@ -60,11 +60,6 @@ function registerAppWithDeactivatedHMI(pAppId)
       { application = { appName = common.getConfigAppParams(pAppId).appName } })
       :Do(function(_, d1)
         common.setHMIAppId(d1.params.application.appID, pAppId)
-        common.getHMIConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-        :Do(function(_, d2)
-          common.getHMIConnection():SendResponse(d2.id, d2.method, "SUCCESS", { })
-          ptuTable = utils.jsonFileToTable(d2.params.file)
-        end)
       end)
       common.getMobileSession(pAppId):ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
     :Do(function()
@@ -101,7 +96,6 @@ runner.Step("Activate App", common.activateApp)
 runner.Step("ShutDown IGNITION_OFF", ignitionOff)
 runner.Step("Clean sessions", cleanSessions)
 runner.Step("Start SDL, init HMI, connect Mobile", common.start)
-
 
 -- [[ Test ]]
 runner.Title("Test")
