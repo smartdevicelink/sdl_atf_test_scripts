@@ -38,7 +38,8 @@ common.Step("Prepare preloaded policy table", common.updatePreloadedPT,
 common.Step("Start SDL, HMI, connect Mobile", common.start)
 
 common.Title("Test")
-common.Step("Registration of App2, no record in policy", common.disallowedRegisterApp, { appNotInPTSessionId })
+common.Step("Registration of App2, no record in policy", common.expectRegistrationDisallowed,
+  { appNotInPTSessionId })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

@@ -130,7 +130,7 @@ function common.updatePreloadedPT(pAppId, pAppHMIType)
   common.setPreloadedPT(preloadedTable)
 end
 
-function common.disallowedRegisterApp(pAppSessionId)
+function common.expectRegistrationDisallowed(pAppSessionId)
   local session = common.createSession(pAppSessionId)
   session:StartService(7)
   :Do(function()

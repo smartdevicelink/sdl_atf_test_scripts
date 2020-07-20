@@ -37,7 +37,8 @@ common.Step("Add AppHMIType to preloaded policy table", common.updatePreloadedPT
 common.Step("Start SDL, HMI, connect Mobile", common.start)
 
 common.Title("Test")
-common.Step("Register App, PT does not contain WEB_VIEW AppHMIType", common.disallowedRegisterApp, { appSessionId })
+common.Step("Register App, PT does not contain WEB_VIEW AppHMIType", common.expectRegistrationDisallowed,
+  { appSessionId })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
