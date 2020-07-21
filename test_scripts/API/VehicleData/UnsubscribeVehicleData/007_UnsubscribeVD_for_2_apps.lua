@@ -23,38 +23,30 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local appId_1 = 1
-local appId_2 = 2
-local isExpectedSubscribeVDonHMI = true
-local isNotExpectedSubscribeVDonHMI = false
-local isNotExpected = 0
-local isExpected = 1
-
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment and update preloaded_pt file", common.preconditions)
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-common.Step("Register App_1", common.registerApp, { appId_1 })
-common.Step("Register App_2", common.registerAppWOPTU, { appId_2 })
+common.Step("Register App_1", common.registerApp, { common.app[1] })
+common.Step("Register App_2", common.registerAppWOPTU, { common.app[2] })
 
 common.Title("Test")
 for param in common.spairs(common.getVDParams(true)) do
   common.Title("VD parameter: " .. param)
   common.Step("RPC " .. common.rpc.sub .. " for App_1",
-    common.processSubscriptionRPC, { common.rpc.sub, param, appId_1, isExpectedSubscribeVDonHMI })
+    common.processSubscriptionRPC, { common.rpc.sub, param, common.app[1], common.isExpectedSubscription })
   common.Step("RPC " .. common.rpc.sub .. " for App_2",
-    common.processSubscriptionRPC, { common.rpc.sub, param, appId_2, isNotExpectedSubscribeVDonHMI })
+    common.processSubscriptionRPC, { common.rpc.sub, param, common.app[2], common.isNotExpectedSubscription })
   common.Step("OnVehicleData for both apps",
-    common.sendOnVehicleDataTwoApps, { param, isExpected, isExpected })
+    common.sendOnVehicleDataTwoApps, { param, common.isExpected, common.isExpected })
   common.Step("RPC " .. common.rpc.unsub .. " for App_1",
-    common.processSubscriptionRPC, { common.rpc.unsub, param, appId_1, isNotExpectedSubscribeVDonHMI })
+    common.processSubscriptionRPC, { common.rpc.unsub, param, common.app[1], common.isNotExpectedSubscription })
   common.Step("Absence of OnVehicleData for App_1",
-    common.sendOnVehicleDataTwoApps, { param, isNotExpected, isExpected })
+    common.sendOnVehicleDataTwoApps, { param, common.isNotExpected, common.isExpected })
   common.Step("RPC " .. common.rpc.unsub .. " for App_2",
-    common.processSubscriptionRPC, { common.rpc.unsub, param, appId_2, isExpectedSubscribeVDonHMI })
+    common.processSubscriptionRPC, { common.rpc.unsub, param, common.app[2], common.isExpectedSubscription })
   common.Step("Absence of OnVehicleData for both apps",
-    common.sendOnVehicleDataTwoApps, { param, isNotExpected, isNotExpected })
+    common.sendOnVehicleDataTwoApps, { param, common.isNotExpected, common.isNotExpected })
 end
 
 common.Title("Postconditions")

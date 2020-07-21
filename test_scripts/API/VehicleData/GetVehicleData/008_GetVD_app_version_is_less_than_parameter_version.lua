@@ -24,7 +24,6 @@ local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Local Variables ]]
 local result = "INVALID_DATA"
-local isNotExpected = 0
 
 --[[ Scenario ]]
 for param, version in common.spairs(common.versioningVD) do
@@ -38,7 +37,7 @@ for param, version in common.spairs(common.versioningVD) do
   common.Title("Test")
   common.Step("RPC " .. common.rpc.get, common.processRPCFailure, { common.rpc.get, param, result })
   common.Step("RPC " .. common.rpc.sub, common.processRPCFailure, { common.rpc.sub, param, result })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, isNotExpected })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
   common.Step("RPC " .. common.rpc.unsub, common.processRPCFailure, { common.rpc.unsub, param, result })
 
   common.Title("Postconditions")

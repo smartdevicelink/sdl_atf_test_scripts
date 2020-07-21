@@ -26,10 +26,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local isExpected = 1
-local isNotExpected = 0
-
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -42,11 +38,11 @@ for param in pairs(common.mandatoryVD) do
   common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
   for caseName, value in pairs(common.getMandatoryOnlyCases(param)) do
     common.Step("RPC " .. common.rpc.on .. " with " .. caseName .. " Transfered", common.sendOnVehicleData,
-      { param, isExpected, value })
+      { param, common.isExpected, value })
   end
   for caseName, value in pairs(common.getMandatoryMissingCases(param)) do
     common.Step("RPC " .. common.rpc.on .. " with " .. caseName .. " Ignored", common.sendOnVehicleData,
-      { param, isNotExpected, value })
+      { param, common.isNotExpected, value })
   end
 end
 

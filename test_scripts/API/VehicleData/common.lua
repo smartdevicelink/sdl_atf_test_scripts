@@ -93,6 +93,15 @@ m.operator = {
   decrease = -1
 }
 
+m.app = {
+  [1] = 1,
+  [2] = 2
+}
+m.isExpected = 1
+m.isNotExpected = 0
+m.isExpectedSubscription = true
+m.isNotExpectedSubscription = false
+
 --[[ API Functions ]]
 
 math.randomseed(os.clock())
@@ -205,13 +214,13 @@ local function getParamValuesFromAPI()
   local paramValues = m.getParamValues(params, cmnSchema)
   -- print not defined in API parameters
   for k in pairs(m.vd) do
-    if not paramValues[k] then
+    if paramValues[k] == nil then
       m.cprint(color.magenta, "Not found in API VD parameter:", k)
     end
   end
   -- remove disabled parameters
   for k in pairs(paramValues) do
-    if not m.vd[k] then
+    if m.vd[k] == nil then
       paramValues[k] = nil
       m.cprint(color.magenta, "Disabled VD parameter:", k)
     end
@@ -349,12 +358,13 @@ end
 function m.getMandatoryOnlyCases(pParam)
   local out = {}
   local value = utils.cloneTable(m.vdValues[pParam])
-  local mnd = m.mandatoryVD[pParam]
-  local to_upd = value
-  if mnd.array then
-    value = { value[1] }
-    to_upd = value[1]
+  local mnd = m.mandatoryVD[pParam] -- get information about mandatory sub-parameters
+  local to_upd = value    -- 'to_upd' variable allows to handle non-array and array cases by the same logic
+  if mnd.array then       -- in both cases 'to_upd' is a table with sub-parameters
+    value = { value[1] }  -- in case of non-array it equals to param value
+    to_upd = value[1]     -- in case of array it equals to 1st item of param value
   end
+  -- iterate through all sub-parameters and remove all optional
   for k in pairs(to_upd) do
     if not utils.isTableContains(mnd.sub, k) then
       to_upd[k] = nil
@@ -371,7 +381,8 @@ end
 --]]
 function m.getMandatoryMissingCases(pParam)
   local out = {}
-  local mnd = m.mandatoryVD[pParam]
+  local mnd = m.mandatoryVD[pParam] -- get information about mandatory sub-parameters
+  -- iterate through all mandatory sub-parameters and remove one of them for each case
   for _, k in pairs(mnd.sub) do
     local value = utils.cloneTable(m.vdValues[pParam])
     local to_upd = value

@@ -19,10 +19,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local isExpected = 1
-local isNotExpected = 0
-
 --[[ Local Functions ]]
 local function getVDGroup(pDisallowedParam)
   local all_params = {}
@@ -61,11 +57,11 @@ for param in common.spairs(common.getVDParams(true)) do
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   common.Step("Register App", common.registerApp)
   common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on .. " transferred", common.sendOnVehicleData, { param, isExpected })
+  common.Step("RPC " .. common.rpc.on .. " transferred", common.sendOnVehicleData, { param, common.isExpected })
 
   common.Title("Test")
   common.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
-  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, isNotExpected })
+  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, common.isNotExpected })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

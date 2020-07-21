@@ -22,9 +22,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local isExpected = 1
-
 --[[ Scenario ]]
 for param, version in common.spairs(common.versioningVD) do
   common.Title("VD parameter: " .. param)
@@ -37,7 +34,7 @@ for param, version in common.spairs(common.versioningVD) do
   common.Title("Test")
   common.Step("RPC " .. common.rpc.get, common.getVehicleData, { param })
   common.Step("RPC " .. common.rpc.sub, common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, isExpected })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isExpected })
   common.Step("RPC " .. common.rpc.unsub, common.processSubscriptionRPC, { common.rpc.unsub, param })
 
   common.Title("Postconditions")

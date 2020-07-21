@@ -17,11 +17,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local appId = 1
-local isSubscribed = true
-local isExpected = 1
-
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams(true)) do
   common.Title("VD parameter: " .. param)
@@ -36,8 +31,8 @@ for param in common.spairs(common.getVDParams(true)) do
   common.Step("Ignition Off", common.ignitionOff, { param })
   common.Step("Ignition On", common.start)
   common.Step("Re-register App resumption data", common.registerAppWithResumption,
-    { param, appId, isSubscribed })
-  common.Step("OnVehicleData with VD param", common.sendOnVehicleData, { param, isExpected })
+    { param, common.app[1], common.isExpectedSubscription })
+  common.Step("OnVehicleData with VD param", common.sendOnVehicleData, { param, common.isExpected })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

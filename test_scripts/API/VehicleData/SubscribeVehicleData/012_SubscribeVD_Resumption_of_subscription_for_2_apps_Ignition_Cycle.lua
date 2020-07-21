@@ -24,35 +24,28 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local appId1 = 1
-local appId2 = 2
-local isExpectedSubscribeVDonHMI = true
-local notExpectedSubscribeVDonHMI = false
-local isExpected = 1
-
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams(true)) do
   common.Title("VD parameter: " .. param)
   common.Title("Preconditions")
   common.Step("Clean environment", common.preconditions)
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Register App1", common.registerAppWOPTU, { appId1 })
-  common.Step("Register App2", common.registerAppWOPTU, { appId2 })
+  common.Step("Register App1", common.registerAppWOPTU, { common.app[1] })
+  common.Step("Register App2", common.registerAppWOPTU, { common.app[2] })
   common.Step("App1 subscribes to VD param", common.processSubscriptionRPC,
-    { common.rpc.sub, param, appId1, isExpectedSubscribeVDonHMI })
+    { common.rpc.sub, param, common.app[1], common.isExpectedSubscription })
   common.Step("App2 subscribes to VD param", common.processSubscriptionRPC,
-    { common.rpc.sub, param, appId2, notExpectedSubscribeVDonHMI })
+    { common.rpc.sub, param, common.app[2], common.isNotExpectedSubscription })
 
   common.Title("Test")
   common.Step("Ignition Off", common.ignitionOff, { param })
   common.Step("Ignition On", common.start)
   common.Step("Re-register App1 resumption data", common.registerAppWithResumption,
-    { param, appId1, isExpectedSubscribeVDonHMI })
+    { param, common.app[1], common.isExpectedSubscription })
   common.Step("Re-register App2 resumption data", common.registerAppWithResumption,
-    { param, appId2, notExpectedSubscribeVDonHMI })
-  common.Step("OnVehicleData with VD param for both apps", common.sendOnVehicleData,
-    { param, isExpected })
+    { param, common.app[2], common.isNotExpectedSubscription })
+  common.Step("OnVehicleData with VD param for both apps", common.sendOnVehicleDataTwoApps,
+    { param, common.isExpected, common.isExpected })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

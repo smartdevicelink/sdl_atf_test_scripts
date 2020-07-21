@@ -16,9 +16,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local isNotExpected = 0
-
 --[[ Local Functions ]]
 local function getVDGroup(pDisallowedParam)
   local all_params = {}
@@ -51,7 +48,7 @@ for param in common.spairs(common.getVDParams(true)) do
 
   common.Title("Test")
   common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, isNotExpected })
+  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, common.isNotExpected })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

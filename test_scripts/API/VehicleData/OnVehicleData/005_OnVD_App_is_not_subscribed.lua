@@ -22,10 +22,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Variables ]]
-local isExpected = 1
-local isNotExpected = 0
-
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment and update preloaded_pt file", common.preconditions)
@@ -36,13 +32,13 @@ common.Title("Test")
 for param in common.spairs(common.getVDParams(true)) do
   common.Title("VD parameter: " .. param)
   common.Step("RPC " .. common.rpc.sub, common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, isExpected })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isExpected })
   common.Step("RPC " .. common.rpc.unsub, common.processSubscriptionRPC, { common.rpc.unsub, param })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, isNotExpected })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
 end
 for param in common.spairs(common.getVDParams(false)) do
   common.Title("VD parameter: " .. param)
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, isNotExpected })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
 end
 
 common.Title("Postconditions")
