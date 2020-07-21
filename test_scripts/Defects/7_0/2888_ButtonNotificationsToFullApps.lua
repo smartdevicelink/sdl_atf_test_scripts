@@ -69,28 +69,13 @@ local function pressButton(pButName, pButtonPressMode)
   commonSmoke.getHMIConnection():SendNotification("Buttons.OnButtonPress",
     { name = pButName, mode = pButtonPressMode })
 
-  if pButName == "OK" then
-    commonSmoke.getMobileSession():ExpectNotification("OnButtonEvent")
-      :Times(0)
-    commonSmoke.getMobileSession():ExpectNotification("OnButtonPress")
-      :Times(0)
-  else
-    commonSmoke.getMobileSession():ExpectNotification("OnButtonEvent",
-      {buttonName = pButName, buttonEventMode = "BUTTONDOWN"},
-      {buttonName = pButName, buttonEventMode = "BUTTONUP"})
-    :Times(2)
-    commonSmoke.getMobileSession():ExpectNotification("OnButtonPress",
-      { buttonName = pButName, buttonPressMode = pButtonPressMode })
-    :Timeout(1000)
-  end
-end
-
-local function changeLevelToLimited()
-  local appIDvalue = commonSmoke.getHMIAppId()
-  commonSmoke.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated",
-    { appID = appIDvalue, reason = "GENERAL" })
-  commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
-    { hmiLevel = "LIMITED", systemContext = "MAIN", audioStreamingState = "AUDIBLE" })
+  commonSmoke.getMobileSession():ExpectNotification("OnButtonEvent",
+    {buttonName = pButName, buttonEventMode = "BUTTONDOWN"},
+    {buttonName = pButName, buttonEventMode = "BUTTONUP"})
+  :Times(2)
+  commonSmoke.getMobileSession():ExpectNotification("OnButtonPress",
+    { buttonName = pButName, buttonPressMode = pButtonPressMode })
+  :Timeout(1000)
 end
 
 --[[ Scenario ]]
@@ -99,7 +84,6 @@ runner.Step("Clean environment", commonSmoke.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
 runner.Step("RAI", commonSmoke.registerApp)
 runner.Step("Activate App", commonSmoke.activateApp)
-runner.Step("Change Level To Limited", changeLevelToLimited)
 
 runner.Title("Test")
 for _, v in pairs(buttonName) do
