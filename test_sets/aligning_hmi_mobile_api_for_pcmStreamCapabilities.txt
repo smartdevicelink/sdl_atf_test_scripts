@@ -1,0 +1,3 @@
+./test_scripts/Capabilities/pcmStreamCapabilities/001_capabilities_from_HMI.lua
+./test_scripts/Capabilities/pcmStreamCapabilities/002_default_capabilities_HMI_sends_invalid_values.lua
+./test_scripts/Capabilities/pcmStreamCapabilities/003_default_capabilities_HMI_does_not_send_value.lua
