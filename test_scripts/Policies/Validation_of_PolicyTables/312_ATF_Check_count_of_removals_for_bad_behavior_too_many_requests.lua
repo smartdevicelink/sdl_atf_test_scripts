@@ -97,6 +97,7 @@ end
 
 function Test:ActivateAppInFull()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID)
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 --[[ end of Preconditions ]]

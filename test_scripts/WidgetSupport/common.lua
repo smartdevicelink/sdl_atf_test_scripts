@@ -493,11 +493,7 @@ end
 --! @return: none
 --]]
 function m.connectMobile()
-  test.mobileConnection:Connect()
-  EXPECT_EVENT(events.connectedEvent, "Connected")
-  :Do(function()
-      utils.cprint(35, "Mobile connected")
-    end)
+  actions.mobile.connect()
 end
 
 --[[ @ignitionOff: IGNITION_OFF sequence

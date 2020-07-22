@@ -74,8 +74,7 @@ end
 
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
-function Test:Precondition_Activate_App_And_Consent_Device()
-
+function Test:Precondition_RegisterApp()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface",
     {
       syncMsgVersion =
@@ -116,7 +115,11 @@ function Test:Precondition_Activate_App_And_Consent_Device()
     })
   :Do(function(_,data)
       self.applications["SPT"] = data.params.application.appID
+    end)
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+end
 
+function Test:Precondition_Activate_App_And_Consent_Device()
       local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications["SPT"]})
       EXPECT_HMIRESPONSE(RequestId, { result = {
             code = 0,
@@ -134,8 +137,6 @@ function Test:Precondition_Activate_App_And_Consent_Device()
                 end)
             end)
         end)
-    end)
-  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
 end
 
 function Test:Precondition_UpdatePolicyWithPTU()
