@@ -15,10 +15,6 @@ local common = require('test_scripts/Smoke/commonSmoke')
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-config.application1.registerAppInterfaceParams.syncMsgVersion = {
-    majorVersion = 7,
-    minorVersion = 0
-}
 
 --[[ Local Variables ]]
 local requestParams = {
