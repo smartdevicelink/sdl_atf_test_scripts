@@ -167,7 +167,7 @@ for key, params in pairs(mobileAddSubMenuRequestParams) do
     runner.Step("Add additional submenu", AddNestedSubMenus, { key })
 end
 for key, params in pairs(mobileAddCommandRequestParans) do
-  runner.Step("Add Commands to nested submenus", AddNestedCommands, { key })
+    runner.Step("Add Commands to nested submenus", AddNestedCommands, { key })
 end
 runner.Step("Send DeleteSubMenu", DeleteSubMenu)
 
