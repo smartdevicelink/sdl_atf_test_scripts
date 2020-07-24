@@ -120,7 +120,7 @@ for i, _ in ipairs(mobileAddSubMenuRequestParams) do
     runner.Step("Add additional submenu", common.AdditionalSubmenu, { mobileAddSubMenuRequestParams[i], hmiAddSubMenuRequestParams[i], true })
 end
 for i, _ in ipairs(mobileAddCommandRequestParans) do
-  runner.Step("Add Commands to nested submenus", common.AddNestedCommands, {  mobileAddCommandRequestParans[i], hmiAddCommandRequestParams[i]})
+    runner.Step("Add Commands to nested submenus", common.AddNestedCommands, {  mobileAddCommandRequestParans[i], hmiAddCommandRequestParams[i]})
 end
 runner.Step("Send DeleteSubMenu", common.DeleteSubMenu, {mobileDeleteSubMenuRequestParams, hmiDeleteCommandRequestParams, hmiDeleteSubMenuRequestParams})
 
