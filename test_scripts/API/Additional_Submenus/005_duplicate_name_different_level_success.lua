@@ -11,19 +11,19 @@
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/API/Additional_Submenus/additional_submenus_common')
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local mobileAddSubMenuRequestParams = {
-    subMenu2 = {
+    {
         menuID = 99, 
         menuName = "SubMenu2",
         parentID = 1
     },
-    submenu3 = {
+    {
         menuID = 101, 
         menuName = "SubMenu2",
         parentID = 99
@@ -31,34 +31,21 @@ local mobileAddSubMenuRequestParams = {
 }
 
 local hmiAddSubMenuRequestParams = {
-    subMenu2 = {
-        menuID = 99, 
+    {
+        menuID = mobileAddSubMenuRequestParams[1].menuID, 
         menuParams = { 
-            menuName = "SubMenu2",
-            parentID = 1 
+            menuName = mobileAddSubMenuRequestParams[1].menuName,
+            parentID = mobileAddSubMenuRequestParams[1].parentID 
         }
     },
-    subMenu3 = {
-        menuID = 101, 
+    {
+        menuID = mobileAddSubMenuRequestParams[2].menuID, 
         menuParams = { 
-            menuName = "SubMenu2",
-            parentID = 99 
+            menuName = mobileAddSubMenuRequestParams[2].menuName,
+            parentID = mobileAddSubMenuRequestParams[2].parentID 
         }
     }
 }
- 
-local function AddNestedSubMenus(key)
-    local cid = common.getMobileSession():SendRPC("AddSubMenu", mobileAddSubMenuRequestParams[key])
-    common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiAddSubMenuRequestParams[key])
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    common.getMobileSession():ExpectNotification("OnHashChange")
-    :Do(function(_, data)
-        common.hashId = data.payload.hashID
-    end)
-end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -69,8 +56,8 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-for key, params in pairs(mobileAddSubMenuRequestParams) do
-    runner.Step("Add additional submenu", AddNestedSubMenus, { key })
+for i, _ in ipairs(mobileAddSubMenuRequestParams) do
+    runner.Step("Add additional submenu", common.AdditionalSubmenu, { mobileAddSubMenuRequestParams[i], hmiAddSubMenuRequestParams[i], true })
 end
 
 runner.Title("Postconditions")

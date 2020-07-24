@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/API/Additional_Submenus/additional_submenus_common')
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -34,21 +34,6 @@ local hmiRequestParams = {
     }
 }
  
-local function AdditionalSubmenu()
-    local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
-    common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiRequestParams)
-    :ValidIf(function(_, data)
-        return data.params.menuParams["parentID"] == nil
-      end)
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-      end)
-    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    common.getMobileSession():ExpectNotification("OnHashChange")
-    :Do(function(_, data)
-        common.hashId = data.payload.hashID
-      end)
-end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -59,7 +44,7 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu for legacy app", AdditionalSubmenu)
+runner.Step("Add additional submenu", common.AdditionalSubmenu, {requestParams, hmiRequestParams, true})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

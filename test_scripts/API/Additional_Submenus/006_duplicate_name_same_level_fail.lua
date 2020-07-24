@@ -11,7 +11,7 @@
 ---------------------------------------------------------------------------------------------------
 -- [[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/API/Additional_Submenus/additional_submenus_common')
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -36,19 +36,6 @@ local duplicateNameRequestParams = {
     menuName = "SubMenu2",
     parentID = 1
 }
- 
-local function AdditionalSubmenu()
-    local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
-    common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiRequestParams)
-    :Do(function(_, data)
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-      end)
-    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    common.getMobileSession():ExpectNotification("OnHashChange")
-    :Do(function(_, data)
-        common.hashId = data.payload.hashID
-      end)
-end
 
 local function DuplicateNameMenu()
     local cid = common.getMobileSession():SendRPC("AddSubMenu", duplicateNameRequestParams)
@@ -64,7 +51,7 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu", AdditionalSubmenu)
+runner.Step("Add additional submenu", common.AdditionalSubmenu, {requestParams, hmiRequestParams, true})
 runner.Step("Duplicate Name SubMenu", DuplicateNameMenu)
 
 runner.Title("Postconditions")
