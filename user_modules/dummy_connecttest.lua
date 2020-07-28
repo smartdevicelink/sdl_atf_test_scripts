@@ -345,7 +345,8 @@ function module:initHMI()
           "BasicCommunication.OnSystemTimeReady",
           "BasicCommunication.OnSystemCapabilityUpdated",
           "BasicCommunication.OnServiceUpdate",
-          "BasicCommunication.OnAppPropertiesChange"
+          "BasicCommunication.OnAppPropertiesChange",
+          "BasicCommunication.OnAppCapabilityUpdated"
         })
       registerComponent("UI",
         {

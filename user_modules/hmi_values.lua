@@ -398,7 +398,75 @@ function module.getDefaultHMITable()
           hapticSpatialDataSupported = false,
           diagonalScreenSize = 10,
           pixelPerInch = 150,
-          scale = 2.5
+          scale = 2.5,
+          additionalVideoStreamingCapabilities = {
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 350
+                },
+                hapticSpatialDataSupported = true,
+                diagonalScreenSize = 10,
+                scale = 1
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 320,
+                    resolutionHeight = 240
+                },
+                diagonalScreenSize = 4,
+                hapticSpatialDataSupported = false
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 400,
+                    resolutionHeight = 480
+                },
+                diagonalScreenSize = 5,
+                hapticSpatialDataSupported = true
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 640,
+                    resolutionHeight = 480
+                },
+                diagonalScreenSize = 7,
+                hapticSpatialDataSupported = true
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 240
+                },
+                hapticSpatialDataSupported = true,
+                diagonalScreenSize = 8
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 350
+                },
+                hapticSpatialDataSupported = false,
+                diagonalScreenSize = 4,
+                scale = 2.5
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 350
+                },
+                hapticSpatialDataSupported = true,
+                diagonalScreenSize = 2,
+                scale = 5
+            }
+          }
         }
       }
     },
