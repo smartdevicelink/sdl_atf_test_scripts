@@ -6,8 +6,6 @@ config.mobileHost = "127.0.0.1"
 config.defaultProtocolVersion = 2
 config.ValidateSchema = false
 config.zeroOccurrenceTimeout = 1000
-config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 6
-config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 2
 
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
@@ -136,11 +134,6 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.fuelRange.value = {
       { type = "GASOLINE" , range = 20 }, { type = "BATTERY", range = 100 }}
     common.VehicleDataItemsWithData.fuelRange.APItype = "VEHICLEDATA_FUELRANGE"
-    common.VehicleDataItemsWithData.windowStatus.value = {
-    { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
-      state = {  approximatePosition = 50, deviation = 50 }
-    }}
-    common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
     common.VehicleDataItemsWithData.externalTemperature.value = 24.1
     common.VehicleDataItemsWithData.externalTemperature.APItype = "VEHICLEDATA_EXTERNTEMP"
     common.VehicleDataItemsWithData.turnSignal.value = "OFF"
@@ -149,8 +142,17 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.vin.APItype = "VEHICLEDATA_VIN"
     common.VehicleDataItemsWithData.prndl.value = "PARK"
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
-    common.VehicleDataItemsWithData.handsOffSteering.value = true
-    common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    if common.VehicleDataItemsWithData.handsOffSteering then
+      common.VehicleDataItemsWithData.handsOffSteering.value = true
+      common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    end
+    if common.VehicleDataItemsWithData.windowStatus then
+      common.VehicleDataItemsWithData.windowStatus.value = {
+      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+        state = { approximatePosition = 50, deviation = 50 }
+      }}
+    common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
+    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params

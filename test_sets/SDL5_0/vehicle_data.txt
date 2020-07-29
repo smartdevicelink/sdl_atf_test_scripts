@@ -34,3 +34,5 @@
 ./test_scripts/API/VehicleData/UnsubscribeVehicleData/006_UnsubscribeVD_2nd_request_IGNORED.lua
 ./test_scripts/API/VehicleData/UnsubscribeVehicleData/007_UnsubscribeVD_for_2_apps.lua
 ./test_scripts/API/VehicleData/UnsubscribeVehicleData/008_UnsubscribeVD_HMI_responds_with_not_success_codes.lua
+./test_scripts/API/VehicleData/WindowStatus/001_GetVehicleData_boundary_values_windowStatus_structure.lua
+./test_scripts/API/VehicleData/WindowStatus/002_OnVehicleData_boundary_values_windowStatus_structure.lua
