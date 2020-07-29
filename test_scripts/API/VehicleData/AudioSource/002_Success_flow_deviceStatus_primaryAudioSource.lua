@@ -1,9 +1,5 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0182-audio-source-am-fm-xm.md
--- User story: TBD
--- Use case: TBD
---
--- Requirement summary:TBD
 --
 -- Description:
 -- In case:
@@ -14,7 +10,7 @@
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
-local common = require('test_scripts/API/VehicleData/commonVehicleData')
+local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Local Variables ]]
 local audioSources = {
@@ -90,8 +86,6 @@ common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("RAI", common.registerApp)
-common.Step("PTU", common.policyTableUpdate, { common.ptUpdate })
-common.Step("Activate App", common.activateApp)
 
 common.Title("Test")
 common.Step("RPC " .. rpc1.name, processRPCSubscribeSuccess)
