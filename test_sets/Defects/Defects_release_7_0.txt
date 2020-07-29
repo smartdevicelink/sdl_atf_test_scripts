@@ -1,0 +1,9 @@
+./test_scripts/Defects/7_0/955_incorrect_response_on_send_SystemRequest.lua
+./test_scripts/Defects/7_0/1398_RAI_duplicate_name.lua
+./test_scripts/Defects/7_0/1581_SubscribeVehicleData_Twice_Ignored.lua
+./test_scripts/Defects/7_0/2116_OnButtonPress_LimitedHMILevel.lua
+./test_scripts/Defects/7_0/2395_SDL_must_store_OnWayPointChange_internally_and_resend_this_notification_to_each_subscribed_apps.lua
+./test_scripts/Defects/7_0/2430_AppSendsRPCWIthProtocolVersionAboveMax_IsUnregistered.lua
+./test_scripts/Defects/7_0/2461_UnsubscribeWaypoints_OnDisconnect.lua
+./test_scripts/Defects/7_0/3119_ChangeRegistration_with_unsupported_language.lua
+./test_scripts/Defects/7_0/3372_StaySubscribedWaypoints_OnOtherAppDisconnect.lua

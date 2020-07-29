@@ -27,6 +27,9 @@ require('cardinalities')
 local mobile_session = require('mobile_session')
 local utils = require ('user_modules/utils')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ Local Variables ]]
 local POLICY_SNAPSHOT_FILE_NAME = "sdl_mega_snapshot.json"
 local SYSTEM_FILES_PATH = "/tmp" -- /tmp/fs/mp/images/ivsu_cache
