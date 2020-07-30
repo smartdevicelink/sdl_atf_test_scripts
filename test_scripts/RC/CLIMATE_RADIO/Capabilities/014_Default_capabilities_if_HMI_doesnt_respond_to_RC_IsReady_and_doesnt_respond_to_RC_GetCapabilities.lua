@@ -31,7 +31,7 @@ end
 
 local function updateDefaultHMIcapabilities()
   local defaultHMIcapabilities = commonRC.HMICap.get()
-  defaultHMIcapabilitiesRC = defaultHMIcapabilities.UI.systemCapabilities.remoteControlCapability
+  defaultHMIcapabilitiesRC = defaultHMIcapabilities.RC.remoteControlCapability
   defaultHMIcapabilitiesRC.climateControlCapabilities[1].climateEnableAvailable = false
   defaultHMIcapabilitiesRC.radioControlCapabilities[1].availableHdChannelsAvailable = false
   commonRC.HMICap.set(defaultHMIcapabilities)
@@ -51,12 +51,17 @@ local function rpcSuccess()
   })
 end
 
+local function start(pHMIParams)
+  commonRC.start(pHMIParams)
+  commonRC.wait(12000)
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update default hmi capabilities", updateDefaultHMIcapabilities)
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { getHMIParams() })
 runner.Step("RAI", commonRC.registerAppWOPTU)
 runner.Step("Activate App", commonRC.activateApp)
 

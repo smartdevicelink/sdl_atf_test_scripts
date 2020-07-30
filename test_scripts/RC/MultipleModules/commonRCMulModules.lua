@@ -106,7 +106,7 @@ setSyncMsgVersion()
 
 local function createDefaultRCCapabilitiesInFile()
   local hmiCapabilities = actions.sdl.getHMICapabilitiesFromFile()
-  local rcCapabilities = hmiCapabilities.UI.systemCapabilities.remoteControlCapability
+  local rcCapabilities = hmiCapabilities.RC.remoteControlCapability
   local defaultValue = "Default"
   for moduleType, params in pairs(rcCapabilities) do
     if moduleType ~= "buttonCapabilities"  then
@@ -125,7 +125,7 @@ local function createDefaultRCCapabilitiesInFile()
 end
 
 function common.getExpectedParameters()
-  local rcDefaultCapabilities = createDefaultRCCapabilitiesInFile().UI.systemCapabilities.remoteControlCapability
+  local rcDefaultCapabilities = createDefaultRCCapabilitiesInFile().RC.remoteControlCapability
   local expectedParameters = {
     remoteControlCapability = {
       climateControlCapabilities = rcDefaultCapabilities.climateControlCapabilities,
