@@ -24,10 +24,10 @@ local requestParams = {
 }
 
 local hmiRequestParams = {
-    menuID = 99, 
+    menuID = requestParams.menuID, 
     menuParams = { 
-        menuName = "SubMenu2",
-        parentID = 1 
+        menuName = requestParams.menuName,
+        parentID = requestParams.parentID
     }
 }
 

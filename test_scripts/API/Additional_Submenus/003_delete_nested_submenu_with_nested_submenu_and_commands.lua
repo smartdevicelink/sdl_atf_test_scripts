@@ -31,7 +31,7 @@ local mobileAddSubMenuRequestParams = {
     }
 }
 
-local mobileAddCommandRequestParans = {
+local mobileAddCommandRequestParams = {
     {
         cmdID = 44,
         menuParams = {

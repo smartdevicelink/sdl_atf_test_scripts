@@ -8,7 +8,7 @@ local function reverseArray(arr)
     return rev
 end
 
-function common.AdditionalSubmenu(requestParams, hmiRequestParams, parentPresent)
+function common.addSubMenu(requestParams, hmiRequestParams, parentPresent)
     local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
     common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiRequestParams)
     :ValidIf(function(_, data)
@@ -28,7 +28,7 @@ function common.AdditionalSubmenu(requestParams, hmiRequestParams, parentPresent
       end)
 end
 
-function common.AddNestedCommands(mobileParams, hmiParams)
+function common.addCommand(mobileParams, hmiParams)
     local cid = common.getMobileSession():SendRPC("AddCommand", mobileParams)
     common.getHMIConnection():ExpectRequest("UI.AddCommand", hmiParams)
     :Do(function(_, data)
