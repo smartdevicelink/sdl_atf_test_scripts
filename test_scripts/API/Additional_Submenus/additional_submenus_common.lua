@@ -10,12 +10,10 @@ end
 
 common.reqParams = {
     AddCommand = {
-      mob = { cmdID = 1, vrCommands = { "OnlyVRCommand" }},
-      hmi = { cmdID = 1, type = "Command", vrCommands = { "OnlyVRCommand" }}
+      mob = { cmdID = 1, vrCommands = { "OnlyVRCommand" }}
     },
     AddSubMenu = {
-      mob = { menuID = 1, position = 500, menuName = "SubMenu" },
-      hmi = { menuID = 1, menuParams = { position = 500, menuName = "SubMenu" }}
+      mob = { menuID = 1, position = 500, menuName = "SubMenu" }
     }
   }
 

@@ -19,6 +19,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local menuIDs = { 1, 99, 101 }
 local mobileAddSubMenuRequestParams = {
+    common.reqParams.AddSubMenu.mob,
     {
         menuID = menuIDs[2], 
         menuName = "SubMenu2",
@@ -39,9 +40,8 @@ runner.Step("App registration", common.registerApp)
 
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
-runner.Step("Add menu", common.addSubMenu)
 for i, _ in ipairs(mobileAddSubMenuRequestParams) do
-    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i] })
+    runner.Step("Add submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i] })
 end
 
 runner.Title("Postconditions")
