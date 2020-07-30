@@ -24,17 +24,17 @@ local requestParams = {
 }
 
 local hmiRequestParams = {
-    menuID = 99, 
+    menuID = requestParams.menuID, 
     menuParams = { 
-        menuName = "SubMenu2",
-        parentID = 1 
+        menuName = requestParams.menuName,
+        parentID = requestParams.parentID 
     }
 }
 
 local duplicateNameRequestParams = {
     menuID = 101, 
-    menuName = "SubMenu2",
-    parentID = 1
+    menuName = requestParams.menuName,
+    parentID = requestParams.parentID 
 }
 
 local function DuplicateNameMenu()
@@ -51,7 +51,7 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu", common.AdditionalSubmenu, {requestParams, hmiRequestParams, true})
+runner.Step("Add additional submenu", common.addSubMenu, {requestParams, hmiRequestParams, true})
 runner.Step("Duplicate Name SubMenu", DuplicateNameMenu)
 
 runner.Title("Postconditions")

@@ -17,16 +17,17 @@ local common = require('test_scripts/API/Additional_Submenus/additional_submenus
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
+local menuIDs = { 1, 99, 101 }
 local mobileAddSubMenuRequestParams = {
     {
-        menuID = 99, 
+        menuID = menuIDs[2], 
         menuName = "SubMenu2",
-        parentID = 1
+        parentID = menuIDs[1]
     },
     {
-        menuID = 101, 
+        menuID = menuIDs[3], 
         menuName = "SubMenu2",
-        parentID = 99
+        parentID = menuIDs[2]
     }
 }
 
@@ -57,7 +58,7 @@ runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
 for i, _ in ipairs(mobileAddSubMenuRequestParams) do
-    runner.Step("Add additional submenu", common.AdditionalSubmenu, { mobileAddSubMenuRequestParams[i], hmiAddSubMenuRequestParams[i], true })
+    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i], hmiAddSubMenuRequestParams[i], true })
 end
 
 runner.Title("Postconditions")

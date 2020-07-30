@@ -8,14 +8,34 @@ local function reverseArray(arr)
     return rev
 end
 
+common.reqParams = {
+    AddCommand = {
+      mob = { cmdID = 1, vrCommands = { "OnlyVRCommand" }},
+      hmi = { cmdID = 1, type = "Command", vrCommands = { "OnlyVRCommand" }}
+    },
+    AddSubMenu = {
+      mob = { menuID = 1, position = 500, menuName = "SubMenu" },
+      hmi = { menuID = 1, menuParams = { position = 500, menuName = "SubMenu" }}
+    }
+  }
+
 function common.addSubMenu(requestParams, hmiRequestParams, parentPresent)
+    if requestParams == nil then
+        requestParams = common.reqParams.AddSubMenu.mob
+    end
+    if hmiRequestParams == nil then
+        hmiRequestParams = common.reqParams.AddSubMenu.hmi
+    end
+    if parentPresent == nil then
+        parentPresent = false
+    end
     local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
     common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiRequestParams)
     :ValidIf(function(_, data)
         if parentPresent == true then
             return true
         else
-            return data.params.menuParams["parentID"] == nil
+            return data.params.menuParams["parentID"] == nil or data.params.menuParams["parentID"] == 0
         end
       end)
     :Do(function(_, data)
@@ -29,6 +49,12 @@ function common.addSubMenu(requestParams, hmiRequestParams, parentPresent)
 end
 
 function common.addCommand(mobileParams, hmiParams)
+    if requestParams == nil then
+        requestParams = common.reqParams.AddCommand.mob
+    end
+    if hmiRequestParams == nil then
+        hmiRequestParams = common.reqParams.AddCommand.hmi
+    end
     local cid = common.getMobileSession():SendRPC("AddCommand", mobileParams)
     common.getHMIConnection():ExpectRequest("UI.AddCommand", hmiParams)
     :Do(function(_, data)
