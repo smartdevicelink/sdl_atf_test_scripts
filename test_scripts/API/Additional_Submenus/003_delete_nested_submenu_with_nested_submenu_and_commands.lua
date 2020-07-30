@@ -82,7 +82,7 @@ runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
 for i, _ in ipairs(mobileAddSubMenuRequestParams) do
-    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i], true })
+    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i] })
 end
 for i, _ in ipairs(mobileAddCommandRequestParams) do
   runner.Step("Add Commands to nested submenus", common.addCommand, {  mobileAddCommandRequestParams[i] })

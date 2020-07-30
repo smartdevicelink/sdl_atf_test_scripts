@@ -32,7 +32,7 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu", common.addSubMenu, {requestParams, true})
+runner.Step("Add additional submenu", common.addSubMenu, {requestParams})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -19,13 +19,11 @@ common.reqParams = {
     }
   }
 
-function common.addSubMenu(requestParams, parentPresent)
+function common.addSubMenu(requestParams)
     if requestParams == nil then
         requestParams = common.reqParams.AddSubMenu.mob
     end
-    if parentPresent == nil then
-        parentPresent = (requestParams.parentID ~= nil)
-    end
+    local parentPresent = (requestParams.parentID ~= nil)
     local hmiRequestParams = {
         menuID = requestParams.menuID, 
         menuParams = {
