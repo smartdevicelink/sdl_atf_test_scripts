@@ -27,7 +27,7 @@ function common.addSubMenu(requestParams, hmiRequestParams, parentPresent)
         hmiRequestParams = common.reqParams.AddSubMenu.hmi
     end
     if parentPresent == nil then
-        parentPresent = false
+        parentPresent = (requestParams.parentID != nil)
     end
     local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
     common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiRequestParams)
