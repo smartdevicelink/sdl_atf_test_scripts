@@ -31,23 +31,6 @@ local mobileAddSubMenuRequestParams = {
     }
 }
 
-local hmiAddSubMenuRequestParams = {
-    {
-        menuID = mobileAddSubMenuRequestParams[1].menuID, 
-        menuParams = { 
-            menuName = mobileAddSubMenuRequestParams[1].menuName,
-            parentID = mobileAddSubMenuRequestParams[1].parentID 
-        }
-    },
-    {
-        menuID = mobileAddSubMenuRequestParams[2].menuID, 
-        menuParams = { 
-            menuName = mobileAddSubMenuRequestParams[2].menuName,
-            parentID = mobileAddSubMenuRequestParams[2].parentID 
-        }
-    }
-}
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -58,7 +41,7 @@ runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
 for i, _ in ipairs(mobileAddSubMenuRequestParams) do
-    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i], hmiAddSubMenuRequestParams[i], true })
+    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i], true })
 end
 
 runner.Title("Postconditions")

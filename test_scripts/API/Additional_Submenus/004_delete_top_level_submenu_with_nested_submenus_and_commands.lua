@@ -54,40 +54,6 @@ local mobileDeleteSubMenuRequestParams = {
     menuID = menuIDs[1]
 }
 
-local hmiAddSubMenuRequestParams = {
-    {
-        menuID = mobileAddSubMenuRequestParams[1].menuID, 
-        menuParams = { 
-            menuName = mobileAddSubMenuRequestParams[1].menuName,
-            parentID = mobileAddSubMenuRequestParams[1].parentID 
-        }
-    },
-    {
-        menuID = mobileAddSubMenuRequestParams[2].menuID, 
-        menuParams = { 
-            menuName = mobileAddSubMenuRequestParams[2].menuName,
-            parentID = mobileAddSubMenuRequestParams[2].parentID 
-        }
-    }
-}
-
-local hmiAddCommandRequestParams = {
-    {
-        cmdID = mobileAddCommandRequestParams[1].cmdID,
-        menuParams = {
-            parentID = mobileAddCommandRequestParams[1].menuParams.parentID,
-            menuName = mobileAddCommandRequestParams[1].menuParams.menuName
-        }
-    },
-    {
-        cmdID = mobileAddCommandRequestParams[2].cmdID,
-        menuParams = {
-            parentID = mobileAddCommandRequestParams[2].menuParams.parentID,
-            menuName = mobileAddCommandRequestParams[2].menuParams.menuName
-        }
-    }
-}
-
 local hmiDeleteSubMenuRequestParams = {
     {
         menuID = mobileAddSubMenuRequestParams[1].menuID
@@ -119,10 +85,10 @@ runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
 for i, _ in ipairs(mobileAddSubMenuRequestParams) do
-    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i], hmiAddSubMenuRequestParams[i], true })
+    runner.Step("Add additional submenu", common.addSubMenu, { mobileAddSubMenuRequestParams[i], true })
 end
 for i, _ in ipairs(mobileAddCommandRequestParams) do
-    runner.Step("Add Commands to nested submenus", common.addCommand, {  mobileAddCommandRequestParams[i], hmiAddCommandRequestParams[i]})
+    runner.Step("Add Commands to nested submenus", common.addCommand, {  mobileAddCommandRequestParams[i] })
 end
 runner.Step("Send DeleteSubMenu", common.DeleteSubMenu, {mobileDeleteSubMenuRequestParams, hmiDeleteCommandRequestParams, hmiDeleteSubMenuRequestParams})
 

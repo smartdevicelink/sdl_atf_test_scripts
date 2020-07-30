@@ -19,16 +19,20 @@ common.reqParams = {
     }
   }
 
-function common.addSubMenu(requestParams, hmiRequestParams, parentPresent)
+function common.addSubMenu(requestParams, parentPresent)
     if requestParams == nil then
         requestParams = common.reqParams.AddSubMenu.mob
     end
-    if hmiRequestParams == nil then
-        hmiRequestParams = common.reqParams.AddSubMenu.hmi
-    end
     if parentPresent == nil then
-        parentPresent = (requestParams.parentID != nil)
+        parentPresent = (requestParams.parentID ~= nil)
     end
+    local hmiRequestParams = {
+        menuID = requestParams.menuID, 
+        menuParams = {
+          position = requestParams.position,
+          menuName = requestParams.menuName
+        }
+     }
     local cid = common.getMobileSession():SendRPC("AddSubMenu", requestParams)
     common.getHMIConnection():ExpectRequest("UI.AddSubMenu", hmiRequestParams)
     :ValidIf(function(_, data)
@@ -48,13 +52,13 @@ function common.addSubMenu(requestParams, hmiRequestParams, parentPresent)
       end)
 end
 
-function common.addCommand(mobileParams, hmiParams)
+function common.addCommand(mobileParams)
+    local hmiRequestParams = mobileParams
     if requestParams == nil then
         requestParams = common.reqParams.AddCommand.mob
-    end
-    if hmiRequestParams == nil then
         hmiRequestParams = common.reqParams.AddCommand.hmi
     end
+
     local cid = common.getMobileSession():SendRPC("AddCommand", mobileParams)
     common.getHMIConnection():ExpectRequest("UI.AddCommand", hmiParams)
     :Do(function(_, data)

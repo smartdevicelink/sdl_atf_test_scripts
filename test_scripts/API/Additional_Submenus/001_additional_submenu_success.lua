@@ -23,14 +23,6 @@ local requestParams = {
     parentID = 1
 }
 
-local hmiRequestParams = {
-    menuID = requestParams.menuID, 
-    menuParams = { 
-        menuName = requestParams.menuName,
-        parentID = requestParams.parentID
-    }
-}
-
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -40,7 +32,7 @@ runner.Step("App registration", common.registerApp)
 runner.Title("Test")
 runner.Step("App activate, HMI SystemContext MAIN", common.activateApp)
 runner.Step("Add menu", common.addSubMenu)
-runner.Step("Add additional submenu", common.addSubMenu, {requestParams, hmiRequestParams, true})
+runner.Step("Add additional submenu", common.addSubMenu, {requestParams, true})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
