@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0266-New-vehicle-data-GearStatus.md
+-- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0256-Refactor-Fuel-Information-Related-Vehicle-Data.md
 --
 -- Description: SDL transfers OnVehicleData notification to app if HMI sends it with only one parameter
 --  in 'fuelRange' structure.
