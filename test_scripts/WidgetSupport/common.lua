@@ -228,10 +228,11 @@ function m.createWindow(pParams, pAppId)
     end)
   m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :Do(function()
-      local paramsToSDL = m.getOnSystemCapabilityParams()
+      local onSCUParams = m.getOnSCUParams({ pParams.windowID }, pParams.windowID)
+      local paramsToSDL = utils.cloneTable(onSCUParams)
       paramsToSDL.appID = m.getHMIAppId(pAppId)
       m.getHMIConnection():SendNotification("BasicCommunication.OnSystemCapabilityUpdated", paramsToSDL)
-      m.getMobileSession(pAppId):ExpectNotification("OnSystemCapabilityUpdated", m.getOnSystemCapabilityParams())
+      m.getMobileSession(pAppId):ExpectNotification("OnSystemCapabilityUpdated", onSCUParams)
     end)
   m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { hmiLevel = "NONE", windowID = params.windowID })
@@ -331,10 +332,11 @@ function m.sendShowToWindow(pWindowId, pAppId)
   m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :Do(function()
       if params.requestShowParams.templateConfiguration ~= nil then
-        local paramsToSDL = m.getOnSystemCapabilityParams()
+        local onSCUParams = m.getOnSCUParams({ pWindowId }, pWindowId)
+        local paramsToSDL = utils.cloneTable(onSCUParams)
         paramsToSDL.appID = m.getHMIAppId(pAppId)
         m.getHMIConnection():SendNotification("BasicCommunication.OnSystemCapabilityUpdated", paramsToSDL)
-        m.getMobileSession(pAppId):ExpectNotification("OnSystemCapabilityUpdated", m.getOnSystemCapabilityParams())
+        m.getMobileSession(pAppId):ExpectNotification("OnSystemCapabilityUpdated", onSCUParams)
       else
         m.getMobileSession(pAppId):ExpectNotification("OnSystemCapabilityUpdated")
         :Times(0)
@@ -639,8 +641,8 @@ function m.checkResumption_LIMITED(pWidgetParams, pAppId)
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnResumeAudioSource", { appID = m.getHMIAppId(pAppId) })
   m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { windowID = 0, hmiLevel = "NONE" },
-    { windowID = 0, hmiLevel = "LIMITED" },
-    { windowID = pWidgetParams.windowID, hmiLevel = "NONE" })
+    { windowID = pWidgetParams.windowID, hmiLevel = "NONE" },
+    { windowID = 0, hmiLevel = "LIMITED" })
   :Times(3)
   checkResumption(pWidgetParams, pAppId)
 end
@@ -658,8 +660,8 @@ function m.checkResumption_FULL(pWidgetParams, pAppId)
     end)
   m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { windowID = 0, hmiLevel = "NONE" },
-    { windowID = 0, hmiLevel = "FULL" },
-    { windowID = pWidgetParams.windowID, hmiLevel = "NONE" })
+    { windowID = pWidgetParams.windowID, hmiLevel = "NONE" },
+    { windowID = 0, hmiLevel = "FULL" })
   :Times(3)
   checkResumption(pWidgetParams, pAppId)
 end
