@@ -32,10 +32,6 @@ local addSubMenuHMI = {
     }
 }
 
-local onSystemContextParams = {
-    systemContext = "MENU"
-}
-
 local onUpdateSubMenu = {
     menuID = 50,
     updateSubCells = true

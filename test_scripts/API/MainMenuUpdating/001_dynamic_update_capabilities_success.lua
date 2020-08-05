@@ -11,7 +11,7 @@
 -- HMI sends DISPLAYS system capability update with Dynamic Update capabilities
 
 -- Expected:
--- Mobile receives capability update with corrent params.
+-- Mobile receives capability update with correct params.
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -22,21 +22,6 @@ local common = require('test_scripts/Smoke/commonSmoke')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local addSubMenuParams = {
-  menuLayout = "TILES",
-  menuID = 44991234,
-  menuName = "sickMenu"
-}
-
-local setGlobalPropertiesParams = {
-  menuLayout = "TILES"
-}
-
-local successResponse = {
-  success = true,
-  resultCode = "SUCCESS"
-}
-
 local onSystemCapabilityUpdatedParams = {
   systemCapability = {
     systemCapabilityType = "DISPLAYS",

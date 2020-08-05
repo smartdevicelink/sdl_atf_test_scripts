@@ -32,10 +32,6 @@ local addCommandParams = {
     }
 }
 
-local onSystemContextParams = {
-    systemContext = "MENU"
-}
-
 local onUpdateFileParams = {
     fileName = missingFile
 }
