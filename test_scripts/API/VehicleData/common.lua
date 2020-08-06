@@ -86,7 +86,8 @@ m.vd = {
   electronicParkBrakeStatus = "VEHICLEDATA_ELECTRONICPARKBRAKESTATUS",
   cloudAppVehicleID = "VEHICLEDATA_CLOUDAPPVEHICLEID",
   handsOffSteering = "VEHICLEDATA_HANDSOFFSTEERING",
-  stabilityControlsStatus = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+  stabilityControlsStatus = "VEHICLEDATA_STABILITYCONTROLSSTATUS",
+  gearStatus = "VEHICLEDATA_GEARSTATUS"
 }
 
 m.operator = {
