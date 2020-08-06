@@ -132,7 +132,8 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.instantFuelConsumption.value = 1000.1
     common.VehicleDataItemsWithData.instantFuelConsumption.APItype = "VEHICLEDATA_FUELCONSUMPTION"
     common.VehicleDataItemsWithData.fuelRange.value = {
-      { type = "GASOLINE" , range = 20 }, { type = "BATTERY", range = 100 }}
+      { type = "GASOLINE", range = 20, level = 5, levelState = "NORMAL", capacity = 1234, capacityUnit = "LITERS" },
+      { type = "BATTERY", range = 100, level = 8, levelState = "UNKNOWN", capacity = 2345, capacityUnit = "KILOWATTHOURS" }}
     common.VehicleDataItemsWithData.fuelRange.APItype = "VEHICLEDATA_FUELRANGE"
     common.VehicleDataItemsWithData.externalTemperature.value = 24.1
     common.VehicleDataItemsWithData.externalTemperature.APItype = "VEHICLEDATA_EXTERNTEMP"
@@ -142,8 +143,10 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.vin.APItype = "VEHICLEDATA_VIN"
     common.VehicleDataItemsWithData.prndl.value = "PARK"
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
-    common.VehicleDataItemsWithData.handsOffSteering.value = true
-    common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    if common.VehicleDataItemsWithData.handsOffSteering then
+      common.VehicleDataItemsWithData.handsOffSteering.value = true
+      common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
