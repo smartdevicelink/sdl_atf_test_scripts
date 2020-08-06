@@ -147,6 +147,11 @@ local function VehicleDataItemsWithDataTableCreation()
       common.VehicleDataItemsWithData.handsOffSteering.value = true
       common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
     end
+    if common.VehicleDataItemsWithData.stabilityControlsStatus then
+      common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
+        escSystem = "ON" , trailerSwayControl = "OFF" }
+      common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
