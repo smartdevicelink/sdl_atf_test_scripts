@@ -159,6 +159,13 @@ local function VehicleDataItemsWithDataTableCreation()
       gearStatusParams.transmissionType.value = "MANUAL"
       common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
     end
+    if common.VehicleDataItemsWithData.windowStatus then
+      common.VehicleDataItemsWithData.windowStatus.value = {
+      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+        state = { approximatePosition = 50, deviation = 50 }
+      }}
+    common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
+    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
@@ -768,7 +775,7 @@ function common.getVehicleDataResponse(pVehicleData)
   local parentVDname = common.VehicleDataItemsWithData[pVehicleData].name
   local HMIresponse = {}
   local mobileResponse = {}
-  if pVehicleData == "fuelRange" then
+  if pVehicleData == "fuelRange" or pVehicleData == "windowStatus" then
     HMIresponse[parentVDkey] = common.VehicleDataItemsWithData[pVehicleData].value
     mobileResponse[parentVDname] = common.VehicleDataItemsWithData[pVehicleData].value
   elseif

@@ -87,7 +87,8 @@ m.vd = {
   cloudAppVehicleID = "VEHICLEDATA_CLOUDAPPVEHICLEID",
   handsOffSteering = "VEHICLEDATA_HANDSOFFSTEERING",
   stabilityControlsStatus = "VEHICLEDATA_STABILITYCONTROLSSTATUS",
-  gearStatus = "VEHICLEDATA_GEARSTATUS"
+  gearStatus = "VEHICLEDATA_GEARSTATUS",
+  windowStatus = "VEHICLEDATA_WINDOWSTATUS"
 }
 
 m.operator = {
