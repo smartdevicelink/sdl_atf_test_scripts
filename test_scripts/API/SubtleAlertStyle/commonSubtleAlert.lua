@@ -22,12 +22,12 @@ function commonSubtleAlert.subtleAlert(pParams, prepareFunc, interruptTTS)
       return params.uiRequestParams.softbuttons == nil or data.params.duration == nil
     end)
   :Do(function(_, data)
-      sendOnSystemContext("ALERT")
+      commonSubtleAlert.sendOnSystemContext("ALERT")
       local function alertResponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
         subtleAlertActive = false
         if not ttsSpeakActive then
-          sendOnSystemContext("MAIN")
+          commonSubtleAlert.sendOnSystemContext("MAIN")
         end
       end
       common.runAfter(alertResponse, 3000)
@@ -45,7 +45,7 @@ function commonSubtleAlert.subtleAlert(pParams, prepareFunc, interruptTTS)
           common.getHMIConnection():SendNotification("TTS.Stopped")
           ttsSpeakActive = false
           if not subtleAlertActive then
-            sendOnSystemContext("MAIN")
+            commonSubtleAlert.sendOnSystemContext("MAIN")
           end
         end
         if interruptTTS then
@@ -94,10 +94,10 @@ function commonSubtleAlert.subtleAlertAbortedByVR(pParams, prepareFunc)
       return params.uiRequestParams.softbuttons == nil or data.params.duration == nil
     end)
   :Do(function(_, data)
-      sendOnSystemContext("ALERT")
+      commonSubtleAlert.sendOnSystemContext("ALERT")
       local function alertResponse()
         common.getHMIConnection():SendNotification("VR.Started")
-        sendOnSystemContext("VRSESSION")
+        commonSubtleAlert.sendOnSystemContext("VRSESSION")
 
         common.getHMIConnection():SendResponse(data.id, data.method, "ABORTED", { })
       end
