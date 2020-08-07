@@ -152,6 +152,13 @@ local function VehicleDataItemsWithDataTableCreation()
         escSystem = "ON" , trailerSwayControl = "OFF" }
       common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
     end
+    if common.VehicleDataItemsWithData.gearStatus then
+      local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
+      gearStatusParams.userSelectedGear.value = "NINTH"
+      gearStatusParams.actualGear.value = "TENTH"
+      gearStatusParams.transmissionType.value = "MANUAL"
+      common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
+    end
     if common.VehicleDataItemsWithData.windowStatus then
       common.VehicleDataItemsWithData.windowStatus.value = {
       { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
