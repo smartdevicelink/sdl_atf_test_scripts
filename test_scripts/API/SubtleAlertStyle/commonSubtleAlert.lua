@@ -2,9 +2,9 @@ local common = require('test_scripts/Smoke/commonSmoke')
 
 local commonSubtleAlert = common
 
-local function sendOnSystemContext(pCtx)
+local function sendOnSystemContext(pCtx, appID)
   common.getHMIConnection():SendNotification("UI.OnSystemContext", {
-    appID = common.getHMIAppId(),
+    appID = common.getHMIAppId(appID),
     systemContext = pCtx
   })
 end

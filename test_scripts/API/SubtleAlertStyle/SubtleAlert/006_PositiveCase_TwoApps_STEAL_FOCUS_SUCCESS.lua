@@ -122,13 +122,6 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function sendOnSystemContext(pCtx, appID)
-  common.getHMIConnection():SendNotification("UI.OnSystemContext", {
-    appID = common.getHMIAppId(appID),
-    systemContext = pCtx
-  })
-end
-
 local function prepareParams(pParams)
   local params = common.cloneTable(pParams)
   params.uiRequestParams.appID = common.getHMIAppId()
@@ -149,8 +142,8 @@ local function subtleAlertTwoApps(pParams)
 
   common.getHMIConnection():ExpectRequest("UI.SubtleAlert", params.uiRequestParams)
   :Do(function(_, data)
-      sendOnSystemContext("ALERT")
-      sendOnSystemContext("HMI_OBSCURED", 2)
+      common.sendOnSystemContext("ALERT")
+      common.sendOnSystemContext("HMI_OBSCURED", 2)
       local function alertResponseStealFocus()
         local buttonID = requestParams.softButtons[2].softButtonID
         common.getHMIConnection():SendNotification("Buttons.OnButtonEvent", { 
@@ -170,8 +163,8 @@ local function subtleAlertTwoApps(pParams)
         local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
         common.getHMIConnection():ExpectResponse(requestId)
 
-        sendOnSystemContext("MAIN")
-        sendOnSystemContext("MAIN", 2)
+        common.sendOnSystemContext("MAIN")
+        common.sendOnSystemContext("MAIN", 2)
       end
       common.runAfter(alertResponseStealFocus, 3000)
     end)
