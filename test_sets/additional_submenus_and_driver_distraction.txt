@@ -1,0 +1,7 @@
+./test_scripts/API/Additional_Submenus/001_additional_submenu_success.lua
+./test_scripts/API/Additional_Submenus/002_legacy_app_parentID_filtered.lua
+./test_scripts/API/Additional_Submenus/003_delete_nested_submenu_with_nested_submenu_and_commands.lua
+./test_scripts/API/Additional_Submenus/004_delete_top_level_submenu_with_nested_submenus_and_commands.lua
+./test_scripts/API/Additional_Submenus/005_duplicate_name_different_level_success.lua
+./test_scripts/API/Additional_Submenus/006_duplicate_name_same_level_fail.lua
+./test_scripts/API/DriverDistractionCapability/001_get_driver_distraction_capability.lua
