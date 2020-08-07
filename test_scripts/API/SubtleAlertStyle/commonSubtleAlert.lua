@@ -2,7 +2,7 @@ local common = require('test_scripts/Smoke/commonSmoke')
 
 local commonSubtleAlert = common
 
-local function sendOnSystemContext(pCtx, appID)
+function commonSubtleAlert.sendOnSystemContext(pCtx, appID)
   common.getHMIConnection():SendNotification("UI.OnSystemContext", {
     appID = common.getHMIAppId(appID),
     systemContext = pCtx
@@ -82,7 +82,6 @@ function commonSubtleAlert.subtleAlert(pParams, prepareFunc, interruptTTS)
 
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
-
 
 function commonSubtleAlert.subtleAlertAbortedByVR(pParams, prepareFunc)
   local params = prepareFunc(pParams)
