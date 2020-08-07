@@ -3,7 +3,7 @@
 --  1) app1 is registered on SDL
 --
 --  Steps:
---  1) app1 sends a sends an SubtleAlert RPC
+--  1) app1 sends a sends a SubtleAlert RPC
 --  2) app1 sends a CancelInteraction Request with the functionID of SubtleAlert
 --  3) the HMI receives the CancelInteraction Request and replies
 --
@@ -40,7 +40,7 @@ local rpcCancelInteraction = {
   name = "CancelInteraction",
   hmi_name = "UI.CancelInteraction",
   params = {
-    functionID = 64,
+    functionID = 64, -- SubtleAlert
     cancelID = 99
   }
 }
