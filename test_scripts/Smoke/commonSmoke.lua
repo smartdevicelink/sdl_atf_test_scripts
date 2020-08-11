@@ -63,7 +63,7 @@ end
 local isPreloadedUpdated = false
 
 function common.postconditions()
-  if SDL:CheckStatusSDL() == SDL.RUNNING then SDL:StopSDL() end
+  StopSDL()
   common.restoreSDLIniParameters()
   if isPreloadedUpdated == true then SDL.PreloadedPT.restore() end
 end
