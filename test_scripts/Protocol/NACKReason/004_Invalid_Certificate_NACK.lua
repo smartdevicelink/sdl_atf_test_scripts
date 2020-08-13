@@ -1,29 +1,34 @@
 ---------------------------------------------------------------------------------------------------
 --  Precondition:
---  1) Initialize the client side certifcate file for SDL
+--  1) Initialize the client side certifcate file for SDL using an expired certificate
 --  2) Start SDL, HMI, connect Mobile device
 --  3) Register App_1 and App_2 on SDL.
 --
 --  Steps:
---  1) Send StartService Request(with protocol version 5.3.0) to switch the RPC Service to Protected mode
+--  1) Trigger a PTU clearing the certifcate field in the module config
 --  SDL Does:
---    a) Send a StartService ACK message
---  2) Send a StartService Request to start a protected VIDEO service
+--    a) Clear the module_config.certificate field in the policy table
+--  2) Send StartService Request(with protocol version 5.3.0) from App 1 to switch the RPC Service to Protected mode
 --  SDL Does:
---    a) Send a StartService ACK message
---  3) Send another StartService Request to start a second protected VIDEO service
+--    a) Send a StartService NAK message with a reason parameter in the bson payload
+--  3) Trigger a PTU setting the certificate field in the module config to an expired certificate
 --  SDL Does:
---    a) Send a StartService NACK message with a reason parameter in the bson payload
---  4) Unregister and re-register App_1
---  5) Send StartService Request(with protocol version 5.2.0) to switch the RPC Service to Protected mode
+--    a) Set the module_config.certificate in the policy table
+--  4) Send StartService Request(with protocol version 5.3.0) from App 1 to switch the RPC Service to Protected mode
 --  SDL Does:
---    a) Send a StartService ACK message
---  6) Send a StartService Request to start a protected VIDEO service
+--    a) Send a StartService NAK message with a reason parameter in the bson payload
+--  5) Trigger a PTU clearing the certifcate field in the module config
 --  SDL Does:
---    a) Send a StartService ACK message
---  7) Send another StartService Request to start a second protected VIDEO service
+--    a) Clear the module_config.certificate field in the policy table
+--  6) Send StartService Request(with protocol version 5.2.0) from App 2 to switch the RPC Service to Protected mode
 --  SDL Does:
---    a) Send a StartService NACK message with an empty bson payload(no reason param)
+--    a) Send a StartService NAK message with an empty bson payload(no reason param)
+--  7) Trigger a PTU setting the certificate field in the module config to an expired certificate
+--  SDL Does:
+--    a) Set the module_config.certificate in the module config
+--  8) Send StartService Request(with protocol version 5.2.0) from App 2 to switch the RPC Service to Protected mode
+--  SDL Does:
+--    a) Send a StartService NAK message with an empty bson payload(no reason param)
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')

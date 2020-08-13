@@ -41,7 +41,6 @@ function common.startServiceProtectedACK(pAppId, pServiceId, pRequestPayload, pR
     })
     :ValidIf(function(_, data)
         local actPayload = bson.to_table(data.binaryData)
-        -- utils.printTable(actPayload)
         return compareValues(pResponsePayload, actPayload, "binaryData")
     end)
     
@@ -64,7 +63,6 @@ function common.startServiceUnprotectedACK(pAppId, pServiceId, pRequestPayload, 
     })
     :ValidIf(function(_, data)
         local actPayload = bson.to_table(data.binaryData)
-        utils.printTable(actPayload)
         return compareValues(pResponsePayload, actPayload, "binaryData")
     end)
 end
@@ -78,14 +76,12 @@ function common.startServiceProtectedNACK(pAppId, pServiceId, pRequestPayload, p
     })
     :ValidIf(function(_, data)
         local actPayload = bson.to_table(data.binaryData)
-        utils.printTable(actPayload)
         return compareValues(pResponsePayload, actPayload, "binaryData")
     end)
 end
 
 
 function common.startServiceUnprotectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload)
-    print('In the NAK one')
     local mobSession = common.getMobileSession(pAppId)
     mobSession:StartService(pServiceId, bson.to_bytes(pRequestPayload))
     mobSession:ExpectControlMessage(pServiceId, {
@@ -94,7 +90,6 @@ function common.startServiceUnprotectedNACK(pAppId, pServiceId, pRequestPayload,
     })
     :ValidIf(function(_, data)
         local actPayload = bson.to_table(data.binaryData)
-        utils.printTable(actPayload)
         return compareValues(pResponsePayload, actPayload, "binaryData")
     end)
 end
