@@ -409,9 +409,14 @@ function m.startSecureVideoService(pData, pTimes)
     end)
 end
 
-function m.startVideoStreaming(pAppId)
+function m.startVideoStreaming(pIsSecure, pAppId)
   if not pAppId then pAppId = 1 end
-  actions.getMobileSession(pAppId):StartStreaming(11, "files/SampleVideo_5mb.mp4")
+  local mobSession = actions.getMobileSession(pAppId)
+  local func = mobSession.StartStreaming
+  if pIsSecure == true then
+    func = mobSession.StartEncryptedStreaming
+  end
+  func(mobSession, 11, "files/SampleVideo_5mb.mp4")
   actions.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = true })
   utils.cprint(33, "Streaming...")
   utils.wait(1000)

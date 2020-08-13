@@ -48,6 +48,7 @@ local expected = 1
 local notExpected = 0
 local appSessionId = 1
 local anotherVSC = 2
+local isSecure = true
 
 local videoCapSupportedByApp = {
   appCapability = {
@@ -71,7 +72,7 @@ common.Step("App sends GetSystemCapability for VIDEO_STREAMING", common.getSyste
 common.Step("OnAppCapabilityUpdated with supported video capabilities", common.sendOnAppCapabilityUpdated,
   { videoCapSupportedByApp })
 common.Step("Start secure video service", common.startSecureVideoService, { common.getVscData(), expected })
-common.Step("Start video streaming", common.startVideoStreaming)
+common.Step("Start video streaming", common.startVideoStreaming, { isSecure })
 
 common.Title("Test")
 common.Step("OnSystemCapabilityUpdated with new video params", common.sendOnSystemCapabilityUpdated,
@@ -80,7 +81,7 @@ common.Step("Stop video streaming", common.stopVideoStreaming)
 common.Step("Stop video service", common.stopVideoService)
 common.Step("Start secure video service with new parameters", common.startSecureVideoService,
   { common.getVscData(anotherVSC), notExpected })
-common.Step("Start video streaming with new parameters", common.startVideoStreaming)
+common.Step("Start video streaming with new parameters", common.startVideoStreaming, { isSecure })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.securePostconditions)
