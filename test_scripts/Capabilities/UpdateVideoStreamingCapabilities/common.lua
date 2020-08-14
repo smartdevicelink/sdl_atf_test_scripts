@@ -316,8 +316,10 @@ function m.sendOnAppCapabilityUpdated(appCapability, pTimesOnHMI, pAppId)
       }
     }
   end
+  local appCapabilityHMI = m.cloneTable(appCapability)
+  appCapabilityHMI.appID = m.getHMIAppId(pAppId)
   actions.getMobileSession(pAppId):SendNotification("OnAppCapabilityUpdated", appCapability)
-  actions.getHMIConnection():ExpectNotification("BasicCommunication.OnAppCapabilityUpdated", appCapability)
+  actions.getHMIConnection():ExpectNotification("BasicCommunication.OnAppCapabilityUpdated", appCapabilityHMI)
   :Times(pTimesOnHMI)
 end
 
