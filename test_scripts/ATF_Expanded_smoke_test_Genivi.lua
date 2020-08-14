@@ -10770,7 +10770,7 @@ local blockId = 1
 		                            {
 		                                    {
 		                                     name = "mainField1",
-		                                     characterSet = "TYPE2SET",
+		                                     characterSet = "UTF_8",
 		                                     width = 500,
 		                                     rows = 1
 		                                    },
@@ -10862,7 +10862,7 @@ local blockId = 1
 		              {
 		                      {
 		                       name = "mainField1",
-		                       characterSet = "TYPE2SET",
+		                       characterSet = "UTF_8",
 		                       width = 500,
 		                       rows = 1
 		                      }
