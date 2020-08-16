@@ -3,13 +3,20 @@
 --
 -- Description:
 -- In case:
--- 1. Rpc_n for resumption is added by app
+-- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
+--  SubscribeWayPoints, CreateWindow (<Rpc_n>) are added by app
 -- 2. IGN_OFF and IGN_ON are performed
--- 3. App reregisters with actual HashId
--- 4. Rpc_n request is sent from SDL to HMI during resumption
--- 5. HMI sends invalid response to Rpc_n request
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application after default timeout
+--  - start resumption process
+--  - send set of <Rpc_n> requests to HMI
+-- 4. HMI sends invalid response to one request and <successful> for others
+-- SDL does:
+--  - ignore invalid response from HMI and process others
+--  - remove already restored data
+--  - send set of revert <Rpc_n> requests to HMI (except the one related to invalid response)
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--    when default timeout expires
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

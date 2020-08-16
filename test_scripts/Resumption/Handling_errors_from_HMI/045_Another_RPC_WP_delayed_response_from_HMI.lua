@@ -5,14 +5,16 @@
 -- In case:
 -- 1. App successfully added SubMenu and is subscribed to Way Points (WP)
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App re-register with actual HashId
--- 4. SDL starts resumption for App:
---    UI.AddSubMenu, Navi.SubscribeWayPoints requests are sent to HMI
--- 5. HMI responds with error for 'UI.AddSubMenu' request and after with success for 'Navi.SubscribeWayPoints'
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process responses from HMI
--- 2. remove already restored data
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process for App
+--  - send UI.AddSubMenu, Navi.SubscribeWayPoints requests to HMI
+-- 4. HMI responds with error for 'UI.AddSubMenu' request and after with success for 'Navi.SubscribeWayPoints'
+-- SDL does:
+--  - process responses from HMI
+--  - remove already restored data
+--  - send Navi.UnsubscribeWayPoints request to HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

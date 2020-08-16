@@ -3,19 +3,26 @@
 --
 -- Description:
 -- In case:
--- 1. Subscriptions for data_1, data_2 are added by app1
--- 2. Subscriptions for data_2 and data_3 are added by app2
+-- 1. Subscriptions for data_1, data_2 and data_3 are added by app1
+-- 2. Subscriptions for data_3 and data_4 are added by app2
 -- 3. Unexpected disconnect and reconnect are performed
--- 4. App1 and app2 reregister with actual HashId
--- 5. VehicleInfo.SubscribeVehicleData(data_2, data_3)requests for app2 is processed successful
--- 6. VehicleInfo.SubscribeVehicleData(data_1, data_2) related to app1 is sent from SDL to HMI during resumption
--- 7. HMI responds with error resultCode VehicleInfo.SubscribeVehicleData(data_1, data_2) request
--- 8. HMI responds with success to remaining requests
+-- 4. App1 and app2 re-register with actual HashId
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. remove already restored data from app1
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 4. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)to mobile application app2
+--  - start resumption process for both apps
+--  - send VI.SubscribeVehicleData(data_1, data_2, data_3) request related to app1 to HMI
+--  - not send VI.SubscribeVehicleData(data_3, data_4) request related to app2 to HMI
+-- 5. HMI responds with <erroneous> resultCode to VI.SubscribeVehicleData(data_1, data_2, data_3) request
+-- SDL does:
+--  - process response from HMI
+--  - not restore subscriptions for app1 (data_1, data_2, data_3)
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
+--  - not send VI.UnsubscribeVehicleData(data_1, data_2, data_3) request related to app1 to HMI
+--  - send VI.SubscribeVehicleData(data_3, data_4) request related to app2 to HMI
+-- 6. HMI responds with <successful> resultCode to VI.SubscribeVehicleData(data_3, data_4) request
+-- SDL does:
+--  - process response from HMI
+--  - restore subscriptions for app2 (data_3, data_4)
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)to mobile application app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -28,17 +35,17 @@ runner.testSettings.isSelfIncluded = false
 -- [[ Local Variables ]]
 local vehicleDataSpeed = {
   requestParams = { speed = true },
-  responseParams = { speed = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_SPEED"} }
+  responseParams = { speed = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_SPEED" } }
 }
 
 local vehicleDataRpm = {
   requestParams = { rpm = true },
-  responseParams = { rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM"} }
+  responseParams = { rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM" } }
 }
 
 local vehicleDatafuelRange = {
   requestParams = { fuelRange = true },
-  responseParams = { fuelRange = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_FUELRANGE"} }
+  responseParams = { fuelRange = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_FUELRANGE" } }
 }
 
 -- [[ Local Function ]]
@@ -52,12 +59,12 @@ local function checkResumptionData()
           common.log(data.method .. ": GENERIC_ERROR")
           common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "info message")
         end
-        RUN_AFTER(sendResponse, 300)
+        RUN_AFTER(sendResponse, 1000)
       else
         common.log(data.method .. ": SUCCESS")
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
-          gps = { dataType = "VEHICLEDATA_GPS" , resultCode = "SUCCESS" },
-          rpm = vehicleDataRpm.responseParams.rpm
+          gps = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_GPS" },
+          rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM" }
         })
       end
     end)

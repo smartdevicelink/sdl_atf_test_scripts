@@ -8,15 +8,18 @@
 -- 2. AddCommand_2, AddSubMenu_2, CreateInteractionChoiceSet_2, SetGlobalProperties_2, SubscribeButton_2,
 --  SubscribeVehicleData_2, SubscribeWayPoints_2, CreateWindow_2 are added by app2
 -- 3. Unexpected disconnect and reconnect are performed
--- 4. App1 and app2 reregister with actual HashId
--- 5. Rpc_n related to app1 is sent from SDL to HMI during resumption
--- 6. HMI does not respond to Rpc_n request
--- 7. HMI responds with success to remaining requests
+-- 4. App1 and app2 re-register with actual HashId
 -- SDL does:
--- 1. remove already restored data from app1 after default timeout
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 3. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
---  to mobile application app2
+--  - start resumption process for both apps
+--  - send set of <Rpc_n> requests to HMI
+-- 5. HMI does not respond to one request (related to app1) and responds <successful> for others
+-- SDL does:
+--  - process responses from HMI
+--  - remove already restored data for app1 when default timeout expires:
+--    - send set of revert <Rpc_n> requests related to app1 to HMI (except the one related to timed out response)
+--    - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
+--  - restore all data for app2
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

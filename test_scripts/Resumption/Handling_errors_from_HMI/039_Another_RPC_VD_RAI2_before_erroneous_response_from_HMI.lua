@@ -3,16 +3,19 @@
 --
 -- Description:
 -- In case:
--- 1. App1 is subscribed to <RPC1> and <RPC2>, App2 is subscribed to <RPC2>
--- 2. Unexpected disconnect and reconnect are performed
--- 3. App1 re-registers with actual HashId
--- 4. SDL starts resumption for App1:
---    <RPC1> and <RPC2> requests related to App1 are sent from SDL to HMI
+-- 1. <RPC1> related to resumption is added by App1
+-- 2. App1 and App2 are subscribed to <RPC2> (VehicleData or WayPoints)
+-- 3. Unexpected disconnect and reconnect are performed
+-- 4. App1 re-register with actual HashId
+-- SDL does:
+--  - start resumption process for App1 and App2
+--  - send <RPC1> and <RPC2> requests related to App1 to HMI
 -- 5. App2 re-registers with actual HashId
--- 6. HMI responds with error resultCode to <RPC1> and success to <RPC2>
--- 7. SDL doesn't send revert <RPC2> request to HMI
--- 8. SDL doesn't restore subscription to <RPC2> for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED)
--- 9. SDL restores subscription to <RPC2> for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
+-- 6. HMI responds with <erroneous> resultCode to <RPC1> and <successful> to <RPC2>
+-- SDL does:
+--  - not send revert <RPC2> request to HMI
+--  - not restore subscription to <RPC2> for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
+--  - restore subscription to <RPC2> for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

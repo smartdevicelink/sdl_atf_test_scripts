@@ -6,13 +6,15 @@
 -- 1. App successfully added SubMenu and is subscribed to Vehicle Data (VD)
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App re-register with actual HashId
--- 4. SDL starts resumption for App:
---    UI.AddSubMenu, VI.SubscribeVehicleData requests are sent to HMI
--- 5. HMI responds with error for 'UI.AddSubMenu' request and after with success for 'VI.SubscribeVehicleData'
 -- SDL does:
--- 1. process responses from HMI
--- 2. remove already restored data
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process for App
+--  - send UI.AddSubMenu, VI.SubscribeVehicleData requests to HMI
+-- 4. HMI responds with error for 'UI.AddSubMenu' request and after with success for 'VI.SubscribeVehicleData'
+-- SDL does:
+--  - process responses from HMI
+--  - remove already restored data
+--  - send VI.UnsubscribeVehicleData request to HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

@@ -5,14 +5,17 @@
 -- In case:
 -- 1. App successfully added 2 commands by using 'AddCommand' requests: Cmd1 and Cmd2
 -- 2. Unexpected disconnect/IGN_OFF and Reconnect/IGN_ON are performed
--- 3. App re-register with actual HashId
--- 4. SDL starts resumption for App:
---   UI.AddCommand, VR.AddCommand, UI.SetGlobalProperties, TTS.SetGlobalProperties requests are sent to HMI
--- 5. HMI responds with error for 'VR.AddCommand(Cmd2)' and with success for others
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process responses from HMI
--- 2. remove already restored data
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process for App
+--  - send UI.AddCommand, VR.AddCommand, UI.SetGlobalProperties, TTS.SetGlobalProperties requests to HMI
+-- 4. HMI responds with error for 'VR.AddCommand(Cmd2)' and with success for others
+-- SDL does:
+--  - process responses from HMI
+--  - remove already restored data
+--  - send UI.DeleteCommand(Cmd1, Cmd2), VR.DeleteCommand(Cmd1) requests to HMI
+--  - send UI.SetGlobalProperties(<default>), VR.SetGlobalProperties(<default>) requests to HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

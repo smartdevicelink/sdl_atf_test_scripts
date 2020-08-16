@@ -2,14 +2,17 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- In case:
 -- 1. AddSubMenu for resumption is added by app
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App reregisters with actual HashId
--- 4. UI.AddSubMenu request is sent from SDL to HMI during resumption
--- 5. HMI responds with error_n resultCode to UI.AddSubMenu request
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process
+--  - send UI.AddSubMenu request to HMI
+-- 4. HMI responds with <erroneous> resultCode to UI.AddSubMenu request
+-- SDL does:
+--  - process response from HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

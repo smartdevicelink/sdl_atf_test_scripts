@@ -3,15 +3,19 @@
 --
 -- Description:
 -- In case:
--- 1. Rpc_n for resumptions is added by app
--- 2. Unexpected disconnect and reconnect are performed
--- 3. App reregisters with actual HashId
--- 4. Rpc_n request is sent from SDL to HMI during resumption
--- 5. HMI responds with <successful> resultCode to Rpc_n request
+-- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
+--  SubscribeWayPoints, CreateWindow (<Rpc_n>) are added by app
+-- 2. Unexpected disconnect/IGN_OFF and Reconnect/IGN_ON are performed
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process response from HMI
--- 2. restore persistent data
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application
+--  - start resumption process
+--  - send set of <Rpc_n> requests to HMI
+-- 4. HMI responds with any <successful> resultCode to each <Rpc_n> request:
+--   "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "UNSUPPORTED_RESOURCE"
+-- SDL does:
+--  - process responses from HMI
+--  - restore all persistent data
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

@@ -3,16 +3,21 @@
 --
 -- Description:
 -- In case:
--- 1. App is in Limited HMI level
--- 2. Rpc_n for resumption is added by app
+-- 1. App is in LIMITED HMI level
+-- 2. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
+--  SubscribeWayPoints, CreateWindow (<Rpc_n>) are added by app
 -- 3. IGN_OFF and IGN_ON are performed
--- 4. App reregisters with actual HashId
--- 5. Rpc_n request is sent from SDL to HMI during resumption
--- 6. HMI responds with error resultCode to Rpc_n request
+-- 4. App re-registers with actual HashId
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
--- 3. restore Limited HMI level
+--  - start resumption process
+--  - send set of <Rpc_n> requests to HMI
+-- 5. HMI responds with <erroneous> resultCode to one request and <successful> for others
+-- SDL does:
+--  - process responses from HMI
+--  - remove already restored data
+--  - send set of revert <Rpc_n> requests to HMI (except the one related to <erroneous> response)
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - restore LIMITED HMI level
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

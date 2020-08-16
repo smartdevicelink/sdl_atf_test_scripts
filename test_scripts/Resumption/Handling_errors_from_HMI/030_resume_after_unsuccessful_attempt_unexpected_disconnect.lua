@@ -5,14 +5,20 @@
 -- In case:
 -- 1. AddSubMenu for resumption is added by app
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App reregisters with actual HashId
--- 4. AddSubMenu request is sent from SDL to HMI during resumption
--- 5. HMI responds with error resultCode to UI.AddSubMenu request
--- 6. SDL respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
--- 7. Unexpected disconnect and reconnect are performed
--- 8. App reregisters with actual HashId
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. SDL respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application and does not resume any persistent data
+--  - start resumption process
+--  - send UI.AddSubMenu request to HMI
+-- 4. HMI responds with error resultCode to UI.AddSubMenu request
+-- SDL does:
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+-- 5. Unexpected disconnect and reconnect are performed
+-- 6. App re-registers with actual HashId
+-- SDL does:
+--  - start resumption process
+--  - not send UI.AddSubMenu request to HMI
+--  - not restore persistent data
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

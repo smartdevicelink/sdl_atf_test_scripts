@@ -3,14 +3,17 @@
 --
 -- Description:
 -- In case:
--- 1. Rpc_n for resumption is added by app
+-- 1. <Rpc_n> related to resumption is added by app
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App reregisters with actual HashId
--- 4. Rpc_n request is sent from SDL to HMI during resumption
--- 5. HMI responds with error resultCode to Rpc_n request
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process
+--  - send <Rpc_n> request to HMI
+-- 4. HMI responds with <erroneous> resultCode request
+-- SDL does:
+--  - process response from HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - not send revert <Rpc_n> request to HMI
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

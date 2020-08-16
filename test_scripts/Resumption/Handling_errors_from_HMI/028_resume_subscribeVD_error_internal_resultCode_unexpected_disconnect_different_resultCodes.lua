@@ -5,12 +5,14 @@
 -- In case:
 -- 1. Subscription for data_1 for resumption is added by app
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App reregisters with actual HashId
--- 4. VehicleInfo.SubscribeVehicleData request is sent from SDL to HMI during resumption
--- 5. HMI responds with internal error_n resultCode to VehicleInfo.SubscribeVehicleData request
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process
+--  - send VI.SubscribeVehicleData request to HMI
+-- 4. HMI responds with internal <erroneous> resultCode to VI.SubscribeVehicleData request
+-- SDL does:
+--  - process response from HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

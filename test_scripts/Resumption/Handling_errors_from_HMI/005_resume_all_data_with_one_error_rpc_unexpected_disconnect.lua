@@ -4,15 +4,18 @@
 -- Description:
 -- In case:
 -- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
---  SubscribeWayPoints, CreateWindow are added by app
+--  SubscribeWayPoints, CreateWindow (<Rpc_n>) are added by app
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App reregisters with actual HashId
--- 4. Rpc_n request is sent from SDL to HMI during resumption
--- 5. HMI responds with error resultCode to Rpc_n request and responds with resultCode SUCCESS to another requests
+-- 3. App re-registers with actual HashId
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. remove already restored data
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - start resumption process
+--  - send set of <Rpc_n> requests to HMI
+-- 4. HMI responds with <erroneous> resultCode to one request and <successful> for others
+-- SDL does:
+--  - process responses from HMI
+--  - remove already restored data
+--  - send set of revert <Rpc_n> requests to HMI (except the one related to <erroneous> response)
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
