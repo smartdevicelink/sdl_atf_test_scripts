@@ -5,7 +5,7 @@
 -- In case:
 -- 1. App successfully added SubMenu and is subscribed to Vehicle Data (VD)
 -- 2. Unexpected disconnect and reconnect are performed
--- 3. App re-register with actual HashId
+-- 3. App re-registers with actual HashId
 -- SDL does:
 --  - start resumption process for App
 --  - send UI.AddSubMenu, VI.SubscribeVehicleData requests to HMI

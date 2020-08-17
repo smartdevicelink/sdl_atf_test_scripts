@@ -3,25 +3,25 @@
 --
 -- Description:
 -- In case:
--- 1. <RPC1> related to resumption is added by App1
--- 2. App1 and App2 are subscribed to <RPC2> (VehicleData or WayPoints)
+-- 1. AddSubMenu related to resumption is sent by App1
+-- 2. App1 and App2 are subscribed to WayPoints
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 re-register with actual HashId
 -- SDL does:
 --  - start resumption process for App1
---  - send <RPC1> and <RPC2> requests related to App1 to HMI
--- 5. HMI responds with <erroneous> resultCode to <RPC1> and <successful> to <RPC2>
+--  - send UI.AddSubMenu and Navi.SubscribeWayPoints requests related to App1 to HMI
+-- 5. HMI responds with <erroneous> resultCode to UI.AddSubMenu and <successful> to Navi.SubscribeWayPoints
 -- SDL does:
---  - not restore subscription to <RPC2> for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
---  - send revert <RPC2> request to HMI
+--  - not restore subscription to WP for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
+--  - send revert Navi.UnsubscribeWayPoints request to HMI
 -- 6. HMI responds with success to this request
 -- 7. App2 re-registers with actual HashId
 -- SDL does:
 --  - start resumption process for App2
---  - send <RPC2> request related to App2 to HMI
+--  - send Navi.SubscribeWayPoints request related to App2 to HMI
 -- 8. HMI responds with <successful> resultCode to this request
 -- SDL does:
---  - restore subscription to <RPC2> for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
+--  - restore subscription to WP for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

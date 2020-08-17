@@ -3,7 +3,7 @@
 --
 -- Description:
 -- In case:
--- 1. <Rpc_n> related to resumption is added by app
+-- 1. <Rpc_n> related to resumption is sent by app
 -- 2. IGN_OFF and IGN_ON are performed
 -- 3. App re-registers with actual HashId
 -- SDL does:

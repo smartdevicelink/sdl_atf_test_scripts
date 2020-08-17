@@ -3,7 +3,7 @@
 --
 -- Description:
 -- In case:
--- 1. AddSubMenu for resumption is added by app
+-- 1. AddSubMenu for resumption is sent by app
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App re-registers with actual HashId
 -- SDL does:

@@ -3,18 +3,18 @@
 --
 -- Description:
 -- In case:
--- 1. <RPC1> related to resumption is added by App1
--- 2. App1 and App2 are subscribed to <RPC2> (VehicleData or WayPoints)
+-- 1. AddSubMenu related to resumption is sent by App1
+-- 2. App1 and App2 are subscribed to the same Vehicle Data
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 and App2 re-register with actual HashId
 -- SDL does:
 --  - start resumption process for App1 and App2
---  - send <RPC1> and <RPC2> requests related to App1 to HMI
--- 5. HMI responds with <erroneous> resultCode to <RPC1> and <successful> to <RPC2>
+--  - send UI.AddSubMenu and VI.SubscribeVehicleData requests related to App1 to HMI
+-- 5. HMI responds with <erroneous> resultCode to UI.AddSubMenu and <successful> to VI.SubscribeVehicleData
 -- SDL does:
---  - not send revert <RPC2> request to HMI
---  - not restore subscription to <RPC2> for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
---  - restore subscription to <RPC2> for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
+--  - not send revert VI.UnsubscribeVehicleData request to HMI
+--  - not restore subscription to VD for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
+--  - restore subscription to VD for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

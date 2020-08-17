@@ -5,7 +5,7 @@
 -- In case:
 -- 1. App is in BACKGROUND HMI level
 -- 2. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
---  SubscribeWayPoints, CreateWindow (<Rpc_n>) are added by app
+--  SubscribeWayPoints, CreateWindow (<Rpc_n>) are sent by app
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App re-registers with actual HashId
 -- SDL does:

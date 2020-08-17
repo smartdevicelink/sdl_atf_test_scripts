@@ -3,8 +3,8 @@
 --
 -- Description:
 -- In case:
--- 1. Subscriptions for data_1 and data_2 are added by app1
--- 2. Subscriptions for data_2 and data_3 are added by app2
+-- 1. App1 is subscribed to data_1 and data_2
+-- 2. App2 is subscribed to data_2 and data_3
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 and app2 re-register with actual HashId
 -- SDL does:

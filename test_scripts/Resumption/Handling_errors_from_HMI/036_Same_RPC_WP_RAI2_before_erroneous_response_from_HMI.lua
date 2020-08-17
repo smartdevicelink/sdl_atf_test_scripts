@@ -3,18 +3,18 @@
 --
 -- Description:
 -- In case:
--- 1. App1 and App2 subscribed to <RPC> (VehicleData or WayPoints)
+-- 1. App1 and App2 subscribed to WayPoints
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App1 re-registers with actual HashId
 -- SDL does:
 --  - start resumption process for App1 and App2
---  - send <RPC> request related to App1 to HMI
+--  - send Navi.SubscribeWayPoints request related to App1 to HMI
 -- 4. App2 re-registers with actual HashId
 -- 5. HMI responds with <erroneous> resultCode
 -- SDL does:
---  - not send revert <RPC> request to HMI
---  - not restore subscription to <RPC> for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
---  - continues resumption for App2 and send <RPC> request related to App2 to HMI
+--  - not send revert Navi.UnsubscribeWayPoints request to HMI
+--  - not restore subscription for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
+--  - continues resumption for App2 and send Navi.SubscribeWayPoints request related to App2 to HMI
 -- 6. HMI responds with <successful> resultCode
 -- SDL does:
 --  - restore subscription for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2

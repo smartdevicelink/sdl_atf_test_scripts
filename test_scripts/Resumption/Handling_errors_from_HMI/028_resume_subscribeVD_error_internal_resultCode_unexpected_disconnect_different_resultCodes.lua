@@ -3,7 +3,7 @@
 --
 -- Description:
 -- In case:
--- 1. Subscription for data_1 for resumption is added by app
+-- 1. App is subscribed to Vehicle Data: data_1
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App re-registers with actual HashId
 -- SDL does:

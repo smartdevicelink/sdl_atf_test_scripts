@@ -3,7 +3,7 @@
 --
 -- Description:
 -- In case:
--- 1. AddSubMenu for resumption is added by app
+-- 1. AddSubMenu related to resumption is sent by app
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App re-registers with actual HashId
 -- SDL does:
@@ -12,8 +12,10 @@
 -- 4. HMI responds with error resultCode to UI.AddSubMenu request
 -- SDL does:
 --  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
--- 5. Unexpected disconnect and reconnect are performed
--- 6. App re-registers with actual HashId
+--  - generate new HashId
+-- 5. App does not send any new RPC related to resumption
+-- 6. Unexpected disconnect and reconnect are performed
+-- 7. App re-registers with new actual HashId
 -- SDL does:
 --  - start resumption process
 --  - not send UI.AddSubMenu request to HMI
