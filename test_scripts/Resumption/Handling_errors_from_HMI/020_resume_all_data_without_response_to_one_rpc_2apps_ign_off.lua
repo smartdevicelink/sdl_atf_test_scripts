@@ -65,7 +65,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Title("Test")
 for k, value in pairs(rpcs) do
   for _, interface in pairs(value) do
-    runner.Title("Rpc " .. k .. " error resultCode to interface " .. interface)
+    runner.Title("Rpc " .. k .. " missing response to interface " .. interface)
     runner.Step("Register app1", common.registerAppWOPTU)
     runner.Step("Register app2", common.registerAppWOPTU, { 2 })
     runner.Step("Activate app1", common.activateApp)
