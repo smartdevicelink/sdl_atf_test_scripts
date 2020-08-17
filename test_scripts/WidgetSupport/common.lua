@@ -99,7 +99,7 @@ function m.getOnSystemCapabilityParams(pMaxNumOfWidgetWindows)
               textFields = {
                 {
                   name = "mainField1",
-                  characterSet = "TYPE2SET",
+                  characterSet = "UTF_8",
                   width = 1,
                   rows = 1
                 }

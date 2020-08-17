@@ -2616,193 +2616,193 @@ local function displayCap_textFields_Value()
 	local textFields =
 	{
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField3",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField4",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "statusBar",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mediaClock",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mediaTrack",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText3",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "scrollableMessageBody",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "initialInteractionText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "ETA",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "totalDistance",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText",  --Error
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "sliderHeader",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "sliderFooter",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "notificationText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "menuName",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "secondaryText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "tertiaryText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "timeToDestination",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "turnText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "menuTitle",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "locationName",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "locationDescription",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "addressLines",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "phoneNumber",
 			rows = 1,
 			width = 500
