@@ -8,7 +8,7 @@
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 re-register with actual HashId
 -- SDL does:
---  - start resumption process for App1 and App2
+--  - start resumption process for App1
 --  - send UI.AddSubMenu and Navi.SubscribeWayPoints requests related to App1 to HMI
 -- 5. App2 re-registers with actual HashId
 -- 6. HMI responds with <erroneous> resultCode to UI.AddSubMenu and <successful> to Navi.SubscribeWayPoints

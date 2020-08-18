@@ -7,7 +7,7 @@
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App1 re-registers with actual HashId
 -- SDL does:
---  - start resumption process for App1 and App2
+--  - start resumption process for App1
 --  - send VI.SubscribeVehicleData request related to App1 to HMI
 -- 4. App2 re-registers with actual HashId
 -- 5. HMI responds with <erroneous> resultCode
