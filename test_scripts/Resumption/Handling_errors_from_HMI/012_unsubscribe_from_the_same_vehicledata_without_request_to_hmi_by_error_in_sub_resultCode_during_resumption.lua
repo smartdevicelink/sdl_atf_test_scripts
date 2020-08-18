@@ -69,7 +69,6 @@ local function checkResumptionData()
       else
         common.log(data.method .. ": SUCCESS")
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
-          gps = { dataType = "VEHICLEDATA_GPS" , resultCode = "SUCCESS" },
           rpm = vehicleDataRpm.responseParams.rpm
         })
       end
