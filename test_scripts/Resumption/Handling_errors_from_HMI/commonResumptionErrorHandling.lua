@@ -1083,9 +1083,25 @@ end
 
 --[[ @unexpectedDisconnect: Unexpected disconnect sequence
 --! @parameters:
+--! pExpGIVD - count of expected RC.GetInteriorVehicleData requests from SDL to HMI
 --! @return: none
 --]]
-function m.unexpectedDisconnect()
+function m.unexpectedDisconnect(pExpGIVD)
+  if not pExpGIVD then
+    pExpGIVD = 0
+    if m.resumptionData[1].getInteriorVehicleData then pExpGIVD = 1 end
+  end
+
+  m.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData")
+  :Do(function(_, data)
+      local resParams = {
+        moduleData = m.getActualModuleIVData(data.params.moduleType, data.params.moduleId),
+        isSubscribed = false
+      }
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", resParams)
+    end)
+  :Times(pExpGIVD)
+
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
   :Times(actions.mobile.getAppsCount())
   actions.mobile.disconnect()

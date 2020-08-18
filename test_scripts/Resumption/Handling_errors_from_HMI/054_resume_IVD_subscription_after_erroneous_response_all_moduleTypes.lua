@@ -77,7 +77,7 @@ for _, moduleType in pairs(common.rcModuleTypes) do
   runner.Step("Add getInteriorVehicleData subscription for " .. moduleType, common.getInteriorVehicleData,
     { 1, false, moduleType })
 end
-runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
+runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { #common.rcModuleTypes })
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel })

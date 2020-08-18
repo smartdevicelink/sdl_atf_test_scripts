@@ -87,7 +87,7 @@ runner.Step("App2 getInteriorVehicleData subscription for CLIMATE " .. moduleIds
   common.getInteriorVehicleData, { 2, false, "CLIMATE", moduleIdsForClimate[2] })
 runner.Step("App2 getInteriorVehicleData subscription for SEAT", common.getInteriorVehicleData,
   { 2, false, "SEAT" })
-runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
+runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { 4 })
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
 runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
