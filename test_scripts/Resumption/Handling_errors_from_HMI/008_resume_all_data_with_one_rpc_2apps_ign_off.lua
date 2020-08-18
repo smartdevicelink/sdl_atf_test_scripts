@@ -58,8 +58,8 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-for k, value in pairs(rpcs) do
-  for _, interface in pairs(value) do
+for k, value in common.pairs(rpcs) do
+  for _, interface in common.pairs(value) do
     runner.Title("Rpc " .. k .. " error resultCode to interface " .. interface)
     runner.Step("Register app1", common.registerAppWOPTU)
     runner.Step("Register app2", common.registerAppWOPTU, { 2 })

@@ -37,7 +37,7 @@ local function setResponseCode(pCode)
 end
 
 --[[ Scenario ]]
-for _, code in pairs(successCodes) do
+for _, code in common.pairs(successCodes) do
   runner.Title("Case: HMI response: " .. code)
   runner.Step("Set code for HMI response", setResponseCode, { code })
 

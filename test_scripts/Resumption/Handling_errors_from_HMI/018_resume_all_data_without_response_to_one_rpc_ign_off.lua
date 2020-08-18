@@ -36,8 +36,8 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-for k, value in pairs(common.rpcs) do
-  for _, interface in pairs(value) do
+for k, value in common.pairs(common.rpcs) do
+  for _, interface in common.pairs(value) do
     runner.Title("Rpc " .. k .. " missing response to interface " .. interface)
     runner.Step("Register app", common.registerAppWOPTU)
     runner.Step("Activate app", common.activateApp)

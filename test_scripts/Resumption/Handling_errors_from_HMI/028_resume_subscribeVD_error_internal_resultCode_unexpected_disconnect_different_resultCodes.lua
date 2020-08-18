@@ -67,7 +67,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
-for _, code in pairs(resultCodes) do
+for _, code in common.pairs(resultCodes) do
   runner.Step("Register app", common.registerAppWOPTU)
   runner.Step("Activate app", common.activateApp)
   runner.Step("Add subscribeVehicleData gps", common.subscribeVehicleData)

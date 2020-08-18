@@ -32,6 +32,7 @@ m.cloneTable = utils.cloneTable
 m.wait = utils.wait
 m.tableToString = utils.tableToString
 m.connectMobile = actions.mobile.connect
+m.pairs = utils.spairs
 
 m.hashId = {}
 m.resumptionData = {
