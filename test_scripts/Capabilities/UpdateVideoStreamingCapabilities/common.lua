@@ -200,27 +200,8 @@ end
 function m.getSystemCapabilityExtended(pAppId, pVsc)
   pAppId = pAppId or 1
   pVsc = pVsc or m.buildVideoStreamingCapabilities()
-  local requestParams = {
-    systemCapabilityType = "VIDEO_STREAMING"
-  }
-  local responseParams = {
-    success = true,
-    resultCode = "SUCCESS",
-    systemCapability = {
-      systemCapabilityType = "VIDEO_STREAMING",
-      videoStreamingCapability = pVsc
-    }
-  }
-  local corId = m.getMobileSession(pAppId):SendRPC("GetSystemCapability", requestParams)
   m.getHMIConnection():ExpectRequest("UI.GetCapabilities"):Times(0)
-  m.getMobileSession(pAppId):ExpectResponse(corId, responseParams)
-  :ValidIf(function(_, data)
-    if not m.isTableEqual(responseParams, data.payload) then
-      return false, "Parameters of the response are incorrect: \nExpected: " .. m.toString(responseParams)
-      .. "\nActual: " .. m.toString(data.payload)
-    end
-    return true
-  end)
+  m.getSystemCapability(nil, pAppId, pVsc)
 end
 
 function m.sendOnSystemCapabilityUpdated(pAppId, pTimes, pParams)
