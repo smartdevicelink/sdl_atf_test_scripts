@@ -27,7 +27,7 @@ runner.testSettings.isSelfIncluded = false
 --[[ Common Functions ]]
 function common.sendResponse(pData, pErrorRespInterface, pCurrentInterface)
   local function response()
-    common.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", {})
+    common.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", common.getSuccessHMIResponseData(pData))
   end
   if pErrorRespInterface ~= nil and pErrorRespInterface == pCurrentInterface then
     common.run.runAfter(response, 11000)

@@ -32,7 +32,7 @@ local successCodes = {
 -- [[ Local Function ]]
 local function setResponseCode(pCode)
   function common.sendResponse(pData)
-    common.getHMIConnection():SendResponse(pData.id, pData.method, pCode, {})
+    common.getHMIConnection():SendResponse(pData.id, pData.method, pCode, common.getSuccessHMIResponseData(pData))
   end
 end
 
