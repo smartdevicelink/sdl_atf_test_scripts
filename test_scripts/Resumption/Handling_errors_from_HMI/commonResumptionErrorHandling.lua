@@ -1241,12 +1241,17 @@ end
 function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
   local uiSetGPtimes = 3
   local ttsSetGPtimes = 3
+  local rcGIVDtimes = 3
+
   if pErrorRpc == "setGlobalProperties" then
     if pErrorInterface == "UI" then
       uiSetGPtimes = 2
     else
       ttsSetGPtimes = 2
     end
+  end
+  if pErrorRpc == "getInteriorVehicleData" then
+    rcGIVDtimes = 2
   end
 
   local revertRpcToUpdate = m.cloneTable(m.removeData)
@@ -1319,7 +1324,7 @@ function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
   :Do(function(_, data)
       m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
     end)
-  :Times(2)
+  :Times(rcGIVDtimes)
 end
 
 --[[ @errorResponse: sending error response
@@ -1347,6 +1352,8 @@ end
 function m.sendResponse2Apps(pData, pErrorRpc, pErrorInterface)
   local isErrorResponse = isResponseErroneous(pData, pErrorRpc, pErrorInterface)
   if pData.method == "VehicleInfo.SubscribeVehicleData" and pErrorRpc == "subscribeVehicleData" and pData.params.gps then
+    m.errorResponse(pData, 300)
+  elseif pData.method == "RC.GetInteriorVehicleData" and pErrorRpc == "getInteriorVehicleData" and pData.params.moduleType == "RADIO" then
     m.errorResponse(pData, 300)
   elseif pData.params.appID == m.getHMIAppId(1) and isErrorResponse == true then
     m.errorResponse(pData, 300)
@@ -1746,12 +1753,12 @@ function m.reRegisterAppsCustom_AnotherRPC(pTimeToRegApp2, pRPC)
       end
       return true
     end)
-    :ValidIf(function(exp, data)
+  :ValidIf(function(exp, data)
       if revert_rpc == rpc then
-        if isRevertRpc(data) and exp.occurences ~= 3 then
+        if isRevertRpc(data) and exp.occurences == 1 then
           return false, "Revert RPC on HMI for " .. rpc .. " RPC is received earlier than expected"
-        elseif not isRevertRpc(data) and exp.occurences == 3 then
-          return false, "Revert RPC on HMI for " .. rpc .. " RPC is not received"
+        elseif isRevertRpc(data) and exp.occurences == 3 then
+          return false, "Revert RPC on HMI for " .. rpc .. " RPC is received later than expected"
         end
       end
       return true

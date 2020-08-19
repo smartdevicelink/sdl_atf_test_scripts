@@ -73,7 +73,7 @@ for k, value in common.pairs(rpcs) do
       runner.Step("Add for app2 " .. rpc, common[rpc], { 2 })
     end
     runner.Step("Add for app2 subscribeVehicleData", common.subscribeVehicleData, { 2, VehicleDataForApp2 })
-    runner.Step("Add for app2 getInteriorVehicleData", common.getInteriorVehicleData, { 2, true })
+    runner.Step("Add for app2 getInteriorVehicleData", common.getInteriorVehicleData, { 2, false, "CLIMATE" })
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)

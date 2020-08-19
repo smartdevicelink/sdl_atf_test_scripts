@@ -73,8 +73,8 @@ for k, value in common.pairs(rpcs) do
       runner.Step("Add for app2 " .. rpc, common[rpc], { 2 })
     end
     runner.Step("Add for app2 subscribeVehicleData", common.subscribeVehicleData, { 2, VehicleDataForApp2 })
-    runner.Step("Add for app2 getInteriorVehicleData", common.getInteriorVehicleData, { 2, true })
-    runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
+    runner.Step("Add for app2 getInteriorVehicleData", common.getInteriorVehicleData, { 2, false, "CLIMATE" })
+    runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { 2 })
     runner.Step("Connect mobile", common.connectMobile)
     runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
     runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
