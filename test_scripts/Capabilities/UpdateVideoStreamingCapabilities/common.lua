@@ -19,6 +19,8 @@ runner.testSettings.isSelfIncluded = false
 config.defaultProtocolVersion = 5
 config.ValidateSchema = false
 constants.FRAME_SIZE.P5 = 131084
+config.application1.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
+config.application2.registerAppInterfaceParams.appHMIType = { "PROJECTION" }
 
 --[[ Shared Functions ]]
 local m = {}
@@ -40,9 +42,10 @@ m.setPreloadedPT = actions.sdl.setPreloadedPT
 m.spairs = utils.spairs
 m.policyTableUpdate = actions.policyTableUpdate
 m.registerApp = actions.registerApp
+m.getDefaultHMITable = hmi_values.getDefaultHMITable
 
 --[[ Common Variables ]]
-local hmiDefaultCapabilities = hmi_values.getDefaultHMITable()
+local hmiDefaultCapabilities = m.getDefaultHMITable()
 
 local bsonType = {
   DOUBLE   = 0x01,

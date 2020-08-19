@@ -1,7 +1,8 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0296-Update-video-streaming-capabilities-during-ignition-cycle.md
 --
--- Description:  SDL successfully transfers received from HMI on startup videoStreamingCapabilities
---  to the application after updates of them for other application
+-- Description: SDL sends GetSystemCapability response with videoStreamingCapabilities received from HMI on startup
+--  to the application after updates of video streaming capabilities for another application
+--  via OnSystemCapabilityUpdated notification
 --
 -- Preconditions:
 -- 1. SDL and HMI are started

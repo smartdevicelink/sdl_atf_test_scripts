@@ -12,7 +12,7 @@
 --  parameter
 -- SDL does:
 -- - a. apply the videoStreamingCapability with only additionalVideoStreamingCapabilities parameter internally
--- 3. App registers with 5 transport protocol
+-- 3. App registers with 5 protocol version
 -- 4. App requests GetSystemCapability(VIDEO_STREAMING)
 -- SDL does:
 -- - a. send GetSystemCapability response with videoStreamingCapability that contains

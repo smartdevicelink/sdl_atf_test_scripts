@@ -17,7 +17,7 @@
 -- 2. It is restarted ignition cycle
 -- SDL does:
 -- - a. not requests UI.GetCapabilities()
--- 3. App registers with 5 transport protocol
+-- 3. App registers with 5 protocol version
 -- 4. App requests GetSystemCapability(VIDEO_STREAMING)
 -- SDL does:
 -- - a. send GetSystemCapability response with videoStreamingCapability that contains
