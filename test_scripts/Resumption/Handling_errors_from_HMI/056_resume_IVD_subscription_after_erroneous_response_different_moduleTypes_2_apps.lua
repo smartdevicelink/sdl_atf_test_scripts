@@ -49,7 +49,7 @@ local function checkResumptionData()
         end
         common.run.runAfter(sendResponse, 1000)
       else
-        common.log("Sent " .. data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType
+        common.log("Sent " .. data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType)
         local resParams = { }
         resParams.moduleData = common.getActualModuleIVData(data.params.moduleType, data.params.moduleId)
         resParams.isSubscribed = data.params.subscribe
