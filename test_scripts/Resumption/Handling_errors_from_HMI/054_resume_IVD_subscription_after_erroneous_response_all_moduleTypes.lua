@@ -38,7 +38,8 @@ local function checkResumptionData()
                                                        -- with erroneous response
   common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData")
   :Do(function(exp, data)
-      common.log(data.method .. ", moduleType: " .. data.params.moduleType)
+      common.log("Received " .. data.method .. ", moduleType: " .. data.params.moduleType .. ", subscribe: " ..
+        tostring(data.params.subscribe))
       if exp.occurences == #common.rcModuleTypes then
         for k = #expectedData, 1, -1 do
           if expectedData[k].moduleType == data.params.moduleType and expectedData[k].subscribe == false then
@@ -46,12 +47,14 @@ local function checkResumptionData()
           end
         end
         local function sendResponse()
-          common.log(data.method .. ": GENERIC_ERROR, moduleType: " .. data.params.moduleType)
+          common.log("Sent " .. data.method .. ": GENERIC_ERROR, moduleType: " .. data.params.moduleType ..
+            ", subscribe: " .. tostring(data.params.subscribe))
           common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "info message")
         end
         common.run.runAfter(sendResponse, 300)
       else
-        common.log(data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType)
+        common.log("Sent " .. data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType .. ", subscribe: " ..
+          tostring(data.params.subscribe))
         local resParams = { }
         resParams.moduleData = common.getActualModuleIVData(data.params.moduleType, data.params.moduleId)
         resParams.isSubscribed = data.params.subscribe
@@ -82,7 +85,7 @@ runner.Step("Connect mobile", common.connectMobile)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel })
 for _, moduleType in pairs(common.rcModuleTypes) do
-  runner.Step("Check subscriptions for getInteriorVehicleData ".. moduleType, common.isSubscribed,
+  runner.Step("Check no subscriptions for getInteriorVehicleData ".. moduleType, common.isSubscribed,
     { false, nil, moduleType })
 end
 

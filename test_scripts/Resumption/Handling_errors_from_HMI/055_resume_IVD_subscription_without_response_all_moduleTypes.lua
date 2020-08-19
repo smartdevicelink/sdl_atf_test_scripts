@@ -37,17 +37,20 @@ local function checkResumptionData()
                                                        -- with erroneous response
   common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData")
   :Do(function(exp, data)
-      common.log(data.method .. ", moduleType: " .. data.params.moduleType)
+      common.log("Received " .. data.method .. ", moduleType: " .. data.params.moduleType .. ", subscribe: " ..
+        tostring(data.params.subscribe))
       if exp.occurences == #common.rcModuleTypes then
         for k, value in pairs(expectedData) do
           if common.isTableEqual(value, common.geInteriorVDvalue(data.params.moduleType, false)) then
             table.remove(expectedData, k)
           end
         end
-        common.log(data.method .. ": no response, moduleType: " .. data.params.moduleType)
+        common.log(data.method .. ": no response, moduleType: " .. data.params.moduleType .. ", subscribe: " ..
+          tostring(data.params.subscribe))
         -- HMI does not respond
       else
-        common.log(data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType)
+        common.log("Sent " .. data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType .. ", subscribe: " ..
+          tostring(data.params.subscribe))
         local resParams = { }
         resParams.moduleData = common.getActualModuleIVData(data.params.moduleType, data.params.moduleId)
         resParams.isSubscribed = data.params.subscribe
@@ -80,7 +83,7 @@ runner.Step("Connect mobile", common.connectMobile)
 runner.Step("Reregister App resumption data", common.reRegisterApp,
   { 1, checkResumptionData, common.resumptionFullHMILevel, nil, nil, 15000 })
 for _, moduleType in pairs(common.rcModuleTypes) do
-  runner.Step("Check subscriptions for getInteriorVehicleData ".. moduleType, common.isSubscribed,
+  runner.Step("Check no subscriptions for getInteriorVehicleData ".. moduleType, common.isSubscribed,
     { false, nil, moduleType })
 end
 
