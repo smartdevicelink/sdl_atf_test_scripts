@@ -30,6 +30,8 @@ local runner = require('user_modules/script_runner')
 local utils = require("user_modules/utils")
 if not utils.isFileExist("lib/bson4lua.so") then
   runner.skipTest("'bson4lua' library is not available in ATF")
+  runner.Step("Skipping test")
+  return
 end
 
 local common = require("test_scripts/Protocol/commonProtocol")
