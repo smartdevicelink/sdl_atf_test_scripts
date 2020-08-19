@@ -47,11 +47,11 @@ local function reRegisterAppsCustom_AnotherRPC()
     { moduleType = common.defaultModuleType, subscribe = true, moduleId = moduleIdValue },
     { moduleType = common.defaultModuleType, subscribe = false, moduleId = moduleIdValue })
   :Do(function(exp, data)
-      common.log(data.method)
+      common.log("Received " .. data.method .. ", subscribe: " .. tostring(data.params.subscribe))
       local timeToSend = 0
       if exp.occurences == 1 then timeToSend = 1000 end
       common.run.runAfter(function()
-        common.log(data.method .. ": SUCCESS")
+        common.log("Sent " .. data.method .. ": SUCCESS")
         local responseHMI = {}
         responseHMI.moduleData = common.getActualModuleIVData(common.defaultModuleType, moduleIdValue)
         responseHMI.isSubscribed = data.params.subscribe
@@ -79,7 +79,7 @@ runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
 runner.Step("Reregister Apps resumption", reRegisterAppsCustom_AnotherRPC)
-runner.Step("Check subscriptions for getInteriorVehicleData", common.isSubscribed, { false })
+runner.Step("Check no subscriptions for getInteriorVehicleData", common.isSubscribed, { false })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

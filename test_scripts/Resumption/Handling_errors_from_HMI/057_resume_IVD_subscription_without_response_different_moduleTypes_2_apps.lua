@@ -40,12 +40,13 @@ local function checkResumptionData()
 
   common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData")
   :Do(function(_, data)
-      common.log(data.method .. ", moduleType: " .. data.params.moduleType)
+      common.log("Received " .. data.method .. ", moduleType: " .. data.params.moduleType .. ", subscribe: " ..
+        tostring(data.params.subscribe))
       if data.params.moduleType == "RADIO" then
         common.log(data.method .. ": no response, moduleType: RADIO")
         -- HMI does not respond
       else
-        common.log(data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType)
+        common.log("Sent " .. data.method .. ": SUCCESS, moduleType: " .. data.params.moduleType)
         local resParams = { }
         resParams.moduleData = common.getActualModuleIVData(data.params.moduleType, data.params.moduleId)
         resParams.isSubscribed = data.params.subscribe
@@ -84,7 +85,7 @@ runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
 runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
 runner.Step("Reregister Apps resumption", common.reRegisterApps, { checkResumptionData, nil, nil, 15000 })
 runner.Step("Check subscriptions for getInteriorVehicleData CLIMATE", common.isSubscribed, { false, true, "CLIMATE" })
-runner.Step("Check subscriptions for getInteriorVehicleData RADIO", common.isSubscribed, { false, false, "RADIO" })
+runner.Step("Check no subscriptions for getInteriorVehicleData RADIO", common.isSubscribed, { false, false, "RADIO" })
 runner.Step("Check subscriptions for getInteriorVehicleData SEAT", common.isSubscribed, { false, true, "SEAT" })
 
 runner.Title("Postconditions")
