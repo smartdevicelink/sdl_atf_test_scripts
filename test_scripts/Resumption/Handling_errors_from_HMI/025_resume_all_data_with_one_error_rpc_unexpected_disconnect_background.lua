@@ -27,7 +27,7 @@ local common = require('test_scripts/Resumption/Handling_errors_from_HMI/commonR
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.isMediaApplication = false
-config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
+config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT", "REMOTE_CONTROL" }
 
 --[[ Common Functions ]]
 local function absenceResumptionToBackground()
