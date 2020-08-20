@@ -126,7 +126,7 @@ function m.getSuccessHMIResponseData(pData)
       out[param] = { resultCode = "SUCCESS", dataType = dataTypes[param] }
     end
   elseif pData.method == "RC.GetInteriorVehicleData" then
-    out.moduleData = m.getActualModuleIVData(m.defaultModuleType, m.getModuleControlData(m.defaultModuleType, 1).moduleId)
+    out.moduleData = m.getActualModuleIVData(pData.params.moduleType, pData.params.moduleId)
     out.isSubscribed = pData.params.subscribe
   end
   return out
