@@ -7,16 +7,20 @@
 -- Precondition:
 -- 1. HMI and SDL are started
 -- 2. Mobile app1 and app2 with REMOTE_CONTROL hmi type are registered and activated
--- 3. App1 is subscribed to module_1
--- 4. App2 is subscribed to module_2
+-- 3. App1 is subscribed to moduleType_1
+-- 4. App2 is subscribed to moduleType_2
 --
 -- Sequence:
 -- 1. Transport disconnect and reconnect are performed
 -- 2. Apps start registration with actual hashIds after unexpected disconnect
 -- SDL does:
--- - a. send RC.GetInteriorVehicleData(module_1) and RC.GetInteriorVehicleData(module_2) to HMI during resumption data
--- - b. respond RAI(SUCCESS) to both mobile apps
--- - c. update hashId after successful resumption
+-- - a. send RC.GetInteriorVehicleData(moduleType_1) and RC.GetInteriorVehicleData(moduleType_2) to HMI
+--    during resumption data
+-- 3. HMI sends successful RC.GetInteriorVehicleData(moduleType_1, isSubscribed = true) and
+--  RC.GetInteriorVehicleData(moduleType_2, isSubscribed = true) responses to SDL
+-- SDL does:
+-- - a. respond RAI(success=true, result code = SUCCESS) to both mobile apps
+-- - b. update hashId after successful resumption
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')

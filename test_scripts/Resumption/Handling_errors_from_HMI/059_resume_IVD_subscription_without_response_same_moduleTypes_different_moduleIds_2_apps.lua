@@ -4,25 +4,28 @@
 --
 -- Description:
 -- In case:
--- 1. Subscriptions for moduleType_1 and moduleType_2, moduleId_1 are added by app1
--- 2. Subscriptions for moduleType_2, moduleId_2 and moduleType_3 are added by app2
+-- 1. Subscriptions for [moduleType_1, moduleId_n] and [moduleType_2, moduleId_1] are added by app1
+-- 2. Subscriptions for [moduleType_2, moduleId_2] and [moduleType_3, moduleId_m] are added by app2
 -- 3. Unexpected disconnect and reconnect are performed
--- 4. App1 and app2 reregister with actual HashId
--- 5. RC.GetInteriorVehicleData(moduleType_1, subscribe = true) and
---  RC.GetInteriorVehicleData(moduleType_2, subscribe = true,  moduleId_1) related to app1
+-- 4. App1 and app2 re-register with actual HashId
+-- 5. RC.GetInteriorVehicleData(moduleType_1, moduleId_n, subscribe = true) and
+--  RC.GetInteriorVehicleData(moduleType_2, moduleId_1, subscribe = true) related to app1
 --  are sent from SDL to HMI during resumption
--- 6. RC.GetInteriorVehicleData(moduleType_2, subscribe = true, moduleId_2) and
---  RC.GetInteriorVehicleData(moduleType_3, subscribe = true) related to app2
+-- 6. RC.GetInteriorVehicleData(moduleType_2, moduleId_2, subscribe = true) and
+--  RC.GetInteriorVehicleData(moduleType_3, moduleId_m, subscribe = true) related to app2
 --  are sent from SDL to HMI during resumption
--- 7. HMI does not respond to RC.GetInteriorVehicleData(moduleId_1) request
+-- 7. HMI does not respond to RC.GetInteriorVehicleData(moduleType_1, moduleId_n) request related to app1
+--  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_2, moduleId_1) request
+--  related to app1
+--  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_2, moduleId_2) and
+--  RC.GetInteriorVehicleData(moduleType_3, moduleId_m) requests related to app2
 -- 8. RC.GetInteriorVehicleData(moduleType_2, moduleId_1, subscribe = false) related to app1 is sent from SDL to HMI
 --  during resumption
--- 9. HMI responds with success to remaining requests
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 3. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
---  to mobile application app2
+--  - send revert RC.GetInteriorVehicleData(moduleType_2, moduleId_1, subscribe = false) related to app1 to HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
+--  - restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
+--    to mobile application app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

@@ -13,10 +13,11 @@
 -- 6. HMI responds with SUCCESS resultCode to all requests from SDL
 --
 -- Sequence:
--- 1. GetInteriorVehicleData(subscribe = true, module_1) is requested
+-- 1. GetInteriorVehicleData(subscribe = true, moduleType_1) is requested from App
 -- SDL does:
--- - a. not send GetInteriorVehicleData request to HMI
--- - b. send GetInteriorVehicleData ("WARNINGS") response to mobile App
+-- - a. not send RC.GetInteriorVehicleData(subscribe=true, moduleType_1, default moduleId) request to HMI
+-- - b. send GetInteriorVehicleData response (success=true, resultCode=WARNINGS, isSubscribed=true )
+--    response to mobile App
 -- - c. not send OnHashChange notification to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

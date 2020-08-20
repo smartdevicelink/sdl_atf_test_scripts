@@ -7,14 +7,15 @@
 -- Precondition:
 -- 1. HMI and SDL are started
 -- 2. Mobile app with REMOTE_CONTROL hmi type is registered and activated
--- 3. App is not subscribed to module_1
+-- 3. App is not subscribed to moduleType_1
 --
 -- Sequence:
--- 1. GetInteriorVehicleData(subscribe = false, module_1, moduleId) is requested
+-- 1. GetInteriorVehicleData(subscribe = false, moduleType_1, moduleId) is requested
 -- SDL does:
--- - a. send RC.GetInteriorVehicleData(subscribe = false, module_1, moduleId) request to HMI
--- - b. process successful responses from HMI
--- - c. not send OnHashChange notification to mobile app
+-- - a. send RC.GetInteriorVehicleData(subscribe = false, moduleType_1, moduleId) request to HMI
+-- 2. HMI sends successful RC.GetInteriorVehicleData(moduleType_1, moduleId, isSubscribed = false) response to SDL
+-- SDL does:
+-- - a. not send OnHashChange notification to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')

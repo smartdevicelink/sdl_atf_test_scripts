@@ -6,14 +6,14 @@
 -- Precondition:
 -- 1. HMI and SDL are started
 -- 2. Mobile app with REMOTE_CONTROL hmi type is registered and activated
--- 3. App is subscribed to module_1 via GetInteriorVehicleData(module_1)
+-- 3. App is subscribed to moduleType_1 via GetInteriorVehicleData(moduleType_1)
 --
 -- Sequence:
 -- 1. Three IGN_OFF and IGN_ON cycles are performed
 -- 2. App starts registration with actual hashId after IGN_ON in 4th ignition cycle
 -- SDL does:
--- - a. not resume persistent data - not send RC.GetInteriorVehicleData(subscribe=true, module_1) request to HMI
--- - b. respond RAI(RESUME_FAILED) to mobile app
+-- - a. not resume persistent data - not send RC.GetInteriorVehicleData(subscribe=true, moduleType_1) request to HMI
+-- - b. respond RAI(success=true, result code = RESUME_FAILED)to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')

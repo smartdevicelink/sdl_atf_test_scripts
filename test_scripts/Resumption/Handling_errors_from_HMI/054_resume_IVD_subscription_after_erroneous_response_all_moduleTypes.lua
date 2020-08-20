@@ -6,12 +6,12 @@
 -- In case:
 -- 1. Subscriptions for all interior vehicle data types are added
 -- 2. Unexpected disconnect and Reconnect are performed
--- 3. App reregisters with actual HashId
+-- 3. App re-registers with actual HashId
 -- 4. HMI responds with erroneous resultCode for one interior vehicle data type
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. remove already restored data
--- 3. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
+--  - process unsuccess response from HMI
+--  - remove already restored data
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

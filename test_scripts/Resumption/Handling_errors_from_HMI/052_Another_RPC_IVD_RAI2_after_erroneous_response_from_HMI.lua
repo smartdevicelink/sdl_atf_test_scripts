@@ -15,7 +15,7 @@
 --     RC.GetInteriorVehicleData(subscribe=true)
 -- SDL does:
 --  - not restore subscription to IVD for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
---  - send revert RC.GetInteriorVehicleData(subscribe=false) request to HMI
+--  - send revert RC.GetInteriorVehicleData(subscribe=false) request related to App1 to HMI
 -- 6. HMI responds with success to this request
 -- 7. App2 re-registers with actual HashId
 -- SDL does:

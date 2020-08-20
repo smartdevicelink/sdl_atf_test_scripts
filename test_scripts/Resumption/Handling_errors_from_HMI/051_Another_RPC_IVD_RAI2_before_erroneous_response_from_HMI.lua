@@ -9,13 +9,13 @@
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 re-register with actual HashId
 -- SDL does:
---  - start resumption process for App1 and App2
+--  - start resumption process for App1
 --  - send UI.AddSubMenu and RC.GetInteriorVehicleData(subscribe=true) requests related to App1 to HMI
 -- 5. App2 re-registers with actual HashId
 -- 6. HMI responds with <erroneous> resultCode to UI.AddSubMenu and <successful> to
---     RC.GetInteriorVehicleData(subscribe=false)
+--     RC.GetInteriorVehicleData(subscribe=false) to requests related to App1
 -- SDL does:
---  - not send revert RC.GetInteriorVehicleData(subscribe=true) request to HMI
+--  - not send revert RC.GetInteriorVehicleData(subscribe=true) related to App1 request to HMI
 --  - not restore subscription to IVD for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
 --  - restore subscription to IVD for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
 ---------------------------------------------------------------------------------------------------

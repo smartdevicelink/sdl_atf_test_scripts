@@ -7,13 +7,14 @@
 -- Precondition:
 -- 1. HMI and SDL are started
 -- 2. Mobile app with REMOTE_CONTROL hmi type is registered and activated
--- 3. App is subscribed to the module_1
+-- 3. App is subscribed to the moduleType_1
 --
 -- Sequence:
--- 1. GetInteriorVehicleData(subscribe = true, module_1, moduleId) is requested
+-- 1. GetInteriorVehicleData(subscribe = true, moduleType_1, moduleId) is requested from App
 -- SDL does:
--- - a. not send RC.GetInteriorVehicleData request to HMI
--- - b. send GetInteriorVehicleData ("WARNINGS") response to mobile App
+-- - a. not send RC.GetInteriorVehicleData(subscribe=true, moduleType_1, moduleId) request to HMI
+-- - b. send GetInteriorVehicleData response (success=true, resultCode=WARNINGS, isSubscribed=true )
+--    response to mobile App
 -- - c. not send OnHashChange notification to mobile app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

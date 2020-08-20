@@ -15,8 +15,10 @@
 -- SDL does:
 -- - a. send RC.GetInteriorVehicleData(subscribe=true, moduleType, default moduleId) to HMI during resumption data
 --    for each default module
--- - b. respond RAI(SUCCESS) to mobile app
--- - c. update hashId after successful resumption
+-- 3. HMI sends successful RC.GetInteriorVehicleData(isSubscribed = true) response for each default module to SDL
+-- SDL does:
+-- - a. respond RAI(success=true, result code = SUCCESS) to mobile app
+-- - b. update hashId after successful resumption
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')

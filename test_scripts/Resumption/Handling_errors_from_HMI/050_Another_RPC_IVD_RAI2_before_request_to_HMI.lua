@@ -12,9 +12,9 @@
 --  - start resumption process for App1 and App2
 --  - send UI.AddSubMenu and RC.GetInteriorVehicleData(subscribe=true) requests related to App1 to HMI
 -- 5. HMI responds with <erroneous> resultCode to UI.AddSubMenu and <successful> to
---     RC.GetInteriorVehicleData(subscribe=true)
+--     RC.GetInteriorVehicleData(subscribe=true) to requests related to App1
 -- SDL does:
---  - not send revert RC.GetInteriorVehicleData(subscribe=false) request to HMI
+--  - not send revert RC.GetInteriorVehicleData(subscribe=false) related to App1 request to HMI
 --  - not restore subscription to IVD for App1 and responds RAI_Response(success=true,resultCode=RESUME_FAILED) to App1
 --  - restore subscription to IVD for App2 and responds RAI_Response(success=true,resultCode=SUCCESS) to App2
 ---------------------------------------------------------------------------------------------------

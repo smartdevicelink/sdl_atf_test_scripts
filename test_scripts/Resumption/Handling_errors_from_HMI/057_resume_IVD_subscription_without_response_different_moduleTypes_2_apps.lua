@@ -7,20 +7,19 @@
 -- 1. Subscriptions for moduleType_1 and moduleType_2 are added by app1
 -- 2. Subscriptions for moduleType_2 and moduleType_3 are added by app2
 -- 3. Unexpected disconnect and reconnect are performed
--- 4. App1 and app2 reregister with actual HashId
+-- 4. App1 and app2 re-register with actual HashId
 -- 5. RC.GetInteriorVehicleData(moduleType_1, subscribe = true) and
 --  RC.GetInteriorVehicleData(moduleType_2, subscribe = true) related to app1
 --  are sent from SDL to HMI during resumption
--- 6. RC.GetInteriorVehicleData(moduleType_3) request is sent for app2
+-- 6. RC.GetInteriorVehicleData(moduleType_3, subscribe = true) request related to app2 is sent to HMI
 -- 7. HMI does not respond to RC.GetInteriorVehicleData(moduleType_1) request
--- 8. RC.GetInteriorVehicleData(moduleType_2, subscribe = false) related to app1 is not sent from SDL to HMI
---  during resumption
--- 9. HMI responds with success to remaining requests
+--  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_2) and
+--  RC.GetInteriorVehicleData(moduleType_3) requests
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 3. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
---  to mobile application app2
+--  - not send revert RC.GetInteriorVehicleData(moduleType_2, subscribe = false) related to app1 to HMI
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to app1
+--  - restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
+--    to app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]

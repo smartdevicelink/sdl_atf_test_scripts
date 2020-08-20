@@ -7,23 +7,23 @@
 -- 1. Subscriptions for moduleType_1 and moduleType_2 are added by app1
 -- 2. Subscriptions for moduleType_2 and moduleType_3 are added by app2
 -- 3. Unexpected disconnect and reconnect are performed
--- 4. App1 and app2 reregister with actual HashId
+-- 4. App1 and app2 re-register with actual HashId
 -- 5. RC.GetInteriorVehicleData(moduleType_1, subscribe = true) and
 --  RC.GetInteriorVehicleData(moduleType_2, subscribe = true) related to app1
 --  are sent from SDL to HMI during resumption
 -- 6. RC.GetInteriorVehicleData(moduleType_3, subscribe = true) related to app2
---  are sent from SDL to HMI during resumption
--- 7. Subscription for moduleType_2 is not restored before the receiving of response
---  to RC.GetInteriorVehicleData(moduleType_2, subscribe = true)
--- 7. HMI responds with error resultCode to RC.GetInteriorVehicleData(moduleType_2) request
--- 8. RC.GetInteriorVehicleData(moduleType_2, subscribe = true) related to app2 is sent from SDL to HMI
---  during resumption
--- 9. HMI responds with success to remaining requests
+--  is sent from SDL to HMI during resumption
+-- 7. HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_1) request related to app1
+--  HMI responds with errorneous resultCode to RC.GetInteriorVehicleData(moduleType_2) request related to app1
+--  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_3) request related to app2
 -- SDL does:
--- 1. process unsuccess response from HMI
--- 2. respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
--- 3. restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
---  to mobile application app2
+-- 1. send revert RC.GetInteriorVehicleData(moduleType_1, subscribe = false) related to app1 to HMI
+-- 2. send RC.GetInteriorVehicleData(moduleType_2, subscribe = true) related to app2 to HMI
+-- 8. HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_2) request related to app1
+-- SDL does:
+--  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
+--  - restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
+--    to mobile application app2
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -53,7 +53,7 @@ local function checkResumptionData()
       if data.params.moduleType == "CLIMATE" and climateTypeOccurred == false then
         climateTypeOccurred = true
         local function sendResponse()
-          common.log("Sent " .. data.method .. ": GENERIC_ERROR, moduleType: RADIO")
+          common.log("Sent " .. data.method .. ": GENERIC_ERROR, moduleType: CLIMATE")
           common.getHMIConnection():SendError(data.id, data.method, "GENERIC_ERROR", "info message")
           isResponseSent = true
         end
