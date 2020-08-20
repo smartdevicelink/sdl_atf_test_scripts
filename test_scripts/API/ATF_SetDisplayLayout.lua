@@ -474,193 +474,193 @@ function displayCap_textFields_Value()
 	local textFields =
 	{
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField3",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField4",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "statusBar",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mediaClock",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mediaTrack",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText3",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "scrollableMessageBody",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "initialInteractionText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "ETA",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "totalDistance",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText",  --Error
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "sliderHeader",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "sliderFooter",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "notificationText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "menuName",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "secondaryText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "tertiaryText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "timeToDestination",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "turnText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "menuTitle",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "locationName",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "locationDescription",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "addressLines",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "phoneNumber",
 			rows = 1,
 			width = 500
@@ -745,194 +745,194 @@ function displayCap_textFields_ValueForMobile()
 	local textFields =
 	{
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField3",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mainField4",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "statusBar",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mediaClock",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "mediaTrack",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "alertText3",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "scrollableMessageBody",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "initialInteractionText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "ETA",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "totalDistance",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "timeToDestination",
 			rows = 1,
 			width = 500
 		},
 
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText1",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText2",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "sliderHeader",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "sliderFooter",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "navigationText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "menuName",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "secondaryText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "tertiaryText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "phoneNumber",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "turnText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "menuTitle",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "notificationText",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "locationName",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "locationDescription",
 			rows = 1,
 			width = 500
 		},
 		{
-			characterSet = "TYPE2SET",
+			characterSet = "UTF_8",
 			name = "addressLines",
 			rows = 1,
 			width = 500
@@ -1724,7 +1724,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = inBoundValues[i],
 								rows = 1,
 								width = 500
@@ -1762,7 +1762,7 @@ end
 			--Begin Test case PositiveResponseCheck.6
 			--Description: displayCapabilities.textFields.characterSet parameter is inbound
 
-				local inBoundValues = {"TYPE2SET"}
+				local inBoundValues = {"UTF_8"}
 
 				for i = 1, #inBoundValues do
 					Test["SetDispLay_Res_displayCap_textFields_characterSet_IsInBound_".. inBoundValues[i] .."_SUCCESS"] = function(self)
@@ -1837,7 +1837,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								rows = 1,
 								width = inBoundValues[i]
@@ -1894,7 +1894,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								rows = inBoundValues[i],
 								width = 500
@@ -2004,7 +2004,7 @@ end
 
 						testParam[j] =
 						{
-							characterSet = "TYPE2SET",
+							characterSet = "UTF_8",
 							name =textFieldsName[x],
 							rows = 1,
 							width = 500
@@ -2534,7 +2534,7 @@ end
 					:Timeout(iTimeout)
 					:Do(function(_,data)
 						--hmi side: sending UI.SetDisplayLayout response
-						self.hmiConnection:Send('{"id":' .. tostring(data.id) .. ',"result":{"softButtonCapabilities":[{"upDownAvailable":true,"longPressAvailable":true,"imageSupported":true,"shortPressAvailable":true}],"buttonCapabilities":[{"name":"PRESET_0","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_1","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_2","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_3","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_4","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_5","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_6","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_7","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_8","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_9","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"OK","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PLAY_PAUSE","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKLEFT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKRIGHT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEUP","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEDOWN","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true}],"presetBankCapabilities":{"onScreenPresetsAvailable":true},"displayCapabilities":{"displayType":"GEN2_8_DMA","screenParams":{"resolution":{"resolutionWidth":800,"resolutionHeight":480},"touchEventAvailable":{"doublePressAvailable":false,"multiTouchAvailable":true,"pressAvailable":true}},"textFields":[{"name":"mainField1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mainField2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mainField3","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mainField4","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"statusBar","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mediaClock","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mediaTrack","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"alertText1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"alertText2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"alertText3","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"scrollableMessageBody","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"initialInteractionText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"navigationText1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"navigationText2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"ETA","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"totalDistance","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"navigationText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"audioPassThruDisplayText1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"audioPassThruDisplayText2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"sliderHeader","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"sliderFooter","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"notificationText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"menuName","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"secondaryText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"tertiaryText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"timeToDestination","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"turnText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"menuTitle","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"locationName","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"locationDescription","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"addressLines","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"phoneNumber","characterSet":"TYPE2SET","width":500,"rows":1}],"mediaClockFormats":["CLOCK1","CLOCK2","CLOCK3","CLOCKTEXT1","CLOCKTEXT2","CLOCKTEXT3","CLOCKTEXT4"],"imageCapabilities":[],"templatesAvailable":["ONSCREEN_PRESETS"],"imageFields":[{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"softButtonImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceSecondaryImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"vrHelpItem","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"turnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"menuIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"cmdIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"graphic","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]}],"numCustomPresetsAvailable":10,"graphicSupported":true},"code":0,"method":"UI.SetDisplayLayout"},"jsonrpc":"2.0"}')
+						self.hmiConnection:Send('{"id":' .. tostring(data.id) .. ',"result":{"softButtonCapabilities":[{"upDownAvailable":true,"longPressAvailable":true,"imageSupported":true,"shortPressAvailable":true}],"buttonCapabilities":[{"name":"PRESET_0","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_1","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_2","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_3","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_4","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_5","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_6","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_7","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_8","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_9","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"OK","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PLAY_PAUSE","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKLEFT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKRIGHT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEUP","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEDOWN","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true}],"presetBankCapabilities":{"onScreenPresetsAvailable":true},"displayCapabilities":{"displayType":"GEN2_8_DMA","screenParams":{"resolution":{"resolutionWidth":800,"resolutionHeight":480},"touchEventAvailable":{"doublePressAvailable":false,"multiTouchAvailable":true,"pressAvailable":true}},"textFields":[{"name":"mainField1","characterSet":"UTF_8","width":500,"rows":1},{"name":"mainField2","characterSet":"UTF_8","width":500,"rows":1},{"name":"mainField3","characterSet":"UTF_8","width":500,"rows":1},{"name":"mainField4","characterSet":"UTF_8","width":500,"rows":1},{"name":"statusBar","characterSet":"UTF_8","width":500,"rows":1},{"name":"mediaClock","characterSet":"UTF_8","width":500,"rows":1},{"name":"mediaTrack","characterSet":"UTF_8","width":500,"rows":1},{"name":"alertText1","characterSet":"UTF_8","width":500,"rows":1},{"name":"alertText2","characterSet":"UTF_8","width":500,"rows":1},{"name":"alertText3","characterSet":"UTF_8","width":500,"rows":1},{"name":"scrollableMessageBody","characterSet":"UTF_8","width":500,"rows":1},{"name":"initialInteractionText","characterSet":"UTF_8","width":500,"rows":1},{"name":"navigationText1","characterSet":"UTF_8","width":500,"rows":1},{"name":"navigationText2","characterSet":"UTF_8","width":500,"rows":1},{"name":"ETA","characterSet":"UTF_8","width":500,"rows":1},{"name":"totalDistance","characterSet":"UTF_8","width":500,"rows":1},{"name":"navigationText","characterSet":"UTF_8","width":500,"rows":1},{"name":"audioPassThruDisplayText1","characterSet":"UTF_8","width":500,"rows":1},{"name":"audioPassThruDisplayText2","characterSet":"UTF_8","width":500,"rows":1},{"name":"sliderHeader","characterSet":"UTF_8","width":500,"rows":1},{"name":"sliderFooter","characterSet":"UTF_8","width":500,"rows":1},{"name":"notificationText","characterSet":"UTF_8","width":500,"rows":1},{"name":"menuName","characterSet":"UTF_8","width":500,"rows":1},{"name":"secondaryText","characterSet":"UTF_8","width":500,"rows":1},{"name":"tertiaryText","characterSet":"UTF_8","width":500,"rows":1},{"name":"timeToDestination","characterSet":"UTF_8","width":500,"rows":1},{"name":"turnText","characterSet":"UTF_8","width":500,"rows":1},{"name":"menuTitle","characterSet":"UTF_8","width":500,"rows":1},{"name":"locationName","characterSet":"UTF_8","width":500,"rows":1},{"name":"locationDescription","characterSet":"UTF_8","width":500,"rows":1},{"name":"addressLines","characterSet":"UTF_8","width":500,"rows":1},{"name":"phoneNumber","characterSet":"UTF_8","width":500,"rows":1}],"mediaClockFormats":["CLOCK1","CLOCK2","CLOCK3","CLOCKTEXT1","CLOCKTEXT2","CLOCKTEXT3","CLOCKTEXT4"],"imageCapabilities":[],"templatesAvailable":["ONSCREEN_PRESETS"],"imageFields":[{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"softButtonImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceSecondaryImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"vrHelpItem","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"turnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"menuIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"cmdIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"graphic","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]}],"numCustomPresetsAvailable":10,"graphicSupported":true},"code":0,"method":"UI.SetDisplayLayout"},"jsonrpc":"2.0"}')
 					end)
 
 
@@ -2776,7 +2776,7 @@ end
 					:Timeout(iTimeout)
 					:Do(function(_,data)
 						--hmi side: sending UI.SetDisplayLayout response
-						self.hmiConnection:Send('{"id":' .. tostring(data.id) .. ',"result":{"softButtonCapabilities":[{"upDownAvailable":true,"longPressAvailable":true,"imageSupported":true,"shortPressAvailable":true}],"buttonCapabilities":[{"name":"PRESET_0","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_1","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_2","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_3","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_4","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_5","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_6","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_7","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_8","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_9","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"OK","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PLAY_PAUSE","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKLEFT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKRIGHT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEUP","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEDOWN","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true}],"presetBankCapabilities":{"onScreenPresetsAvailable":true},"displayCapabilities":{"displayType":"GEN2_8_DMA","screenParams":{"resolution":{"resolutionWidth":800,"resolutionHeight":480},"touchEventAvailable":{"doublePressAvailable":false,"multiTouchAvailable":true,"pressAvailable":true}},"textFields":[{"name":"mainField1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mainField2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mainField3","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mainField4","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"statusBar","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mediaClock","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"mediaTrack","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"alertText1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"alertText2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"alertText3","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"scrollableMessageBody","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"initialInteractionText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"navigationText1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"navigationText2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"ETA","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"totalDistance","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"navigationText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"audioPassThruDisplayText1","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"audioPassThruDisplayText2","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"sliderHeader","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"sliderFooter","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"notificationText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"menuName","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"secondaryText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"tertiaryText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"timeToDestination","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"turnText","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"menuTitle","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"locationName","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"locationDescription","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"addressLines","characterSet":"TYPE2SET","width":500,"rows":1},{"name":"phoneNumber","characterSet":"TYPE2SET","width":500,"rows":1}],"mediaClockFormats":["CLOCK1","CLOCK2","CLOCK3","CLOCKTEXT1","CLOCKTEXT2","CLOCKTEXT3","CLOCKTEXT4"],"imageCapabilities":["DYNAMIC","STATIC"],"templatesAvailable":[],"imageFields":[{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"softButtonImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceSecondaryImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"vrHelpItem","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"turnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"menuIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"cmdIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"graphic","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]}],"numCustomPresetsAvailable":10,"graphicSupported":true},"code":0,"method":"UI.SetDisplayLayout"},"jsonrpc":"2.0"} ')
+						self.hmiConnection:Send('{"id":' .. tostring(data.id) .. ',"result":{"softButtonCapabilities":[{"upDownAvailable":true,"longPressAvailable":true,"imageSupported":true,"shortPressAvailable":true}],"buttonCapabilities":[{"name":"PRESET_0","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_1","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_2","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_3","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_4","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_5","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_6","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_7","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_8","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PRESET_9","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"OK","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"PLAY_PAUSE","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKLEFT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"SEEKRIGHT","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEUP","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"name":"TUNEDOWN","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true}],"presetBankCapabilities":{"onScreenPresetsAvailable":true},"displayCapabilities":{"displayType":"GEN2_8_DMA","screenParams":{"resolution":{"resolutionWidth":800,"resolutionHeight":480},"touchEventAvailable":{"doublePressAvailable":false,"multiTouchAvailable":true,"pressAvailable":true}},"textFields":[{"name":"mainField1","characterSet":"UTF_8","width":500,"rows":1},{"name":"mainField2","characterSet":"UTF_8","width":500,"rows":1},{"name":"mainField3","characterSet":"UTF_8","width":500,"rows":1},{"name":"mainField4","characterSet":"UTF_8","width":500,"rows":1},{"name":"statusBar","characterSet":"UTF_8","width":500,"rows":1},{"name":"mediaClock","characterSet":"UTF_8","width":500,"rows":1},{"name":"mediaTrack","characterSet":"UTF_8","width":500,"rows":1},{"name":"alertText1","characterSet":"UTF_8","width":500,"rows":1},{"name":"alertText2","characterSet":"UTF_8","width":500,"rows":1},{"name":"alertText3","characterSet":"UTF_8","width":500,"rows":1},{"name":"scrollableMessageBody","characterSet":"UTF_8","width":500,"rows":1},{"name":"initialInteractionText","characterSet":"UTF_8","width":500,"rows":1},{"name":"navigationText1","characterSet":"UTF_8","width":500,"rows":1},{"name":"navigationText2","characterSet":"UTF_8","width":500,"rows":1},{"name":"ETA","characterSet":"UTF_8","width":500,"rows":1},{"name":"totalDistance","characterSet":"UTF_8","width":500,"rows":1},{"name":"navigationText","characterSet":"UTF_8","width":500,"rows":1},{"name":"audioPassThruDisplayText1","characterSet":"UTF_8","width":500,"rows":1},{"name":"audioPassThruDisplayText2","characterSet":"UTF_8","width":500,"rows":1},{"name":"sliderHeader","characterSet":"UTF_8","width":500,"rows":1},{"name":"sliderFooter","characterSet":"UTF_8","width":500,"rows":1},{"name":"notificationText","characterSet":"UTF_8","width":500,"rows":1},{"name":"menuName","characterSet":"UTF_8","width":500,"rows":1},{"name":"secondaryText","characterSet":"UTF_8","width":500,"rows":1},{"name":"tertiaryText","characterSet":"UTF_8","width":500,"rows":1},{"name":"timeToDestination","characterSet":"UTF_8","width":500,"rows":1},{"name":"turnText","characterSet":"UTF_8","width":500,"rows":1},{"name":"menuTitle","characterSet":"UTF_8","width":500,"rows":1},{"name":"locationName","characterSet":"UTF_8","width":500,"rows":1},{"name":"locationDescription","characterSet":"UTF_8","width":500,"rows":1},{"name":"addressLines","characterSet":"UTF_8","width":500,"rows":1},{"name":"phoneNumber","characterSet":"UTF_8","width":500,"rows":1}],"mediaClockFormats":["CLOCK1","CLOCK2","CLOCK3","CLOCKTEXT1","CLOCKTEXT2","CLOCKTEXT3","CLOCKTEXT4"],"imageCapabilities":["DYNAMIC","STATIC"],"templatesAvailable":[],"imageFields":[{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"softButtonImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"choiceSecondaryImage","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"vrHelpItem","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"turnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"menuIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"cmdIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"graphic","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]},{"imageResolution":{"resolutionWidth":64,"resolutionHeight":64},"name":"showConstantTBTNextTurnIcon","imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"]}],"numCustomPresetsAvailable":10,"graphicSupported":true},"code":0,"method":"UI.SetDisplayLayout"},"jsonrpc":"2.0"} ')
 					end)
 
 
@@ -4258,7 +4258,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = outboundValues[i],
 								rows = 1,
 								width = 500
@@ -4362,7 +4362,7 @@ end
 					local testParam =
 					{
 						{
-							characterSet = "TYPE2SET",
+							characterSet = "UTF_8",
 							name = "mainField1",
 							rows = 1,
 							width = outboundValues[i]
@@ -4414,7 +4414,7 @@ end
 					local testParam =
 					{
 						{
-							characterSet = "TYPE2SET",
+							characterSet = "UTF_8",
 							name = "mainField1",
 							rows = outboundValues[i],
 							width = 500
@@ -4513,7 +4513,7 @@ end
 
 					testParam[j] =
 					{
-						characterSet = "TYPE2SET",
+						characterSet = "UTF_8",
 						name =textFieldsName[x],
 						rows = 1,
 						width = 500
@@ -6141,7 +6141,7 @@ end
 							local testParam =
 							{
 								{
-									characterSet = "TYPE2SET",
+									characterSet = "UTF_8",
 									name = "",
 									rows = 1,
 									width = 500
@@ -6238,7 +6238,7 @@ end
 					local testParam =
 					{
 						{
-							characterSet = "TYPE2SET",
+							characterSet = "UTF_8",
 							name = "mainField1",
 							rows = 1,
 							width = ""
@@ -6289,7 +6289,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								rows = "",
 								width = 500
@@ -7461,7 +7461,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								--name = "",
 								rows = 1,
 								width = 500
@@ -7557,7 +7557,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								rows = 1,
 								--width = ""
@@ -7605,7 +7605,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								--rows = "",
 								width = 500
@@ -8802,7 +8802,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "nonexistent",
 								rows = 1,
 								width = 500
@@ -9227,7 +9227,7 @@ end
 							local testParam =
 							{
 								{
-									characterSet = "TYPE2SET",
+									characterSet = "UTF_8",
 									name = InvalidCharacters[i],
 									rows = 1,
 									width = 500
@@ -9698,7 +9698,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = wrongTypeVales[i],
 								rows = 1,
 								width = 500
@@ -9798,7 +9798,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								rows = 1,
 								width = wrongTypeVales[i]
@@ -9848,7 +9848,7 @@ end
 						local testParam =
 						{
 							{
-								characterSet = "TYPE2SET",
+								characterSet = "UTF_8",
 								name = "mainField1",
 								rows = wrongTypeVales[i],
 								width = 500
@@ -10828,7 +10828,7 @@ end
 				})
 
 
-				local  message = '{"id":30,"jsonrpc":"2.0","result":{"buttonCapabilities":[{"longPressAvailable":true,"name":"PRESET_0","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_1","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_2","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_3","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_4","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_5","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_6","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_7","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_8","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_9","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"OK","shortPressAvailable":true,"upDownAvailable":true},{"name":"PLAY_PAUSE","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"longPressAvailable":true,"name":"SEEKLEFT","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"SEEKRIGHT","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"TUNEUP","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"TUNEDOWN","shortPressAvailable":true,"upDownAvailable":true}],"code" 0,"displayCapabilities":{"displayType":"GEN2_8_DMA","graphicSupported":true,"imageCapabilities":["DYNAMIC","STATIC"],"imageFields":[{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"softButtonImage"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"choiceImage"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"choiceSecondaryImage"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"vrHelpItem"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"turnIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"menuIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"cmdIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"graphic"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"showConstantTBTIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"showConstantTBTNextTurnIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"showConstantTBTNextTurnIcon"}],"mediaClockFormats":["CLOCK1","CLOCK2","CLOCK3","CLOCKTEXT1","CLOCKTEXT2","CLOCKTEXT3","CLOCKTEXT4"],"numCustomPresetsAvailable":10,"screenParams":{"resolution":{"resolutionHeight":480,"resolutionWidth":800},"touchEventAvailable":{"doublePressAvailable":false,"multiTouchAvailable":true,"pressAvailable":true}},"templatesAvailable":["ONSCREEN_PRESETS"],"textFields":[{"characterSet":"TYPE2SET","name":"mainField1","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"mainField2","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"mainField3","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"mainField4","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"statusBar","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"mediaClock","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"mediaTrack","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"alertText1","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"alertText2","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"alertText3","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"scrollableMessageBody","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"initialInteractionText","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"navigationText1","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"navigationText2","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"ETA","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"totalDistance","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"navigationText","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"audioPassThruDisplayText1","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"audioPassThruDisplayText2","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"sliderHeader","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"sliderFooter","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"notificationText","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"menuName","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"secondaryText","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"tertiaryText","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"timeToDestination","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"turnText","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"menuTitle","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"locationName","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"locationDescription","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"addressLines","rows":1,"width":500},{"characterSet":"TYPE2SET","name":"phoneNumber","rows":1,"width":500}]},"method":"UI.SetDisplayLayout","presetBankCapabilities":{"onScreenPresetsAvailable":true},"softButtonCapabilities":[{"imageSupported":true,"longPressAvailable":true,"shortPressAvailable":true,"upDownAvailable":true}]}}'
+				local  message = '{"id":30,"jsonrpc":"2.0","result":{"buttonCapabilities":[{"longPressAvailable":true,"name":"PRESET_0","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_1","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_2","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_3","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_4","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_5","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_6","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_7","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_8","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"PRESET_9","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"OK","shortPressAvailable":true,"upDownAvailable":true},{"name":"PLAY_PAUSE","longPressAvailable":true,"upDownAvailable":true,"shortPressAvailable":true},{"longPressAvailable":true,"name":"SEEKLEFT","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"SEEKRIGHT","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"TUNEUP","shortPressAvailable":true,"upDownAvailable":true},{"longPressAvailable":true,"name":"TUNEDOWN","shortPressAvailable":true,"upDownAvailable":true}],"code" 0,"displayCapabilities":{"displayType":"GEN2_8_DMA","graphicSupported":true,"imageCapabilities":["DYNAMIC","STATIC"],"imageFields":[{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"softButtonImage"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"choiceImage"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"choiceSecondaryImage"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"vrHelpItem"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"turnIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"menuIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"cmdIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"graphic"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"showConstantTBTIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"showConstantTBTNextTurnIcon"},{"imageResolution":{"resolutionHeight":64,"resolutionWidth":64},"imageTypeSupported":["GRAPHIC_BMP","GRAPHIC_JPEG","GRAPHIC_PNG"],"name":"showConstantTBTNextTurnIcon"}],"mediaClockFormats":["CLOCK1","CLOCK2","CLOCK3","CLOCKTEXT1","CLOCKTEXT2","CLOCKTEXT3","CLOCKTEXT4"],"numCustomPresetsAvailable":10,"screenParams":{"resolution":{"resolutionHeight":480,"resolutionWidth":800},"touchEventAvailable":{"doublePressAvailable":false,"multiTouchAvailable":true,"pressAvailable":true}},"templatesAvailable":["ONSCREEN_PRESETS"],"textFields":[{"characterSet":"UTF_8","name":"mainField1","rows":1,"width":500},{"characterSet":"UTF_8","name":"mainField2","rows":1,"width":500},{"characterSet":"UTF_8","name":"mainField3","rows":1,"width":500},{"characterSet":"UTF_8","name":"mainField4","rows":1,"width":500},{"characterSet":"UTF_8","name":"statusBar","rows":1,"width":500},{"characterSet":"UTF_8","name":"mediaClock","rows":1,"width":500},{"characterSet":"UTF_8","name":"mediaTrack","rows":1,"width":500},{"characterSet":"UTF_8","name":"alertText1","rows":1,"width":500},{"characterSet":"UTF_8","name":"alertText2","rows":1,"width":500},{"characterSet":"UTF_8","name":"alertText3","rows":1,"width":500},{"characterSet":"UTF_8","name":"scrollableMessageBody","rows":1,"width":500},{"characterSet":"UTF_8","name":"initialInteractionText","rows":1,"width":500},{"characterSet":"UTF_8","name":"navigationText1","rows":1,"width":500},{"characterSet":"UTF_8","name":"navigationText2","rows":1,"width":500},{"characterSet":"UTF_8","name":"ETA","rows":1,"width":500},{"characterSet":"UTF_8","name":"totalDistance","rows":1,"width":500},{"characterSet":"UTF_8","name":"navigationText","rows":1,"width":500},{"characterSet":"UTF_8","name":"audioPassThruDisplayText1","rows":1,"width":500},{"characterSet":"UTF_8","name":"audioPassThruDisplayText2","rows":1,"width":500},{"characterSet":"UTF_8","name":"sliderHeader","rows":1,"width":500},{"characterSet":"UTF_8","name":"sliderFooter","rows":1,"width":500},{"characterSet":"UTF_8","name":"notificationText","rows":1,"width":500},{"characterSet":"UTF_8","name":"menuName","rows":1,"width":500},{"characterSet":"UTF_8","name":"secondaryText","rows":1,"width":500},{"characterSet":"UTF_8","name":"tertiaryText","rows":1,"width":500},{"characterSet":"UTF_8","name":"timeToDestination","rows":1,"width":500},{"characterSet":"UTF_8","name":"turnText","rows":1,"width":500},{"characterSet":"UTF_8","name":"menuTitle","rows":1,"width":500},{"characterSet":"UTF_8","name":"locationName","rows":1,"width":500},{"characterSet":"UTF_8","name":"locationDescription","rows":1,"width":500},{"characterSet":"UTF_8","name":"addressLines","rows":1,"width":500},{"characterSet":"UTF_8","name":"phoneNumber","rows":1,"width":500}]},"method":"UI.SetDisplayLayout","presetBankCapabilities":{"onScreenPresetsAvailable":true},"softButtonCapabilities":[{"imageSupported":true,"longPressAvailable":true,"shortPressAvailable":true,"upDownAvailable":true}]}}'
 
 
 				--hmi side: expect UI.SetDisplayLayout request

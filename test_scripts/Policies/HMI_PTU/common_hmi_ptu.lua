@@ -25,6 +25,7 @@ m.hmi = actions.hmi.getConnection
 m.getAppParams = actions.app.getParams
 m.getPTS = actions.sdl.getPTS
 m.getSDLIniParameter = actions.sdl.getSDLIniParameter
+m.setSDLIniParameter = actions.sdl.setSDLIniParameter
 m.setPreloadedPT = actions.sdl.setPreloadedPT
 m.getPreloadedPT = actions.sdl.getPreloadedPT
 m.registerNoPTU = actions.app.registerNoPTU

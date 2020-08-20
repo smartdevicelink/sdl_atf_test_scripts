@@ -84,7 +84,7 @@ local function registerApps()
   }
 
   local hmiRequestDataApp2 = {
-    gps = true,
+    rpm = true,
     [common.VehicleDataItemsWithData.custom_vd_item2_float.key] = true
   }
 

@@ -47,11 +47,18 @@ function m.showAppMenuSuccess(pMenuID)
   m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-function m.showAppMenuUnsuccess(pMenuID, pResultCode)
+function m.showAppMenuUnsuccess(pMenuID, pResultCode, infoExists)
   local cid = m.getMobileSession():SendRPC("ShowAppMenu", { menuID = pMenuID })
   m.getHMIConnection():ExpectRequest("UI.ShowAppMenu")
   :Times(0)
   m.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pResultCode })
+  :ValidIf(function(_,data)
+    if (infoExists == true) then
+      return data.payload.info ~= nil
+    else
+      return true
+    end
+  end)
   m.getMobileSession():ExpectNotification("OnHashChange")
   :Times(0)
 end
