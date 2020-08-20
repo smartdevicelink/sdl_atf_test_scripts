@@ -41,4 +41,3 @@ end
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
-

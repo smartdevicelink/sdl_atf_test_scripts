@@ -910,17 +910,17 @@ end
 --[[ @getInteriorVehicleData: adding subscription for interior vehicle data
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
---! isIVDCashed - false (default), true - if InteriorVehicleData is cached on SDL, it is no request performed to HMI
+--! isIVDCached - false (default), true - if InteriorVehicleData is cached on SDL, it is no request performed to HMI
 --! pModuleType - module type to subscribe for
 --! pModuleId - module id to subscribe for
 --! @return: none
 --]]
-function m.getInteriorVehicleData(pAppId, isIVDCashed, pModuleType, pModuleId)
+function m.getInteriorVehicleData(pAppId, isIVDCached, pModuleType, pModuleId)
   if not pAppId then pAppId = 1 end
   pModuleType = pModuleType or m.defaultModuleType
   pModuleId = pModuleId or m.getModuleControlData(pModuleType, 1).moduleId
-  isIVDCashed = isIVDCashed or false
-  rc.rc.subscribeToModule(pModuleType, pModuleId, pAppId, isIVDCashed)
+  isIVDCached = isIVDCached or false
+  rc.rc.subscribeToModule(pModuleType, pModuleId, pAppId, isIVDCached)
   m.resumptionData[pAppId].getInteriorVehicleData = {
     RC = { moduleType = pModuleType, moduleId = pModuleId, subscribe = true } }
   m.getMobileSession(pAppId):ExpectNotification("OnHashChange")

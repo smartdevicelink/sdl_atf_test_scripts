@@ -13,13 +13,21 @@
 --  are sent from SDL to HMI during resumption
 -- 6. RC.GetInteriorVehicleData(moduleType_3, subscribe = true) related to app2
 --  is sent from SDL to HMI during resumption
--- 7. HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_1) request related to app1
---  HMI responds with errorneous resultCode to RC.GetInteriorVehicleData(moduleType_2) request related to app1
---  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_3) request related to app2
+-- 7. HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_1, isSubscribed = true) request
+--   related to app1
+--  HMI responds with erroneous resultCode to RC.GetInteriorVehicleData(moduleType_2) request related to app1
+--   in 2 seconds after receiving HMI request
+--  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_3, isSubscribed = true) request
+--   related to app2
 -- SDL does:
--- 1. send revert RC.GetInteriorVehicleData(moduleType_1, subscribe = false) related to app1 to HMI
--- 2. send RC.GetInteriorVehicleData(moduleType_2, subscribe = true) related to app2 to HMI
--- 8. HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_2) request related to app1
+-- - send revert RC.GetInteriorVehicleData(moduleType_1, subscribe = false) related to app1 to HMI
+--  after receiving erroneous response to RC.GetInteriorVehicleData(moduleType_2) request
+-- - send RC.GetInteriorVehicleData(moduleType_2, subscribe = true) related to app2 to HMI
+--  after receiving erroneous response to RC.GetInteriorVehicleData(moduleType_2) request related to app1
+-- 8. HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_1, isSubscribed = false) request
+--   related to app1
+--  HMI responds with successful resultCode to RC.GetInteriorVehicleData(moduleType_2, isSubscribed = true) request
+--   related to app2
 -- SDL does:
 --  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
 --  - restore all data for app2 and respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS)
