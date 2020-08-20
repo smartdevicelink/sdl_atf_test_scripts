@@ -404,4 +404,32 @@ function m.onInteriorVD2Apps(pModuleType, pNotifTimes1app, pNotifTimes2app, pMod
   :Times(pNotifTimes2app)
 end
 
+function  m.getIVDCustomSubscribe(pModuleType, isSubscribeReq, isSubscribeRes)
+  local rpc = "GetInteriorVehicleData"
+  local pAppId = 1
+  local moduleId = m.getModuleId(pModuleType,  1)
+  local mobileRequestParams = m.cloneTable(rc.rpc.getAppRequestParams(rpc, pModuleType, moduleId, isSubscribeReq))
+  local hmiRequestParams = rc.rpc.getHMIRequestParams(rpc, pModuleType, moduleId, pAppId, isSubscribeReq)
+
+  local cid = m.getMobileSession(pAppId):SendRPC(rc.rpc.getAppEventName(rpc), mobileRequestParams)
+  m.getHMIConnection():ExpectRequest(rc.rpc.getHMIEventName(rpc), hmiRequestParams)
+  :Do(function(_, data)
+      local resParams = { }
+      resParams.moduleData = m.getActualModuleIVData(data.params.moduleType, data.params.moduleId)
+      resParams.isSubscribed = isSubscribeRes
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", resParams)
+    end)
+
+  local isSubscribeMobRes
+  if isSubscribeReq ~= nil then
+    isSubscribeMobRes = false
+  end
+
+  local responseParams = rc.rpc.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, moduleId, isSubscribeMobRes)
+  m.getMobileSession(pAppId):ExpectResponse(cid, responseParams)
+
+  m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+  :Times(0)
+end
+
 return m
