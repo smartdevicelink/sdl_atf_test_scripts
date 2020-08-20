@@ -39,7 +39,7 @@ local function checkResumptionData()
     { moduleType = moduleType, moduleId = moduleId2, subscribe = true }
   }
 
-  common.checkResumptionData(modulesCount, expectedModules)
+  common.checkResumptionData(modulesCount, expectedModules, true)
 end
 
 --[[ Scenario ]]
