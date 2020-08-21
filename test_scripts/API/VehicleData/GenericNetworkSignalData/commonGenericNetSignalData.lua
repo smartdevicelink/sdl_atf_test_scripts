@@ -132,7 +132,8 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.instantFuelConsumption.value = 1000.1
     common.VehicleDataItemsWithData.instantFuelConsumption.APItype = "VEHICLEDATA_FUELCONSUMPTION"
     common.VehicleDataItemsWithData.fuelRange.value = {
-      { type = "GASOLINE" , range = 20 }, { type = "BATTERY", range = 100 }}
+      { type = "GASOLINE", range = 20, level = 5, levelState = "NORMAL", capacity = 1234, capacityUnit = "LITERS" },
+      { type = "BATTERY", range = 100, level = 8, levelState = "UNKNOWN", capacity = 2345, capacityUnit = "KILOWATTHOURS" }}
     common.VehicleDataItemsWithData.fuelRange.APItype = "VEHICLEDATA_FUELRANGE"
     common.VehicleDataItemsWithData.externalTemperature.value = 24.1
     common.VehicleDataItemsWithData.externalTemperature.APItype = "VEHICLEDATA_EXTERNTEMP"
@@ -142,6 +143,29 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.vin.APItype = "VEHICLEDATA_VIN"
     common.VehicleDataItemsWithData.prndl.value = "PARK"
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
+    if common.VehicleDataItemsWithData.handsOffSteering then
+      common.VehicleDataItemsWithData.handsOffSteering.value = true
+      common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    end
+    if common.VehicleDataItemsWithData.stabilityControlsStatus then
+      common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
+        escSystem = "ON" , trailerSwayControl = "OFF" }
+      common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+    end
+    if common.VehicleDataItemsWithData.gearStatus then
+      local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
+      gearStatusParams.userSelectedGear.value = "NINTH"
+      gearStatusParams.actualGear.value = "TENTH"
+      gearStatusParams.transmissionType.value = "MANUAL"
+      common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
+    end
+    if common.VehicleDataItemsWithData.windowStatus then
+      common.VehicleDataItemsWithData.windowStatus.value = {
+      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+        state = { approximatePosition = 50, deviation = 50 }
+      }}
+    common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
+    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
@@ -751,7 +775,7 @@ function common.getVehicleDataResponse(pVehicleData)
   local parentVDname = common.VehicleDataItemsWithData[pVehicleData].name
   local HMIresponse = {}
   local mobileResponse = {}
-  if pVehicleData == "fuelRange" then
+  if pVehicleData == "fuelRange" or pVehicleData == "windowStatus" then
     HMIresponse[parentVDkey] = common.VehicleDataItemsWithData[pVehicleData].value
     mobileResponse[parentVDname] = common.VehicleDataItemsWithData[pVehicleData].value
   elseif

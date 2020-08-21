@@ -129,7 +129,7 @@ function testCasesForUI_IsReady.InitHMI_onReady_without_UI_IsReady(self, exp_occ
     return
     {
       name = name,
-      characterSet = characterSet or "TYPE2SET",
+      characterSet = characterSet or "UTF_8",
       width = width or 500,
       rows = rows or 1
     }

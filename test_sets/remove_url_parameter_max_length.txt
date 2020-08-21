@@ -1,0 +1,3 @@
+./test_scripts/API/RemoveUrlParameterMaxLength/001_OnSystemRequest.lua
+./test_scripts/API/RemoveUrlParameterMaxLength/002_StartStream.lua
+./test_scripts/API/RemoveUrlParameterMaxLength/003_StartAudioStream.lua
