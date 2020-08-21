@@ -1,30 +1,33 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1384
 --
--- Description: SDL doesn't check result code in VehicleInfo.IsReady response from HMI
+-- Description: SDL doesn't check result code in Navigation.IsReady response from HMI
 --
 -- Precondition:
 -- 1) SDL and HMI are started.
--- 2) SDL receives VehicleInfo.IsReady (error_result_code, available=true)
+-- 2) SDL receives Navigation.IsReady (error_result_code, available=true)
 -- or with error code but without available parameter from the HMI
 -- 3) App is registered and activated
 -- In case:
--- 1) App requests GetVehicleData RPC
+-- 1) App requests SendLocation RPC
 -- SDL does:
--- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: VehicleInfo is not supported by system'
+-- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: Navigation is not supported by system'
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
--- local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/6_2/1384/common')
+local common = require('test_scripts/Defects/7_0/1384/common')
 
 --[[ Local Variables ]]
-local interface = "VehicleInfo"
+local interface = "Navigation"
 
 --[[ Local Functions ]]
-local function getVehicleData()
-  local cid = common.getMobileSession():SendRPC("GetVehicleData", { gps = true })
+local function sendSendLocation()
+  local requestParams = {
+    longitudeDegrees = 1.1,
+    latitudeDegrees = 1.1
+  }
+  local cid = common.getMobileSession():SendRPC("SendLocation", requestParams)
   common.getMobileSession():ExpectResponse(cid,
-    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VehicleInfo is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "Navigation is not supported by system" })
 end
 
 --[[ Test ]]
@@ -36,7 +39,7 @@ for k, v in pairs(common.hmiExpectResponse) do
   common.Step("Activate App", common.activateApp)
 
   common.Title("Test")
-  common.Step("Sends GetVehicleData", getVehicleData)
+  common.Step("Sends SendLocation", sendSendLocation)
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

@@ -1,33 +1,30 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/1384
 --
--- Description: SDL doesn't check result code in VR.IsReady response from HMI
+-- Description: SDL doesn't check result code in VehicleInfo.IsReady response from HMI
 --
 -- Precondition:
 -- 1) SDL and HMI are started.
--- 2) SDL receives VR.IsReady (error_result_code, available=true)
+-- 2) SDL receives VehicleInfo.IsReady (error_result_code, available=true)
 -- or with error code but without available parameter from the HMI
 -- 3) App is registered and activated
 -- In case:
--- 1) App requests AddCommand RPC
+-- 1) App requests GetVehicleData RPC
 -- SDL does:
--- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: VR is not supported by system'
+-- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: VehicleInfo is not supported by system'
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local common = require('test_scripts/Defects/6_2/1384/common')
+-- local runner = require('user_modules/script_runner')
+local common = require('test_scripts/Defects/7_0/1384/common')
 
 --[[ Local Variables ]]
-local interface = "VR"
+local interface = "VehicleInfo"
 
 --[[ Local Functions ]]
-local function sendAddCommand()
-  local requestParams = {
-    cmdID = 11,
-    vrCommands = { "VRCommandonepositive", "VRCommandonepositivedouble" },
-  }
-  local cid = common.getMobileSession():SendRPC("AddCommand", requestParams)
+local function getVehicleData()
+  local cid = common.getMobileSession():SendRPC("GetVehicleData", { gps = true })
   common.getMobileSession():ExpectResponse(cid,
-    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VR is not supported by system" })
+    { success = false, resultCode = "UNSUPPORTED_RESOURCE", info = "VehicleInfo is not supported by system" })
 end
 
 --[[ Test ]]
@@ -39,7 +36,7 @@ for k, v in pairs(common.hmiExpectResponse) do
   common.Step("Activate App", common.activateApp)
 
   common.Title("Test")
-  common.Step("Sends AddCommand", sendAddCommand)
+  common.Step("Sends GetVehicleData", getVehicleData)
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

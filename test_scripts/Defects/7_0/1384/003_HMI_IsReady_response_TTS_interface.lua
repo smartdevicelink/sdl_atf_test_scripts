@@ -14,7 +14,7 @@
 -- 1) respond with 'UNSUPPORTED_RESOURCE, success:false,' + 'info: TTS is not supported by system'
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local common = require('test_scripts/Defects/6_2/1384/common')
+local common = require('test_scripts/Defects/7_0/1384/common')
 
 --[[ Local Variables ]]
 local interface = "TTS"
