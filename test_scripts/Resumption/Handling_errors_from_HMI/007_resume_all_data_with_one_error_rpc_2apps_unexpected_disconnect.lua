@@ -16,7 +16,7 @@
 -- SDL does:
 --  - process responses from HMI
 --  - remove already restored data for app1
---  - send set of revert <Rpc_n> requests to HMI (except the one related to <erroneous> response for app2)
+--  - send set of revert <Rpc_n> requests to HMI (except the one related to <erroneous> response for app1)
 --  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
 --  - restore all data for app2
 --  - respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application app2

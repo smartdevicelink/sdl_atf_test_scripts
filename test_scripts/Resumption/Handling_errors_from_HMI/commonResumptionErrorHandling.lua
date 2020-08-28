@@ -1246,7 +1246,7 @@ function m.errorResponse(pData, pDelay)
   m.run.runAfter(response, pDelay)
 end
 
---[[ @sendResponse2Apps: sending error response
+--[[ @sendResponse2Apps: sending error response for app1
 --! @parameters:
 --! pData - data from received request
 --! pErrorRpc - RPC name for error response
