@@ -22,7 +22,6 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local isSubscribed = true
 local moduleType = common.modules[1]
 local default = nil
 local appSessionId = 1
@@ -47,7 +46,8 @@ common.Step("Clean environment", common.preconditions)
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("App registration", common.registerAppWOPTU)
 common.Step("App activation", common.activateApp)
-common.Step("Add interiorVD subscription", common.GetInteriorVehicleData, { moduleType, default, isSubscribed })
+common.Step("Add interiorVD subscription", common.GetInteriorVehicleData,
+  { moduleType, default, common.IVDataSubscribeAction.subscribe })
 
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)

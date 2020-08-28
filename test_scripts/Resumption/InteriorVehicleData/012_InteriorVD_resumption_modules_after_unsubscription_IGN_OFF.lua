@@ -26,7 +26,8 @@ local common = require('test_scripts/Resumption/InteriorVehicleData/commonResump
 
 --[[ Local Variables ]]
 local isSubscribed = true
-local withoutModuleId = nil
+local radioModuleId = nil
+local climateModuleId = nil
 local seatModuleId = common.getModuleId("SEAT", 2)
 local isUnsubscribed = false
 local appSessionId = 1
@@ -54,13 +55,15 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("App registration", common.registerAppWOPTU)
 common.Step("App activation", common.activateApp)
 common.Step("Add interiorVD subscription for RADIO", common.GetInteriorVehicleData,
-  { "RADIO", withoutModuleId, isSubscribed })
+  { "RADIO", radioModuleId, common.IVDataSubscribeAction.subscribe })
 common.Step("Add interiorVD subscription for CLIMATE", common.GetInteriorVehicleData,
-  { "CLIMATE", withoutModuleId, isSubscribed })
+  { "CLIMATE", climateModuleId, common.IVDataSubscribeAction.subscribe })
 common.Step("Add interiorVD subscription for SEAT", common.GetInteriorVehicleData,
-  { "SEAT", seatModuleId, isSubscribed })
-common.Step("Unsubscribe from CLIMATE", common.GetInteriorVehicleData, { "CLIMATE", withoutModuleId, isUnsubscribed })
-common.Step("Unsubscribe from SEAT", common.GetInteriorVehicleData, { "SEAT", seatModuleId, isUnsubscribed })
+  { "SEAT", seatModuleId, common.IVDataSubscribeAction.subscribe })
+common.Step("Unsubscribe from CLIMATE", common.GetInteriorVehicleData,
+  { "CLIMATE", climateModuleId, common.IVDataSubscribeAction.unsubscribe })
+common.Step("Unsubscribe from SEAT", common.GetInteriorVehicleData,
+  { "SEAT", seatModuleId, common.IVDataSubscribeAction.unsubscribe })
 
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)
@@ -68,9 +71,9 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Reregister App resumption data", common.reRegisterApp,
   { appSessionId, checkResumptionData, common.resumptionFullHMILevel })
 common.Step("Check subscription with OnInteriorVD for RADIO", common.onInteriorVD,
-  { "RADIO", withoutModuleId, isSubscribed })
+  { "RADIO", radioModuleId, isSubscribed })
 common.Step("Check subscription with OnInteriorVD for CLIMATE", common.onInteriorVD,
-  { "CLIMATE", withoutModuleId, isUnsubscribed })
+  { "CLIMATE", climateModuleId, isUnsubscribed })
 common.Step("Check subscription with OnInteriorVD for SEAT", common.onInteriorVD,
   { "SEAT", seatModuleId, isUnsubscribed })
 

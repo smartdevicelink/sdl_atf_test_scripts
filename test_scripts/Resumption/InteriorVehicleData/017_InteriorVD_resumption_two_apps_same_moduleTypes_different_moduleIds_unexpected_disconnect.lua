@@ -29,7 +29,6 @@ local common = require('test_scripts/Resumption/InteriorVehicleData/commonResump
 local moduleType = "SEAT"
 local moduleId1 = common.getModuleId(moduleType, 1)
 local moduleId2 = common.getModuleId(moduleType, 2)
-local isSubscribe = true
 local default = nil
 local appSessionId1 = 1
 local appSessionId2 = 2
@@ -55,10 +54,10 @@ common.Step("App1 registration", common.registerAppWOPTU, { appSessionId1 })
 common.Step("App2 registration", common.registerAppWOPTU, { appSessionId2 })
 common.Step("App1 activation", common.activateApp, { appSessionId1 })
 common.Step("App2 activation", common.activateApp, { appSessionId2 })
-common.Step("App1 interiorVD subscription for " .. moduleType .. " " .. moduleId1,
-  common.GetInteriorVehicleData, { moduleType, moduleId1, isSubscribe, default, default, appSessionId1 })
-common.Step("App2 interiorVD subscription for " .. moduleType .. " " .. moduleId2,
-  common.GetInteriorVehicleData, { moduleType, moduleId2, isSubscribe, default, default, appSessionId2 })
+common.Step("App1 interiorVD subscription for " .. moduleType .. " " .. moduleId1, common.GetInteriorVehicleData,
+  { moduleType, moduleId1, common.IVDataSubscribeAction.subscribe, default, default, appSessionId1 })
+common.Step("App2 interiorVD subscription for " .. moduleType .. " " .. moduleId2, common.GetInteriorVehicleData,
+  { moduleType, moduleId2, common.IVDataSubscribeAction.subscribe, default, default, appSessionId2 })
 
 common.Title("Test")
 common.Step("Unexpected disconnect", common.mobileDisconnect)

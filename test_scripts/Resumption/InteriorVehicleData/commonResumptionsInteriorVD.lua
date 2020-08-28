@@ -23,6 +23,9 @@ config.application2.registerAppInterfaceParams.isMediaApplication = false
 --[[ Variables ]]
 local m = {}
 m.modules = { "RADIO", "CLIMATE", "SEAT", "AUDIO", "LIGHT", "HMI_SETTINGS" }
+m.onHashChangeTimes = { expect = 1, notExpect = 0 }
+m.IVDataCacheState = { isCached = true, isNotCached = false }
+m.IVDataSubscribeAction = { subscribe = true, unsubscribe = false }
 m.hashId = {}
 local modulesWithSubscription = { }
 local messageStatusAboutDefaultModuleId = false
@@ -54,8 +57,8 @@ local state = rc.state.buildDefaultActualModuleState(rc.predefined.getRcCapabili
 rc.state.initActualModuleStateOnHMI(state)
 
 -- [[ Common Functions ]]
-local function boolToTimes(isTrue)
-  if isTrue then
+local function boolToTimes(val)
+  if val then
     return 1
   end
   return 0

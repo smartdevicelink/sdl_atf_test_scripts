@@ -25,13 +25,11 @@ local common = require('test_scripts/Resumption/InteriorVehicleData/commonResump
 
 --[[ Local Variables ]]
 local moduleType = common.modules[1]
-local isSubscribe = true
 local default = nil
 local appSessionId1 = 1
 local appSessionId2 = 2
 local expected = 1
-local isNotCached = false
-local isCached = true
+
 
 --[[ Local Functions ]]
 local function checkResumptionData()
@@ -56,10 +54,12 @@ common.Step("App1 registration", common.registerAppWOPTU, { appSessionId1 })
 common.Step("App2 registration", common.registerAppWOPTU, { appSessionId2 })
 common.Step("App1 activation", common.activateApp, { appSessionId1 })
 common.Step("App2 activation", common.activateApp, { appSessionId2 })
-common.Step("App1 interiorVD subscription for " .. moduleType,
-  common.GetInteriorVehicleData, { moduleType, default, isSubscribe, isNotCached, default, appSessionId1 })
-common.Step("App2 interiorVD subscription for " .. moduleType,
-  common.GetInteriorVehicleData, { moduleType, default, isSubscribe, isCached, default, appSessionId2 })
+common.Step("App1 interiorVD subscription for " .. moduleType, common.GetInteriorVehicleData,
+{ moduleType, default, common.IVDataSubscribeAction.subscribe,
+  common.IVDataCacheState.isNotCached, default, appSessionId1 })
+common.Step("App2 interiorVD subscription for " .. moduleType, common.GetInteriorVehicleData,
+  { moduleType, default, common.IVDataSubscribeAction.subscribe,
+    common.IVDataCacheState.isCached, default, appSessionId2 })
 
 common.Title("Test")
 common.Step("Unexpected disconnect", common.mobileDisconnect)

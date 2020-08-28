@@ -21,13 +21,8 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local withoutModuleId = nil
+local moduleId = nil
 local withoutSubscribe = nil
-local notExpectNotif = 0
-local expectNotif = 1
-local isNotCached = false
-local isSubscribed = true
-local isCached = true
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -39,11 +34,14 @@ common.Step("App activation", common.activateApp)
 common.Title("Test")
 for _, moduleName in pairs(common.modules)do
   common.Step("Absence OnHashChange after GetInteriorVD without subscribe to " .. moduleName,
-    common.GetInteriorVehicleData, { moduleName, withoutModuleId, withoutSubscribe, isNotCached, notExpectNotif })
+    common.GetInteriorVehicleData, { moduleName, moduleId, withoutSubscribe, common.IVDataCacheState.isNotCached,
+      common.onHashChangeTimes.notExpect })
   common.Step("OnHashChange after adding subscription to " .. moduleName, common.GetInteriorVehicleData,
-    { moduleName, withoutModuleId, isSubscribed, isNotCached, expectNotif })
+    { moduleName, moduleId, common.IVDataSubscribeAction.subscribe, common.IVDataCacheState.isNotCached,
+      common.onHashChangeTimes.expect })
   common.Step("Absence OnHashChange after GetInteriorVD without subscribe to " .. moduleName,
-    common.GetInteriorVehicleData, { moduleName, withoutModuleId, withoutSubscribe, isCached, notExpectNotif })
+    common.GetInteriorVehicleData, { moduleName, moduleId, withoutSubscribe, common.IVDataCacheState.isCached,
+      common.onHashChangeTimes.notExpect })
 end
 
 common.Title("Postconditions")

@@ -4,9 +4,9 @@
 -- Description:
 -- In case:
 -- 1. AddCommand_1, AddSubMenu_1, CreateInteractionChoiceSet_1, SetGlobalProperties_1, SubscribeButton_1,
---  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1, GetInteriroVehicleData_1 are sent by app1
+--  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1, GetInteriorVehicleData_1 are sent by app1
 -- 2. AddCommand_2, AddSubMenu_2, CreateInteractionChoiceSet_2, SetGlobalProperties_2, SubscribeButton_2,
---  SubscribeVehicleData_2, SubscribeWayPoints_2, CreateWindow_2, GetInteriroVehicleData_2 are sent by app2
+--  SubscribeVehicleData_2, SubscribeWayPoints_2, CreateWindow_2, GetInteriorVehicleData_2 are sent by app2
 -- 3. IGN_OFF and IGN_ON are performed
 -- 4. App1 and app2 re-register with actual HashId
 -- SDL does:

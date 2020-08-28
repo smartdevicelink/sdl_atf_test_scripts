@@ -24,12 +24,7 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local withoutModuleId = nil
-local notExpectNotif = 0
-local expectNotif = 1
-local isSubscribed = true
-local isCached = true
-local isNotCached = false
+local moduleId = nil
 local appSessionId = 1
 
 --[[ Local Functions ]]
@@ -46,7 +41,8 @@ common.Step("App registration", common.registerAppWOPTU)
 common.Step("App activation", common.activateApp)
 for _, moduleType in pairs(common.modules)do
   common.Step("Add interiorVD subscription for " .. moduleType , common.GetInteriorVehicleData,
-    { moduleType, withoutModuleId, isSubscribed, isNotCached, expectNotif, appSessionId })
+    { moduleType, moduleId, common.IVDataSubscribeAction.subscribe, common.IVDataCacheState.isNotCached,
+      common.onHashChangeTimes.expect, appSessionId })
 end
 common.Step("Unexpected disconnect", common.mobileDisconnect)
 common.Step("Connect mobile", common.mobileConnect)
@@ -56,7 +52,8 @@ common.Step("Re-register App resumption data", common.reRegisterApp,
 common.Title("Test")
 for _, moduleType in pairs(common.modules)do
   common.Step("Second subscription to " .. moduleType , common.GetInteriorVehicleData,
-    { moduleType, withoutModuleId, isSubscribed, isCached, notExpectNotif, appSessionId, "WARNINGS" })
+    { moduleType, moduleId, common.IVDataSubscribeAction.subscribe, common.IVDataCacheState.isCached,
+      common.onHashChangeTimes.notExpect, appSessionId, "WARNINGS" })
 end
 
 common.Title("Postconditions")

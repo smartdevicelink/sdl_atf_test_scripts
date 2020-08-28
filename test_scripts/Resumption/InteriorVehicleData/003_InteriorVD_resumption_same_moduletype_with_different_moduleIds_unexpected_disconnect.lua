@@ -7,7 +7,7 @@
 -- Precondition:
 -- 1. HMI and SDL are started
 -- 2. Mobile app with REMOTE_CONTROL hmi type is registered and activated
--- 3. App is subscribed to moduleType_1 with modueId_1 and moduleType_1 with modueId_2
+-- 3. App is subscribed to moduleType_1 with moduleId_1 and moduleType_1 with moduleId_2
 --
 -- Sequence:
 -- 1. Transport disconnect and reconnect are performed
@@ -25,7 +25,6 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local isSubscribed = true
 local moduleType = "SEAT"
 local moduleId1 = common.getModuleId(moduleType, 1)
 local moduleId2 = common.getModuleId(moduleType, 2)
@@ -49,9 +48,9 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("App registration", common.registerAppWOPTU)
 common.Step("App activation", common.activateApp)
 common.Step("Add interiorVD subscription " .. moduleType .. " " .. moduleId1, common.GetInteriorVehicleData,
-  { moduleType, moduleId1, isSubscribed })
+  { moduleType, moduleId1, common.IVDataSubscribeAction.subscribe })
 common.Step("Add interiorVD subscription " .. moduleType .. " " .. moduleId2, common.GetInteriorVehicleData,
-  { moduleType, moduleId2, isSubscribed })
+  { moduleType, moduleId2, common.IVDataSubscribeAction.subscribe })
 
 common.Title("Test")
 common.Step("Unexpected disconnect", common.mobileDisconnect)

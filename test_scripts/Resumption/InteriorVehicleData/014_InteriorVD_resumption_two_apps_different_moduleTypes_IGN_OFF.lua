@@ -28,7 +28,6 @@ local common = require('test_scripts/Resumption/InteriorVehicleData/commonResump
 --[[ Local Variables ]]
 local moduleTypeForApp1 = common.modules[1]
 local moduleTypeForApp2 = common.modules[2]
-local isSubscribe = true
 local default = nil
 local appSessionId1 = 1
 local appSessionId2 = 2
@@ -63,10 +62,10 @@ common.Step("App1 registration", common.registerAppWOPTU, { appSessionId1 })
 common.Step("App2 registration", common.registerAppWOPTU, { appSessionId2 })
 common.Step("App1 activation", common.activateApp, { appSessionId1 })
 common.Step("App2 activation", common.activateApp, { appSessionId2 })
-common.Step("App1 interiorVD subscription for " .. moduleTypeForApp1,
-  common.GetInteriorVehicleData, { moduleTypeForApp1, default, isSubscribe, default, default, appSessionId1 })
-common.Step("App2 interiorVD subscription for " .. moduleTypeForApp2,
-  common.GetInteriorVehicleData, { moduleTypeForApp2, default, isSubscribe, default, default, appSessionId2  })
+common.Step("App1 interiorVD subscription for " .. moduleTypeForApp1, common.GetInteriorVehicleData,
+  { moduleTypeForApp1, default, common.IVDataSubscribeAction.subscribe, default, default, appSessionId1 })
+common.Step("App2 interiorVD subscription for " .. moduleTypeForApp2, common.GetInteriorVehicleData,
+  { moduleTypeForApp2, default, common.IVDataSubscribeAction.subscribe, default, default, appSessionId2 })
 
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)

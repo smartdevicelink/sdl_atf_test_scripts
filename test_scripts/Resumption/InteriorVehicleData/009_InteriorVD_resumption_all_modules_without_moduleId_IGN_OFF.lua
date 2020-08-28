@@ -24,8 +24,7 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local isSubscribed = true
-local withoutModuleId = nil
+local moduleId = nil
 local appSessionId = 1
 
 --[[ Local Functions ]]
@@ -42,7 +41,7 @@ common.Step("App registration", common.registerAppWOPTU)
 common.Step("App activation", common.activateApp)
 for _, moduleType in pairs(common.modules) do
   common.Step("Add interiorVD subscription for " .. moduleType, common.GetInteriorVehicleData,
-    { moduleType, withoutModuleId, isSubscribed })
+    { moduleType, moduleId, common.IVDataSubscribeAction.subscribe })
 end
 
 common.Title("Test")

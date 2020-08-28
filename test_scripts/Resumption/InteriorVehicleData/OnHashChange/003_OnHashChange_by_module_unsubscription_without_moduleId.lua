@@ -22,11 +22,7 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local withoutModuleId = nil
-local expectNotif = 1
-local isNotSubscribed = false
-local isSubscribed = true
-local isNotCached = false
+local moduleId = nil
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -38,9 +34,11 @@ common.Step("App activation", common.activateApp)
 common.Title("Test")
 for _, moduleName in pairs(common.modules)do
   common.Step("Subscription to " .. moduleName, common.GetInteriorVehicleData,
-    { moduleName, withoutModuleId, isSubscribed, isNotCached, expectNotif })
+    { moduleName, moduleId, common.IVDataSubscribeAction.subscribe, common.IVDataCacheState.isNotCached,
+      common.onHashChangeTimes.expect })
   common.Step("OnHashChange after removing subscription for " .. moduleName, common.GetInteriorVehicleData,
-    { moduleName, withoutModuleId, isNotSubscribed, isNotCached, expectNotif })
+    { moduleName, moduleId, common.IVDataSubscribeAction.unsubscribe, common.IVDataCacheState.isNotCached,
+      common.onHashChangeTimes.expect })
 end
 
 common.Title("Postconditions")

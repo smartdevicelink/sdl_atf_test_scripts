@@ -28,14 +28,11 @@
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
 --[[ Local Variables ]]
-local isSubscribe = true
 local default = nil
 local appSessionId1 = 1
 local appSessionId2 = 2
 local expected = 1
 local notExpected = 0
-local isNotCached = false
-local isCached = true
 
 --[[ Local Functions ]]
 local function checkResumptionData()
@@ -54,13 +51,17 @@ common.Step("App2 registration", common.registerAppWOPTU, { appSessionId2 })
 common.Step("App1 activation", common.activateApp, { appSessionId1 })
 common.Step("App2 activation", common.activateApp, { appSessionId2 })
 common.Step("App1 interiorVD subscription for " .. common.modules[1],
-  common.GetInteriorVehicleData, { common.modules[1], default, isSubscribe, isNotCached, default, appSessionId1 })
+  common.GetInteriorVehicleData, { common.modules[1], default, common.IVDataSubscribeAction.subscribe,
+    common.IVDataCacheState.isNotCached, default, appSessionId1 })
 common.Step("App1 interiorVD subscription for " .. common.modules[2],
-  common.GetInteriorVehicleData, { common.modules[2], default, isSubscribe, isNotCached, default, appSessionId1 })
+  common.GetInteriorVehicleData, { common.modules[2], default, common.IVDataSubscribeAction.subscribe,
+    common.IVDataCacheState.isNotCached, default, appSessionId1 })
 common.Step("App2 interiorVD subscription for " .. common.modules[2],
-  common.GetInteriorVehicleData, { common.modules[2], default, isSubscribe, isCached, default, appSessionId2 })
+  common.GetInteriorVehicleData, { common.modules[2], default, common.IVDataSubscribeAction.subscribe,
+    common.IVDataCacheState.isCached, default, appSessionId2 })
 common.Step("App2 interiorVD subscription for " .. common.modules[3],
-  common.GetInteriorVehicleData, { common.modules[3], default, isSubscribe, isNotCached, default, appSessionId2  })
+  common.GetInteriorVehicleData, { common.modules[3], default, common.IVDataSubscribeAction.subscribe,
+    common.IVDataCacheState.isNotCached, default, appSessionId2  })
 
 common.Title("Test")
 common.Step("Ignition off", common.ignitionOff)

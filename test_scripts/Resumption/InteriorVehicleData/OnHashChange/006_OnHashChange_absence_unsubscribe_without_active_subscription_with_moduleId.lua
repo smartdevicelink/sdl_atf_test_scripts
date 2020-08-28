@@ -20,10 +20,6 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Resumption/InteriorVehicleData/commonResumptionsInteriorVD')
 
---[[ Local Variables ]]
-local notExpectNotif = 0
-local isNotSubscribed = false
-local isNotCached = false
 
 --[[ Scenario ]]
 common.Title("Preconditions")
@@ -36,7 +32,8 @@ common.Title("Test")
 for _, moduleName in pairs(common.modules)do
   common.Step("Absence OnHashChange after GetInteriorVD(subscribe=false) to " .. moduleName,
     common.GetInteriorVehicleData,
-    { moduleName, common.getModuleId(moduleName, 2), isNotSubscribed, isNotCached, notExpectNotif })
+    { moduleName, common.getModuleId(moduleName, 2), common.IVDataSubscribeAction.unsubscribe,
+      common.IVDataCacheState.isNotCached, common.onHashChangeTimes.notExpect })
 end
 
 common.Title("Postconditions")
