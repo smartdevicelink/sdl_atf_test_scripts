@@ -1448,6 +1448,20 @@ function m.sendOnVehicleData(pVDParam, pIsExpApp1, pIsExpApp2)
   end
 end
 
+--[[ @sendOnCommand: send OnCommand
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pIsExp - true (default) - if it's expected notification on mobile app
+--! @return: none
+--]]
+function m.sendOnCommand(pIsExp, pAppId)
+  if pAppId == nil then pAppId = 1 end
+  local occurences = pIsExp == true and 1 or 0
+  m.getHMIConnection():SendNotification("UI.OnCommand", { cmdID = pAppId, appID = m.getHMIAppId(pAppId) })
+  m.getMobileSession():ExpectNotification("OnCommand", { cmdID = pAppId, triggerSource= "MENU" })
+  :Times(occurences)
+end
+
 --[[ @checkResumptionDataSuccess: verify resumption for successful scenario
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
@@ -1497,6 +1511,7 @@ end
 function m.checkSubscriptions(pIsExp, pAppId)
   m.sendOnButtonPress(pAppId, pIsExp)
   m.sendOnVehicleData("gps", pIsExp)
+  m.sendOnCommand(pIsExp, pAppId)
 end
 
 --[[ @reRegisterAppsCustom_SameRPC: re-register 2 apps and check data resumption
