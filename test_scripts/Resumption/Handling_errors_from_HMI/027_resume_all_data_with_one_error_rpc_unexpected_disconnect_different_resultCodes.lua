@@ -25,12 +25,10 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local resultCodes = {
   "UNSUPPORTED_REQUEST",
-  "UNSUPPORTED_RESOURCE",
   "DISALLOWED",
   "REJECTED",
   "ABORTED",
   "IGNORED",
-  "RETRY",
   "IN_USE",
   "DATA_NOT_AVAILABLE",
   "TIMED_OUT",
@@ -39,7 +37,6 @@ local resultCodes = {
   "INVALID_ID",
   "DUPLICATE_NAME",
   "APPLICATION_NOT_REGISTERED",
-  "WRONG_LANGUAGE",
   "OUT_OF_MEMORY",
   "TOO_MANY_PENDING_REQUESTS",
   "NO_APPS_REGISTERED",
