@@ -1121,7 +1121,7 @@ function m.reRegisterAppCustom(pAppId, pResultCode, pDelay, pTimeout)
   return m.hmi.getConnection():ExpectEvent(event, "RAI event"):Timeout(pTimeout)
 end
 
---[[ @reRegisterApps: re-register 2 apps
+--[[ @reRegisterAppsWithError: re-register 2 apps
 --! @parameters:
 --! pCheckResumptionData - verification function for resumption data
 --! pErrorRpc - RPC name for error response
@@ -1129,7 +1129,7 @@ end
 --! pTimeout - time for expectation of RAI response
 --! @return: none
 --]]
-function m.reRegisterApps(pCheckResumptionData, pErrorRpc, pErrorInterface, pTimeout)
+function m.reRegisterAppsWithError(pCheckResumptionData, pErrorRpc, pErrorInterface, pTimeout)
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered")
   :Do(function(exp, data)
       m.log("BC.OnAppRegistered " .. exp.occurences)
