@@ -47,7 +47,7 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)
-    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
+    runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
       { 1, common.checkResumptionData, common.resumptionFullHMILevel, k, interface, 15000})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end

@@ -52,7 +52,7 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("Add buttonSubscription", common.buttonSubscription)
     runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
     runner.Step("Connect mobile", common.connectMobile)
-    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
+    runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
       { 1, common.checkResumptionDataWithErrorResponse, common.resumptionFullHMILevel, k, interface, 12000})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end

@@ -584,7 +584,7 @@ function m.checkResumptionDataWithErrorResponse(pAppId, pErrorResponseRpc, pErro
   :Times(3)
 end
 
---[[ @reRegisterApp: re-register application with RESUME_FAILED resultCode
+--[[ @reRegisterAppResumeFailed: re-register application with RESUME_FAILED resultCode
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! pCheckResumptionData - verification function for resumption data
@@ -594,7 +594,7 @@ end
 --! pTimeout - time for expectation of RAI response and OnHMIStatus notifications
 --! @return: none
 --]]
-function m.reRegisterApp(pAppId, pCheckResumptionData, pCheckResumptionHMILevel, pErrorResponseRpc, pErrorResponseInterface, pTimeout)
+function m.reRegisterAppResumeFailed(pAppId, pCheckResumptionData, pCheckResumptionHMILevel, pErrorResponseRpc, pErrorResponseInterface, pTimeout)
   if not pAppId then pAppId = 1 end
   if not pTimeout then pTimeout = 10000 end
   local mobSession = m.getMobileSession(pAppId)

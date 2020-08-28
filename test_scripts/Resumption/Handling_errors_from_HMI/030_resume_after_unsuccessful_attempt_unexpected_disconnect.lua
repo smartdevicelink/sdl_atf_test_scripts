@@ -41,7 +41,7 @@ local function checkResumptionData()
 end
 
 local function reRegisterApp(pAppId, ...)
-  common.reRegisterApp(pAppId, ...)
+  common.reRegisterAppResumeFailed(pAppId, ...)
   common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Do(function(_, data)
       common.hashId[pAppId] = data.payload.hashID
