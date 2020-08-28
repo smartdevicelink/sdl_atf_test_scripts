@@ -508,7 +508,7 @@ m.rpcsRevert = {
   }
 }
 
---[[ @checkResumptionDataWithErrorResponse: check resumption data with error response to defined rpc and
+--[[ @checkAllResumptionDataWithOneErrorResponse: check resumption data with error response to defined rpc and
 --! checking reverting already added data
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
@@ -516,7 +516,7 @@ m.rpcsRevert = {
 --! pErrorResponseInterface - interface of RPC for error response
 --! @return: none
 ]]
-function m.checkResumptionDataWithErrorResponse(pAppId, pErrorResponseRpc, pErrorResponseInterface)
+function m.checkAllResumptionDataWithOneErrorResponse(pAppId, pErrorResponseRpc, pErrorResponseInterface)
   local rpcsRevertLocal = m.cloneTable(m.rpcsRevert)
   if pErrorResponseRpc == "addCommand" and pErrorResponseInterface == "VR" then
     rpcsRevertLocal.addCommand.iface.VR = nil

@@ -61,7 +61,7 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)
     runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
-      { 1, common.checkResumptionDataWithErrorResponse, absenceResumptionToBackground, k, interface})
+      { 1, common.checkAllResumptionDataWithOneErrorResponse, absenceResumptionToBackground, k, interface})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end
 end
