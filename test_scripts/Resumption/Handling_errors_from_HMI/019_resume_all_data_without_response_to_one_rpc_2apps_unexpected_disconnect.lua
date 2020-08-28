@@ -2,6 +2,10 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed for 1st app and succeeded for 2nd app in case
+-- if HMI does not respond to at least one request from SDL related to the 1st app during default timeout
+-- (unexpected disconnect scenario)
+--
 -- In case:
 -- 1. AddCommand_1, AddSubMenu_1, CreateInteractionChoiceSet_1, SetGlobalProperties_1, SubscribeButton_1,
 --  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1 are sent by app1

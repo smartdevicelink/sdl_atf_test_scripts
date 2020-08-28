@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check vehicle data resumption is failed in case if HMI responds with error to non vehicle data request
+-- and success to vehicle data request with some delay
+--
 -- In case:
 -- 1. App successfully added SubMenu and is subscribed to Vehicle Data (VD)
 -- 2. Unexpected disconnect and reconnect are performed

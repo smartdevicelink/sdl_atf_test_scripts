@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check vehicle data resumption succeeded for 2nd app after fail for the 1st app in case of shared data
+-- (<erroneous> result code for particular VD parameter scenario)
+--
 -- In case:
 -- 1. App1 is subscribed to data_1, data_2 and data_3
 -- 2. App2 is subscribed to data_3 and data_4

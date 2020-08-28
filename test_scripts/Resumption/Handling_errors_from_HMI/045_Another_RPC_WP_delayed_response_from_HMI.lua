@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check way points data resumption is failed in case if HMI responds with error to non way points data request
+-- and success to way points data request with some delay
+--
 -- In case:
 -- 1. App successfully added SubMenu and is subscribed to Way Points (WP)
 -- 2. Unexpected disconnect and reconnect are performed

@@ -2,6 +2,11 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check way points data resumption is failed for 1st app and succeeded for 2nd app
+-- in case if HMI responds with error to non way points request related to the 1st app
+-- and success to 2nd request related to the 2nd app
+-- (2nd app re-registers after erroneous response from HMI scenario)
+--
 -- In case:
 -- 1. AddSubMenu related to resumption is sent by App1
 -- 2. App1 and App2 are subscribed to WayPoints

@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check LIMITED HMI level is resumed in case if HMI responds with <erroneous> result code to request from SDL
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. App is in LIMITED HMI level
 -- 2. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,

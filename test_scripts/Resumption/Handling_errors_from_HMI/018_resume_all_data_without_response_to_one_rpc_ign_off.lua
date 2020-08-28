@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed in case if HMI does not respond to at least one request from SDL during default timeout
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
 --  SubscribeWayPoints, CreateWindow (<Rpc_n>) are sent by app

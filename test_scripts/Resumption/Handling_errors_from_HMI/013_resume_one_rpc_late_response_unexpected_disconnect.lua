@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed in case if HMI responds with SUCCESS result code to request from SDL
+-- after default timeout expires (unexpected disconnect scenario)
+--
 -- In case:
 -- 1. <Rpc_n> related to resumption is sent by app
 -- 2. Unexpected disconnect and reconnect are performed

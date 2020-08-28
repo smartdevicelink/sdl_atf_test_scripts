@@ -2,6 +2,8 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed in case if HMI responds with any <erroneous> result code to request from SDL
+--
 -- In case:
 -- 1. AddSubMenu for resumption is sent by app
 -- 2. Unexpected disconnect and reconnect are performed
