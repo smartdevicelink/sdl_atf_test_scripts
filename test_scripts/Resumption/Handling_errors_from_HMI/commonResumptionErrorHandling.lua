@@ -1805,19 +1805,19 @@ function m.isSubscribed(pIsExpApp1, pIsExpApp2, pModuleType, pModuleId)
   end
 end
 
---[[ @geInteriorVDvalue: get value for interior vehicle data with moduleType, moduleId, subscribe parameters
+--[[ @getInteriorVDvalue: get value for interior vehicle data with moduleType, moduleId, subscribe parameters
 --! @parameters:
 --! pModuleType - module type value to define in structure
 --! pSubscribe - subscribe value to define in structure
 --! pModuleId - module id value to define in structure
 --! @return: built structure
 --]]
-function m.geInteriorVDvalue(pModuleType, pSubscribe, pModuleId)
+function m.getInteriorVDvalue(pModuleType, pSubscribe, pModuleId)
   pModuleId = pModuleId or m.getModuleControlData(pModuleType, 1).moduleId
   return { moduleType = pModuleType, moduleId = pModuleId, subscribe = pSubscribe }
 end
 
---[[ @interiorVDvalidation: validation function for GetInteriorVehicleData request
+--[[ @validateInteriorVD: validation function for GetInteriorVehicleData request
 --! @parameters:
 --! pOccurences - actual occurrence of GetInteriorVehicleData requests
 --! pExpectedNumber - expected number of GetInteriorVehicleData requests
@@ -1825,14 +1825,12 @@ end
 --! pExpectedData - expected data to compare
 --! @return: validation result
 --]]
-function m.interiorVDvalidation(pOccurences, pExpectedNumber, pActualData, pExpectedData)
-  if pOccurences == pExpectedNumber then
-    if m.isTableEqual(pExpectedData, pActualData) == false then
-      local errorMessage = "Wrong expected requests are received\n" ..
-      "Actual result:" .. m.tableToString(pActualData) .. "\n" ..
-      "Expected result:" .. m.tableToString(pExpectedData) .."\n"
-    return false, errorMessage
-    end
+function m.validateInteriorVD(pActualData, pExpectedData)
+  if m.isTableEqual(pExpectedData, pActualData) == false then
+    local errorMessage = "Wrong expected requests are received\n" ..
+    "Actual result:" .. m.tableToString(pActualData) .. "\n" ..
+    "Expected result:" .. m.tableToString(pExpectedData) .."\n"
+  return false, errorMessage
   end
   return true
 end

@@ -32,9 +32,9 @@ local modules = { common.rcModuleTypes[1], common.rcModuleTypes[2] }
 local function checkResumptionData()
   local actualData = {}
   local expectedData = {}
-  table.insert(expectedData, common.geInteriorVDvalue(modules[1], true))
-  table.insert(expectedData, common.geInteriorVDvalue(modules[2], true))
-  table.insert(expectedData, common.geInteriorVDvalue(modules[2], false))
+  table.insert(expectedData, common.getInteriorVDvalue(modules[1], true))
+  table.insert(expectedData, common.getInteriorVDvalue(modules[2], true))
+  table.insert(expectedData, common.getInteriorVDvalue(modules[2], false))
 
   common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData")
   :Do(function(_, data)
@@ -53,7 +53,10 @@ local function checkResumptionData()
     end)
   :ValidIf(function(exp, data)
       table.insert(actualData, data.params)
-      return common.interiorVDvalidation(exp.occurences, #expectedData, actualData, expectedData)
+      if exp.occurences == #expectedData then
+        return common.validateInteriorVD(actualData, expectedData)
+      end
+      return true
     end)
   :Times(#expectedData)
 end

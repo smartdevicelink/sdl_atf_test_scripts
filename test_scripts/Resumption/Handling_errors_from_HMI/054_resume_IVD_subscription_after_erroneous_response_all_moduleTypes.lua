@@ -25,8 +25,8 @@ runner.testSettings.isSelfIncluded = false
 local function getExpectedData()
   local expectedData = {}
   for _, moduleTypeValue in pairs(common.rcModuleTypes) do
-    table.insert(expectedData, common.geInteriorVDvalue(moduleTypeValue, true))
-    table.insert(expectedData, common.geInteriorVDvalue(moduleTypeValue, false))
+    table.insert(expectedData, common.getInteriorVDvalue(moduleTypeValue, true))
+    table.insert(expectedData, common.getInteriorVDvalue(moduleTypeValue, false))
   end
   return expectedData
 end
@@ -63,7 +63,10 @@ local function checkResumptionData()
     end)
   :ValidIf(function(exp, data)
       table.insert(actualData, data.params)
-      return common.interiorVDvalidation(exp.occurences, expectedNumber, actualData, expectedData)
+      if exp.occurences == expectedNumber then
+        return common.validateInteriorVD(actualData, expectedData)
+      end
+      return true
     end)
   :Times(expectedNumber)
 end

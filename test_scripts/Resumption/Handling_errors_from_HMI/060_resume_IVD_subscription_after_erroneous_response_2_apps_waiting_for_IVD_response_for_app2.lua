@@ -45,11 +45,11 @@ runner.testSettings.isSelfIncluded = false
 local function checkResumptionData()
   local actualData = {}
   local expectedData = {}
-  table.insert(expectedData, common.geInteriorVDvalue("CLIMATE", true))
-  table.insert(expectedData, common.geInteriorVDvalue("CLIMATE", true))
-  table.insert(expectedData, common.geInteriorVDvalue("RADIO", true))
-  table.insert(expectedData, common.geInteriorVDvalue("RADIO", false))
-  table.insert(expectedData, common.geInteriorVDvalue("SEAT", true))
+  table.insert(expectedData, common.getInteriorVDvalue("CLIMATE", true))
+  table.insert(expectedData, common.getInteriorVDvalue("CLIMATE", true))
+  table.insert(expectedData, common.getInteriorVDvalue("RADIO", true))
+  table.insert(expectedData, common.getInteriorVDvalue("RADIO", false))
+  table.insert(expectedData, common.getInteriorVDvalue("SEAT", true))
 
   local climateTypeOccurred = false
   local isResponseSent
@@ -80,7 +80,10 @@ local function checkResumptionData()
       if data.params.moduleType == "CLIMATE" and climateTypeOccurred == true and isResponseSent == false then
         return false, "RC.GetInteriorVehicleData request for app2 is received earlier then response for app1 is sent"
       end
-      return common.interiorVDvalidation(exp.occurences, #expectedData, actualData, expectedData)
+      if exp.occurences == #expectedData then
+        return common.validateInteriorVD(actualData, expectedData)
+      end
+      return true
     end)
   :Times(#expectedData)
 end

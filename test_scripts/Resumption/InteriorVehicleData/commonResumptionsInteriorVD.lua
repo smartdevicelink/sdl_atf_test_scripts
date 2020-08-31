@@ -28,7 +28,6 @@ m.IVDataCacheState = { isCached = true, isNotCached = false }
 m.IVDataSubscribeAction = { subscribe = true, unsubscribe = false }
 m.hashId = {}
 local modulesWithSubscription = { }
-local messageStatusAboutDefaultModuleId = false
 
 -- [[ Shared Functions ]]
 m.Title = runner.Title
@@ -70,21 +69,17 @@ local function setSubscriptionModuleStatus(pModuleType, pModuleId, isSubscribed)
     moduleId = pModuleId
   }
 
-  if #modulesWithSubscription == 0 and isSubscribed == true then
-    table.insert(modulesWithSubscription, newValue)
-    return
-  end
-
   for key, value in pairs(modulesWithSubscription) do
     if m.isTableEqual(value, newValue) and isSubscribed == false then
       table.remove(modulesWithSubscription, key)
       return
     elseif m.isTableEqual(value, newValue) and isSubscribed == true then
       return
-    elseif key == #modulesWithSubscription and isSubscribed == true then
-      table.insert(modulesWithSubscription, newValue)
-      return
     end
+  end
+
+  if isSubscribed == true then
+    table.insert(modulesWithSubscription, newValue)
   end
 end
 
@@ -94,10 +89,10 @@ function  m.GetInteriorVehicleData(pModuleType, pModuleId, isSubscribe, pIsIVDat
   local rpc = "GetInteriorVehicleData"
   if pIsIVDataCached == nil then pIsIVDataCached = false end
 
-  local moduleId = pModuleId or m.getModuleId(pModuleType,  1)
   local mobileRequestParams = m.cloneTable(rc.rpc.getAppRequestParams(rpc, pModuleType, pModuleId, isSubscribe))
+  pModuleId = pModuleId or m.getModuleId(pModuleType, 1)
 
-  local hmiRequestParams = rc.rpc.getHMIRequestParams(rpc, pModuleType, moduleId, pAppId, isSubscribe)
+  local hmiRequestParams = rc.rpc.getHMIRequestParams(rpc, pModuleType, pModuleId, pAppId, isSubscribe)
   if hashChangeExpectTimes == 0 then hmiRequestParams.subscribe = nil end
 
   local cid = m.getMobileSession(pAppId):SendRPC(rc.rpc.getAppEventName(rpc), mobileRequestParams)
@@ -105,17 +100,20 @@ function  m.GetInteriorVehicleData(pModuleType, pModuleId, isSubscribe, pIsIVDat
   :Times(boolToTimes(not pIsIVDataCached))
   :Do(function(_, data)
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
-        rc.rpc.getHMIResponseParams(rpc, pModuleType, moduleId, isSubscribe))
+        rc.rpc.getHMIResponseParams(rpc, pModuleType, pModuleId, isSubscribe))
     end)
 
   local resultCode = pResultCode or "SUCCESS"
-  local responseParams = rc.rpc.getAppResponseParams(rpc, true, resultCode, pModuleType, moduleId, isSubscribe)
-  if pResultCode == "WARNINGS" then
-    responseParams["info"] = "App is already subscribed to the provided module"
-  end
+  local responseParams = rc.rpc.getAppResponseParams(rpc, true, resultCode, pModuleType, pModuleId, isSubscribe)
   m.getMobileSession(pAppId):ExpectResponse(cid, responseParams)
   :Do(function()
-      setSubscriptionModuleStatus(pModuleType, moduleId, isSubscribe)
+      setSubscriptionModuleStatus(pModuleType, pModuleId, isSubscribe)
+    end)
+  :ValidIf(function(_, data)
+      if pResultCode == "WARNINGS" and data.payload.info == nil then
+        return false, "It is expected 'info' parameter in GetInteriorVehicleData response"
+      end
+      return true
     end)
 
   m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
@@ -136,11 +134,6 @@ function m.getModuleId(pModuleType, pModuleIdNumber)
         return value.data.moduleId
       end
     end
-  end
-  if messageStatusAboutDefaultModuleId == false then
-    utils.cprint(color.magenta, "There is only one moduleId for RADIO, LIGHT, HMI_SETTINGS." ..
-      "\nChecking default moduleId for these module types." )
-    messageStatusAboutDefaultModuleId = true
   end
   return out.moduleId
 end

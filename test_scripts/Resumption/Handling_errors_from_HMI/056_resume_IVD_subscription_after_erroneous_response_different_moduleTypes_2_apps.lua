@@ -33,9 +33,9 @@ runner.testSettings.isSelfIncluded = false
 local function checkResumptionData()
   local actualData = {}
   local expectedData = {}
-  table.insert(expectedData, common.geInteriorVDvalue("CLIMATE", true))
-  table.insert(expectedData, common.geInteriorVDvalue("RADIO", true))
-  table.insert(expectedData, common.geInteriorVDvalue("SEAT", true))
+  table.insert(expectedData, common.getInteriorVDvalue("CLIMATE", true))
+  table.insert(expectedData, common.getInteriorVDvalue("RADIO", true))
+  table.insert(expectedData, common.getInteriorVDvalue("SEAT", true))
 
   common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData")
   :Do(function(_, data)
@@ -57,7 +57,10 @@ local function checkResumptionData()
     end)
   :ValidIf(function(exp, data)
       table.insert(actualData, data.params)
-      return common.interiorVDvalidation(exp.occurences, #expectedData, actualData, expectedData)
+      if exp.occurences == #expectedData then
+        return common.validateInteriorVD(actualData, expectedData)
+      end
+      return true
     end)
   :Times(#expectedData)
 end
