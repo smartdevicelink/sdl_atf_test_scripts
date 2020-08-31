@@ -1797,7 +1797,7 @@ function m.isSubscribed(pIsExpApp1, pIsExpApp2, pModuleType, pModuleId)
   if pIsExpApp1 == nil then pIsExpApp1 = true end
   pModuleType = pModuleType or m.defaultModuleType
   pModuleId = pModuleId or m.getModuleControlData(pModuleType,1).moduleId
-  rc.rc.isSubscribed(pModuleType, pModuleId, 1, pIsExpApp1)
+  rc.rc.checkSubscription(pModuleType, pModuleId, 1, pIsExpApp1)
   if pIsExpApp2 ~= nil then
     local occurences2 = pIsExpApp2 == true and 1 or 0
     local params = m.getActualModuleIVData(pModuleType, pModuleId)

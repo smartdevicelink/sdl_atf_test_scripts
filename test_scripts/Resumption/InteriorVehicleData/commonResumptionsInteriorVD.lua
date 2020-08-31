@@ -140,7 +140,7 @@ end
 
 function m.onInteriorVD(pModuleType, pModuleId, pHasSubscription, pAppId)
   if pHasSubscription == nil then pHasSubscription = true end
-  rc.rc.isSubscribed(pModuleType, pModuleId or m.getModuleId(pModuleType, 1), pAppId, pHasSubscription)
+  rc.rc.checkSubscription(pModuleType, pModuleId or m.getModuleId(pModuleType, 1), pAppId, pHasSubscription)
 end
 
 local function getRCAppConfig(pPt)
