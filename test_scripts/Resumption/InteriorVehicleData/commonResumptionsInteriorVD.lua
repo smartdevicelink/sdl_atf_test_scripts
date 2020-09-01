@@ -123,6 +123,9 @@ function  m.GetInteriorVehicleData(pModuleType, pModuleId, isSubscribe, pIsIVDat
   :Times(hashChangeExpectTimes or 1)
 end
 
+-- The function returns moduleId:
+--  - of default module if pModuleIdNumber parameter equals 1 or omitted
+--  - of first found not default module in other cases
 function m.getModuleId(pModuleType, pModuleIdNumber)
   local out = rc.predefined.getModuleControlData(pModuleType, 1)
   if pModuleIdNumber == 1 or nil then
