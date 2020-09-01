@@ -54,8 +54,8 @@ local function unexpectedDisconnect()
   }
   common.getMobileSession(2):ExpectRequest("GetAppServiceData", params)
   :Do(function(_, data)
-      common.getMobileSession(2):SendResponse(data.id, "GetAppServiceData", "SUCCESS")
-    end)
+    common.getMobileSession(2):SendResponse("GetAppServiceData", data.rpcCorrelationId, "SUCCESS")
+  end)
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
   :Times(common.mobile.getAppsCount())
   common.mobile.disconnect()
@@ -77,7 +77,7 @@ local function reRegisterApp()
 
   common.getMobileSession(2):ExpectRequest("GetAppServiceData", params)
   :Do(function(_, data)
-    common.getMobileSession(2):SendResponse(data.id, "GetAppServiceData", "SUCCESS")
+    common.getMobileSession(2):SendResponse("GetAppServiceData", data.rpcCorrelationId, "SUCCESS")
   end)
 end
 
