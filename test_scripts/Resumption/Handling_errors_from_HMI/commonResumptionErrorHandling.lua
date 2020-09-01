@@ -1830,7 +1830,7 @@ function m.validateInteriorVD(pActualData, pExpectedData)
     local errorMessage = "Wrong expected requests are received\n" ..
     "Actual result:" .. m.tableToString(pActualData) .. "\n" ..
     "Expected result:" .. m.tableToString(pExpectedData) .."\n"
-  return false, errorMessage
+    return false, errorMessage
   end
   return true
 end
