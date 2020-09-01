@@ -31,7 +31,9 @@ local systemCapabilities = {
   UI = {
     NAVIGATION = { navigationCapability = hmiCapabilities.UI.systemCapabilities.navigationCapability },
     PHONE_CALL = { phoneCapability = hmiCapabilities.UI.systemCapabilities.phoneCapability },
-    VIDEO_STREAMING = { videoStreamingCapability = hmiCapabilities.UI.systemCapabilities.videoStreamingCapability }},
+    VIDEO_STREAMING = { videoStreamingCapability = hmiCapabilities.UI.systemCapabilities.videoStreamingCapability },
+    DRIVER_DISTRACTION = { driverDistractionCapability = hmiCapabilities.UI.systemCapabilities.driverDistractionCapability }
+  },
   RC = {
     REMOTE_CONTROL = { remoteControlCapability = hmiCapabilities.RC.remoteControlCapability },
     SEAT_LOCATION = { seatLocationCapability = hmiCapabilities.RC.seatLocationCapability }

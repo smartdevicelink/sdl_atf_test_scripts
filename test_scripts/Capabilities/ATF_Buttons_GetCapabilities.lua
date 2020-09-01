@@ -346,7 +346,7 @@ local function HMI_Send_Button_GetCapabilities_Response(Input_capabilities)
 		  return
 		  {
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		  }
@@ -632,7 +632,7 @@ local function HMI_Send_Button_GetCapabilities_Response_Timeout(Input_Timeoutcap
 		  return
 		  {
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		  }
@@ -919,7 +919,7 @@ local function HMI_Send_Button_GetCapabilities_Response_Invalid()
 		  return
 		  {
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		  }

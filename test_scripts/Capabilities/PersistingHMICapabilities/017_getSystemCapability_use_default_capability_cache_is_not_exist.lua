@@ -25,7 +25,8 @@ local systemCapabilities = {
   PHONE_CALL = { phoneCapability = hmiCapabilities.UI.systemCapabilities.phoneCapability },
   VIDEO_STREAMING = { videoStreamingCapability = hmiCapabilities.UI.systemCapabilities.videoStreamingCapability },
   REMOTE_CONTROL = { remoteControlCapability = hmiCapabilities.RC.remoteControlCapability },
-  SEAT_LOCATION = { seatLocationCapability = hmiCapabilities.RC.seatLocationCapability }
+  SEAT_LOCATION = { seatLocationCapability = hmiCapabilities.RC.seatLocationCapability },
+  DRIVER_DISTRACTION = { driverDistractionCapability = hmiCapabilities.UI.systemCapabilities.driverDistractionCapability }
 }
 
 --[[ Scenario ]]

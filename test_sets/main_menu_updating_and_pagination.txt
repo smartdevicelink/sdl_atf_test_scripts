@@ -1,0 +1,3 @@
+./test_scripts/API/MainMenuUpdating/001_dynamic_update_capabilities_success.lua
+./test_scripts/API/MainMenuUpdating/003_on_update_sub_menu_success.lua
+./test_scripts/API/MainMenuUpdating/002_on_update_file_success.lua

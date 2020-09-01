@@ -132,7 +132,7 @@ end
 function module.createTextField(name, characterSet, width, rows)
   return {
     name = name,
-    characterSet = characterSet or "TYPE2SET",
+    characterSet = characterSet or "UTF_8",
     width = width or 500,
     rows = rows or 1
   }
@@ -399,6 +399,10 @@ function module.getDefaultHMITable()
           diagonalScreenSize = 10,
           pixelPerInch = 150,
           scale = 2.5
+        },
+        driverDistractionCapability = {
+            subMenuDepth = 3,
+            menuLength = 10
         }
       }
     },
