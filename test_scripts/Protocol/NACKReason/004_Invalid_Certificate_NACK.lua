@@ -52,7 +52,7 @@ rpcServiceParams = {
       protocolVersion = { type = common.bsonType.STRING, value = "5.3.0" }
     },
     nackParams = {
-      reason = { type = common.bsonType.STRING, value = "Invalid certificate" }
+      reason = { type = common.bsonType.STRING, value = "Invalid certificate: Certificate already expired" }
     }
   }
 }
