@@ -268,6 +268,8 @@ function m.updateHMICapabilitiesTable(isRemainData)
     hmiCapTbl.UI.systemCapabilities.navigationCapability.sendLocationEnabled = false
     hmiCapTbl.UI.systemCapabilities.phoneCapability.dialNumberEnabled = false
     hmiCapTbl.UI.systemCapabilities.videoStreamingCapability.maxBitrate = 50000
+    hmiCapTbl.UI.systemCapabilities.driverDistractionCapability.menuLength = 4
+    hmiCapTbl.UI.systemCapabilities.driverDistractionCapability.subMenuDepth = 2
     table.remove(hmiCapTbl.Buttons.capabilities, 1)
     hmiCapTbl.VehicleInfo.vehicleType.modelYear = 2000
     hmiCapTbl.UI.language = "JA-JP"
