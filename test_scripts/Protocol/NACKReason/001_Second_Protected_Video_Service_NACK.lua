@@ -74,7 +74,7 @@ videoServiceParams = {
       videoCodec      = { type = common.bsonType.STRING, value = "H264" },    
     },
     nackParams = {
-      reason = { type = common.bsonType.STRING, value = "Session observer refused to create service of type "..common.serviceType.VIDEO}
+      reason = { type = common.bsonType.STRING, value = "Cannot start a protected service of type "..common.serviceType.VIDEO..". Session 1 already has a protected service of type "..common.serviceType.VIDEO}
     }
   }
 }

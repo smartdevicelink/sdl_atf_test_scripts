@@ -65,7 +65,7 @@ audioServiceParams = {
       mtu             = { type = common.bsonType.INT64,  value = 131072 }
     },
     nackParams = {
-      reason = { type = common.bsonType.STRING, value = "Session observer refused to create service of type "..common.serviceType.PCM}
+      reason = { type = common.bsonType.STRING, value = "Cannot start a protected service of type "..common.serviceType.PCM..". Session 1 already has a protected service of type "..common.serviceType.PCM}
     }
   }
 }

@@ -47,7 +47,7 @@ rpcServiceParams = {
       protocolVersion = { type = common.bsonType.STRING, value = "5.3.0" }    
     },
     nackParams = {
-      reason = { type = common.bsonType.STRING, value = "Session observer refused to create service of type "..common.serviceType.RPC}
+      reason = { type = common.bsonType.STRING, value = "Cannot start a protected service of type "..common.serviceType.RPC..". Session 1 already has a protected service of type "..common.serviceType.RPC}
     }
   }
 }
