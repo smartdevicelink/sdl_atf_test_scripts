@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check there is no 2nd data resumption after failed the 1st one
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. AddSubMenu related to resumption is sent by app
 -- 2. IGN_OFF and IGN_ON are performed
@@ -41,7 +44,7 @@ local function checkResumptionData()
 end
 
 local function reRegisterApp(pAppId, ...)
-  common.reRegisterApp(pAppId, ...)
+  common.reRegisterAppResumeFailed(pAppId, ...)
   common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Do(function(_, data)
       common.hashId[pAppId] = data.payload.hashID

@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check vehicle data resumption is failed in case if HMI responds with any <erroneous> result code to request from SDL
+-- for single VD parameter
+--
 -- In case:
 -- 1. App is subscribed to Vehicle Data: data_1
 -- 2. Unexpected disconnect and reconnect are performed

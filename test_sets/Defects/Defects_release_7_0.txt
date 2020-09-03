@@ -7,3 +7,4 @@
 ./test_scripts/Defects/7_0/2461_UnsubscribeWaypoints_OnDisconnect.lua
 ./test_scripts/Defects/7_0/3119_ChangeRegistration_with_unsupported_language.lua
 ./test_scripts/Defects/7_0/3372_StaySubscribedWaypoints_OnOtherAppDisconnect.lua
+./test_scripts/Defects/7_0/3205_IGNORED_for_UnSubscribeVehicleData_in_case_VI_interface_is_not_available.lua

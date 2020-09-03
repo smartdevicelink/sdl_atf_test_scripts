@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check LIMITED HMI level is resumed in case if HMI responds with <erroneous> result code to request from SDL
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. App is in LIMITED HMI level
 -- 2. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
@@ -56,8 +59,8 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)
-    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
-      { 1, common.checkResumptionDataWithErrorResponse, resumptionAppToLimited, k, interface})
+    runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
+      { 1, common.checkAllResumptionDataWithOneErrorResponse, resumptionAppToLimited, k, interface})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end
 end

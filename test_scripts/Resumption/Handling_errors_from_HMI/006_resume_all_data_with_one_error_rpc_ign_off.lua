@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed in case if HMI responds with <erroneous> result code
+-- to at least one request from SDL (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
 --  SubscribeWayPoints, CreateWindow, GetInteriorVehicleData are sent by app
@@ -45,8 +48,8 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)
-    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
-      { 1, common.checkResumptionDataWithErrorResponse, common.resumptionFullHMILevel, k, interface})
+    runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
+      { 1, common.checkAllResumptionDataWithOneErrorResponse, common.resumptionFullHMILevel, k, interface})
     runner.Step("Check subscriptions", common.checkSubscriptions, { false })
     runner.Step("Unregister App", common.unregisterAppInterface)
   end

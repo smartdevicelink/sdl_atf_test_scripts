@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed in case if HMI responds with <erroneous> result code to request from SDL
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. <Rpc_n> related to resumption is sent by app
 -- 2. IGN_OFF and IGN_ON are performed
@@ -38,7 +41,7 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)
-    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
+    runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
       { 1, common.checkResumptionData, common.resumptionFullHMILevel, k, interface})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end

@@ -2,6 +2,10 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed for 1st app and succeeded for 2nd app in case
+-- if HMI does not respond to at least one request from SDL related to the 1st app during default timeout
+-- (unexpected disconnect scenario)
+--
 -- In case:
 -- 1. AddCommand_1, AddSubMenu_1, CreateInteractionChoiceSet_1, SetGlobalProperties_1, SubscribeButton_1,
 --  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1, GetInteriorVehicleData_1 are sent by app1
@@ -83,7 +87,7 @@ for k, value in common.pairs(rpcs) do
     runner.Step("Connect mobile", common.connectMobile)
     runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
     runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
-    runner.Step("Reregister Apps resumption error to " .. interface .. " " .. k, common.reRegisterApps,
+    runner.Step("Reregister Apps resumption error to " .. interface .. " " .. k, common.reRegisterAppsWithError,
       { common.checkResumptionData2Apps, k, interface, 15000 })
     runner.Step("Unregister app1", common.unregisterAppInterface, { 1 })
     runner.Step("Unregister app2", common.unregisterAppInterface, { 2 })

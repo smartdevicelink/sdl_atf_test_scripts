@@ -2,6 +2,8 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption succeeded in case if HMI responds with SUCCESS result code to all requests from SDL
+--
 -- In case:
 -- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
 --  SubscribeWayPoints, CreateWindow, GetInteriorVehicleData (<Rpc_n>) are sent by app

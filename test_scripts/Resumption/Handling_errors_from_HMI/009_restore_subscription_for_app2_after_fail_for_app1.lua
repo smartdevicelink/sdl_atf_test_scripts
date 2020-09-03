@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check vehicle data resumption succeeded for 2nd app after fail for the 1st app
+-- (<erroneous> result code for the whole request scenario)
+--
 -- In case:
 -- 1. App1 is subscribed to data_1 and data_2
 -- 2. App2 is subscribed to data_2 and data_3
@@ -96,7 +99,7 @@ runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
 runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
-runner.Step("Reregister Apps resumption ", common.reRegisterApps, { checkResumptionData })
+runner.Step("Reregister Apps resumption ", common.reRegisterAppsWithError, { checkResumptionData })
 runner.Step("Check subscriptions for speed", common.sendOnVehicleData, { "speed", false, false })
 runner.Step("Check subscriptions for gps", common.sendOnVehicleData, { "gps", false, true })
 runner.Step("Check subscriptions for rpm", common.sendOnVehicleData, { "rpm", false, true })

@@ -79,25 +79,25 @@ fileContentTextFields = fileContent:match("%s-\".?textFields.?\"%s-:%s-%[[%w%d%s
 
 			fileContentLocationNameFind = fileContent:match("locationName")
 			if not fileContentLocationNameFind then
-				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"locationName\",\"characterSet\": \"TYPE2SET\",\"width\": 500,\"rows\": 1 }"
+				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"locationName\",\"characterSet\": \"UTF_8\",\"width\": 500,\"rows\": 1 }"
 				StringToReplace = StringToReplace .. ContantToAdd
 			end
 
 			fileContentLocationDescriptionFind = fileContent:match("locationDescription")
 			if not fileContentLocationDescriptionFind then
-				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"locationDescription\",\"characterSet\": \"TYPE2SET\",\"width\": 500,\"rows\": 1 }"
+				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"locationDescription\",\"characterSet\": \"UTF_8\",\"width\": 500,\"rows\": 1 }"
 				StringToReplace = StringToReplace .. ContantToAdd
 			end
 
 			fileContentAddressLinesFind = fileContent:match("addressLines")
 			if not fileContentAddressLinesFind then
-				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"addressLines\",\"characterSet\": \"TYPE2SET\",\"width\": 500,\"rows\": 1 }"
+				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"addressLines\",\"characterSet\": \"UTF_8\",\"width\": 500,\"rows\": 1 }"
 				StringToReplace = StringToReplace .. ContantToAdd
 			end
 
 			fileContentPhoneNumberFind = fileContent:match("phoneNumber")
 			if not fileContentPhoneNumberFind then
-				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"phoneNumber\",\"characterSet\": \"TYPE2SET\",\"width\": 500,\"rows\": 1 }"
+				local ContantToAdd = ",\n " .. tostring(fileContentTextFieldsContantTab)  .. "  { \"name\": \"phoneNumber\",\"characterSet\": \"UTF_8\",\"width\": 500,\"rows\": 1 }"
 				StringToReplace = StringToReplace .. ContantToAdd
 			end
 

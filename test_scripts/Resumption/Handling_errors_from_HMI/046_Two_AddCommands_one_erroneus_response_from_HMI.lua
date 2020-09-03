@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed for a few commands in case if HMI responds with <erroneous> result code
+-- to at least one request from SDL
+--
 -- In case:
 -- 1. VR is supported by HMI
 -- 2. App successfully added 2 VR commands by using 'AddCommand' requests: Cmd1 and Cmd2

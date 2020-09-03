@@ -540,7 +540,7 @@ m.rpcsRevert = {
   }
 }
 
---[[ @checkResumptionDataWithErrorResponse: check resumption data with error response to defined rpc and
+--[[ @checkAllResumptionDataWithOneErrorResponse: check resumption data with error response to defined rpc and
 --! checking reverting already added data
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
@@ -548,7 +548,7 @@ m.rpcsRevert = {
 --! pErrorResponseInterface - interface of RPC for error response
 --! @return: none
 ]]
-function m.checkResumptionDataWithErrorResponse(pAppId, pErrorResponseRpc, pErrorResponseInterface)
+function m.checkAllResumptionDataWithOneErrorResponse(pAppId, pErrorResponseRpc, pErrorResponseInterface)
   local rpcsRevertLocal = m.cloneTable(m.rpcsRevert)
   if pErrorResponseRpc == "addCommand" and pErrorResponseInterface == "VR" then
     rpcsRevertLocal.addCommand.iface.VR = nil
@@ -616,7 +616,7 @@ function m.checkResumptionDataWithErrorResponse(pAppId, pErrorResponseRpc, pErro
   :Times(3)
 end
 
---[[ @reRegisterApp: re-register application with RESUME_FAILED resultCode
+--[[ @reRegisterAppResumeFailed: re-register application with RESUME_FAILED resultCode
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! pCheckResumptionData - verification function for resumption data
@@ -626,7 +626,7 @@ end
 --! pTimeout - time for expectation of RAI response and OnHMIStatus notifications
 --! @return: none
 --]]
-function m.reRegisterApp(pAppId, pCheckResumptionData, pCheckResumptionHMILevel, pErrorResponseRpc, pErrorResponseInterface, pTimeout)
+function m.reRegisterAppResumeFailed(pAppId, pCheckResumptionData, pCheckResumptionHMILevel, pErrorResponseRpc, pErrorResponseInterface, pTimeout)
   if not pAppId then pAppId = 1 end
   if not pTimeout then pTimeout = 10000 end
   local mobSession = m.getMobileSession(pAppId)
@@ -1206,7 +1206,7 @@ function m.reRegisterAppCustom(pAppId, pResultCode, pDelay, pTimeout)
   return m.hmi.getConnection():ExpectEvent(event, "RAI event"):Timeout(pTimeout)
 end
 
---[[ @reRegisterApps: re-register 2 apps
+--[[ @reRegisterAppsWithError: re-register 2 apps
 --! @parameters:
 --! pCheckResumptionData - verification function for resumption data
 --! pErrorRpc - RPC name for error response
@@ -1214,7 +1214,7 @@ end
 --! pTimeout - time for expectation of RAI response
 --! @return: none
 --]]
-function m.reRegisterApps(pCheckResumptionData, pErrorRpc, pErrorInterface, pTimeout)
+function m.reRegisterAppsWithError(pCheckResumptionData, pErrorRpc, pErrorInterface, pTimeout)
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered")
   :Do(function(exp, data)
       m.log("BC.OnAppRegistered " .. exp.occurences)
@@ -1342,7 +1342,7 @@ function m.errorResponse(pData, pDelay)
   m.run.runAfter(response, pDelay)
 end
 
---[[ @sendResponse2Apps: sending error response
+--[[ @sendResponse2Apps: sending error response for app1
 --! @parameters:
 --! pData - data from received request
 --! pErrorRpc - RPC name for error response
@@ -1546,6 +1546,20 @@ function m.sendOnVehicleData(pVDParam, pIsExpApp1, pIsExpApp2)
   end
 end
 
+--[[ @sendOnCommand: send OnCommand
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pIsExp - true (default) - if it's expected notification on mobile app
+--! @return: none
+--]]
+function m.sendOnCommand(pIsExp, pAppId)
+  if pAppId == nil then pAppId = 1 end
+  local occurences = pIsExp == true and 1 or 0
+  m.getHMIConnection():SendNotification("UI.OnCommand", { cmdID = pAppId, appID = m.getHMIAppId(pAppId) })
+  m.getMobileSession():ExpectNotification("OnCommand", { cmdID = pAppId, triggerSource= "MENU" })
+  :Times(occurences)
+end
+
 --[[ @checkResumptionDataSuccess: verify resumption for successful scenario
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
@@ -1597,6 +1611,7 @@ function m.checkSubscriptions(pIsExp, pAppId)
   m.sendOnButtonPress(pAppId, pIsExp)
   m.sendOnVehicleData("gps", pIsExp)
   m.isSubscribed(pIsExp)
+  m.sendOnCommand(pIsExp, pAppId)
 end
 
 --[[ @isRevertRpc: checks - is the RC.GetInteriorVehicleData request for reverting or not

@@ -2,12 +2,16 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed for 1st app and succeeded for 2nd app
+-- in case if HMI responds with <erroneous> result code to at least one request from SDL related to the 1st app
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. AddCommand_1, AddSubMenu_1, CreateInteractionChoiceSet_1, SetGlobalProperties_1, SubscribeButton_1,
 --  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1, GetInteriorVehicleData_1 are sent by app1
 -- 2. AddCommand_2, AddSubMenu_2, CreateInteractionChoiceSet_2, SetGlobalProperties_2, SubscribeButton_2,
 --  SubscribeVehicleData_2, SubscribeWayPoints_2, CreateWindow_2, GetInteriorVehicleData_2 are sent by app2
--- 3. Unexpected disconnect and reconnect are performed
+-- 3. IGN_OFF and IGN_ON are performed
 -- 4. App1 and app2 re-register with actual HashId
 -- SDL does:
 --  - start resumption process for both apps
@@ -16,7 +20,7 @@
 -- SDL does:
 --  - process responses from HMI
 --  - remove already restored data for app1
---  - send set of revert <Rpc_n> requests to HMI (except the one related to <erroneous> response for app2)
+--  - send set of revert <Rpc_n> requests to HMI (except the one related to <erroneous> response for app1)
 --  - respond RegisterAppInterfaceResponse(success=true,result_code=RESUME_FAILED) to mobile application app1
 --  - restore all data for app2
 --  - respond RegisterAppInterfaceResponse(success=true,result_code=SUCCESS) to mobile application app2
@@ -74,11 +78,12 @@ for k, value in common.pairs(rpcs) do
     end
     runner.Step("Add for app2 subscribeVehicleData", common.subscribeVehicleData, { 2, VehicleDataForApp2 })
     runner.Step("Add for app2 getInteriorVehicleData", common.getInteriorVehicleData, { 2, false, "CLIMATE" })
-    runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { 2 })
-    runner.Step("Connect mobile", common.connectMobile)
+    runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
+    runner.Step("IGNITION OFF", common.ignitionOff)
+    runner.Step("IGNITION ON", common.start)
     runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
     runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
-    runner.Step("Reregister Apps resumption error to " .. interface .. " " .. k, common.reRegisterApps,
+    runner.Step("Reregister Apps resumption error to " .. interface .. " " .. k, common.reRegisterAppsWithError,
       { common.checkResumptionData2Apps, k, interface })
     runner.Step("Unregister app1", common.unregisterAppInterface, { 1 })
     runner.Step("Unregister app2", common.unregisterAppInterface, { 2 })

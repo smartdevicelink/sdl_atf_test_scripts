@@ -2,13 +2,18 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed for 1st app and succeeded for 2nd app for the same vehicle data
+-- in case if HMI responds with error to non vehicle data request related to the 1st app
+-- and success to 2nd request related to the 2nd app
+-- (2nd app re-registers before 1st response is sent by HMI scenario)
+--
 -- In case:
 -- 1. AddSubMenu related to resumption is sent by App1
 -- 2. App1 and App2 are subscribed to the same Vehicle Data
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 re-register with actual HashId
 -- SDL does:
---  - start resumption process for App1 and App2
+--  - start resumption process for App1
 --  - send UI.AddSubMenu and VI.SubscribeVehicleData requests related to App1 to HMI
 -- 5. App2 re-registers with actual HashId
 -- 6. HMI responds with <erroneous> resultCode to UI.AddSubMenu and <successful> to VI.SubscribeVehicleData

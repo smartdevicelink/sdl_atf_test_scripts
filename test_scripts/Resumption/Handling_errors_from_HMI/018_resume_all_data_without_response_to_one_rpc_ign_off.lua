@@ -2,6 +2,9 @@
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0190-resumption-data-error-handling.md
 --
 -- Description:
+-- Check data resumption is failed in case if HMI does not respond to at least one request from SDL during default timeout
+-- (Ignition Off/On scenario)
+--
 -- In case:
 -- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
 --  SubscribeWayPoints, CreateWindow, GetInteriorVehicleData (<Rpc_n>) are sent by app
@@ -48,8 +51,8 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)
-    runner.Step("Reregister App resumption " .. k, common.reRegisterApp,
-      { 1, common.checkResumptionDataWithErrorResponse, common.resumptionFullHMILevel, k, interface, 12000})
+    runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
+      { 1, common.checkAllResumptionDataWithOneErrorResponse, common.resumptionFullHMILevel, k, interface, 12000})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end
 end
