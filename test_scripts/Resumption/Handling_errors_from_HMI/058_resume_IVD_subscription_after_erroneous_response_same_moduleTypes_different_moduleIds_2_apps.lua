@@ -103,7 +103,7 @@ runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { 4 })
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
 runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })
-runner.Step("Reregister Apps resumption", common.reRegisterApps, { checkResumptionData })
+runner.Step("Reregister Apps resumption", common.reRegisterAppsWithError, { checkResumptionData })
 runner.Step("Check no subscriptions for getInteriorVehicleData CLIMATE " .. moduleIdsForClimate[1], common.isSubscribed,
   { false, false, "CLIMATE", moduleIdsForClimate[1] })
 runner.Step("Check subscriptions for getInteriorVehicleData CLIMATE " .. moduleIdsForClimate[2], common.isSubscribed,

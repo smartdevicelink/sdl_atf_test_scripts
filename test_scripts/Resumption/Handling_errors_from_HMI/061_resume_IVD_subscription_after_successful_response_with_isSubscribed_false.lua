@@ -75,7 +75,7 @@ for _, moduleType in common.pairs(modules) do
 end
 runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { 2 })
 runner.Step("Connect mobile", common.connectMobile)
-runner.Step("Reregister App resumption data", common.reRegisterApp,
+runner.Step("Reregister App resumption data", common.reRegisterAppResumeFailed,
   { 1, checkResumptionData, common.resumptionFullHMILevel})
 for _, moduleType in common.pairs(modules) do
   runner.Step("Check no subscriptions for getInteriorVehicleData " .. moduleType, common.isSubscribed,
