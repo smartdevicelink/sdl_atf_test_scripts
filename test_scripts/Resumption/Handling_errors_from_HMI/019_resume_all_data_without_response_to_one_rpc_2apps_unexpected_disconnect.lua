@@ -8,9 +8,9 @@
 --
 -- In case:
 -- 1. AddCommand_1, AddSubMenu_1, CreateInteractionChoiceSet_1, SetGlobalProperties_1, SubscribeButton_1,
---  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1 are sent by app1
+--  SubscribeVehicleData_1, SubscribeWayPoints_1, CreateWindow_1, GetInteriorVehicleData_1 are sent by app1
 -- 2. AddCommand_2, AddSubMenu_2, CreateInteractionChoiceSet_2, SetGlobalProperties_2, SubscribeButton_2,
---  SubscribeVehicleData_2, SubscribeWayPoints_2, CreateWindow_2 are sent by app2
+--  SubscribeVehicleData_2, SubscribeWayPoints_2, CreateWindow_2, GetInteriorVehicleData_2 are sent by app2
 -- 3. Unexpected disconnect and reconnect are performed
 -- 4. App1 and app2 re-register with actual HashId
 -- SDL does:
@@ -40,6 +40,7 @@ local rpcs = {
   createIntrerationChoiceSet = { "VR" },
   setGlobalProperties = { "UI", "TTS" },
   subscribeVehicleData = { "VehicleInfo" },
+  getInteriorVehicleData = { "RC" },
   createWindow = { "UI" }
 }
 
@@ -81,7 +82,8 @@ for k, value in common.pairs(rpcs) do
       runner.Step("Add for app2 " .. rpc, common[rpc], { 2 })
     end
     runner.Step("Add for app2 subscribeVehicleData", common.subscribeVehicleData, { 2, VehicleDataForApp2 })
-    runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
+    runner.Step("Add for app2 getInteriorVehicleData", common.getInteriorVehicleData, { 2, false, "CLIMATE" })
+    runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { 2 })
     runner.Step("Connect mobile", common.connectMobile)
     runner.Step("openRPCserviceForApp1", common.openRPCservice, { 1 })
     runner.Step("openRPCserviceForApp2", common.openRPCservice, { 2 })

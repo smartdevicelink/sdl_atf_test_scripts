@@ -7,7 +7,7 @@
 --
 -- In case:
 -- 1. AddCommand, AddSubMenu, CreateInteractionChoiceSet, SetGlobalProperties, SubscribeButton, SubscribeVehicleData,
---  SubscribeWayPoints, CreateWindow (<Rpc_n>) are sent by app
+--  SubscribeWayPoints, CreateWindow, GetInteriorVehicleData (<Rpc_n>) are sent by app
 -- 2. Unexpected disconnect and reconnect are performed
 -- 3. App re-registers with actual HashId
 -- SDL does:
