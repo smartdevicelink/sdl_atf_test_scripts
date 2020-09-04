@@ -33,12 +33,12 @@ local testCases = {
   [008] = { t = "MEDIA",         m = false, e = "DEACTIVATE_HMI" },
   [009] = { t = "DEFAULT",       m = true,  e = "DEACTIVATE_HMI" },
   [010] = { t = "DEFAULT",       m = false, e = "DEACTIVATE_HMI" },
-  [011] = { t = "NAVIGATION",    m = true,  e = "AUDIO_SOURCE" },
-  [012] = { t = "NAVIGATION",    m = false, e = "AUDIO_SOURCE" },
-  [013] = { t = "PROJECTION",    m = true,  e = "AUDIO_SOURCE" },
-  [014] = { t = "PROJECTION",    m = false, e = "AUDIO_SOURCE" },
+  [011] = { t = "NAVIGATION",    m = true,  e = "AUDIO_SOURCE", v = "STREAMABLE", h = "LIMITED" },
+  [012] = { t = "NAVIGATION",    m = false, e = "AUDIO_SOURCE", a = "AUDIBLE", v = "STREAMABLE", h = "LIMITED" },
+  [013] = { t = "PROJECTION",    m = true,  e = "AUDIO_SOURCE", v = "STREAMABLE", h = "LIMITED" },
+  [014] = { t = "PROJECTION",    m = false, e = "AUDIO_SOURCE", v = "STREAMABLE", h = "LIMITED" },
   [015] = { t = "COMMUNICATION", m = true,  e = "AUDIO_SOURCE" },
-  [016] = { t = "COMMUNICATION", m = false, e = "AUDIO_SOURCE" },
+  [016] = { t = "COMMUNICATION", m = false, e = "AUDIO_SOURCE", a = "AUDIBLE", h = "LIMITED" },
   [017] = { t = "MEDIA",         m = true,  e = "AUDIO_SOURCE" },
   [018] = { t = "MEDIA",         m = false, e = "AUDIO_SOURCE" },
   [019] = { t = "DEFAULT",       m = true,  e = "AUDIO_SOURCE" },
@@ -46,14 +46,24 @@ local testCases = {
 }
 
 --[[ Local Functions ]]
-local function sendEvent(pTC, pEvent, pIsActive)
+local function sendEvent(pTC, pEvent, pIsActive, pAudioState, pVideoState, pHMILevel)
   local count = 1
-  if onHMIStatusData.hmiL == "BACKGROUND" then count = 0 end
+  if pAudioState == nil then pAudioState = "NOT_AUDIBLE" end
+  if pVideoState == nil then pVideoState = "NOT_STREAMABLE" end
+  if pHMILevel == nil then pHMILevel = "BACKGROUND" end
+
+  -- If app state remains unchanged, no notification will be sent
+  if pHMILevel == onHMIStatusData.hmiL and 
+        pAudioState == onHMIStatusData.aSS and
+        pVideoState == onHMIStatusData.vSS then
+    count = 0 
+  end
+
   local status = common.cloneTable(onHMIStatusData)
   if pIsActive == true then
-    status.hmiL = "BACKGROUND"
-    status.aSS = "NOT_AUDIBLE"
-    status.vSS = "NOT_STREAMABLE"
+    status.hmiL = pHMILevel
+    status.aSS = pAudioState
+    status.vSS = pVideoState
   end
   common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
     eventName = pEvent,
@@ -89,8 +99,8 @@ for n, tc in common.spairs(testCases) do
   runner.Step("Register App", common.registerApp)
   runner.Step("Activate App", common.activateApp)
   runner.Step("Deactivate App", deactivateApp)
-  runner.Step("Send event from HMI isActive: true", sendEvent, { n, tc.e, true })
-  runner.Step("Send event from HMI isActive: false", sendEvent, { n, tc.e, false })
+  runner.Step("Send event from HMI isActive: true", sendEvent, { n, tc.e, true, tc.a, tc.v, tc.h })
+  runner.Step("Send event from HMI isActive: false", sendEvent, { n, tc.e, false, tc.a, tc.v, tc.h })
   runner.Step("Clean sessions", common.cleanSessions)
   runner.Step("Stop SDL", common.postconditions)
 end

@@ -1,0 +1,4 @@
+./test_scripts/Protocol/NACKReason/001_Second_Protected_Video_Service_NACK.lua
+./test_scripts/Protocol/NACKReason/002_Second_Protected_Audio_Service_NACK.lua
+./test_scripts/Protocol/NACKReason/003_Second_Protected_RPC_Service_NACK.lua
+./test_scripts/Protocol/NACKReason/004_Invalid_Certificate_NACK.lua
