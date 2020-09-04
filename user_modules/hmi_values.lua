@@ -258,6 +258,12 @@ function module.getDefaultHMITable()
     pinned = true
   }
 
+  hmi_table.UI.SetGlobalProperties = {
+    params = { },
+    mandatory = false,
+    pinned = true
+  }
+
   hmi_table.UI.GetSupportedLanguages = {
     params = {
       languages = default_languages
