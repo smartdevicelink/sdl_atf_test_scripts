@@ -1231,7 +1231,7 @@ function m.rc.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
         appPolicies.moduleType = m.data.getRcModuleTypes()
       end
     end
-    pPTUpdateFunc(ptuTable)
+     if pPTUpdateFunc then pPTUpdateFunc(ptuTable) end
   end
   actions.ptu.policyTableUpdate(ptuUpdateFunc, pExpNotificationFunc)
 end
