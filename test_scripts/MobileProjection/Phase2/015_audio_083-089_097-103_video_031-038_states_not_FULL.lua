@@ -33,7 +33,7 @@ local testCases = {
   [008] = { t = "MEDIA",         m = false, e = "DEACTIVATE_HMI" },
   [009] = { t = "DEFAULT",       m = true,  e = "DEACTIVATE_HMI" },
   [010] = { t = "DEFAULT",       m = false, e = "DEACTIVATE_HMI" },
-  [011] = { t = "NAVIGATION",    m = true,  e = "AUDIO_SOURCE", v = "STREAMABLE", h = "LIMITED" },
+  [011] = { t = "NAVIGATION",    m = true,  e = "AUDIO_SOURCE", a = "AUDIBLE", v = "STREAMABLE", h = "LIMITED" },
   [012] = { t = "NAVIGATION",    m = false, e = "AUDIO_SOURCE", a = "AUDIBLE", v = "STREAMABLE", h = "LIMITED" },
   [013] = { t = "PROJECTION",    m = true,  e = "AUDIO_SOURCE", v = "STREAMABLE", h = "LIMITED" },
   [014] = { t = "PROJECTION",    m = false, e = "AUDIO_SOURCE", v = "STREAMABLE", h = "LIMITED" },
