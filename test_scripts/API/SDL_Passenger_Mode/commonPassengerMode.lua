@@ -116,7 +116,7 @@ end
 
 local function deactivateAppToBackground()
   c.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
-    eventName = "AUDIO_SOURCE", isActive = true
+    eventName = "EMBEDDED_NAVI", isActive = true
   })
   c.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
