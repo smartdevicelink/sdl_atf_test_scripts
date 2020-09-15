@@ -19,8 +19,6 @@ local common = require('user_modules/sequences/actions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-
---[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 

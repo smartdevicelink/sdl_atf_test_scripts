@@ -19,6 +19,7 @@
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
 local utils = require("user_modules/utils")
+local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -26,6 +27,12 @@ config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
 --[[ Local Functions ]]
+local function getHMIValues()
+  local params = hmi_values.getDefaultHMITable()
+  params.BasicCommunication.MixingAudioSupported.attenuatedSupported = true
+  return params
+end
+
 local function activateEmbeddedNavi()
   common.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" })
@@ -53,7 +60,8 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Set MixingAudioSupported=true in ini file", common.setSDLIniParameter, { "MixingAudioSupported", "true" })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues() })
 runner.Step("Register App", common.registerAppWOPTU)
 runner.Step("Activate App", common.activateApp)
 

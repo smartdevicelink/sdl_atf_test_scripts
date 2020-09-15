@@ -16,65 +16,39 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/commonDefects')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
+local common = require('user_modules/sequences/actions')
 local hmi_values = require('user_modules/hmi_values')
 
---[[ Local Variables ]]
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
-local function hmiCapabilitiesUpdate()
+local function getHMIValues()
   local params = hmi_values.getDefaultHMITable()
   params.BasicCommunication.MixingAudioSupported.attenuatedSupported = true
   return params
 end
 
-local function start(getHMIParams, self)
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self)
-  :Do(function()
-    self:initHMI(self)
-    :Do(function()
-        commonFunctions:userPrint(35, "HMI initialized")
-        self:initHMI_onReady(getHMIParams)
-        :Do(function()
-          commonFunctions:userPrint(35, "HMI is ready")
-          self:connectMobile()
-          :Do(function()
-            commonFunctions:userPrint(35, "Mobile connected")
-            common.allow_sdl(self)
-          end)
-        end)
-      end)
-  end)
-end
-
-local function onEventChange(self)
-  self.hmiConnection:SendNotification("BasicCommunication.OnEventChanged",
+local function onEventChange()
+  common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
     { eventName = "AUDIO_SOURCE", isActive = true })
-  self.mobileSession1:ExpectNotification("OnHMIStatus",
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" })
-end
-
-local function setMixingAudioSupportedTrue()
-  commonFunctions:write_parameter_to_smart_device_link_ini("MixingAudioSupported", "true")
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Backup .ini file", common.backupINIFile)
-runner.Step("Set MixingAudioSupported=true in .ini file", setMixingAudioSupportedTrue)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { hmiCapabilitiesUpdate() })
-runner.Step("RAI", common.rai_n)
-runner.Step("Activate App", common.activate_app)
+runner.Step("Set MixingAudioSupported=true in ini file", common.setSDLIniParameter, { "MixingAudioSupported", "true" })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues() })
+runner.Step("RAI", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("onEventChange AUDIO_SOURCE true", onEventChange)
-runner.Step("Activate App", common.activate_app)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Postconditions")
-runner.Step("Restore .ini file", common.restoreINIFile)
 runner.Step("Stop SDL", common.postconditions)

@@ -33,6 +33,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("user_modules/sequences/actions")
+local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -46,6 +47,12 @@ config.application3.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application3.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
+local function getHMIValues()
+  local params = hmi_values.getDefaultHMITable()
+  params.BasicCommunication.MixingAudioSupported.attenuatedSupported = true
+  return params
+end
+
 local function activateApp(pAppId)
   if not pAppId then pAppId = 1 end
   local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(pAppId) })
@@ -96,7 +103,7 @@ local function embeddedAudioActivated()
   common.getMobileSession(1):ExpectNotification("OnHMIStatus", {
     hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE"
   })
-  -- hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
+  -- State is unchanged: hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
   common.getMobileSession(2):ExpectNotification("OnHMIStatus"):Times(0)
 end
 
@@ -120,14 +127,15 @@ local function activateMediaApp()
       EXPECT_HMIRESPONSE(requestId)
     end
   end)
-  -- hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
+  -- State is unchanged: hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
   common.getMobileSession(2):ExpectNotification("OnHMIStatus"):Times(0)
 end
 
 --[[ Test ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Set MixingAudioSupported=true in ini file", common.setSDLIniParameter, { "MixingAudioSupported", "true" })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues() })
 runner.Step("Register App 1 (media)", common.registerAppWOPTU, { 1 })
 runner.Step("Register App 2 (navi)", common.registerAppWOPTU, { 2 })
 runner.Step("Register App 3 (non media)", common.registerAppWOPTU, { 3 })

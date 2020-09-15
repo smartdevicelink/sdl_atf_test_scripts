@@ -22,14 +22,14 @@ local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-
---[[ Local Variables ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "NAVIGATION" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Local Functions ]]
-local function setMixingAudioSupportedValue()
-  common.setSDLIniParameter("MixingAudioSupported", "true")
+local function getHMIValues()
+  local params = hmi_values.getDefaultHMITable()
+  params.BasicCommunication.MixingAudioSupported.attenuatedSupported = true
+  return params
 end
 
 local function activateApp()
@@ -50,7 +50,8 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { setMixingAudioSupportedValue() })
+runner.Step("Set MixingAudioSupported=true in ini file", common.setSDLIniParameter, { "MixingAudioSupported", "true" })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues() })
 runner.Step("RAI", common.registerApp)
 runner.Step("Activate App FULL", activateApp)
 

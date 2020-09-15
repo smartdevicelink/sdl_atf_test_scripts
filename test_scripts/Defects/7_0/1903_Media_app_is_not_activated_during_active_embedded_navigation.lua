@@ -34,7 +34,7 @@ end
 
 local function activateMediaApp()
     local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
-    EXPECT_HMIRESPONSE(requestId)
+    common.getHMIConnection():ExpectResponse(requestId)
     :Do(function()
         common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
         { eventName = "EMBEDDED_NAVI", isActive = true })

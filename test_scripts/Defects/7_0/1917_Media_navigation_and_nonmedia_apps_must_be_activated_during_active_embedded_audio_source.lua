@@ -104,7 +104,7 @@ local function embeddedAudioActivated()
     { eventName = "AUDIO_SOURCE", isActive = true})
   common.getMobileSession(1):ExpectNotification("OnHMIStatus",
     { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", videoStreamingState = "NOT_STREAMABLE" })
-  -- hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
+  -- State is unchanged: hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
   common.getMobileSession(2):ExpectNotification("OnHMIStatus"):Times(0)
 end
 
@@ -128,7 +128,7 @@ local function activateMediaApp()
       EXPECT_HMIRESPONSE(requestId)
     end
   end)
-  -- hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
+  -- State is unchanged: hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", videoStreamingState = "STREAMABLE"
   common.getMobileSession(2):ExpectNotification("OnHMIStatus"):Times(0)
 end
 
@@ -136,7 +136,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Set MixingAudioSupported=true in ini file", common.setSDLIniParameter, { "MixingAudioSupported", "true" })
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start, { getHMIValues() })
 runner.Step("Register App 1 (media)", common.registerAppWOPTU, { mediaAppId })
 runner.Step("Register App 2 (navi)", common.registerAppWOPTU, { naviAppId })
 runner.Step("Register App 3 (non media)", common.registerAppWOPTU, { nonMediaAppId })
