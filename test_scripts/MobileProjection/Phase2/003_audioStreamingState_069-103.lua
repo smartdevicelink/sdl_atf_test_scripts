@@ -33,7 +33,7 @@ local testCases = {
   [081] = { t = "MEDIA",         m = true,  s = "NOT_AUDIBLE", e = "EMERGENCY_EVENT" },
   [082] = { t = "DEFAULT",       m = true,  s = "NOT_AUDIBLE", e = "EMERGENCY_EVENT" },
   [083] = { t = "NAVIGATION",    m = false, s = "AUDIBLE",     e = "AUDIO_SOURCE" },
-  [084] = { t = "NAVIGATION",    m = true,  s = "NOT_AUDIBLE", e = "AUDIO_SOURCE" },
+  [084] = { t = "NAVIGATION",    m = true,  s = "AUDIBLE",     e = "AUDIO_SOURCE" },
   [085] = { t = "COMMUNICATION", m = false, s = "AUDIBLE",     e = "AUDIO_SOURCE" },
   [086] = { t = "COMMUNICATION", m = true,  s = "NOT_AUDIBLE", e = "AUDIO_SOURCE" },
   [087] = { t = "PROJECTION",    m = true,  s = "NOT_AUDIBLE", e = "AUDIO_SOURCE" },
