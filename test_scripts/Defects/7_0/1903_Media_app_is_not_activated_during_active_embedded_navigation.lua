@@ -4,9 +4,9 @@
 -- Description:
 -- Media app is not activated during active embedded navigation.
 -- Precondition:
--- SDL and HMI are started.
+-- SDL and HMI are started. Media app is activated in HMI.
 -- In case:
--- 1) Media app in LIMITED and AUDIBLE due to active embedded navigation.
+-- 1) HMI activates embedded navigation. Media app is moved to LIMITED and AUDIBLE state.
 -- 2) SDL receives SDL.ActivateApp (<appID_of_media_app>) from HMI.
 -- Expected result:
 -- 1) SDL must respond SDL.ActivateApp (SUCCESS) to HMI

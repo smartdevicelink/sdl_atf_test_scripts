@@ -6,8 +6,8 @@
 -- Precondition:
 -- 1) MixingAudioSupported" = true at .ini file
 -- 2) SDL and HMI are started.
--- 3) Navigation app is registered.
--- 4) Navigation app in LIMITED and AUDIBLE due to active embedded audio source
+-- 3) Navigation app is registered and activated.
+-- 4) HMI activates an embedded audio source. Navigation app is moved to LIMITED and AUDIBLE state.
 --
 -- Steps to reproduce:
 -- 1) SDL receives SDL.ActivateApp (<appID_of_navigation_app>) from HMI
