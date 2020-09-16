@@ -40,10 +40,10 @@ local webViewApp = 1
 
 local testCase = {
   apps = {
-    [1] = { type = "WEB_VIEW", isMedia = true, device = devices.webEngine },
+    [1] = { type = "WEB_VIEW",   isMedia = true,  device = devices.webEngine },
     [2] = { type = "PROJECTION", isMedia = false, device = devices.default },
-    [3] = { type = "DEFAULT", isMedia = false, device = devices.default },
-    [4] = { type = "NAVIGATION", isMedia = true, device = devices.default }
+    [3] = { type = "DEFAULT",    isMedia = false, device = devices.default },
+    [4] = { type = "NAVIGATION", isMedia = true,  device = devices.default }
   },
   steps = {
     [1] = {
@@ -127,7 +127,7 @@ local testCase = {
       action = { event = common.userActions.embeddedNaviActivate, appId = "none" },
       checks = {
         onHmiStatus = {
-          [1] = { hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE" },
+          [1] = { }, -- hmiLvl = "LIMITED", audio = "AUDIBLE", video = "NOT_STREAMABLE"
           [2] = { hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE" },
           [3] = { }, -- hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE"
           [4] = { hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE" }
@@ -138,7 +138,7 @@ local testCase = {
       action = { event = common.userActions.embeddedNaviDeactivate, appId = "none" },
       checks = {
         onHmiStatus = {
-          [1] = { hmiLvl = "LIMITED", audio = "AUDIBLE", video = "NOT_STREAMABLE" },
+          [1] = { }, -- hmiLvl = "LIMITED", audio = "AUDIBLE", video = "NOT_STREAMABLE"
           [2] = { hmiLvl = "FULL", audio = "NOT_AUDIBLE", video = "STREAMABLE" },
           [3] = { }, -- hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE"
           [4] = { hmiLvl = "LIMITED", audio = "AUDIBLE", video = "NOT_STREAMABLE" }
