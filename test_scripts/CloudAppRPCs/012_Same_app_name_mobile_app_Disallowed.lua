@@ -28,6 +28,8 @@ end
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
+local hmiAppIDMap = {}
+
 local function setHybridApp(pAppId, pAppNameCode, pHybridAppPreference)
   local params = {
     properties = {
@@ -37,12 +39,22 @@ local function setHybridApp(pAppId, pAppNameCode, pHybridAppPreference)
       authToken = "ABCD12345" .. pAppId,
       cloudTransportType = "WSS",
       hybridAppPreference = pHybridAppPreference,
-      endpoint = "ws://127.0.0.1:8080/"
+      endpoint = "ws://127.0.0.1:808"..pAppId.."/"
     }
   }
 
   local cid = common.getMobileSession():SendRPC("SetCloudAppProperties", params)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateAppList"):Do(function(_,data)
+    local apps = data.params.applications
+    for i,v in ipairs(apps) do 
+      if v.appName == "HybridApp" .. pAppNameCode then
+        print('Setting HMI App ID '.. pAppNameCode)
+        hmiAppIDMap[pAppId] = v.appID
+        --
+      end
+    end
+  end)
 end
 
 local function PTUfunc(tbl)
@@ -74,6 +86,7 @@ local function registerApp(pAppId, pConId, pAppNameCode, pResultCode)
     success = false
     occurences = 0
   end
+  common.getHMIConnection():SendRequest("SDL.ActivateApp", {appID = hmiAppIDMap[pAppId]})
   local session = common.getMobileSession(pAppId, pConId)
   session:StartService(7)
   :Do(function()
