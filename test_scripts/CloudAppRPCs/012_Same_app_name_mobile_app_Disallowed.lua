@@ -76,7 +76,7 @@ local function deleteMobDevices()
   utils.deleteNetworkInterface(2)
 end
 
-local function registerApp(pAppId, pConId, pAppNameCode, pResultCode)
+local function registerApp(pAppId, pConId, pAppNameCode, pResultCode, pActivateCloudApp)
   local success
   local occurences
   if pResultCode == "SUCCESS" then
@@ -86,7 +86,9 @@ local function registerApp(pAppId, pConId, pAppNameCode, pResultCode)
     success = false
     occurences = 0
   end
-  common.getHMIConnection():SendRequest("SDL.ActivateApp", {appID = hmiAppIDMap[pAppId]})
+  if (pActivateCloudApp) then
+    common.getHMIConnection():SendRequest("SDL.ActivateApp", {appID = hmiAppIDMap[pAppId]})
+  end
   local session = common.getMobileSession(pAppId, pConId)
   session:StartService(7)
   :Do(function()
@@ -114,9 +116,9 @@ runner.Step("Define Hybrid App A in PT as CLOUD", setHybridApp, { 2, "A", "CLOUD
 runner.Step("Define Hybrid App B in PT as BOTH", setHybridApp, { 3, "B", "BOTH" })
 
 runner.Title("Test")
-runner.Step("Register Cloud App A SUCCESS", registerApp, { 2, 2, "A", "SUCCESS"})
+runner.Step("Register Cloud App A SUCCESS", registerApp, { 2, 2, "A", "SUCCESS", true})
 runner.Step("Register Mobile App A USER_DISALLOWED", registerApp, { 4, 1, "A", "USER_DISALLOWED" })
-runner.Step("Register Cloud App B SUCCESS", registerApp, { 3, 2, "B", "SUCCESS"})
+runner.Step("Register Cloud App B SUCCESS", registerApp, { 3, 2, "B", "SUCCESS", true})
 runner.Step("Register Mobile App B SUCCESS", registerApp, { 5, 1, "B", "SUCCESS" })
 
 runner.Title("Postconditions")
