@@ -637,7 +637,11 @@ local function initHmiOnReady(hmi_table)
   end
 
   local additionalExp = nil
-  local additionalExpName = "BasicCommunication.UpdateDeviceList"
+  local additionalExpName = "BasicCommunication.GetSystemInfo"
+  if SDL.buildOptions.webSocketServerSupport == "ON" then
+    additionalExpName = "BasicCommunication.UpdateDeviceList"
+  end
+
   for k_module, v_module in pairs(hmi_table_internal) do
     if type(v_module) ~= "table" then
       break
