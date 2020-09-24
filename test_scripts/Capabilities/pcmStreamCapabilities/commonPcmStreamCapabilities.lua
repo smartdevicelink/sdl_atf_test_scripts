@@ -30,9 +30,6 @@ m.hmiDefaultCapabilities = hmi_values.getDefaultHMITable()
 
 local defaultSDLcapabilities = SDL.HMICap.get()
 m.defaultPcmStreamCapabilities = defaultSDLcapabilities.UI.pcmStreamCapabilities
-for k, value in pairs(m.defaultPcmStreamCapabilities) do
-  m.defaultPcmStreamCapabilities[k] = value:gsub("RATE_", "")
-end
 
 local pcmStreamCapabilitiesValues = {
   samplingRate = { "8KHZ", "16KHZ", "22KHZ", "44KHZ" },
