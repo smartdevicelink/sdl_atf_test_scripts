@@ -263,8 +263,8 @@ function m.updateHMICapabilitiesTable(isRemainData)
     table.remove(hmiCapTbl.UI.displayCapabilities.textFields, 1)
     hmiCapTbl.UI.hmiZoneCapabilities = "BACK"
     hmiCapTbl.UI.softButtonCapabilities.imageSupported = false
-    hmiCapTbl.UI.audioPassThruCapabilities[1].samplingRate = "RATE_8KHZ"
-    hmiCapTbl.UI.pcmStreamCapabilities.samplingRate = "RATE_8KHZ"
+    hmiCapTbl.UI.audioPassThruCapabilities[1].samplingRate = "8KHZ"
+    hmiCapTbl.UI.pcmStreamCapabilities.samplingRate = "8KHZ"
     hmiCapTbl.UI.systemCapabilities.navigationCapability.sendLocationEnabled = false
     hmiCapTbl.UI.systemCapabilities.phoneCapability.dialNumberEnabled = false
     hmiCapTbl.UI.systemCapabilities.videoStreamingCapability.maxBitrate = 50000
