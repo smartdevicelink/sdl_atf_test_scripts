@@ -1659,7 +1659,7 @@ function m.reRegisterAppsCustom_SameRPC(pTimeToRegApp2, pRPC)
           m.errorResponse(data, 0)
           m.reRegisterAppCustom(2, "SUCCESS", 300):Do(function() isRAIResponseSent[2] = true end)
         else
-          m.errorResponse(data, 0)
+          m.errorResponse(data, 300)
         end
       else
         m.log(data.method .. ": SUCCESS")
@@ -1733,7 +1733,7 @@ function m.reRegisterAppsCustom_AnotherRPC(pTimeToRegApp2, pRPC)
         m.errorResponse(data, 0)
         m.reRegisterAppCustom(2, "SUCCESS", 300):Do(function() isRAIResponseSent[2] = true end)
       else
-        m.errorResponse(data, 0)
+        m.errorResponse(data, 300)
       end
     end)
 
