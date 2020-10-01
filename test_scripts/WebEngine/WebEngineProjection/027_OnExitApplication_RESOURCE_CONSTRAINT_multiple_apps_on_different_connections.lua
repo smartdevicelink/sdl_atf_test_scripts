@@ -19,6 +19,9 @@
 --  d. SDL does not close mobile connection 1
 --  e. SDL does not send OnAppInterfaceUnregistered notification with reason: "RESOURCE_CONSTRAINT" to App1
 ---------------------------------------------------------------------------------------------------
+--[[ General configuration parameters ]]
+config.defaultMobileAdapterType = "TCP"
+
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/WebEngine/commonWebEngine')
 
