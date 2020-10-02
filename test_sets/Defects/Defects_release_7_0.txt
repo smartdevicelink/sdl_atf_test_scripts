@@ -23,4 +23,7 @@
 ./test_scripts/Defects/7_0/2322_SDL_must_set_media_app_to_LIMITED_and_AUDIBLE_due_to_active_embedded_navigation.lua
 ./test_scripts/Defects/7_0/2612_Activate_non-media_app_during_embedded_audio_source.lua
 ./test_scripts/Defects/7_0/3511_Usage_of_bitsPerSample_from_HMI_capabilities_cache.lua
+./test_scripts/Defects/7_0/2888_ButtonNotificationsToFullApps.lua
+./test_scripts/Defects/7_0/2888_ButtonNotificationsToLimitedApps.lua
+./test_scripts/Defects/7_0/2888_ButtonNotificationToLimitedAppsWithAppId.lua
 ./test_scripts/Defects/7_0/3517_GetIVD_various_successful_result_codes_HMI_response.lua

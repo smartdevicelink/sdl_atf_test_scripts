@@ -23,6 +23,9 @@
 -- Particular values depends on app's 'appHMIType', 'isMediaApplication' flag, current app's state
 -- and described in 'testCases' table below
 ---------------------------------------------------------------------------------------------------
+--[[ General configuration parameters ]]
+config.defaultMobileAdapterType = "TCP"
+
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/WebEngine/commonWebEngine')
 
