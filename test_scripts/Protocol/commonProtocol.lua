@@ -193,4 +193,8 @@ function common.startSecureServiceTimeNotProvided(pAppId, pServiceId, pRequestPa
     common.startServiceProtectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload)
 end
 
+function common.setProtectedServicesInIni()
+  common.sdl.setSDLIniParameter("ForceProtectedService", "0x0A, 0x0B")
+end
+
 return common
