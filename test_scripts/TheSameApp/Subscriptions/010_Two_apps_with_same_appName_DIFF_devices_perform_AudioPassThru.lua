@@ -147,9 +147,8 @@ local function performAudioPassThru(pAppId, pParams)
   mobSessionCurrent:ExpectNotification("OnHMIStatus",
     { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN" },
     { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "HMI_OBSCURED" },
-    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" },
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-  :Times(4)
+  :Times(3)
   mobSessionCurrent:ExpectNotification("OnAudioPassThru")
   mobSessionAnother:ExpectNotification("OnHMIStatus"):Times(0)
   mobSessionAnother:ExpectNotification("OnAudioPassThru"):Times(0)

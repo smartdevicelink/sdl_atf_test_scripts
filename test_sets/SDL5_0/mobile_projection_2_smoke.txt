@@ -15,7 +15,7 @@
 ./test_scripts/MobileProjection/Phase2/smoke/016_BACKGROUND_not_changed.lua
 ./test_scripts/MobileProjection/Phase2/smoke/017_two_apps_and_one_app_exits.lua
 ./test_scripts/MobileProjection/Phase2/smoke/018_two_apps_and_one_app_unregister.lua
-./test_scripts/MobileProjection/Phase2/smoke/019_SDL_stop_audio_video.lua
+./test_scripts/MobileProjection/Phase2/smoke/019_SDL_audio_source_during_audio_video.lua
 ./test_scripts/MobileProjection/Phase2/smoke/020_different_types_apps_interactions.lua
 ./test_scripts/MobileProjection/Phase2/smoke/021_two_apps_and_deactivation.lua
 ./test_scripts/MobileProjection/Phase2/smoke/022_two_apps_proj_media_and_deactivation_streaming.lua

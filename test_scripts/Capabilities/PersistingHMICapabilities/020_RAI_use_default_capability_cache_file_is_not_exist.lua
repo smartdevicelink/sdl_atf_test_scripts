@@ -22,28 +22,13 @@ local appSessionId = 1
 local hmiCapabilities = common.getHMICapabilitiesFromFile()
 
 --[[ Local Functions ]]
-local function changeInternalNameRate(pCapabilities)
-  local capTable = common.cloneTable(pCapabilities)
-    capTable.bitsPerSample = string.gsub(capTable.bitsPerSample, "RATE_", "")
-    capTable.samplingRate = string.gsub(capTable.samplingRate, "RATE_", "")
-  return capTable
-end
-
-local function changeInternalNameRateArray(pCapabilities)
-  local capTableArray = common.cloneTable(pCapabilities)
-  for key, value in ipairs(capTableArray) do
-    capTableArray[key] = changeInternalNameRate(value)
-  end
-  return capTableArray
-end
-
 local capRaiResponse = {
   buttonCapabilities = hmiCapabilities.Buttons.capabilities,
   vehicleType = hmiCapabilities.VehicleInfo.vehicleType,
-  audioPassThruCapabilities = changeInternalNameRateArray(hmiCapabilities.UI.audioPassThruCapabilities),
+  audioPassThruCapabilities = hmiCapabilities.UI.audioPassThruCapabilities,
   hmiDisplayLanguage =  hmiCapabilities.UI.language,
   language = hmiCapabilities.VR.language, -- or TTS.language
-  pcmStreamCapabilities = changeInternalNameRate(hmiCapabilities.UI.pcmStreamCapabilities),
+  pcmStreamCapabilities = hmiCapabilities.UI.pcmStreamCapabilities,
   hmiZoneCapabilities = { hmiCapabilities.UI.hmiZoneCapabilities },
   softButtonCapabilities = hmiCapabilities.UI.softButtonCapabilities,
   displayCapabilities = common.buildDisplayCapForMobileExp(hmiCapabilities.UI.displayCapabilities),

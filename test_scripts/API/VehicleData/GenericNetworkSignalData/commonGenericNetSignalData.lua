@@ -552,6 +552,7 @@ function common.policyTableUpdateWithOnPermChange(pPTUpdateFunc, pExpNotificatio
 end
 
 function common.validation(actualData, expectedData, pMessage)
+  if actualData == nil then return false, "Actual table: nil" end
   if true ~= common:is_table_equal(actualData, expectedData) then
       return false, pMessage .. " contains unexpected parameters.\n" ..
       "Expected table: " .. common.tableToString(expectedData) .. "\n" ..

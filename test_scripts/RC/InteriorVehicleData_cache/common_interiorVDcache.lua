@@ -18,7 +18,7 @@ config.application2.registerAppInterfaceParams.isMediaApplication = false
 commonRC.modules = { "RADIO", "CLIMATE", "SEAT", "AUDIO", "LIGHT", "HMI_SETTINGS" }
 commonRC.functionId = functionId
 
-function commonRC.GetInteriorVehicleData(pModuleType, isSubscribe, isHMIreqExpect, pAppId)
+function commonRC.GetInteriorVehicleData(pModuleType, isSubscribe, isHMIreqExpect, pAppId, pResultCode)
   if not pAppId then pAppId = 1 end
   local rpc = "GetInteriorVehicleData"
   local HMIrequestsNumber
@@ -35,7 +35,8 @@ function commonRC.GetInteriorVehicleData(pModuleType, isSubscribe, isHMIreqExpec
       commonRC.getHMIResponseParams(rpc, pModuleType, isSubscribe))
     end)
   :Times(HMIrequestsNumber)
-  commonRC.getMobileSession(pAppId):ExpectResponse(cid, commonRC.getAppResponseParams(rpc, true, "SUCCESS", pModuleType, isSubscribe))
+  local resultCode = pResultCode or "SUCCESS"
+  commonRC.getMobileSession(pAppId):ExpectResponse(cid, commonRC.getAppResponseParams(rpc, true, resultCode, pModuleType, isSubscribe))
 end
 
 function commonRC.GetInteriorVehicleDataRejected(pModuleType, isSubscribe, pAppId)

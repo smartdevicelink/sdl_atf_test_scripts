@@ -65,7 +65,7 @@ for _, mod in pairs(common.modules) do
   runner.Step("App1 OnInteriorVehicleData for " .. mod, common.OnInteriorVD,
     { mod, true, 1 })
   runner.Step("App1 GetInteriorVehicleData with subscribe=true without request to HMI " .. mod, common.GetInteriorVehicleData,
-    { mod, true, false, 1 })
+    { mod, true, false, 1 , "WARNINGS" })
   runner.Step("App1 GetInteriorVehicleData without request to HMI " .. mod, common.GetInteriorVehicleData,
     { mod, nil, false, 1 })
   -- Block 'Subscribe app2' from diagram

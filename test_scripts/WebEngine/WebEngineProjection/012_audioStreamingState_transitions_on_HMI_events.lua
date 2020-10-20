@@ -10,8 +10,10 @@
 --
 -- Sequence:
 -- 1) One of the events below is received from HMI within 'BC.OnEventChanged' notification:
---    PHONE_CALL, EMERGENCY_EVENT, AUDIO_SOURCE, EMBEDDED_NAVI
+--    PHONE_CALL, EMERGENCY_EVENT, AUDIO_SOURCE
 --   a. SDL sends OnHMIStatus notification with 'audioStreamingState' = NOT_AUDIBLE
+-- 2) EMBEDDED_NAVI event is received from HMI within 'BC.OnEventChanged' notification
+--   a. SDL sends OnHMIStatus notification with 'audioStreamingState' = AUDIBLE
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/WebEngine/commonWebEngine')
@@ -28,7 +30,7 @@ local testCases = {
   [001] = { appType = "WEB_VIEW", isMedia = true, audioState = "NOT_AUDIBLE", event = "PHONE_CALL" },
   [002] = { appType = "WEB_VIEW", isMedia = true, audioState = "NOT_AUDIBLE", event = "EMERGENCY_EVENT" },
   [003] = { appType = "WEB_VIEW", isMedia = true, audioState = "NOT_AUDIBLE", event = "AUDIO_SOURCE" },
-  [004] = { appType = "WEB_VIEW", isMedia = true, audioState = "NOT_AUDIBLE", event = "EMBEDDED_NAVI" }
+  [004] = { appType = "WEB_VIEW", isMedia = true, audioState = "AUDIBLE",     event = "EMBEDDED_NAVI" }
 }
 
 --[[ Local Functions ]]

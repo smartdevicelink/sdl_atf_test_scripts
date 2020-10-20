@@ -263,8 +263,8 @@ function m.updateHMICapabilitiesTable(isRemainData)
     table.remove(hmiCapTbl.UI.displayCapabilities.textFields, 1)
     hmiCapTbl.UI.hmiZoneCapabilities = "BACK"
     hmiCapTbl.UI.softButtonCapabilities.imageSupported = false
-    hmiCapTbl.UI.audioPassThruCapabilities[1].samplingRate = "RATE_8KHZ"
-    hmiCapTbl.UI.pcmStreamCapabilities.samplingRate = "RATE_8KHZ"
+    hmiCapTbl.UI.audioPassThruCapabilities[1].samplingRate = "8KHZ"
+    hmiCapTbl.UI.pcmStreamCapabilities.samplingRate = "8KHZ"
     hmiCapTbl.UI.systemCapabilities.navigationCapability.sendLocationEnabled = false
     hmiCapTbl.UI.systemCapabilities.phoneCapability.dialNumberEnabled = false
     hmiCapTbl.UI.systemCapabilities.videoStreamingCapability.maxBitrate = 50000
@@ -637,7 +637,11 @@ local function initHmiOnReady(hmi_table)
   end
 
   local additionalExp = nil
-  local additionalExpName = "BasicCommunication.UpdateDeviceList"
+  local additionalExpName = "BasicCommunication.GetSystemInfo"
+  if SDL.buildOptions.webSocketServerSupport == "ON" then
+    additionalExpName = "BasicCommunication.UpdateDeviceList"
+  end
+
   for k_module, v_module in pairs(hmi_table_internal) do
     if type(v_module) ~= "table" then
       break
