@@ -1,1 +1,0 @@
-./test_scripts/Defects/6_1/1862_SDL_does_not_validate_invalid_characters_in_HMI_requests.lua
