@@ -48,7 +48,8 @@ end
 
 local function deactivateApp(pAppId)
   local secondAppId = pAppId == 1 and 2 or 1
-  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated", { appID = common.getHMIAppId(pAppId) })
+  common.getHMIConnection():SendNotification("BasicCommunication.OnAppDeactivated",
+    { appID = common.getHMIAppId(pAppId) })
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus", { hmiLevel = "LIMITED" })
   common.getMobileSession(secondAppId):ExpectNotification("OnHMIStatus")
   :Times(0)
