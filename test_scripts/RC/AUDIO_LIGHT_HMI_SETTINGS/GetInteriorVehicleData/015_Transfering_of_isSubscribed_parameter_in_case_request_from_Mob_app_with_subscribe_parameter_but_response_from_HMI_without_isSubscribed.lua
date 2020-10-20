@@ -23,7 +23,8 @@ local common = require("test_scripts/RC/commonRC")
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, pHMIreqCount, isCheckSubscribeAbsence)
+local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, pHMIreqCount, isCheckSubscribeAbsence, 
+  pResultCode)
   local mobileSession = common.getMobileSession()
   local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
       moduleType = pModuleType,
@@ -35,7 +36,7 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, p
     pSubscribeHMI = nil
   end
 
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+  common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData", {
       moduleType = pModuleType
     })
   :Do(function(_, data)
@@ -55,7 +56,8 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, p
     end)
   :Times(pHMIreqCount)
 
-  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  local resultCode = pResultCode or "SUCCESS"
+  mobileSession:ExpectResponse(cid, { success = true, resultCode = resultCode,
       isSubscribed = isSubscriptionActive, -- return current value of subscription
       moduleData = common.getModuleControlDataForResponse(pModuleType)
     })
@@ -80,7 +82,7 @@ end
 for _, mod in pairs(common.modulesWithoutSeat) do
   runner.Step("Subscribe app to " .. mod, common.subscribeToModule, { mod })
   runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule,
-    { mod, true, true, 0 })
+    { mod, true, true, 0, false, "WARNINGS" })
   runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_unsubscribe", getDataForModule,
     { mod, true, false, 1, false })
 end

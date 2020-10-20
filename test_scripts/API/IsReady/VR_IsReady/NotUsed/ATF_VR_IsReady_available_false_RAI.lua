@@ -433,7 +433,7 @@ function Test:initHMI_onReady_VR_IsReady(case)
 		return
 		{
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		}
@@ -803,7 +803,7 @@ local function Case1_BothVR_TTS_IsReady_available_false()
 		return
 		{
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		}

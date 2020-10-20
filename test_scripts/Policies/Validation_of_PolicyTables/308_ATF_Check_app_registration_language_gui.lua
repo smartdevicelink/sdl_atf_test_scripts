@@ -166,6 +166,7 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:ActivateAppInFULLLevel()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID,"FULL")
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 function Test:InitiatePTUForGetSnapshot()

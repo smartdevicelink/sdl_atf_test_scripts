@@ -132,6 +132,7 @@ function Test:RAI_PTU()
         end)
       :Times(3)
       -- workaround due to issue in Mobile API: APPLINK-30390
+    end)
       local onSystemRequestRecieved = false
       self.mobileSession:ExpectNotification("OnSystemRequest")
       :Do(
@@ -145,7 +146,6 @@ function Test:RAI_PTU()
           end
         end)
       :Times(2)
-    end)
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(
     function()
