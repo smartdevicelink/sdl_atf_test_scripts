@@ -423,7 +423,7 @@ function Test:initHMI_onReady_TTS_IsReady(case)
 		return
 		{
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		}

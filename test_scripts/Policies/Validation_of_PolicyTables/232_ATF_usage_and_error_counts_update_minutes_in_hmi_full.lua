@@ -40,6 +40,9 @@ local utils = require ('user_modules/utils')
 require('cardinalities')
 require('user_modules/AppTypes')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ Local Variables ]]
 local PRELOADED_PT_FILE_NAME = "sdl_preloaded_pt.json"
 local HMIAppId

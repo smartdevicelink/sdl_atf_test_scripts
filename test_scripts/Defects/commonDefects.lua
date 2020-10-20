@@ -276,7 +276,7 @@ function commonDefect.ignitionOff(self)
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
       EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
       :Do(function()
-          sdl:StopSDL()
+          StopSDL()
         end)
     end)
 end

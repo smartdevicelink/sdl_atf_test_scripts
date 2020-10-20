@@ -54,6 +54,7 @@
 ./test_scripts/Smoke/API/053_GetInteriorVehicleDataConsent_PositiveCase_SUCCESS.lua
 ./test_scripts/Smoke/API/054_ReleaseInteriorVehicleDataModule_PositiveCase_SUCCESS.lua
 ./test_scripts/Smoke/API/055_GetInteriorVehicleData_PositiveCase_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/001_PositiveCase_With_SoftButtons_SUCCESS.lua
 ./test_scripts/AppServices/PublishAppService/001_Mobile_success_flow.lua
 ./test_scripts/AppServices/PublishAppService/002_HMI_success_flow.lua
 ./test_scripts/AppServices/GetAppServiceData/001_M2M_success_flow.lua

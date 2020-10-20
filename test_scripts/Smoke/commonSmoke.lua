@@ -63,7 +63,7 @@ end
 local isPreloadedUpdated = false
 
 function common.postconditions()
-  if SDL:CheckStatusSDL() == SDL.RUNNING then SDL:StopSDL() end
+  StopSDL()
   common.restoreSDLIniParameters()
   if isPreloadedUpdated == true then SDL.PreloadedPT.restore() end
 end
@@ -77,7 +77,8 @@ function common.updatePreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   local additionalRPCs = {
     "SendLocation", "SubscribeVehicleData", "UnsubscribeVehicleData", "GetVehicleData", "UpdateTurnList",
-    "AlertManeuver", "DialNumber", "ReadDID", "GetDTCs", "ShowConstantTBT"
+    "AlertManeuver", "DialNumber", "ReadDID", "GetDTCs", "ShowConstantTBT", "Alert", "SubtleAlert", 
+    "OnSubtleAlertPressed"
   }
   pt.policy_table.functional_groupings.NewTestCaseGroup = { rpcs = { } }
   for _, v in pairs(additionalRPCs) do
@@ -89,6 +90,7 @@ function common.updatePreloadedPT()
   pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup" }
   pt.policy_table.app_policies["0000001"].keep_context = true
   pt.policy_table.app_policies["0000001"].steal_focus = true
+  pt.policy_table.app_policies["0000001"].priority = "NORMAL"
   SDL.PreloadedPT.set(pt)
 end
 
@@ -269,13 +271,11 @@ function common.ignitionOff(pExpFunc)
           isOnSDLCloseSent = true
           SDL.DeleteFile()
         end)
-      :Times(AtMost(1))
     end)
   common.wait(3000)
   :Do(function()
       if isOnSDLCloseSent == false then common.cprint(35, "BC.OnSDLClose was not sent") end
-      if SDL:CheckStatusSDL() == SDL.RUNNING then SDL:StopSDL() end
-      common.getMobileConnection():Close()
+      StopSDL()
     end)
 end
 
@@ -288,12 +288,10 @@ function common.masterReset(pExpFunc)
       isOnSDLCloseSent = true
       SDL.DeleteFile()
     end)
-  :Times(AtMost(1))
   common.wait(3000)
   :Do(function()
       if isOnSDLCloseSent == false then common.cprint(35, "BC.OnSDLClose was not sent") end
-      if SDL:CheckStatusSDL() == SDL.RUNNING then SDL:StopSDL() end
-      common.getMobileConnection():Close()
+      StopSDL()
     end)
 end
 

@@ -88,7 +88,7 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
   local curRetry = 0
   local function getExpOnStatusUpdate()
     local expRes = {}
-    for i = 1, numOfIter + 2 do
+    for i = 1, numOfIter + 1 do
       if pPTUNum == 1 or i > 1 then table.insert(expRes, { status = "UPDATE_NEEDED" }) end
       table.insert(expRes, { status = "UPDATING" })
     end
@@ -98,8 +98,8 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
   local function sendBCOnSystemRequest()
     curRetry = curRetry + 1
     local delay = 0
-    if curRetry > 2 then
-      delay = secondsBetweenRetries[curRetry - 2] * 1000
+    if curRetry > 1 then
+      delay = secondsBetweenRetries[curRetry - 1] * 1000
     end
     common.log("Delay:", delay)
     RUN_AFTER(function()
@@ -122,7 +122,7 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
       :Do(function(_, d)
           common.log("SDL->MOB:", "OnSystemRequest  ", d.payload.requestType)
         end)
-      :Times(numOfIter + 2)
+      :Times(numOfIter + 1)
       :Timeout(timeout)
     end
     local expNotifRes = getExpOnStatusUpdate()

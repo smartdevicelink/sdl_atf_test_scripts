@@ -27,6 +27,9 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local utils = require ('user_modules/utils')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
 require('cardinalities')

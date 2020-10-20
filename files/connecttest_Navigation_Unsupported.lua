@@ -479,7 +479,7 @@ function module:runSDL()
       return
       {
         name = name,
-        characterSet = characterSet or "TYPE2SET",
+        characterSet = characterSet or "UTF_8",
         width = width or 500,
         rows = rows or 1
       }
