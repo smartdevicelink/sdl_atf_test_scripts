@@ -6,14 +6,8 @@
 -- 1) There is a mobile app which is audio/video source
 -- 2) And this app starts Audio/Video streaming
 -- 3) And HMI sends 'BC.OnEventChanged' (AUDIO_SOURCE)
--- 4) And app still continue streaming
 -- SDL must:
--- 1) Send to HMI:
---   Navigation.OnAudioDataStreaming(available = false)
---   Navigation.OnVideoDataStreaming(available = false)
---   Navigation.StopAudioStream
---   Navigation.StopStream
--- 2) Send End Audio/Video service control messages to app
+-- 1) Allow app to continue streaming
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/MobileProjection/Phase2/common')
@@ -27,8 +21,8 @@ config.defaultProtocolVersion = 3
 
 --[[ Local Variables ]]
 local testCases = {
-  [001] = { t = "PROJECTION", m = true },
-  [002] = { t = "NAVIGATION", m = true },
+  [001] = { t = "PROJECTION", m = true, a = "NOT_AUDIBLE"},
+  [002] = { t = "NAVIGATION", m = true, a = "AUDIBLE" },
 }
 
 --[[ Local Functions ]]
@@ -67,48 +61,21 @@ local function appStopStreaming()
   :Times(0)
 end
 
-local function expectEndService(pServiceId)
-  local event = events.Event()
-  event.matches = function(_, data)
-    return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME
-    and data.serviceType == pServiceId
-    and data.sessionId == common.getMobileSession().mobile_session_impl.control_services.session.sessionId.get()
-    and data.frameInfo == constants.FRAME_INFO.END_SERVICE
-  end
-  local ret = common.getMobileSession():ExpectEvent(event, "EndService")
-  ret:Do(function()
-      common.getMobileSession():Send({
-          frameType = constants.FRAME_TYPE.CONTROL_FRAME,
-          serviceType = pServiceId,
-          frameInfo = constants.FRAME_INFO.END_SERVICE_ACK
-        })
-    end)
-  return ret
-end
-
-local function changeAudioSource()
+local function changeAudioSource(pAudioState)
   common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
     eventName = "AUDIO_SOURCE",
     isActive = true })
   common.getMobileSession():ExpectNotification("OnHMIStatus", {
-    hmiLevel = "BACKGROUND",
+    hmiLevel = "LIMITED",
     systemContext = "MAIN",
-    audioStreamingState = "NOT_AUDIBLE",
-    videoStreamingState = "NOT_STREAMABLE"
+    audioStreamingState = pAudioState,
+    videoStreamingState = "STREAMABLE"
   })
   common.wait(2000)
-  common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false }):Times(AtLeast(1))
-  common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = false }):Times(AtLeast(1))
-  common.getHMIConnection():ExpectRequest("Navigation.StopAudioStream", { appID = common.getHMIAppId() })
-  :Do(function(_, data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
-  common.getHMIConnection():ExpectRequest("Navigation.StopStream", { appID = common.getHMIAppId() })
-  :Do(function(_, data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
-  expectEndService(10)
-  expectEndService(11)
+  common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false }):Times(0)
+  common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = false }):Times(0)
+  common.getHMIConnection():ExpectRequest("Navigation.StopAudioStream", { appID = common.getHMIAppId() }):Times(0)
+  common.getHMIConnection():ExpectRequest("Navigation.StopStream", { appID = common.getHMIAppId() }):Times(0)
 end
 
 --[[ Scenario ]]
@@ -122,7 +89,7 @@ for n, tc in common.spairs(testCases) do
   runner.Step("Activate App", common.activateApp, { 1 })
   runner.Step("App starts Audio streaming", appStartAudioStreaming)
   runner.Step("App starts Video streaming", appStartVideoStreaming)
-  runner.Step("Change Audio Source", changeAudioSource)
+  runner.Step("Change Audio Source", changeAudioSource, { tc.a })
   runner.Step("Stop A/V streaming", appStopStreaming)
   runner.Step("Clean sessions", common.cleanSessions)
   runner.Step("Stop SDL", common.postconditions)

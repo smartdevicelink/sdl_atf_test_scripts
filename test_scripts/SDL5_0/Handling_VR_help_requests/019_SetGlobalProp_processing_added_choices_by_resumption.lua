@@ -60,6 +60,20 @@ local function createInteractionChoiceSetWithoutSetGP()
 end
 
 local function resumptionDataAddCommands()
+  EXPECT_HMICALL("UI.AddCommand")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+  :ValidIf(function(_,data)
+    for k, value in pairs(common.commandArray) do
+      if data.params.cmdID == value.cmdID then
+        return true
+      elseif data.params.cmdID ~= value.cmdID and k == #common.commandArray then
+        return false, "Received cmdID in UI.AddCommand was not added previously before resumption"
+      end
+    end
+  end)
+  :Times(#common.commandArray)
   EXPECT_HMICALL("VR.AddCommand")
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -81,6 +95,9 @@ local function resumptionDataAddCommands()
   end)
   :Times(#commandArrayResumption)
   EXPECT_HMICALL("TTS.SetGlobalProperties")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
   :ValidIf(function(_, data)
     local expectedHelpPrompt = common.vrHelpPrompt(common.commandArray)
     local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.helpPrompt, expectedHelpPrompt)
@@ -93,6 +110,9 @@ local function resumptionDataAddCommands()
     return vrCommandCompareResult, Msg
   end)
   EXPECT_HMICALL("UI.SetGlobalProperties")
+  :Do(function(_, data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
   :ValidIf(function(_, data)
     local expectedVrHelp = common.vrHelp(common.commandArray)
     local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrHelp, expectedVrHelp)

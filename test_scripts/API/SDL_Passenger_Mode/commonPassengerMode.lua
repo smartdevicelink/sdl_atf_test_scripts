@@ -4,6 +4,7 @@
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.checkAllValidations = true
+config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
@@ -116,7 +117,7 @@ end
 
 local function deactivateAppToBackground()
   c.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {
-    eventName = "AUDIO_SOURCE", isActive = true
+    eventName = "EMBEDDED_NAVI", isActive = true
   })
   c.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
