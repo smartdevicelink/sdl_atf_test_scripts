@@ -13,3 +13,6 @@
 ./test_scripts/Protocol/NACKReason/013_Invalid_time_Audio_Service_NACK.lua
 ./test_scripts/Protocol/NACKReason/014_Invalid_time_RPC_Service_NACK.lua
 ./test_scripts/Protocol/NACKReason/015_Second_unprotected_Video_Audio_RPC_Services_NACK.lua
+./test_scripts/Protocol/NACKReason/016_SetVideoConfig_no_response_Video_Service_NACK.lua
+./test_scripts/Protocol/NACKReason/017_SetVideoConfig_error_response_Video_Service_NACK.lua
+./test_scripts/Protocol/NACKReason/018_SetVideoConfig_error_response_with_rejected_params_Video_Service_NACK.lua
