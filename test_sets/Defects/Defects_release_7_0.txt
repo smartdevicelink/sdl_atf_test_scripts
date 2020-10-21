@@ -27,5 +27,11 @@
 ./test_scripts/Defects/7_0/2888_ButtonNotificationsToLimitedApps.lua
 ./test_scripts/Defects/7_0/2888_ButtonNotificationToLimitedAppsWithAppId.lua
 ./test_scripts/Defects/7_0/3517_GetIVD_various_successful_result_codes_HMI_response.lua
+./test_scripts/Defects/7_0/1384/001_HMI_IsReady_response_Navigation_interface.lua
+./test_scripts/Defects/7_0/1384/002_HMI_IsReady_response_RC_interface.lua
+./test_scripts/Defects/7_0/1384/003_HMI_IsReady_response_TTS_interface.lua
+./test_scripts/Defects/7_0/1384/004_HMI_IsReady_response_UI_interface.lua
+./test_scripts/Defects/7_0/1384/005_HMI_IsReady_response_VehicleInfo_interface.lua
+./test_scripts/Defects/7_0/1384/006_HMI_IsReady_response_VR_interface.lua
 ./test_scripts/Defects/7_0/1862_SDL_does_not_validate_invalid_characters_in_HMI_requests.lua
 ./test_scripts/Defects/7_0/3527_SubtleAlert_2_apps_no_change_of_HMI_level.lua
