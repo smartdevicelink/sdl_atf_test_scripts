@@ -99,7 +99,8 @@ function common.startServiceUnprotectedACK(pAppId, pServiceId, pRequestPayload, 
     end)
 end
 
-function common.startServiceUnprotectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload)
+function common.startServiceUnprotectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtentionFunc)
+    if pExtentionFunc then pExtentionFunc() end
     local mobSession = common.getMobileSession(pAppId)
     local msg = {
         serviceType = pServiceId,
