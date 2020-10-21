@@ -27,6 +27,7 @@
 ./test_scripts/Defects/7_0/2888_ButtonNotificationsToLimitedApps.lua
 ./test_scripts/Defects/7_0/2888_ButtonNotificationToLimitedAppsWithAppId.lua
 ./test_scripts/Defects/7_0/3517_GetIVD_various_successful_result_codes_HMI_response.lua
+./test_scripts/Defects/7_0/1178_Core_sends_an_onAppInterfaceUnregistered_notification_when_UnregisterAppInterface_is_sent_from_Mobile.lua
 ./test_scripts/Defects/7_0/1384/001_HMI_IsReady_response_Navigation_interface.lua
 ./test_scripts/Defects/7_0/1384/002_HMI_IsReady_response_RC_interface.lua
 ./test_scripts/Defects/7_0/1384/003_HMI_IsReady_response_TTS_interface.lua
