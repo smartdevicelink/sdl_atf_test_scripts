@@ -36,3 +36,5 @@
 ./test_scripts/Defects/7_0/1384/006_HMI_IsReady_response_VR_interface.lua
 ./test_scripts/Defects/7_0/1862_SDL_does_not_validate_invalid_characters_in_HMI_requests.lua
 ./test_scripts/Defects/7_0/3527_SubtleAlert_2_apps_no_change_of_HMI_level.lua
+./test_scripts/Defects/7_0/3532_OnSCU_after_Show_widget_IGN_OFF_ON_Cycle.lua
+./test_scripts/Defects/7_0/3532_OnSCU_after_Show_main_IGN_OFF_ON_Cycle.lua
