@@ -58,7 +58,7 @@ local function startService()
     end
     RUN_AFTER(response, 550)
   end)
-  :Times(5)
+  :Times(4)
   common.getHMIConnection():ExpectRequest("Navigation.StopStream")
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
