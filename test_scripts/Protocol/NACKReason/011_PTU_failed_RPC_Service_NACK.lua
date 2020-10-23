@@ -34,8 +34,6 @@ local rpcServiceParams = {
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
-common.Step("ForceProtectedService = 0x0A, 0x0B", common.sdl.setSDLIniParameter,
-  { "ForceProtectedService", "0x0A, 0x0B" })
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerAppUpdatedProtocolVersion, { isPTUtriggered })
 common.Step("PTU", common.policyTableUpdate)
