@@ -77,8 +77,8 @@ function common.startServiceProtectedNACK(pAppId, pServiceId, pRequestPayload, p
     end)
 end
 
-function common.startServiceUnprotectedACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtentionFunc)
-    if pExtentionFunc then pExtentionFunc() end
+function common.startServiceUnprotectedACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtensionFunc)
+    if pExtensionFunc then pExtensionFunc() end
     local mobSession = common.getMobileSession(pAppId)
     local msg = {
         serviceType = pServiceId,
@@ -99,8 +99,8 @@ function common.startServiceUnprotectedACK(pAppId, pServiceId, pRequestPayload, 
     end)
 end
 
-function common.startServiceUnprotectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtentionFunc)
-    if pExtentionFunc then pExtentionFunc() end
+function common.startServiceUnprotectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtensionFunc)
+    if pExtensionFunc then pExtensionFunc() end
     local mobSession = common.getMobileSession(pAppId)
     local msg = {
         serviceType = pServiceId,
@@ -159,8 +159,8 @@ function common.registerAppUpdatedProtocolVersion(hasPTU)
     end)
 end
 
-function common.ptuFailedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtentionFunc)
-    if pExtentionFunc then pExtentionFunc() end
+function common.ptuFailedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtensionFunc)
+    if pExtensionFunc then pExtensionFunc() end
     common.startServiceProtectedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayload)
     common.getMobileSession():ExpectHandshakeMessage()
     :Times(0)
@@ -178,8 +178,8 @@ function common.ptuFailedNACK(pAppId, pServiceId, pRequestPayload, pResponsePayl
     end)
 end
 
-function common.startSecureServiceTimeNotProvided(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtentionFunc)
-    if pExtentionFunc then pExtentionFunc() end
+function common.startSecureServiceTimeNotProvided(pAppId, pServiceId, pRequestPayload, pResponsePayload, pExtensionFunc)
+    if pExtensionFunc then pExtensionFunc() end
 
     local event = events.Event()
     event.level = 3
