@@ -66,7 +66,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", rc.rc.start)
-runner.Step("Register App", common.registerAppWOPTU)
+runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 runner.Step("PTU with permission for RC", rc.rc.policyTableUpdate)
 for _, value in pairs (moduleData) do
