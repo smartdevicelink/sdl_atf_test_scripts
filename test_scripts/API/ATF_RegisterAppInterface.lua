@@ -13435,9 +13435,9 @@ local checkedCapabilities = {
 }
 
 samplingRateEnum = {"8KHZ", "16KHZ", "22KHZ", "44KHZ"}
-samplingRateEnumInternal = {"RATE_8KHZ", "RATE_16KHZ", "RATE_22KHZ", "RATE_44KHZ"}
+samplingRateEnumInternal = {"8KHZ", "16KHZ", "22KHZ", "44KHZ"}
 bitsPerSampleEnum = {"8_BIT", "16_BIT"}
-bitsPerSampleEnumInternal = {"RATE_8_BIT", "RATE_16_BIT"}
+bitsPerSampleEnumInternal = {"8_BIT", "16_BIT"}
 audioTypeEnum = {"PCM"}
 
 for keySample, smplRate in pairs(samplingRateEnum) do
@@ -13512,8 +13512,7 @@ for keySample, smplRate in pairs(samplingRateEnum) do
 			function Test:CheckPcmStreamCapabilities(...)
 				-- body
 				self.mobileSession:StartService(7)
-				:Do(function (_,data)
-					checkedCapabilities.bitsPerSample = string.sub(checkedCapabilities.bitsPerSample, 6)
+				:Do(function (_,data)					
 					RegisterAppForCheckPcmStreamCapabilities(self, checkedCapabilities)
 				end)
 			end
@@ -13553,8 +13552,7 @@ for keySample, smplRate in pairs(samplingRateEnumInternal) do
 			function Test:CheckPcmStreamCapabilities(...)
 				-- body
 				self.mobileSession:StartService(7)
-				:Do(function (_,data)
-					checkedCapabilities.samplingRate = string.sub(checkedCapabilities.samplingRate, 6)
+				:Do(function (_,data)					
 					RegisterAppForCheckPcmStreamCapabilities(self, checkedCapabilities)
 				end)
 			end
@@ -13594,9 +13592,7 @@ for keySample, smplRate in pairs(samplingRateEnumInternal) do
 			function Test:CheckPcmStreamCapabilities(...)
 				-- body
 				self.mobileSession:StartService(7)
-				:Do(function (_,data)
-					checkedCapabilities.samplingRate = string.sub(checkedCapabilities.samplingRate, 6)
-					checkedCapabilities.bitsPerSample = string.sub(checkedCapabilities.bitsPerSample, 6)
+				:Do(function (_,data)					
 					RegisterAppForCheckPcmStreamCapabilities(self, checkedCapabilities)
 				end)
 			end
