@@ -1,1 +1,0 @@
-./test_scripts/Defects/6_1/2428_SDL_crash_if_AppStorageFolder_have_no_write_permissions.lua
