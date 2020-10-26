@@ -21,7 +21,7 @@ local testCases = {
   [073] = { t = "PROJECTION",    m = true,  s = "NOT_AUDIBLE", e = "PHONE_CALL" },
   [080] = { t = "PROJECTION",    m = true,  s = "NOT_AUDIBLE", e = "EMERGENCY_EVENT" },
   [087] = { t = "PROJECTION",    m = true,  s = "NOT_AUDIBLE", e = "AUDIO_SOURCE" },
-  [094] = { t = "PROJECTION",    m = true,  s = "NOT_AUDIBLE", e = "EMBEDDED_NAVI" },
+  [094] = { t = "PROJECTION",    m = true,  s = "AUDIBLE", e = "EMBEDDED_NAVI" },
   [101] = { t = "PROJECTION",    m = true,  s = "NOT_AUDIBLE", e = "DEACTIVATE_HMI" }
 }
 

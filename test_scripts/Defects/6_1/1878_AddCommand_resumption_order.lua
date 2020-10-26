@@ -88,6 +88,11 @@ local function registerWithResumption()
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   :Times(3)
+  common.getHMIConnection():ExpectRequest("UI.AddCommand")
+  :Do(function(_,data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  :Times(3)
 end
 
 function common.ignitionOff()
