@@ -1,12 +1,13 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_core/issues/2379
+-- User story: https://github.com/smartdevicelink/sdl_core/issues/2479
 --
 -- Description:
--- 1. SDL does not respond NACK on second service.
+-- SDL does respond NACK on second start service request (Protected => Unprotected)
+--
 -- Steps to reproduce:
--- 1 First service started as Protected.
--- 1 Start video sreaming.
--- 1 Second service starting as NOT Protected.
+-- 1. First service started as Protected.
+-- 2. Start video sreaming.
+-- 3. Second service starting as NOT Protected.
 -- Expected:
 -- 1. SDL respond NACK on second service.
 ---------------------------------------------------------------------------------------------------

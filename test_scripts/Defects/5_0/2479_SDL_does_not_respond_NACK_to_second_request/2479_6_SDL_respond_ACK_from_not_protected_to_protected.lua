@@ -2,13 +2,14 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2479
 --
 -- Description:
--- 1) SDL does respond ACK on second service.
+-- SDL does respond ACK on second start service request (Unprotected => Protected)
+--
 -- Steps to reproduce:
--- 1) First service started as NOT Protected.
--- 2) Start video sreaming.
--- 3) Second service starting as  Protected.
+-- 1. First service started as NOT Protected.
+-- 2. Start video sreaming.
+-- 3. Second service starting as Protected.
 -- Expected:
--- 1) SDL respond ACK on second service and will continuous stream through the encrypted channel.
+-- 1. SDL respond ACK on second service and will continuous stream through the encrypted channel.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Security/DTLS/common')
