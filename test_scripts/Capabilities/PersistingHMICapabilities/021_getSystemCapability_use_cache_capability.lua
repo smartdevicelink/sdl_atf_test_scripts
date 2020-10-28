@@ -42,7 +42,9 @@ local systemCapabilities = {
   REMOTE_CONTROL = {
     remoteControlCapability = getRcCapabilitiesWithUpdatedAllowMultipleAccess() },
   SEAT_LOCATION = {
-    seatLocationCapability = hmiCap.RC.GetCapabilities.params.seatLocationCapability }
+    seatLocationCapability = hmiCap.RC.GetCapabilities.params.seatLocationCapability },
+  DRIVER_DISTRACTION = { 
+    driverDistractionCapability = hmiCap.UI.GetCapabilities.params.systemCapabilities.driverDistractionCapability }
 }
 
 --[[ Scenario ]]

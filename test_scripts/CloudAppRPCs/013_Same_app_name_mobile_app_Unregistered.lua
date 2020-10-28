@@ -32,6 +32,8 @@ end
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
+local hmiAppIDMap = {}
+
 local function setHybridApp(pAppId, pAppNameCode, pHybridAppPreference)
   local params = {
     properties = {
@@ -41,12 +43,22 @@ local function setHybridApp(pAppId, pAppNameCode, pHybridAppPreference)
       authToken = "ABCD12345" .. pAppId,
       cloudTransportType = "WSS",
       hybridAppPreference = pHybridAppPreference,
-      endpoint = "ws://127.0.0.1:8080/"
+      endpoint = "ws://127.0.0.1:808" .. pAppId .. "/"
     }
   }
 
   local cid = common.getMobileSession():SendRPC("SetCloudAppProperties", params)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateAppList"):Do(function(_,data)
+    local apps = data.params.applications
+    for i,v in ipairs(apps) do 
+      if v.appName == "HybridApp" .. pAppNameCode then
+        print('Setting HMI App ID '.. pAppNameCode)
+        hmiAppIDMap[pAppId] = v.appID
+        --
+      end
+    end
+  end)
 end
 
 local function PTUfunc(tbl)
@@ -68,7 +80,10 @@ local function deleteMobDevices()
   utils.deleteNetworkInterface(2)
 end
 
-local function registerApp(pAppId, pConId, pAppNameCode, pUnregAppId)
+local function registerApp(pAppId, pConId, pAppNameCode, pActivateCloudApp, pUnregAppId)
+  if (pActivateCloudApp) then
+    common.getHMIConnection():SendRequest("SDL.ActivateApp", {appID = hmiAppIDMap[pAppId]})
+  end
   local session = common.getMobileSession(pAppId, pConId)
   session:StartService(7)
   :Do(function()
@@ -106,10 +121,10 @@ runner.Step("Define Hybrid App B in PT as BOTH", setHybridApp, { 3, "B", "BOTH" 
 
 runner.Title("Test")
 runner.Step("Register Mobile App A SUCCESS", registerApp, { 4, 1, "A" })
-runner.Step("Register Cloud App A SUCCESS, Unregister Mobile App A", registerApp, { 2, 2, "A", 4 })
+runner.Step("Register Cloud App A SUCCESS, Unregister Mobile App A", registerApp, { 2, 2, "A", true, 4 })
 
-runner.Step("Register Mobile App B SUCCESS", registerApp, { 3, 1, "B" })
-runner.Step("Register Cloud App B SUCCESS", registerApp, { 5, 2, "B" })
+runner.Step("Register Mobile App B SUCCESS", registerApp, { 5, 1, "B" })
+runner.Step("Register Cloud App B SUCCESS", registerApp, { 3, 2, "B", true})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -200,7 +200,7 @@ function Test:initHMI_onReady_VehicleinfoIsReady(method1, resultCode, params1, c
       return
       {
         name = name,
-        characterSet = characterSet or "TYPE2SET",
+        characterSet = characterSet or "UTF_8",
         width = width or 500,
         rows = rows or 1
       }
