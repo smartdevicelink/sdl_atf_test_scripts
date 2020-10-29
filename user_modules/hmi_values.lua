@@ -321,7 +321,8 @@ function module.getDefaultHMITable()
             "navigationText1", "navigationText2", "ETA", "totalDistance", "navigationText", "audioPassThruDisplayText1",
             "audioPassThruDisplayText2", "sliderHeader", "sliderFooter", "notificationText", "menuName",
             "secondaryText", "tertiaryText", "timeToDestination", "menuTitle", "locationName",
-            "locationDescription", "addressLines", "phoneNumber"
+            "locationDescription", "addressLines", "phoneNumber", "subtleAlertText1", "subtleAlertText2",
+            "subtleAlertSoftButtonText"
           }
           local out = { }
           for _, field in pairs(fields) do
@@ -332,7 +333,7 @@ function module.getDefaultHMITable()
         imageFields = (function()
           local fields = {
             "softButtonImage", "choiceImage", "choiceSecondaryImage", "vrHelpItem", "turnIcon", "menuIcon", "cmdIcon",
-            "showConstantTBTIcon", "locationImage"
+            "showConstantTBTIcon", "locationImage", "subtleAlertIcon"
           }
           local out = { }
           for _, field in pairs(fields) do
