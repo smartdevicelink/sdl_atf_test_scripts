@@ -81,7 +81,9 @@ local function deleteMobDevices()
 end
 
 local function registerApp(pAppId, pConId, pAppNameCode, pActivateCloudApp, pUnregAppId)
+  local hmiStatusOccurences = 1
   if (pActivateCloudApp) then
+    hmiStatusOccurences = 2
     common.getHMIConnection():SendRequest("SDL.ActivateApp", {appID = hmiAppIDMap[pAppId]})
   end
   local session = common.getMobileSession(pAppId, pConId)
@@ -94,7 +96,7 @@ local function registerApp(pAppId, pConId, pAppNameCode, pActivateCloudApp, pUnr
     local cid = session:SendRPC("RegisterAppInterface", params)
     session:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
     session:ExpectNotification("OnPermissionsChange")
-    session:ExpectNotification("OnHMIStatus")
+    session:ExpectNotification("OnHMIStatus"):Times(hmiStatusOccurences)
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered")
     :Do(function(_, d)
         common.setHMIAppId(d.params.application.appID, pAppId)

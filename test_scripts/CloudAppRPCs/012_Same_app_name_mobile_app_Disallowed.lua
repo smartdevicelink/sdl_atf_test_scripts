@@ -79,12 +79,19 @@ end
 local function registerApp(pAppId, pConId, pAppNameCode, pResultCode, pActivateCloudApp)
   local success
   local occurences
+  local hmiStatusOccurences
   if pResultCode == "SUCCESS" then
     success = true
     occurences = 1
+    if pActivateCloudApp then
+      hmiStatusOccurences = 2
+    else
+      hmiStatusOccurences = 1
+    end
   elseif pResultCode == "USER_DISALLOWED" then
     success = false
     occurences = 0
+    hmiStatusOccurences = 0
   end
   if (pActivateCloudApp) then
     common.getHMIConnection():SendRequest("SDL.ActivateApp", {appID = hmiAppIDMap[pAppId]})
@@ -99,7 +106,7 @@ local function registerApp(pAppId, pConId, pAppNameCode, pResultCode, pActivateC
     local cid = session:SendRPC("RegisterAppInterface", params)
     session:ExpectResponse(cid, { success = success, resultCode = pResultCode })
     session:ExpectNotification("OnPermissionsChange"):Times(occurences)
-    session:ExpectNotification("OnHMIStatus"):Times(occurences)
+    session:ExpectNotification("OnHMIStatus"):Times(hmiStatusOccurences)
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered"):Times(occurences)
   end)
 end
