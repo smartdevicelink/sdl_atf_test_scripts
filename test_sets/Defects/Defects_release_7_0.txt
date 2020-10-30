@@ -47,3 +47,4 @@
 ./test_scripts/Defects/7_0/3547_4_RetryStrategy_for_start_streaming_Video_HMI_all_REJECTED.lua
 ./test_scripts/Defects/7_0/3547_5_RetryStrategy_for_start_streaming_Audio_HMI_no_response.lua
 ./test_scripts/Defects/7_0/3547_6_RetryStrategy_for_start_streaming_Video_HMI_no_response.lua
+./test_scripts/Defects/7_0/3549_Register_App_and_Activate.lua
