@@ -47,7 +47,7 @@ local function setHybridApp(pAppId, pAppNameCode, pHybridAppPreference)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateAppList"):Do(function(_,data)
     local apps = data.params.applications
-    for i,v in ipairs(apps) do 
+    for i,v in ipairs(apps) do
       if v.appName == "HybridApp" .. pAppNameCode then
         print('Setting HMI App ID '.. pAppNameCode)
         hmiAppIDMap[pAppId] = v.appID
@@ -99,7 +99,7 @@ local function registerApp(pAppId, pConId, pAppNameCode, pResultCode, pActivateC
     local cid = session:SendRPC("RegisterAppInterface", params)
     session:ExpectResponse(cid, { success = success, resultCode = pResultCode })
     session:ExpectNotification("OnPermissionsChange"):Times(occurences)
-    session:ExpectNotification("OnHMIStatus"):Times(occurences)
+    session:ExpectNotification("OnHMIStatus"):Times(pActivateCloudApp == true and occurences*2 or occurences)
     common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered"):Times(occurences)
   end)
 end
