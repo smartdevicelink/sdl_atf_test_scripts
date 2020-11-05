@@ -20,6 +20,12 @@
 ---------------------------------------------------------------------------------------------
 require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
+--[[ Required Shared libraries ]]
+local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
 config.defaultProtocolVersion = 2

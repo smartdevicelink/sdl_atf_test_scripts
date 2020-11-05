@@ -26,9 +26,9 @@ local rpc = {
       nicknames = { "TestApp" },
       appID = "0000001",
       enabled = true,
-      authToken = "ABCD12345",
+      authToken = 12345,
       cloudTransportType = "WSS",
-      hybridAppPreference = "CORE",
+      hybridAppPreference = "BOTH",
       endpoint = "ws://127.0.0.1:8080/"
     }
   }

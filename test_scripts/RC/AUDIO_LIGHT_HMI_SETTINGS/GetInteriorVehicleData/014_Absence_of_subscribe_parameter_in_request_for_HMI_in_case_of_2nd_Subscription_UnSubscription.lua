@@ -34,14 +34,14 @@ local common = require("test_scripts/RC/commonRC")
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function subscriptionToModule(pModuleType, pSubscribe, pHMIReqTimes)
+local function subscriptionToModule(pModuleType, pSubscribe, pHMIReqTimes, pResultCode)
   local mobileSession = common.getMobileSession()
   local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
       moduleType = pModuleType,
       subscribe = pSubscribe
     })
 
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+  common.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData", {
       moduleType = pModuleType
     })
   :Do(function(_, data)
@@ -58,7 +58,8 @@ local function subscriptionToModule(pModuleType, pSubscribe, pHMIReqTimes)
     end)
   :Times(pHMIReqTimes)
 
-  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  local resultCode = pResultCode or "SUCCESS"
+  mobileSession:ExpectResponse(cid, { success = true, resultCode = resultCode,
       moduleData = common.getModuleControlDataForResponse(pModuleType),
       isSubscribed = pSubscribe
     })
@@ -85,7 +86,7 @@ for _, mod in pairs(common.modulesWithoutSeat) do
     { mod })
 
   -- subscribe to module 2nd time
-  runner.Step("Subscribe 2nd time app to " .. mod, subscriptionToModule, { mod, true, 0 })
+  runner.Step("Subscribe 2nd time app to " .. mod, subscriptionToModule, { mod, true, 0, "WARNINGS" })
   runner.Step("Send notification OnInteriorVehicleData " .. mod .. ". App is subscribed", common.isSubscribed,
     { mod })
 

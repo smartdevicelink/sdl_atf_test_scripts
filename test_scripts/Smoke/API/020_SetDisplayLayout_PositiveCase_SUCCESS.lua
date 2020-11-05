@@ -153,7 +153,7 @@ local function getDisplayCapTextFieldsValues()
   local values = { }
   for _, v in pairs(names) do
     local item = {
-      characterSet = "TYPE2SET",
+      characterSet = "UTF_8",
       name = v,
       rows = 1,
       width = 500
