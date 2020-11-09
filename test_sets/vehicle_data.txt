@@ -9,8 +9,8 @@
 ./test_scripts/API/VehicleData/GetVehicleData/007_GetVD_app_version_is_greater_than_parameter_version.lua
 ./test_scripts/API/VehicleData/GetVehicleData/008_GetVD_app_version_is_less_than_parameter_version.lua
 ./test_scripts/API/VehicleData/OnVehicleData/001_OnVD_Success.lua
-;./test_scripts/API/VehicleData/OnVehicleData/002_OnVD_disallowed.lua https://github.com/smartdevicelink/sdl_core/issues/3365
-;./test_scripts/API/VehicleData/OnVehicleData/003_OnVD_disallowed_after_PTU.lua https://github.com/smartdevicelink/sdl_core/issues/3365
+./test_scripts/API/VehicleData/OnVehicleData/002_OnVD_disallowed.lua
+./test_scripts/API/VehicleData/OnVehicleData/003_OnVD_disallowed_after_PTU.lua
 ./test_scripts/API/VehicleData/OnVehicleData/004_OnVD_with_invalid_data.lua
 ./test_scripts/API/VehicleData/OnVehicleData/005_OnVD_App_is_not_subscribed.lua
 ./test_scripts/API/VehicleData/OnVehicleData/006_OnVD_mandatory_parameters.lua

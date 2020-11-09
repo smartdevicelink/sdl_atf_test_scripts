@@ -53,7 +53,7 @@ end
 for param in common.spairs(common.getVDParams(true)) do
   common.Title("VD parameter: " .. param)
   common.Title("Preconditions")
-  common.Step("Clean environment and update preloaded_pt file", common.preconditions, { getVDGroup(param) })
+  common.Step("Clean environment and update preloaded_pt file", common.preconditions)
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   common.Step("Register App", common.registerApp)
   common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
