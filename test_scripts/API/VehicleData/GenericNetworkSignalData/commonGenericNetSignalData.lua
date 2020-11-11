@@ -100,7 +100,6 @@ local function VehicleDataItemsWithDataTableCreation()
       end
     end
 
-    common.VehicleDataItemsWithData.engineTorque.APItype = "VEHICLEDATA_ENGINETORQUE"
     local gpsParams = common.VehicleDataItemsWithData.gps.params
     gpsParams.longitudeDegrees.value = 100
     gpsParams.latitudeDegrees.value = 20.5
@@ -148,29 +147,21 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.vin.APItype = "VEHICLEDATA_VIN"
     common.VehicleDataItemsWithData.prndl.value = "PARK"
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
-    if common.VehicleDataItemsWithData.handsOffSteering then
-      common.VehicleDataItemsWithData.handsOffSteering.value = true
-      common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
-    end
-    if common.VehicleDataItemsWithData.stabilityControlsStatus then
-      common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
-        escSystem = "ON" , trailerSwayControl = "OFF" }
-      common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
-    end
-    if common.VehicleDataItemsWithData.gearStatus then
-      local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
-      gearStatusParams.userSelectedGear.value = "NINTH"
-      gearStatusParams.actualGear.value = "TENTH"
-      gearStatusParams.transmissionType.value = "MANUAL"
-      common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
-    end
-    if common.VehicleDataItemsWithData.windowStatus then
-      common.VehicleDataItemsWithData.windowStatus.value = {
-      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
-        state = { approximatePosition = 50, deviation = 50 }
-      }}
+    common.VehicleDataItemsWithData.handsOffSteering.value = true
+    common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
+      escSystem = "ON" , trailerSwayControl = "OFF" }
+    common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+    local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
+    gearStatusParams.userSelectedGear.value = "NINTH"
+    gearStatusParams.actualGear.value = "TENTH"
+    gearStatusParams.transmissionType.value = "MANUAL"
+    common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
+    common.VehicleDataItemsWithData.windowStatus.value = {
+    { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+      state = { approximatePosition = 50, deviation = 50 }
+    }}
     common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
-    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
