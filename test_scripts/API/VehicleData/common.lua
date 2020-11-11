@@ -92,7 +92,8 @@ m.vd = {
   handsOffSteering = "VEHICLEDATA_HANDSOFFSTEERING",
   stabilityControlsStatus = "VEHICLEDATA_STABILITYCONTROLSSTATUS",
   gearStatus = "VEHICLEDATA_GEARSTATUS",
-  windowStatus = "VEHICLEDATA_WINDOWSTATUS"
+  windowStatus = "VEHICLEDATA_WINDOWSTATUS",
+  climateData = "VEHICLEDATA_CLIMATEDATA"
 }
 
 m.operator = {
