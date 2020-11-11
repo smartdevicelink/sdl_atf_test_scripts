@@ -286,6 +286,14 @@ local function VehicleDataItemsWithDataTableCreation()
     local myKeyParams = common.VehicleDataItemsWithData.myKey.params
     myKeyParams.e911Override.value = "ON"
     common.VehicleDataItemsWithData.myKey.APItype = "VEHICLEDATA_MYKEY"
+    local seatOccupancyParams = common.VehicleDataItemsWithData.seatOccupancy.params
+    seatOccupancyParams.seatsOccupied.value = {
+      { seatLocation = { grid = { col = 53, row = 53, level = 53, colspan = 53, rowspan = 53, levelspan = 53 }},
+        conditionActive = true }}
+    seatOccupancyParams.seatsBelted.value = {
+      { seatLocation = { grid = { col = 54, row = 54, level = 54, colspan = 54, rowspan = 54, levelspan = 54 }},
+        conditionActive = false }}
+    common.VehicleDataItemsWithData.seatOccupancy.APItype = "VEHICLEDATA_SEATOCCUPANCY"
   else
     utils.cprint(31, "VehicleDataItemsWithData are missed in preloaded file")
   end
