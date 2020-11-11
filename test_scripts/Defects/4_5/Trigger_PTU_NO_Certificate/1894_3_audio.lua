@@ -11,37 +11,26 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local serviceId = 10
 local appHMIType = "NAVIGATION"
+local startServiceData = {
+  frameInfo = common.frameInfo.START_SERVICE_ACK,
+  encryption = false
+}
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
-
---[[ Local Functions ]]
-local function ptUpdate(pTbl)
-	pTbl.policy_table.module_config.certificate = nil
-end
-
-local function startServiceSecured()
-  common.getMobileSession():StartSecureService(serviceId)
-  common.getMobileSession():ExpectControlMessage(serviceId, {
-    frameInfo = common.frameInfo.START_SERVICE_ACK,
-    encryption = false
-  })
-  common.getMobileSession():ExpectHandshakeMessage()
-  :Times(0)
-  common.delayedExp()
-end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Set ForceProtectedService OFF", common.setForceProtectedServiceParam, { "Non" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("PolicyTableUpdate without certificate", common.policyTableUpdate, { common.ptUpdateWOcert })
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("Register App", common.registerApp)
-runner.Step("PolicyTableUpdate without certificate", common.policyTableUpdate, { ptUpdate })
-runner.Step("Activate App", common.activateApp)
-runner.Step("StartService Secured ACK, no encryption, no Handshake", startServiceSecured)
+runner.Step("StartService Secured, PTU without certificate, ACK, encryption=false, no Handshake",
+  common.startServiceSecured, { serviceId, startServiceData, common.ptUpdateWOcert })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

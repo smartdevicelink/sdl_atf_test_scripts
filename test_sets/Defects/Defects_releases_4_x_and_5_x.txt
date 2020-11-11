@@ -18,34 +18,23 @@
 ./test_scripts/Defects/5_0/2405/008_param_empty_SUCCESS_DISALLOWED.lua
 ./test_scripts/Defects/5_0/2405/009_param_param_SUCCESS.lua
 ;Security
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_1_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_2_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_3_navi_audio_force_off.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_4_navi_video_force_off.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_5_navi_audio_force_on.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_6_navi_video_force_on.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_1_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_2_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_3_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_4_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_1_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_2_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_3_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_4_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1922_1_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1922_2_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1923_1_navi_audio.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1923_2_navi_video.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1924_1_non-navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1924_2_navi.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_1_navi_no_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_2_navi_no_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_3_navi_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_4_navi_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_5_non-navi_no_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_6_non-navi_no_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_7_non-navi_cert_new_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
-;./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1925_8_non-navi_cert_existing_app.lua https://github.com/smartdevicelink/sdl_atf_test_scripts/issues/2331
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_1_secure_service_RPC.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_2_secure_video_force_off.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_3_secure_audio_force_off.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_4_secure_video_force_on.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_5_secure_audio_force_on.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_1_RPC.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_2_audio.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1891_3_video.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_1_RPC.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_2_video.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1894_3_audio.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1922_1_audio.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1922_2_video.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1923_1_audio.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1923_2_video.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1924_1_non-navi.lua
+./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1924_2_navi.lua
 ;Resumption
 ./test_scripts/Defects/4_5/1395_Resumption_data_IGN_OFF.lua
 ./test_scripts/Defects/5_0/959_resumption_limited_non_media.lua
