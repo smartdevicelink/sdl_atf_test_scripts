@@ -84,10 +84,10 @@ local dataReqRes = {
     end
   },
   hugeJson = {
-    request = { policyType = "consumer_friendly_messages", property = "messages" },
+    request = { policyType = "vehicle_data", property = "schema_items" },
     response = { result = { code = 0 } },
     validIf = function(data)
-    return validation(data, "consumer_friendly_messages", "messages", CHECK_TYPES.OBJECT)
+    return validation(data, "vehicle_data", "schema_items", CHECK_TYPES.ARRAY_OF_OBJECTS)
     end
   },
   arrayOfNumbers = {
