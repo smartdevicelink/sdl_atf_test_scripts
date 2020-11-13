@@ -11,6 +11,8 @@
 -- Expected Behavior:
 -- SDL can't resume App1 as FULL
 ----------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
