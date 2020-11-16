@@ -7,7 +7,6 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/System/commonSystem')
 local json = require("modules/json")
-local utils = require("user_modules/utils")
 local sdl = require("SDL")
 
 --[[ Local Variables ]]
@@ -47,11 +46,7 @@ local function onSystemRequest(request_type, self)
   self.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = request_type })
   :ValidIf(function(_, d)
       local actual_binary_data = common.convertTableToString(d.binaryData, 1)
-      if exp_binary_data ~= actual_binary_data then
-        utils.cprint(35, "SDL does not send binary data for " .. request_type .. " requestType")
-      else
-        return true
-      end
+      return exp_binary_data == actual_binary_data
     end)
 end
 
@@ -72,11 +67,7 @@ local function onSystemRequest_PROPRIETARY(self)
         actual_binary_data = common.convertTableToString(d.binaryData, 1)
       end
 
-      if exp_binary_data ~= actual_binary_data then
-        utils.cprint(35, "SDL does not send binary data for PROPRIETARY requestType")
-      else
-        return true
-      end
+      return exp_binary_data == actual_binary_data
     end)
 end
 
