@@ -244,8 +244,7 @@ end
 --! self - test object
 --]]
 local function allowSDL(self)
-  self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-    { allowed = true, source = "GUI", device = { id = config.deviceMAC, name = "127.0.0.1" } })
+  actions.init.allowSDL(self)
 end
 
 --[[ @start: starting sequence: starting of SDL, initialization of HMI, connect mobile

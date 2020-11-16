@@ -8,6 +8,7 @@ local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/System/commonSystem')
 local json = require("modules/json")
 local utils = require("user_modules/utils")
+local sdl = require("SDL")
 
 --[[ Local Variables ]]
 local request_types = {
@@ -63,8 +64,14 @@ local function onSystemRequest_PROPRIETARY(self)
     { requestType = "PROPRIETARY", fileName = f_name, appID = self.applications["Test Application"] })
   self.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
   :ValidIf(function(_, d)
-      local binary_data = json.decode(d.binaryData)
-      local actual_binary_data = common.convertTableToString(binary_data["HTTPRequest"]["body"], 1)
+      local actual_binary_data = nil
+      if sdl.buildOptions.extendedPolicy == "PROPRIETARY" then
+        local binary_data = json.decode(d.binaryData)
+        actual_binary_data = common.convertTableToString(binary_data["HTTPRequest"]["body"], 1)
+      else
+        actual_binary_data = common.convertTableToString(d.binaryData, 1)
+      end
+
       if exp_binary_data ~= actual_binary_data then
         utils.cprint(35, "SDL does not send binary data for PROPRIETARY requestType")
       else
