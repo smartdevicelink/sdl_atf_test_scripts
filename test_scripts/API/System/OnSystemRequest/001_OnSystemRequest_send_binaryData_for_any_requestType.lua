@@ -2,9 +2,10 @@
 -- Script covers https://github.com/SmartDeviceLink/sdl_core/issues/1714
 -- Description: SDL core should be capable of sending binary data using the OnSystemRequest RPC for any requestType.
 ---------------------------------------------------------------------------------------------------
+local runner = require('user_modules/script_runner')
+runner.isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } }, { extendedPolicy = { "PROPRIETARY" } } })
 
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/System/commonSystem')
 local json = require("modules/json")
 local sdl = require("SDL")
