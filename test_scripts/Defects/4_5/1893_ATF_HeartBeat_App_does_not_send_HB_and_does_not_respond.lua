@@ -62,7 +62,7 @@ local function Register_App(appId, answerHeartbeatFromSDL, self)
   -- create mobile session
   mobileSession[appId] = mobile_session.MobileSession(self, self.mobileConnection)
   -- set parameters for heartbeat
-  mobileSession[appId].activateHeartbeat = false
+  mobileSession[appId].activateHeartbeat = true
   mobileSession[appId].sendHeartbeatToSDL = false
   mobileSession[appId].answerHeartbeatFromSDL = answerHeartbeatFromSDL
   mobileSession[appId].ignoreSDLHeartBeatACK = false
