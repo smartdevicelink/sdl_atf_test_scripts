@@ -49,6 +49,11 @@ local function policyTableUpdate(pDisallowedParam)
   common.policyTableUpdate(ptUpdate)
 end
 
+local function getValue(pParam)
+  if pParam == "odometer" then return 1 end
+  return nil
+end
+
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams(true)) do
   common.Title("VD parameter: " .. param)
@@ -57,11 +62,13 @@ for param in common.spairs(common.getVDParams(true)) do
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   common.Step("Register App", common.registerApp)
   common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on .. " transferred", common.sendOnVehicleData, { param, common.isExpected })
+  common.Step("RPC " .. common.rpc.on .. " transferred", common.sendOnVehicleData,
+    { param, common.isExpected, getValue(param) })
 
   common.Title("Test")
   common.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
-  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, common.isNotExpected })
+  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData,
+    { param, common.isNotExpected, getValue(param) })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)
