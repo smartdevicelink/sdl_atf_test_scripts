@@ -46,7 +46,7 @@ local appParams = {
           appID          = "0001",
           fullAppID      = "0000001"
         },
-	[2] = { syncMsgVersion = { majorVersion = 5, minorVersion = 0 },
+	[2] = { syncMsgVersion = { majorVersion = 6, minorVersion = 0 },
           appName        = "Test Application",
           appID          = "0001",
           fullAppID      = "0000001"
@@ -64,9 +64,9 @@ runner.Step("Register App2 from device 2", common.registerAppEx, { 2, appParams[
 
 runner.Title("Test")
 runner.Step("Activate App 1", common.app.activate, { 1 })
-runner.Step("App1 from Mobile 1 requests GetSystemCapability", common.getSystemCapability, { 1, "DISALLOWED"} )
+runner.Step("App1 from Mobile 1 requests ShowAppMenu", common.showAppMenu, { 1, "INVALID_DATA" } )
 runner.Step("Activate App 2", common.app.activate, { 2 })
-runner.Step("App2 from Mobile 2 requests GetSystemCapability", common.getSystemCapability, { 2, "SUCCESS"} )
+runner.Step("App2 from Mobile 2 requests ShowAppMenu", common.showAppMenu, { 2, "SUCCESS" } )
 
 runner.Title("Postconditions")
 runner.Step("Remove mobile devices", common.clearMobDevices, {devices})
