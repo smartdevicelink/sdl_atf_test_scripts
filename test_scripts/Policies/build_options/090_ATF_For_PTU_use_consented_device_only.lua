@@ -21,7 +21,9 @@ require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "E
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/TheSameApp/commonTheSameApp')
-local common2 = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local devices = {
@@ -60,35 +62,37 @@ local function connectDeviceTwo()
 end
 
 local function activateAppTwo()
-  local RequestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(2) })
-  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { name = devices[2].name }, isSDLAllowed = false, method = "SDL.ActivateApp" }})
+  local hmiConnection = common.getHMIConnection()
+  local RequestId = hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(2) })
+  hmiConnection:ExpectResponse(RequestId, {result = { code = 0, device = { name = devices[2].name }, isSDLAllowed = false, method = "SDL.ActivateApp" }})
   :Do(function()
-    local RequestIdGetMes = common.getHMIConnection():SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "DataConsent" } })
-    EXPECT_HMIRESPONSE(RequestIdGetMes)
+    local RequestIdGetMes = hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "DataConsent" } })
+    hmiConnection:ExpectResponse(RequestIdGetMes)
     :Do(function()
-      common.getHMIConnection():SendNotification("SDL.OnAllowSDLFunctionality",
+      hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
         { allowed = false, source = "GUI", device = { name = devices[2].name } })
     end)
   end)
 end
 
 local function startPTU()
-    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-    :Do(function()
-      common.getHMIConnection():SendNotification("BasicCommunication.OnSystemRequest",
-        { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = common.getHMIAppId(1) })
-      common.getMobileSession(2):ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
-      :Times(0)
-      common.getMobileSession(1):ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
-      :Do(function(_, data)
-          common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
+  local hmiConnection = common.getHMIConnection()
+  hmiConnection:ExpectRequest("BasicCommunication.PolicyUpdate")
+  :Do(function()
+    hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
+      { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = common.getHMIAppId(1) })
+    common.getMobileSession(2):ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
+    :Times(0)
+    common.getMobileSession(1):ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
+    :Do(function(_, data)
+      hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
+  end)
 end
 
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI", common2.start)
+runner.Step("Start SDL, HMI", common.start)
 runner.Step("Connect device 1 to SDL", common.connectMobDevice, { 1, devices[1] })
 runner.Step("Register App1 from device 1", common.registerAppEx, { 1, appParams[1], 1 })
 runner.Step("Activate App1 from device 1", common.activateApp, { 1 })
