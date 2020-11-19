@@ -16,11 +16,15 @@
 -- PoliciesManager must initiate the PT Update through the app from consented device,
 -- second(non-consented) device should not be used e.i. no second query for user consent should be sent to HMI
 ---------------------------------------------------------------------------------------------------------------------
+if config.defaultMobileAdapterType == "WS" or config.defaultMobileAdapterType == "WSS" then
+  require('user_modules/script_runner').skipTest("Test is not applicable for WS/WSS connection")
+end
 require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/TheSameApp/commonTheSameApp')
+local SDL = require('SDL')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -38,27 +42,31 @@ local appParams = {
 
 --[[ Local Functions ]]
 local function connectDeviceTwo()
-    common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateDeviceList",
+  local deviceList = {
     {
-      deviceList = {
-        {
-          transportType = "WEBENGINE_WEBSOCKET",
-        },
-        {
-          name = devices[1].name,
-          transportType = "WIFI"
-        },
-        {
-          isSDLAllowed = false,
-          name = devices[2].name,
-          transportType = "WIFI"
-        }
-    }})
-    :Do(function(_,data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+      name = devices[1].name,
+      transportType = "WIFI"
+    },
+    {
+      isSDLAllowed = false,
+      name = devices[2].name,
+      transportType = "WIFI"
+    }
+  }
 
-    common.connectMobDevice(2, devices[2], false)
+  if SDL.buildOptions.webSocketServerSupport == "ON" then
+    table.insert(deviceList, 1, { transportType = "WEBENGINE_WEBSOCKET" })
+  end
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateDeviceList",
+  {
+    deviceList = deviceList
+  })
+  :Do(function(_,data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+
+  common.connectMobDevice(2, devices[2], false)
 end
 
 local function activateAppTwo()
