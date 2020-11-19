@@ -20,12 +20,16 @@
 -- SDL->HMI: BC.UpdateDeviceList(device1, device2)
 -- HMI->SDL: BC.UpdateDeviceList(SUCCESS)
 --------------------------------------------------------------------------------------------------------
+if config.defaultMobileAdapterType == "WS" or config.defaultMobileAdapterType == "WSS" then
+  require('user_modules/script_runner').skipTest("Test is not applicable for WS/WSS connection")
+end
 require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
 local common = require('test_scripts/Capabilities/PersistingHMICapabilities/common')
+local SDL = require('SDL')
 
 --[[ Local Variables ]]
 local anotherDeviceParams = { host = "1.0.0.1", port = config.mobilePort }
@@ -33,12 +37,8 @@ local anotherDeviceName = anotherDeviceParams.host .. ":" .. anotherDeviceParams
 
 --[[ Local Functions ]]
 local function connectDeviceTwo()
-    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          transportType = "WEBENGINE_WEBSOCKET",
-        },
+    local weDevice = { transportType = "WEBENGINE_WEBSOCKET" }
+    local devices = {
         {
           name = anotherDeviceName,
           isSDLAllowed = false,
@@ -48,7 +48,11 @@ local function connectDeviceTwo()
           name = utils.getDeviceName(),
           transportType = utils.getDeviceTransportType()
         }
-    }})
+    }
+    if SDL.buildOptions.webSocketServerSupport == "ON" then
+      table.insert(devices, 1, weDevice)
+    end
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", { deviceList = devices })
     :Do(function(_,data)
       actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
