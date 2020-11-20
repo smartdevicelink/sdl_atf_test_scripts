@@ -263,6 +263,21 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
   commonTestCases:DelayedExp(2000)
 end
 
+function commonAppServices.unpublishMobileAppService(app_id)
+  if not app_id then app_id = 1 end
+  local mobileSession = commonAppServices.getMobileSession(app_id)
+  local cid = mobileSession:SendRPC("UnpublishAppService", {
+    serviceID = commonAppServices.getAppServiceID(app_id)
+  })
+
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated", 
+    commonAppServices.appServiceCapabilityUpdateParams("REMOVED", manifest)):Times(1)
+  mobileSession:ExpectResponse(cid, expectedResponse)
+
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated", 
+    commonAppServices.appServiceCapabilityUpdateParams("REMOVED", manifest)):Times(1)
+end
+
 function commonAppServices.publishSecondMobileAppService(manifest1, manifest2, app_id)
   if not app_id then app_id = 2 end
 
@@ -355,6 +370,26 @@ function commonAppServices.GetAppServiceSystemCapability(manifest, subscribe, ap
   }
 
   mobileSession:ExpectResponse(cid, responseParams)
+end
+
+function commonAppServices.onWayPointChangeFromMobile(params, exp_times)
+  if not exp_times then exp_times = 1 end
+  local providerMobileSession = commonAppServices.getMobileSession(1)
+  local mobileSession = commonAppServices.getMobileSession(2)
+  
+  providerMobileSession:SendNotification("OnWayPointChange", params)
+
+  mobileSession:ExpectNotification("OnWayPointChange", params):Times(exp_times)
+end
+
+function commonAppServices.onWayPointChangeFromHMI(params, exp_times)
+  if not exp_times then exp_times = 1 end
+  local providerMobileSession = commonAppServices.getMobileSession(1)
+  local mobileSession = commonAppServices.getMobileSession(2)
+  
+  commonAppServices.getHMIConnection():SendNotification("Navigation.OnWayPointChange", params)
+
+  mobileSession:ExpectNotification("OnWayPointChange", params):Times(exp_times)
 end
 
 function commonAppServices.cleanSession(app_id)
