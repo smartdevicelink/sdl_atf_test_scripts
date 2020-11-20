@@ -186,7 +186,8 @@ function commonAppServices.publishEmbeddedAppService(manifest)
     appServiceManifest = manifest
   })
   local first_run = true
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1))
+  :ValidIf(function(self, data)
     if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
       return true
     elseif first_run then
@@ -234,7 +235,7 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
     end
   end)
   local first_run_hmi = true
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
     if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
       return true
     elseif first_run_hmi then
@@ -289,7 +290,7 @@ function commonAppServices.publishSecondMobileAppService(manifest1, manifest2, a
         serviceIDs[app_id] = data.payload.appServiceRecord.serviceID
       end
     end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated")
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated")
 end
 
 function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, service_type, app_id)
@@ -306,7 +307,7 @@ function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, servic
     serviceData = commonAppServices.appServiceDataByType(service_id, service_type)
   }
   if provider_app_id == 0 then
-    EXPECT_HMICALL("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
+    common.getHMIConnection():ExpectRequest("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
         commonAppServices.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
       end)
   else
@@ -428,7 +429,6 @@ function commonAppServices.getFileFromService(app_id, asp_app_id, request_params
   --mobile side: sending GetFile request
   local cid = mobileSession:SendRPC("GetFile", request_params)
   if asp_app_id == 0 then 
-    --EXPECT_HMICALL
     commonAppServices.getHMIConnection():ExpectRequest("BasicCommunication.GetFilePath")
     :Do(function(_, d2)
       local cwd = getATFPath()

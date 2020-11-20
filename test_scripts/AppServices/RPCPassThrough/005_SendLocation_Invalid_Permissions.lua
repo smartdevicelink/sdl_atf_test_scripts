@@ -25,7 +25,7 @@ local manifest = {
   handledRPCs = {39},    
   allowAppConsumers = true,
   rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
-  navigationServiceManifest = {}
+  navigationServiceManifest = {acceptsWayPoints = true}
 }
 
 local disallowedResponse = {
