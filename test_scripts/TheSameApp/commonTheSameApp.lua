@@ -291,6 +291,23 @@ function common.getSystemCapability(pAppId, pResultCode)
   mobileSession:ExpectResponse(cid, {success = isSuccess, resultCode = pResultCode})
 end
 
+function common.showAppMenu(pAppId, pResultCode)
+  local isSuccess = false
+  if pResultCode == "SUCCESS" then
+    isSuccess = true
+    local hmiConnection = common.getHMIConnection()
+    hmiConnection:ExpectRequest("UI.ShowAppMenu")
+    :Times(1)
+    :Do(function(_, data)
+      hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+  end
+
+  local mobileSession = common.mobile.getSession(pAppId)
+  local cid = mobileSession:SendRPC("ShowAppMenu", {})
+  mobileSession:ExpectResponse(cid, {success = isSuccess, resultCode = pResultCode})
+end
+
 function common.setProtocolVersion(pProtocolVersion)
   config.defaultProtocolVersion = pProtocolVersion
 end
