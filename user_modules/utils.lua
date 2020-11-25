@@ -428,4 +428,18 @@ function m.getDeviceTransportType()
   end
 end
 
+--[[ @splitString: split string by defined delimiter
+--! @parameters:
+--! pStr - string to be split
+--! pDelimiter - delimiter
+--! @return: table with string parts
+--]]
+function m.splitString(pStr, pDelimiter)
+  local result = {}
+  for match in (pStr .. pDelimiter):gmatch("(.-)%" .. pDelimiter) do
+    if string.len(match) > 0 then table.insert(result, match) end
+  end
+  return result
+end
+
 return m
