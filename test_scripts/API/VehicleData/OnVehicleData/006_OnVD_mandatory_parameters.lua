@@ -26,25 +26,21 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
+--[[ Local Constants ]]
+local testTypes = {
+  common.testType.MANDATORY_ONLY,
+  common.testType.MANDATORY_MISSING
+}
+
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Clean environment", common.preconditions)
+common.Step("Clean environment and update preloaded_pt file", common.preconditions)
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-common.Step("RAI", common.registerApp)
+common.Step("Register App", common.registerApp)
+common.Step("Activate App", common.activateApp)
 
 common.Title("Test")
-for param in pairs(common.mandatoryVD) do
-  common.Title("VD parameter: " .. param)
-  common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
-  for caseName, value in pairs(common.getMandatoryOnlyCases(param)) do
-    common.Step("RPC " .. common.rpc.on .. " with " .. caseName .. " Transfered", common.sendOnVehicleData,
-      { param, common.isExpected, value })
-  end
-  for caseName, value in pairs(common.getMandatoryMissingCases(param)) do
-    common.Step("RPC " .. common.rpc.on .. " with " .. caseName .. " Ignored", common.sendOnVehicleData,
-      { param, common.isNotExpected, value })
-  end
-end
+common.getTestsForOnVD(testTypes)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

@@ -29,43 +29,21 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
---[[ Local Functions ]]
-local function processRPC(pRPC, pParam, pValue, pIsSuccess)
-  local cid = common.getMobileSession():SendRPC(pRPC, { [pParam] = true })
-  common.getHMIConnection():ExpectRequest("VehicleInfo." .. pRPC, { [pParam] = true })
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [pParam] = pValue })
-    end)
-  if pIsSuccess == true then
-    local responseParams = {}
-    responseParams[pParam] = pValue
-    responseParams.success = true
-    responseParams.resultCode = "SUCCESS"
-    common.getMobileSession():ExpectResponse(cid, responseParams)
-  else
-    common.getMobileSession():ExpectResponse(cid,
-      { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle" })
-  end
-end
+--[[ Local Constants ]]
+local testTypes = {
+  common.testType.MANDATORY_ONLY,
+  common.testType.MANDATORY_MISSING
+}
 
 --[[ Scenario ]]
 common.Title("Preconditions")
-common.Step("Clean environment", common.preconditions)
+common.Step("Clean environment and update preloaded_pt file", common.preconditions)
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-common.Step("RAI", common.registerApp)
+common.Step("Register App", common.registerApp)
+common.Step("Activate App", common.activateApp)
 
 common.Title("Test")
-for param in pairs(common.mandatoryVD) do
-  common.Title("VD parameter: " .. param)
-  for caseName, value in pairs(common.getMandatoryOnlyCases(param)) do
-    common.Step("RPC " .. common.rpc.get .. " with " .. caseName .. " SUCCESS", processRPC,
-      { common.rpc.get, param, value, true })
-  end
-  for caseName, value in pairs(common.getMandatoryMissingCases(param)) do
-    common.Step("RPC " .. common.rpc.get .. " with " .. caseName .. " GENERIC_ERROR", processRPC,
-      { common.rpc.get, param, value, false })
-  end
-end
+common.getTestsForGetVD(testTypes)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

@@ -26,19 +26,19 @@ local common = require('test_scripts/API/VehicleData/common')
 local result = "INVALID_DATA"
 
 --[[ Scenario ]]
-for param, version in common.spairs(common.versioningVD) do
-  common.Title("VD parameter: " .. param)
+for _, test in common.spairs(common.getTests(common.rpc.get, common.testType.PARAM_VERSION)) do
+  common.Title("VD parameter: " .. test.param)
   common.Title("Preconditions")
   common.Step("Clean environment and update preloaded_pt file", common.preconditions)
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Set App version", common.setAppVersion, { version, common.operator.decrease })
+  common.Step("Set App version", common.setAppVersion, { test.version, common.operator.decrease })
   common.Step("Register App", common.registerApp)
 
   common.Title("Test")
-  common.Step("RPC " .. common.rpc.get, common.processRPCFailure, { common.rpc.get, param, result })
-  common.Step("RPC " .. common.rpc.sub, common.processRPCFailure, { common.rpc.sub, param, result })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
-  common.Step("RPC " .. common.rpc.unsub, common.processRPCFailure, { common.rpc.unsub, param, result })
+  common.Step("RPC " .. common.rpc.get, common.processRPCFailure, { common.rpc.get, test.param, result })
+  common.Step("RPC " .. common.rpc.sub, common.processRPCFailure, { common.rpc.sub, test.param, result })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { test.param, common.isNotExpected })
+  common.Step("RPC " .. common.rpc.unsub, common.processRPCFailure, { common.rpc.unsub, test.param, result })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

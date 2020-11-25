@@ -23,19 +23,19 @@
 local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Scenario ]]
-for param, version in common.spairs(common.versioningVD) do
-  common.Title("VD parameter: " .. param)
+for _, test in common.spairs(common.getTests(common.rpc.get, common.testType.PARAM_VERSION)) do
+  common.Title("VD parameter: " .. test.param)
   common.Title("Preconditions")
   common.Step("Clean environment and update preloaded_pt file", common.preconditions)
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Set App version", common.setAppVersion, { version, common.operator.increase })
+  common.Step("Set App version", common.setAppVersion, { test.version, common.operator.increase })
   common.Step("Register App", common.registerApp)
 
   common.Title("Test")
-  common.Step("RPC " .. common.rpc.get, common.getVehicleData, { param })
-  common.Step("RPC " .. common.rpc.sub, common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isExpected })
-  common.Step("RPC " .. common.rpc.unsub, common.processSubscriptionRPC, { common.rpc.unsub, param })
+  common.Step("RPC " .. common.rpc.get, common.getVehicleData, { test.param })
+  common.Step("RPC " .. common.rpc.sub, common.processSubscriptionRPC, { common.rpc.sub, test.param })
+  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { test.param, common.isExpected })
+  common.Step("RPC " .. common.rpc.unsub, common.processSubscriptionRPC, { common.rpc.unsub, test.param })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)
