@@ -5,6 +5,7 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
+runner.isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
 local common = require('test_scripts/API/System/commonSystem')
 local json = require("modules/json")
 

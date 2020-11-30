@@ -132,7 +132,7 @@ end
 function module.createTextField(name, characterSet, width, rows)
   return {
     name = name,
-    characterSet = characterSet or "TYPE2SET",
+    characterSet = characterSet or "UTF_8",
     width = width or 500,
     rows = rows or 1
   }
@@ -258,6 +258,12 @@ function module.getDefaultHMITable()
     pinned = true
   }
 
+  hmi_table.UI.SetGlobalProperties = {
+    params = { },
+    mandatory = false,
+    pinned = true
+  }
+
   hmi_table.UI.GetSupportedLanguages = {
     params = {
       languages = default_languages
@@ -315,7 +321,8 @@ function module.getDefaultHMITable()
             "navigationText1", "navigationText2", "ETA", "totalDistance", "navigationText", "audioPassThruDisplayText1",
             "audioPassThruDisplayText2", "sliderHeader", "sliderFooter", "notificationText", "menuName",
             "secondaryText", "tertiaryText", "timeToDestination", "menuTitle", "locationName",
-            "locationDescription", "addressLines", "phoneNumber"
+            "locationDescription", "addressLines", "phoneNumber", "subtleAlertText1", "subtleAlertText2",
+            "subtleAlertSoftButtonText"
           }
           local out = { }
           for _, field in pairs(fields) do
@@ -326,7 +333,7 @@ function module.getDefaultHMITable()
         imageFields = (function()
           local fields = {
             "softButtonImage", "choiceImage", "choiceSecondaryImage", "vrHelpItem", "turnIcon", "menuIcon", "cmdIcon",
-            "showConstantTBTIcon", "locationImage"
+            "showConstantTBTIcon", "locationImage", "subtleAlertIcon"
           }
           local out = { }
           for _, field in pairs(fields) do
@@ -467,6 +474,10 @@ function module.getDefaultHMITable()
                 scale = 5
             }
           }
+        },
+        driverDistractionCapability = {
+            subMenuDepth = 3,
+            menuLength = 10
         }
       }
     },

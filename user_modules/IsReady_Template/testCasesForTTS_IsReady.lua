@@ -129,7 +129,7 @@ function testCasesForTTS_IsReady.InitHMI_onReady_without_TTS_IsReady(self, exp_o
     return
     {
       name = name,
-      characterSet = characterSet or "TYPE2SET",
+      characterSet = characterSet or "UTF_8",
       width = width or 500,
       rows = rows or 1
     }
