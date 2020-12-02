@@ -401,6 +401,14 @@ function commonAppServices.cleanSession(app_id)
   utils.wait()
 end
 
+function commonAppServices.deactivateAppToBackground(pSystemContext)
+  if not pSystemContext then pSystemContext = "MAIN" end
+  commonAppServices.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
+    { eventName = "EMBEDDED_NAVI", isActive = true })
+  commonAppServices.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = pSystemContext })
+end
+
 function commonAppServices.setValidateSchema(value)
   config.ValidateSchema = value
 end
