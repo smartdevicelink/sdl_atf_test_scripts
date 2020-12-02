@@ -169,8 +169,46 @@ local boundValueTypeMap = {
   [m.testType.UPPER_OUT_OF_BOUND] = tdg.valueType.UPPER_OUT_OF_BOUND,
   [m.testType.LOWER_OUT_OF_BOUND] = tdg.valueType.LOWER_OUT_OF_BOUND
 }
+local isRestricted = false
 
 --[[ Common Functions ]]
+
+--[[ @restrictAvailableVDParams: Restrict VD parameters for test by only ones defined in 'VD_PARAMS' environment variable
+--! @parameters: none
+--! @return: none
+--]]
+local function restrictAvailableVDParams()
+  local extVDParams = os.getenv("VD_PARAMS")
+  local checkedExtVDParams = {}
+  if extVDParams ~= nil then
+    m.cprint(color.magenta, "Environment variable 'VD_PARAMS': " .. extVDParams)
+    for _, p in pairs(utils.splitString(extVDParams, ",")) do
+      if m.vd[p] ~= nil then
+        isRestricted = true
+        table.insert(checkedExtVDParams, p)
+      else
+        m.cprint(color.magenta, "Unknown VD parameter:", p)
+      end
+    end
+  end
+  if #checkedExtVDParams > 0 then
+    for k in pairs(m.vd) do
+      if not utils.isTableContains(checkedExtVDParams, k) then
+        m.vd[k] = nil
+      end
+    end
+    local checkedExtVDParamsToPrint = ""
+    for id, p in pairs(checkedExtVDParams) do
+      checkedExtVDParamsToPrint = checkedExtVDParamsToPrint .. p
+      if id ~= #checkedExtVDParams then checkedExtVDParamsToPrint = checkedExtVDParamsToPrint .. ", " end
+    end
+    m.cprint(color.magenta, "Testing VD parameters restricted to: " .. checkedExtVDParamsToPrint)
+  else
+    m.cprint(color.magenta, "Testing VD parameters are not restricted")
+  end
+end
+
+restrictAvailableVDParams()
 
 --[[ @getAvailableVDParams: Return VD parameters available for processing
 --! @parameters: none
@@ -192,7 +230,7 @@ local function getAvailableVDParams()
   for k in pairs(vdParams) do
     if m.vd[k] == nil then
       vdParams[k] = nil
-      m.cprint(color.magenta, "Disabled VD parameter:", k)
+      if not isRestricted then m.cprint(color.magenta, "Disabled VD parameter:", k) end
     end
   end
   return vdParams
@@ -223,6 +261,9 @@ local function updatePreloadedPTFile(pGroup)
         parameters = params
       }
     end
+  end
+  for _, data in pairs(pGroup.rpcs) do
+    if #data.parameters == 0 then data.parameters = json.EMPTY_ARRAY end
   end
   pt.policy_table.functional_groupings["VDGroup"] = pGroup
   pt.policy_table.app_policies["default"].groups = { "Base-4", "VDGroup" }
@@ -947,10 +988,13 @@ local function getVersionTests()
   local tcs = createTestCases(ah.apiType.MOBILE, ah.eventType.REQUEST, rpc,
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.YES, {})
   for _, tc in pairs(tcs) do
-    table.insert(tests, {
-        param = tc.graph[tc.paramId].name,
-        version = tc.graph[tc.paramId].since
-      })
+    local name = tc.graph[tc.paramId].name
+    if vdParams[name] then
+      table.insert(tests, {
+          param = tc.graph[tc.paramId].name,
+          version = tc.graph[tc.paramId].since
+        })
+    end
   end
   return tests
 end

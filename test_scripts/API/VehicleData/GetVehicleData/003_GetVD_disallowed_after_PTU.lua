@@ -33,6 +33,7 @@ local function getVDGroup(pDisallowedParam)
   for param in pairs(common.getVDParams()) do
     if param ~= pDisallowedParam then table.insert(params, param) end
   end
+  if #params == 0 then params = common.json.EMPTY_ARRAY end
   return {
     rpcs = {
       [common.rpc.get] = {
