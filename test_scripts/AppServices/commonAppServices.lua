@@ -186,7 +186,7 @@ function commonAppServices.publishEmbeddedAppService(manifest)
     appServiceManifest = manifest
   })
   local first_run = true
-  common.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1))
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1))
   :ValidIf(function(self, data)
     if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
       return true
@@ -305,7 +305,7 @@ function commonAppServices.publishSecondMobileAppService(manifest1, manifest2, a
         serviceIDs[app_id] = data.payload.appServiceRecord.serviceID
       end
     end)
-  common.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated")
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated")
 end
 
 function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, service_type, app_id)
@@ -322,7 +322,7 @@ function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, servic
     serviceData = commonAppServices.appServiceDataByType(service_id, service_type)
   }
   if provider_app_id == 0 then
-    common.getHMIConnection():ExpectRequest("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
+    commonAppServices.getHMIConnection():ExpectRequest("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
         commonAppServices.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
       end)
   else
