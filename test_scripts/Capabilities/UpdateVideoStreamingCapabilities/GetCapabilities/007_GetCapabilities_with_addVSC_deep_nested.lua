@@ -27,7 +27,7 @@ local isSubscribe = false
 
 local vsc = common.buildVideoStreamingCapabilities(1)
 local tmpVsc = vsc
-for _ = 1, 128, 1 do
+for _ = 1, 32, 1 do
   tmpVsc.additionalVideoStreamingCapabilities[1] = common.buildVideoStreamingCapabilities(1)
   tmpVsc = tmpVsc.additionalVideoStreamingCapabilities[1]
 end
