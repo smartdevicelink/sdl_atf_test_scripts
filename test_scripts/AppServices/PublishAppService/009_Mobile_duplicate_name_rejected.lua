@@ -63,7 +63,7 @@ end
 
 --[[ Local Functions ]]
 
-local function processRPCRejected(self)
+local function processRPCRejected()
   local mobileSession = common.getMobileSession(2)
   local cid = mobileSession:SendRPC(rpc.name, rpc.params)
 
@@ -79,9 +79,10 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
-runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
-runner.Step("Activate App", common.activateApp)
+runner.Step("Activate App 1", common.activateApp)
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
+runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
+runner.Step("Activate App 2", common.activateApp, { 2 })
 
 runner.Title("Test")
 runner.Step("RPC " .. rpc.name .. "_resultCode_REJECTED", processRPCRejected)
