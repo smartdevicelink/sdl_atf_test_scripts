@@ -97,7 +97,8 @@ function Test:TestStep_GetVideoCapability()
           protocol="RAW",
           codec="H264"
         }},
-        hapticSpatialDataSupported= false
+        hapticSpatialDataSupported= false,
+        preferredFPS=20
       },
       systemCapabilityType="VIDEO_STREAMING"
     }
