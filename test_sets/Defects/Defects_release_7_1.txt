@@ -1,0 +1,1 @@
+./test_scripts/Defects/7_1/2803_Resumption_of_HMI_level_of_2nd_app.lua
