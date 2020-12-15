@@ -532,7 +532,6 @@ function module:runSDL()
             text_field("audioPassThruDisplayText2"),
             text_field("sliderHeader"),
             text_field("sliderFooter"),
-            text_field("notificationText"),
             text_field("menuName"),
             text_field("secondaryText"),
             text_field("tertiaryText"),

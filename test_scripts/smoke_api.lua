@@ -2743,12 +2743,6 @@ local function displayCap_textFields_Value()
 		},
 		{
 			characterSet = "UTF_8",
-			name = "notificationText",
-			rows = 1,
-			width = 500
-		},
-		{
-			characterSet = "UTF_8",
 			name = "menuName",
 			rows = 1,
 			width = 500

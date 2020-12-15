@@ -253,7 +253,6 @@ local function HMI_Send_Button_GetCapabilities_Response(Input_capabilities)
 				text_field("audioPassThruDisplayText2"),
 				text_field("sliderHeader"),
 				text_field("sliderFooter"),
-				text_field("notificationText"),
 				text_field("menuName"),
 				text_field("secondaryText"),
 				text_field("tertiaryText"),
