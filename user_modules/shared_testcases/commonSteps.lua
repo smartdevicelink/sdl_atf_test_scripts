@@ -457,6 +457,11 @@ function commonSteps:DeletePolicyTable()
 		print( " \27[33m commonSteps:DeletePolicyTable : policy.sqlite is not found \27[0m " )
 	end
 
+	local hmiCapsFile = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. SDLConfig:GetValue("HMICapabilitiesCacheFile")
+	if self:file_exists(hmiCapsFile) == true then
+		os.remove(hmiCapsFile)
+	end
+
 end
 
 -- 15. Restoring file from appMain folder

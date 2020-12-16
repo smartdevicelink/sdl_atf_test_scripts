@@ -19,7 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
-local connect = require("user_modules/dummy_connecttest")
 local commonDefects = require('test_scripts/Defects/commonDefects')
 
 runner.testSettings.isSelfIncluded = false
@@ -33,20 +32,14 @@ local function activateAudioSource(self)
   common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged", {eventName = "AUDIO_SOURCE", isActive = true})
 end
 
-local function cleanSessions()
-  for i = 1, common.getAppsCount() do
-    connect.mobileSession[i] = nil
-  end
-end
-
 local function unexpectedDisconnect()
-  common.getMobileSession():Stop()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
   { appID = common.getHMIAppId(), unexpectedDisconnect = true })
-  :Do(function(_, data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    cleanSessions()
-  end)
+  common.mobile.disconnect()
+  common.run.wait(1000)
+  :Do(function()
+      common.mobile.connect()
+    end)
 end
 
 local function reRegisterApp()

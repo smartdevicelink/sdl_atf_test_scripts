@@ -1,6 +1,7 @@
 ;Version Negotiation
 ./test_scripts/SDL5_0/MobileVersioning/VersionNegotiation/001_register_legacy_app.lua
 ./test_scripts/SDL5_0/MobileVersioning/VersionNegotiation/002_register_app_on_legacy_module.lua
+./test_scripts/SDL5_0/MobileVersioning/VersionNegotiation/003_legacy_app_new_rpc_fail.lua
 ./test_scripts/Smoke/API/008_CreateInteractionChoiceSet_PositiveCase_SUCCESS.lua
 ./test_scripts/Smoke/API/012_PerfomInteraction_PositiveCase_SUCCESS.lua
 ;VR-Command Optional

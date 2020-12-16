@@ -181,7 +181,7 @@ function Test:Step1_SDL_requests_vin_on_InitHMI_OnReady()
     return
     {
       name = name,
-      characterSet = characterSet or "TYPE2SET",
+      characterSet = characterSet or "UTF_8",
       width = width or 500,
       rows = rows or 1
     }

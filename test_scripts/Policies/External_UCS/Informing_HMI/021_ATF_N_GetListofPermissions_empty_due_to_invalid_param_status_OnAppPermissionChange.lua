@@ -41,9 +41,7 @@ local utils = require ('user_modules/utils')
 --[[Local Variables]]
 local params_invalid_data =
 {
-  {param_value = "invalidValue", comment = "Not_existing_enum"},
   {param_value = 1.32, comment = "Float"},
-  {param_value = 132, comment = "Integer"},
   {param_value = {}, comment = "Empty table" },
   {param_value = { entityType = 1, entityID = 1 }, comment = "Non-empty table"},
   {param_value = "", comment = "Empty" },

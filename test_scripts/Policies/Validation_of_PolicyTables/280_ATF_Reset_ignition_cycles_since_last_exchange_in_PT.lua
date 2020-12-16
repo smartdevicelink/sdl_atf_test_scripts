@@ -158,6 +158,7 @@ end
 
 function Test:ActivateAppInFULLLevel()
   commonSteps:ActivateAppInSpecificLevel(self,self.applications[config.application1.registerAppInterfaceParams.appName],"FULL")
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 function Test:TestStep_flow_SUCCEESS_EXTERNAL_PROPRIETARY()

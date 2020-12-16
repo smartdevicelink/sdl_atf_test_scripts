@@ -1,8 +1,15 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_core/issues/2379
+-- User story: https://github.com/smartdevicelink/sdl_core/issues/2479
 --
 -- Description:
--- 1) SDL does not respond NACK on second service: if first service NOT Protected started, second service NOT Protected too.
+-- SDL does respond NACK on second start service request (Unprotected => Unprotected)
+--
+-- Steps to reproduce:
+-- 1. First service started as NOT Protected.
+-- 2. Start video sreaming.
+-- 3. Second service starting as NOT Protected.
+-- Expected:
+-- 1. SDL respond NACK on second service.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Security/DTLS/common')

@@ -64,7 +64,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function GetSystemCapabilitySubscribe(self)
+local function GetSystemCapabilitySubscribe()
   local mobileSession2 = common.getMobileSession(2)
   local cid = mobileSession2:SendRPC(rpc.name, rpc.params)
   local responseParams = expectedResponse
@@ -72,7 +72,7 @@ local function GetSystemCapabilitySubscribe(self)
   mobileSession2:ExpectResponse(cid, responseParams)
 end
 
-local function PublishServiceExpectNotification(self)
+local function PublishServiceExpectNotification()
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local cid = mobileSession:SendRPC(publishRpc.name, publishRpc.params)
