@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- User story: Smoke
+-- User story: API
 -- Use case: SetMediaClockTimer
--- Item: Happy path
+-- Item: Happy path, default countRate
 --
 -- Requirement summary:
 -- [SetMediaClockTimer] SUCCESS: getting SUCCESS:UI.SetMediaClockTimer()
@@ -15,32 +15,26 @@
 -- c. appID is currently in Background, Full or Limited HMI level
 
 -- Steps:
--- appID requests SetMediaClockTimer with valid parameters
+-- appID requests SetMediaClockTimer with valid parameters and without countRate
 
 -- Expected:
 -- SDL validates parameters of the request
 -- SDL checks if UI interface is available on HMI
 -- SDL checks if SetMediaClockTimer is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL transfers the UI part of request with allowed parameters to HMI
+-- SDL transfers the UI part of request with allowed parameters along with a default countRate of 1.0 to HMI
 -- SDL receives UI part of response from HMI with "SUCCESS" result code
 -- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Smoke/commonSmoke')
+local common = require("user_modules/sequences/actions")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-config.application1.registerAppInterfaceParams.isMediaApplication = false
-config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Variables ]]
-local updateMode = { "COUNTUP", "COUNTDOWN", "PAUSE", "RESUME", "CLEAR" }
-
-local indicator = { "PLAY_PAUSE", "PLAY", "PAUSE", "STOP" }
-
 local requestParams = {
   startTime = {
     hours = 0,
@@ -51,21 +45,22 @@ local requestParams = {
     hours = 0,
     minutes = 1,
     seconds = 35
-  }
+  },
+  updateMode = "COUNTUP",
+  audioStreamingIndicator = "PAUSE"
 }
 
 --[[ Local Functions ]]
-local function SetMediaClockTimer(pParams, pMode, pIndicator)
+local function sendRPC(pParams)
   local params = common.cloneTable(pParams)
-  params.updateMode = pMode
-  params.audioStreamingIndicator = pIndicator
-  if pMode == "COUNTDOWN" then
-    params.endTime.minutes = params.startTime.minutes - 1
-  end
   local cid = common.getMobileSession():SendRPC("SetMediaClockTimer", params)
-  common.getHMIConnection():ExpectRequest("UI.SetMediaClockTimer")
-  :Times(0)
-  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
+  params.appID = common.getHMIAppId()
+  params.countRate = 1.0
+  common.getHMIConnection():ExpectRequest("UI.SetMediaClockTimer", params)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
@@ -77,12 +72,7 @@ runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-for _, value in pairs (updateMode) do
-  for _, value2 in pairs (indicator) do
-    runner.Step("SetMediaClockTimer Non Media Positive Case with update mode " .. value
-      .. " " .. value2, SetMediaClockTimer, { requestParams, value, value2 })
-  end
-end
+runner.Step("SetMediaClockTimer Positive Case", sendRPC, { requestParams })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
