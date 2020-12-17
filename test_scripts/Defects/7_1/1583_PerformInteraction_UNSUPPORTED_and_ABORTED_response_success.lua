@@ -5,7 +5,7 @@
 -- HMI responds with UNSUPPORTED_RESOURCE to UI.PerformInteraction and ABORTED to VR.PerformInteraction
 --
 -- Preconditions:
--- 1) Clear environment
+-- 1) Clean environment
 -- 2) SDL, HMI, Mobile session started
 -- 3) Registered app
 -- 4) Activated app
