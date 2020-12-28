@@ -41,7 +41,7 @@ local expectedResponse = {
 }
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function processRPCSuccess()
   rpc.params.serviceID = common.getAppServiceID(0)
   local cid = common.getHMIConnection():SendRequest(rpc.name, rpc.params)
 

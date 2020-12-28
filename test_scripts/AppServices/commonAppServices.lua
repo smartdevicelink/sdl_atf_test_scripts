@@ -186,7 +186,8 @@ function commonAppServices.publishEmbeddedAppService(manifest)
     appServiceManifest = manifest
   })
   local first_run = true
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1))
+  :ValidIf(function(self, data)
     if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
       return true
     elseif first_run then
@@ -234,7 +235,7 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
     end
   end)
   local first_run_hmi = true
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated"):Times(AtLeast(1)):ValidIf(function(self, data)
     if data.params.systemCapability.systemCapabilityType == "NAVIGATION" then
       return true
     elseif first_run_hmi then
@@ -260,6 +261,21 @@ function commonAppServices.publishMobileAppService(manifest, app_id)
       end
     end)
   commonTestCases:DelayedExp(2000)
+end
+
+function commonAppServices.unpublishMobileAppService(app_id)
+  if not app_id then app_id = 1 end
+  local mobileSession = commonAppServices.getMobileSession(app_id)
+  local cid = mobileSession:SendRPC("UnpublishAppService", {
+    serviceID = commonAppServices.getAppServiceID(app_id)
+  })
+
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated", 
+    commonAppServices.appServiceCapabilityUpdateParams("REMOVED", manifest)):Times(1)
+  mobileSession:ExpectResponse(cid, expectedResponse)
+
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated", 
+    commonAppServices.appServiceCapabilityUpdateParams("REMOVED", manifest)):Times(1)
 end
 
 function commonAppServices.publishSecondMobileAppService(manifest1, manifest2, app_id)
@@ -289,7 +305,7 @@ function commonAppServices.publishSecondMobileAppService(manifest1, manifest2, a
         serviceIDs[app_id] = data.payload.appServiceRecord.serviceID
       end
     end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated")
+  commonAppServices.getHMIConnection():ExpectNotification("BasicCommunication.OnSystemCapabilityUpdated")
 end
 
 function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, service_type, app_id)
@@ -306,7 +322,7 @@ function commonAppServices.mobileSubscribeAppServiceData(provider_app_id, servic
     serviceData = commonAppServices.appServiceDataByType(service_id, service_type)
   }
   if provider_app_id == 0 then
-    EXPECT_HMICALL("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
+    commonAppServices.getHMIConnection():ExpectRequest("AppService.GetAppServiceData", requestParams):Do(function(_, data) 
         commonAppServices.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
       end)
   else
@@ -356,6 +372,26 @@ function commonAppServices.GetAppServiceSystemCapability(manifest, subscribe, ap
   mobileSession:ExpectResponse(cid, responseParams)
 end
 
+function commonAppServices.onWayPointChangeFromMobile(params, exp_times)
+  if not exp_times then exp_times = 1 end
+  local providerMobileSession = commonAppServices.getMobileSession(1)
+  local mobileSession = commonAppServices.getMobileSession(2)
+  
+  providerMobileSession:SendNotification("OnWayPointChange", params)
+
+  mobileSession:ExpectNotification("OnWayPointChange", params):Times(exp_times)
+end
+
+function commonAppServices.onWayPointChangeFromHMI(params, exp_times)
+  if not exp_times then exp_times = 1 end
+  local providerMobileSession = commonAppServices.getMobileSession(1)
+  local mobileSession = commonAppServices.getMobileSession(2)
+  
+  commonAppServices.getHMIConnection():SendNotification("Navigation.OnWayPointChange", params)
+
+  mobileSession:ExpectNotification("OnWayPointChange", params):Times(exp_times)
+end
+
 function commonAppServices.cleanSession(app_id)
   test.mobileSession[app_id]:StopRPC()
   :Do(function(_, d)
@@ -363,6 +399,14 @@ function commonAppServices.cleanSession(app_id)
     test.mobileSession[app_id] = nil
   end)
   utils.wait()
+end
+
+function commonAppServices.deactivateAppToBackground(pSystemContext)
+  if not pSystemContext then pSystemContext = "MAIN" end
+  commonAppServices.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
+    { eventName = "EMBEDDED_NAVI", isActive = true })
+  commonAppServices.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = pSystemContext })
 end
 
 function commonAppServices.setValidateSchema(value)
@@ -428,7 +472,6 @@ function commonAppServices.getFileFromService(app_id, asp_app_id, request_params
   --mobile side: sending GetFile request
   local cid = mobileSession:SendRPC("GetFile", request_params)
   if asp_app_id == 0 then 
-    --EXPECT_HMICALL
     commonAppServices.getHMIConnection():ExpectRequest("BasicCommunication.GetFilePath")
     :Do(function(_, d2)
       local cwd = getATFPath()
