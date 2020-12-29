@@ -5,5 +5,5 @@
 ./test_scripts/Defects/7_1/1597_2_SubtleAlert_Unsupported_Speech_Type.lua
 ./test_scripts/Defects/7_1/1597_3_AlertManeuver_Unsupported_Speech_Type.lua
 ./test_scripts/Defects/7_1/1597_4_PerformAudioPassThru_Unsupported_Speech_Type.lua
-./test_scripts/Defects/7_1/3409_1_Single_transport_TCP.lua
-./test_scripts/Defects/7_1/3409_2_Multiple_transports_TCP_WS.lua
+./test_scripts/Defects/7_1/3409_1_Single_transport.lua
+./test_scripts/Defects/7_1/3409_2_Multiple_transports.lua
