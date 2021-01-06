@@ -14,8 +14,8 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local menuParams = {
-    position = 0,
-    menuName = "menuName"
+  position = 0,
+  menuName = "menuName"
 }
 
 local requestParams1 = {
@@ -24,8 +24,8 @@ local requestParams1 = {
 }
 
 local requestParams2 = {
-    cmdID = 500,
-    menuParams = menuParams
+  cmdID = 500,
+  menuParams = menuParams
 }
 
 --[[ Local Functions ]]
@@ -34,6 +34,7 @@ local function addCommand(pParams)
 
   local hmiRequestParams = { 
     cmdID = pParams.cmdID,
+    menuParams = pParams.menuParams,
     appID = common.getHMIAppId()
   }
   common.getHMIConnection():ExpectRequest("UI.AddCommand", hmiRequestParams)
