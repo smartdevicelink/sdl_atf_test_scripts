@@ -30,22 +30,22 @@ end
 
 function activateApp(pAppId)
     if not pAppId then pAppId = 1 end
-    local requestId = common.hmi.getConnection():SendRequest("SDL.ActivateApp", { appID = common.app.getHMIId(pAppId) })
-    common.hmi.getConnection():ExpectResponse(requestId, { result = {
+    local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(pAppId) })
+    common.getHMIConnection():ExpectResponse(requestId, { result = {
         code = 4,
         isAppRevoked = true,
         method = "SDL.ActivateApp"
     }})
   :Do(function(_,_)
-      local RequestId1 = common.hmi.getConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
-      local RequestId2 = common.hmi.getConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"AppUnsupported"}})
+      local RequestId1 = common.getHMIConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
+      local RequestId2 = common.getHMIConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"AppUnsupported"}})
 
-      EXPECT_HMIRESPONSE(RequestId1,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
+      common.getHMIConnection():ExpectResponse(RequestId1,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
-        common.hmi.getConnection():SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
+        common.getHMIConnection():SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
         end)
 
-      EXPECT_HMIRESPONSE(RequestId2,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
+      common.getHMIConnection():ExpectResponse(RequestId2,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
         
     end)
 end
