@@ -912,7 +912,8 @@ local function getOutOfBoundTests()
     local function isSkipped()
       local paramData = tc.graph[tc.paramId]
       if paramData.type == api.dataType.STRING.type then
-        if (testType == m.testType.UPPER_OUT_OF_BOUND and paramData.maxlength == nil) then
+        if (testType == m.testType.LOWER_OUT_OF_BOUND and paramData.minlength == 0)
+        or (testType == m.testType.UPPER_OUT_OF_BOUND and paramData.maxlength == nil) then
           return true
         end
       else
