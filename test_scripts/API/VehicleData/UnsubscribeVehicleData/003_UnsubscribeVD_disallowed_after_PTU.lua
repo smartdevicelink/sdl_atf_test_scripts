@@ -62,23 +62,23 @@ end
 
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams(true)) do
-  common.Title("VD parameter: " .. param)
-  common.Title("Preconditions")
-  common.Step("Clean environment and update preloaded_pt file", common.preconditions)
-  common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Register App", common.registerApp)
-  common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC,
+  common.runner.Title("VD parameter: " .. param)
+  common.runner.Title("Preconditions")
+  common.runner.Step("Clean environment and update preloaded_pt file", common.preconditions)
+  common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+  common.runner.Step("Register App", common.registerApp)
+  common.runner.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC,
     { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.unsub .. " SUCCESS", common.processSubscriptionRPC,
+  common.runner.Step("RPC " .. common.rpc.unsub .. " SUCCESS", common.processSubscriptionRPC,
     { common.rpc.unsub, param })
 
-  common.Title("Test")
-  common.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
-  common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC,
+  common.runner.Title("Test")
+  common.runner.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
+  common.runner.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC,
     { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.unsub .. " DISALLOWED after PTU", common.processRPCFailure,
+  common.runner.Step("RPC " .. common.rpc.unsub .. " DISALLOWED after PTU", common.processRPCFailure,
     { common.rpc.unsub, result })
 
-  common.Title("Postconditions")
-  common.Step("Stop SDL", common.postconditions)
+  common.runner.Title("Postconditions")
+  common.runner.Step("Stop SDL", common.postconditions)
 end

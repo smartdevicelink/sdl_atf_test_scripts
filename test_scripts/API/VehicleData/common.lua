@@ -21,8 +21,10 @@ local m = {}
 
 --[[ Common Proxy Functions ]]
 do
-  m.Title = runner.Title
-  m.Step = runner.Step
+  m.runner = {
+    Title = runner.Title,
+    Step = runner.Step
+  }
   m.getPreloadedPT = actions.sdl.getPreloadedPT
   m.setPreloadedPT = actions.sdl.setPreloadedPT
   m.registerApp = actions.app.register
@@ -1212,15 +1214,15 @@ end
 --! pTestTypes: test types
 --! @return: test steps
 --]]
-function m.getTestsForGetVD(pTestTypes)
+function m.runner.getTestsForGetVD(pTestTypes)
   for param in m.spairs(m.getVDParams()) do
-    m.Title("VD parameter: " .. param)
+    m.runner.Title("VD parameter: " .. param)
     for _, tt in pairs(pTestTypes) do
       local tests = m.getTests(m.rpc.get, tt, param)
       if #tests > 0 then
-        m.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
+        m.runner.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
         for _, t in pairs(tests) do
-          m.Step(t.name, m.processRequest, { t.params })
+          m.runner.Step(t.name, m.processRequest, { t.params })
         end
       end
     end
@@ -1232,15 +1234,15 @@ end
 --! pTestTypes: test types
 --! @return: test steps
 --]]
-function m.getTestsForOnVD(pTestTypes)
+function m.runner.getTestsForOnVD(pTestTypes)
   for param in m.spairs(m.getVDParams()) do
-    m.Title("VD parameter: " .. param)
+    m.runner.Title("VD parameter: " .. param)
     for _, tt in pairs(pTestTypes) do
       local tests = m.getTests(m.rpc.on, tt, param)
       if #tests > 0 then
-        m.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
+        m.runner.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
         for _, t in pairs(tests) do
-          m.Step(t.name, m.processNotification, { t.params, tt, param })
+          m.runner.Step(t.name, m.processNotification, { t.params, tt, param })
         end
       end
     end
