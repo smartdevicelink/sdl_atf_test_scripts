@@ -21,10 +21,7 @@ local m = {}
 
 --[[ Common Proxy Functions ]]
 do
-  m.runner = {
-    Title = runner.Title,
-    Step = runner.Step
-  }
+  m.runner = runner
   m.getPreloadedPT = actions.sdl.getPreloadedPT
   m.setPreloadedPT = actions.sdl.setPreloadedPT
   m.registerApp = actions.app.register
@@ -938,7 +935,8 @@ local function getOutOfBoundTests()
   for _, tc in pairs(tcs) do
     local function isSkipped()
       local paramData = tc.graph[tc.paramId]
-      if (testType == m.testType.UPPER_OUT_OF_BOUND and paramData.maxsize == nil) then
+      if (testType == m.testType.LOWER_OUT_OF_BOUND and (paramData.minsize == 0 or paramData.minsize == nil))
+        or (testType == m.testType.UPPER_OUT_OF_BOUND and paramData.maxsize == nil) then
         return true
       end
       return false

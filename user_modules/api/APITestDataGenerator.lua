@@ -3,6 +3,7 @@
 ----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]-------------------------------------------------------------------
 local api = require("user_modules/api/APIHelper")
+local json = require("modules/json")
 
 --[[ Module ]]--------------------------------------------------------------------------------------
 local m = {}
@@ -245,14 +246,12 @@ local function getNumOfItems(pTypeData)
   if pTypeData.array == true then
     if arrayValueType == m.valueType.LOWER_IN_BOUND then
       numOfItems = pTypeData.minsize
-      if not numOfItems or numOfItems == 0 then numOfItems = 1 end
+      if not numOfItems then numOfItems = 0 end
     elseif arrayValueType == m.valueType.UPPER_IN_BOUND then
       numOfItems = pTypeData.maxsize
       if not numOfItems or numOfItems == 0 then numOfItems = 100 end
     elseif arrayValueType == m.valueType.LOWER_OUT_OF_BOUND then
       numOfItems = pTypeData.minsize
-      if not numOfItems or numOfItems == 0 then numOfItems = 1 end
-      numOfItems = numOfItems - 1
     elseif arrayValueType == m.valueType.UPPER_OUT_OF_BOUND then
       numOfItems = pTypeData.maxsize
       if not numOfItems or numOfItems == 0 then numOfItems = 100 end
@@ -281,6 +280,8 @@ function m.buildParams(pGraph, pId, pParams)
   local numOfItems = getNumOfItems(data)
   if numOfItems == -1 then
     pParams[name] = getTypeValue(data, pGraph, pId)
+  elseif numOfItems == 0 then
+    pParams[name] = json.EMPTY_ARRAY
   else
     pParams[name] = {}
     for i = 1, numOfItems do
