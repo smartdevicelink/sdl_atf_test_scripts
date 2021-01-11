@@ -47,8 +47,7 @@ local requestParams = {
 
 --[[ Local Functions ]]
 local function sendRPC(pParams)
-  local params = common.cloneTable(pParams)
-  local cid = common.getMobileSession():SendRPC("SetMediaClockTimer", params)
+  local cid = common.getMobileSession():SendRPC("SetMediaClockTimer", pParams)
   common.getHMIConnection():ExpectRequest("UI.SetMediaClockTimer")
   :Times(0)
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
@@ -57,7 +56,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Update Preloaded PT", common.updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)

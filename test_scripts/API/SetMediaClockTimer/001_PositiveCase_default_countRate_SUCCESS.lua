@@ -30,6 +30,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("user_modules/sequences/actions")
+local utils = require("user_modules/utils")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -52,7 +53,7 @@ local requestParams = {
 
 --[[ Local Functions ]]
 local function sendRPC(pParams)
-  local params = common.cloneTable(pParams)
+  local params = utils.cloneTable(pParams)
   local cid = common.getMobileSession():SendRPC("SetMediaClockTimer", params)
   params.appID = common.getHMIAppId()
   params.countRate = 1.0
@@ -66,7 +67,6 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
-runner.Step("Update Preloaded PT", common.updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
