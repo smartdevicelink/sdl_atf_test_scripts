@@ -30,7 +30,7 @@ local function getStringValue(pTypeData)
   local length
   if pTypeData.valueType == m.valueType.LOWER_IN_BOUND then
     length = pTypeData.minlength
-    if not length or length == 0 then length = api.dataType.STRING.min end
+    if not length then length = api.dataType.STRING.min end
   elseif pTypeData.valueType == m.valueType.UPPER_IN_BOUND then
     length = pTypeData.maxlength
     if not length or length == 0 then length = api.dataType.STRING.max end
