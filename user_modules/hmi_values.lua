@@ -198,7 +198,8 @@ function module.getDefaultHMITable()
     params = {
       ccpu_version = "ccpu_version",
       language = "EN-US",
-      wersCountryCode = "wersCountryCode"
+      wersCountryCode = "wersCountryCode",
+      systemHardwareVersion = "systemHardwareVersion"
     },
     mandatory = false,
     pinned = false
