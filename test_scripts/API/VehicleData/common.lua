@@ -137,21 +137,21 @@ m.testType = {
 }
 
 m.isMandatory = {
-  YES = true,
-  NO = false,
-  ALL = 3
+  YES = true, -- only mandatory
+  NO = false, -- only optional
+  ALL = 3     -- both mandatory and optional
 }
 
 m.isArray = {
-  YES = true,
-  NO = false,
-  ALL = 3
+  YES = true, -- only array
+  NO = false, -- only non-array
+  ALL = 3     -- both array and non-array
 }
 
 m.isVersion = {
-  YES = true,
-  NO = false,
-  ALL = 3
+  YES = true, -- only with version
+  NO = false, -- only without version
+  ALL = 3     -- both with and without version
 }
 
 --[[ Local Constants and Variables ]]
@@ -652,6 +652,20 @@ local getParamsFuncMap = {
 --]]
 local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pIsArray, pIsVersion, pDataTypes)
 
+  --[[
+  Build a graph object which is a flattened map representation of all parameters defined in a particular API function.
+  It includes all hierarchy of parameters and sub-parameters. E.g.:
+    root-level  0 - bodyInformation
+    child-level 1 - roofStatuses
+    child-level 2 - location
+    child-level 3 - rowspan
+  It's a 'key:value' map, where
+    - 'key' is unique Id of the parameter (or sub-parameter)
+    - 'value' is a table of elements, such as:
+      - parentId - Id of a parent (or nil for root-level parameters)
+      - name - name of the parameter
+      - <restrictions>, such as 'type', 'array', 'mandatory', 'since' etc. copied from API
+  --]]
   local graph = api.getGraph(pAPIType, pEventType, pFuncName)
 
   --[[ @getParents: Get table with all parents for parameter defined by pId
@@ -748,32 +762,66 @@ local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pI
   --! @return: table with test cases
   --]]
   local function getTestCases(pGraph)
+    --[[ @getMandatoryCondition: Check mandatory condition for the parameter
+    --! @parameters:
+    --! pMandatory - 'mandatory' attribute of the parameter defined in API
+    --! @return: true if mandatory condition is met
+    --]]
     local function getMandatoryCondition(pMandatory)
       if pIsMandatory == m.isMandatory.ALL then return true
       else return pIsMandatory == pMandatory
       end
     end
+    --[[ @getArrayCondition: Check array condition for the parameter
+    --! @parameters:
+    --! pArray - 'array' attribute of the parameter defined in API
+    --! @return: true if array condition is met
+    --]]
     local function getArrayCondition(pArray)
       if pIsArray == m.isArray.ALL then return true
       else return pIsArray == pArray
       end
     end
+    --[[ @getVersionCondition: Check version condition for the parameter
+    --! @parameters:
+    --! pSince - 'since' attribute of the parameter defined in API
+    --! pDeprecated - 'deprecated' attribute of the parameter defined in API
+    --! @return: true if version condition is met
+    --]]
     local function getVersionCondition(pSince, pDeprecated)
       if pIsVersion == m.isVersion.ALL then return true end
       if pSince ~= nil and pDeprecated ~= true then return true end
       return false
     end
+    --[[ @getTypeCondition: Check type condition for the parameter
+    --! @parameters:
+    --! pType - type of the parameter, see 'APIHelper.dataType' table
+    --! @return: true if type condition is met
+    --]]
     local function getTypeCondition(pType)
       if pDataTypes == nil or #pDataTypes == 0 then return true
       elseif utils.isTableContains(pDataTypes, pType) then return true
       else return false
       end
     end
+    --[[ @getParamNameCondition: Check name condition for the parameter
+    --! @parameters:
+    --! pName - name of the parameter
+    --! @return: true if name condition is met
+    --]]
     local function getParamNameCondition(pName)
       if paramName == nil or paramName == "" then return true end
       if (pName == paramName) or (string.find(pName .. ".", paramName .. "%.") == 1) then return true end
       return false
     end
+    --[[
+    Iterate through all the parameters and sub-parameters defined in graph object.
+    Check whether various conditions are met and include a test case in table with test cases if so.
+    Test case is a table with elements:
+      - 'paramId' - Id of the parameter to be tested
+      - 'graph' - reduced graph object with all parameter Ids required for the test case
+      Later this object is used for creating a hierarchy of parameters with their values.
+    --]]
     local tcs = {}
     for k, v in pairs(pGraph) do
       local paramFullName = api.getFullParamName(graph, k)
