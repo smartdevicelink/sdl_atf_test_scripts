@@ -653,16 +653,16 @@ local getParamsFuncMap = {
 local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pIsArray, pIsVersion, pDataTypes)
 
   --[[
-  Build a graph object which is a flattened map representation of all parameters defined in a particular API function.
+  Build a graph object which is a flattened list representation of all parameters defined in a particular API function.
   It includes all hierarchy of parameters and sub-parameters. E.g.:
     root-level  0 - bodyInformation
     child-level 1 - roofStatuses
     child-level 2 - location
     child-level 3 - rowspan
-  It's a 'key:value' map, where
-    - 'key' is unique Id of the parameter (or sub-parameter)
-    - 'value' is a table of elements, such as:
-      - parentId - Id of a parent (or nil for root-level parameters)
+  It's a 'key:value' list, where
+    - 'key' is a unique integer ID for the parameter (or sub-parameter)
+    - 'value' is a table of properties for the parameter, such as:
+      - parentId - ID of the parent for this parameter (or nil for root-level parameters)
       - name - name of the parameter
       - <restrictions>, such as 'type', 'array', 'mandatory', 'since' etc. copied from API
   --]]
