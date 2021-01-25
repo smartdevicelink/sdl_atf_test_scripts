@@ -26,27 +26,27 @@ local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams(true)) do
-  common.Title("VD parameter: " .. param)
-  common.Title("Preconditions")
-  common.Step("Clean environment", common.preconditions)
-  common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Register App1", common.registerAppWOPTU, { common.app[1] })
-  common.Step("Register App2", common.registerAppWOPTU, { common.app[2] })
-  common.Step("App1 subscribes to VD param", common.processSubscriptionRPC,
+  common.runner.Title("VD parameter: " .. param)
+  common.runner.Title("Preconditions")
+  common.runner.Step("Clean environment", common.preconditions)
+  common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+  common.runner.Step("Register App1", common.registerAppWOPTU, { common.app[1] })
+  common.runner.Step("Register App2", common.registerAppWOPTU, { common.app[2] })
+  common.runner.Step("App1 subscribes to VD param", common.processSubscriptionRPC,
     { common.rpc.sub, param, common.app[1], common.isExpectedSubscription })
-  common.Step("App2 subscribes to VD param", common.processSubscriptionRPC,
+  common.runner.Step("App2 subscribes to VD param", common.processSubscriptionRPC,
     { common.rpc.sub, param, common.app[2], common.isNotExpectedSubscription })
 
-  common.Title("Test")
-  common.Step("Unexpected disconnect", common.unexpectedDisconnect, { param })
-  common.Step("Connect mobile", common.connectMobile)
-  common.Step("Re-register App1 resumption data", common.registerAppWithResumption,
+  common.runner.Title("Test")
+  common.runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { param })
+  common.runner.Step("Connect mobile", common.connectMobile)
+  common.runner.Step("Re-register App1 resumption data", common.registerAppWithResumption,
     { param, common.app[1], common.isExpectedSubscription })
-  common.Step("Re-register App2 resumption data", common.registerAppWithResumption,
+  common.runner.Step("Re-register App2 resumption data", common.registerAppWithResumption,
     { param, common.app[2], common.isNotExpectedSubscription })
-  common.Step("OnVehicleData with VD param for both apps", common.sendOnVehicleDataTwoApps,
+  common.runner.Step("OnVehicleData with VD param for both apps", common.sendOnVehicleDataTwoApps,
     { param, common.isExpected, common.isExpected })
 
-  common.Title("Postconditions")
-  common.Step("Stop SDL", common.postconditions)
+  common.runner.Title("Postconditions")
+  common.runner.Step("Stop SDL", common.postconditions)
 end
