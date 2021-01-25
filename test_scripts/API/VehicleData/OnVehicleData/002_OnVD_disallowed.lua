@@ -40,16 +40,16 @@ end
 
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams(true)) do
-  common.Title("VD parameter: " .. param)
-  common.Title("Preconditions")
-  common.Step("Clean environment and update preloaded_pt file", common.preconditions, { getVDGroup(param) })
-  common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Register App", common.registerApp)
+  common.runner.Title("VD parameter: " .. param)
+  common.runner.Title("Preconditions")
+  common.runner.Step("Clean environment and update preloaded_pt file", common.preconditions, { getVDGroup(param) })
+  common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+  common.runner.Step("Register App", common.registerApp)
 
-  common.Title("Test")
-  common.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, common.isNotExpected })
+  common.runner.Title("Test")
+  common.runner.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC, { common.rpc.sub, param })
+  common.runner.Step("RPC " .. common.rpc.on .. " ignored", common.sendOnVehicleData, { param, common.isNotExpected })
 
-  common.Title("Postconditions")
-  common.Step("Stop SDL", common.postconditions)
+  common.runner.Title("Postconditions")
+  common.runner.Step("Stop SDL", common.postconditions)
 end

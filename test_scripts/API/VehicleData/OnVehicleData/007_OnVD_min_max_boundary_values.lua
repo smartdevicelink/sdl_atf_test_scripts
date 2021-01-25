@@ -1,6 +1,6 @@
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 -- Description: Check that SDL processes OnVehicleData notification with <vd_param> parameter
--- Positive cases for all VD parameters and sub-parameters
+-- Positive/Negative cases for boundary values for all VD parameters and sub-parameters
 --
 -- Preconditions:
 -- 1) SDL and HMI are started
@@ -9,18 +9,25 @@
 -- 4) App is subscribed to <vd_param> parameter data
 --
 -- In case:
--- 1) HMI sends valid OnVehicleData notification with <vd_param> parameter data to SDL
+-- 1) HMI sends OnVehicleData notification with valid data for <vd_param> parameter to SDL
+-- (closest lower/upper values to the defined boundary)
 -- SDL does:
 -- - a) transfer this notification to App
 -- Exception: Notification for unsubscribable VD parameter is not transfered
----------------------------------------------------------------------------------------------------
+-- 2) HMI sends OnVehicleData notification with invalid data for <vd_param> parameter to SDL
+-- (closest lower/upper values to the defined boundary)
+-- SDL does:
+-- - a) not transfer this notification to App
+----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Local Constants ]]
 local testTypes = {
-  common.testType.VALID_RANDOM_ALL,
-  common.testType.VALID_RANDOM_SUB
+  common.testType.LOWER_IN_BOUND,
+  common.testType.UPPER_IN_BOUND,
+  common.testType.LOWER_OUT_OF_BOUND,
+  common.testType.UPPER_OUT_OF_BOUND
 }
 
 --[[ Scenario ]]

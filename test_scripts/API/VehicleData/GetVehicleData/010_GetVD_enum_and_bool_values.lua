@@ -1,6 +1,6 @@
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 -- Description: Check that SDL processes GetVehicleData RPC with <vd_param> parameter
--- Positive cases for all VD parameters and sub-parameters
+-- Positive cases for all possible values for Enum and Boolean VD parameters and sub-parameters
 --
 -- Preconditions:
 -- 1) SDL and HMI are started
@@ -11,18 +11,19 @@
 -- 1) App sends valid GetVehicleData(<vd_param>=true) request to SDL
 -- SDL does:
 -- - a) transfer this request to HMI
--- 2) HMI sends VI.GetVehicleData response with <vd_param> data to SDL
+-- 2) HMI sends VI.GetVehicleData response with valid <vd_param> data to SDL
+-- (iterate trough all possible enum and boolean values of applicable parameters)
 -- SDL does:
 -- - a) send GetVehicleData response with (success = true, resultCode = "SUCCESS",
 --    <vd_param> = <data received from HMI>) to App
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Local Constants ]]
 local testTypes = {
-  common.testType.VALID_RANDOM_ALL,
-  common.testType.VALID_RANDOM_SUB
+  common.testType.ENUM_ITEMS,
+  common.testType.BOOL_ITEMS
 }
 
 --[[ Scenario ]]
