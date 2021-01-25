@@ -54,18 +54,18 @@ end
 
 --[[ Scenario ]]
 for param in common.spairs(common.getVDParams()) do
-  common.Title("VD parameter: " .. param)
-  common.Title("Preconditions")
-  common.Step("Clean environment and update preloaded_pt file", common.preconditions)
-  common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-  common.Step("Register App", common.registerApp)
-  common.Step("RPC GetVehicleData, SUCCESS", common.getVehicleData, { param })
+  common.runner.Title("VD parameter: " .. param)
+  common.runner.Title("Preconditions")
+  common.runner.Step("Clean environment and update preloaded_pt file", common.preconditions)
+  common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+  common.runner.Step("Register App", common.registerApp)
+  common.runner.Step("RPC GetVehicleData, SUCCESS", common.getVehicleData, { param })
 
-  common.Title("Test")
-  common.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
-  common.Step("RPC " .. common.rpc.get .. " DISALLOWED after PTU", common.processRPCFailure,
+  common.runner.Title("Test")
+  common.runner.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
+  common.runner.Step("RPC " .. common.rpc.get .. " DISALLOWED after PTU", common.processRPCFailure,
     { common.rpc.get, param, result })
 
-  common.Title("Postconditions")
-  common.Step("Stop SDL", common.postconditions)
+  common.runner.Title("Postconditions")
+  common.runner.Step("Stop SDL", common.postconditions)
 end

@@ -2,7 +2,8 @@
 -- API Test Data Generator module
 ----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]-------------------------------------------------------------------
-local ah = require("user_modules/api/APIHelper")
+local api = require("user_modules/api/APIHelper")
+local json = require("modules/json")
 
 --[[ Module ]]--------------------------------------------------------------------------------------
 local m = {}
@@ -29,23 +30,23 @@ local function getStringValue(pTypeData)
   local length
   if pTypeData.valueType == m.valueType.LOWER_IN_BOUND then
     length = pTypeData.minlength
-    if not length or length == 0 then length = ah.dataType.STRING.min end
+    if not length then length = api.dataType.STRING.min end
   elseif pTypeData.valueType == m.valueType.UPPER_IN_BOUND then
     length = pTypeData.maxlength
-    if not length or length == 0 then length = ah.dataType.STRING.max end
+    if not length or length == 0 then length = api.dataType.STRING.max end
   elseif pTypeData.valueType == m.valueType.LOWER_OUT_OF_BOUND then
     length = pTypeData.minlength
-    if not length or length == 0 then length = ah.dataType.STRING.min end
+    if not length or length == 0 then length = api.dataType.STRING.min end
     length = length - 1
   elseif pTypeData.valueType == m.valueType.UPPER_OUT_OF_BOUND then
     length = pTypeData.maxlength
-    if not length or length == 0 then length = ah.dataType.STRING.max end
+    if not length or length == 0 then length = api.dataType.STRING.max end
     length = length + 1
   elseif pTypeData.valueType == m.valueType.VALID_RANDOM then
     local min = pTypeData.minlength
     local max = pTypeData.maxlength
-    if not min or min == 0 then min = ah.dataType.STRING.min end
-    if not max or max == 0 then max = ah.dataType.STRING.max end
+    if not min or min == 0 then min = api.dataType.STRING.min end
+    if not max or max == 0 then max = api.dataType.STRING.max end
     length = math.random(min, max)
   elseif pTypeData.valueType == m.valueType.INVALID_TYPE then
     return false
@@ -62,23 +63,23 @@ local function getIntegerValue(pTypeData)
   local value
   if pTypeData.valueType == m.valueType.LOWER_IN_BOUND then
     value = pTypeData.minvalue
-    if not value then value = ah.dataType.INTEGER.min end
+    if not value then value = api.dataType.INTEGER.min end
   elseif pTypeData.valueType == m.valueType.UPPER_IN_BOUND then
     value = pTypeData.maxvalue
-    if not value then value = ah.dataType.INTEGER.max end
+    if not value then value = api.dataType.INTEGER.max end
   elseif pTypeData.valueType == m.valueType.LOWER_OUT_OF_BOUND then
     value = pTypeData.minvalue
-    if not value then value = ah.dataType.INTEGER.min end
+    if not value then value = api.dataType.INTEGER.min end
     value = value - 1
   elseif pTypeData.valueType == m.valueType.UPPER_OUT_OF_BOUND then
     value = pTypeData.maxvalue
-    if not value then value = ah.dataType.INTEGER.max end
+    if not value then value = api.dataType.INTEGER.max end
     value = value + 1
   elseif pTypeData.valueType == m.valueType.VALID_RANDOM then
     local min = pTypeData.minvalue
     local max = pTypeData.maxvalue
-    if not min then min = ah.dataType.INTEGER.min end
-    if not max then max = ah.dataType.INTEGER.max end
+    if not min then min = api.dataType.INTEGER.min end
+    if not max then max = api.dataType.INTEGER.max end
     value = math.random(min, max)
   elseif pTypeData.valueType == m.valueType.INVALID_TYPE then
     return true
@@ -95,23 +96,23 @@ local function getFloatValue(pTypeData)
   local value
   if pTypeData.valueType == m.valueType.LOWER_IN_BOUND then
     value = pTypeData.minvalue
-    if not value then value = ah.dataType.FLOAT.min end
+    if not value then value = api.dataType.FLOAT.min end
   elseif pTypeData.valueType == m.valueType.UPPER_IN_BOUND then
     value = pTypeData.maxvalue
-    if not value then value = ah.dataType.FLOAT.max end
+    if not value then value = api.dataType.FLOAT.max end
   elseif pTypeData.valueType == m.valueType.LOWER_OUT_OF_BOUND then
     value = pTypeData.minvalue
-    if not value then value = ah.dataType.FLOAT.min end
+    if not value then value = api.dataType.FLOAT.min end
     value = value - 0.1
   elseif pTypeData.valueType == m.valueType.UPPER_OUT_OF_BOUND then
     value = pTypeData.maxvalue
-    if not value then value = ah.dataType.FLOAT.max end
+    if not value then value = api.dataType.FLOAT.max end
     value = value + 0.1
   elseif pTypeData.valueType == m.valueType.VALID_RANDOM then
     local min = pTypeData.minvalue
     local max = pTypeData.maxvalue
-    if not min then min = ah.dataType.FLOAT.min end
-    if not max then max = ah.dataType.FLOAT.max end
+    if not min then min = api.dataType.FLOAT.min end
+    if not max then max = api.dataType.FLOAT.max end
     value = tonumber(string.format('%.02f', math.random() + math.random(min, max-1)))
   elseif pTypeData.valueType == m.valueType.INVALID_TYPE then
     return true
@@ -128,23 +129,23 @@ local function getDoubleValue(pTypeData)
   local value
   if pTypeData.valueType == m.valueType.LOWER_IN_BOUND then
     value = pTypeData.minvalue
-    if not value then value = ah.dataType.DOUBLE.min end
+    if not value then value = api.dataType.DOUBLE.min end
   elseif pTypeData.valueType == m.valueType.UPPER_IN_BOUND then
     value = pTypeData.maxvalue
-    if not value then value = ah.dataType.DOUBLE.max end
+    if not value then value = api.dataType.DOUBLE.max end
   elseif pTypeData.valueType == m.valueType.LOWER_OUT_OF_BOUND then
     value = pTypeData.minvalue
-    if not value then value = ah.dataType.DOUBLE.min end
+    if not value then value = api.dataType.DOUBLE.min end
     value = value - 0.1
   elseif pTypeData.valueType == m.valueType.UPPER_OUT_OF_BOUND then
     value = pTypeData.maxvalue
-    if not value then value = ah.dataType.DOUBLE.max end
+    if not value then value = api.dataType.DOUBLE.max end
     value = value + 0.1
   elseif pTypeData.valueType == m.valueType.VALID_RANDOM then
     local min = pTypeData.minvalue
     local max = pTypeData.maxvalue
-    if not min then min = ah.dataType.DOUBLE.min end
-    if not max then max = ah.dataType.DOUBLE.max end
+    if not min then min = api.dataType.DOUBLE.min end
+    if not max then max = api.dataType.DOUBLE.max end
     value = tonumber(string.format('%.02f', math.random() + math.random(min, max-1)))
   elseif pTypeData.valueType == m.valueType.INVALID_TYPE then
     return true
@@ -219,13 +220,13 @@ end
 local function getTypeValue(pTypeData, pGraph, pId)
   if not pTypeData.valueType then pTypeData.valueType = m.valueType.VALID_RANDOM end
   local getValueFuncMap = {
-    [ah.dataType.INTEGER.type] = getIntegerValue,
-    [ah.dataType.FLOAT.type] = getFloatValue,
-    [ah.dataType.DOUBLE.type] = getDoubleValue,
-    [ah.dataType.STRING.type] = getStringValue,
-    [ah.dataType.BOOLEAN.type] = getBooleanValue,
-    [ah.dataType.ENUM.type] = getEnumTypeValue,
-    [ah.dataType.STRUCT.type] = getStructTypeValue
+    [api.dataType.INTEGER.type] = getIntegerValue,
+    [api.dataType.FLOAT.type] = getFloatValue,
+    [api.dataType.DOUBLE.type] = getDoubleValue,
+    [api.dataType.STRING.type] = getStringValue,
+    [api.dataType.BOOLEAN.type] = getBooleanValue,
+    [api.dataType.ENUM.type] = getEnumTypeValue,
+    [api.dataType.STRUCT.type] = getStructTypeValue
   }
   return getValueFuncMap[pTypeData.type](pTypeData, pGraph, pId)
 end
@@ -245,14 +246,12 @@ local function getNumOfItems(pTypeData)
   if pTypeData.array == true then
     if arrayValueType == m.valueType.LOWER_IN_BOUND then
       numOfItems = pTypeData.minsize
-      if not numOfItems or numOfItems == 0 then numOfItems = 1 end
+      if not numOfItems then numOfItems = 0 end
     elseif arrayValueType == m.valueType.UPPER_IN_BOUND then
       numOfItems = pTypeData.maxsize
       if not numOfItems or numOfItems == 0 then numOfItems = 100 end
     elseif arrayValueType == m.valueType.LOWER_OUT_OF_BOUND then
       numOfItems = pTypeData.minsize
-      if not numOfItems or numOfItems == 0 then numOfItems = 1 end
-      numOfItems = numOfItems - 1
     elseif arrayValueType == m.valueType.UPPER_OUT_OF_BOUND then
       numOfItems = pTypeData.maxsize
       if not numOfItems or numOfItems == 0 then numOfItems = 100 end
@@ -281,6 +280,8 @@ function m.buildParams(pGraph, pId, pParams)
   local numOfItems = getNumOfItems(data)
   if numOfItems == -1 then
     pParams[name] = getTypeValue(data, pGraph, pId)
+  elseif numOfItems == 0 then
+    pParams[name] = json.EMPTY_ARRAY
   else
     pParams[name] = {}
     for i = 1, numOfItems do

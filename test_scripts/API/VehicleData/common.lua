@@ -8,8 +8,8 @@ local utils = require("user_modules/utils")
 local json = require("modules/json")
 local SDL = require("SDL")
 local color = require("user_modules/consts").color
-local ah = require("user_modules/api/APIHelper")
-local tdg = require("user_modules/api/APITestDataGenerator")
+local api = require("user_modules/api/APIHelper")
+local gen = require("user_modules/api/APITestDataGenerator")
 
 --[[ General configuration parameters ]]
 runner.testSettings.isSelfIncluded = false
@@ -21,8 +21,7 @@ local m = {}
 
 --[[ Common Proxy Functions ]]
 do
-  m.Title = runner.Title
-  m.Step = runner.Step
+  m.runner = runner
   m.getPreloadedPT = actions.sdl.getPreloadedPT
   m.setPreloadedPT = actions.sdl.setPreloadedPT
   m.registerApp = actions.app.register
@@ -139,21 +138,21 @@ m.testType = {
 }
 
 m.isMandatory = {
-  YES = true,
-  NO = false,
-  ALL = 3
+  YES = true, -- only mandatory
+  NO = false, -- only optional
+  ALL = 3     -- both mandatory and optional
 }
 
 m.isArray = {
-  YES = true,
-  NO = false,
-  ALL = 3
+  YES = true, -- only array
+  NO = false, -- only non-array
+  ALL = 3     -- both array and non-array
 }
 
 m.isVersion = {
-  YES = true,
-  NO = false,
-  ALL = 3
+  YES = true, -- only with version
+  NO = false, -- only without version
+  ALL = 3     -- both with and without version
 }
 
 --[[ Local Constants and Variables ]]
@@ -164,10 +163,10 @@ local rpcType
 local testType
 local paramName
 local boundValueTypeMap = {
-  [m.testType.UPPER_IN_BOUND] = tdg.valueType.UPPER_IN_BOUND,
-  [m.testType.LOWER_IN_BOUND] = tdg.valueType.LOWER_IN_BOUND,
-  [m.testType.UPPER_OUT_OF_BOUND] = tdg.valueType.UPPER_OUT_OF_BOUND,
-  [m.testType.LOWER_OUT_OF_BOUND] = tdg.valueType.LOWER_OUT_OF_BOUND
+  [m.testType.UPPER_IN_BOUND] = gen.valueType.UPPER_IN_BOUND,
+  [m.testType.LOWER_IN_BOUND] = gen.valueType.LOWER_IN_BOUND,
+  [m.testType.UPPER_OUT_OF_BOUND] = gen.valueType.UPPER_OUT_OF_BOUND,
+  [m.testType.LOWER_OUT_OF_BOUND] = gen.valueType.LOWER_OUT_OF_BOUND
 }
 local isRestricted = false
 
@@ -215,7 +214,7 @@ restrictAvailableVDParams()
 --! @return: table with VD parameters
 --]]
 local function getAvailableVDParams()
-  local graph = ah.getGraph(ah.apiType.MOBILE, ah.eventType.REQUEST, m.rpc.get)
+  local graph = api.getGraph(api.apiType.MOBILE, api.eventType.REQUEST, m.rpc.get)
   local vdParams = {}
   for _, data in pairs(graph) do
     if data.parentId == nil then vdParams[data.name] = true end
@@ -301,7 +300,7 @@ function m.getHashId(pAppId)
 end
 
 --[[ @isSubscribable: Check whether VD parameter is subscribable
---! E.g. it's no possible to subscribe to 'vin' VD parameter
+--! E.g. it's not possible to subscribe to 'vin' VD parameter
 --! @parameters:
 --! pParam: name of the VD parameter
 --! @return: true if it's possible to subscribe to VD parameter, otherwise - false
@@ -566,7 +565,7 @@ end
 --]]
 local function getParamsValidDataTestForRequest(pGraph)
   local request = { [paramName] = true }
-  local hmiResponse = tdg.getParamValues(pGraph)
+  local hmiResponse = gen.getParamValues(pGraph)
   local mobileResponse = utils.cloneTable(hmiResponse)
   mobileResponse.success = true
   mobileResponse.resultCode = "SUCCESS"
@@ -592,7 +591,7 @@ end
 --]]
 local function getParamsInvalidDataTestForRequest(pGraph)
   local request = { [paramName] = true }
-  local hmiResponse = tdg.getParamValues(pGraph)
+  local hmiResponse = gen.getParamValues(pGraph)
   local params = {
     mobile = {
       name = rpc,
@@ -614,7 +613,7 @@ end
 --! @return: table with parameters
 --]]
 local function getParamsAnyDataTestForNotification(pGraph)
-  local notification = tdg.getParamValues(pGraph)
+  local notification = gen.getParamValues(pGraph)
   local params = {
     mobile = {
       name = rpc,
@@ -630,12 +629,12 @@ end
 
 local getParamsFuncMap = {
   VALID = {
-   [ah.eventType.RESPONSE] = getParamsValidDataTestForRequest,
-   [ah.eventType.NOTIFICATION] = getParamsAnyDataTestForNotification
+   [api.eventType.RESPONSE] = getParamsValidDataTestForRequest,
+   [api.eventType.NOTIFICATION] = getParamsAnyDataTestForNotification
   },
   INVALID = {
-   [ah.eventType.RESPONSE] = getParamsInvalidDataTestForRequest,
-   [ah.eventType.NOTIFICATION] = getParamsAnyDataTestForNotification
+   [api.eventType.RESPONSE] = getParamsInvalidDataTestForRequest,
+   [api.eventType.NOTIFICATION] = getParamsAnyDataTestForNotification
   }
 }
 
@@ -649,13 +648,33 @@ local getParamsFuncMap = {
 --! pIsMandatory: defines how mandatory parameters is going to be handled (see 'm.isMandatory')
 --! pIsArray: defines how array parameters is going to be handled (see 'm.isArray')
 --! pIsVersion: defines how parameters with version defined is going to be handled (see 'm.isVersion')
---! pDataTypes: list of data types included into processing, e.g. 'ah.dataType.INTEGER.type'
+--! pDataTypes: list of data types included into processing, e.g. 'api.dataType.INTEGER.type'
 --! @return: table with test cases
 --]]
 local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pIsArray, pIsVersion, pDataTypes)
 
-  local graph = ah.getGraph(pAPIType, pEventType, pFuncName)
+  --[[
+  Build a graph object which is a flattened list representation of all parameters defined in a particular API function.
+  It includes all hierarchy of parameters and sub-parameters. E.g.:
+    root-level  0 - bodyInformation
+    child-level 1 - roofStatuses
+    child-level 2 - location
+    child-level 3 - rowspan
+  It's a 'key:value' list, where
+    - 'key' is a unique integer ID for the parameter (or sub-parameter)
+    - 'value' is a table of properties for the parameter, such as:
+      - parentId - ID of the parent for this parameter (or nil for root-level parameters)
+      - name - name of the parameter
+      - <restrictions>, such as 'type', 'array', 'mandatory', 'since' etc. copied from API
+  --]]
+  local graph = api.getGraph(pAPIType, pEventType, pFuncName)
 
+  --[[ @getParents: Get table with all parents for parameter defined by pId
+  --! @parameters:
+  --! pGraph: graph with all parameters
+  --! pId: parameter identifier
+  --! @return: table with parent parameters identifiers
+  --]]
   local function getParents(pGraph, pId)
     local out = {}
     pId = pGraph[pId].parentId
@@ -666,11 +685,18 @@ local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pI
     return out
   end
 
+  --[[ @getMandatoryNeighbors: Get table with mandatory neighbors for parameters defined by pId and pParentIds
+  --! @parameters:
+  --! pGraph: graph with all parameters
+  --! pId: parameter identifier
+  --! pParentIds: table with parent parameters identifiers
+  --! @return: table with mandatory neighbors parameters identifiers
+  --]]
   local function getMandatoryNeighbors(pGraph, pId, pParentIds)
-    local pIds = utils.cloneTable(pParentIds)
-    pIds[pId] = true
+    local parentIds = utils.cloneTable(pParentIds)
+    parentIds[pId] = true
     local out = {}
-    for p in pairs(pIds) do
+    for p in pairs(parentIds) do
       for k, v in pairs(pGraph) do
         if v.parentId == pGraph[p].parentId and v.mandatory and p ~= k then
           out[k] = true
@@ -680,16 +706,29 @@ local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pI
     return out
   end
 
-  local function getMandatoryChildren(pGraph, pId, pChildreIds)
+  --[[ @getMandatoryChildren: Get table with mandatory children for parameter defined by pId
+  --! @parameters:
+  --! pGraph: graph with all parameters
+  --! pId: parameter identifier
+  --! pChildrenIds: output table with mandatory children parameters identifiers
+  --! @return: table with mandatory children parameters identifiers
+  --]]
+  local function getMandatoryChildren(pGraph, pId, pChildrenIds)
     for k, v in pairs(pGraph) do
       if v.parentId == pId and v.mandatory then
-        pChildreIds[k] = true
-        getMandatoryChildren(pGraph, k, pChildreIds)
+        pChildrenIds[k] = true
+        getMandatoryChildren(pGraph, k, pChildrenIds)
       end
     end
-    return pChildreIds
+    return pChildrenIds
   end
 
+  --[[ @getTCParamsIds: Merge all parameters identifiers required for the test case into one table
+  --! @parameters:
+  --! pId: parameter identifier
+  --! ...: all tables with parameters identifiers
+  --! @return: table with merged parameters identifiers
+  --]]
   local function getTCParamsIds(pId, ...)
     local ids = {}
     ids[pId] = true
@@ -703,6 +742,12 @@ local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pI
     return ids
   end
 
+  --[[ @getUpdatedParams: Filter graph by defined parameters
+  --! @parameters:
+  --! pGraph: initial graph with all parameters
+  --! pParamIds: table with parameters identifiers
+  --! @return: filtered graph
+  --]]
   local function getUpdatedParams(pGraph, pParamIds)
     for k in pairs(pGraph) do
       if not pParamIds[k] then
@@ -712,36 +757,75 @@ local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pI
     return pGraph
   end
 
+  --[[ @getTestCases: Get test cases from graph
+  --! @parameters:
+  --! pGraph: graph with all parameters
+  --! @return: table with test cases
+  --]]
   local function getTestCases(pGraph)
+    --[[ @getMandatoryCondition: Check mandatory condition for the parameter
+    --! @parameters:
+    --! pMandatory - 'mandatory' attribute of the parameter defined in API
+    --! @return: true if mandatory condition is met
+    --]]
     local function getMandatoryCondition(pMandatory)
       if pIsMandatory == m.isMandatory.ALL then return true
       else return pIsMandatory == pMandatory
       end
     end
+    --[[ @getArrayCondition: Check array condition for the parameter
+    --! @parameters:
+    --! pArray - 'array' attribute of the parameter defined in API
+    --! @return: true if array condition is met
+    --]]
     local function getArrayCondition(pArray)
       if pIsArray == m.isArray.ALL then return true
       else return pIsArray == pArray
       end
     end
+    --[[ @getVersionCondition: Check version condition for the parameter
+    --! @parameters:
+    --! pSince - 'since' attribute of the parameter defined in API
+    --! pDeprecated - 'deprecated' attribute of the parameter defined in API
+    --! @return: true if version condition is met
+    --]]
     local function getVersionCondition(pSince, pDeprecated)
       if pIsVersion == m.isVersion.ALL then return true end
       if pSince ~= nil and pDeprecated ~= true then return true end
       return false
     end
+    --[[ @getTypeCondition: Check type condition for the parameter
+    --! @parameters:
+    --! pType - type of the parameter, see 'APIHelper.dataType' table
+    --! @return: true if type condition is met
+    --]]
     local function getTypeCondition(pType)
       if pDataTypes == nil or #pDataTypes == 0 then return true
       elseif utils.isTableContains(pDataTypes, pType) then return true
       else return false
       end
     end
+    --[[ @getParamNameCondition: Check name condition for the parameter
+    --! @parameters:
+    --! pName - name of the parameter
+    --! @return: true if name condition is met
+    --]]
     local function getParamNameCondition(pName)
       if paramName == nil or paramName == "" then return true end
       if (pName == paramName) or (string.find(pName .. ".", paramName .. "%.") == 1) then return true end
       return false
     end
+    --[[
+    Iterate through all the parameters and sub-parameters defined in graph object.
+    Check whether various conditions are met and include a test case in table with test cases if so.
+    Test case is a table with elements:
+      - 'paramId' - Id of the parameter to be tested
+      - 'graph' - reduced graph object with all parameter Ids required for the test case
+      Later this object is used for creating a hierarchy of parameters with their values.
+    --]]
     local tcs = {}
     for k, v in pairs(pGraph) do
-      local paramFullName = ah.getFullParamName(graph, k)
+      local paramFullName = api.getFullParamName(graph, k)
       if getMandatoryCondition(v.mandatory) and getArrayCondition(v.array)
         and getTypeCondition(v.type) and getParamNameCondition(paramFullName)
         and getVersionCondition(v.since, v.deprecated) then
@@ -775,14 +859,14 @@ end
 --! @return: table with tests
 --]]
 local function getValidRandomTests()
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, {})
   local tests = {}
   for _, tc in pairs(tcs) do
     local paramData = tc.graph[tc.paramId]
-    if paramData.type ~= ah.dataType.STRUCT.type and paramData.parentId ~= nil then
+    if paramData.type ~= api.dataType.STRUCT.type and paramData.parentId ~= nil then
       table.insert(tests, {
-          name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId),
+          name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
           params = getParamsFuncMap.VALID[rpcType](tc.graph),
         })
     end
@@ -815,13 +899,13 @@ local function getOnlyMandatoryTests()
     end
     return existingTCs
   end
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.YES, m.isArray.ALL, m.isVersion.ALL, {})
   tcs = filterDuplicates(tcs)
   local tests = {}
   for _, tc in pairs(tcs) do
     table.insert(tests, {
-        name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId),
+        name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
         params = getParamsFuncMap.VALID[rpcType](tc.graph),
         paramId = tc.paramId,
         graph = tc.graph
@@ -837,23 +921,23 @@ end
 local function getInBoundTests()
   local tests = {}
   -- tests simple data types
-  local dataTypes = { ah.dataType.INTEGER.type, ah.dataType.FLOAT.type, ah.dataType.DOUBLE.type, ah.dataType.STRING.type }
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local dataTypes = { api.dataType.INTEGER.type, api.dataType.FLOAT.type, api.dataType.DOUBLE.type, api.dataType.STRING.type }
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
   for _, tc in pairs(tcs) do
     tc.graph[tc.paramId].valueType = boundValueTypeMap[testType]
     table.insert(tests, {
-        name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId),
+        name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
         params = getParamsFuncMap.VALID[rpcType](tc.graph),
       })
   end
   -- tests for arrays
-  tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.YES, m.isVersion.ALL, {})
   for _, tc in pairs(tcs) do
     tc.graph[tc.paramId].valueTypeArray = boundValueTypeMap[testType]
     table.insert(tests, {
-        name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId) .. "_ARRAY",
+        name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_ARRAY",
         params = getParamsFuncMap.VALID[rpcType](tc.graph),
       })
   end
@@ -867,13 +951,13 @@ end
 local function getOutOfBoundTests()
   local tests = {}
   -- tests for simple data types
-  local dataTypes = { ah.dataType.INTEGER.type, ah.dataType.FLOAT.type, ah.dataType.DOUBLE.type, ah.dataType.STRING.type }
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local dataTypes = { api.dataType.INTEGER.type, api.dataType.FLOAT.type, api.dataType.DOUBLE.type, api.dataType.STRING.type }
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
   for _, tc in pairs(tcs) do
     local function isSkipped()
       local paramData = tc.graph[tc.paramId]
-      if paramData.type == ah.dataType.STRING.type then
+      if paramData.type == api.dataType.STRING.type then
         if (testType == m.testType.LOWER_OUT_OF_BOUND and paramData.minlength == 0)
         or (testType == m.testType.UPPER_OUT_OF_BOUND and paramData.maxlength == nil) then
           return true
@@ -889,32 +973,50 @@ local function getOutOfBoundTests()
     if not isSkipped() then
       tc.graph[tc.paramId].valueType = boundValueTypeMap[testType]
       table.insert(tests, {
-          name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId),
-            params = getParamsFuncMap.INVALID[rpcType](tc.graph),
+          name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
+          params = getParamsFuncMap.INVALID[rpcType](tc.graph),
         })
     end
   end
   -- tests for arrays
-  tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.YES, m.isVersion.ALL, {})
-  for _, tc in pairs(tcs) do
-    tc.graph[tc.paramId].valueTypeArray = boundValueTypeMap[testType]
-    table.insert(tests, {
-        name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId) .. "_ARRAY",
-        params = getParamsFuncMap.INVALID[rpcType](tc.graph),
-      })
-  end
-  -- tests for enums
-  tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
-    m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, { ah.dataType.ENUM.type })
   for _, tc in pairs(tcs) do
     local function isSkipped()
       local paramData = tc.graph[tc.paramId]
-      if paramData.type == ah.dataType.ENUM.type and testType == m.testType.LOWER_OUT_OF_BOUND then
+      if (testType == m.testType.LOWER_OUT_OF_BOUND and (paramData.minsize == 0 or paramData.minsize == nil))
+        or (testType == m.testType.UPPER_OUT_OF_BOUND and paramData.maxsize == nil) then
         return true
       end
       return false
     end
+    if not isSkipped() then
+      tc.graph[tc.paramId].valueTypeArray = boundValueTypeMap[testType]
+      table.insert(tests, {
+          name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_ARRAY",
+          params = getParamsFuncMap.INVALID[rpcType](tc.graph),
+        })
+    end
+  end
+  -- tests for enums
+  tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+    m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, { api.dataType.ENUM.type })
+  for _, tc in pairs(tcs) do
+    local function isSkipped()
+      local paramData = tc.graph[tc.paramId]
+      if paramData.type == api.dataType.ENUM.type and testType == m.testType.LOWER_OUT_OF_BOUND then
+        return true
+      end
+      return false
+    end
+    --[[ @getMandatoryValues: Get hierarchy levels of parameters starting from current and to the root
+    -- with mandatory value for each
+    --! @parameters:
+    --! pId: parameter identifier (in graph)
+    --! pLevel: level of hierarchy
+    --! pOut: table with result
+    --! @return: table with levels and mandatory values
+    --]]
     local function getMandatoryValues(pId, pLevel, pOut)
       pOut[pLevel] = tc.graph[pId].mandatory
       local parentId = tc.graph[pId].parentId
@@ -927,7 +1029,7 @@ local function getOutOfBoundTests()
       tc.graph[tc.paramId].data = { invalidValue }
       local params = getParamsFuncMap.INVALID[rpcType](tc.graph)
       table.insert(tests, {
-          name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId) .. "_" .. invalidValue,
+          name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_" .. invalidValue,
           params = params
         })
     end
@@ -941,15 +1043,15 @@ end
 --]]
 local function getEnumItemsTests()
   local tests = {}
-  local dataTypes = { ah.dataType.ENUM.type }
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local dataTypes = { api.dataType.ENUM.type }
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
   for _, tc in pairs(tcs) do
     for _, item in pairs(tc.graph[tc.paramId].data) do
       local tcUpd = utils.cloneTable(tc)
       tcUpd.graph[tc.paramId].data = { item }
       table.insert(tests, {
-          name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId) .. "_" .. item,
+          name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_" .. item,
           params = getParamsFuncMap.VALID[rpcType](tcUpd.graph)
         })
     end
@@ -963,15 +1065,15 @@ end
 --]]
 local function getBoolItemsTests()
   local tests = {}
-  local dataTypes = { ah.dataType.BOOLEAN.type }
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local dataTypes = { api.dataType.BOOLEAN.type }
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
   for _, tc in pairs(tcs) do
     for _, item in pairs({ true, false }) do
       local tcUpd = utils.cloneTable(tc)
       tcUpd.graph[tc.paramId].data = { item }
       table.insert(tests, {
-          name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId) .. "_" .. tostring(item),
+          name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_" .. tostring(item),
           params = getParamsFuncMap.VALID[rpcType](tcUpd.graph)
         })
     end
@@ -985,7 +1087,7 @@ end
 --]]
 local function getVersionTests()
   local tests = {}
-  local tcs = createTestCases(ah.apiType.MOBILE, ah.eventType.REQUEST, rpc,
+  local tcs = createTestCases(api.apiType.MOBILE, api.eventType.REQUEST, rpc,
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.YES, {})
   for _, tc in pairs(tcs) do
     local name = tc.graph[tc.paramId].name
@@ -1005,7 +1107,7 @@ end
 --]]
 local function getValidRandomAllTests()
   local tests = {}
-  local graph = ah.getGraph(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc])
+  local graph = api.getGraph(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc])
   local function getParamId(pGraph, pName)
     for k, v in pairs(pGraph) do
       if v.parentId == nil and v.name == pName then return k end
@@ -1014,10 +1116,10 @@ local function getValidRandomAllTests()
   end
   local paramId = getParamId(graph, paramName)
 
-  graph = ah.getBranch(graph, paramId)
+  graph = api.getBranch(graph, paramId)
   local tc = { graph = graph, paramId = paramId }
   table.insert(tests, {
-      name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId),
+      name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
       params = getParamsFuncMap.VALID[rpcType](tc.graph),
       paramId = tc.paramId,
       graph = tc.graph
@@ -1038,8 +1140,8 @@ local function getMandatoryMissingTests()
     for paramId in pairs(mndTests[testId].graph) do
       local graph = utils.cloneTable(randomAllTests[1].graph)
       if graph[paramId].parentId ~= nil and graph[paramId].mandatory == true then
-        local name = ah.getFullParamName(graph, paramId)
-        local branchToDelete = ah.getBranch(graph, paramId, {})
+        local name = api.getFullParamName(graph, paramId)
+        local branchToDelete = api.getBranch(graph, paramId, {})
         for id in pairs(graph) do
           if branchToDelete[id] then graph[id] = nil end
         end
@@ -1058,15 +1160,15 @@ end
 --! @return: table with tests
 --]]
 local function getInvalidTypeTests()
-  local dataTypes = { ah.dataType.INTEGER.type, ah.dataType.FLOAT.type, ah.dataType.DOUBLE.type,
-    ah.dataType.STRING.type, ah.dataType.ENUM.type, ah.dataType.BOOLEAN.type }
-  local tcs = createTestCases(ah.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
+  local dataTypes = { api.dataType.INTEGER.type, api.dataType.FLOAT.type, api.dataType.DOUBLE.type,
+    api.dataType.STRING.type, api.dataType.ENUM.type, api.dataType.BOOLEAN.type }
+  local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
   local tests = {}
   for _, tc in pairs(tcs) do
-    tc.graph[tc.paramId].valueType = tdg.valueType.INVALID_TYPE
+    tc.graph[tc.paramId].valueType = gen.valueType.INVALID_TYPE
     table.insert(tests, {
-        name = "Param_" .. ah.getFullParamName(tc.graph, tc.paramId),
+        name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
         params = getParamsFuncMap.INVALID[rpcType](tc.graph),
       })
   end
@@ -1084,8 +1186,8 @@ end
 --]]
 function m.getTests(pRPC, pTestType, pParamName)
   local rpcTypeMap = {
-    [m.rpc.get] = ah.eventType.RESPONSE,
-    [m.rpc.on] = ah.eventType.NOTIFICATION
+    [m.rpc.get] = api.eventType.RESPONSE,
+    [m.rpc.on] = api.eventType.NOTIFICATION
   }
   rpc = pRPC
   rpcType = rpcTypeMap[pRPC]
@@ -1160,15 +1262,15 @@ end
 --! pTestTypes: test types
 --! @return: test steps
 --]]
-function m.getTestsForGetVD(pTestTypes)
+function m.runner.getTestsForGetVD(pTestTypes)
   for param in m.spairs(m.getVDParams()) do
-    m.Title("VD parameter: " .. param)
+    m.runner.Title("VD parameter: " .. param)
     for _, tt in pairs(pTestTypes) do
       local tests = m.getTests(m.rpc.get, tt, param)
       if #tests > 0 then
-        m.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
+        m.runner.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
         for _, t in pairs(tests) do
-          m.Step(t.name, m.processRequest, { t.params })
+          m.runner.Step(t.name, m.processRequest, { t.params })
         end
       end
     end
@@ -1180,15 +1282,15 @@ end
 --! pTestTypes: test types
 --! @return: test steps
 --]]
-function m.getTestsForOnVD(pTestTypes)
+function m.runner.getTestsForOnVD(pTestTypes)
   for param in m.spairs(m.getVDParams()) do
-    m.Title("VD parameter: " .. param)
+    m.runner.Title("VD parameter: " .. param)
     for _, tt in pairs(pTestTypes) do
       local tests = m.getTests(m.rpc.on, tt, param)
       if #tests > 0 then
-        m.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
+        m.runner.Title("Test type: " .. m.getKeyByValue(m.testType, tt))
         for _, t in pairs(tests) do
-          m.Step(t.name, m.processNotification, { t.params, tt, param })
+          m.runner.Step(t.name, m.processNotification, { t.params, tt, param })
         end
       end
     end
@@ -1201,12 +1303,12 @@ end
 --]]
 local function getDefaultValues()
   local out = {}
-  local fullGraph = ah.getGraph(ah.apiType.HMI, ah.eventType.RESPONSE, m.rpcHMIMap[m.rpc.get])
+  local fullGraph = api.getGraph(api.apiType.HMI, api.eventType.RESPONSE, m.rpcHMIMap[m.rpc.get])
   for k, v in pairs(fullGraph) do
     if v.parentId == nil  then
       local name = v.name
-      local graph = ah.getBranch(fullGraph, k)
-      local params = tdg.getParamValues(graph)
+      local graph = api.getBranch(fullGraph, k)
+      local params = gen.getParamValues(graph)
       out[name] = params[name]
     end
   end
