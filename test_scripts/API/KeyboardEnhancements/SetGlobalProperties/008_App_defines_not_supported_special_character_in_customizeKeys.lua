@@ -20,11 +20,11 @@
 local common = require('test_scripts/API/KeyboardEnhancements/common')
 
 --[[ Local Functions ]]
-local function sendSetGP()
+local function sendSetGlobalProperties()
   local sgpParams = {
     keyboardProperties = {
       keyboardLayout = "NUMERIC",
-      customizeKeys = { "^" } -- not supported special character
+      customizeKeys = { "^" } -- special character that is not supported by HMI
     }
   }
   local dataToHMI = common.cloneTable(sgpParams)
@@ -44,8 +44,8 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU)
-common.Step("App sends SetGP warnings", sendSetGP)
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
+common.Step("App sends SetGlobalProperties warnings", sendSetGlobalProperties)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

@@ -22,8 +22,8 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU)
-common.Step("App sends GetSC", common.sendGetSC)
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
+common.Step("App sends GetSystemCapability", common.sendGetSystemCapability)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

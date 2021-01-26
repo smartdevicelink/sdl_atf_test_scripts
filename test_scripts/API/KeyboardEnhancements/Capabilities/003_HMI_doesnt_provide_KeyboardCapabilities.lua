@@ -34,8 +34,9 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU, { dispCaps, common.expected.yes, check })
-common.Step("App sends GetSC", common.sendGetSC, { dispCaps, common.result.success, check })
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated,
+  { dispCaps, common.expected.yes, check })
+common.Step("App sends GetSystemCapability", common.sendGetSystemCapability, { dispCaps, common.result.success, check })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

@@ -14,7 +14,6 @@ config.defaultProtocolVersion = 2
 local m = {}
 
 --[[ Common Proxy Functions ]]
-do
   m.Title = runner.Title
   m.Step = runner.Step
   m.preconditions = actions.preconditions
@@ -34,7 +33,6 @@ do
   m.getPolicyAppId = actions.app.getPolicyAppId
   m.getParams = actions.app.getParams
   m.spairs = utils.spairs
-end
 
 --[[ Common Variables ]]
 m.expected = {
@@ -96,7 +94,7 @@ function m.getArrayValue(pPossibleValuesTbl, pNumOfElements)
   return out
 end
 
---[[ @sendOnSCU: Processing of 'OnSystemCapabilityUpdated' notification: HMI->SDL->App
+--[[ @sendOnSystemCapabilityUpdated: Processing of 'OnSystemCapabilityUpdated' notification: HMI->SDL->App
 --! @parameters:
 --! pData - source/expected data for notification
 --! pTimes - expected number of notifications (0, 1 or more)
@@ -104,7 +102,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.sendOnSCU(pData, pTimes, pValidFunc, pAppId)
+function m.sendOnSystemCapabilityUpdated(pData, pTimes, pValidFunc, pAppId)
   if not pData then pData = m.getDispCaps() end
   if not pTimes then pTimes = 1 end
   if not pValidFunc then pValidFunc = function() return true end end
@@ -117,7 +115,7 @@ function m.sendOnSCU(pData, pTimes, pValidFunc, pAppId)
   :ValidIf(pValidFunc)
 end
 
---[[ @sendOnKI: Processing of 'OnKeyboardInput' notification: HMI->SDL->App
+--[[ @sendOnKeyboardInput: Processing of 'OnKeyboardInput' notification: HMI->SDL->App
 --! @parameters:
 --! pData - source/expected data for notification
 --! pTimes - expected number of notifications (0, 1 or more)
@@ -125,7 +123,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.sendOnKI(pData, pTimes, pValidFunc, pAppId)
+function m.sendOnKeyboardInput(pData, pTimes, pValidFunc, pAppId)
   if not pTimes then pTimes = 1 end
   if not pValidFunc then pValidFunc = function() return true end end
   m.getHMIConnection():SendNotification("UI.OnKeyboardInput", pData)
@@ -134,7 +132,7 @@ function m.sendOnKI(pData, pTimes, pValidFunc, pAppId)
   :ValidIf(pValidFunc)
 end
 
---[[ @sendGetSC: Processing of 'GetSystemCapability' request: App->SDL->App
+--[[ @sendGetSystemCapability: Processing of 'GetSystemCapability' request: App->SDL->App
 --! @parameters:
 --! pData - expected data in response
 --! pExpRes - expected result in response
@@ -142,7 +140,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.sendGetSC(pData, pExpRes, pValidFunc, pAppId)
+function m.sendGetSystemCapability(pData, pExpRes, pValidFunc, pAppId)
   if not pData then pData = m.getDispCaps() end
   if not pExpRes then pExpRes = utils.cloneTable(m.result.success) end
   if pData.systemCapability then pExpRes.systemCapability = pData.systemCapability end
@@ -152,7 +150,7 @@ function m.sendGetSC(pData, pExpRes, pValidFunc, pAppId)
   :ValidIf(pValidFunc)
 end
 
---[[ @sendSetGP: Processing of 'SetGlobalProperties' request: App->SDL->HMI->SDL->App
+--[[ @sendSetGlobalProperties: Processing of 'SetGlobalProperties' request: App->SDL->HMI->SDL->App
 --! @parameters:
 --! pData - expected data in response
 --! pExpRes - expected result in response
@@ -160,7 +158,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.sendSetGP(pData, pExpRes, pValidFunc, pAppId)
+function m.sendSetGlobalProprties(pData, pExpRes, pValidFunc, pAppId)
   if not pExpRes then pExpRes = m.result.success end
   if not pValidFunc then pValidFunc = function() return true end end
   local dataToHMI = utils.cloneTable(pData)

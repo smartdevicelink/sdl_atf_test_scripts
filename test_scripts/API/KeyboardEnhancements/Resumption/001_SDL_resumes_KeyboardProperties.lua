@@ -52,12 +52,12 @@ local function reRegisterApp()
   end)
 end
 
-local function sendSetGP(...)
+local function sendSetGlobalProperties(...)
   common.getMobileSession():ExpectNotification("OnHashChange")
   :Do(function(_, data)
       hashId = data.payload.hashID
     end)
-  common.sendSetGP(...)
+  common.sendSetGlobalProperties(...)
 end
 
 --[[ Scenario ]]
@@ -67,8 +67,8 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU)
-common.Step("App sends SetGP", sendSetGP, { sgpParams, common.result.success })
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
+common.Step("App sends SetGlobalProperties", sendSetGlobalProperties, { sgpParams, common.result.success })
 common.Step("Unexpected disconnect", common.unexpectedDisconnect)
 common.Step("Connect mobile", common.connectMobile)
 common.Step("Re-register App", reRegisterApp)

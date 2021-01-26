@@ -64,8 +64,8 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU)
-common.Step("App sends SetGP", common.sendSetGP, { sgpParams, common.result.success })
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
+common.Step("App sends SetGlobalProperties", common.sendSetGlobalProperties, { sgpParams, common.result.success })
 common.Step("App sends ResetGP", sendResetGP)
 
 common.Title("Postconditions")

@@ -54,8 +54,10 @@ common.Title("Test")
 for tc, data in common.spairs(tcs) do
   common.Title("TC[" .. string.format("%03d", tc) .. "]")
   local dispCaps = getDispCaps(data)
-  common.Step("HMI sends OnSCU", common.sendOnSCU, { dispCaps, common.expected.no })
-  common.Step("App sends GetSC", common.sendGetSC, { { }, common.result.data_not_available, check })
+  common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated,
+    { dispCaps, common.expected.no })
+  common.Step("App sends GetSystemCapability", common.sendGetSystemCapability,
+    { { }, common.result.data_not_available, check })
 end
 
 common.Title("Postconditions")

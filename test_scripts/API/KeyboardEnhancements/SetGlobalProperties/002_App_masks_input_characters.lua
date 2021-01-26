@@ -35,9 +35,10 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU)
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
 for _, v in common.spairs(maskValues) do
-  common.Step("App sends SetGP " .. v, common.sendSetGP, { getSGPParams(v), common.result.success })
+  common.Step("App sends SetGlobalProperties " .. v, common.sendSetGlobalProperties,
+    { getSGPParams(v), common.result.success })
 end
 
 common.Title("Postconditions")

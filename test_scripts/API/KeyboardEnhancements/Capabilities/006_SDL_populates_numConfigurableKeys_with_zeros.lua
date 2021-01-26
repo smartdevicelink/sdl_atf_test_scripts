@@ -82,7 +82,7 @@ local function getDispCaps(pData)
   return dispCaps
 end
 
-local function sendOnSCU(pSrc, pExp)
+local function sendOnSystemCapabilityUpdated(pSrc, pExp)
   local dataFromHMI = common.cloneTable(pSrc)
   dataFromHMI.appID = common.getHMIAppId()
   common.getHMIConnection():SendNotification("BasicCommunication.OnSystemCapabilityUpdated", dataFromHMI)
@@ -100,8 +100,8 @@ for n, tc in common.spairs(tcs) do
   common.Title("TC[" .. string.format("%03d", n) .. "]")
   local srcData = getDispCaps(tc.src)
   local expData = getDispCaps(tc.trg)
-  common.Step("HMI sends OnSCU", sendOnSCU, { srcData, expData })
-  common.Step("App sends GetSC", common.sendGetSC, { expData, common.success })
+  common.Step("HMI sends OnSystemCapabilityUpdated", sendOnSystemCapabilityUpdated, { srcData, expData })
+  common.Step("App sends GetSystemCapability", common.sendGetSystemCapability, { expData, common.success })
 end
 
 common.Title("Postconditions")

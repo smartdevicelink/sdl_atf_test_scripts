@@ -28,7 +28,7 @@ dispCaps.systemCapability.displayCapabilities[1].windowCapabilities[1].keyboardC
 }
 
 --[[ Local Functions ]]
-local function sendSetGP()
+local function sendSetGlobalProperties()
   local sgpParams = {
     keyboardProperties = {
       keyboardLayout = "QWERTY",
@@ -52,8 +52,8 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU, { dispCaps })
-common.Step("App sends SetGP warnings", sendSetGP)
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated, { dispCaps })
+common.Step("App sends SetGlobalProperties warnings", sendSetGlobalProperties)
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

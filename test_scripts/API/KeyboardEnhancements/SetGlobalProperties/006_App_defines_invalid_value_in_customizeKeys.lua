@@ -20,7 +20,7 @@ local common = require('test_scripts/API/KeyboardEnhancements/common')
 local dispCaps = common.getDispCaps()
 dispCaps.systemCapability.displayCapabilities[1].windowCapabilities[1].keyboardCapabilities = {
   supportedKeyboardLayouts = { "NUMERIC" },
-  configurableKeys = { { keyboardLayout = "NUMERIC", numConfigurableKeys = 11 } }
+  configurableKeys = { { keyboardLayout = "NUMERIC", numConfigurableKeys = 10 } }
 }
 
 local keys = { "$", "#", "&" }
@@ -48,10 +48,11 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU, { dispCaps })
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated, { dispCaps })
 for tc, data in common.spairs(tcs) do
   common.Title("TC[" .. string.format("%03d", tc) .. "]")
-  common.Step("App sends SetGP", common.sendSetGP, { getSGPParams(data), common.result.invalid_data })
+  common.Step("App sends SetGlobalProperties", common.sendSetGlobalProperties,
+    { getSGPParams(data), common.result.invalid_data })
 end
 
 common.Title("Postconditions")

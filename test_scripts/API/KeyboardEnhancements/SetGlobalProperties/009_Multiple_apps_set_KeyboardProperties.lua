@@ -58,25 +58,27 @@ common.Step("Register App", common.registerAppWOPTU, { 1 })
 common.Step("Register App", common.registerAppWOPTU, { 2 })
 
 common.Title("Test")
-common.Step("HMI sends OnSCU for App 1", common.sendOnSCU, { dispCaps1, nil, nil, 1 })
-common.Step("HMI sends OnSCU for App 2", common.sendOnSCU, { dispCaps2, nil, nil, 2 })
+common.Step("HMI sends OnSystemCapabilityUpdated for App 1", common.sendOnSystemCapabilityUpdated,
+  { dispCaps1, nil, nil, 1 })
+common.Step("HMI sends OnSystemCapabilityUpdated for App 2", common.sendOnSystemCapabilityUpdated,
+  { dispCaps2, nil, nil, 2 })
 
 common.Title("App 1")
-common.Step("App 1 sends SetGP valid", common.sendSetGP,
+common.Step("App 1 sends SetGlobalProperties valid", common.sendSetGlobalProperties,
   { getSGPParams("AZERTY", 1), common.result.success, nil, 1 })
-common.Step("App 1 sends SetGP valid", common.sendSetGP,
+common.Step("App 1 sends SetGlobalProperties valid", common.sendSetGlobalProperties,
   { getSGPParams("AZERTY", 2), common.result.success, nil, 1 })
-common.Step("App 1 sends SetGP invalid", common.sendSetGP,
+common.Step("App 1 sends SetGlobalProperties invalid", common.sendSetGlobalProperties,
   { getSGPParams("AZERTY", 3), common.result.invalid_data, nil, 1 })
-common.Step("App 1 sends SetGP invalid", common.sendSetGP,
+common.Step("App 1 sends SetGlobalProperties invalid", common.sendSetGlobalProperties,
   { getSGPParams("NUMERIC", 1), common.result.invalid_data, nil, 1 })
 
 common.Title("App 2")
-common.Step("App 2 sends SetGP valid", common.sendSetGP,
+common.Step("App 2 sends SetGlobalProperties valid", common.sendSetGlobalProperties,
   { getSGPParams("NUMERIC", 1), common.result.success, nil, 2 })
-common.Step("App 2 sends SetGP invalid", common.sendSetGP,
+common.Step("App 2 sends SetGlobalProperties invalid", common.sendSetGlobalProperties,
   { getSGPParams("NUMERIC", 2), common.result.invalid_data, nil, 2 })
-common.Step("App 2 sends SetGP invalid", common.sendSetGP,
+common.Step("App 2 sends SetGlobalProperties invalid", common.sendSetGlobalProperties,
   { getSGPParams("AZERTY", 1), common.result.invalid_data, nil, 2 })
 
 common.Title("Postconditions")

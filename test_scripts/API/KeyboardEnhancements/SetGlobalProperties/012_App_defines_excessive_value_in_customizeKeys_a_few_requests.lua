@@ -51,10 +51,11 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU", common.sendOnSCU)
-common.Step("App sends SetGP success", common.sendSetGP, { params1, common.result.success })
-common.Step("App sends SetGP success", common.sendSetGP, { params2, common.result.success })
-common.Step("App sends SetGP invalid_data", common.sendSetGP, { params3, common.result.invalid_data })
+common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
+common.Step("App sends SetGlobalProperties success", common.sendSetGlobalProperties, { params1, common.result.success })
+common.Step("App sends SetGlobalProperties success", common.sendSetGlobalProperties, { params2, common.result.success })
+common.Step("App sends SetGlobalProperties invalid_data", common.sendSetGlobalProperties,
+  { params3, common.result.invalid_data })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

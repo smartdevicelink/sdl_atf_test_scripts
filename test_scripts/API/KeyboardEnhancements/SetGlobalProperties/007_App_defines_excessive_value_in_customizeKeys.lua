@@ -58,19 +58,21 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerApp)
 
 common.Title("Test")
-common.Step("HMI sends OnSCU 1", common.sendOnSCU, { getOnSCUParams(1) })
-common.Step("App sends SetGP 1 success", common.sendSetGP,
+common.Step("HMI sends OnSystemCapabilityUpdated 1", common.sendOnSystemCapabilityUpdated,
+  { getOnSCUParams(1) })
+common.Step("App sends SetGlobalProperties 1 success", common.sendSetGlobalProperties,
   { getSGPParams(1), common.result.success, check })
-common.Step("App sends SetGP 2 invalid_data", common.sendSetGP,
+common.Step("App sends SetGlobalProperties 2 invalid_data", common.sendSetGlobalProperties,
   { getSGPParams(2), common.result.invalid_data, check })
-common.Step("HMI sends OnSCU 1", common.sendOnSCU, { getOnSCUParams(2) })
-common.Step("App sends SetGP 1 success", common.sendSetGP,
+common.Step("HMI sends OnSystemCapabilityUpdated 1", common.sendOnSystemCapabilityUpdated,
+  { getOnSCUParams(2) })
+common.Step("App sends SetGlobalProperties 1 success", common.sendSetGlobalProperties,
   { getSGPParams(1), common.result.success, check })
-common.Step("App sends SetGP 2 success", common.sendSetGP,
+common.Step("App sends SetGlobalProperties 2 success", common.sendSetGlobalProperties,
   { getSGPParams(2), common.result.success, check })
-common.Step("App sends SetGP 3 invalid_data", common.sendSetGP,
+common.Step("App sends SetGlobalProperties 3 invalid_data", common.sendSetGlobalProperties,
   { getSGPParams(3), common.result.invalid_data, check })
-common.Step("App sends SetGP 1 unknown layout invalid_data", common.sendSetGP,
+common.Step("App sends SetGlobalProperties 1 unknown layout invalid_data", common.sendSetGlobalProperties,
   { getSGPParams(1, "QWERTY"), common.result.invalid_data, check })
 
 common.Title("Postconditions")
