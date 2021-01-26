@@ -158,7 +158,7 @@ end
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.sendSetGlobalProprties(pData, pExpRes, pValidFunc, pAppId)
+function m.sendSetGlobalProperties(pData, pExpRes, pValidFunc, pAppId)
   if not pExpRes then pExpRes = m.result.success end
   if not pValidFunc then pValidFunc = function() return true end end
   local dataToHMI = utils.cloneTable(pData)
