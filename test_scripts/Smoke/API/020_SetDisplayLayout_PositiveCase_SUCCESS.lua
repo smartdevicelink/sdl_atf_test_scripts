@@ -145,7 +145,6 @@ local function getDisplayCapTextFieldsValues()
     "statusBar",
     "tertiaryText",
     "totalDistance",
-    -- "navigationText",
     -- "timeToDestination",
     -- "turnText"
   }

@@ -206,7 +206,6 @@ function Test:initHMI_BasicCommunication_OnReady_Invalid(case)
             text_field("navigationText2"),
             text_field("ETA"),
             text_field("totalDistance"),
-            text_field("navigationText"),
             text_field("audioPassThruDisplayText1"),
             text_field("audioPassThruDisplayText2"),
             text_field("sliderHeader"),
