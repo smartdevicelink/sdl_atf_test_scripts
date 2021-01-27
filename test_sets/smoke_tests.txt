@@ -96,5 +96,5 @@
 ./test_scripts/Smoke/Resumption/011_Resumption_unexpected_disconnect.lua
 ./test_scripts/Smoke/ShutDown/001_ShutDown_IGNITION_OFF.lua
 ./test_scripts/Smoke/ShutDown/002_ShutDown_MASTER_RESET.lua
-./test_scripts/API/SameMenuName/001_AddCommand.lua
+./test_scripts/API/SameMenuName/001_MenuName.lua
 ./test_scripts/API/SameMenuName/002_CreateInteractionChoiceSet.lua
