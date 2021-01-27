@@ -4,3 +4,5 @@
 ./test_scripts/API/SetMediaClockTimer/004_COUNTUP_no_startTime_INVALID_DATA.lua
 ./test_scripts/API/SetMediaClockTimer/005_COUNTUP_endTime_before_startTime_INVALID_DATA.lua
 ./test_scripts/API/SetMediaClockTimer/006_COUNTDOWN_startTime_before_endTime_INVALID_DATA.lua
+./test_scripts/API/SetMediaClockTimer/007_PositiveCase_media_skip_indicators.lua
+./test_scripts/API/SetMediaClockTimer/008_TRACK_Indicator_type_with_seektime_INVALID_DATA.lua
