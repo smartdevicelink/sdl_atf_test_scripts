@@ -220,6 +220,22 @@ local function VehicleDataItemsWithDataTableCreation()
     bodyInformationParams.passengerDoorAjar.value = false
     bodyInformationParams.rearLeftDoorAjar.value = false
     bodyInformationParams.rearRightDoorAjar.value = false
+    bodyInformationParams.doorStatuses.value = {
+      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+        status = "CLOSED"
+      }
+    }
+    bodyInformationParams.gateStatuses.value = {
+      { location = { col = 50, row = 50, level = 50, colspan = 50, rowspan = 50, levelspan = 50 },
+        status = "AJAR"
+      }
+    }
+    bodyInformationParams.roofStatuses.value = {
+      { location = { col = 51, row = 51, level = 51, colspan = 51, rowspan = 51, levelspan = 51 },
+        state = { approximatePosition = 52, deviation = 52 },
+        status = "REMOVED"
+      }
+    }
     common.VehicleDataItemsWithData.bodyInformation.APItype = "VEHICLEDATA_BODYINFO"
     local deviceStatusParams = common.VehicleDataItemsWithData.deviceStatus.params
     deviceStatusParams.voiceRecOn.value = true
