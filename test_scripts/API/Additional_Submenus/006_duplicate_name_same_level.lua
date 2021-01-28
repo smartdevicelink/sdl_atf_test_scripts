@@ -20,21 +20,25 @@ runner.testSettings.isSelfIncluded = false
 local requestParams = {
     common.reqParams.AddSubMenu.mob,
     {
-        menuID = 99, 
+        menuID = 99,
         menuName = "SubMenu2",
         parentID = 1
     }
 }
 
 local duplicateNameRequestParams = {
-    menuID = 101, 
+    menuID = 101,
     menuName = requestParams[2].menuName,
-    parentID = requestParams[2].parentID 
+    parentID = requestParams[2].parentID
 }
 
 local function DuplicateNameMenu()
     local cid = common.getMobileSession():SendRPC("AddSubMenu", duplicateNameRequestParams)
-    common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "DUPLICATE_NAME" })
+    common.getHMIConnection():ExpectRequest("UI.AddSubMenu")
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
