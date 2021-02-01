@@ -526,7 +526,7 @@ function common.startWithExtension(pDelayGetSI, pDelayGetVT, pExtensionFunc)
     end)
 end
 
-function common.delayedStartServiceAckP5(pDelayGetVT, pTS, pRpcServiceAckParams)
+function common.delayedStartServiceAckNewApp(pDelayGetVT, pTS, pRpcServiceAckParams)
     config.defaultProtocolVersion = 5
 
     common.log("StartService")
@@ -559,12 +559,19 @@ function common.delayedStartServiceAckP5(pDelayGetVT, pTS, pRpcServiceAckParams)
     end)
 end
 
-function common.delayedStartServiceAckP4(pDelayGetVT, pTS)
-    config.defaultProtocolVersion = 4
+function common.delayedStartServiceAckOldApp(pDelayGetVT, pTS)
+    local startServiceFunc = function()
+        if config.defaultProtocolVersion == 4 then
+            return common.getMobileSession():StartService(common.serviceType.RPC)
+        elseif config.defaultProtocolVersion == 5 then
+            local params = { protocolVersion = common.setStringBsonValue("5.3.0") }
+            return common.startServiceUnprotectedACK(1, common.serviceType.RPC, params, params)
+        end
+    end
 
     local ts_req = timestamp()
     common.log("StartService")
-    common.getMobileSession():StartService(common.serviceType.RPC)
+    startServiceFunc()
     :Do(function()
         common.log("RAI")
         common.registerAppEx(common.vehicleTypeInfoParams.default)

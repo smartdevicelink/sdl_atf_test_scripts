@@ -22,6 +22,9 @@
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Protocol/commonProtocol")
 
+-- [[ App Configuration ]]
+config.defaultProtocolVersion = 4
+
 --[[ Local Variables ]]
 local delay1 = 3000
 local delay2 = 0
@@ -32,7 +35,7 @@ common.Step("Clean environment", common.preconditions)
 
 common.Title("Test")
 common.Step("Start SDL, HMI, connect Mobile, start Session, send StartService", common.startWithExtension,
-  { delay1, delay2, common.delayedStartServiceAckP4 })
+  { delay1, delay2, common.delayedStartServiceAckOldApp })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
