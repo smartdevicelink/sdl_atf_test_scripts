@@ -14,7 +14,7 @@
 -- - a. ignore the videoStreamingCapability with additionalVideoStreamingCapabilities
 --    received from HMI in UI.GetCapabilities response
 -- - b. apply the default videoStreamingCapability from hmi_capabilities.json
--- 3. App registers with 5 protocol version
+-- 3. App registers with protocol version 5
 -- 4. App requests GetSystemCapability(VIDEO_STREAMING)
 -- SDL does:
 -- - a. send GetSystemCapability response with the default videoStreamingCapability from hmi_capabilities.json

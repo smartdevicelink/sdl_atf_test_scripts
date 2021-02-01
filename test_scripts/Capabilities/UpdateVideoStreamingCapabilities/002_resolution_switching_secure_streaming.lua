@@ -6,10 +6,10 @@
 --
 -- Preconditions:
 -- 1. SDL and HMI are started
--- 2. App is registered with 5 protocol version and activated
+-- 2. App is registered with protocol version 5 and activated
 -- 3. HMI sends UI.GetCapabilities(videoStreamingCapability) with additionalVideoStreamingCapabilities
 -- 4. App is subscribed to video streaming capabilities update
--- 5. App sent supported video capabilities using OnAppCapabilityUpdated notification to HMI
+-- 5. App sends supported video capabilities to HMI using OnAppCapabilityUpdated notification
 -- 6. Video service is started, handshake is performed during service start
 -- 7. App starts video streaming
 --

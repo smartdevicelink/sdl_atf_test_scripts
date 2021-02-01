@@ -6,7 +6,7 @@
 --
 -- Precondition:
 -- 1. SDL and HMI are started
--- 2. App with `PROJECTION` or `NAVIGATION` appHMIType and 5 protocol version is registered
+-- 2. App with `PROJECTION` or `NAVIGATION` appHMIType and protocol version 5 is registered
 -- 3. OnAppCapabilityUpdated notification is allowed by policy for App
 --
 -- Sequence:

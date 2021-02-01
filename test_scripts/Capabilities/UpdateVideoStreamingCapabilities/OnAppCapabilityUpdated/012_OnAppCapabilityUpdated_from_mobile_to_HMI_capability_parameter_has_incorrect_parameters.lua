@@ -27,7 +27,7 @@ local appCapability = {
     videoStreamingCapability = common.buildVideoStreamingCapabilities()
   }
 }
-appCapability.appCapability.videoStreamingCapability.preferredResolution.resolutionWidth = "resolutionWidth"
+appCapability.appCapability.videoStreamingCapability.preferredResolution.resolutionWidth = "resolutionWidth"  -- invalid type
 
 --[[ Scenario ]]
 common.Title("Preconditions")

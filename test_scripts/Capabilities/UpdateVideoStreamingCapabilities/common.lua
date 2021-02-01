@@ -13,6 +13,7 @@ local constants = require('protocol_handler/ford_protocol_constants')
 local bson = require("bson4lua")
 local security = require("user_modules/sequences/security")
 local test = require("user_modules/dummy_connecttest")
+local json = require('modules/json')
 
 --[[ General configuration parameters ]]
 runner.testSettings.isSelfIncluded = false
@@ -161,7 +162,7 @@ function m.buildVideoStreamingCapabilities(pArraySizeAddVSC)
   local vSC = m.getVscData()
   vSC.additionalVideoStreamingCapabilities = {}
   if pArraySizeAddVSC == 0 then
-    vSC.additionalVideoStreamingCapabilities = m.getVscData(2)
+    vSC.additionalVideoStreamingCapabilities = json.EMPTY_ARRAY
   else
     for i = 1, pArraySizeAddVSC do
       vSC.additionalVideoStreamingCapabilities[i] = m.getVscData(2)

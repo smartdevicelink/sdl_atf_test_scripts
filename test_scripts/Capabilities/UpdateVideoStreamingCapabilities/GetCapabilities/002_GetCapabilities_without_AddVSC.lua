@@ -11,7 +11,7 @@
 -- 2. HMI sends UI.GetCapabilities(videoStreamingCapability) response without additionalVideoStreamingCapabilities
 -- SDL does:
 -- - a. apply the videoStreamingCapability without additionalVideoStreamingCapabilities internally
--- 3. App registers with 5 protocol version
+-- 3. App registers with protocol version 5
 -- 4. App requests GetSystemCapability(VIDEO_STREAMING)
 -- SDL does:
 -- - a. send GetSystemCapability response with videoStreamingCapability that does not contain
