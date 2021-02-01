@@ -10,6 +10,7 @@
 -- 2. App requests RAI via 4th protocol
 -- SDL does:
 --  - Provide the vehicle type info with all parameter values received from HMI in RAI response to the app
+--    except systemHardwareVersion
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Protocol/commonProtocol")
