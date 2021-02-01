@@ -66,17 +66,18 @@ common.vehicleTypeInfoParams = {
         model = "Focus",
         modelYear = "2015",
         trim = "SEL",
-        ccpu_version = "12345_TV"
+        ccpu_version = "12345_TV",
+        systemHardwareVersion = "V4567_GJK"
     },
     custom = {
         make = "OEM1",
         model = "Mustang",
         modelYear = "2020",
         trim = "LES",
-        ccpu_version = "2020_TV"
+        ccpu_version = "2020_TV",
+        systemHardwareVersion = "2020_GJK"
     }
 }
-common.defaultSystemHardwareVersion = " "
 
 --[[ Tests Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -310,7 +311,7 @@ function common.getRpcServiceAckParamsFromStruct(pVehicleTypeInfoParams)
         modelYear = common.setStringBsonValue(pVehicleTypeInfoParams.modelYear),
         trim = common.setStringBsonValue(pVehicleTypeInfoParams.trim),
         systemSoftwareVersion = common.setStringBsonValue(pVehicleTypeInfoParams.ccpu_version),
-        systemHardwareVersion = common.setStringBsonValue(common.defaultSystemHardwareVersion)
+        systemHardwareVersion = common.setStringBsonValue(pVehicleTypeInfoParams.systemHardwareVersion)
     }
     for key, KeyValue in pairs(ackParams) do
         if not KeyValue.value then
@@ -415,6 +416,7 @@ function common.setHMIcap(pVehicleTypeData)
 
     local getSystemInfoParams = hmicap.BasicCommunication.GetSystemInfo.params
     getSystemInfoParams.ccpu_version = pVehicleTypeData.ccpu_version
+    getSystemInfoParams.systemHardwareVersion = pVehicleTypeData.systemHardwareVersion
 
     return hmicap
 end
@@ -496,7 +498,7 @@ local function registerExpFor_GetSI_and_GetVT(pGetSIparams, pGetVTparams, pDelay
         end
         if pDelayGetVT ~= -1 then common.run.runAfter(response, pDelayGetVT) end
     end)
-   :Times(times_GetVT)
+    :Times(times_GetVT)
 end
 
 function common.startWithExtension(pDelayGetSI, pDelayGetVT, pExtensionFunc)
