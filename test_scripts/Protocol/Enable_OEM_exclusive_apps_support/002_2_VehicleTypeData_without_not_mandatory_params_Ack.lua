@@ -21,7 +21,7 @@ local vehicleTypeData = {
 
 --[[ Local Functions ]]
 local function startRpcService(pAckParams)
-  local excludedParams = { "make","model", "modelYear", "trim" }
+  local excludedParams = { "make","model", "modelYear", "trim", "systemHardwareVersion" }
   common.startRpcService(pAckParams)
   :ValidIf(function(_, data)
     local errorMessages = ""

@@ -4,7 +4,7 @@
 -- Description: SDL does not provide vehicle type data in StartServiceAck for video and audio services
 --
 -- Steps:
--- 1. HMI provides all vehicle type data in BC.GetSystemInfo(ccpu_version)
+-- 1. HMI provides all vehicle type data in BC.GetSystemInfo(ccpu_version, systemHardwareVersion)
 --  and VI.GetVehicleType(make, model, modelYear, trim) responses
 -- 2. App is registered via 5th protocol and activated
 -- 3. App requests StartService(VIDEO) and StartService(PCM) via 5th protocol

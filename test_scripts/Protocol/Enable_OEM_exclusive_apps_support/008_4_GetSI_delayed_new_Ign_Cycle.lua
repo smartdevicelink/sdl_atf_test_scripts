@@ -14,13 +14,12 @@
 -- 3. HMI responds with delay to BC.GetSystemInfo request
 -- SDL does:
 --  - Send StartServiceAck right after receiving BC.GetSystemInfo response
---  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response
+--  - Provide systemSoftwareVersion and systemHardwareVersion values received from HMI in BC.GetSystemInfo response
 --     via StartServiceAck to the app
 --  - Provide the values for make, model, modelYear, trim parameters from the cache in StartServiceAck to the app
 -- 4. App requests RAI
 -- SDL does:
---  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response
---     via RAI response to the app
+--  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response via RAI response to the app
 --  - Provide the values for make, model, modelYear, trim parameters from the cache in RAI response to the app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

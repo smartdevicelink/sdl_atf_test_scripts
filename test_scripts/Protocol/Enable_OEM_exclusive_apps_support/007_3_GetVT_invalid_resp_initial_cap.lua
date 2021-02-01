@@ -6,18 +6,17 @@
 --  invalid data to VI.GetVehicleType request
 --
 -- Steps:
--- 1. HMI provides BC.GetSystemInfo(ccpu_version)
+-- 1. HMI provides BC.GetSystemInfo(ccpu_version, systemHardwareVersion)
 -- 2. HMI responds with invalid data in vehicleType structure to VI.GetVehicleType requests
 -- 3. App requests StartService(RPC) via 5th protocol
 -- SDL does:
---  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response
+--  - Provide systemSoftwareVersion and systemHardwareVersion values received from HMI in BC.GetSystemInfo response
 --     via StartServiceAck to the app
 --  - Provide the values for make, model, modelYear, trim parameters from the initial SDL capabilities file defined in
 --     .ini file in HMICapabilities parameter via StartServiceAck to the app
 -- 4. App sends RAI request via 5th protocol
 -- SDL does:
---  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response
---     via RAI response to the app
+--  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response via RAI response to the app
 --  - Provide the values for make, model, modelYear, trim parameters from the initial SDL capabilities file defined in
 --     .ini file in HMICapabilities parameter via RAI response to the app
 ---------------------------------------------------------------------------------------------------
@@ -28,11 +27,12 @@ local common = require("test_scripts/Protocol/commonProtocol")
 local defaultVTD = common.vehicleTypeInfoParams.default
 local customVTD = common.vehicleTypeInfoParams.custom
 local vehicleTypeInfoParams = {
-  make = defaultVTD.make,
-  model = defaultVTD.model,
-  modelYear = defaultVTD.modelYear,
-  trim = defaultVTD.trim,
-  ccpu_version = customVTD.ccpu_version
+  make = common.vehicleTypeInfoParams.default.make,
+  model = common.vehicleTypeInfoParams.default.model,
+  modelYear = common.vehicleTypeInfoParams.default.modelYear,
+  trim = common.vehicleTypeInfoParams.default.trim,
+  ccpu_version = customVTD.ccpu_version,
+  systemHardwareVersion = customVTD.systemHardwareVersion
 }
 
 local hmiCap = common.setHMIcap(customVTD)

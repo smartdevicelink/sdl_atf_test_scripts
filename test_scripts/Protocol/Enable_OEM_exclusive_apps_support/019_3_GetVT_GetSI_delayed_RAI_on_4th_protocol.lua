@@ -16,7 +16,7 @@
 -- SDL does:
 --  - Send RAI response after receiving VI.GetVehicleType and BC.GetSystemInfo responses
 --  - Provide the vehicle type info with parameter values received from HMI in BC.GetSystemInfo and
---     VI.GetVehicleType responses via RAI response to the app
+--     VI.GetVehicleType responses except systemHardwareVersion via RAI response to the app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Protocol/commonProtocol")

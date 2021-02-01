@@ -6,10 +6,11 @@
 --
 -- Steps:
 -- 1. HMI provides some part of vehicle type data in BC.GetSystemInfo and VI.GetVehicleType responses:
---  - BC.GetSystemInfo(ccpu_version) and VI.GetVehicleType(make, model, modelYear)
---  - BC.GetSystemInfo(ccpu_version) and VI.GetVehicleType(make, model, trim)
---  - BC.GetSystemInfo(ccpu_version) and VI.GetVehicleType(make, modelYear, trim)
---  - BC.GetSystemInfo(ccpu_version) and VI.GetVehicleType(model, modelYear, trim)
+--  - BC.GetSystemInfo(ccpu_version) and VI.GetVehicleType(make, model, modelYear, trim)
+--  - BC.GetSystemInfo(ccpu_version, systemHardwareVersion) and VI.GetVehicleType(make, model, modelYear)
+--  - BC.GetSystemInfo(ccpu_version, systemHardwareVersion) and VI.GetVehicleType(make, model, trim)
+--  - BC.GetSystemInfo(ccpu_version, systemHardwareVersion) and VI.GetVehicleType(make, modelYear, trim)
+--  - BC.GetSystemInfo(ccpu_version, systemHardwareVersion) and VI.GetVehicleType(model, modelYear, trim)
 -- 2. App requests StartService(RPC) via 5th protocol
 -- SDL does:
 --  - Provide the vehicle type info with parameter values received from HMI in StartServiceAck to the app
@@ -22,7 +23,8 @@ local tcs = {
   [01] = "make",
   [02] = "model",
   [03] = "modelYear",
-  [04] = "trim"
+  [04] = "trim",
+  [05] = "systemHardwareVersion"
 }
 
 --[[ Local Functions ]]

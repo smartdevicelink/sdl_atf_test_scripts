@@ -12,7 +12,7 @@
 -- 2. HMI does not respond to VI.GetVehicleType request
 -- 3. App requests StartService(RPC) via 5th protocol
 -- SDL does:
---  - Provide systemSoftwareVersion value received from HMI in StartServiceAck to the app
+--  - Provide systemHardwareVersion and systemSoftwareVersion values received from HMI in StartServiceAck to the app
 --  - Provide the values for make, model, modelYear, trim parameters from the initial SDL capabilities file defined in
 --     .ini file in HMICapabilities parameter via StartServiceAck to the app
 -- 4. App requests RAI
@@ -37,7 +37,8 @@ local vehicleTypeInfoParams = {
   model = initialVehicleTypeParams.model,
   modelYear = initialVehicleTypeParams.modelYear,
   trim = initialVehicleTypeParams.trim,
-  ccpu_version = common.vehicleTypeInfoParams.custom.ccpu_version
+  ccpu_version = common.vehicleTypeInfoParams.custom.ccpu_version,
+  systemHardwareVersion = common.vehicleTypeInfoParams.custom.systemHardwareVersion
 }
 
 local defaultHmiCap = common.setHMIcap(common.vehicleTypeInfoParams.default)

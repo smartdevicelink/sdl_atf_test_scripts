@@ -1,19 +1,19 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0293-vehicle-type-filter.md
 ---------------------------------------------------------------------------------------------------
--- Description: SDL is able to provide systemSoftwareVersion version from the DB and updated values from
---  VI.GetVehicleType response in the second SDL ignition cycle
+-- Description: SDL is able to provide systemSoftwareVersion and systemHardwareVersion versions from the DB
+--  and updated values from VI.GetVehicleType response in the second SDL ignition cycle
 --
 -- Steps:
 -- 1. HMI responds with erroneous code to BC.GetSystemInfo request in the second ignition cycle,
---  systemSoftwareVersion has been saved to the DB in the previous ignition cycle
+--  systemSoftwareVersion and systemHardwareVersion have been saved to the DB in the previous ignition cycle
 -- SDL does:
 --  - Remove the cache file with hmi capabilities
 --  - Request obtaining of all HMI capabilities and VI.GetVehicleType RPC
 -- 2. HMI responds with updated values to VI.GetVehicleType request
 -- 3. App requests StartService(RPC) via 5th protocol
 -- SDL does:
---  - Provide systemSoftwareVersion value from the DB in StartServiceAck to the app
+--  - Provide systemHardwareVersion and systemSoftwareVersion values from the DB in StartServiceAck to the app
 --  - Provide the values for make, model, modelYear, trim parameters received from HMI in StartServiceAck to the app
 -- 4. App requests RAI
 -- SDL does:
@@ -29,7 +29,8 @@ local vehicleTypeInfoParams = {
   model = common.vehicleTypeInfoParams.custom.model,
   modelYear = common.vehicleTypeInfoParams.custom.modelYear,
   trim = common.vehicleTypeInfoParams.custom.trim,
-  ccpu_version = common.vehicleTypeInfoParams.default.ccpu_version
+  ccpu_version = common.vehicleTypeInfoParams.default.ccpu_version,
+  systemHardwareVersion = common.vehicleTypeInfoParams.default.systemHardwareVersion
 }
 
 local defaultHmiCap = common.setHMIcap(common.vehicleTypeInfoParams.default)

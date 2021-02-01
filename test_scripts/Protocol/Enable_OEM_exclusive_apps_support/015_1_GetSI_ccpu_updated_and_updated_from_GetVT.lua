@@ -15,7 +15,8 @@
 --  - Provide the vehicle type info with parameter values received from HMI in StartServiceAck to the app
 -- 4. App requests RAI
 -- SDL does:
---  - Provide the vehicle type info with parameter values received from HMI in RAI response to the app
+--  - Provide the vehicle type info with parameter values received from HMI except systemHardwareVersion in RAI response
+--   to the app
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Protocol/commonProtocol")

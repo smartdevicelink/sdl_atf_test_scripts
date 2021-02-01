@@ -5,7 +5,7 @@
 --  BC.GetSystemInfo and VI.GetVehicleType responses with all parameters
 --
 -- Steps:
--- 1. HMI provides all vehicle type data in BC.GetSystemInfo(ccpu_version)
+-- 1. HMI provides all vehicle type data in BC.GetSystemInfo(ccpu_version, systemHardwareVersion)
 --  and VI.GetVehicleType(make, model, modelYear, trim) responses
 -- 2. App requests StartService(RPC) via 5th protocol
 -- SDL does:

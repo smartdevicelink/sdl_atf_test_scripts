@@ -16,7 +16,8 @@
 --     with all parameter values received from HMI to app1 and app2
 -- 4. App1 and App2 request RAI after receiving StartServiceAck
 -- SDL does:
---  - Provide the vehicle type info with all parameter values received from HMI in RAI response to the app1 and app2
+--  - Provide the vehicle type info with all parameter values received from HMI except systemHardwareVersion in
+--   RAI response to the app1 and app2
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Protocol/commonProtocol")
@@ -29,8 +30,6 @@ local delay2 = 3000
 
 --[[ Local Functions ]]
 local function delayedStartServiceAckMultipleApps(_, pTS, pRpcServiceAckParams)
-
-
   local reqParams = { protocolVersion = common.setStringBsonValue("5.4.0") }
   local mobSession1 = common.createSession(1)
   local mobSession2 = common.createSession(2)

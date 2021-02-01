@@ -5,23 +5,22 @@
 --  RAI response at the second SDL start
 --
 -- Steps:
--- 1. All vehicle type data is provided via BC.GetSystemInfo(ccpu_version) and
---  VI.GetVehicleType(make, model, modelYear, trim) responses and cached in previous ignition cycle
+-- 1. All vehicle type data is provided via BC.GetSystemInfo(ccpu_version, systemHardwareVersion)
+--  and VI.GetVehicleType(make, model, modelYear, trim) responses and cached in previous ignition cycle
 -- 2. HMI and SDL start
 -- SDL does:
 --  - not request VI.GetVehicleType RPC
 --  - request BC.GetSystemInfo RPC
--- 3. HMI sends BC.GetSystemInfo(ccpu_version) response
+-- 3. HMI sends BC.GetSystemInfo(ccpu_version, systemHardwareVersion) response
 -- 4. App requests StartService(RPC) via 5th protocol
 -- SDL does:
---  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response
+--  - Provide systemSoftwareVersion and systemHardwareVersion values received from HMI in BC.GetSystemInfo response
 --     via StartServiceAck to the app
 --  - Provide the values for make, model, modelYear, trim parameters from cached HMI capabilities
 --     in StartServiceAck to the app
 -- 5. App requests RAI
 -- SDL does:
---  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response
---     via RAI response to the app
+--  - Provide systemSoftwareVersion value received from HMI in BC.GetSystemInfo response via RAI response to the app
 --  - Provide the values for make, model, modelYear, trim parameters from cached HMI capabilities
 --     in RAI response to the app
 ---------------------------------------------------------------------------------------------------
