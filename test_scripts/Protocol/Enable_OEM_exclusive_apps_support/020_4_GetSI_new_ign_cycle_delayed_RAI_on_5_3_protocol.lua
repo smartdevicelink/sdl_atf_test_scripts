@@ -1,13 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0293-vehicle-type-filter.md
 ---------------------------------------------------------------------------------------------------
--- Description: Check that SDL is able to postpone sending of RAI response for app registered via 4th protocol
---  in case HMI responds with delay to BC.GetSystemInfo request, VI.GetVehicleType is not requested because
---  the data from VI.GetVehicleType have been cached in the previous ignition cycle
+-- Description: Check that SDL is able to postpone sending of RAI response for app registered with
+--  '5.3' protocol version in case HMI responds with delay to BC.GetSystemInfo request,
+--  VI.GetVehicleType is not requested because the data from VI.GetVehicleType have been cached
+--  in the previous ignition cycle
 --
 -- Steps:
 -- 1. SDL requests BC.GetSystemInfo to HMI after start
--- 2. App requests StartService(RPC) via 4th protocol
+-- 2. App requests StartService(RPC) with '5.3.0' protocol version
 -- SDL does:
 --  - Send StartServiceAck to mobile app right after receiving StartService request
 -- 3. App requests RAI
@@ -21,9 +22,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Protocol/commonProtocol")
-
--- [[ App Configuration ]]
-config.defaultProtocolVersion = 4
 
 --[[ Local Variables ]]
 local delay1 = 3000
