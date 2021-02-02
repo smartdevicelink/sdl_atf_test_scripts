@@ -10,3 +10,6 @@
 ./test_scripts/Defects/7_1/2353_1_Request.lua
 ./test_scripts/Defects/7_1/2353_2_Response.lua
 ./test_scripts/Defects/7_1/2353_3_Notification.lua
+./test_scripts/Defects/7_1/2354_1_Request.lua
+./test_scripts/Defects/7_1/2354_2_Response.lua
+./test_scripts/Defects/7_1/2354_3_Notification.lua
