@@ -1,6 +1,6 @@
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 -- Description: Check that SDL processes OnVehicleData notification with <vd_param> parameter
--- Positive cases for all VD parameters and sub-parameters
+-- Positive cases for all possible values for Enum and Boolean VD parameters and sub-parameters
 --
 -- Preconditions:
 -- 1) SDL and HMI are started
@@ -10,17 +10,18 @@
 --
 -- In case:
 -- 1) HMI sends valid OnVehicleData notification with <vd_param> parameter data to SDL
+-- (iterate trough all possible enum and boolean values of applicable parameters)
 -- SDL does:
 -- - a) transfer this notification to App
 -- Exception: Notification for unsubscribable VD parameter is not transfered
----------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Local Constants ]]
 local testTypes = {
-  common.testType.VALID_RANDOM_ALL,
-  common.testType.VALID_RANDOM_SUB
+  common.testType.ENUM_ITEMS,
+  common.testType.BOOL_ITEMS
 }
 
 --[[ Scenario ]]
