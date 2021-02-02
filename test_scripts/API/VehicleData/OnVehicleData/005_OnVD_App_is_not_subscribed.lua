@@ -23,23 +23,23 @@
 local common = require('test_scripts/API/VehicleData/common')
 
 --[[ Scenario ]]
-common.Title("Preconditions")
-common.Step("Clean environment and update preloaded_pt file", common.preconditions)
-common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-common.Step("Register App", common.registerApp)
+common.runner.Title("Preconditions")
+common.runner.Step("Clean environment and update preloaded_pt file", common.preconditions)
+common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.runner.Step("Register App", common.registerApp)
 
-common.Title("Test")
+common.runner.Title("Test")
 for param in common.spairs(common.getVDParams(true)) do
-  common.Title("VD parameter: " .. param)
-  common.Step("RPC " .. common.rpc.sub, common.processSubscriptionRPC, { common.rpc.sub, param })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isExpected })
-  common.Step("RPC " .. common.rpc.unsub, common.processSubscriptionRPC, { common.rpc.unsub, param })
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
+  common.runner.Title("VD parameter: " .. param)
+  common.runner.Step("RPC " .. common.rpc.sub, common.processSubscriptionRPC, { common.rpc.sub, param })
+  common.runner.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isExpected })
+  common.runner.Step("RPC " .. common.rpc.unsub, common.processSubscriptionRPC, { common.rpc.unsub, param })
+  common.runner.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
 end
 for param in common.spairs(common.getVDParams(false)) do
-  common.Title("VD parameter: " .. param)
-  common.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
+  common.runner.Title("VD parameter: " .. param)
+  common.runner.Step("RPC " .. common.rpc.on, common.sendOnVehicleData, { param, common.isNotExpected })
 end
 
-common.Title("Postconditions")
-common.Step("Stop SDL", common.postconditions)
+common.runner.Title("Postconditions")
+common.runner.Step("Stop SDL", common.postconditions)
