@@ -49,7 +49,7 @@ local requestParams = {
   },
   endTime = {
     hours = 0,
-    minutes = 1 ,
+    minutes = 1,
     seconds = 35
   }
 }
@@ -79,8 +79,8 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 for _, value in pairs (updateMode) do
   for _, value2 in pairs (indicator) do
-    runner.Step("SetMediaClockTimer Non Media Positive Case with udate mode " .. value
-      .. " " .. value2, SetMediaClockTimer, { requestParams,value,value2 })
+    runner.Step("SetMediaClockTimer Non Media Positive Case with update mode " .. value
+      .. " " .. value2, SetMediaClockTimer, { requestParams, value, value2 })
   end
 end
 
