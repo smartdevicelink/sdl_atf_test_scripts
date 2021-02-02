@@ -13,3 +13,6 @@
 ./test_scripts/Defects/7_1/2354_1_Request.lua
 ./test_scripts/Defects/7_1/2354_2_Response.lua
 ./test_scripts/Defects/7_1/2354_3_Notification.lua
+./test_scripts/Defects/7_1/2379_1_Request.lua
+./test_scripts/Defects/7_1/2379_2_Response.lua
+./test_scripts/Defects/7_1/2379_3_Notification.lua
