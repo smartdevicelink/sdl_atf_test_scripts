@@ -145,8 +145,8 @@ local function getDisplayCapTextFieldsValues()
     "statusBar",
     "tertiaryText",
     "totalDistance",
-    -- "timeToDestination",
-    -- "turnText"
+    "timeToDestination",
+    "turnText"
   }
   local values = { }
   for _, v in pairs(names) do
