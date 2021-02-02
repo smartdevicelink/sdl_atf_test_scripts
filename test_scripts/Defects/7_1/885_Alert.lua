@@ -27,10 +27,9 @@ local common = require('user_modules/sequences/actions')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local expected = {
-  yes = true,
-  no = false
-}
+local expected = true
+local not_expected = false
+
 local btn = {
   id = 4,
   name = "CUSTOM_BUTTON"
@@ -62,7 +61,7 @@ local function alert()
   common.getHMIConnection():ExpectRequest("UI.Alert")
   :Do(function(_, data)
       common.run.runAfter(function()
-          sendOnButtonEvents(expected.yes)
+          sendOnButtonEvents(expected)
         end, 500)
       common.run.runAfter(function()
           common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -70,7 +69,7 @@ local function alert()
     end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :Do(function()
-      sendOnButtonEvents(expected.no)
+      sendOnButtonEvents(not_expected)
     end)
 end
 
