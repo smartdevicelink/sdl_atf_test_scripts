@@ -16,3 +16,8 @@
 ./test_scripts/Defects/7_1/2379_1_Request.lua
 ./test_scripts/Defects/7_1/2379_2_Response.lua
 ./test_scripts/Defects/7_1/2379_3_Notification.lua
+./test_scripts/Defects/7_1/885_Alert.lua
+./test_scripts/Defects/7_1/885_AlertManeuver.lua
+./test_scripts/Defects/7_1/885_ScrollableMessage.lua
+./test_scripts/Defects/7_1/885_ShowConstantTBT.lua
+./test_scripts/Defects/7_1/885_UpdateTurnList.lua
