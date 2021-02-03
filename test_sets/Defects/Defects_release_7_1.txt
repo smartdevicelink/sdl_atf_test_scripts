@@ -21,3 +21,5 @@
 ./test_scripts/Defects/7_1/885_ScrollableMessage.lua
 ./test_scripts/Defects/7_1/885_ShowConstantTBT.lua
 ./test_scripts/Defects/7_1/885_UpdateTurnList.lua
+./test_scripts/Defects/7_1/3469_RC_SetGlobalProperties_during_resumption.lua
+./test_scripts/Defects/7_1/3469_UI_SetGlobalProperties_during_resumption.lua
