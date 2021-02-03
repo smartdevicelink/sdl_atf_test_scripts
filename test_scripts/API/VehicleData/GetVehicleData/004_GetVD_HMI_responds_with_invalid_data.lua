@@ -18,18 +18,21 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/VehicleData/common')
 
+--[[ Local Constants ]]
+local testTypes = {
+  common.testType.INVALID_TYPE
+}
+
 --[[ Scenario ]]
-common.Title("Preconditions")
-common.Step("Clean environment and update preloaded_pt file", common.preconditions)
-common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-common.Step("Register App", common.registerApp)
+common.runner.Title("Preconditions")
+common.runner.Step("Clean environment and update preloaded_pt file", common.preconditions)
+common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.runner.Step("Register App", common.registerApp)
+common.runner.Step("Activate App", common.activateApp)
 
-common.Title("Test")
-for param, value in common.spairs(common.getVDParams()) do
-  common.Title("VD parameter: " .. param)
-  common.Step("RPC " .. common.rpc.get .. " invalid HMI response", common.processRPCgenericError,
-    { common.rpc.get, param, common.getInvalidData(value) })
-end
+common.runner.Title("Test")
+common.runner.getTestsForGetVD(testTypes)
 
-common.Title("Postconditions")
-common.Step("Stop SDL", common.postconditions)
+common.runner.Title("Postconditions")
+common.runner.Step("Stop SDL", common.postconditions)
+
