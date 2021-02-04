@@ -18,7 +18,6 @@
 local common = require('test_scripts/API/KeyboardEnhancements/common')
 
 --[[ Local Variables ]]
-local hashId
 local sgpParams = {
   keyboardProperties = {
     language = "EN-US",
@@ -31,33 +30,6 @@ local sgpParams = {
   }
 }
 
---[[ Local Functions ]]
-local function reRegisterApp()
-  common.getMobileSession():StartService(7)
-  :Do(function()
-    local appParams = common.cloneTable(common.getParams())
-    appParams.hashID = hashId
-    local cid = common.getMobileSession():SendRPC("RegisterAppInterface", appParams)
-    common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered")
-    :Do(function()
-        local dataToHMI = common.cloneTable(sgpParams)
-        common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", dataToHMI)
-        :Do(function(_, data)
-            common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-          end)
-      end)
-    common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  end)
-end
-
-local function sendSetGlobalProperties(...)
-  common.getMobileSession():ExpectNotification("OnHashChange")
-  :Do(function(_, data)
-      hashId = data.payload.hashID
-    end)
-  common.sendSetGlobalProperties(...)
-end
-
 --[[ Scenario ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -66,10 +38,11 @@ common.Step("Register App", common.registerApp)
 
 common.Title("Test")
 common.Step("HMI sends OnSystemCapabilityUpdated", common.sendOnSystemCapabilityUpdated)
-common.Step("App sends SetGlobalProperties", sendSetGlobalProperties, { sgpParams, common.result.success })
+common.Step("App sends SetGlobalProperties", common.sendSetGlobalPropertiesWithHashId,
+  { sgpParams, common.result.success })
 common.Step("Unexpected disconnect", common.unexpectedDisconnect)
 common.Step("Connect mobile", common.connectMobile)
-common.Step("Re-register App", reRegisterApp)
+common.Step("Re-register App", common.reRegisterApp, { sgpParams })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

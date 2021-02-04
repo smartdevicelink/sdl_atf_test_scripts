@@ -33,6 +33,8 @@ local m = {}
   m.getPolicyAppId = actions.app.getPolicyAppId
   m.getParams = actions.app.getParams
   m.spairs = utils.spairs
+  m.isTableEqual = utils.isTableEqual
+  m.tableToString = utils.tableToString
 
 --[[ Common Variables ]]
 m.expected = {
@@ -45,6 +47,8 @@ m.result = {
   data_not_available = { success = false, resultCode = "DATA_NOT_AVAILABLE" },
   invalid_data = { success = false, resultCode = "INVALID_DATA" }
 }
+
+m.hashId = ""
 
 --[[ Common Functions ]]
 
@@ -184,5 +188,50 @@ function m.unexpectedDisconnect()
   actions.mobile.disconnect()
   utils.wait(1000)
 end
+
+--[[ @reRegisterApp: App registration with resumption of UI.SetGlobalProperties
+--! @parameters:
+--! pResumptionParams - parameters for UI.SetGlobalProperties
+--! @return: none
+--]]
+function m.reRegisterApp(pResumptionParams)
+  m.getMobileSession():StartService(7)
+  :Do(function()
+    local appParams = m.cloneTable(m.getParams())
+    appParams.hashID = m.hashId
+    local cid = m.getMobileSession():SendRPC("RegisterAppInterface", appParams)
+    m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered")
+    :Do(function()
+        local dataToHMI = m.cloneTable(pResumptionParams)
+        m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", dataToHMI)
+        :Do(function(_, data)
+            m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+          end)
+        :ValidIf(function(_, data)
+            if not m.isTableEqual(data.params.keyboardProperties, dataToHMI.keyboardProperties) then
+              return false, "Unexpected number of parameters or parameter values are received"
+               .. " in UI.SetGlobalProperties request"
+               .. "\n Expected data: " .. m.tableToString(dataToHMI.keyboardProperties)
+               .. "\n Actual data: " .. m.tableToString(data.params.keyboardProperties)
+            end
+            return true
+          end)
+      end)
+    m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  end)
+end
+
+--[[ @sendSetGlobalPropertiesWithHashId: Processing of 'SetGlobalProperties' request and OnHashChange notification
+--! @parameters: some number of params for m.sendSetGlobalProperties function
+--! @return: none
+--]]
+function m.sendSetGlobalPropertiesWithHashId(...)
+  m.getMobileSession():ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+      m.hashId = data.payload.hashID
+    end)
+  m.sendSetGlobalProperties(...)
+end
+
 
 return m
