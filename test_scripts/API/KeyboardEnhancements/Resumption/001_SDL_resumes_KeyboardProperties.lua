@@ -20,8 +20,6 @@ local common = require('test_scripts/API/KeyboardEnhancements/common')
 --[[ Local Variables ]]
 local hashId
 local sgpParams = {
-  vrHelpTitle = "title",
-  vrHelp = { { text = "text1", position = 1 } },
   keyboardProperties = {
     language = "EN-US",
     keyboardLayout = "AZERTY",
