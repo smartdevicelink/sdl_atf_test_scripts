@@ -25,3 +25,4 @@
 ./test_scripts/Defects/7_1/3469_UI_SetGlobalProperties_during_resumption.lua
 ./test_scripts/Defects/7_1/3409_1_Single_transport.lua
 ./test_scripts/Defects/7_1/3409_2_Multiple_transports.lua
+./test_scripts/Defects/7_1/3580_Revoked_app_activated_via_device_consent.lua
