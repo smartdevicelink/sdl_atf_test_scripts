@@ -16,15 +16,13 @@
 local common = require('test_scripts/API/KeyboardEnhancements/common')
 
 --[[ Local Variables ]]
-local keyboardLayouts = { "QWERTY", "QWERTZ", "AZERTY", "NUMERIC" }
-
 local tcs = {
   [01] = { maskInputCharactersSupported = false },
   [02] = { maskInputCharactersSupported = true },
-  [03] = { supportedKeyboardLayouts = common.getArrayValue(keyboardLayouts, 1) },
-  [04] = { supportedKeyboardLayouts = common.getArrayValue(keyboardLayouts, 1000) },
-  [05] = { configurableKeys = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 0 }}, 1) },
-  [06] = { configurableKeys = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 100 }}, 1000) }
+  [03] = { supportedKeyboards = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 1 }}, 1) },
+  [04] = { supportedKeyboards = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 0 }}, 5) },
+  [05] = { supportedKeyboards = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 5 }}, 1000) },
+  [06] = { supportedKeyboards = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 10 }}, 5) }
 }
 
 --[[ Local Functions ]]

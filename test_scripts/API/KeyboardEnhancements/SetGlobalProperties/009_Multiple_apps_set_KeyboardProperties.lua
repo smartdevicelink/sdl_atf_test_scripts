@@ -29,14 +29,12 @@ local common = require('test_scripts/API/KeyboardEnhancements/common')
 local dispCaps1 = common.getDispCaps()
 dispCaps1.systemCapability.displayCapabilities[1].windowCapabilities[1].keyboardCapabilities = {
   maskInputCharactersSupported = true,
-  supportedKeyboardLayouts = { "AZERTY" },
-  configurableKeys = { { keyboardLayout = "AZERTY", numConfigurableKeys = 2 } }
+  supportedKeyboards = { { keyboardLayout = "AZERTY", numConfigurableKeys = 2 } }
 }
 local dispCaps2 = common.getDispCaps()
 dispCaps2.systemCapability.displayCapabilities[1].windowCapabilities[1].keyboardCapabilities = {
   maskInputCharactersSupported = false,
-  supportedKeyboardLayouts = { "NUMERIC" },
-  configurableKeys = { { keyboardLayout = "NUMERIC", numConfigurableKeys = 1 } }
+  supportedKeyboards = { { keyboardLayout = "NUMERIC", numConfigurableKeys = 1 } }
 }
 
 --[[ Local Functions ]]
@@ -45,7 +43,7 @@ local function getSGPParams(pLayout, pNumOfKeys)
   return {
     keyboardProperties = {
       keyboardLayout = pLayout,
-      customizeKeys = common.getArrayValue(keys, pNumOfKeys)
+      customKeys = common.getArrayValue(keys, pNumOfKeys)
     }
   }
 end

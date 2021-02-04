@@ -29,7 +29,7 @@ local sgpParams = {
     limitedCharacterList = { "a" },
     autoCompleteList = { "Daemon, Freedom" },
     maskInputCharacters = "DISABLE_INPUT_KEY_MASK",
-    customizeKeys = { "#", "$" }
+    customKeys = { "#", "$" }
   }
 }
 

@@ -2,7 +2,7 @@
 -- Proposal:
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0238-Keyboard-Enhancements.md
 ----------------------------------------------------------------------------------------------------
--- Description: Check App receives 'INVALID_DATA' if number of keys in 'customizeKeys' array is more
+-- Description: Check App receives 'INVALID_DATA' if number of keys in 'customKeys' array is more
 -- than customizable keys allowed.
 -- Scenario with a few consecutive 'SetGlobalProperties' requests
 --
@@ -13,10 +13,10 @@
 -- 3. App sends 'SetGlobalProperties' with 'keyboardLayout=NUMERIC' in 'KeyboardProperties'
 -- SDL does:
 --  - Proceed with request successfully
--- 4. App sends 'SetGlobalProperties' with 'customizeKeys=<1 element>' in 'KeyboardProperties'
+-- 4. App sends 'SetGlobalProperties' with 'customKeys=<1 element>' in 'KeyboardProperties'
 -- SDL does:
 --  - Proceed with request successfully
--- 5. App sends 'SetGlobalProperties' with 'customizeKeys=<2 elements>' in 'KeyboardProperties'
+-- 5. App sends 'SetGlobalProperties' with 'customKeys=<2 elements>' in 'KeyboardProperties'
 -- SDL does:
 --  - Not transfer request to HMI
 --  - Respond with INVALID_DATA, success:false to App with appropriate message in 'info'
@@ -33,13 +33,13 @@ local params1 = {
 
 local params2 = {
   keyboardProperties = {
-    customizeKeys = { "$" }
+    customKeys = { "$" }
   }
 }
 
 local params3 = {
   keyboardProperties = {
-    customizeKeys = { "$", "#" }
+    customKeys = { "$", "#" }
   }
 }
 

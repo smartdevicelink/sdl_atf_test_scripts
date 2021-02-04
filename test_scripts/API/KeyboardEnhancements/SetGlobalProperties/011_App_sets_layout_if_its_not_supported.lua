@@ -7,9 +7,9 @@
 -- Steps:
 -- 1. App is registered
 -- 2. HMI provides 'KeyboardCapabilities' within 'OnSystemCapabilityUpdated' notification
--- with some values in 'supportedKeyboardLayouts'
+-- with supported keyboards in 'supportedKeyboards'
 -- 3. App sends 'SetGlobalProperties' with 'keyboardLayout' in 'KeyboardProperties' which is not
--- in 'supportedKeyboardLayouts' list
+-- in 'supportedKeyboards' list
 -- SDL does:
 --  - Transfer request to HMI
 -- 4. HMI responds with erroneous 'UNSUPPORTED_RESOURCE' message
@@ -23,8 +23,7 @@ local common = require('test_scripts/API/KeyboardEnhancements/common')
 local msg = "keyboard layout is not supported"
 local dispCaps = common.getDispCaps()
 dispCaps.systemCapability.displayCapabilities[1].windowCapabilities[1].keyboardCapabilities = {
-  supportedKeyboardLayouts = { "NUMERIC" },
-  configurableKeys = { { keyboardLayout = "NUMERIC", numConfigurableKeys = 1 } }
+  supportedKeyboards = { { keyboardLayout = "NUMERIC", numConfigurableKeys = 1 } }
 }
 
 --[[ Local Functions ]]

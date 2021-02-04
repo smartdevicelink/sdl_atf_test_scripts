@@ -64,8 +64,7 @@ function m.getDispCaps()
               windowID = 0,
               keyboardCapabilities = {
                 maskInputCharactersSupported = true,
-                supportedKeyboardLayouts = { "QWERTY", "QWERTZ", "AZERTY", "NUMERIC" },
-                configurableKeys = {
+                supportedKeyboards = {
                   { keyboardLayout = "QWERTY", numConfigurableKeys = 4 },
                   { keyboardLayout = "QWERTZ", numConfigurableKeys = 3 },
                   { keyboardLayout = "AZERTY", numConfigurableKeys = 2 },

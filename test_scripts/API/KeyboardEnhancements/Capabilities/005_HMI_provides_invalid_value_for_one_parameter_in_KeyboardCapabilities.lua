@@ -16,18 +16,16 @@
 local common = require('test_scripts/API/KeyboardEnhancements/common')
 
 --[[ Local Variables ]]
-local keyboardLayouts = { "QWERTY", "QWERTZ", "AZERTY", "NUMERIC" }
-
 local tcs = {
   [01] = { maskInputCharactersSupported = "false" }, --invalid type
-  [02] = { supportedKeyboardLayouts = { } },
-  [03] = { supportedKeyboardLayouts = common.getArrayValue(keyboardLayouts, 1001) },
-  [04] = { configurableKeys = { { keyboardLayout = "QWERTY", numConfigurableKeys = "0" }} },
-  [05] = { configurableKeys = { { keyboardLayout = true, numConfigurableKeys = 0 }} },
-  [06] = { configurableKeys = { { } } },
-  [07] = { configurableKeys = { { keyboardLayout = "QWERTY", numConfigurableKeys = nil }} },
-  [08] = { configurableKeys = { { keyboardLayout = nil, numConfigurableKeys = 0 }} },
-  [09] = { configurableKeys = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 0 }}, 1001) }
+  [02] = { supportedKeyboards = { { keyboardLayout = "QWERTY", numConfigurableKeys = "0" }} },
+  [03] = { supportedKeyboards = { { keyboardLayout = true, numConfigurableKeys = 0 }} },
+  [04] = { supportedKeyboards = { { } } },
+  [05] = { supportedKeyboards = { { keyboardLayout = "QWERTY", numConfigurableKeys = nil }} },
+  [06] = { supportedKeyboards = { { keyboardLayout = nil, numConfigurableKeys = 0 }} },
+  [07] = { supportedKeyboards = common.getArrayValue({ { keyboardLayout = "QWERTY", numConfigurableKeys = 0 }}, 1001) },
+  [08] = { supportedKeyboards = { { keyboardLayout = "QWERTY", numConfigurableKeys = 11 }} },
+  [09] = { supportedKeyboards = common.json.EMPTY_ARRAY }
 }
 
 --[[ Local Functions ]]

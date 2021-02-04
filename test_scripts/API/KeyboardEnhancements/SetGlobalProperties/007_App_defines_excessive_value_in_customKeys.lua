@@ -2,13 +2,13 @@
 -- Proposal:
 -- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0238-Keyboard-Enhancements.md
 ----------------------------------------------------------------------------------------------------
--- Description: Check App receives 'INVALID_DATA' if number of keys in 'customizeKeys' array is more
+-- Description: Check App receives 'INVALID_DATA' if number of keys in 'customKeys' array is more
 -- than customizable keys allowed
 --
 -- Steps:
 -- 1. App is registered
 -- 2. HMI provides 'KeyboardCapabilities' within 'OnSystemCapabilityUpdated' notification
--- 3. App sends 'SetGlobalProperties' with excessive number of values in 'customizeKeys' parameter
+-- 3. App sends 'SetGlobalProperties' with excessive number of values in 'customKeys' parameter
 -- in 'KeyboardProperties'
 -- SDL does:
 --  - Not transfer request to HMI
@@ -24,8 +24,7 @@ local keys = { "$", "#", "&" }
 local function getOnSCUParams(pNumOfKeys)
   local dispCaps = common.getDispCaps()
   dispCaps.systemCapability.displayCapabilities[1].windowCapabilities[1].keyboardCapabilities = {
-    supportedKeyboardLayouts = { "NUMERIC" },
-    configurableKeys = { { keyboardLayout = "NUMERIC", numConfigurableKeys = pNumOfKeys } }
+    supportedKeyboards = { { keyboardLayout = "NUMERIC", numConfigurableKeys = pNumOfKeys } }
   }
   return dispCaps
 end
@@ -35,7 +34,7 @@ local function getSGPParams(pNumOfKeys, pLayout)
   return {
     keyboardProperties = {
       keyboardLayout = pLayout,
-      customizeKeys = common.getArrayValue(keys, pNumOfKeys)
+      customKeys = common.getArrayValue(keys, pNumOfKeys)
     }
   }
 end
@@ -44,7 +43,7 @@ local function check(_, data)
   if data.payload.success == true and data.payload.info ~= nil then
     return false, "Unexpected 'info' parameter received"
   end
-  local exp = "customizeKeys exceeds the number of customizable keys in this Layout"
+  local exp = "customKeys exceeds the number of customizable keys in this Layout"
   if data.payload.success == false and data.payload.info ~= exp then
     return false, "Expected 'info':\n" .. exp .. "\nActual:\n" .. tostring(data.payload.info)
   end

@@ -25,7 +25,7 @@ local sgpParams = {
     limitedCharacterList = { "a" },
     autoCompleteList = { "Daemon, Freedom" },
     maskInputCharacters = "DISABLE_INPUT_KEY_MASK",
-    customizeKeys = { "#" }
+    customKeys = { "#" }
   }
 }
 
@@ -49,8 +49,8 @@ local function sendResetGP()
       if data.params.keyboardProperties.maskInputCharacters then
         return false, "Unexpected 'maskInputCharacters' parameter received"
       end
-      if data.params.keyboardProperties.customizeKeys then
-        return false, "Unexpected 'customizeKeys' parameter received"
+      if data.params.keyboardProperties.customKeys then
+        return false, "Unexpected 'customKeys' parameter received"
       end
       return true
     end)
