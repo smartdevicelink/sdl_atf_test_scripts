@@ -84,7 +84,6 @@ interfaces.RAI = {
                                                                   --{ name = "audioPassThruDisplayText2", characterSet = "UTF_8", width = 500, rows = 1},
                                                                   --{ name = "sliderHeader", characterSet = "UTF_8", width = 500, rows = 1},
                                                                   --{ name = "sliderFooter", characterSet = "UTF_8", width = 500, rows = 1},
-                                                                  --{ name = "notificationText", characterSet = "UTF_8", width = 500, rows = 1},
                                                                   --{ name = "menuName", characterSet = "UTF_8", width = 500, rows = 1},
                                                                   --{ name = "secondaryText", characterSet = "UTF_8", width = 500, rows = 1},
                                                                   --{ name = "tertiaryText", characterSet = "UTF_8", width = 500, rows = 1},
