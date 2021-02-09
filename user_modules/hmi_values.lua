@@ -405,7 +405,8 @@ function module.getDefaultHMITable()
           hapticSpatialDataSupported = false,
           diagonalScreenSize = 10,
           pixelPerInch = 150,
-          scale = 2.5
+          scale = 2.5,
+          preferredFPS = 15
         },
         driverDistractionCapability = {
             subMenuDepth = 3,
