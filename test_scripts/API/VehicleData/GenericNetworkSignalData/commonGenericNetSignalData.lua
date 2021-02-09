@@ -137,8 +137,10 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.externalTemperature.value = 24.1
     common.VehicleDataItemsWithData.externalTemperature.APItype = "VEHICLEDATA_EXTERNTEMP"
     local climateDataParams = common.VehicleDataItemsWithData.climateData.params
-    climateDataParams.externalTemperature.value = { value = 25.5, unit = "CELSIUS" }
-    climateDataParams.cabinTemperature.value = { value = 20.5, unit = "CELSIUS" }
+    climateDataParams.externalTemperature.params.value.value = 25.5
+    climateDataParams.externalTemperature.params.unit.value = "CELSIUS"
+    climateDataParams.cabinTemperature.params.value.value = 20.5
+    climateDataParams.cabinTemperature.params.unit.value = "CELSIUS"
     climateDataParams.atmosphericPressure.value = 1024
     common.VehicleDataItemsWithData.climateData.APItype = "VEHICLEDATA_CLIMATEDATA"
     common.VehicleDataItemsWithData.turnSignal.value = "OFF"
