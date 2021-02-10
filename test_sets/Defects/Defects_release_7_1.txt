@@ -31,3 +31,8 @@
 ./test_scripts/Defects/7_1/3640_PTU_all_flows_Protected_Mode_v3.lua
 ./test_scripts/Defects/7_1/3659_OnSystemRequest_1st_frame_non-encrypted.lua
 ./test_scripts/Defects/7_1/3667_Revert_RC_SetGlobalProperties_on_failed_resumption.lua
+./test_scripts/Defects/7_1/3620/3620_1_RPC_Service_NACK_invalid_bson.lua
+./test_scripts/Defects/7_1/3620/3620_2_RPC_Service_NACK_protected_invalid_bson.lua
+./test_scripts/Defects/7_1/3620/3620_3_RPC_Service_NACK_non_existed_session_id.lua
+./test_scripts/Defects/7_1/3620/3620_4_RPC_Service_NACK_protected_non_existed_session_id.lua
+./test_scripts/Defects/7_1/3620/3620_5_RPC_Service_NACK_before_OnSystemTimeReady.lua
