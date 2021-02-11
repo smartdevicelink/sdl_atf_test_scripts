@@ -32,23 +32,6 @@ function test:initHMI_onReady(hmi_table)
 end
 
 --[[ Common Functions ]]
-local function excludeAbsentInMobApiTextFields(pTextFields)
-  if type(pTextFields) == "table" then
-    local textFieldsToExclude = { "timeToDestination", "turnText", "navigationText", "notificationText" }
-    for _, excludeTextFieldName in ipairs(textFieldsToExclude) do
-      local isFound = false
-      local i = #pTextFields
-      repeat
-        if pTextFields[i].name == excludeTextFieldName then
-          table.remove(pTextFields, i)
-          isFound = true
-        end
-        i = i - 1
-      until (isFound or i < 1)
-    end
-  end
-end
-
 function m.checkDefaultMobileAdapterType(pApplicableMobileAdapterTypes)
   if type(pApplicableMobileAdapterTypes) == "table" then
     local isTransportDisallowed = true
@@ -66,7 +49,6 @@ end
 
 function m.getDefaultHMITable()
   local hmiCaps = hmi_values.getDefaultHMITable()
-  excludeAbsentInMobApiTextFields(hmiCaps.UI.GetCapabilities.params.displayCapabilities.textFields)
   hmiCaps.VehicleInfo.GetVehicleData.mandatory = false
   return hmiCaps
 end
@@ -137,7 +119,6 @@ function m.buildDisplayCapForMobileExp(pDisplayCapabilities)
   local displayCapabilities = pDisplayCapabilities
   displayCapabilities.imageCapabilities = nil  -- no Mobile_API.xml
   displayCapabilities.menuLayoutsAvailable = nil --since 6.0
-  excludeAbsentInMobApiTextFields(displayCapabilities.textFields)
   return displayCapabilities
 end
 
@@ -280,7 +261,6 @@ function m.updateHMICapabilitiesTable(isRemainData)
     table.remove(hmiCapTbl.RC.remoteControlCapability.buttonCapabilities, 1)
     hmiCapTbl.RC.seatLocationCapability.rows = 1
   end
-  excludeAbsentInMobApiTextFields(hmiCapTbl.UI.displayCapabilities.textFields)
   return hmiCapTbl
 end
 
@@ -478,10 +458,6 @@ end
 
 function m.start(pHMIParams)
   local hmiParams = pHMIParams or hmi_values.getDefaultHMITable()
-  if hmiParams and hmiParams.UI and hmiParams.UI.GetCapabilities
-      and hmiParams.UI.GetCapabilities.params.displayCapabilities then
-    excludeAbsentInMobApiTextFields(hmiParams.UI.GetCapabilities.params.displayCapabilities.textFields)
-  end
   return actions.start(hmiParams)
 end
 
