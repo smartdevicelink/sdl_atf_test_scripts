@@ -7,7 +7,6 @@
 local runner = require('user_modules/script_runner')
 runner.isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
 local common = require("user_modules/sequences/actions")
-local utils = require("user_modules/utils")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
