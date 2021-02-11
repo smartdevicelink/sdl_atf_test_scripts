@@ -100,7 +100,6 @@ local function VehicleDataItemsWithDataTableCreation()
       end
     end
 
-    common.VehicleDataItemsWithData.engineTorque.APItype = "VEHICLEDATA_ENGINETORQUE"
     local gpsParams = common.VehicleDataItemsWithData.gps.params
     gpsParams.longitudeDegrees.value = 100
     gpsParams.latitudeDegrees.value = 20.5
@@ -137,35 +136,34 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.fuelRange.APItype = "VEHICLEDATA_FUELRANGE"
     common.VehicleDataItemsWithData.externalTemperature.value = 24.1
     common.VehicleDataItemsWithData.externalTemperature.APItype = "VEHICLEDATA_EXTERNTEMP"
+    local climateDataParams = common.VehicleDataItemsWithData.climateData.params
+    climateDataParams.externalTemperature.params.value.value = 25.5
+    climateDataParams.externalTemperature.params.unit.value = "CELSIUS"
+    climateDataParams.cabinTemperature.params.value.value = 20.5
+    climateDataParams.cabinTemperature.params.unit.value = "CELSIUS"
+    climateDataParams.atmosphericPressure.value = 1024
+    common.VehicleDataItemsWithData.climateData.APItype = "VEHICLEDATA_CLIMATEDATA"
     common.VehicleDataItemsWithData.turnSignal.value = "OFF"
     common.VehicleDataItemsWithData.turnSignal.APItype = "VEHICLEDATA_TURNSIGNAL"
     common.VehicleDataItemsWithData.vin.value = "SJFHSIGD4058569"
     common.VehicleDataItemsWithData.vin.APItype = "VEHICLEDATA_VIN"
     common.VehicleDataItemsWithData.prndl.value = "PARK"
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
-    if common.VehicleDataItemsWithData.handsOffSteering then
-      common.VehicleDataItemsWithData.handsOffSteering.value = true
-      common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
-    end
-    if common.VehicleDataItemsWithData.stabilityControlsStatus then
-      common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
-        escSystem = "ON" , trailerSwayControl = "OFF" }
-      common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
-    end
-    if common.VehicleDataItemsWithData.gearStatus then
-      local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
-      gearStatusParams.userSelectedGear.value = "NINTH"
-      gearStatusParams.actualGear.value = "TENTH"
-      gearStatusParams.transmissionType.value = "MANUAL"
-      common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
-    end
-    if common.VehicleDataItemsWithData.windowStatus then
-      common.VehicleDataItemsWithData.windowStatus.value = {
-      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
-        state = { approximatePosition = 50, deviation = 50 }
-      }}
+    common.VehicleDataItemsWithData.handsOffSteering.value = true
+    common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
+      escSystem = "ON" , trailerSwayControl = "OFF" }
+    common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+    local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
+    gearStatusParams.userSelectedGear.value = "NINTH"
+    gearStatusParams.actualGear.value = "TENTH"
+    gearStatusParams.transmissionType.value = "MANUAL"
+    common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
+    common.VehicleDataItemsWithData.windowStatus.value = {
+    { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+      state = { approximatePosition = 50, deviation = 50 }
+    }}
     common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
-    end
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
@@ -220,6 +218,22 @@ local function VehicleDataItemsWithDataTableCreation()
     bodyInformationParams.passengerDoorAjar.value = false
     bodyInformationParams.rearLeftDoorAjar.value = false
     bodyInformationParams.rearRightDoorAjar.value = false
+    bodyInformationParams.doorStatuses.value = {
+      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+        status = "CLOSED"
+      }
+    }
+    bodyInformationParams.gateStatuses.value = {
+      { location = { col = 50, row = 50, level = 50, colspan = 50, rowspan = 50, levelspan = 50 },
+        status = "AJAR"
+      }
+    }
+    bodyInformationParams.roofStatuses.value = {
+      { location = { col = 51, row = 51, level = 51, colspan = 51, rowspan = 51, levelspan = 51 },
+        state = { approximatePosition = 52, deviation = 52 },
+        status = "REMOVED"
+      }
+    }
     common.VehicleDataItemsWithData.bodyInformation.APItype = "VEHICLEDATA_BODYINFO"
     local deviceStatusParams = common.VehicleDataItemsWithData.deviceStatus.params
     deviceStatusParams.voiceRecOn.value = true
@@ -286,6 +300,14 @@ local function VehicleDataItemsWithDataTableCreation()
     local myKeyParams = common.VehicleDataItemsWithData.myKey.params
     myKeyParams.e911Override.value = "ON"
     common.VehicleDataItemsWithData.myKey.APItype = "VEHICLEDATA_MYKEY"
+    local seatOccupancyParams = common.VehicleDataItemsWithData.seatOccupancy.params
+    seatOccupancyParams.seatsOccupied.value = {
+      { seatLocation = { grid = { col = 53, row = 53, level = 53, colspan = 53, rowspan = 53, levelspan = 53 }},
+        conditionActive = true }}
+    seatOccupancyParams.seatsBelted.value = {
+      { seatLocation = { grid = { col = 54, row = 54, level = 54, colspan = 54, rowspan = 54, levelspan = 54 }},
+        conditionActive = false }}
+    common.VehicleDataItemsWithData.seatOccupancy.APItype = "VEHICLEDATA_SEATOCCUPANCY"
   else
     utils.cprint(31, "VehicleDataItemsWithData are missed in preloaded file")
   end
