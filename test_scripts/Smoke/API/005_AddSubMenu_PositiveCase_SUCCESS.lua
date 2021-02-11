@@ -35,17 +35,39 @@ local common = require('test_scripts/Smoke/commonSmoke')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
+local putFileParams = {
+  requestParams = {
+    syncFileName = 'icon.png',
+    fileType = "GRAPHIC_PNG",
+    persistentFile = false,
+    systemFile = false
+  },
+  filePath = "files/icon.png"
+}
+
 local requestParams = {
   menuID = 1000,
   position = 500,
-  menuName ="SubMenupositive"
+  menuName ="SubMenupositive",
+  secondaryText = "Secondary",
+  tertiaryText = "Tertiary",
+  secondaryImage = {
+    value = "icon.png",
+    imageType = "DYNAMIC"
+  }
 }
 
 local responseUiParams = {
   menuID = requestParams.menuID,
   menuParams = {
     position = requestParams.position,
-    menuName = requestParams.menuName
+    menuName = requestParams.menuName,
+    secondaryText = requestParams.secondaryText,
+    tertiaryText = requestParams.tertiaryText
+  },
+  secondaryImage = {
+    value = "icon.png",
+    imageType = "DYNAMIC"
   }
 }
 
@@ -59,6 +81,7 @@ local function addSubMenu(pParams)
   local cid = common.getMobileSession():SendRPC("AddSubMenu", pParams.requestParams)
 
   pParams.responseUiParams.appID = common.getHMIAppId()
+  pParams.responseUiParams.secondaryImage.value = common.getPathToFileInAppStorage("icon.png")
   common.getHMIConnection():ExpectRequest("UI.AddSubMenu", pParams.responseUiParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -75,6 +98,7 @@ runner.Step("Update Preloaded PT", common.updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("Activate App", common.activateApp)
+runner.Step("Upload icon file", common.putFile, { putFileParams })
 
 runner.Title("Test")
 runner.Step("AddSubMenu Positive Case", addSubMenu, { allParams })
