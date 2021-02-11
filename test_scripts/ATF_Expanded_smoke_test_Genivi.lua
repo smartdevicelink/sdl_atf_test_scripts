@@ -9899,7 +9899,7 @@ local blockId = 1
 			      {
 			        turnList = {
 			           {
-			              navigationText = {fieldName = "navigationText", fieldText = "Text"},
+			              navigationText = {fieldName = "turnText", fieldText = "Text"},
 
 			              turnIcon = {
 			                         value = pathToAppFolder .."icon.png",
@@ -10066,8 +10066,8 @@ local blockId = 1
 		        {
 		        turnList =
 		        {
-		             { navigationText = {fieldName = "navigationText", fieldText = "Text"} },
-		             { navigationText = {fieldName = "navigationText", fieldText = "Text2"} }
+		             { navigationText = {fieldName = "turnText", fieldText = "Text"} },
+		             { navigationText = {fieldName = "turnText", fieldText = "Text2"} }
 		        },
 
 		        softButtons =
@@ -10176,7 +10176,7 @@ local blockId = 1
 		        turnList =
 		        {
 		          {
-		             navigationText = {fieldName = "navigationText", fieldText = "Text"},
+		             navigationText = {fieldName = "turnText", fieldText = "Text"},
 		             turnIcon =
 		                        {
 		                          value = pathToAppFolder .."icon.png",
@@ -10184,7 +10184,7 @@ local blockId = 1
 		                        }
 		           },
 		           {
-		             navigationText = {fieldName = "navigationText", fieldText = "Text2"},
+		             navigationText = {fieldName = "turnText", fieldText = "Text2"},
 		             turnIcon = {
 		                          value = pathToAppFolder .."icon.png",
 		                          imageType = "DYNAMIC"
@@ -10259,7 +10259,7 @@ local blockId = 1
 		        turnList =
 		        {
 		          {
-		             navigationText = {fieldName = "navigationText", fieldText = "Text"},
+		             navigationText = {fieldName = "turnText", fieldText = "Text"},
 		             turnIcon =
 		                        {
 		                          value = pathToAppFolder .."icon.png",
@@ -10267,7 +10267,7 @@ local blockId = 1
 		                        }
 		           },
 		          {
-		             navigationText = {fieldName = "navigationText", fieldText = "Text2"},
+		             navigationText = {fieldName = "turnText", fieldText = "Text2"},
 		             turnIcon = {
 		                          value = pathToAppFolder .."icon.png",
 		                          imageType = "DYNAMIC"
@@ -10360,7 +10360,7 @@ local blockId = 1
 		            turnList =
 		            {
 		              {
-		                 navigationText = {fieldName = "navigationText", fieldText = "Text"},
+		                 navigationText = {fieldName = "turnText", fieldText = "Text"},
 		                 turnIcon =
 		                            {
 		                              value = "icon.png",
@@ -10368,7 +10368,7 @@ local blockId = 1
 		                            }
 		               },
 		              {
-		                 navigationText = {fieldName = "navigationText", fieldText = "Text2"},
+		                 navigationText = {fieldName = "turnText", fieldText = "Text2"},
 		                 turnIcon = {
 		                              value = "icon.png",
 		                              imageType = "STATIC"

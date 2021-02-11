@@ -2713,12 +2713,6 @@ local function displayCap_textFields_Value()
 		},
 		{
 			characterSet = "UTF_8",
-			name = "navigationText",  --Error
-			rows = 1,
-			width = 500
-		},
-		{
-			characterSet = "UTF_8",
 			name = "audioPassThruDisplayText1",
 			rows = 1,
 			width = 500
@@ -2738,12 +2732,6 @@ local function displayCap_textFields_Value()
 		{
 			characterSet = "UTF_8",
 			name = "sliderFooter",
-			rows = 1,
-			width = 500
-		},
-		{
-			characterSet = "UTF_8",
-			name = "notificationText",
 			rows = 1,
 			width = 500
 		},
