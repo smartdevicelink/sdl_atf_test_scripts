@@ -53,7 +53,9 @@ local requestParams = {
   cmdID = 11,
   menuParams = {
     position = 0,
-    menuName ="Commandpositive"
+    menuName = "Commandpositive",
+    secondaryText = "Secondary",
+    tertiaryText = "Tertiary"
   },
   vrCommands = {
     "VRCommandonepositive",
@@ -61,15 +63,20 @@ local requestParams = {
   },
   grammarID = 1,
   cmdIcon = {
-    value ="icon.png",
-    imageType ="DYNAMIC"
+    value = "icon.png",
+    imageType = "DYNAMIC"
+  },
+  secondaryImage = {
+    value = "icon.png",
+    imageType = "DYNAMIC"
   }
 }
 
 local responseUiParams = {
   cmdID = requestParams.cmdID,
   cmdIcon = requestParams.cmdIcon,
-  menuParams = requestParams.menuParams
+  menuParams = requestParams.menuParams,
+  secondaryImage = requestParams.secondaryImage
 }
 
 local responseVrParams = {
@@ -90,6 +97,7 @@ local function addCommand(pParams)
 
   pParams.responseUiParams.appID = common.getHMIAppId()
   pParams.responseUiParams.cmdIcon.value = common.getPathToFileInAppStorage("icon.png")
+  pParams.responseUiParams.secondaryImage.value = common.getPathToFileInAppStorage("icon.png")
   common.getHMIConnection():ExpectRequest("UI.AddCommand", pParams.responseUiParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
