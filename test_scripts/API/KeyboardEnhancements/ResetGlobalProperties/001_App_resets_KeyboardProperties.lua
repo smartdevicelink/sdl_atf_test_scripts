@@ -36,7 +36,8 @@ local function sendResetGP()
     keyboardProperties = {
       language = "EN-US",
       keyboardLayout = "QWERTY",
-      autoCompleteList = common.json.EMPTY_ARRAY
+      autoCompleteList = common.json.EMPTY_ARRAY,
+      maskInputCharacters = "DISABLE_INPUT_KEY_MASK"
     },
     appID = common.getHMIAppId()
   }
@@ -46,9 +47,6 @@ local function sendResetGP()
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   :ValidIf(function(_, data)
-      if data.params.keyboardProperties.maskInputCharacters then
-        return false, "Unexpected 'maskInputCharacters' parameter received"
-      end
       if data.params.keyboardProperties.customKeys then
         return false, "Unexpected 'customKeys' parameter received"
       end

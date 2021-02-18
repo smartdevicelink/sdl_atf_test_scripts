@@ -45,7 +45,8 @@ local sgpParams_resumption = {
   keyboardProperties = {
     language = sgpParams_1.keyboardProperties.language,
     keyboardLayout = sgpParams_1.keyboardProperties.keyboardLayout,
-    autoCompleteList = sgpParams_1.keyboardProperties.autoCompleteList
+    autoCompleteList = sgpParams_1.keyboardProperties.autoCompleteList,
+    maskInputCharacters = sgpParams_1.keyboardProperties.maskInputCharacters
   }
 }
 
