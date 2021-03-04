@@ -32,7 +32,7 @@ local sgpParams_1 = {
     keypressMode = "SINGLE_KEYPRESS",
     limitedCharacterList = { "a" },
     autoCompleteList = { "Daemon, Freedom" },
-    maskInputCharacters = "DISABLE_INPUT_KEY_MASK",
+    maskInputCharacters = "USER_CHOICE_INPUT_KEY_MASK",
     customKeys = { "#", "$" }
   }
 }
@@ -46,7 +46,8 @@ local sgpParams_2 = {
 local sgpParams_resumption = {
   keyboardProperties = {
     language = sgpParams_1.keyboardProperties.language,
-    keyboardLayout = sgpParams_1.keyboardProperties.keyboardLayout
+    keyboardLayout = sgpParams_1.keyboardProperties.keyboardLayout,
+    maskInputCharacters = sgpParams_1.keyboardProperties.maskInputCharacters
   }
 }
 
