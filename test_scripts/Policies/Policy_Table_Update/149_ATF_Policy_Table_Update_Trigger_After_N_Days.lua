@@ -33,6 +33,7 @@ local utils = require ('user_modules/utils')
 --[[ Local Variables ]]
 local exchangeDays = 30
 local currentSystemDaysAfterEpoch
+local ptuInProgress = false
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -137,8 +138,16 @@ function Test:Precondition_InitHMI_FirstLifeCycle()
   self:initHMI()
 end
 
-function Test:Precondition_InitHMI_onReady_FirstLifeCycle()
+function Test:Precondition_InitOnready()
   self:initHMI_onReady()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:Precondition_ConnectMobile_FirstLifeCycle()
@@ -157,8 +166,14 @@ function Test:TestStep_Register_App_And_Check_That_PTU_Triggered()
 
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName}})
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",{status = "UPDATE_NEEDED"})
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  if not ptuInProgress then
+    EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  end
+
 end
 
 --[[ Postcondition ]]

@@ -31,6 +31,9 @@ local commonFunctions = require ('user_modules/shared_testcases/commonFunctions'
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local utils = require ('user_modules/utils')
 
+--[[ Local Variables ]]
+local ptuInProgress = false
+
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
 commonSteps:DeletePolicyTable()
@@ -149,8 +152,16 @@ function Test:TestStep_InitHMI()
   self:initHMI()
 end
 
-function Test:TestStep_InitHMI_onReady()
+function Test:TestStep_InitOnready()
   self:initHMI_onReady()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:TestStep_Register_App_And_Check_PTU_Triggered()
@@ -162,8 +173,13 @@ function Test:TestStep_Register_App_And_Check_PTU_Triggered()
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
       :Do(
         function()
-          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
-          EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+          if not ptuInProgress then
+            EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+            EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+            :Do(function(_,data)
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+            end)
+          end
         end)
       self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
     end)
