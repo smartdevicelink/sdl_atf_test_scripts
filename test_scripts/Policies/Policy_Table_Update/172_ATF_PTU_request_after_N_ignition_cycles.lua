@@ -152,7 +152,7 @@ function Test:TestStep_InitHMI()
   self:initHMI()
 end
 
-function Test:TestStep_InitOnready()
+function Test:TestStep_InitHMI_onReady()
   self:initHMI_onReady()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(exp, d)
