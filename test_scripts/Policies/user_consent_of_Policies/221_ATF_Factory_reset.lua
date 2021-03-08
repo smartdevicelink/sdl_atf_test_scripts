@@ -30,6 +30,9 @@ local sdl = require('SDL')
 local utils = require ('user_modules/utils')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 
+--[[ Local Variables ]]
+local ptuInProgress = false
+
 --[[ Local Functions ]]
 
 local function ReplacePreloadedFile()
@@ -139,8 +142,16 @@ function Test:Precondition_InitHMI()
   self:initHMI()
 end
 
-function Test:Precondition_InitHMI_onReady()
+function Test:Precondition_InitOnready()
   self:initHMI_onReady()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:Precondition_ConnectMobile()
@@ -195,10 +206,12 @@ function Test:Precondition_Activate_app_To_Trigger_PTU_after_reset()
         end)
     end)
 
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if not ptuInProgress then
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)      
+  end
 
   EXPECT_HMICALL("BasicCommunication.ActivateApp")
   :Do(function(_,data) self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {}) end)
