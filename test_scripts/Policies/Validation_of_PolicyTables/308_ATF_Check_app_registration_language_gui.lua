@@ -119,12 +119,12 @@ function Test:Precondition_InitOnready()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(exp, d)
     if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
       self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
       ptuInProgress = true
     end
   end)
   :Times(AnyNumber())
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
 end
 
 function Test:Precondition_ConnectMobile()

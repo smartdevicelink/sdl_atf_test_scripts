@@ -34,7 +34,7 @@ local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
 local ignition_cycles_before_ptu
-local m = {}
+local ptuInProgress = false
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -91,12 +91,12 @@ function Test:Precondition_InitOnready()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(exp, d)
     if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
       self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
-      m.ptuInProgress = true
+      ptuInProgress = true
     end
   end)
   :Times(AnyNumber())
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
 end
 
 function Test:Precondition_StartNewSession()
@@ -134,7 +134,7 @@ function Test:Precondition_Registering_app()
       self.applications[config.application1.registerAppInterfaceParams.appName] = d.params.application.appID
     end)
   self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
-  if m.ptuInProgress then
+  if ptuInProgress then
     self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
   else
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
