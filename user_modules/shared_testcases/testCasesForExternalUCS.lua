@@ -123,6 +123,7 @@ local m = { }
                 test.hmiConnection:SendResponse(d.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
                 test.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
                   { policyfile = policy_file_path .. "/" .. policy_file_name })
+                m.ptuInProgress = false
               end)
               test.mobileSession1:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
           end)
@@ -130,9 +131,7 @@ local m = { }
     os.remove(ptu_file_name)
   end
 
---[[@initHMI_onReady: Start mobile session
---! @parameters:
---! id - session number (1, 2 etc.) (mandatory)
+--[[@initHMI_onReady: Init HMI
 --]]
   function m.initHMI_onReady(test)
     test:initHMI_onReady()
