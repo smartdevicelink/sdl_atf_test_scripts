@@ -16,6 +16,7 @@ local m = { }
 
   m.HMIAppIds = { }
   m.pts = nil
+  m.ptuInProgress = false
 
 -- [[ Functions ]]
 
@@ -129,6 +130,23 @@ local m = { }
     os.remove(ptu_file_name)
   end
 
+--[[@initHMI_onReady: Start mobile session
+--! @parameters:
+--! id - session number (1, 2 etc.) (mandatory)
+--]]
+  function m.initHMI_onReady(test)
+    test:initHMI_onReady()
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(exp, d)
+      if(exp.occurences == 1) then
+        test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+        m.pts = m.createTableFromJsonFile(d.params.file)
+        m.ptuInProgress = true
+      end
+    end)
+    :Times(AnyNumber())
+  end
+
 --[[@startSession: Start mobile session
 --! @parameters:
 --! id - session number (1, 2 etc.) (mandatory)
@@ -189,22 +207,30 @@ local m = { }
             end)
         end
       end)
-    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-    :Do(function(exp, d)
-      if(exp.occurences == 1) then
-        test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
-        m.pts = m.createTableFromJsonFile(d.params.file)
-        if status then
-          updatePTU()
-          if updateFunc then
-            updateFunc(m.pts)
-          end
-          ptu(test, status)
+    if m.ptuInProgress then
+      if status then
+        updatePTU()
+        if updateFunc then
+          updateFunc(m.pts)
         end
+        ptu(test, status)
       end
-    end)
-    --TODO: Remove when issue "[GENIVI] SDL restarts PTU sequence with sending redundant BC.PolicyUpdate" is resolved
-    :Times(AtLeast(1))
+    else
+      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+      :Do(function(exp, d)
+        if(exp.occurences == 1) then
+          test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+          m.pts = m.createTableFromJsonFile(d.params.file)
+          if status then
+            updatePTU()
+            if updateFunc then
+              updateFunc(m.pts)
+            end
+            ptu(test, status)
+          end
+        end
+      end)
+    end
   end
 
 --[[@updatePreloadedPT: Update PreloadedPT file
