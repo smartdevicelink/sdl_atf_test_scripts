@@ -134,9 +134,6 @@ function Test:Precondition_Registering_app()
       self.applications[config.application1.registerAppInterfaceParams.appName] = d.params.application.appID
     end)
   self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
-  if ptuInProgress then
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  else
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,data)

@@ -151,9 +151,6 @@ function Test:RegisterFirstApp()
       EXPECT_RESPONSE(correlationId, { success = true })
       EXPECT_NOTIFICATION("OnPermissionsChange")
     end)
-  if ptuInProgress then
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  else
     EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
     EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
     :Do(function(_,data)
