@@ -124,6 +124,7 @@ function Test:Precondition_InitOnready()
     end
   end)
   :Times(AnyNumber())
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
 end
 
 function Test:Precondition_ConnectMobile()
