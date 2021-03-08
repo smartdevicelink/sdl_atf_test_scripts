@@ -143,6 +143,7 @@ function Test:Precondition_InitOnready()
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(exp, d)
     if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
       self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
       ptuInProgress = true
     end
