@@ -13,7 +13,7 @@
 --  - start resumption process
 --  - send set of <Rpc_n> requests to HMI
 -- 4. HMI responds with any <successful> resultCode to each <Rpc_n> request:
---   "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "UNSUPPORTED_RESOURCE", "TRUNCATED_DATA"
+--   "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "UNSUPPORTED_RESOURCE"
 -- SDL does:
 --  - process responses from HMI
 --  - restore all persistent data
@@ -29,7 +29,7 @@ runner.testSettings.isSelfIncluded = false
 
 -- [[ Local Variables ]]
 local successCodes = {
-  "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "UNSUPPORTED_RESOURCE", "TRUNCATED_DATA"
+  "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "UNSUPPORTED_RESOURCE"
 }
 -- [[ Local Function ]]
 local function setResponseCode(pCode)
