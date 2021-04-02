@@ -4,3 +4,4 @@
 ./test_scripts/Defects/7_2/2398_SendLocation_with_one_OR_more_allowed_params_and_one_OR_more_disallowed_params_by_user.lua
 ./test_scripts/Defects/7_2/1584_AppNotRegistered.lua
 ./test_scripts/Defects/7_2/3666_OEM_Mapping_update_after_ignition_cycle.lua
+./test_scripts/Defects/7_2/3668_App_resets_UserLocation.lua
