@@ -34,9 +34,9 @@ local function setUserLocation(pGrid)
     appID = common.app.getHMIId()
   })
   :Do(function(_, data)
-      hmi:SendResponse(data.id, data.method, "SUCCESS")
+      hmi:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS", {} })
+  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 local function sendResetGlobalProperties(pGrid)
