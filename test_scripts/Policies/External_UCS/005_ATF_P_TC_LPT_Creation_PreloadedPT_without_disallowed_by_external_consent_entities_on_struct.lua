@@ -97,7 +97,7 @@ function Test:InitHMI()
 end
 
 function Test:InitHMI_onReady()
-  self:initHMI_onReady()
+  testCasesForExternalUCS.initHMI_onReady(self)
 end
 
 function Test:ConnectMobile()

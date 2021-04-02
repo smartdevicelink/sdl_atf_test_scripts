@@ -23,6 +23,7 @@ local Event = events.Event
 local Expectation = expectations.Expectation
 local SUCCESS = expectations.SUCCESS
 local FAILED = expectations.FAILED
+local utils = require("user_modules/utils")
 
 --- HMI connection
 module.hmiConnection = hmi_connection.Connection(hmi_adapter_controller.getHmiAdapter({connection = ATF.remoteConnection}))
@@ -345,7 +346,8 @@ function module:initHMI()
           "BasicCommunication.OnSystemTimeReady",
           "BasicCommunication.OnSystemCapabilityUpdated",
           "BasicCommunication.OnServiceUpdate",
-          "BasicCommunication.OnAppPropertiesChange"
+          "BasicCommunication.OnAppPropertiesChange",
+          "BasicCommunication.OnAppCapabilityUpdated"
         })
       registerComponent("UI",
         {
@@ -428,7 +430,7 @@ function module:initHMI_onReady(hmi_table, is_cache_used)
 
   local hmi_table_internal
   if type(hmi_table) == "table" then
-    hmi_table_internal = commonFunctions:cloneTable(hmi_table)
+    hmi_table_internal = utils.cloneTable(hmi_table)
   else
     hmi_table_internal = hmi_values.getDefaultHMITable()
   end

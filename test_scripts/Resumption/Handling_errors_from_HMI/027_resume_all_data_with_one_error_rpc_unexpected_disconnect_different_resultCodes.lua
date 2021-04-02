@@ -44,7 +44,6 @@ local resultCodes = {
   "NO_APPS_REGISTERED",
   "NO_DEVICES_CONNECTED",
   "USER_DISALLOWED",
-  "TRUNCATED_DATA",
   "READ_ONLY"
 }
 
@@ -66,7 +65,7 @@ local function reRegisterApp(pAppId, pErrorCode)
     end)
   common.getHMIConnection():ExpectRequest("UI.AddSubMenu",common.resumptionData[pAppId].addSubMenu.UI)
   :Do(function(_, data)
-      common.getHMIConnection():SendError(data.id, data.method, pErrorCode, "info message")
+      common.getHMIConnection():SendError(data.id, data.method, pErrorCode)
     end)
 
   common.resumptionFullHMILevel(pAppId)
