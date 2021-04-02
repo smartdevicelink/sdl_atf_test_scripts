@@ -26,4 +26,9 @@
 ./test_scripts/Defects/7_1/3409_1_Single_transport.lua
 ./test_scripts/Defects/7_1/3409_2_Multiple_transports.lua
 ./test_scripts/Defects/7_1/3580_Revoked_app_activated_via_device_consent.lua
+./test_scripts/Defects/7_1/3610_Resumption_of_keyboard_capabilities_after_reset.lua
+./test_scripts/Defects/7_1/3628_Postponed_RAI_protocol_4.lua
+./test_scripts/Defects/7_1/3640_PTU_all_flows_Protected_Mode_v3.lua
+./test_scripts/Defects/7_1/3659_OnSystemRequest_1st_frame_non-encrypted.lua
+./test_scripts/Defects/7_1/3667_Revert_RC_SetGlobalProperties_on_failed_resumption.lua
 ./test_scripts/Defects/7_1/3163_SDL_restart_with_gear_change.lua
