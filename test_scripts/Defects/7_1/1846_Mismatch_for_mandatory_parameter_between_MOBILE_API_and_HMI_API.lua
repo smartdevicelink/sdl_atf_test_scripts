@@ -8,7 +8,7 @@
 -- 1) Clear environment
 -- 2) SDL started, HMI and mobile session connected
 -- 3) Registered and activated app
--- 5) PTU
+-- 4) PTU
 --
 -- Steps:
 -- 1) send mobile RPC "ShowConstantTBT" without "distanceToManeuver" param
@@ -77,7 +77,7 @@ runner.Step("PTU", common.policyTableUpdate, { ptuFunc })
 
 runner.Title("Test")
 runner.Step("Negative check mandatory parameter distanceToManeuver", checkShowConstantTBTNegative, {{
-		distanceToManeuverScale = params.distanceToManeuver
+		distanceToManeuverScale = params.distanceToManeuverScale
 	}})
 runner.Step("Negative check mandatory parameter distanceToManeuverScale", checkShowConstantTBTNegative, {{
 		distanceToManeuver = params.distanceToManeuver
