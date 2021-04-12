@@ -33,3 +33,4 @@
 ./test_scripts/Defects/7_1/3667_Revert_RC_SetGlobalProperties_on_failed_resumption.lua
 ./test_scripts/Defects/7_1/2604_Starting_of_protected_RPC_service_before_and_after_app_registration.lua
 ./test_scripts/Defects/7_1/1714_OnSystemRequest_send_binaryData_for_any_requestType.lua
+./test_scripts/Defects/7_1/3412_Two_Streaming_apps_and_Alert_requests.lua
