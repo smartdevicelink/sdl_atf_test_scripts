@@ -28,7 +28,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function startServiceUnprotectedACK()
-  common.getMobileSession():StartService(7)
+  common.getMobileSession():StartService(serviceId)
   common.getHMIConnection():ExpectRequest("BasicCommunication.OnServiceUpdate",
     { serviceType = "RPC", serviceEvent = "REQUEST_RECEIVED" },
     { serviceType = "RPC", serviceEvent = "REQUEST_ACCEPTED" })
