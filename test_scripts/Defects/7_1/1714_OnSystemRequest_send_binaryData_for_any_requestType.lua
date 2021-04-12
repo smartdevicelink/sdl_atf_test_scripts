@@ -6,8 +6,10 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 runner.isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
-local common = require('test_scripts/API/System/commonSystem')
-local json = require("modules/json")
+local common = require("user_modules/sequences/actions")
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local request_types = {
@@ -36,31 +38,31 @@ local f_name = os.tmpname()
 local exp_binary_data = "{ \"policy_table\": { } }"
 
 --[[ Local Functions ]]
-local function onSystemRequest(request_type, self)
+local function onSystemRequest(request_type)
   local f = io.open(f_name, "w")
   f:write(exp_binary_data)
   f:close()
 
-  self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-    { requestType = request_type, fileName = f_name, appID = self.applications["Test Application"] })
-  self.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = request_type })
+  common.getHMIConnection():SendNotification("BasicCommunication.OnSystemRequest",
+    { requestType = request_type, fileName = f_name, appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnSystemRequest", { requestType = request_type })
   :ValidIf(function(_, d)
-      local actual_binary_data = common.convertTableToString(d.binaryData, 1)
+      local actual_binary_data = d.binaryData
       return exp_binary_data == actual_binary_data
     end)
 end
 
-local function onSystemRequest_PROPRIETARY(self)
+local function onSystemRequest_PROPRIETARY()
   local f = io.open(f_name, "w")
   f:write(exp_binary_data)
   f:close()
 
-  self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-    { requestType = "PROPRIETARY", fileName = f_name, appID = self.applications["Test Application"] })
-  self.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
+  common.getHMIConnection():SendNotification("BasicCommunication.OnSystemRequest",
+    { requestType = "PROPRIETARY", fileName = f_name, appID = common.getHMIAppId() })
+  common.getMobileSession():ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
   :ValidIf(function(_, d)
-      local binary_data = json.decode(d.binaryData)
-      local actual_binary_data = common.convertTableToString(binary_data["HTTPRequest"]["body"], 1)
+      local binary_data = common.json.decode(d.binaryData)
+      local actual_binary_data = binary_data["HTTPRequest"]["body"]
       return exp_binary_data == actual_binary_data
     end)
 end
@@ -73,7 +75,7 @@ end
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("RAI with PTU", common.registerAppWithPTU)
+runner.Step("RAI with PTU", common.registerApp)
 runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
