@@ -31,4 +31,5 @@
 ./test_scripts/Defects/7_1/3640_PTU_all_flows_Protected_Mode_v3.lua
 ./test_scripts/Defects/7_1/3659_OnSystemRequest_1st_frame_non-encrypted.lua
 ./test_scripts/Defects/7_1/3667_Revert_RC_SetGlobalProperties_on_failed_resumption.lua
+./test_scripts/Defects/7_1/2604_Starting_of_protected_RPC_service_before_and_after_app_registration.lua
 ./test_scripts/Defects/7_1/1714_OnSystemRequest_send_binaryData_for_any_requestType.lua
