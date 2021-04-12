@@ -34,3 +34,4 @@
 ./test_scripts/Defects/7_1/2604_Starting_of_protected_RPC_service_before_and_after_app_registration.lua
 ./test_scripts/Defects/7_1/1714_OnSystemRequest_send_binaryData_for_any_requestType.lua
 ./test_scripts/Defects/7_1/3412_Two_Streaming_apps_and_Alert_requests.lua
+./test_scripts/Defects/7_1/3163_SDL_restart_with_gear_change.lua
