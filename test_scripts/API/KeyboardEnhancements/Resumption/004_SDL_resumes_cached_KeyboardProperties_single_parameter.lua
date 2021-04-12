@@ -63,7 +63,8 @@ local function getResumptionParams(pReqParams)
     keyboardProperties = {
       language = sgpParams.keyboardProperties.language,
       keyboardLayout = sgpParams.keyboardProperties.keyboardLayout,
-      autoCompleteList = sgpParams.keyboardProperties.autoCompleteList
+      autoCompleteList = sgpParams.keyboardProperties.autoCompleteList,
+      maskInputCharacters = sgpParams.keyboardProperties.maskInputCharacters
     }
   }
   local k, v = next(pReqParams.keyboardProperties)

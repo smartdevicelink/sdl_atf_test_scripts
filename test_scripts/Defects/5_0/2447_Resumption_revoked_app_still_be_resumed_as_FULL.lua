@@ -19,6 +19,7 @@ local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
