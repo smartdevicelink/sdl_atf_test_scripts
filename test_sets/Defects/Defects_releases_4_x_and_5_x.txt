@@ -5,7 +5,7 @@
 ./test_scripts/Defects/4_5/1873_UnsubscribeVD_OnVD_Parameters_empty_in_policy_table.lua
 ./test_scripts/Defects/4_5/1873_Parameters_empty_in_policy_table.lua
 ./test_scripts/Defects/4_5/1921_Invalid_PT_after_cutting_unknow_values.lua
-;./test_scripts/Defects/4_6/842_App_does_not_activate_when_policies_are_disabled.lua https://github.com/smartdevicelink/sdl_core/issues/3285
+./test_scripts/Defects/4_6/842_App_does_not_activate_when_policies_are_disabled.lua
 ./test_scripts/Defects/5_0/1887_PoliciesManager_allows_all_requested_params_in_case_parameters_field_is_empty.lua
 ./test_scripts/Defects/5_0/2427_policy_db_consistency_after_ignition_cycle.lua
 ./test_scripts/Defects/5_0/2405/001_omitted_omitted_SUCCESS.lua
@@ -76,5 +76,5 @@
 ./test_scripts/Defects/5_0/2670_3_GetInteriorVD_after_ignition_off.lua
 ./test_scripts/Defects/5_0/2670_4_GetInteriorVD_after_ignition_off.lua
 ;IGNITION OFF
-;./test_scripts/Defects/4_5/1225_FACTORY_DEFAULTS.lua https://github.com/smartdevicelink/sdl_core/issues/3204
+./test_scripts/Defects/4_5/1225_FACTORY_DEFAULTS.lua
 ./test_scripts/Defects/5_0/2464_SDL_does_not_send_OnSDLClose_notification_by_switching_off_with_reason_IGNITION_OFF.lua
