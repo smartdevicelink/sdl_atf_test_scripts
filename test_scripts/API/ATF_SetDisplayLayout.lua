@@ -1637,8 +1637,8 @@ end
 
 				--Verification criteria: verify SDL responses SUCCESS
 
-				local DisplayType = {"CID", "TYPE2", "TYPE5", "NGN", "GEN2_8_DMA", "GEN2_6_DMA", "MFD3", "MFD4", "MFD5", "GEN3_8_INCH"}
-				local DisplayTypeMobile = {"CID", "TYPE2", "TYPE5", "NGN", "GEN2_8_DMA", "GEN2_6_DMA", "MFD3", "MFD4", "MFD5", "GEN3_8-INCH"}
+				local DisplayType = {"CID", "TYPE2", "TYPE5", "NGN", "GEN2_8_DMA", "GEN2_6_DMA", "MFD3", "MFD4", "MFD5", "GEN3_8_INCH", "SDL_GENERIC"}
+				local DisplayTypeMobile = {"CID", "TYPE2", "TYPE5", "NGN", "GEN2_8_DMA", "GEN2_6_DMA", "MFD3", "MFD4", "MFD5", "GEN3_8-INCH", "SDL_GENERIC"}
 
 				for i = 1, #DisplayType do
 					Test["SetDispLay_Res_displayCap_displayType_InInBound_".. DisplayType[i] .."_SUCCESS"] = function(self)
