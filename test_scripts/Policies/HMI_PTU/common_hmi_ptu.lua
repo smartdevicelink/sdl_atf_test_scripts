@@ -202,4 +202,23 @@ function m.updatePolicyDB(pQuery)
   m.wait(1000)
 end
 
+--[[ @startWithOutConnectMobile: starting sequence: starting of SDL, initialization of HMI
+--! @parameters: none
+--! @return: Start event expectation
+--]]
+function m.startWithOutConnectMobile()
+  local event = actions.run.createEvent()
+  actions.init.SDL()
+  :Do(function()
+      actions.init.HMI()
+      :Do(function()
+          actions.init.HMI_onReady()
+          :Do(function()
+              actions.hmi.getConnection():RaiseEvent(event, "Start event")
+            end)
+        end)
+    end)
+  return actions.hmi.getConnection():ExpectEvent(event, "Start event")
+end
+
 return m

@@ -1,0 +1,3 @@
+./test_scripts/API/CloseApplication/001_Success_flow.lua
+./test_scripts/API/CloseApplication/002_HMI_error_response.lua
+./test_scripts/API/CloseApplication/003_App_is_registered_with_lower_version_than_the_RPC_required.lua

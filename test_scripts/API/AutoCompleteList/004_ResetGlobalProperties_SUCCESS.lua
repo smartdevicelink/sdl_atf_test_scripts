@@ -46,7 +46,8 @@ local requestUiParams = {
   keyboardProperties = {
     keyboardLayout = "QWERTY",
     autoCompleteList = {},
-    language = "EN-US"
+    language = "EN-US",
+    maskInputCharacters = "DISABLE_INPUT_KEY_MASK"
   }
 }
 

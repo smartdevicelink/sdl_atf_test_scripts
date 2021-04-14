@@ -111,6 +111,7 @@ local allParams = {
 --[[ Local Functions ]]
 local function alertManeuver(pParams)
   local cid = common.getMobileSession():SendRPC("AlertManeuver", pParams.requestParams)
+  pParams.responseNaviParams.appID = common.getHMIAppId()
   common.getHMIConnection():ExpectRequest("Navigation.AlertManeuver", pParams.responseNaviParams)
   :Do(function(_, data)
       local function alertResp()
@@ -118,6 +119,7 @@ local function alertManeuver(pParams)
       end
       common.runAfter(alertResp, 2000)
     end)
+  pParams.responseTtsParams.appID = common.getHMIAppId()
   common.getHMIConnection():ExpectRequest("TTS.Speak", pParams.responseTtsParams)
   :Do(function(_, data)
       common.getHMIConnection():SendNotification("TTS.Started")

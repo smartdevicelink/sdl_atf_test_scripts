@@ -109,7 +109,7 @@ local function sequence(desc, updateFunc)
   end
 
   function Test:InitHMI_onReady()
-    self:initHMI_onReady()
+    testCasesForExternalUCS.initHMI_onReady(self)
   end
 
   function Test:ConnectMobile()

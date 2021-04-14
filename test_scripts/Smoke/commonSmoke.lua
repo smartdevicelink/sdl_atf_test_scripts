@@ -77,8 +77,8 @@ function common.updatePreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   local additionalRPCs = {
     "SendLocation", "SubscribeVehicleData", "UnsubscribeVehicleData", "GetVehicleData", "UpdateTurnList",
-    "AlertManeuver", "DialNumber", "ReadDID", "GetDTCs", "ShowConstantTBT", "Alert", "SubtleAlert", 
-    "OnSubtleAlertPressed"
+    "AlertManeuver", "DialNumber", "ReadDID", "GetDTCs", "ShowConstantTBT", "Alert", "SubtleAlert",
+    "OnSubtleAlertPressed", "SendHapticData"
   }
   pt.policy_table.functional_groupings.NewTestCaseGroup = { rpcs = { } }
   for _, v in pairs(additionalRPCs) do
