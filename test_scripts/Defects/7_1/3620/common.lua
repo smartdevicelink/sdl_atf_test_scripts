@@ -57,6 +57,10 @@ function common.startUnprotectedRPCservice()
     frameInfo = common.frameInfo.START_SERVICE_ACK,
     encryption = false
   })
+  common.hmi.getConnection():ExpectNotification("BasicCommunication.OnServiceUpdate",
+    { serviceEvent = "REQUEST_RECEIVED", serviceType = "RPC" },
+    { serviceEvent = "REQUEST_ACCEPTED", serviceType = "RPC" })
+  :Times(2)
 end
 
 function common.startProtectedServiceWithOnServiceUpdate(pServiceParams)
