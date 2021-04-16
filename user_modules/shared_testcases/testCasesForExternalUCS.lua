@@ -59,7 +59,7 @@ local m = { }
 --! @parameters: NO
 --]]
   function m.removeLPT()
-    local data = { "AppStorageFolder", "AppInfoStorage" }
+    local data = { "AppStorageFolder" }
     for i, v in pairs(data) do
       assert(os.execute("rm -rf " .. commonPreconditions:GetPathToSDL()
         .. commonFunctions:read_parameter_from_smart_device_link_ini(v)

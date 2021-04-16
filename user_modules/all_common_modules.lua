@@ -32,9 +32,7 @@ if common_functions:IsFileExist("sdl.pid") then
 end
 os.execute("kill -9 $(ps aux | grep -e smartDeviceLinkCore | awk '{print$2}')")
 -- Remove app_info.dat to avoid resumption.
-if common_functions:IsFileExist(config.pathToSDL  .. "app_info.dat") then
-  os.execute("rm -rf " .. config.pathToSDL  .. "app_info.dat")
-end
+sdl.AppInfo.clean()
 local path_to_sdl_without_bin = string.gsub(config.pathToSDL, "bin/", "")
 local sdl_bin_bk = path_to_sdl_without_bin .. "sdl_bin_bk/"
 if common_functions:IsDirectoryExist(sdl_bin_bk) == false then

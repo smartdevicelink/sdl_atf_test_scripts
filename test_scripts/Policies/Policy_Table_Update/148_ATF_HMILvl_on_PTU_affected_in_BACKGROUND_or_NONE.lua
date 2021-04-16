@@ -29,6 +29,7 @@ local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local json = require("modules/json")
+local SDL = require("SDL")
 local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
@@ -209,7 +210,7 @@ end
 
 function Test.Precondition_Clean()
   commonSteps:DeleteLogsFileAndPolicyTable()
-  os.remove(config.pathToSDL .. "/app_info.dat") -- in order to skip resumption
+  SDL.AppInfo.clean() -- in order to skip resumption
   os.remove(policy_file_path .. "/sdl_snapshot.json")
   if not check_file_exists(policy_file_path .. "/sdl_snapshot.json") then
     print("PTS is removed")
