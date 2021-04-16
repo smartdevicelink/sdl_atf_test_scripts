@@ -11,7 +11,6 @@ local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 local mobile_session = require('mobile_session')
-local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 
 --[[ Module ]]
 local m = actions
@@ -38,7 +37,7 @@ end
 --]]
 function m.getIconValueForResumption(pAppId)
   if not pAppId then pAppId = 1 end
-  return commonPreconditions:GetPathToSDL() .. SDLConfig:GetValue("AppIconsFolder") .. "/" .. m.getConfigAppParams(pAppId).fullAppID
+  return commonPreconditions:GetPathToSDL() .. m.sdl.getSDLIniParameter("AppIconsFolder") .. "/" .. m.getConfigAppParams(pAppId).fullAppID
 end
 
 --[[ @registerAppWOPTU: register mobile application
