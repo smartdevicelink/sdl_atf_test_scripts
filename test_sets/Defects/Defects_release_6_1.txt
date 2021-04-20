@@ -42,4 +42,5 @@
 ./test_scripts/Defects/6_1/967_OnButtonPress_OnButtonEvent_in_background.lua
 ./test_scripts/Defects/6_1/974_updateDeviceList_after_closingConnection.lua
 ./test_scripts/Defects/6_1/995_OnSystemrequest_query_apps_after_unsuccessful_attempt.lua
+./test_scripts/Defects/6_1/1409_SDL_does_not_send_EndService_for_Video_Audio_Service_upon_IGNITION_OFF.lua
 ./test_scripts/Defects/6_1/2432_SDL_is_crashed_when_HMI_responds_DialNumber_value_is_not_string.lua
