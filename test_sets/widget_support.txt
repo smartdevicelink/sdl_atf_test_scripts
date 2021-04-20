@@ -5,6 +5,7 @@
 ./test_scripts/WidgetSupport/Capabilities/005_OnSCU_not_transferred_for_non_display_capabilities.lua
 ./test_scripts/WidgetSupport/Capabilities/006_GetSC_subscription_ignored.lua
 ./test_scripts/WidgetSupport/Capabilities/007_GetSC_2_apps_different_data.lua
+./test_scripts/WidgetSupport/Capabilities/008_GetSCs_no_app_specific_capabilities.lua
 ./test_scripts/WidgetSupport/CreateWindow/001_Create_widget_success.lua
 ./test_scripts/WidgetSupport/CreateWindow/002_Two_apps_create_widgets_with_the_same_names.lua
 ./test_scripts/WidgetSupport/CreateWindow/003_Two_apps_create_widgets_with_the_same_id.lua

@@ -61,7 +61,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCFailure(self)
+local function processRPCFailure()
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local notificationParams = expectedNotification
@@ -77,6 +77,7 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
+runner.Step("Activate App", common.activateApp)
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 runner.Step("Subscribe App Service Data", common.mobileSubscribeAppServiceData, { 1, manifest.serviceType, 2 })

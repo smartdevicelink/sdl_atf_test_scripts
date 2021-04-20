@@ -25,6 +25,7 @@ m.hmi = actions.hmi.getConnection
 m.getAppParams = actions.app.getParams
 m.getPTS = actions.sdl.getPTS
 m.getSDLIniParameter = actions.sdl.getSDLIniParameter
+m.setSDLIniParameter = actions.sdl.setSDLIniParameter
 m.setPreloadedPT = actions.sdl.setPreloadedPT
 m.getPreloadedPT = actions.sdl.getPreloadedPT
 m.registerNoPTU = actions.app.registerNoPTU
@@ -199,6 +200,25 @@ function m.updatePolicyDB(pQuery)
   local pathToDB = SDL.AppStorage.path() .. config.pathToSDLPolicyDB
   os.execute('sqlite3 ' .. pathToDB .. ' ' .. pQuery)
   m.wait(1000)
+end
+
+--[[ @startWithOutConnectMobile: starting sequence: starting of SDL, initialization of HMI
+--! @parameters: none
+--! @return: Start event expectation
+--]]
+function m.startWithOutConnectMobile()
+  local event = actions.run.createEvent()
+  actions.init.SDL()
+  :Do(function()
+      actions.init.HMI()
+      :Do(function()
+          actions.init.HMI_onReady()
+          :Do(function()
+              actions.hmi.getConnection():RaiseEvent(event, "Start event")
+            end)
+        end)
+    end)
+  return actions.hmi.getConnection():ExpectEvent(event, "Start event")
 end
 
 return m

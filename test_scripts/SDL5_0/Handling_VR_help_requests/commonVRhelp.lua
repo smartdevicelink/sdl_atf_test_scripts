@@ -246,9 +246,10 @@ end
 
 function m.reconnect(pAppId)
   if not pAppId then pAppId = 1 end
-  m.getMobileSession(pAppId):Stop()
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     {appID = m.getHMIAppId(pAppId), unexpectedDisconnect = true})
+  actions.mobile.disconnect()
+  actions.run.wait(1000)
   :Do(function()
     test.mobileSession[pAppId] = mobile_session.MobileSession(
       test,
@@ -312,6 +313,9 @@ function m.resumptionDataAddCommands()
   :Times(#m.commandArray)
 
   EXPECT_HMICALL("TTS.SetGlobalProperties")
+  :Do(function(_, data)
+    m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
   :ValidIf(function(_, data)
     local expectedHelpPrompt = m.vrHelpPrompt(m.commandArray)
     local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.helpPrompt, expectedHelpPrompt)
@@ -340,6 +344,9 @@ function m.resumptionDataAddCommands()
   :Times(#m.commandArray)
 
   EXPECT_HMICALL("UI.SetGlobalProperties")
+  :Do(function(_, data)
+    m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
   :ValidIf(function(_, data)
     local expectedVrHelp = m.vrHelp(m.commandArray)
     local vrCommandCompareResult = commonFunctions:is_table_equal(data.params.vrHelp, expectedVrHelp)

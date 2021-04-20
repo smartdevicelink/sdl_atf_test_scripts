@@ -50,6 +50,7 @@ local basic_ptu_file = "files/ptu.json"
 local ptu_first_app_registered = "files/ptu1app.json"
 local HMIAppID
 local language_desired = "EN-US"
+local ptuInProgress
 -- Basic applications. Using in Register tests
 local application1 =
 {
@@ -113,8 +114,17 @@ function Test:Precondition_initHMI()
   self:initHMI()
 end
 
-function Test:Precondition_initHMI_onReady()
+function Test:Precondition_InitOnready()
   self:initHMI_onReady()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:Precondition_ConnectMobile()
@@ -141,11 +151,13 @@ function Test:RegisterFirstApp()
       EXPECT_RESPONSE(correlationId, { success = true })
       EXPECT_NOTIFICATION("OnPermissionsChange")
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if not ptuInProgress then
+    EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:CheckDB_app_registration_language_gui()
@@ -166,6 +178,7 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:ActivateAppInFULLLevel()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID,"FULL")
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 function Test:InitiatePTUForGetSnapshot()

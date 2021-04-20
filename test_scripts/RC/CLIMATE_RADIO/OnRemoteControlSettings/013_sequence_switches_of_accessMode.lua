@@ -1,14 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/resource_allocation.md
 -- Item: Use Case 1: Main Flow
 --
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/resource_allocation.md
 -- Item: Use Case 1: Alternative flow 1
 --
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/resource_allocation.md
 -- Item: Use Case 1: Alternative flow 2
 --
 -- Requirement summary:

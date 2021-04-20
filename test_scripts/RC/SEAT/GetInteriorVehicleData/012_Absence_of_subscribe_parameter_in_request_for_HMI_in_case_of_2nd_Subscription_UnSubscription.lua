@@ -32,14 +32,14 @@ local commonRC = require('test_scripts/RC/commonRC')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function subscriptionToModule(pModuleType, pSubscribe, pHMIrequest)
+local function subscriptionToModule(pModuleType, pSubscribe, pHMIrequest, pResultCode)
   local mobSession = commonRC.getMobileSession()
   local cid = mobSession:SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = pSubscribe
   })
 
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+  commonRC.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData", {
     moduleType = pModuleType
   })
   :Do(function(_, data)
@@ -55,7 +55,9 @@ local function subscriptionToModule(pModuleType, pSubscribe, pHMIrequest)
       return false, 'Parameter "subscribe" is transfered to HMI with value: ' .. tostring(data.params.subscribe)
     end)
   :Times(pHMIrequest)
-  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+
+  local resultCode = pResultCode or "SUCCESS"
+  mobSession:ExpectResponse(cid, { success = true, resultCode = resultCode,
     moduleData = commonRC.actualInteriorDataStateOnHMI[pModuleType],
     isSubscribed = pSubscribe
   })
@@ -76,7 +78,7 @@ runner.Step("Send notification OnInteriorVehicleData SEAT. App is not subscribed
 runner.Step("Subscribe app to SEAT", commonRC.subscribeToModule, { "SEAT", 1 })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 -- subscribe to module 2nd time
-runner.Step("Subscribe 2nd time app to SEAT", subscriptionToModule, { "SEAT", true, 0 })
+runner.Step("Subscribe 2nd time app to SEAT", subscriptionToModule, { "SEAT", true, 0, "WARNINGS"  })
 runner.Step("Send notification OnInteriorVehicleData SEAT. App is subscribed", commonRC.isSubscribed, { "SEAT" })
 -- unsubscribe to module 1st time
 runner.Step("Unsubscribe app to SEAT", commonRC.unSubscribeToModule, { "SEAT", 1 })

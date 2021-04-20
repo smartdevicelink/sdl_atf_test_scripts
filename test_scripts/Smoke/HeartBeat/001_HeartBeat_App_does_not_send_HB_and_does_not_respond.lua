@@ -32,10 +32,10 @@ config.defaultProtocolVersion = 3
 
 --[[ Local Variables ]]
 local HBParams_1 = {
-  activateHeartbeat = false,
+  activateHeartbeat = true,
   sendHeartbeatToSDL = false,
   answerHeartbeatFromSDL = false,
-  ignoreSDLHeartBeatACK = false,
+  ignoreSDLHeartBeatACK = true,
 }
 
 local HBParams_2 = {

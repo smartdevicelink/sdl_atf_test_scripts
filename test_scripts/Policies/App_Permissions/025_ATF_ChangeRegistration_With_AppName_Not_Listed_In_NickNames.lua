@@ -113,7 +113,7 @@ function Test:Precondition_RestorePreloadedPT()
   RestorePreloadedPT()
 end
 
-function Test:Precondition_Register_App_Activate_And_consent_Device()
+function Test:Precondition_RegisterApp()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface",
     {
       syncMsgVersion =
@@ -153,7 +153,13 @@ function Test:Precondition_Register_App_Activate_And_consent_Device()
       }
     })
   :Do(function(_,data)
-      local RequestIdActivateApp = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = data.params.application.appID})
+      self.applications["SPT"] = data.params.application.appID
+    end)
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+end
+
+function Test:App_Activate_And_consent_Device()
+      local RequestIdActivateApp = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications["SPT"]})
       EXPECT_HMIRESPONSE(RequestIdActivateApp, {result = {code = 0, isSDLAllowed = false}, method = "SDL.ActivateApp"})
       :Do(function(_,_)
           local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
@@ -167,8 +173,6 @@ function Test:Precondition_Register_App_Activate_And_consent_Device()
                 end)
             end)
         end)
-    end)
-    EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
 end
 
 --[[ Test ]]

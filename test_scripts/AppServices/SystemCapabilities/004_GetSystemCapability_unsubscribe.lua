@@ -67,7 +67,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function GetSystemCapabilitySubscribe(self)
+local function GetSystemCapabilitySubscribe()
   local mobileSession2 = common.getMobileSession(2)
   local cid = mobileSession2:SendRPC(rpc.name, rpc.params)
   local responseParams = expectedResponse
@@ -75,7 +75,7 @@ local function GetSystemCapabilitySubscribe(self)
   mobileSession2:ExpectResponse(cid, responseParams)
 end
 
-local function PublishServiceExpectNotification(self)
+local function PublishServiceExpectNotification()
   local mobileSession2 = common.getMobileSession(2)
 
   common.publishMobileAppService(manifest, 1)
@@ -86,7 +86,7 @@ local function PublishServiceExpectNotification(self)
 
 end
 
-local function GetSystemCapabilityUnsubscribe(self)
+local function GetSystemCapabilityUnsubscribe()
   local mobileSession2 = common.getMobileSession(2)
   params = rpc.params
   params.subscribe = false
@@ -96,13 +96,15 @@ local function GetSystemCapabilityUnsubscribe(self)
   mobileSession2:ExpectResponse(cid, responseParams)
 end
 
-local function DeactivateService(self)
+local function DeactivateService()
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local cid = common.getHMIConnection():SendRequest("AppService.AppServiceActivation", {
     activate = false,
     serviceID = common.getAppServiceID()
   })
+  
+  common.getHMIConnection():ExpectResponse(cid, {result = {code = 0, method = "AppService.AppServiceActivation"}})
 
   mobileSession:ExpectNotification("OnSystemCapabilityUpdated", 
   common.appServiceCapabilityUpdateParams("DEACTIVATED", manifest)):Times(1)
