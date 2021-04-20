@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/RC/InteriorVehicleData_cache/000_cache_2_apps_sequence.lua
 ./test_scripts/RC/InteriorVehicleData_cache/001_GetInteriorVD_without_subscribe.lua
 ./test_scripts/RC/InteriorVehicleData_cache/002_GetInteriorVD_without_subscribe_2_requests.lua

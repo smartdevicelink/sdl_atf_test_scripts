@@ -52,12 +52,17 @@ local function getHMIParams()
   return hmiCaps
 end
 
+local function start()
+  commonRC.start(getHMIParams())
+  :Timeout(20000)
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { enabledModule }, true })
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", start)
 runner.Step("RAI", commonRC.registerAppWOPTU)
 runner.Step("Activate App", commonRC.activateApp)
 

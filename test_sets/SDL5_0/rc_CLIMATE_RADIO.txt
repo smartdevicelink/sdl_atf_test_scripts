@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/RC/CLIMATE_RADIO/ButtonPress/001_success_flow_for_climate_and_radio.lua
 ./test_scripts/RC/CLIMATE_RADIO/ButtonPress/002_disallow_flow_by_policy_for_climate.lua
 ./test_scripts/RC/CLIMATE_RADIO/ButtonPress/003_disallow_flow_by_policy_for_radio.lua

@@ -19,6 +19,8 @@
 -- Expected result:
 -- PTU flow started
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -159,7 +161,8 @@ function Test:TestStep_Set_Odometer_Value_And_Check_That_PTU_Is_Triggered()
   self.hmiConnection:SendNotification("VehicleInfo.OnVehicleData", {odometer = 2250})
   EXPECT_NOTIFICATION("OnVehicleData", {odometer = 2250})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(AtLeast(1))
+  :Do(function(_, data) self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {}) end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 --[[ Postconditions ]]

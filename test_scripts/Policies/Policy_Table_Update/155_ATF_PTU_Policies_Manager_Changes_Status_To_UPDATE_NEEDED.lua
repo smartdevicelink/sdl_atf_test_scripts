@@ -22,6 +22,8 @@
 --
 -- TODO: Reduce value of timeout_after_x_seconds parameter in LPT in order to make test faster
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -86,7 +88,7 @@ function Test:TestStep_ChangeStatus_Update_Needed()
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY", fileType = "JSON"}):Timeout(12000)
       :Do(function(_,_) time_system_request[#time_system_request + 1] = timestamp() end)
 
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UPDATE_NEEDED"}):Times(2):Timeout(time_wait+2000)
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}):Timeout(time_wait+2000)
       :Do(function(_,data)
           if(data.params.status == "UPDATE_NEEDED" ) then
             --first retry sequence

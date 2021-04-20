@@ -2,7 +2,7 @@
 --  [HMILevel Resumption]: Conditions to resume app to FULL in the next ignition cycle
 --
 --  Description:
---  Check that SDL does not perform App resumption in case when app is
+--  Check that SDL does not perform HMI level resumption of an App in case when it is
 --  registered in more than 30 sec. after BC.OnReady from HMI in the very next ignition cycle
 --
 --  1. Used precondition
@@ -17,101 +17,54 @@
 --  1. SDL sends to HMI OnSDLClose.
 --     App is registered successfully and get default HMI level.
 ---------------------------------------------------------------------------------------------------
---[[ General Precondition before ATF start ]]
-config.defaultProtocolVersion = 2
-config.application1.registerAppInterfaceParams.isMediaApplication = true
 
--- [[ Required Shared Libraries ]]
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
-local mobile_session = require('mobile_session')
-local SDL = require('SDL')
+--[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
+local common = require('test_scripts/Smoke/commonSmoke')
 
---[[ General Settings for configuration ]]
-Test = require('user_modules/dummy_connecttest')
-require('cardinalities')
-require('user_modules/AppTypes')
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
--- [[Local variables]]
-local default_app_params = config.application1.registerAppInterfaceParams
+-- [[ Local Functions ]]
+local function expAppUnregistered()
+  common.getMobileSession():ExpectNotification("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+end
 
---[[ Preconditions ]]
-commonFunctions:newTestCasesGroup("Preconditions")
-commonSteps:DeletePolicyTable()
-commonSteps:DeleteLogsFiles()
-
-function Test:Start_SDL_With_One_Activated_App()
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self):Do(function()
-    self:initHMI():Do(function()
-      commonFunctions:userPrint(35, "HMI initialized")
-      self:initHMI_onReady():Do(function ()
-        commonFunctions:userPrint(35, "HMI is ready")
-        self:connectMobile():Do(function ()
-          commonFunctions:userPrint(35, "Mobile Connected")
-          self:startSession():Do(function ()
-            commonFunctions:userPrint(35, "App is registered")
-            commonSteps:ActivateAppInSpecificLevel(self, self.applications[default_app_params.appName])
-            EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL",audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
-            commonFunctions:userPrint(35, "App is activated")
-          end)
-        end)
-      end)
+local function expResData()
+  common.getHMIConnection():ExpectRequest("VR.AddCommand", common.reqParams.AddCommand.hmi)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
     end)
-  end)
-end
-
---[[ Test ]]
-commonFunctions:newTestCasesGroup("SDL does not perform App resumption when app is registered in more than 30 sec after BC.OnReady")
-
-function Test:IGNITION_OFF()
-  self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
-    { reason = "SUSPEND" })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLPersistenceComplete"):Do(function()
-    SDL:DeleteFile()
-    self.hmiConnection:SendNotification("BasicCommunication.OnExitAllApplications",
-      { reason = "IGNITION_OFF" })
-    EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
-  end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-  :Do(function()
-      SDL:StopSDL()
+  common.getHMIConnection():ExpectRequest("UI.AddSubMenu", common.reqParams.AddSubMenu.hmi)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS")
     end)
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-function Test:Restart_SDL_And_Add_Mobile_Connection()
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self):Do(function()
-    self:initHMI():Do(function()
-      commonFunctions:userPrint(35, "HMI initialized")
-      self:initHMI_onReady():Do(function ()
-        commonFunctions:userPrint(35, "HMI is ready")
-        self:connectMobile():Do(function ()
-          commonFunctions:userPrint(35, "Mobile Connected")
-        end)
-      end)
-    end)
-  end)
+local function expResLvl()
+  common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp")
+  :Times(0)
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+  :Times(1)
 end
 
-function Test.Sleep_31_sec()
-  os.execute("sleep " .. 31)
-end
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile, 1st cycle", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Add Command", common.addCommand)
+runner.Step("Add SubMenu", common.addSubMenu)
 
-function Test:Register_And_No_Resume_App()
-  local mobile_session1 = mobile_session.MobileSession(self, self.mobileConnection)
-  local on_rpc_service_started = mobile_session1:StartRPC()
-  on_rpc_service_started:Do(function()
-    commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false)
-  end)
-end
+runner.Title("Test")
+runner.Step("Ignition Off", common.ignitionOff, { expAppUnregistered })
+runner.Step("Start SDL, HMI, connect Mobile, 2nd cycle", common.start)
+runner.Step("Wait 31 sec", common.wait, { 31000 })
+runner.Step("ReRegister App", common.reregisterApp, { "SUCCESS", expResData, expResLvl })
 
--- [[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postcondition")
-function Test.Stop_SDL()
-  StopSDL()
-end
-
-return Test
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)

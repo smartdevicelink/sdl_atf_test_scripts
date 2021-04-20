@@ -31,9 +31,9 @@ local itemEnum
 
 for VDkey, VDitem in pairs (common.customDataTypeSample)do
   if VDitem.name == "custom_vd_item3_enum" then
+    itemEnum = common.cloneTable(common.customDataTypeSample[VDkey])
     common.customDataTypeSample[VDkey]["since"] = "1.0"
     common.customDataTypeSample[VDkey]["until"] = "5.0"
-    itemEnum = common.cloneTable(common.customDataTypeSample[VDkey])
     itemEnum.removed = true
     itemEnum.since = "5.0"
   elseif VDitem.name == "custom_vd_item4_string" then
@@ -71,19 +71,19 @@ for i=1,2 do
   runner.Step("App" .. i .. " GetVehicleData custom_vd_item4_string", common.GetVD, { i, "custom_vd_item4_string" })
 end
 
-runner.Step("App2 SubscribeVehicleData custom_vd_item4_string", common.VDsubscription,
-  { appSessionId2, "custom_vd_item4_string", "SubscribeVehicleData" })
-runner.Step("App2 OnVehicleData custom_vd_item4_string", common.onVD, { appSessionId2, "custom_vd_item4_string" })
-runner.Step("App2 UnsubscribeVehicleData custom_vd_item4_string", common.VDsubscription,
-  { appSessionId2, "custom_vd_item4_string", "UnsubscribeVehicleData" })
-runner.Step("App2 GetVehicleData custom_vd_item4_string", common.GetVD, { appSessionId2, "custom_vd_item4_string" })
+runner.Step("App1 SubscribeVehicleData custom_vd_item3_enum", common.VDsubscription,
+  { appSessionId1, "custom_vd_item3_enum", "SubscribeVehicleData" })
+runner.Step("App1 OnVehicleData custom_vd_item3_enum", common.onVD, { appSessionId1, "custom_vd_item3_enum" })
+runner.Step("App1 UnsubscribeVehicleData custom_vd_item3_enum", common.VDsubscription,
+  { appSessionId1, "custom_vd_item3_enum", "UnsubscribeVehicleData" })
+runner.Step("App1 GetVehicleData custom_vd_item3_enum", common.GetVD, { appSessionId1, "custom_vd_item3_enum" })
 
-runner.Step("App1 SubscribeVehicleData custom_vd_item3_enum", common.errorRPCprocessing,
-  { appSessionId1, "custom_vd_item3_enum", "SubscribeVehicleData", "INVALID_DATA"})
-runner.Step("App1 OnVehicleData custom_vd_item3_enum", common.onVD,
-  { appSessionId1, "custom_vd_item3_enum", common.VD.NOT_EXPECTED })
-runner.Step("App1 GetVehicleData custom_vd_item3_enum", common.errorRPCprocessing,
-  { appSessionId1, "custom_vd_item3_enum", "GetVehicleData", "INVALID_DATA"})
+runner.Step("App2 SubscribeVehicleData custom_vd_item3_enum", common.errorRPCprocessing,
+  { appSessionId2, "custom_vd_item3_enum", "SubscribeVehicleData", "INVALID_DATA"})
+runner.Step("App2 OnVehicleData custom_vd_item3_enum", common.onVD,
+  { appSessionId2, "custom_vd_item3_enum", common.VD.NOT_EXPECTED })
+runner.Step("App2 GetVehicleData custom_vd_item3_enum", common.errorRPCprocessing,
+  { appSessionId2, "custom_vd_item3_enum", "GetVehicleData", "INVALID_DATA"})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

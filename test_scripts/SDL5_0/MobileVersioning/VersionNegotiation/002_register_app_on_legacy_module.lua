@@ -32,6 +32,9 @@ local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 local load_schema = require('load_schema')
 local mob_api_version = load_schema.mob_api_version
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
+
 --[[ Local Variables ]]
 local requestParams = {
 	syncMsgVersion = {
@@ -80,7 +83,7 @@ local function GetNotificationParams()
 	notificationParams.application.deviceInfo = {
 		name = commonSmoke.getDeviceName(),
 		id = commonSmoke.getDeviceMAC(),
-		transportType = "WIFI",
+		transportType = commonSmoke.getDeviceTransportType(),
 		isSDLAllowed = true
 	}
 	notificationParams.application.policyAppID = requestParams.appID
@@ -90,21 +93,21 @@ local function GetNotificationParams()
 end
 
 --[[ Local Functions ]]
-local function UnregisterAppInterface(self)
-	local cid = self.mobileSession1:SendRPC("UnregisterAppInterface", { })
+local function UnregisterAppInterface()
+	local cid = commonSmoke.getMobileSession():SendRPC("UnregisterAppInterface", { })
 	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
 		{ appID = commonSmoke.getHMIAppId(), unexpectedDisconnect = false })
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+	commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-local function RegisterAppInterface(self)
-	local CorIdRAI = self.mobileSession1:SendRPC("RegisterAppInterface", requestParams)
+local function RegisterAppInterface()
+	local CorIdRAI = commonSmoke.getMobileSession():SendRPC("RegisterAppInterface", requestParams)
 	local notificationParams = GetNotificationParams()
 	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", notificationParams)
-	self.mobileSession1:ExpectResponse(CorIdRAI, { success = true, resultCode = "SUCCESS", syncMsgVersion = responseSyncMsgVersion})
-	self.mobileSession1:ExpectNotification("OnHMIStatus",
+	commonSmoke.getMobileSession():ExpectResponse(CorIdRAI, { success = true, resultCode = "SUCCESS", syncMsgVersion = responseSyncMsgVersion})
+	commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
 		{ hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-	self.mobileSession1:ExpectNotification("OnPermissionsChange")
+	commonSmoke.getMobileSession():ExpectNotification("OnPermissionsChange")
 end
 
 --[[ Scenario ]]

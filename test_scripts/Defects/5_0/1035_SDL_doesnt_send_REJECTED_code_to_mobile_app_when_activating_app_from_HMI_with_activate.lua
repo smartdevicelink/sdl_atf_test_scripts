@@ -20,6 +20,9 @@
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Defects/commonDefects')
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 local kRejected = 4
 local kSuccess = 0

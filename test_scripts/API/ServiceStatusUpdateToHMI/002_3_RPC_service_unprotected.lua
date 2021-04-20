@@ -15,6 +15,7 @@
 --   - not start PTU sequence
 --   - send OnServiceUpdate (<service_type>, REQUEST_ACCEPTED) to HMI
 --   - send StartServiceACK(<service_type>, encryption = false) to App
+--   - leave the app in current HMI level
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -61,6 +62,12 @@ function common.onServiceUpdateFunc(pServiceTypeValue)
     end
     return true
   end)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication")
+  :Times(0)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus")
+  :Times(0)
 end
 
 --[[ Scenario ]]

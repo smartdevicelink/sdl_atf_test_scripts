@@ -19,6 +19,7 @@ local SDL = require("modules/SDL")
 
 --[[ Local Variables ]]
 local common = {}
+common.getPolicyAppId = actions.app.getPolicyAppId
 common.start = actions.start
 common.setSDLIniParameter = actions.setSDLIniParameter
 common.activateApp = actions.activateApp
@@ -38,6 +39,7 @@ common.tableToString = utils.tableToString
 common.tableToJsonFile = utils.tableToJsonFile
 common.jsonFileToTable = utils.jsonFileToTable
 common.isFileExist = utils.isFileExist
+common.wait = utils.wait
 
 common.GetPathToSDL = commonPreconditions.GetPathToSDL
 
@@ -98,7 +100,6 @@ local function VehicleDataItemsWithDataTableCreation()
       end
     end
 
-    common.VehicleDataItemsWithData.engineTorque.APItype = "VEHICLEDATA_ENGINETORQUE"
     local gpsParams = common.VehicleDataItemsWithData.gps.params
     gpsParams.longitudeDegrees.value = 100
     gpsParams.latitudeDegrees.value = 20.5
@@ -130,16 +131,39 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.instantFuelConsumption.value = 1000.1
     common.VehicleDataItemsWithData.instantFuelConsumption.APItype = "VEHICLEDATA_FUELCONSUMPTION"
     common.VehicleDataItemsWithData.fuelRange.value = {
-      { type = "GASOLINE" , range = 20 }, { type = "BATTERY", range = 100 }}
+      { type = "GASOLINE", range = 20, level = 5, levelState = "NORMAL", capacity = 1234, capacityUnit = "LITERS" },
+      { type = "BATTERY", range = 100, level = 8, levelState = "UNKNOWN", capacity = 2345, capacityUnit = "KILOWATTHOURS" }}
     common.VehicleDataItemsWithData.fuelRange.APItype = "VEHICLEDATA_FUELRANGE"
     common.VehicleDataItemsWithData.externalTemperature.value = 24.1
     common.VehicleDataItemsWithData.externalTemperature.APItype = "VEHICLEDATA_EXTERNTEMP"
+    local climateDataParams = common.VehicleDataItemsWithData.climateData.params
+    climateDataParams.externalTemperature.params.value.value = 25.5
+    climateDataParams.externalTemperature.params.unit.value = "CELSIUS"
+    climateDataParams.cabinTemperature.params.value.value = 20.5
+    climateDataParams.cabinTemperature.params.unit.value = "CELSIUS"
+    climateDataParams.atmosphericPressure.value = 1024
+    common.VehicleDataItemsWithData.climateData.APItype = "VEHICLEDATA_CLIMATEDATA"
     common.VehicleDataItemsWithData.turnSignal.value = "OFF"
     common.VehicleDataItemsWithData.turnSignal.APItype = "VEHICLEDATA_TURNSIGNAL"
     common.VehicleDataItemsWithData.vin.value = "SJFHSIGD4058569"
     common.VehicleDataItemsWithData.vin.APItype = "VEHICLEDATA_VIN"
     common.VehicleDataItemsWithData.prndl.value = "PARK"
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
+    common.VehicleDataItemsWithData.handsOffSteering.value = true
+    common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
+    common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
+      escSystem = "ON" , trailerSwayControl = "OFF" }
+    common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
+    local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
+    gearStatusParams.userSelectedGear.value = "NINTH"
+    gearStatusParams.actualGear.value = "TENTH"
+    gearStatusParams.transmissionType.value = "MANUAL"
+    common.VehicleDataItemsWithData.gearStatus.APItype = "VEHICLEDATA_GEARSTATUS"
+    common.VehicleDataItemsWithData.windowStatus.value = {
+    { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+      state = { approximatePosition = 50, deviation = 50 }
+    }}
+    common.VehicleDataItemsWithData.windowStatus.APItype = "VEHICLEDATA_WINDOWSTATUS"
     local tirePressureParams = common.VehicleDataItemsWithData.tirePressure.params
     tirePressureParams.pressureTelltale.value = "OFF"
     local leftFrontParams = tirePressureParams.leftFront.params
@@ -194,6 +218,22 @@ local function VehicleDataItemsWithDataTableCreation()
     bodyInformationParams.passengerDoorAjar.value = false
     bodyInformationParams.rearLeftDoorAjar.value = false
     bodyInformationParams.rearRightDoorAjar.value = false
+    bodyInformationParams.doorStatuses.value = {
+      { location = { col = 49, row = 49, level = 49, colspan = 49, rowspan = 49, levelspan = 49 },
+        status = "CLOSED"
+      }
+    }
+    bodyInformationParams.gateStatuses.value = {
+      { location = { col = 50, row = 50, level = 50, colspan = 50, rowspan = 50, levelspan = 50 },
+        status = "AJAR"
+      }
+    }
+    bodyInformationParams.roofStatuses.value = {
+      { location = { col = 51, row = 51, level = 51, colspan = 51, rowspan = 51, levelspan = 51 },
+        state = { approximatePosition = 52, deviation = 52 },
+        status = "REMOVED"
+      }
+    }
     common.VehicleDataItemsWithData.bodyInformation.APItype = "VEHICLEDATA_BODYINFO"
     local deviceStatusParams = common.VehicleDataItemsWithData.deviceStatus.params
     deviceStatusParams.voiceRecOn.value = true
@@ -260,6 +300,14 @@ local function VehicleDataItemsWithDataTableCreation()
     local myKeyParams = common.VehicleDataItemsWithData.myKey.params
     myKeyParams.e911Override.value = "ON"
     common.VehicleDataItemsWithData.myKey.APItype = "VEHICLEDATA_MYKEY"
+    local seatOccupancyParams = common.VehicleDataItemsWithData.seatOccupancy.params
+    seatOccupancyParams.seatsOccupied.value = {
+      { seatLocation = { grid = { col = 53, row = 53, level = 53, colspan = 53, rowspan = 53, levelspan = 53 }},
+        conditionActive = true }}
+    seatOccupancyParams.seatsBelted.value = {
+      { seatLocation = { grid = { col = 54, row = 54, level = 54, colspan = 54, rowspan = 54, levelspan = 54 }},
+        conditionActive = false }}
+    common.VehicleDataItemsWithData.seatOccupancy.APItype = "VEHICLEDATA_SEATOCCUPANCY"
   else
     utils.cprint(31, "VehicleDataItemsWithData are missed in preloaded file")
   end
@@ -526,6 +574,7 @@ function common.policyTableUpdateWithOnPermChange(pPTUpdateFunc, pExpNotificatio
 end
 
 function common.validation(actualData, expectedData, pMessage)
+  if actualData == nil then return false, "Actual table: nil" end
   if true ~= common:is_table_equal(actualData, expectedData) then
       return false, pMessage .. " contains unexpected parameters.\n" ..
       "Expected table: " .. common.tableToString(expectedData) .. "\n" ..
@@ -749,7 +798,7 @@ function common.getVehicleDataResponse(pVehicleData)
   local parentVDname = common.VehicleDataItemsWithData[pVehicleData].name
   local HMIresponse = {}
   local mobileResponse = {}
-  if pVehicleData == "fuelRange" then
+  if pVehicleData == "fuelRange" or pVehicleData == "windowStatus" then
     HMIresponse[parentVDkey] = common.VehicleDataItemsWithData[pVehicleData].value
     mobileResponse[parentVDname] = common.VehicleDataItemsWithData[pVehicleData].value
   elseif
@@ -803,7 +852,7 @@ function common.ptuFuncWithCustomData(pTbl)
   rpcsGroupWithAllVehicleData.SubscribeVehicleData.parameters = customDataNames
   rpcsGroupWithAllVehicleData.UnsubscribeVehicleData.parameters = customDataNames
 
-  pTbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID].groups = {
+  pTbl.policy_table.app_policies[actions.app.getPolicyAppId(1)].groups = {
     "Base-4", "GroupWithAllRpcSpecVehicleData", "GroupWithAllVehicleData"
   }
 end
@@ -811,7 +860,7 @@ end
 function common.ptuFuncWithCustomData2Apps(pTbl)
   common.ptuFuncWithCustomData(pTbl)
 
-  pTbl.policy_table.app_policies[common.getConfigAppParams(2).fullAppID].groups = {
+  pTbl.policy_table.app_policies[actions.app.getPolicyAppId(2)].groups = {
     "Base-4", "GroupWithAllRpcSpecVehicleData", "GroupWithAllVehicleData"
   }
 end
@@ -829,7 +878,7 @@ function common.ignitionOff()
   :Do(function()
       removeSessions()
       StopSDL()
-      utils.wait(1000)
+      common.wait(1000)
     end)
   common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
@@ -859,13 +908,10 @@ function common.ignitionOff()
 end
 
 function common.unexpectedDisconnect()
-  test.mobileConnection:Close()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
-  :Do(function()
-      for i = 1, common.getAppsCount() do
-        test.mobileSession[i] = nil
-      end
-    end)
+  :Times(actions.mobile.getAppsCount())
+  actions.mobile.disconnect()
+  utils.wait(1000)
 end
 
 function common.connectMobile()
@@ -876,10 +922,10 @@ function common.connectMobile()
     end)
 end
 
-function common.ptuWithOnPolicyUpdateFromHMI(pPtuFunc, pVDparams)
+function common.ptuWithOnPolicyUpdateFromHMI(pPtuFunc, pVDparams, pExpNotificationFunc)
   common.isPTUStarted()
   :Do(function()
-    common.policyTableUpdateWithOnPermChange(pPtuFunc, nil, pVDparams)
+    common.policyTableUpdateWithOnPermChange(pPtuFunc, pExpNotificationFunc, pVDparams)
   end)
   common.getHMIConnection():SendNotification("SDL.OnPolicyUpdate", {} )
 end
@@ -899,7 +945,7 @@ function common.cleanSessions()
         test.mobileSession[i] = nil
       end)
   end
-  utils.wait()
+  common.wait()
 end
 
 function common.updateCustomDataTypeSample(pName, dParam, pValue)
@@ -915,14 +961,7 @@ function common.updateCustomDataTypeSample(pName, dParam, pValue)
 end
 
 function common.expUpdateNeeded()
-  if test.sdlBuildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" then
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-      { status = "UPDATING" },
-      { status = "UPDATE_NEEDED" })
-    :Times(2)
-  else
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
-  end
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
 end
 
 function common.getCustomAndRpcSpecDataNames()
@@ -991,6 +1030,15 @@ function common.getAllVehicleData()
     table.insert(allVDdata, value)
   end
   return allVDdata
+end
+
+function common.exitApps()
+  for appId = 1, common.getAppsCount() do
+    common.getMobileSession(appId):ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" })
+    common.getHMIConnection():SendNotification("BasicCommunication.OnExitApplication", {
+        appID = common.getHMIAppId(appId),
+        reason = "USER_EXIT" })
+  end
 end
 
 return common

@@ -1,4 +1,3 @@
-local config = require('config')
 
 local CurrentAppType = config.application1.registerAppInterfaceParams.appHMIType
 Test.appHMITypes = {DEFAULT = false, COMMUNICATION = false, MEDIA = false, MESSAGING = false, NAVIGATION = false, INFORMATION = false, SOCIAL = false, BACKGROUND_PROCESS = false, TESTING = false, SYSTEM = false}

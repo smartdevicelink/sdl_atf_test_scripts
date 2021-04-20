@@ -18,6 +18,8 @@
 -- 1. status = "REJECTED"
 -- 2. hmiLevel = "NONE"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appName = "App1"
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }

@@ -14,6 +14,8 @@
 -- No prompts or notification are observed on HMI
 -- Note: Requirement under clarification! Assumed that OnAppPermissionChanged and OnSDLConsentNeeded should not come
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -81,18 +83,12 @@ function Test:TestStep_Firs_Time_Register_App_And_Check_That_No_Permission_Notif
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }
     })
   :Do(function(_,data)
-      if(order_communication ~= 1 and order_communication ~= 2) then
-        commonFunctions:printError("BasicCommunication.OnAppRegistered is not received 1 or 2 in message order. Real: received number: "..order_communication)
-        is_test_fail = true
-      end
-      order_communication = order_communication + 1
-
       self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
     end)
   EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged", {}):Times(0)
@@ -100,8 +96,8 @@ function Test:TestStep_Firs_Time_Register_App_And_Check_That_No_Permission_Notif
 
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   :Do(function(_,_)
-      if(order_communication ~= 2 and order_communication ~= 1) then
-        commonFunctions:printError("RAI response is not received 1 or 2 in message order. Real: received number: "..order_communication)
+      if(order_communication ~= 1) then
+        commonFunctions:printError("RAI response is not received 1 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
       order_communication = order_communication + 1
@@ -109,8 +105,8 @@ function Test:TestStep_Firs_Time_Register_App_And_Check_That_No_Permission_Notif
 
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
   :Do(function(_,_)
-      if(order_communication ~= 3) then
-        commonFunctions:printError("OnHMIStatus is not received 3 in message order. Real: received number: "..order_communication)
+      if(order_communication ~= 2) then
+        commonFunctions:printError("OnHMIStatus is not received 2 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
       order_communication = order_communication + 1
@@ -118,8 +114,8 @@ function Test:TestStep_Firs_Time_Register_App_And_Check_That_No_Permission_Notif
 
   EXPECT_NOTIFICATION("OnPermissionsChange", {})
   :Do(function(_,_)
-      if(order_communication ~= 4) then
-        commonFunctions:printError("OnPermissionsChange is not received 4 in message order. Real: received number: "..order_communication)
+      if(order_communication ~= 3) then
+        commonFunctions:printError("OnPermissionsChange is not received 3 in message order. Real: received number: "..order_communication)
         is_test_fail = true
       end
 

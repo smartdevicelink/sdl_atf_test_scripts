@@ -9,3 +9,5 @@
 ./test_scripts/CloudAppRPCs/009_GetCloudAppProperties_DATA_NOT_AVAILABLE.lua
 ./test_scripts/CloudAppRPCs/010_get_icon_url.lua
 ./test_scripts/CloudAppRPCs/011_UpdateAppList_NewCloudApplication.lua
+./test_scripts/CloudAppRPCs/012_Same_app_name_mobile_app_Disallowed.lua
+./test_scripts/CloudAppRPCs/013_Same_app_name_mobile_app_Unregistered.lua

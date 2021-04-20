@@ -27,6 +27,8 @@
 -- SDL replaces the following sections of the Local Policy Table with the
 --corresponding sections from PTU: module_config, functional_groupings and app_policies
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
 config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
@@ -78,20 +80,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_ConnectDevice()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          isSDLAllowed = true,
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_RegisterApp()

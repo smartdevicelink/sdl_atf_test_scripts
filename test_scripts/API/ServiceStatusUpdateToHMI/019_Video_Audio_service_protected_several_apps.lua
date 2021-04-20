@@ -31,6 +31,7 @@
 --   - send OnServiceUpdate (<service_type>, REQUEST_RECEIVED) to HMI
 --   - send OnServiceUpdate (<service_type>, REQUEST_ACCEPTED) to HMI
 --   - send StartServiceACK(<service_type>, encryption = true) to App_1
+--   - leave the app in current HMI level
 -- 6) App_2 does steps 1) - 5) with the same messages and results
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -54,6 +55,12 @@ function common.onServiceUpdateFunc(pServiceTypeValue, pAppId)
     { serviceEvent = "REQUEST_RECEIVED", serviceType = pServiceTypeValue, appID = common.getHMIAppId(pAppId) },
     { serviceEvent = "REQUEST_ACCEPTED", serviceType = pServiceTypeValue, appID = common.getHMIAppId(pAppId) })
   :Times(2)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication")
+  :Times(0)
+
+  common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus")
+  :Times(0)
 end
 
 function common.serviceResponseFunc(pServiceId, pAppId)

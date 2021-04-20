@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("test_scripts/RC/commonRC")
-local utils = require("user_modules/utils")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -44,7 +43,7 @@ local function subscribeToModule(pAudioSources)
       end
       return true
     end)
-  utils.wait(500)
+  common.wait(500)
 end
 
 --[[ Scenario ]]

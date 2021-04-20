@@ -22,6 +22,8 @@
 --   - send OnStatusUpdate(UPDATE_NEEDED) to HMI
 --   - send OnServiceUpdate (<service_type>, REQUEST_REJECTED, PTU_FAILED) to HMI
 --   - send StartServiceNACK(<service_type>, encryption = false) to App
+--   - send BC.CloseApplication to HMI
+--   - send OnHMIStatus(NONE) to mobile app
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -40,6 +42,14 @@ function common.onServiceUpdateFunc(pServiceTypeValue)
     { serviceEvent = "REQUEST_REJECTED", serviceType = pServiceTypeValue, appID = common.getHMIAppId(),
       reason = "PTU_FAILED" })
   :Times(2)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
 function common.serviceResponseFunc(pServiceId)

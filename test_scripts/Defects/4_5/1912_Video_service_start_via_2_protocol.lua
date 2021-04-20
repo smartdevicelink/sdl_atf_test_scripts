@@ -17,6 +17,9 @@ local constants = require('protocol_handler/ford_protocol_constants')
 local commonDefects = require('test_scripts/Defects/4_5/commonDefects')
 local events = require('events')
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.appHMIType = {"NAVIGATION"}

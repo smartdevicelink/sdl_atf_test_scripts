@@ -17,6 +17,8 @@
 -- Expected result:
 -- PoliciesManager must add a timestamp of user consent for the current mobile device into “time_stamp” field in the format of "<yyyy-mm-dd>T<hh:mm:ss>Z".
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')

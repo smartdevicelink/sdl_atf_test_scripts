@@ -16,6 +16,8 @@
 --   - not start PTU sequence
 --   - send OnServiceUpdate (<service_type>, REQUEST_REJECTED, PROTECTION_ENFORCED) to HMI
 --   - send StartServiceNACK(<service_type>, encryption = false) to App
+--   - send BC.CloseApplication to HMI
+--   - send OnHMIStatus(NONE) to mobile app
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -56,6 +58,14 @@ function common.onServiceUpdateFunc(pServiceTypeValue)
     { serviceEvent = "REQUEST_REJECTED", serviceType = pServiceTypeValue, appID = common.getHMIAppId(),
       reason = "PROTECTION_ENFORCED" })
   :Times(2)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
 --[[ Scenario ]]

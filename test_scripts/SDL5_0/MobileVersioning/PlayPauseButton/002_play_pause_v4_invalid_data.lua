@@ -30,6 +30,8 @@
 local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion = {
   majorVersion = 4,
   minorVersion = 5,
@@ -37,20 +39,20 @@ config.application1.registerAppInterfaceParams.syncMsgVersion = {
 }
 
 --[[ Local Functions ]]
-local function subscribeButtonSuccess(pButName, self)
-  local cid = self.mobileSession1:SendRPC("SubscribeButton", { buttonName = pButName })
+local function subscribeButtonSuccess(pButName)
+  local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { appID = appIDvalue, name = "PLAY_PAUSE", isSubscribed = true })
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  self.mobileSession1:ExpectNotification("OnHashChange")
+  commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
 end
 
-local function subscribeButtonInvalidData(pButName, self)
-  local cid = self.mobileSession1:SendRPC("SubscribeButton", { buttonName = pButName })
+local function subscribeButtonInvalidData(pButName)
+  local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
   :Times(0)
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
-  self.mobileSession1:ExpectNotification("OnHashChange")
+  commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
+  commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
   :Times(0)
 end
 

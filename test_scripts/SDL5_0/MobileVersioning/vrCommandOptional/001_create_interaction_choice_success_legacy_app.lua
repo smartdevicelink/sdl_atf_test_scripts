@@ -35,6 +35,8 @@
 local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 3
 config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
@@ -79,13 +81,13 @@ local allParams = {
 
 
 --[[ Local Functions ]]
-local function createInteractionChoiceSet(params, self)
-	local cid = self.mobileSession1:SendRPC("CreateInteractionChoiceSet", params.requestParams)
+local function createInteractionChoiceSet(params)
+	local cid = commonSmoke.getMobileSession():SendRPC("CreateInteractionChoiceSet", params.requestParams)
 
 	params.responseVrParams.appID = commonSmoke.getHMIAppId()
 	EXPECT_HMICALL("VR.AddCommand", params.responseVrParams)
 	:Do(function(_,data)
-		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+		commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
 	end)
 	:ValidIf(function(_,data)
 		if data.params.grammarID ~= nil then
@@ -95,8 +97,8 @@ local function createInteractionChoiceSet(params, self)
 		end
 	end)
 
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-	self.mobileSession1:ExpectNotification("OnHashChange")
+	commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+	commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 --[[ Scenario ]]

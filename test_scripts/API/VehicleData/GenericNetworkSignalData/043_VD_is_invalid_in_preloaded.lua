@@ -13,6 +13,7 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/API/VehicleData/GenericNetworkSignalData/commonGenericNetSignalData')
+local sdl = require('SDL')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -25,8 +26,7 @@ function common.start()
   common:runSDL()
   local function sdlStatus()
     local isSDLrunning
-    local testCatFile = os.execute ('test -e /proc/$(cat sdl.pid)')
-    if not testCatFile then
+    if not sdl:CheckStatusSDL() ~= sdl.RUNNING then
       isSDLrunning = false
       common:DeleteFile()
     else

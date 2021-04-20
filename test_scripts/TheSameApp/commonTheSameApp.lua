@@ -8,6 +8,13 @@ local events = require("events")
 local constants = require('protocol_handler/ford_protocol_constants')
 local hmi_values = require("user_modules/hmi_values")
 local rc = require('user_modules/sequences/remote_control')
+local SDL = require('SDL')
+local runner = require('user_modules/script_runner')
+
+--[[ Conditions to skip tests ]]
+if config.defaultMobileAdapterType ~= "TCP" then
+  runner.skipTest("Test is applicable only for TCP connection")
+end
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
@@ -28,6 +35,7 @@ common.cloneTable = utils.cloneTable
 common.isTableContains = utils.isTableContains
 common.setModuleAllocation = rc.state.setModuleAllocation
 common.resetModulesAllocationByApp = rc.state.resetModulesAllocationByApp
+common.extendedPolicyOption = SDL.buildOptions.extendedPolicy
 
 --[[ Common Functions ]]
 function common.start(pHMIParams)
@@ -102,6 +110,9 @@ function common.registerAppEx(pAppId, pAppParams, pMobConnId, pHasPTU)
           }
         })
       :Do(function(_, d1)
+        common.hmi.getConnection():ExpectRequest("VR.ChangeRegistration")
+        common.hmi.getConnection():ExpectRequest("TTS.ChangeRegistration")
+        common.hmi.getConnection():ExpectRequest("UI.ChangeRegistration")
         common.app.setHMIId(d1.params.application.appID, pAppId)
           if pHasPTU then
             common.isPTUStarted()
@@ -277,6 +288,23 @@ function common.getSystemCapability(pAppId, pResultCode)
 
   local mobileSession = common.mobile.getSession(pAppId)
   local cid = mobileSession:SendRPC("GetSystemCapability", { systemCapabilityType = "NAVIGATION" })
+  mobileSession:ExpectResponse(cid, {success = isSuccess, resultCode = pResultCode})
+end
+
+function common.showAppMenu(pAppId, pResultCode)
+  local isSuccess = false
+  if pResultCode == "SUCCESS" then
+    isSuccess = true
+    local hmiConnection = common.getHMIConnection()
+    hmiConnection:ExpectRequest("UI.ShowAppMenu")
+    :Times(1)
+    :Do(function(_, data)
+      hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+  end
+
+  local mobileSession = common.mobile.getSession(pAppId)
+  local cid = mobileSession:SendRPC("ShowAppMenu", {})
   mobileSession:ExpectResponse(cid, {success = isSuccess, resultCode = pResultCode})
 end
 
@@ -624,6 +652,7 @@ function common.rpcRejectWithConsent(pAppId, pModuleType)
 end
 
 function common.ignitionOff(pDevices, pExpFunc)
+  config.ExitOnCrash = false
   local isOnSDLCloseSent = false
   local hmi = common.hmi.getConnection()
   if pExpFunc then pExpFunc() end
@@ -639,11 +668,12 @@ function common.ignitionOff(pDevices, pExpFunc)
     end)
   common.run.wait(3000)
   :Do(function()
-      if isOnSDLCloseSent == false then common.cprint(35, "BC.OnSDLClose was not sent") end
-      if common.sdl.isRunning() then common.sdl.StopSDL() end
+      if isOnSDLCloseSent == false then utils.cprint(35, "BC.OnSDLClose was not sent") end
+      common.sdl.stop()
       for i in pairs(pDevices) do
         common.mobile.deleteConnection(i)
       end
+      RUN_AFTER(function() config.ExitOnCrash = true end, 500)
     end)
 end
 
@@ -685,7 +715,8 @@ function common.unexpectedDisconnect(pAppId)
   if pAppId == nil then pAppId = 1 end
   common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = true, appID = common.app.getHMIId(pAppId) })
-  common.mobile.deleteSession(pAppId)
+  common.mobile.closeSession(pAppId)
+  utils.wait(1000)
 end
 
 function common.triggerPTUtoGetPTS()
@@ -902,6 +933,37 @@ function common.createNewGroup(pAppId, pTestGroupName, pTestGroup, pPolicyTable)
   pt.policy_table.functional_groupings[pTestGroupName] = pTestGroup
   pt.policy_table.app_policies[pAppId] = utils.cloneTable(pt.policy_table.app_policies.default)
   pt.policy_table.app_policies[pAppId].groups = { pTestGroupName, "Notifications-RC" }
+end
+
+function common.registerAppWithPTU(pAppId, pAppParams, pDeviceId)
+  common.registerAppEx(pAppId, pAppParams, pDeviceId, true)
+  common.hmi.getConnection():ExpectRequest("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" })
+  :Times(2)
+  common.run.wait(2500)
+end
+
+function common.isPTUNotStarted()
+  if common.extendedPolicyOption == "HTTP" then
+    for appNum = 1, common.mobile.getAppsCount() do
+      common.mobile.getSession(appNum):ExpectNotification("OnSystemRequest")
+      :Times(AtMost(1))
+      :ValidIf(function(_, data)
+          if data.payload.requestType == "HTTP" then
+            return false, "RequestType 'HTTP' is unexpected"
+          end
+          return true
+        end)
+    end
+  else
+    common.hmi.getConnection():ExpectRequest("BasicCommunication.PolicyUpdate"):Times(0)
+  end
+end
+
+function common.registerAppWithoutPTU(pAppId, pAppParams, pDeviceId)
+  common.registerAppEx(pAppId, pAppParams, pDeviceId, false)
+  common.isPTUNotStarted()
+  common.hmi.getConnection():ExpectRequest("SDL.OnStatusUpdate"):Times(0)
+  common.run.wait(2500)
 end
 
 return common

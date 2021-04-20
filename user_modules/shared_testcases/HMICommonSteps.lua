@@ -3,7 +3,6 @@
 
 local commonSteps = {}
 local mobile_session = require('mobile_session')
-local config = require('config')
 
 ---------------------------------------------------------------------------------------------
 

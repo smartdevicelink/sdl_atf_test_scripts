@@ -3,12 +3,9 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local mobile = require("mobile_connection")
-local tcp = require("tcp_connection")
+local mobile_adapter_controller = require("mobile_adapter/mobile_adapter_controller")
 local file_connection = require("file_connection")
 local mobileSession = require("mobile_session")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local commonSteps = require("user_modules/shared_testcases/commonSteps")
 local events = require("events")
 local test = require("user_modules/dummy_connecttest")
 local expectations = require('expectations')
@@ -53,16 +50,9 @@ local function getMobConnectionFromSession(pMobSession)
   return pMobSession.mobile_session_impl.connection
 end
 
-local function getPolicyAppId(pAppId)
-  local appParams = m.app.getParams(pAppId)
-  local appId = appParams.fullAppID
-  if not appId then appId = appParams.appID end
-  return appId
-end
-
 --- Get HMI key for App by script's App id
 local function getHmiAppIdKey(pAppId)
-  local appId = getPolicyAppId(pAppId)
+  local appId = m.app.getPolicyAppId(pAppId)
 
   local connection = getMobConnectionFromSession(m.mobile.getSession(pAppId))
   return utils.getDeviceName(connection.host, connection.port) .. tostring(appId)
@@ -71,8 +61,8 @@ end
 --- Raise event on mobile connection
 local function MobRaiseEvent(self, pEvent, pEventName)
   if pEventName == nil then pEventName = "noname" end
-  reporter.AddMessage(debug.getinfo(1, "n").name, pEventName)
-  event_dispatcher:RaiseEvent(self, pEvent)
+    reporter.AddMessage(debug.getinfo(1, "n").name, pEventName)
+    event_dispatcher:RaiseEvent(self, pEvent)
 end
 
 --- Create expectation for event on mobile connection
@@ -126,19 +116,13 @@ local function getPTUFromPTS()
   local pTbl = m.sdl.getPTS()
   if pTbl == nil then
     utils.cprint(35, "PTS file was not found, PreloadedPT is used instead")
-    local appConfigFolder = m.sdl.getSDLIniParameter("AppConfigFolder")
-    if appConfigFolder == nil or appConfigFolder == "" then
-      appConfigFolder = commonPreconditions:GetPathToSDL()
-    end
-    local preloadedPT = m.sdl.getSDLIniParameter("PreloadedPT")
-    local ptsFile = appConfigFolder .. preloadedPT
-    if utils.isFileExist(ptsFile) then
-      pTbl = utils.jsonFileToTable(ptsFile)
-    else
-      utils.cprint(35, "PreloadedPT was not found, PTS is not created")
+    pTbl = m.sdl.getPreloadedPT()
+    if pTbl == nil then
+      utils.cprint(35, "PreloadedPT was not found, PTU file has not been created")
+      return nil
     end
   end
-  if next(pTbl) ~= nil then
+  if type(pTbl.policy_table) == "table" then
     pTbl.policy_table.consumer_friendly_messages = nil
     pTbl.policy_table.device_data = nil
     pTbl.policy_table.module_meta = nil
@@ -147,6 +131,8 @@ local function getPTUFromPTS()
     pTbl.policy_table.module_config.preloaded_pt = nil
     pTbl.policy_table.module_config.preloaded_date = nil
     pTbl.policy_table.vehicle_data = nil
+  else
+    utils.cprint(35, "PTU file has incorrect structure")
   end
   return pTbl
 end
@@ -266,6 +252,38 @@ end
 
 --[[ Functions of mobile submodule ]]
 
+m.mobile.CONNECTION_TYPE = {
+  TCP = "TCP",
+  WS = "WS",
+  WSS = "WSS"
+}
+
+--- Register connection/disconnection event handlers for connection
+local function registerConnectionExpectations(pMobConnId)
+  local connection = m.mobile.getConnection(pMobConnId)
+  connection:ExpectEvent(events.disconnectedEvent, "Disconnected")
+  :Pin()
+  :Times(AnyNumber())
+  :Do(function()
+      utils.cprint(35, "Mobile #" .. pMobConnId .. " disconnected")
+    end)
+
+  local event = m.run.createEvent()
+  connection:ExpectEvent(events.connectedEvent, "Connected")
+  :Do(function()
+      local timeout = 0
+      local con_type = connection.type or config.defaultMobileAdapterType
+      if con_type == m.mobile.CONNECTION_TYPE.WSS then timeout = m.minTimeout end
+      m.run.runAfter(function() m.hmi.getConnection():RaiseEvent(event, "DelayedConnect") end, timeout)
+    end)
+  local ret = m.hmi.getConnection():ExpectEvent(event, "DelayedConnect")
+  ret:Do(function()
+    utils.cprint(35, "Mobile #" .. pMobConnId .. " connected")
+  end)
+
+  return ret
+end
+
 --[[ @mobile.createConnection: Create mobile connection
 --! @parameters:
 --! pMobConnId - script's mobile connection id
@@ -273,16 +291,34 @@ end
 --! pMobConnPort - mobile connection port
 --! @return: none
 --]]
-function m.mobile.createConnection(pMobConnId, pMobConnHost, pMobConnPort)
+function m.mobile.createConnection(pMobConnId, pMobConnHost, pMobConnPort, pMobConnType, pSslParameters)
   if pMobConnId == nil then pMobConnId = 1 end
+  if pMobConnType == nil then pMobConnType = config.defaultMobileAdapterType end
+  if pSslParameters == nil then pSslParameters = {} end
+  local adapterParams = {}
+  adapterParams.port = pMobConnPort
+  if pMobConnType == m.mobile.CONNECTION_TYPE.TCP then
+    adapterParams.host = pMobConnHost
+  else -- WS or WSS
+    adapterParams.url = pMobConnHost
+    if pMobConnType == m.mobile.CONNECTION_TYPE.WSS and type(pSslParameters) == "table" then
+      adapterParams.sslProtocol = pSslParameters.protocol or config.wssSecurityProtocol
+      adapterParams.sslCypherListString = pSslParameters.cypherListString or config.wssCypherListString
+      adapterParams.sslCaCertPath = pSslParameters.caCertPath or config.wssCertificateCAPath
+      adapterParams.sslCertPath = pSslParameters.certPath or config.wssCertificateClientPath
+      adapterParams.sslKeyPath = pSslParameters.keyPath or config.wssPrivateKeyPath
+    end
+  end
+
+  local baseConnection = mobile_adapter_controller.getAdapter(pMobConnType, adapterParams)
   local filename = "mobile" .. pMobConnId .. ".out"
-  local tcpConnection = tcp.Connection(pMobConnHost, pMobConnPort)
-  local fileConnection = file_connection.FileConnection(filename, tcpConnection)
+  local fileConnection = file_connection.FileConnection(filename, baseConnection)
   local connection = mobile.MobileConnection(fileConnection)
   connection.RaiseEvent = MobRaiseEvent
   connection.ExpectEvent = MobExpectEvent
   connection.host = pMobConnHost
   connection.port = pMobConnPort
+  connection.type = pMobConnType
   event_dispatcher:AddConnection(connection)
   test.mobileConnections[pMobConnId] = connection
 end
@@ -294,20 +330,8 @@ end
 --]]
 function m.mobile.connect(pMobConnId)
   if pMobConnId == nil then pMobConnId = 1 end
-  local connection = m.mobile.getConnection(pMobConnId)
-
-  connection:ExpectEvent(events.disconnectedEvent, "Disconnected")
-  :Pin()
-  :Times(AnyNumber())
-  :Do(function()
-      utils.cprint(35, "Mobile #" .. pMobConnId .. " disconnected")
-    end)
-
-  local ret = connection:ExpectEvent(events.connectedEvent, "Connected")
-  ret:Do(function()
-    utils.cprint(35, "Mobile #" .. pMobConnId .. " connected")
-  end)
-  connection:Connect()
+  local ret = registerConnectionExpectations(pMobConnId)
+  m.mobile.getConnection(pMobConnId):Connect()
   return ret
 end
 
@@ -321,10 +345,27 @@ function m.mobile.disconnect(pMobConnId)
   local connection = m.mobile.getConnection(pMobConnId)
   local sessions = m.mobile.getApps(pMobConnId)
   for id in pairs(sessions) do
-    m.mobile.deleteSession(id)
+    m.mobile.closeSession(id)
+    :Do(function()
+      if next(m.mobile.getApps(pMobConnId)) == nil then
+        -- remove pinned mobile disconnect expectation
+        connection:Close()
+      end
+    end)
   end
-  -- remove pinned mobile disconnect expectation
-  connection:Close()
+end
+
+--[[ @mobile.closeConnection: Close and delete mobile connection
+--! @parameters:
+--! pMobConnId - script's mobile connection id
+--! @return: none
+--]]
+function m.mobile.closeConnection(pMobConnId)
+  if pMobConnId == nil then pMobConnId = 1 end
+  m.mobile.disconnect(pMobConnId)
+  local connection = m.mobile.getConnection(pMobConnId)
+  event_dispatcher:DeleteConnection(connection)
+  m.mobile.deleteConnection(pMobConnId)
 end
 
 --[[ @mobile.deleteConnection: Remove mobile connection
@@ -334,6 +375,10 @@ end
 --]]
 function m.mobile.deleteConnection(pMobConnId)
   if pMobConnId == nil then pMobConnId = 1 end
+  local sessions = m.mobile.getApps(pMobConnId)
+  for id in pairs(sessions) do
+    m.mobile.deleteSession(id)
+  end
   local connection = m.mobile.getConnection(pMobConnId)
   event_dispatcher:DeleteConnection(connection)
   test.mobileConnections[pMobConnId] = nil
@@ -401,6 +446,20 @@ function m.mobile.createSession(pAppId, pMobConnId, pMobSesionConfig)
   return session
 end
 
+--[[ @mobile.closeSession: close and delete mobile session
+--! @parameters:
+--! pAppId - script's mobile application id
+--! @return: mobile session object
+--]]
+function m.mobile.closeSession(pAppId)
+  if pAppId == nil then pAppId = 1 end
+  local ret = m.mobile.getSession(pAppId):Stop()
+  :Do(function()
+      m.mobile.deleteSession(pAppId)
+    end)
+  return ret
+end
+
 --[[ @mobile.deleteSession: remove mobile session
 --! @parameters:
 --! pAppId - script's mobile application id
@@ -408,10 +467,7 @@ end
 --]]
 function m.mobile.deleteSession(pAppId)
   if pAppId == nil then pAppId = 1 end
-  m.mobile.getSession(pAppId):Stop()
-  :Do(function()
-      test.mobileSession[pAppId] = nil
-    end)
+  test.mobileSession[pAppId] = nil
 end
 
 --[[ @mobile.getApps: get collection of mobile sessions on mobile connectuion
@@ -438,6 +494,7 @@ end
 --! @return: mobile sessions count
 --]]
 function m.mobile.getAppsCount(pMobConnId)
+  if not pMobConnId then pMobConnId = 1 end
   local sessions = m.mobile.getApps(pMobConnId)
   local count = 0
   for _, _ in pairs(sessions) do
@@ -464,6 +521,49 @@ function m.ptu.getAppData(pAppId)
   }
 end
 
+--[[ @ptu.expectStart: expect start of PTU
+--! @parameters: none
+--! @return: expectation of PTU start event
+--]]
+function m.ptu.expectStart()
+  local event = events.Event()
+  event.matches = function(e1, e2) return e1 == e2 end
+  local function raisePtuEvent()
+    RUN_AFTER(function() m.hmi.getConnection():RaiseEvent(event, "PTU start event") end, m.minTimeout)
+  end
+  local policyMode = SDL.buildOptions.extendedPolicy
+  if policyMode == policyModes.P or policyMode == policyModes.EP then
+    m.hmi.getConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
+    :Do(function(_, d2)
+        m.hmi.getConnection():SendResponse(d2.id, d2.method, "SUCCESS", { })
+        raisePtuEvent()
+      end)
+  elseif policyMode == policyModes.H then
+    local function getAppNums()
+      local out = {}
+        for k in pairs(test.mobileSession) do
+          table.insert(out, k)
+        end
+      return out
+    end
+    for _, appNum in pairs(getAppNums()) do
+      m.mobile.getSession(appNum):ExpectNotification("OnSystemRequest")
+      :Do(function(_, d3)
+          if d3.payload.requestType == "HTTP" then
+            utils.cprint(35, "App ".. appNum .. " will be used for PTU")
+            ptuAppNum = appNum
+            if d3.binaryData ~= nil then
+              pts = m.json.decode(d3.binaryData)
+            end
+            raisePtuEvent()
+          end
+        end)
+      :Times(AtMost(2))
+    end
+  end
+  return m.hmi.getConnection():ExpectEvent(event, "PTU start event")
+end
+
 local function policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
   local ptuFileName = os.tmpname()
   local requestId = m.hmi.getConnection():SendRequest("SDL.GetPolicyConfigurationData",
@@ -474,7 +574,7 @@ local function policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
         { requestType = "PROPRIETARY", fileName = m.sdl.getPTSFilePath() })
       local ptuTable = getPTUFromPTS()
       for i, _ in pairs(m.mobile.getApps()) do
-        ptuTable.policy_table.app_policies[m.app.getParams(i).fullAppID] = m.ptu.getAppData(i)
+        ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
       end
       if pPTUpdateFunc then
         pPTUpdateFunc(ptuTable)
@@ -509,8 +609,8 @@ end
 local function policyTableUpdateHttp(pPTUpdateFunc, pExpNotificationFunc)
   local ptuFileName = os.tmpname()
   local ptuTable = getPTUFromPTS()
-  for i = 1, m.getAppsCount() do
-    ptuTable.policy_table.app_policies[m.getConfigAppParams(i).fullAppID] = m.ptu.getAppData(i)
+  for i, _ in pairs(m.mobile.getApps()) do
+    ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
   end
   if pPTUpdateFunc then
     pPTUpdateFunc(ptuTable)
@@ -559,7 +659,7 @@ local function registerApp(pAppId, pMobConnId, hasPTU)
       :Do(function(_, d1)
           m.app.setHMIId(d1.params.application.appID, pAppId)
           if hasPTU then
-            m.isPTUStarted()
+            m.ptu.expectStart()
           end
         end)
       session:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
@@ -606,7 +706,7 @@ function m.app.activate(pAppId)
   local requestId = m.hmi.getConnection():SendRequest("SDL.ActivateApp", { appID = m.app.getHMIId(pAppId) })
   m.hmi.getConnection():ExpectResponse(requestId)
   m.mobile.getSession(pAppId):ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", systemContext = "MAIN" })
-  if m.mobile.getAppsCount() > 1 then m.run.wait(500) end
+  if m.mobile.getAppsCount() > 1 then m.run.wait(m.minTimeout) end
 end
 
 --[[ @app.unRegister: perform unregistration of application sequence
@@ -622,8 +722,8 @@ function m.app.unRegister(pAppId)
   m.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = false, appID = m.app.getHMIId(pAppId) })
   :Do(function()
-      m.app.deleteHMIId(pAppId)
-      m.mobile.deleteSession(pAppId)
+    m.app.deleteHMIId(pAppId)
+    m.mobile.closeSession(pAppId)
     end)
 end
 
@@ -635,6 +735,19 @@ end
 function m.app.getParams(pAppId)
   if not pAppId then pAppId = 1 end
   return config["application" .. pAppId].registerAppInterfaceParams
+end
+
+--[[ @app.getPolicyAppId: get application policy id
+--! @parameters:
+--! pAppId - script's mobile application id
+--! @return: application policy id
+--]]
+function m.app.getPolicyAppId(pAppId)
+  local appParams = m.app.getParams(pAppId)
+  if appParams.syncMsgVersion.majorVersion < 5 or appParams.fullAppID == nil then
+    return appParams.appID
+  end
+  return appParams.fullAppID
 end
 
 --[[ @app.getHMIIds: get HMI application Ids collection
@@ -663,45 +776,6 @@ function m.app.getHMIId(pAppId)
   return nil
 end
 
-function m.isPTUStarted()
-  local event = events.Event()
-  event.matches = function(e1, e2) return e1 == e2 end
-  local function raisePtuEvent()
-    RUN_AFTER(function() m.hmi.getConnection():RaiseEvent(event, "PTU start event") end, m.minTimeout)
-  end
-  local policyMode = SDL.buildOptions.extendedPolicy
-  if policyMode == policyModes.P or policyMode == policyModes.EP then
-    m.hmi.getConnection():ExpectRequest("BasicCommunication.PolicyUpdate")
-    :Do(function(_, d2)
-        m.hmi.getConnection():SendResponse(d2.id, d2.method, "SUCCESS", { })
-        raisePtuEvent()
-      end)
-  elseif policyMode == policyModes.H then
-    local function getAppNums()
-      local out = {}
-        for k in pairs(test.mobileSession) do
-          table.insert(out, k)
-        end
-      return out
-    end
-    for _, appNum in pairs(getAppNums()) do
-      m.mobile.getSession(appNum):ExpectNotification("OnSystemRequest")
-      :Do(function(_, d3)
-          if d3.payload.requestType == "HTTP" then
-            utils.cprint(35, "App ".. appNum .. " will be used for PTU")
-            ptuAppNum = appNum
-            if d3.binaryData ~= nil then
-              pts = m.json.decode(d3.binaryData)
-            end
-            raisePtuEvent()
-          end
-        end)
-      :Times(AtMost(2))
-    end
-  end
-  return m.hmi.getConnection():ExpectEvent(event, "PTU start event")
-end
-
 --[[ @app.setHMIId: set HMI application Id by script's mobile application id
 --! @parameters:
 --! pHMIAppId - HMI application Id
@@ -712,7 +786,7 @@ function m.app.setHMIId(pHMIAppId, pAppId)
   if not pAppId then pAppId = 1 end
   hmiAppIds[getHmiAppIdKey(pAppId)] = {
     hmiId = pHMIAppId,
-    policyId = getPolicyAppId(pAppId)
+    policyId = m.app.getPolicyAppId(pAppId)
   }
 end
 
@@ -727,6 +801,11 @@ end
 
 --[[ Functions of sdl submodule ]]
 
+-- BuildOptions
+-- LOGGER
+-- CRT
+-- AppStorage
+
 --[[ @sdl.getPathToFileInStorage: get path to file in SDL storage for specified mobile application
 --! @parameters:
 --! pFileName - file name
@@ -735,18 +814,22 @@ end
 --]]
 function m.sdl.getPathToFileInStorage(pFileName, pAppId)
   if not pAppId then pAppId = 1 end
-  return commonPreconditions:GetPathToSDL() .. "storage/" .. m.app.getParams(pAppId).fullAppID .. "_"
+  return SDL.AppStorage.path() .. m.app.getParams(pAppId).fullAppID .. "_"
     .. utils.getDeviceMAC() .. "/" .. pFileName
 end
 
---[[ @sdl.getPathToFileInStorage: get parameter's value from SDL .ini file
+--[[ @sdl.getSDLIniFilePath: get path to SDL .ini file
+--! @parameters: none
+--! @return: path to SDL .ini file
+--]]
+m.sdl.getSDLIniFilePath = SDL.INI.file
+
+--[[ @sdl.getSDLIniParameter: get parameter's value from SDL .ini file
 --! @parameters:
 --! pParamName - name of the parameter
 --! @return: SDL parameter's value from ini file
 --]]
-function m.sdl.getSDLIniParameter(pParamName)
-  return commonFunctions:read_parameter_from_smart_device_link_ini(pParamName)
-end
+m.sdl.getSDLIniParameter = SDL.INI.get
 
 --[[ @setSDLIniParameter: change original value of parameter in SDL .ini file
 --! @parameters:
@@ -756,32 +839,7 @@ end
 --]]
 function m.sdl.setSDLIniParameter(pParamName, pParamValue)
   m.sdl.backupSDLIniFile()
-  local fileName = commonPreconditions:GetPathToSDL() .. "smartDeviceLink.ini"
-  local f = io.open(fileName, "r")
-  local content = f:read("*all")
-  f:close()
-  local function setParamValue(pContent, pParam, pValue)
-    pValue = string.gsub(pValue, "%%", "%%%%")
-    local out = ""
-    local find = false
-    for line in pContent:gmatch("([^\r\n]*)[\r\n]") do
-      local ptrn = "^%s*".. pParam .. "%s*=.*"
-      if string.find(line, ptrn) then
-        if not find then
-          line = string.gsub(line, ptrn, pParam .. " = " .. tostring(pValue))
-          find = true
-        else
-          line  = ";" .. line
-        end
-      end
-      out = out .. line .. "\n"
-    end
-    return out
-  end
-  content = setParamValue(content, pParamName, pParamValue)
-  f = io.open(fileName, "w")
-  f:write(content)
-  f:close()
+  SDL.INI.set(pParamName, pParamValue)
 end
 
 --[[ @sdl.backupSDLIniFile: backup SDL .ini file
@@ -790,7 +848,7 @@ end
 --]]
 function m.sdl.backupSDLIniFile()
   if not m.sdl.isSdlIniBackuped then
-    commonPreconditions:BackupFile("smartDeviceLink.ini")
+    SDL.INI.backup()
     m.sdl.isSdlIniBackuped = true
   end
 end
@@ -801,7 +859,7 @@ end
 --]]
 function m.sdl.restoreSDLIniFile()
   if m.sdl.isSdlIniBackuped then
-    commonPreconditions:RestoreFile("smartDeviceLink.ini")
+    SDL.INI.restore()
     m.sdl.isSdlIniBackuped = false
   end
 end
@@ -812,8 +870,7 @@ end
 --]]
 function m.sdl.getPreloadedPTPath()
   if not m.sdl.preloadedPTPath then
-    local preloadedPTName = m.sdl.getSDLIniParameter("PreloadedPT")
-    m.sdl.preloadedPTPath = commonPreconditions:GetPathToSDL() .. preloadedPTName
+    m.sdl.preloadedPTPath = SDL.PreloadedPT.file()
   end
   return m.sdl.preloadedPTPath
 end
@@ -824,7 +881,7 @@ end
 --]]
 function m.sdl.backupPreloadedPT()
   if not m.sdl.isPreloadedPTBackuped then
-    commonPreconditions:BackupFile(m.sdl.getSDLIniParameter("PreloadedPT"))
+    SDL.PreloadedPT.backup()
     m.sdl.isPreloadedPTBackuped = true
   end
 end
@@ -835,7 +892,7 @@ end
 --]]
 function m.sdl.restorePreloadedPT()
   if m.sdl.isPreloadedPTBackuped then
-    commonPreconditions:RestoreFile(m.sdl.getSDLIniParameter("PreloadedPT"))
+    SDL.PreloadedPT.restore()
     m.sdl.isPreloadedPTBackuped = false
   end
 end
@@ -844,9 +901,7 @@ end
 --! @parameters: none
 --! @return: sdl preloaded_pt table
 --]]
-function m.sdl.getPreloadedPT()
-  return utils.jsonFileToTable(m.sdl.getPreloadedPTPath())
-end
+m.sdl.getPreloadedPT = SDL.PreloadedPT.get
 
 --[[ @sdl.setPreloadedPT: set content into sdl preloaded_pt file
 --! @parameters:
@@ -855,7 +910,7 @@ end
 --]]
 function m.sdl.setPreloadedPT(pPreloadedPT)
   m.sdl.backupPreloadedPT()
-  utils.tableToJsonFile(pPreloadedPT, m.sdl.getPreloadedPTPath())
+  SDL.PreloadedPT.set(pPreloadedPT)
 end
 
 --[[ @sdl.getHMICapabilitiesFilePath: get path to default hmi_capabilities file
@@ -864,8 +919,7 @@ end
 --]]
 function m.sdl.getHMICapabilitiesFilePath()
   if not m.sdl.hmiCapabilitiesPath then
-    local hmiCapabilitiesName = m.sdl.getSDLIniParameter("HMICapabilities")
-    m.sdl.hmiCapabilitiesPath = commonPreconditions:GetPathToSDL() .. hmiCapabilitiesName
+    m.sdl.hmiCapabilitiesPath = SDL.HMICap.file()
   end
   return m.sdl.hmiCapabilitiesPath
 end
@@ -876,7 +930,7 @@ end
 --]]
 function m.sdl.backupHMICapabilitiesFile()
   if not m.sdl.isHMICapabilitiesBackuped then
-    commonPreconditions:BackupFile(m.sdl.getSDLIniParameter("HMICapabilities"))
+    SDL.HMICap.backup()
     m.sdl.isHMICapabilitiesBackuped = true
   end
 end
@@ -887,7 +941,7 @@ end
 --]]
 function m.sdl.restoreHMICapabilitiesFile()
   if m.sdl.isHMICapabilitiesBackuped then
-    commonPreconditions:RestoreFile(m.sdl.getSDLIniParameter("HMICapabilities"))
+    SDL.HMICap.restore()
     m.sdl.isHMICapabilitiesBackuped = false
   end
 end
@@ -896,9 +950,7 @@ end
 --! @parameters: none
 --! @return: default hmi_capabilities table
 --]]
-function m.sdl.getHMICapabilitiesFromFile()
-  return utils.jsonFileToTable(m.sdl.getHMICapabilitiesFilePath())
-end
+m.sdl.getHMICapabilitiesFromFile = SDL.HMICap.get
 
 --[[ @sdl.setHMICapabilitiesToFile: set content into default hmi_capabilities file
 --! @parameters:
@@ -907,7 +959,7 @@ end
 --]]
 function m.sdl.setHMICapabilitiesToFile(pHMICapabilities)
   m.sdl.backupHMICapabilitiesFile()
-  utils.tableToJsonFile(pHMICapabilities, m.sdl.getHMICapabilitiesFilePath())
+  SDL.HMICap.set(pHMICapabilities)
 end
 
 --[[ @sdl.start: start SDL
@@ -916,7 +968,7 @@ end
 --]]
 function m.sdl.start()
   test:runSDL()
-  return commonFunctions:waitForSDLStart(test)
+  return SDL.WaitForSDLStart(test)
 end
 
 --[[ @sdl.getStatus: Retrieve current status of SDL
@@ -932,7 +984,7 @@ end
 --! @return: boolean represents whether SDL is running
 --]]
 function m.sdl.isRunning()
-  return SDL:CheckStatusSDL() == SDL.RUNNING
+  return m.sdl.getStatus() == SDL.RUNNING
 end
 
 --[[ @sdl.stop: stop SDL
@@ -949,18 +1001,16 @@ end
 --! @parameters: none
 --! @return: path to file
 --]]
-function m.sdl.getPTSFilePath()
-  return m.sdl.getSDLIniParameter("SystemFilesPath") .. "/" .. m.sdl.getSDLIniParameter("PathToSnapshot")
-end
+m.sdl.getPTSFilePath = SDL.PTS.file
 
 --[[ @sdl.getPTS: get Policy Table Snapshot (PTS)
 --! @parameters: none
 --! @return: table with PTS
 --]]
 function m.sdl.getPTS()
-  local ptsFileName = m.sdl.getPTSFilePath()
-  if utils.isFileExist(ptsFileName) then
-    pts = utils.jsonFileToTable(ptsFileName)
+  local remotePts = SDL.PTS.get()
+  if remotePts then
+    pts = remotePts
   end
   return pts
 end
@@ -970,10 +1020,7 @@ end
 --! @return: none
 --]]
 function m.sdl.deletePTS()
-  local ptsFileName = m.sdl.getPTSFilePath()
-  if utils.isFileExist(ptsFileName) then
-    os.remove(ptsFileName)
-  end
+  SDL.PTS.clean()
   pts = nil
 end
 
@@ -1167,7 +1214,7 @@ function m.start(pHMIParams)
   :Do(function()
       m.init.HMI()
       :Do(function()
-          m.init.HMI_onReady(pHMIParams)
+        m.init.HMI_onReady(pHMIParams)
           :Do(function()
               m.init.connectMobile()
               :Do(function()
@@ -1187,10 +1234,12 @@ end
 --! @return: none
 --]]
 function m.preconditions()
-  commonFunctions:SDLForceStop()
-  commonSteps:DeletePolicyTable()
-  commonSteps:DeleteLogsFiles()
+  SDL.ForceStopSDL()
+  SDL.PolicyDB.clean()
+  SDL.Log.clean()
+  SDL.AppInfo.clean()
   m.sdl.deletePTS()
+  SDL.AppStorage.clean()
 end
 
 --[[ @postconditions: postcondition steps
@@ -1285,5 +1334,11 @@ m.setSDLIniParameter = m.sdl.setSDLIniParameter
 --! @return: none
 --]]
 m.restoreSDLIniParameters = m.sdl.restoreSDLIniFile
+
+--[[ @isPTUStarted: expect start of PTU
+--! @parameters: none
+--! @return: expectation of PTU start event
+--]]
+m.isPTUStarted = m.ptu.expectStart
 
 return m

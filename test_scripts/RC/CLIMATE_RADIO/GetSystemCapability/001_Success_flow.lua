@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require("user_modules/hmi_values")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,7 +26,7 @@ for _, v in pairs(commonRC.modules) do capabParams[v] = commonRC.DEFAULT end -- 
 
 --[[ Local Functions ]]
 local function buildHmiRcCapabilities(pCapabilities)
-  local hmiParams = hmi_values.getDefaultHMITable()
+  local hmiParams = commonRC.getDefaultHMITable()
   hmiParams.RC.IsReady.params.available = true
   local capParams = hmiParams.RC.GetCapabilities.params.remoteControlCapability
   for k, v in pairs(commonRC.capMap) do

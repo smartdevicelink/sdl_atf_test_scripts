@@ -17,88 +17,54 @@
 --  1. App has successfully registered.
 --  2. App is still registered, no unexpected disconnect occurs.
 ---------------------------------------------------------------------------------------------------
---[[ General Precondition before ATF start ]]
+
+--[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.defaultProtocolVersion = 2
-config.application1.registerAppInterfaceParams.isMediaApplication = true
 
--- [[ Required Shared Libraries ]]
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local constants = require('protocol_handler/ford_protocol_constants')
-local mobile_session = require('mobile_session')
-local events = require("events")
+--[[ Local Variables ]]
+local HBParams = {
+  activateHeartbeat = false,
+  sendHeartbeatToSDL = false,
+  answerHeartbeatFromSDL = false,
+  ignoreSDLHeartBeatACK = false
+}
 
---[[ General Settings for configuration ]]
-Test = require('user_modules/dummy_connecttest')
-require('cardinalities')
-require('user_modules/AppTypes')
-
--- [[Local variables]]
-local default_app_params = config.application1.registerAppInterfaceParams
-
---[[ Preconditions ]]
-commonFunctions:newTestCasesGroup("Preconditions")
-commonSteps:DeletePolicyTable()
-commonSteps:DeleteLogsFiles()
-commonPreconditions:BackupFile("smartDeviceLink.ini")
-commonFunctions:write_parameter_to_smart_device_link_ini("HeartBeatTimeout", 5000)
-
-function Test:StartSDL_And_Connect_Mobile()
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self):Do(function()
-    self:initHMI():Do(function()
-      commonFunctions:userPrint(35, "HMI initialized")
-      self:initHMI_onReady():Do(function ()
-        commonFunctions:userPrint(35, "HMI is ready")
-        self:connectMobile():Do(function ()
-          commonFunctions:userPrint(35, "Mobile Connected")
-        end)
-      end)
-    end)
+--[[ Local Functions ]]
+local function wait()
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
+    { appID = common.getHMIAppId(), unexpectedDisconnect = true })
+  :Times(0)
+  local event = common.createEvent(function(_, data)
+    return data.frameType == common.constants.FRAME_TYPE.CONTROL_FRAME
+      and data.serviceType == common.constants.SERVICE_TYPE.CONTROL
+      and data.frameInfo == common.constants.FRAME_INFO.HEARTBEAT
+      and data.sessionId == common.getMobileSession().sessionId
   end)
+  common.getMobileSession():ExpectEvent(event, "Heartbeat")
+  :Times(0)
+  common.wait(15000)
 end
 
---[[ Test ]]
-commonFunctions:newTestCasesGroup("Test")
-
-function Test:Start_Session_And_Register_App()
-  self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
-  self.mobileSession.sendHeartbeatToSDL = false
-  self.mobileSession.answerHeartbeatFromSDL = false
-  self.mobileSession:StartRPC():Do(function()
-    local correlation_id = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params)
-    EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = default_app_params.appName}})
-    self.mobileSession:ExpectResponse(correlation_id, {success = true, resultCode = "SUCCESS"})
-    self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    self.mobileSession:ExpectNotification("OnPermissionsChange", {})
-  end)
+local function appIsStillRegistered()
+  local cid = common.getMobileSession(1):SendRPC("RegisterAppInterface", common.getConfigAppParams(1))
+  common.getMobileSession(1):ExpectResponse(cid, { success = false, resultCode = "APPLICATION_REGISTERED_ALREADY" })
 end
 
-function Test:Wait_15_seconds()
-  local event = events.Event()
-  event.matches = function(_,data)
-    return data.frameType == constants.FRAME_TYPE.CONTROL_FRAME and
-    data.serviceType == constants.SERVICE_TYPE.CONTROL and
-    data.frameInfo == constants.FRAME_INFO.HEARTBEAT   and
-    self.mobileSession.sessionId == data.sessionId
-  end
-  commonTestCases:DelayedExp(15000)
-  self.mobileSession:ExpectEvent(event, "Heartbeat"):Times(0)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered"):Times(0)
-end
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Set HeartBeatTimeout", common.setSDLIniParameter, { "HeartBeatTimeout", 5000 })
+runner.Step("Start SDL, HMI, connect Mobile", common.start)
+runner.Step("Register App", common.registerApp, { 1, HBParams })
 
-function Test:Verify_That_App_Still_Registered()
-  local cor_id = self.mobileSession:SendRPC("RegisterAppInterface", default_app_params)
-  self.mobileSession:ExpectResponse(cor_id, { success = false, resultCode = "APPLICATION_REGISTERED_ALREADY"})
-end
+runner.Title("Test")
+runner.Step("Wait 15 seconds", wait)
+runner.Step("Verify app is still registered", appIsStillRegistered)
 
--- [[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postcondition")
-function Test.Stop_SDL()
-  commonPreconditions:RestoreFile("smartDeviceLink.ini")
-  StopSDL()
-end
-
-return Test
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)

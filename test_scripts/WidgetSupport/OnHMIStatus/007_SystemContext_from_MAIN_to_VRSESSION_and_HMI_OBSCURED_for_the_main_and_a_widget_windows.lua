@@ -119,27 +119,22 @@ local function performInteraction(pAppId)
     RUN_AFTER(choiceIconDisplayed, 25)
     local function uiResponse()
       common.getHMIConnection():SendNotification("TTS.Stopped")
-      common.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT")
+      common.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "Perform Interaction error response.")
       sendOnSystemContext("MAIN", pMainId)
       sendOnSystemContext("MAIN", params.windowID)
     end
     RUN_AFTER(uiResponse, 30)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = params.windowID },
   { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = params.windowID },
-  { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = pMainId },
-  { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = params.windowID },
-  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = pMainId },
-  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = params.windowID },
   { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = params.windowID },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = params.windowID })
-  :Times(12)
+  :Times(8)
 
   common.getMobileSession(pAppId):ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT" })
 end

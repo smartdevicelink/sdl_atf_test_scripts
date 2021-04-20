@@ -22,6 +22,7 @@
 --   - send OnStatusUpdate(UP_TO_DATE) to HMI
 --   - send OnServiceUpdate (<service_type>, REQUEST_ACCEPTED, PROTECTION_DISABLED) to HMI
 --   - send StartServiceACK(<service_type>, encryption = false) to App
+--   - leave the app in current HMI level
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -47,6 +48,12 @@ function common.onServiceUpdateFunc(pServiceTypeValue)
    { serviceEvent = "REQUEST_ACCEPTED", serviceType = pServiceTypeValue, appID = common.getHMIAppId(),
      reason = "PROTECTION_DISABLED" })
    :Times(2)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication")
+  :Times(0)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus")
+  :Times(0)
 end
 
 function common.serviceResponseFunc(pServiceId)

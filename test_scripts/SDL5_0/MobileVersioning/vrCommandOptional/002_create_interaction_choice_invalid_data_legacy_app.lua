@@ -8,7 +8,7 @@
 --
 -- Description:
 -- Mobile application sends valid CreateInteractionChoiceSet request with
--- no vrCommands, which is a mandatory parameter for legacy apps. 
+-- no vrCommands, which is a mandatory parameter for legacy apps.
 
 -- Pre-conditions:
 -- a. HMI and SDL are started
@@ -27,6 +27,8 @@
 local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 3
 config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
@@ -56,9 +58,9 @@ local requestParams_noVR = {
 }
 
 --[[ Local Functions ]]
-local function createInteractionChoiceSet_noVR(params, self)
-	local cid = self.mobileSession1:SendRPC("CreateInteractionChoiceSet", params)
-	self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+local function createInteractionChoiceSet_noVR(params)
+	local cid = commonSmoke.getMobileSession():SendRPC("CreateInteractionChoiceSet", params)
+	commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 end
 
 --[[ Scenario ]]

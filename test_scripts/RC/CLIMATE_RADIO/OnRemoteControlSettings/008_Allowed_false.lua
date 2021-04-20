@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/11
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/rc_enabling_disabling.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/rc_enabling_disabling.md
 -- Item: Use Case 1: Main Flow (updates https://github.com/smartdevicelink/sdl_core/issues/2173)
 --
 -- Requirement summary:
@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -52,8 +51,7 @@ local function disableRcFromHmi()
   mobileSession1:ExpectNotification("OnHMIStatus"):Times(0)
   mobileSession2:ExpectNotification("OnHMIStatus"):Times(0)
   mobileSession3:ExpectNotification("OnHMIStatus"):Times(0) -- NAVIGATION app
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

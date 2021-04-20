@@ -10,7 +10,6 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 
 require('user_modules/AppTypes')
 

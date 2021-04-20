@@ -13,6 +13,8 @@
 -- The flag EXTENDED_POLICY is set to HTTP
 -- PTU passes successfully
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -56,7 +58,7 @@ function Test:TestStep_Trigger_PTU_Check_HTTP_flow()
   local corId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application2.registerAppInterfaceParams.appName }})
 
-  self.mobileSession2:ExpectNotification("OnSystemRequest"):Times(Between(1,2))
+  self.mobileSession2:ExpectNotification("OnSystemRequest"):Times(Between(0,1))
   :Do(function(_,data)
       print("SDL-> MOB2: OnSystemRequest, requestType: "..data.payload.requestType)
       if(data.payload.requestType == "HTTP") then

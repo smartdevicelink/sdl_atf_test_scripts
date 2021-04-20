@@ -10,6 +10,7 @@ local common = require("test_scripts/Defects/4_5/commonDefects")
 local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ General configuration parameters ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } }
 -- switch ATF to mode when it will continue test script execution even if SDL crashes
 config.ExitOnCrash = false
 

@@ -1,10 +1,10 @@
+local ATF = require('ATF')
 require('atf.util')
 local module = require('testbase')
 local mobile = require("mobile_connection")
-local tcp = require("tcp_connection")
+local mobile_adapter_controller = require("mobile_adapter/mobile_adapter_controller")
 local file_connection = require("file_connection")
 local mobile_session = require("mobile_session")
-local websocket = require('websocket_connection')
 local hmi_connection = require('hmi_connection')
 local events = require("events")
 local expectations = require('expectations')
@@ -17,19 +17,28 @@ local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 local hmi_values = require("user_modules/hmi_values")
 local mob_schema = load_schema.mob_schema
 local hmi_schema = load_schema.hmi_schema
-
+local hmi_adapter_controller = require("hmi_adapter/hmi_adapter_controller")
 local Event = events.Event
 
 local Expectation = expectations.Expectation
 local SUCCESS = expectations.SUCCESS
 local FAILED = expectations.FAILED
+local utils = require("user_modules/utils")
 
-module.hmiConnection = hmi_connection.Connection(websocket.WebSocketConnection(config.hmiUrl, config.hmiPort))
-local tcpConnection = tcp.Connection(config.mobileHost, config.mobilePort)
-local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
+--- HMI connection
+module.hmiConnection = hmi_connection.Connection(hmi_adapter_controller.getHmiAdapter({connection = ATF.remoteConnection}))
+
+--- Default mobile connection
+module.getDefaultMobileAdapter = mobile_adapter_controller.getDefaultAdapter
+
+local mobileAdapter = module.getDefaultMobileAdapter()
+local fileConnection = file_connection.FileConnection("mobile.out", mobileAdapter)
 module.mobileConnection = mobile.MobileConnection(fileConnection)
+
 event_dispatcher:AddConnection(module.hmiConnection)
 event_dispatcher:AddConnection(module.mobileConnection)
+
+--- Notification counter
 module.notification_counter = 1
 module.sdlBuildOptions = SDL.buildOptions
 
@@ -286,6 +295,8 @@ function StopSDL()
 end
 
 function module:runSDL()
+  event_dispatcher:ClearEvents()
+  module.expectations_list:Clear()
   if config.autorunSDL ~= true then
     SDL.autoStarted = false
     return
@@ -334,7 +345,9 @@ function module:initHMI()
           "BasicCommunication.OnResumeAudioSource",
           "BasicCommunication.OnSystemTimeReady",
           "BasicCommunication.OnSystemCapabilityUpdated",
-          "BasicCommunication.OnServiceUpdate"
+          "BasicCommunication.OnServiceUpdate",
+          "BasicCommunication.OnAppPropertiesChange",
+          "BasicCommunication.OnAppCapabilityUpdated"
         })
       registerComponent("UI",
         {
@@ -364,8 +377,14 @@ end
 --[[ @initHMI_onReady: the function is HMI's onReady response
 --! @parameters:
 --! @hmi_table - hmi_table of hmi specification values, default one is specified in "user_modules/hmi_values"
+--! @is_cache_used - true if it's expected SDL will use HMI capabilities cache, otherwise false
 --! @example: self:initHMI_onReady(local_hmi_table) ]]
-function module:initHMI_onReady(hmi_table)
+function module:initHMI_onReady(hmi_table, is_cache_used)
+
+  if is_cache_used == nil and SDL.HMICapCache.file() ~= nil then
+    is_cache_used = SDL.HMICapCache.get() ~= nil
+  end
+
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(module, "HMI on ready")
 
   local function ExpectRequest(name, hmi_table_element)
@@ -380,8 +399,14 @@ function module:initHMI_onReady(hmi_table)
     event.matches = function(self, data)
       return data.method == name
     end
+
+    local delay = hmi_table_element.delay or 0
+    local occurrence = hmi_table_element.occurrence
+    if occurrence == nil then
+      occurrence = hmi_table_element.mandatory and 1 or AnyNumber()
+    end
     local exp = EXPECT_HMIEVENT(event, name)
-    :Times(hmi_table_element.mandatory and 1 or AnyNumber())
+    :Times(occurrence)
     :Do(function(_, data)
         xmlReporter.AddMessage("hmi_connection","SendResponse",
         {
@@ -389,7 +414,10 @@ function module:initHMI_onReady(hmi_table)
           ["mandatory"] = hmi_table_element.mandatory,
           ["params"] = hmi_table_element.params
         })
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        local function sendHMIResponse()
+          self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        end
+        RUN_AFTER(sendHMIResponse, delay)
       end)
     if hmi_table_element.mandatory then
       exp_waiter:AddExpectation(exp)
@@ -402,7 +430,7 @@ function module:initHMI_onReady(hmi_table)
 
   local hmi_table_internal
   if type(hmi_table) == "table" then
-    hmi_table_internal = commonFunctions:cloneTable(hmi_table)
+    hmi_table_internal = utils.cloneTable(hmi_table)
   else
     hmi_table_internal = hmi_values.getDefaultHMITable()
   end
@@ -411,6 +439,26 @@ function module:initHMI_onReady(hmi_table)
   if hmi_table_internal.BasicCommunication then
     bc_update_app_list = hmi_table_internal.BasicCommunication.UpdateAppList
     hmi_table_internal.BasicCommunication.UpdateAppList = nil
+    local bc_update_device_list = hmi_table_internal.BasicCommunication.UpdateDeviceList
+    if SDL.buildOptions.webSocketServerSupport == "ON" and bc_update_device_list then
+      bc_update_device_list.mandatory = true
+      if not bc_update_device_list.occurrence then bc_update_device_list.occurrence = AtLeast(1) end
+    end
+  end
+
+  if is_cache_used == true then
+    hmi_table_internal.UI.GetCapabilities = nil
+    hmi_table_internal.VR.GetCapabilities = nil
+    hmi_table_internal.TTS.GetCapabilities = nil
+    hmi_table_internal.RC.GetCapabilities = nil
+    hmi_table_internal.Buttons.GetCapabilities = nil
+    hmi_table_internal.VR.GetLanguage = nil
+    hmi_table_internal.UI.GetLanguage = nil
+    hmi_table_internal.TTS.GetLanguage = nil
+    hmi_table_internal.VR.GetSupportedLanguages = nil
+    hmi_table_internal.UI.GetSupportedLanguages = nil
+    hmi_table_internal.TTS.GetSupportedLanguages = nil
+    hmi_table_internal.VehicleInfo.GetVehicleType = nil
   end
 
   for k_module, v_module in pairs(hmi_table_internal) do
@@ -446,8 +494,9 @@ function module:connectMobile()
   :Do(function()
       print("Disconnected!!!")
     end)
+  local ret = EXPECT_EVENT(events.connectedEvent, "Connected")
   self.mobileConnection:Connect()
-  return EXPECT_EVENT(events.connectedEvent, "Connected")
+  return ret
 end
 
 function module:startSession()

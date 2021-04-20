@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/detailed_info_GetSystemCapability.md
 -- Item: Use Case 1: Alternative flow 1
 --
 -- Requirement summary:
@@ -17,14 +17,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
+  local params = commonRC.getDefaultHMITable()
   params.RC.IsReady.params.available = false
   params.RC.GetCapabilities.params = { }
   params.RC.GetCapabilities.occurrence = 0

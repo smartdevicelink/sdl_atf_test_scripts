@@ -12,6 +12,8 @@ local commonRC = require("test_scripts/RC/commonRC")
 --[[ Variables ]]
 local m = actions
 m.cloneTable = utils.cloneTable
+m.preconditionsRC = commonRC.preconditions
+m.postconditionsRC = commonRC.postconditions
 m.radioData = commonRC.getModuleControlData("RADIO")
 m.shiftValue = {
     true,
@@ -55,7 +57,7 @@ end
 function m.getVehicleData(pShiftValue)
     m.gpsParams.shifted = pShiftValue
     local cid = m.getMobileSession():SendRPC("GetVehicleData", { gps = true })
-    EXPECT_HMICALL("VehicleInfo.GetVehicleData", { gps = true })
+    m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { gps = true })
     :Do(function(_, data)
         m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { gps = m.gpsParams })
     end)
@@ -71,7 +73,7 @@ function m.subscribeVehicleData()
         resultCode = "SUCCESS"
       }
     local cid = m.getMobileSession():SendRPC("SubscribeVehicleData", { gps = true })
-    EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData", { gps = true })
+    m.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData", { gps = true })
     :Do(function(_, data)
         m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { gps = gpsResponseData })
     end)
@@ -94,7 +96,7 @@ function m.getInteriorVehicleData(pShiftValue, pIsSubscribed)
         moduleType = "RADIO",
         subscribe = true
     })
-    EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+    m.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData", {
         moduleType = "RADIO",
         subscribe = true
       })

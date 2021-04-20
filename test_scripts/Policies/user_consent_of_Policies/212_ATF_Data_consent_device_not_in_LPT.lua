@@ -14,6 +14,8 @@
 -- Expected result:
 -- PoliciesManager must initiate getting User`s data consent (that is, User`s permission for using the mobile device`s connection for Policy Table exchange)
 ----------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

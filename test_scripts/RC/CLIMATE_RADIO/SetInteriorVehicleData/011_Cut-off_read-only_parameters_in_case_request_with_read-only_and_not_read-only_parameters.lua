@@ -17,7 +17,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,7 +28,7 @@ local function isModuleDataCorrect(pModuleType, actualModuleData)
     for param_actual, _ in pairs(commonRC.getModuleParams(actualModuleData)) do
       if param_readonly == param_actual then
         isFalse = true
-        commonFunctions:userPrint(36, "Unexpected read-only parameter: " .. param_readonly)
+        commonRC.cprint(36, "Unexpected read-only parameter: " .. param_readonly)
       end
     end
   end

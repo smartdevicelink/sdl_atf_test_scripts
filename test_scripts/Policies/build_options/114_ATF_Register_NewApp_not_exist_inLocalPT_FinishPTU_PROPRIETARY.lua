@@ -20,6 +20,8 @@
 -- 3. SDL replaces the following sections of the Local Policy Table with the corresponding sections from PTU: module_config, functional_groupings, app_policies
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -106,6 +108,7 @@ function Test:TestStep_FinishPTU_ForAppId1()
       self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/ptu.json" })
       -- PTU will be restarted because of new AppID is registered
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}, {status = "UPDATE_NEEDED"})
+      :Times(2)
     end)
 end
 

@@ -12,6 +12,9 @@ local apiLoader = require("modules/api_loader")
 local api = apiLoader.init("data/MOBILE_API.xml")
 local schema = api.interface[next(api.interface)]
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 local DefaultTimeout = 10000
 

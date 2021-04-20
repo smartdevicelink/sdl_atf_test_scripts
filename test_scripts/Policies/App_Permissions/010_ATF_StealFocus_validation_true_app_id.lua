@@ -13,6 +13,7 @@
 -- Expected result
 -- SDL must response: success = true, resultCode = "SUCCESS
 --------------------------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2

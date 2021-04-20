@@ -22,6 +22,8 @@
 --SDL waits for SystemRequest response from <app ID> within 'timeout' value,
 --if no obtained, it starts retry sequence
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')

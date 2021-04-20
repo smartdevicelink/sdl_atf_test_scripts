@@ -20,6 +20,8 @@
 -- 1) SDL->appID_1: NONE OnHMIStatus -- should keep last value BACKGROUND
 -- 1) SDL->appID_2: NONE OnHMIStatus -- should keep last value NONE
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 config.application1.registerAppInterfaceParams.isMediaApplication = false

@@ -14,6 +14,8 @@
 -- Expected result:
 -- a) SDL->app: OnAppInterfaceUnregistered (APP_UNAUTHORIZED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -112,8 +114,7 @@ function Test.Precondition_RestorePreloadedPT()
 end
 
 --[[ Test ]]
-function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check_Unregistration_App()
-
+function Test:Precondition_RegisterApp()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface",
     {
       syncMsgVersion =
@@ -147,14 +148,19 @@ function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }
     })
   :Do(function(_,data)
-      local function to_run()
-        local RequestIdActivateApp = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = data.params.application.appID})
+      self.applications["SPT"] = data.params.application.appID
+    end)
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+end
+
+function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check_Unregistration_App()
+        local RequestIdActivateApp = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications["SPT"]})
         EXPECT_HMIRESPONSE(RequestIdActivateApp, {result = {code = 0, isSDLAllowed = false}, method = "SDL.ActivateApp"})
         :Do(function(_,_)
             local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
@@ -168,10 +174,6 @@ function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check
                 EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
               end)
           end)
-      end
-      RUN_AFTER(to_run, 500)
-    end)
-  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,_)
       local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
@@ -182,19 +184,14 @@ function Test:TestStep_Update_PT_With_Another_NickName_For_Current_App_And_Check
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
           :Do(function()
               local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {fileName = "PolicyTableUpdate", requestType = "PROPRIETARY"}, "files/PTFromCloud_Nickname_validation.json")
-              local systemRequestId
+              self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
               EXPECT_HMICALL("BasicCommunication.SystemRequest")
               :Do(function(_,data)
-                  systemRequestId = data.id
+                  self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
                   self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
                     {
                       policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"
                     })
-                  local function to_run()
-                    self.hmiConnection:SendResponse(systemRequestId, "BasicCommunication.SystemRequest", "SUCCESS", {})
-                    self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
-                  end
-                  RUN_AFTER(to_run, 800)
                   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}):Timeout(500)
                 end)
             end)

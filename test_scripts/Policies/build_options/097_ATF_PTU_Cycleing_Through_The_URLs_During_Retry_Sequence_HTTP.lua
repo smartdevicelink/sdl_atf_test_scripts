@@ -18,6 +18,8 @@
 -- Expected result:
 -- Url parameter is taken cyclically from list of available URLs
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -55,9 +57,11 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 Test = require("connecttest")
 require("user_modules/AppTypes")
 config.defaultProtocolVersion = 2
+local startSession = Test.startSession
 
 --[[ Specific Notifications ]]
-function Test:RegisterNotification()
+function Test:startSession()
+  startSession(self)
   self.mobileSession:ExpectNotification("OnSystemRequest")
   :Do(function(_, d)
       if d.payload.requestType == "HTTP" then

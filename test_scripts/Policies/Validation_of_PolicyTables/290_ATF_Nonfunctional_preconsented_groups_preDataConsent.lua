@@ -15,6 +15,8 @@
 -- Expected result:
 -- PoliciesManager must validate "preconsented_groups" sub-section in "pre_DataConsent" and treat it as invalid -> PTU invalid
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

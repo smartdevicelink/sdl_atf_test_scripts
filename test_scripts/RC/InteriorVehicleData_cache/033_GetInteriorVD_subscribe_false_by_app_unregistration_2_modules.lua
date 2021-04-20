@@ -17,8 +17,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/InteriorVehicleData_cache/common_interiorVDcache')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -26,7 +24,7 @@ runner.testSettings.isSelfIncluded = false
 -- [[ Local Function ]]
 local function unregistrationApp()
   local rpc = "GetInteriorVehicleData"
-  EXPECT_HMICALL(commonRC.getHMIEventName(rpc))
+  EXPECT_HMICALL(common.getHMIEventName(rpc))
   :Do(function(_, data)
       if data.params.moduleType == "CLIMATE" then
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
@@ -43,7 +41,7 @@ local function unregistrationApp()
       else
         ExpectedResult = common.getHMIRequestParams(rpc, "RADIO", 1, false)
       end
-      if false == commonFunctions:is_table_equal(data.params, ExpectedResult) then
+      if false == common.isTableEqual(data.params, ExpectedResult) then
         return false, "Parameters in RC.GetInteriorVehicleData are not match to expected result.\n" ..
           "Actual result:" .. common.tableToString(data.params) .. "\n" ..
           "Expected result:" ..common.tableToString(ExpectedResult) .."\n"
@@ -52,7 +50,7 @@ local function unregistrationApp()
     end)
   :Times(2)
   local mobSession = common.getMobileSession(1)
-  local hmiAppId = commonRC.getHMIAppId(1)
+  local hmiAppId = common.getHMIAppId(1)
   local cid = mobSession:SendRPC("UnregisterAppInterface",{})
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { appID = hmiAppId, unexpectedDisconnect = false })
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})

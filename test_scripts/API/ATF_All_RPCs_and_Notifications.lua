@@ -98,7 +98,6 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 local RPC_ResponseTimeout = 10000
 
 local iTimeout = 5000

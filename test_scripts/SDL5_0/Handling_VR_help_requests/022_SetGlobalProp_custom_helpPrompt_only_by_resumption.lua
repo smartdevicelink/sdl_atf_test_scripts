@@ -47,7 +47,7 @@ runner.Step("App registration", common.registerAppWOPTU)
 runner.Step("Pin OnHashChange", common.pinOnHashChange)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
-  runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
+  runner.Step("AddCommand" .. i, common.addCommandWithSetGP, { i })
 end
 runner.Step("App reconnect", common.reconnect)
 runner.Step("App resumption", common.registrationWithResumption,

@@ -8,32 +8,14 @@ config.defaultProtocolVersion = 2
 local actions = require("user_modules/sequences/actions")
 local utils = require('user_modules/utils')
 local json = require("modules/json")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonSteps = require("user_modules/shared_testcases/commonSteps")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Local Variables ]]
 local common = actions
 common.cloneTable = utils.cloneTable
-local preloadedPT = commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
 
 --[[Module functions]]
-function common.preconditions()
-  commonFunctions:SDLForceStop()
-  commonSteps:DeletePolicyTable()
-  commonSteps:DeleteLogsFiles()
-  commonPreconditions:BackupFile(preloadedPT)
-  common.updatePreloadedPT()
-end
-
-function common.postconditions()
-  StopSDL()
-  commonPreconditions:RestoreFile(preloadedPT)
-end
-
 function common.updatePreloadedPT()
-  local preloadedFile = commonPreconditions:GetPathToSDL() .. preloadedPT
-  local pt = utils.jsonFileToTable(preloadedFile)
+  local pt = common.sdl.getPreloadedPT()
   pt.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   local additionalRPCs = {
     "SendLocation", "SubscribeVehicleData", "UnsubscribeVehicleData", "GetVehicleData", "UpdateTurnList",
@@ -50,7 +32,13 @@ function common.updatePreloadedPT()
   pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup" }
   pt.policy_table.app_policies["0000001"].keep_context = true
   pt.policy_table.app_policies["0000001"].steal_focus = true
-  utils.tableToJsonFile(pt, preloadedFile)
+  common.sdl.setPreloadedPT(pt)
+end
+
+local preconditions_Orig = common.preconditions
+function common.preconditions()
+  preconditions_Orig()
+  common.updatePreloadedPT()
 end
 
 return common

@@ -6,8 +6,8 @@ local actions = require("user_modules/sequences/actions")
 local security = require("user_modules/sequences/security")
 local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local common = require("test_scripts/Security/SSLHandshakeFlow/common")
+local SDL = require("SDL")
 
 --[[ General configuration parameters ]]
 config.serverCertificatePath = "./files/Security/GetSystemTime_certificates/spt_credential.pem"
@@ -51,7 +51,7 @@ end
 
 function m.start(pOnSystemTime, pHMIParams)
   test:runSDL()
-  commonFunctions:waitForSDLStart(test)
+  SDL.WaitForSDLStart(test)
   :Do(function()
       test:initHMI()
       :Do(function()

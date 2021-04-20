@@ -88,10 +88,10 @@ local function checkResumption(pWidgetParams, pAppId)
     end)
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
     { windowID = 0, hmiLevel = "NONE" },
-    { windowID = 0, hmiLevel = "FULL" },
     { windowID = pWidgetParams[1].windowID, hmiLevel = "NONE" },
     { windowID = pWidgetParams[2].windowID, hmiLevel = "NONE" },
-    { windowID = pWidgetParams[3].windowID, hmiLevel = "NONE" })
+    { windowID = pWidgetParams[3].windowID, hmiLevel = "NONE" },
+    { windowID = 0, hmiLevel = "FULL" })
   :Times(5)
 end
 

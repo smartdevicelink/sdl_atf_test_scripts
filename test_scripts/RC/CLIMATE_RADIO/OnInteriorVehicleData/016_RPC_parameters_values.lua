@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/5
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/unsubscribe_from_module_status_change_notification.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/unsubscribe_from_module_status_change_notification.md
 -- Item: Use Case 1: Main Flow
 --
 -- Requirement summary:
@@ -20,7 +20,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -33,8 +32,7 @@ local function invalidParamName(pModuleType)
 
   commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 local function invalidParamType(pModuleType)
@@ -47,8 +45,7 @@ local function invalidParamType(pModuleType)
 
   commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 local function missingMandatoryParam(pModuleType)
@@ -61,8 +58,7 @@ local function missingMandatoryParam(pModuleType)
 
   commonRC.getMobileSession():ExpectNotification("OnInteriorVehicleData")
   :Times(0)
-
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

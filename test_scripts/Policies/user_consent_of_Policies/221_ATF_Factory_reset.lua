@@ -14,6 +14,8 @@
 -- Expected result:
 -- Policy Manager must clear all user consent records in "user_consent_records" section of the LocalPT, other content of the LocalPT must be unchanged
 ---------------------------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
@@ -27,6 +29,9 @@ local mobile_session = require('mobile_session')
 local sdl = require('SDL')
 local utils = require ('user_modules/utils')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
+
+--[[ Local Variables ]]
+local ptuInProgress = false
 
 --[[ Local Functions ]]
 
@@ -49,7 +54,7 @@ local function FACTORY_DEFAULTS(self)--, appNumber)
     })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered")
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
-  EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "IGNITION_OFF" })
+  EXPECT_NOTIFICATION("OnAppInterfaceUnregistered", { reason = "FACTORY_DEFAULTS" })
   commonTestCases:DelayedExp(5000)
 end
 
@@ -139,6 +144,15 @@ end
 
 function Test:Precondition_InitHMI_onReady()
   self:initHMI_onReady()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:Precondition_ConnectMobile()
@@ -193,10 +207,12 @@ function Test:Precondition_Activate_app_To_Trigger_PTU_after_reset()
         end)
     end)
 
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if not ptuInProgress then
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)      
+  end
 
   EXPECT_HMICALL("BasicCommunication.ActivateApp")
   :Do(function(_,data) self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {}) end)

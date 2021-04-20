@@ -21,24 +21,24 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
 
---[[ Local Variables ]]
-local preloadedPT = commonSmoke:read_parameter_from_smart_device_link_ini("PreloadedPT")
-local preloadedFile = commonSmoke:GetPathToSDL() .. preloadedPT
-local pt = commonSmoke.jsonFileToTable(preloadedFile)
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function GetPolicyConfigurationData(self)
-  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+local function GetPolicyConfigurationData()
+  local hmi = common.getHMIConnection()
+  local requestId = hmi:SendRequest("SDL.GetPolicyConfigurationData",
     { policyType = "module_config", property = "endpoints" })
-  EXPECT_HMIRESPONSE(requestId, { result = { code = 0 } })
+  hmi:ExpectResponse(requestId, { result = { code = 0 } })
   :ValidIf(function(_, data)
-      if true ~= commonSmoke:is_table_equal(commonSmoke.decode(data.result.value[1]),
-        pt.policy_table.module_config.endpoints) then
+      local expectedEndpoints = common.sdl.getPreloadedPT().policy_table.module_config.endpoints
+      local actualEndpoints = common.json.decode(data.result.value[1])
+      if true ~= common.isTableEqual(actualEndpoints, expectedEndpoints) then
         return false, "GetPolicyConfigurationData contains unexpected parameters.\n" ..
-        "Expected table: " .. commonSmoke.tableToString(pt.policy_table.module_config.endpoints) .. "\n" ..
-        "Actual table: " .. commonSmoke.tableToString(commonSmoke.decode(data.result.value[1])) .. "\n"
+          "Expected table: " .. common.tableToString(expectedEndpoints) .. "\n" ..
+          "Actual table: " .. common.tableToString(actualEndpoints) .. "\n"
       end
       return true
     end)
@@ -46,11 +46,12 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 
 runner.Title("Test")
 runner.Step("GetPolicyConfigurationData from HMI", GetPolicyConfigurationData)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

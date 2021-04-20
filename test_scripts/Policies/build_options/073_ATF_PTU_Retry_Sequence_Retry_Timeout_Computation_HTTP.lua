@@ -29,6 +29,8 @@
 -- t[4] = timeout_after_x_seconds + seconds_between_retries[4] + t[3]
 -- t[5] = timeout_after_x_seconds + seconds_between_retries[5] + t[4]
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -90,17 +92,17 @@ function Test:TestStep_OnStatusUpdate_UPDATE_NEEDED_new_PTU_request()
 end
 
 function Test:TestStep_Retry_Timeout_Expiration()
-  local timeout_after_x_seconds = 30
+  local timeout_after_x_seconds = 8
   local time_wait = {}
   local sec_btw_ret = {1, 2, 3, 4, 5}
   local total_time
 
-  time_wait[0] = timeout_after_x_seconds -- 30
-  time_wait[1] = timeout_after_x_seconds + sec_btw_ret[1] -- 30 + 1 = 31
-  time_wait[2] = timeout_after_x_seconds + sec_btw_ret[2] + time_wait[1] -- 30 + 2 + 31 = 63
-  time_wait[3] = timeout_after_x_seconds + sec_btw_ret[3] + time_wait[2] -- 30 + 3 + 63 = 96
-  time_wait[4] = timeout_after_x_seconds + sec_btw_ret[4] + time_wait[3] -- 30 + 4 + 96 = 130
-  time_wait[5] = timeout_after_x_seconds + sec_btw_ret[5] + time_wait[4] -- 30 + 5 + 130 = 165
+  time_wait[0] = timeout_after_x_seconds -- 8
+  time_wait[1] = timeout_after_x_seconds + sec_btw_ret[1] -- 8 + 1 = 9
+  time_wait[2] = timeout_after_x_seconds + sec_btw_ret[2] + time_wait[1] -- 8 + 2 + 9 = 19
+  time_wait[3] = timeout_after_x_seconds + sec_btw_ret[3] + time_wait[2] -- 8 + 3 + 19 = 30
+  time_wait[4] = timeout_after_x_seconds + sec_btw_ret[4] + time_wait[3] -- 8 + 4 + 30 = 42
+  time_wait[5] = timeout_after_x_seconds + sec_btw_ret[5] + time_wait[4] -- 8 + 5 + 42 = 55
 
   total_time = (time_wait[0] + time_wait[1] + time_wait[2] + time_wait[3] + time_wait[4] + time_wait[5]) * 1000 + 10000
   print("Waiting " .. total_time .. "ms")

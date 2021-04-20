@@ -28,57 +28,61 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function getRequestParams()
-	return {
-		ttsChunks = {
-			{
-				text ="a",
-				type ="TEXT"
-			}
-		}
-	}
+  return {
+    ttsChunks = {
+      {
+        text ="a",
+        type ="TEXT"
+      }
+    }
+  }
 end
 
-local function speakSuccess(self)
-	print("Waiting 20s ...")
-	local cid = self.mobileSession1:SendRPC("Speak", getRequestParams())
-	EXPECT_HMICALL("TTS.Speak", getRequestParams())
-	:Do(function(_, data)
-			self.hmiConnection:SendNotification("TTS.Started")
-			local function sendSpeakResponse()
-				self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
-				self.hmiConnection:SendNotification("TTS.Stopped")
-			end
-			local function sendOnResetTimeout()
-				self.hmiConnection:SendNotification("TTS.OnResetTimeout",
-					{ appID = commonSmoke.getHMIAppId(), methodName = "TTS.Speak" })
-			end
-			RUN_AFTER(sendOnResetTimeout, 9000)
-			RUN_AFTER(sendSpeakResponse, 18000)
-		end)
+local function speakSuccess()
+  print("Waiting 20s ...")
+  local cid = common.getMobileSession():SendRPC("Speak", getRequestParams())
+  common.getHMIConnection():ExpectRequest("TTS.Speak", getRequestParams())
+  :Do(function(_, data)
+      common.getHMIConnection():SendNotification("TTS.Started")
+      local function sendSpeakResponse()
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+        common.getHMIConnection():SendNotification("TTS.Stopped")
+      end
+      local function sendOnResetTimeout()
+        common.getHMIConnection():SendNotification("TTS.OnResetTimeout",
+          { appID = common.getHMIAppId(), methodName = "TTS.Speak" })
+      end
+      common.runAfter(sendOnResetTimeout, 9000)
+      common.runAfter(sendSpeakResponse, 18000)
+    end)
 
-		self.mobileSession1:ExpectNotification("OnHMIStatus",
-			{ systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
-			{ systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
-		:Times(2)
-		:Timeout(20000)
+    common.getMobileSession():ExpectNotification("OnHMIStatus",
+      { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
+      { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
+    :Times(2)
+    :Timeout(20000)
 
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-	:Timeout(20000)
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  :Timeout(20000)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Speak Positive Case", speakSuccess)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

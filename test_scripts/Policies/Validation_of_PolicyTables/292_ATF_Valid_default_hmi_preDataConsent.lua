@@ -15,6 +15,8 @@
 -- Expected result:
 -- PoliciesManager must validate "default_hmi"(BACKGROUND) sub-section in "pre_DataConsent" and treat it valid
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
 config.defaultProtocolVersion = 2
