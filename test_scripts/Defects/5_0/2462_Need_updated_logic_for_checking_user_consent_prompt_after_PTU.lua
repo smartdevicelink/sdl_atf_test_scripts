@@ -2,7 +2,9 @@
 -- User story: https://github.com/smartdevicelink/sdl_core/issues/2462
 --
 -- Description:
--- 1) Need updated logic for checking user consent prompt after PTU.
+-- SDL sends SDL.OnAppPermissionChanged(appPermissionsConsentNeeded = true) to HMI
+-- in case new functional group requires user consent is assigned to the App within PTU
+--
 -- Steps to reproduce:
 -- 1) Register app
 -- 2) Perform PTU with group that requires the user consent
@@ -16,18 +18,17 @@ local common = require('user_modules/sequences/actions')
 
 -- [[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } }
 
 -- [[ Local functions ]]
 local function expectationAppPermissionsParam()
-  common.getHMIConnection():ExpectNotification("SDL.OnAppPermissionChanged", { appPermissionsConsentNeeded = true })
-  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-    { status = "UPDATING" },
-    { status = "UP_TO_DATE" })
-  :Times(2)
+  common.getHMIConnection():ExpectNotification("SDL.OnAppPermissionChanged",
+    { appPermissionsConsentNeeded = true, appID = common.getHMIAppId() })
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
 end
 
 local function ptuFunc(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups = { "Base-4", "Location-1" }
+  tbl.policy_table.app_policies[common.app.getParams().fullAppID].groups = { "Base-4", "Location-1" }
 end
 
 --[[ Scenario ]]
