@@ -14,6 +14,8 @@
 -- Expected result:
 -- SDL must: increment "count_of_iap_buffer_full" section value of Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -194,10 +196,10 @@ end
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:HMIsendAddStatisticsInfo()
-  for _ = 1, 2 do
-    os.execute("sleep 2")
-    self:addStatisticsInfo("iAPP_BUFFER_FULL")
+  for i = 1, 2 do
+    RUN_AFTER(function() self:addStatisticsInfo("iAPP_BUFFER_FULL") end, 100 * i)
   end
+  commonTestCases:DelayedExp(1000)
 end
 
 function Test:StopSDL()
@@ -218,10 +220,10 @@ function Test:InitHMI_onReady()
 end
 
 function Test:HMIsendAddStatisticsInfo2()
-  for _ = 1, 3 do
-    os.execute("sleep 2")
-    self:addStatisticsInfo("iAPP_BUFFER_FULL")
+  for i = 1, 3 do
+    RUN_AFTER(function() self:addStatisticsInfo("iAPP_BUFFER_FULL") end, 100 * i)
   end
+  commonTestCases:DelayedExp(1000)
 end
 
 function Test:StopSDL2()
@@ -229,6 +231,7 @@ function Test:StopSDL2()
 end
 
 function Test:CheckPTUinLocalPT()
+  os.execute("sleep 5")
   --TestData:store("Store LocalPT after SDL.AddStatisticsInfo", constructPathToDatabase(), "policy.sqlite" )
   local checks = {
     {

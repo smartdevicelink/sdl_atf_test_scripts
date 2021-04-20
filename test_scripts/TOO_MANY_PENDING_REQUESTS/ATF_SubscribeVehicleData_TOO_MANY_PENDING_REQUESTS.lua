@@ -37,23 +37,24 @@ os.execute('cp ./files/PTU_AllowedAndUserDisallowedSVD.json ' .. tostring(config
 -------------------------------------------Preconditions-------------------------------------
 ---------------------------------------------------------------------------------------------
 	--Begin Precondition.1
-	--Description: Activation App by sending SDL.ActivateApp	
+	--Description: Activation App by sending SDL.ActivateApp
 		commonSteps:ActivationApp()
 	--End Precondition.1
-	
+
 	-----------------------------------------------------------------------------------------
-	
-	--[[TODO: check after ATF defect APPLINK-13101 is resolved	
+
+	--[[TODO: check after ATF defect APPLINK-13101 is resolved
 	--Begin Precondition.2
 	--Description: Updated policy to allowed all vehicle data
 		function Test:Precondition_PolicyUpdate()
-						--hmi side: sending SDL.GetURLS request
-						local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-						
-						--hmi side: expect SDL.GetURLS response from HMI
-						EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetURLS", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
+						--hmi side: sending SDL.GetPolicyConfigurationData request
+						local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+							{ policyType = "module_config", property = "endpoints" })
+
+						--hmi side: expect SDL.GetPolicyConfigurationData response from HMI
+						EXPECT_HMIRESPONSE(RequestIdGetURLS,{result = {code = 0, method = "SDL.GetPolicyConfigurationData", urls = {{url = "http://policies.telematics.ford.com/api/policies"}}}})
 						:Do(function(_,data)
-							--print("SDL.GetURLS response is received")
+							--print("SDL.GetPolicyConfigurationData response is received")
 							--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 							self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
 								{
@@ -61,25 +62,25 @@ os.execute('cp ./files/PTU_AllowedAndUserDisallowedSVD.json ' .. tostring(config
 									fileName = "filename"
 								}
 							)
-							--mobile side: expect OnSystemRequest notification 
+							--mobile side: expect OnSystemRequest notification
 							EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
 							:Do(function(_,data)
 								--print("OnSystemRequest notification is received")
-								--mobile side: sending SystemRequest request 
+								--mobile side: sending SystemRequest request
 								local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
 									{
 										fileName = "PolicyTableUpdate",
 										requestType = "PROPRIETARY"
 									},
 								"files/PTU_AllowedAllVehicleData.json")
-								
+
 								local systemRequestId
 								--hmi side: expect SystemRequest request
 								EXPECT_HMICALL("BasicCommunication.SystemRequest")
 								:Do(function(_,data)
 									systemRequestId = data.id
 									--print("BasicCommunication.SystemRequest is received")
-									
+
 									--hmi side: sending BasicCommunication.OnSystemRequest request to SDL
 									self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
 										{
@@ -90,53 +91,53 @@ os.execute('cp ./files/PTU_AllowedAndUserDisallowedSVD.json ' .. tostring(config
 										--hmi side: sending SystemRequest response
 										self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
 									end
-									
+
 									RUN_AFTER(to_run, 500)
 								end)
-								
+
 								--hmi side: expect SDL.OnStatusUpdate
 								EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status =  "UP_TO_DATE"})
 								:Do(function(_,data)
 									--print("SDL.OnStatusUpdate is received")
-									
+
 									--hmi side: expect SDL.OnAppPermissionChanged
-									
-									
+
+
 								end)
 								:Timeout(2000)
-								
+
 								--mobile side: expect SystemRequest response
 								EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
 								:Do(function(_,data)
 									--print("SystemRequest is received")
 									--hmi side: sending SDL.GetUserFriendlyMessage request to SDL
 									local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"StatusUpToDate"}})
-									
+
 									--hmi side: expect SDL.GetUserFriendlyMessage response
 									EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage", messages = {{line1 = "Up-To-Date", messageCode = "StatusUpToDate", textBody = "Up-To-Date"}}}})
 									:Do(function(_,data)
 										--print("SDL.GetUserFriendlyMessage is received")
-										
+
 										--hmi side: sending SDL.GetListOfPermissions request to SDL
 										local RequestIdGetListOfPermissions = self.hmiConnection:SendRequest("SDL.GetListOfPermissions", {appID = self.applications["Test Application"]})
-										
+
 										-- hmi side: expect SDL.GetListOfPermissions response
 										EXPECT_HMIRESPONSE(RequestIdGetListOfPermissions,{result = {code = 0, method = "SDL.GetListOfPermissions", allowedFunctions = {{ id = 193465391, name = "New"}}}})
 										:Do(function(_,data)
 											--print("SDL.GetListOfPermissions response is received")
-											
+
 											--hmi side: sending SDL.OnAppPermissionConsent
 											self.hmiConnection:SendNotification("SDL.OnAppPermissionConsent", { appID =  self.applications["Test Application"], consentedFunctions = {{ allowed = false, id = 193465391, name = "New"}}, source = "GUI"})
 											end)
 									end)
 								end)
 								:Timeout(2000)
-								
+
 							end)
 						end)
 					end
 	--End Precondition.2
-]]	
+]]
 
 ---------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------
@@ -158,19 +159,19 @@ os.execute('cp ./files/PTU_AllowedAndUserDisallowedSVD.json ' .. tostring(config
 														gps = true
 													})
 		end
-		
+
 		EXPECT_RESPONSE("SubscribeVehicleData")
 	      :ValidIf(function(exp,data)
-	      	if 
+	      	if
 	      		data.payload.resultCode == "TOO_MANY_PENDING_REQUESTS" then
 	            TooManyPenReqCount = TooManyPenReqCount+1
 	            print(" \27[32m SubscribeVehicleData response came with resultCode TOO_MANY_PENDING_REQUESTS \27[0m")
 	      		return true
-	        elseif 
-	           exp.occurences == 20 and TooManyPenReqCount == 0 then 
+	        elseif
+	           exp.occurences == 20 and TooManyPenReqCount == 0 then
 	          print(" \27[36m Response SubscribeVehicleData with resultCode TOO_MANY_PENDING_REQUESTS did not came \27[0m")
 	          return false
-	        elseif 
+	        elseif
 	          data.payload.resultCode == "IGNORED" then
 	            print(" \27[32m SubscribeVehicleData response came with resultCode IGNORED \27[0m")
 	            return true
@@ -194,7 +195,7 @@ os.execute('cp ./files/PTU_AllowedAndUserDisallowedSVD.json ' .. tostring(config
 		:Times(0)
 
 		DelayedExp()
-	end	
+	end
 
 		-- Postcondition: restoring sdl_preloaded_pt file
 		-- TODO: Remove after implementation policy update

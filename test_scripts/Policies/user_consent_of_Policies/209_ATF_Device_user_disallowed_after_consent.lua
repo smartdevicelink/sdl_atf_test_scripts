@@ -19,6 +19,8 @@
 -- App must be rolled back to default group
 -- RPC from defult should be allowed
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
@@ -56,6 +58,7 @@ end
 function Test:Precondition_Disallow_device()
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
     {allowed = false, source = "GUI", device = {id = utils.getDeviceMAC() , name = utils.getDeviceName()}})
+  EXPECT_NOTIFICATION("OnPermissionsChange")
 end
 
 --[[ Test ]]

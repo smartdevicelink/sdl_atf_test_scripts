@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/SetInteriorVehicleData.md
 -- Item: Use Case 1: Exceptions: 7.1
 --
 -- Requirement summary:
@@ -17,7 +17,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -33,7 +32,7 @@ local function setVehicleData(module_data)
 	EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
 
 	commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "READ_ONLY" })
-	commonTestCases:DelayedExp(commonRC.timeout)
+	commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

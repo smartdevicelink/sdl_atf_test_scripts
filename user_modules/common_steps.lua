@@ -35,8 +35,8 @@ local CommonSteps = {}
 function CommonSteps:AddMobileConnection(test_case_name, mobile_connection_name)
   Test[test_case_name] = function(self)
     mobile_connection_name = mobile_connection_name or "mobileConnection"
-    local tcpConnection = tcp.Connection(config.mobileHost, config.mobilePort)
-    local fileConnection = file_connection.FileConnection("mobile_" .. mobile_connection_name .. ".out", tcpConnection)
+    local mobileAdapter = self.getDefaultMobileAdapter()
+    local fileConnection = file_connection.FileConnection("mobile_" .. mobile_connection_name .. ".out", mobileAdapter)
     self[mobile_connection_name] = mobile.MobileConnection(fileConnection)
     event_dispatcher:AddConnection(self[mobile_connection_name])
     self[mobile_connection_name]:Connect()

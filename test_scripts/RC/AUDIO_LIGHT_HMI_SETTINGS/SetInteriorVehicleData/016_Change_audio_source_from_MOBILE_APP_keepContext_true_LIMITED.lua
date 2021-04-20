@@ -12,7 +12,7 @@
 -- 3) App tries to change audio source from MOBILE_APP with keepContext = true
 -- SDL must:
 -- 1) Change audio source successfully
--- 2) Change HMI level to BACKGROUND and change audioStreamingState to "NOT_AUDIBLE"
+-- 2) Not change HMI level, but change audioStreamingState to "NOT_AUDIBLE"
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -68,7 +68,7 @@ local function setVehicleData()
     end)
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   mobSession:ExpectNotification("OnHMIStatus",
-    { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+    { hmiLevel = "LIMITED", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
 local function bringAppToLIMITED()

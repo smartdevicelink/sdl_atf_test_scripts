@@ -14,6 +14,8 @@
 -- app stays in NONE level on HMI.
 -- HMI->SDL: BasicCommunication.ActivateApp_response
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -47,7 +49,7 @@ function Test:TestStep_RegisterApp_allowed_false_without_device()
         end)
     end)
 
-  EXPECT_HMICALL("BasicCommunication.ActivateApp", {appID = self.applications[config.application1.registerAppInterfaceParams.appName], level = "NONE"})
+  EXPECT_HMICALL("BasicCommunication.CloseApplication", {appID = self.applications[config.application1.registerAppInterfaceParams.appName]})
   :Do(function(_,data)
     self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
   end)

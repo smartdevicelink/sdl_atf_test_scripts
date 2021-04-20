@@ -33,7 +33,7 @@ config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
 
 --[[ Local Functions ]]
 local function ptUpdate(pTbl)
-  pTbl.policy_table.app_policies[common.getConfigAppParams().appID].AppHMIType = { appHMIType }
+  pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].AppHMIType = { appHMIType }
 end
 
 local function EndServiceByUserExit()
@@ -45,7 +45,7 @@ local function EndServiceByUserExit()
       and data.frameInfo == constants.FRAME_INFO.END_SERVICE
 	end
   common.getMobileSession():ExpectEvent(EndServiceEvent, "Expect EndServiceEvent")
-  :Do(function()
+  :DoOnce(function()
       common.getMobileSession():StopStreaming(FileForStreaming)
 	    common.getMobileSession():Send({
         frameType = constants.FRAME_TYPE.CONTROL_FRAME,

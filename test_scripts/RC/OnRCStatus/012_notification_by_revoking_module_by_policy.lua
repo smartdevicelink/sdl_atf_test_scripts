@@ -33,25 +33,25 @@ local function pTUfunc(tbl)
 end
 
 local function alocateModule(pModuleType)
-  local pModuleStatus = common.setModuleStatus(common.getAllModules(), {{}}, pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatus({ 1 })
 end
 
 local function ptuWithRevokingModule()
   common.policyTableUpdate(pTUfunc)
   local pModuleStatus = {
-    freeModules = common.getModulesArray(common.getAllModules()),
+    freeModules = common.getModulesAllocationByApp(1).freeModules,
     allocatedModules = { }
   }
   common.validateOnRCStatusForApp(1, pModuleStatus)
-  common.validateOnRCStatusForHMI(1, { pModuleStatus })
+  common.validateOnRCStatusForHMI(1, pModuleStatus)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions, { true, 1 })
+runner.Step("Update SDL config", common.setSDLIniParameter, { "ApplicationListUpdateTimeout", 5000 })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register RC application 1", common.registerRCApplication)
 runner.Step("Activate App 1", common.activateApp)

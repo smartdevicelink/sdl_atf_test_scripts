@@ -30,7 +30,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local vehicleDataValues = {
@@ -173,27 +176,28 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function getVD(pParams, self)
-  local cid = self.mobileSession1:SendRPC("GetVehicleData", pParams.requestParams)
-  EXPECT_HMICALL("VehicleInfo.GetVehicleData", pParams.requestParams)
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
+local function getVD(pParams)
+  local cid = common.getMobileSession():SendRPC("GetVehicleData", pParams.requestParams)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", pParams.requestParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", pParams.responseUiParams)
     end)
-  local MobResp = pParams.responseUiParams
-  MobResp.success = true
-  MobResp.resultCode = "SUCCESS"
-  self.mobileSession1:ExpectResponse(cid, MobResp)
+  local mobResp = pParams.responseUiParams
+  mobResp.success = true
+  mobResp.resultCode = "SUCCESS"
+  common.getMobileSession():ExpectResponse(cid, mobResp)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetVehicleData Positive Case", getVD, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

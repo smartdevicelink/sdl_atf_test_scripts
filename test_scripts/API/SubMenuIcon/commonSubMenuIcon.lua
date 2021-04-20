@@ -24,7 +24,7 @@ m.cloneTable = utils.cloneTable
 function m.getPathToFileInStorage(pFileName, pAppId)
   if not pAppId then pAppId = 1 end
   return commonPreconditions:GetPathToSDL() .. "storage/"
-    .. m.getConfigAppParams(pAppId).appID .. "_"
+    .. m.getConfigAppParams(pAppId).fullAppID .. "_"
     .. utils.getDeviceMAC() .. "/" .. pFileName
 end
 
@@ -91,8 +91,8 @@ local preconditionsOrig = m.preconditions
 
 function m.preconditions()
   preconditionsOrig()
-  local storage = commonPreconditions:GetPathToSDL() .. "storage"
-  os.execute("rm -rf " .. storage)
+  local storage = commonPreconditions:GetPathToSDL() .. "storage/*"
+  assert(os.execute("rm -rf " .. storage))
 end
 
 return m

@@ -25,7 +25,16 @@
 				"COMMUNICATION": 6,
 				"NORMAL": 4,
 				"NONE": 0
-			}
+			},
+            "subtle_notifications_per_minute_by_priority": {
+                "EMERGENCY": 60,
+                "NAVIGATION": 20,
+                "PROJECTION": 20,
+                "VOICECOM": 30,
+                "COMMUNICATION": 15,
+                "NORMAL": 10,
+                "NONE": 0
+            }
 		},
 		"functional_groupings": {
 			"Base-4": {
@@ -254,16 +263,14 @@
 				}
 			},
 			"Permission_for_1234567": {
-			"user_consent_prompt": "New_permissions",
+				"user_consent_prompt": "New_permissions",
 				"rpcs": {
-
 					"OnHMIStatus": {
 						"hmi_levels": ["BACKGROUND",
 						"FULL",
 						"LIMITED",
 						"NONE"]
 					},
-
 					"OnPermissionsChange": {
 						"hmi_levels": ["BACKGROUND",
 						"FULL",
@@ -276,20 +283,17 @@
 						"LIMITED",
 						"NONE"]
 					},
-
 					"Show": {
 						"hmi_levels": ["BACKGROUND",
 						"FULL",
 						"LIMITED"]
 					},
-
 					"SystemRequest": {
 						"hmi_levels": ["BACKGROUND",
 						"FULL",
 						"LIMITED",
 						"NONE"]
 					}
-
 				}
 			},
 			"DialNumberOnly": {
@@ -698,6 +702,15 @@
 		"consumer_friendly_messages": {
 			"version": "001.001.024",
 			"messages": {
+				"New_permissions": {
+					"languages": {
+						"en-us": {
+							"tts": "TTS value",
+							"line1": "Line 1",
+							"line2": "Line 2"
+						}
+					}
+				},
 				"AppPermissions": {
 					"languages": {
 						"de-de": {

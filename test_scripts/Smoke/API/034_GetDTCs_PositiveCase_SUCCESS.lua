@@ -28,10 +28,13 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDTCsSuccess(self)
+local function getDTCsSuccess()
   local requestParams = {
     ecuName = 2,
     dtcMask = 3
@@ -41,15 +44,15 @@ local function getDTCsSuccess(self)
     dtc = { "line 0", "line 1", "line 2" }
   }
 
-  local cid = self.mobileSession1:SendRPC("GetDTCs", requestParams)
+  local cid = common.getMobileSession():SendRPC("GetDTCs", requestParams)
 
-  requestParams.appID = commonSmoke.getHMIAppId()
-  EXPECT_HMICALL("VehicleInfo.GetDTCs", requestParams)
+  requestParams.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("VehicleInfo.GetDTCs", requestParams)
   :Do(function(_, data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", responseParams)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
     end)
 
-  self.mobileSession1:ExpectResponse(cid, {
+  common.getMobileSession():ExpectResponse(cid, {
     success = true,
     resultCode = "SUCCESS",
     ecuHeader = responseParams.ecuHeader,
@@ -59,13 +62,14 @@ end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("GetDTCs Positive Case", getDTCsSuccess)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

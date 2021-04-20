@@ -7,6 +7,10 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local utils = require("user_modules/utils")
 local events = require("events")
 local json = require("modules/json")
+local runner = require('user_modules/script_runner')
+
+-- Set applicalbe SDL policy mode
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
@@ -81,6 +85,7 @@ local function getPTUFromPTS(pTbl)
   pTbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   pTbl.policy_table.module_config.preloaded_pt = nil
   pTbl.policy_table.module_config.preloaded_date = nil
+  pTbl.policy_table.vehicle_data = nil
 end
 
 --[[ @policyTableUpdate: perform PTU
@@ -98,14 +103,15 @@ function m.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc, pRequestSubTyp
   local ptsFileName = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
     .. commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptuFileName = os.tmpname()
-  local requestId = m.getHMIConnection():SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = m.getHMIConnection():SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   m.getHMIConnection():ExpectResponse(requestId)
   :Do(function()
       m.getHMIConnection():SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = ptsFileName, requestSubType = pRequestSubType })
       getPTUFromPTS(ptuTable)
       for i = 1, m.getAppsCount() do
-        ptuTable.policy_table.app_policies[m.getConfigAppParams(i).appID] = m.getAppDataForPTU(i)
+        ptuTable.policy_table.app_policies[m.getConfigAppParams(i).fullAppID] = m.getAppDataForPTU(i)
       end
       if pPTUpdateFunc then
         pPTUpdateFunc(ptuTable)

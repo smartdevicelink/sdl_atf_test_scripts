@@ -24,6 +24,8 @@
 -- SDL -> HMI: Only allowed parameters
 -- SDL -> App: "success: true, resultCode: SUCCESS, + "info" parameter listing the params disallowed by policies
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")

@@ -17,6 +17,8 @@
 -- Expected result:
 -- PTU finished successfully and LPT is updated
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
   local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
   local commonSteps = require("user_modules/shared_testcases/commonSteps")
@@ -86,7 +88,8 @@
 
   function Test:PTU()
     local policy_file_name = "PolicyTableUpdate"
-    local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
     EXPECT_HMIRESPONSE(requestId)
     :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })

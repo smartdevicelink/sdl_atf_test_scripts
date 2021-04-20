@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------
--- Requirement summary:
+ -- Requirement summary:
 -- [Policies] "usage_and_error_counts" and "count_of_rejections_duplicate_name" update
 --
 -- Description:
@@ -17,6 +17,8 @@
 -- Expected:
 -- 3. PoliciesMananger increments "count_of_rejections_duplicate_name" filed at PolicyTable
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -34,61 +36,6 @@ Test = require('connecttest')
 local mobile_session = require('mobile_session')
 require('cardinalities')
 require('user_modules/AppTypes')
-
---[[ Local variables ]]
-local HMIAppID
-
-local application1 =
-{
-  registerAppInterfaceParams =
-  {
-    syncMsgVersion =
-    {
-      majorVersion = 3,
-      minorVersion = 0
-    },
-    appName = "Test Application", -- the same name in config.application1
-    isMediaApplication = true,
-    languageDesired = 'EN-US',
-    hmiDisplayLanguageDesired = 'EN-US',
-    appHMIType = { "NAVIGATION" },
-    appID = "0000001", --ID different
-    deviceInfo =
-    {
-      os = "Android",
-      carrier = "Megafon",
-      firmwareRev = "Name: Linux, Version: 3.4.0-perf",
-      osVersion = "4.4.2",
-      maxNumberRFCOMMPorts = 1
-    }
-  }
-}
-
-local application2 =
-{
-  registerAppInterfaceParams =
-  {
-    syncMsgVersion =
-    {
-      majorVersion = 3,
-      minorVersion = 0
-    },
-    appName = "Test Application", -- the same name in application1
-    isMediaApplication = true,
-    languageDesired = 'EN-US',
-    hmiDisplayLanguageDesired = 'EN-US',
-    appHMIType = { "NAVIGATION" },
-    appID = "0000003", --ID different
-    deviceInfo =
-    {
-      os = "Android",
-      carrier = "Megafon",
-      firmwareRev = "Name: Linux, Version: 3.4.0-perf",
-      osVersion = "4.4.2",
-      maxNumberRFCOMMPorts = 1
-    }
-  }
-}
 
 --[[Preconditions]]
 commonFunctions:newTestCasesGroup("Preconditions")
@@ -118,34 +65,39 @@ function Test:Precondition_ConnectMobile()
   self:connectMobile()
 end
 
-function Test:Precondition_StartSession()
+function Test:Precondition_RegisterApp()
   self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
   self.mobileSession:StartService(7)
-end
-
-function Test:Precondition_RegisterApp()
-  local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", application1.registerAppInterfaceParams)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
-  :Do(function(_,data)
-      HMIAppID = data.params.application.appID
+  :Do(function()
+      local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
+      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
       EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
     end)
+end
+
+function Test:Precondition_RegisterApp2()
+  self.mobileSession2 = mobile_session.MobileSession(self, self.mobileConnection)
+  self.mobileSession2:StartService(7)
+  :Do(function()
+      local CorIdRAI = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
+      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
+      self.mobileSession2:ExpectResponse(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+    end)
+end
+
+function Test:Precondition_UnRegisterApp2()
+  local CorIdUAI = self.mobileSession2:SendRPC("UnregisterAppInterface",{})
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
+  self.mobileSession2:ExpectResponse(CorIdUAI, { success = true, resultCode = "SUCCESS"})
 end
 
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep1_RegisterSecondApp_DuplicateData()
-  self.mobileSession1 = mobile_session.MobileSession(self, self.mobileConnection)
-  self.mobileSession1:StartService(7)
-  :Do(function (_,_)
-      local correlationId = self.mobileSession1:SendRPC("RegisterAppInterface", application2.registerAppInterfaceParams)
-      self.mobileSession1:ExpectResponse(correlationId, { success = false, resultCode = "DUPLICATE_NAME" })
-    end)
-end
-
-function Test.TestStep2_ActivateAppInSpecificLevel()
-  commonSteps:ActivateAppInSpecificLevel(Test,HMIAppID)
+  config.application2.registerAppInterfaceParams.appName = "Test Application" -- the same name as for the 1st app
+  local correlationId = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
+  self.mobileSession2:ExpectResponse(correlationId, { success = false, resultCode = "DUPLICATE_NAME" })
 end
 
 function Test.Wait()
@@ -153,7 +105,7 @@ function Test.Wait()
 end
 
 function Test:TestStep2_Check_count_of_rejections_duplicate_name_incremented_in_PT()
-  local appID = "0000003"
+  local appID = "0000002"
   local query = "select count_of_rejections_duplicate_name from app_level where application_id = '" .. appID .. "'"
   local CountOfRejectionsDuplicateName = commonFunctions:get_data_policy_sql(config.pathToSDL.."/storage/policy.sqlite", query)[1]
   if CountOfRejectionsDuplicateName == '1' then

@@ -15,6 +15,8 @@
 -- Expected result:
 -- a) SDL send BasicCommunication.PolicyUpdate ( <path to SnapshotPolicyTable>, <timeout from policies>, <set of retry timeouts>) to HMI.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -23,6 +25,9 @@ config.defaultProtocolVersion = 2
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ Local Variables ]]
 local timeoutAfterXSeconds = 50
@@ -116,8 +121,13 @@ function Test:TestStep_Register_App_And_Check_PolicyUpdate()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {timeout = timeoutAfterXSeconds, retry = secondsBetweenRetries, file = getValueFromIniFile(pathToIni, parameterName) .. "/sdl_snapshot.json"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"})
+  :Times(2)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate",
+    {timeout = timeoutAfterXSeconds, retry = secondsBetweenRetries, file = getValueFromIniFile(pathToIni, parameterName) .. "/sdl_snapshot.json"})
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 end
 
 --[[ Postconditions ]]

@@ -68,8 +68,11 @@ local paramsMissingMandatory = {
 
 --[[ Local Functions ]]
 local function getRadioParams(pStationLocationParams)
+  local rcCapabilities = common.getDefaultHMITable().RC.GetCapabilities.params.remoteControlCapability
+  local moduleId = rcCapabilities.radioControlCapabilities[1].moduleInfo.moduleId
   local  radioParams = {
     moduleType = moduleName,
+    moduleId = moduleId,
     radioControlData = {
       sisData = {
         stationShortName = "Name2",
@@ -87,7 +90,14 @@ local function getRadioParams(pStationLocationParams)
 end
 
 local function getDataForModule(pStationLocationParams, isSuccess)
-  local radioParams = getRadioParams(pStationLocationParams)
+  local radioParamsHMIRes = getRadioParams(pStationLocationParams)
+  local dataForMobileRes = common.cloneTable(pStationLocationParams)
+  for key in pairs (dataForMobileRes) do
+    if key ~= "longitudeDegrees" and key ~= "latitudeDegrees" and key ~= "altitude" then
+      dataForMobileRes[key] = nil
+    end
+  end
+  local radioParamsMobileRes = getRadioParams(dataForMobileRes)
   local mobileSession = common.getMobileSession()
   local cid = mobileSession:SendRPC("GetInteriorVehicleData", {
       moduleType = moduleName
@@ -97,10 +107,10 @@ local function getDataForModule(pStationLocationParams, isSuccess)
       moduleType = moduleName
     })
   :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { moduleData = radioParams })
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { moduleData = radioParamsHMIRes })
     end)
   if isSuccess == true then
-    mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS", moduleData = radioParams })
+    mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS", moduleData = radioParamsMobileRes })
   else
     mobileSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR", info = "Invalid message received from vehicle" })
   end

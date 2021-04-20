@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/4
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/subscription_on_module_status_change_notification.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/subscription_on_module_status_change_notification.md
 -- Item: Use Case 1: Alternative flow 3
 --
 -- Requirement summary:
@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -39,8 +38,7 @@ local function subscriptionToModule(pModuleType)
     end)
 
   commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
-
-  commonTestCases:DelayedExp(11000)
+  commonRC.wait(11000)
 end
 
 --[[ Scenario ]]

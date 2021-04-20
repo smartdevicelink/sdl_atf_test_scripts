@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 --------------------------------------Requirement summary---------------------------------------------
 --[Policies] External UCS: "OFF" status between ignition cycles
 --[Policies] External UCS: "OFF" - userDisallowed RPCs
@@ -43,7 +44,9 @@ local function CheckGroup001IsNotConsentedAndGroup002IsConsented()
     local cid = self.mobileSession:SendRPC("SubscribeVehicleData",{rpm = true})
     EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
     :Do(function(_,data)
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",{})
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM" }
+      })
       end)
     EXPECT_RESPONSE(cid, {success = true , resultCode = "SUCCESS"})
     EXPECT_NOTIFICATION("OnHashChange")

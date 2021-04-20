@@ -18,6 +18,8 @@
 -- 3) After PTU OnPermissionsChange is called for both applications.
 
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -44,6 +46,7 @@ local applications =
       hmiDisplayLanguageDesired = 'EN-US',
       appHMIType = { "NAVIGATION" },
       appID = "0000001",
+      fullAppID = "0000001",
       deviceInfo =
       {
         os = "Android",
@@ -68,6 +71,7 @@ local applications =
       hmiDisplayLanguageDesired = 'EN-US',
       appHMIType = { "MEDIA" },
       appID = "0000002",
+      fullAppID = "0000002",
       deviceInfo =
       {
         os = "Android",

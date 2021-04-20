@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 -------------------------------------- Requirement summary -------------------------------------------
 -- [Policies] External UCS: "ON" status between ignition cycles
 -- [Policies] External UCS: "ON" - user_disallowed RPCs

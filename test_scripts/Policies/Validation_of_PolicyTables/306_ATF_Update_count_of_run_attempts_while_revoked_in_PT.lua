@@ -21,6 +21,8 @@
 -- Expected result:
 -- PoliciesManager increments "count_of_run_attempts_while_revoked" at PolicyTable
 ---------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -52,7 +54,7 @@ function Test:Precondition_trigger_getting_device_consent()
 end
 
 function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
   :Do(function(_,data)
       if(data.params.status == "UP_TO_DATE") then
 
@@ -79,8 +81,9 @@ function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
           end)
       end
     end)
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "filename"})
 
@@ -110,7 +113,7 @@ function Test:Precondition_trigger_user_request_update_from_HMI()
 end
 
 function Test:Precondition_PTU_revoke_app()
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(Between(2,3))
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :Do(function(_,data)
       if(data.params.status == "UP_TO_DATE") then
         EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged")
@@ -125,8 +128,9 @@ function Test:Precondition_PTU_revoke_app()
       end
     end)
   HMIAppID = self.applications[config.application1.registerAppInterfaceParams.appName]
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "filename"})
 

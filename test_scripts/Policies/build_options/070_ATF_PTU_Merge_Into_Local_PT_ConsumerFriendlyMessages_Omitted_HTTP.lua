@@ -28,6 +28,8 @@
 -- SDL replaces the following sections of the Local Policy Table with the
 --corresponding sections from PTU: module_config, functional_groupings and app_policies
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General Settings for configuration ]]
 config.defaultProtocolVersion = 2
 
@@ -63,20 +65,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:ConnectMobile()
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:StartMobileSession()
@@ -94,7 +88,7 @@ function Test:RegisterApp()
         {
           id = utils.getDeviceMAC(),
           name = utils.getDeviceName(),
-          transportType = "WIFI"
+          transportType = utils.getDeviceTransportType()
         }
       }
     })
@@ -123,6 +117,7 @@ function Test:UpdatePTS()
     return
   end
   ptu.policy_table.device_data = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies["0000001"] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies["0000001"]["groups"] = { "Base-4", "Base-6" }

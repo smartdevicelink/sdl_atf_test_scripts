@@ -17,6 +17,8 @@
 -- Expected result:
 -- SDL allow SystemRequest with requestType = "PROPRIETARY" and disallow SystemRequest with requestType = "HTTP"
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -46,11 +48,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_Connect_device()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList", {
-      deviceList = { { id = utils.getDeviceMAC(), name = utils.getDeviceName(), transportType = "WIFI", isSDLAllowed = false} } })
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 function Test:Precondition_StartNewSession()
@@ -58,7 +61,7 @@ function Test:Precondition_StartNewSession()
   self.mobileSession:StartService(7)
 end
 
-function Test:Precondition_Activate_App_And_Consent_Device()
+function Test:Precondition_RegisterApp()
   local CorIdRAI = self.mobileSession:SendRPC("RegisterAppInterface",
     {
       syncMsgVersion =
@@ -92,14 +95,18 @@ function Test:Precondition_Activate_App_And_Consent_Device()
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }
     })
   :Do(function(_,data)
       self.applications["SPT"] = data.params.application.appID
+    end)
+  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
+end
 
+function Test:Precondition_Activate_App_And_Consent_Device()
       local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", {appID = self.applications["SPT"]})
       EXPECT_HMIRESPONSE(RequestId, { result = {
             code = 0,
@@ -117,8 +124,6 @@ function Test:Precondition_Activate_App_And_Consent_Device()
                 end)
             end)
         end)
-    end)
-  EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
 end
 
 function Test:Precondition_DeactivateApp()
@@ -127,8 +132,9 @@ function Test:Precondition_DeactivateApp()
 end
 
 function Test:Preconditions_Update_Policy_With_RequestType_PROPRIETARY_For_Current_App()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         {

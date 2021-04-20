@@ -14,6 +14,8 @@
 -- To define the timeout to wait a response on PTU, Policies manager must refer PTS
 -- "module_config" section, key <timeout_after_x_seconds>.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
@@ -67,7 +69,8 @@ function Test:TestStep_PTS_Timeout_wait_response_PTU()
       self.mobileSession:ExpectNotification("OnHMIStatus",
         {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
 
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"})
+      :Times(2)
       EXPECT_HMICALL("BasicCommunication.PolicyUpdate", {file = "/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json"})
       :Do(function(_,data)
           self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})

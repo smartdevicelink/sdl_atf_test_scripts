@@ -29,7 +29,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local putFileParams = {
@@ -111,29 +114,30 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function showConstantTBT(params, self)
-  local cid = self.mobileSession1:SendRPC("ShowConstantTBT", params.requestParams)
-  params.responseUiParams.appID = commonSmoke.getHMIAppId()
-  params.responseUiParams.turnIcon.value = commonSmoke.getPathToFileInStorage(params.requestParams.turnIcon.value)
-  params.responseUiParams.nextTurnIcon.value = commonSmoke.getPathToFileInStorage(params.requestParams.nextTurnIcon.value)
-  params.responseUiParams.softButtons[1].image.value = commonSmoke.getPathToFileInStorage(params.requestParams.softButtons[1].image.value)
-  EXPECT_HMICALL("Navigation.ShowConstantTBT", params.responseUiParams)
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+local function showConstantTBT(pParams)
+  local cid = common.getMobileSession():SendRPC("ShowConstantTBT", pParams.requestParams)
+  pParams.responseUiParams.appID = common.getHMIAppId()
+  pParams.responseUiParams.turnIcon.value = common.getPathToFileInAppStorage(pParams.requestParams.turnIcon.value)
+  pParams.responseUiParams.nextTurnIcon.value = common.getPathToFileInAppStorage(pParams.requestParams.nextTurnIcon.value)
+  pParams.responseUiParams.softButtons[1].image.value = common.getPathToFileInAppStorage(pParams.requestParams.softButtons[1].image.value)
+  common.getHMIConnection():ExpectRequest("Navigation.ShowConstantTBT", pParams.responseUiParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
-runner.Step("Upload icon file", commonSmoke.putFile, {putFileParams})
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Upload icon file", common.putFile, {putFileParams})
 
 runner.Title("Test")
-runner.Step("ShowConstantTBT Positive Case", showConstantTBT, {allParams})
+runner.Step("ShowConstantTBT Positive Case", showConstantTBT, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

@@ -27,6 +27,8 @@
 -- HMI->SDL: OnAllowSDLFunctionality {allowed: false, params}
 -- SDL->app: OnPermissionChanged{params}// "pre_DataConsent" sub-section of "app_policies" section of PT, app`s HMI level corresponds to one from "default_hmi" field
 -------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -68,7 +70,7 @@ function Test:ActivateApp_on_unconsented_device()
           end)
       end
     end)
-  EXPECT_HMICALL("BasicCommunication.ActivateApp",{ level = "NONE" }):Times(1)
+  EXPECT_HMICALL("BasicCommunication.CloseApplication",{}):Times(1)
   EXPECT_NOTIFICATION("OnHMIStatus", {}):Times(0)
 end
 

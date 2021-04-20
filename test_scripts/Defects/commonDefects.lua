@@ -19,6 +19,7 @@ local mobile_session = require("mobile_session")
 local events = require("events")
 local json = require("modules/json")
 local actions = require("user_modules/sequences/actions")
+local utils = require ('user_modules/utils')
 
 --[[ Local Variables ]]
 
@@ -49,6 +50,7 @@ local function getPTUFromPTS(tbl)
   tbl.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
   tbl.policy_table.module_config.preloaded_pt = nil
   tbl.policy_table.module_config.preloaded_date = nil
+  tbl.policy_table.vehicle_data = nil
 end
 
 --[[ @DefaultStruct: provide default values for application required in PTU
@@ -117,7 +119,8 @@ local function ptu(self, ptu_update_func)
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
   local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("PathToSnapshot")
   local ptu_file_name = os.tmpname()
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
@@ -160,21 +163,13 @@ end
 --! @parameters: none
 --! @return: device name
 --]]
-function commonDefect.getDeviceName()
-  return config.mobileHost .. ":" .. config.mobilePort
-end
+commonDefect.getDeviceName = utils.getDeviceName
 
 --[[ @getDeviceMAC: provides device MAC address
 --! @parameters: none
 --! @return: device MAC address
 --]]
-function commonDefect.getDeviceMAC()
-  local cmd = "echo -n " .. commonDefect.getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-  local handle = io.popen(cmd)
-  local result = handle:read("*a")
-  handle:close()
-  return result
-end
+commonDefect.getDeviceMAC = utils.getDeviceMAC
 
 --[[ @allow_sdl: sequence that allows SDL functionality
 --! @parameters:
@@ -191,6 +186,7 @@ function commonDefect.allow_sdl(self)
       name = commonDefect.getDeviceName()
     }
   })
+  commonDefect.delayedExp(commonDefect.minTimeout)
 end
 
 --[[ @preconditions: precondition steps
@@ -280,7 +276,7 @@ function commonDefect.ignitionOff(self)
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
       EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
       :Do(function()
-          sdl:StopSDL()
+          StopSDL()
         end)
     end)
 end
@@ -430,6 +426,7 @@ function commonDefect.rai_n(id, self)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnPermissionsChange")
+          :Times(AtLeast(1))
           self["mobileSession" .. id]:ExpectNotification("OnDriverDistraction", { state = "DD_OFF" })
         end)
     end)

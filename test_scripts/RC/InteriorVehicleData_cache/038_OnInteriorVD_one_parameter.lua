@@ -12,7 +12,7 @@
 -- 3. Mobile app1 sends GetInteriorVD(module_1, without subscribe parameter) request
 -- SDL must
 -- 1. not send GetInteriorVD request to HMI
--- 2. send GetinteriorVD response to mobile app2 with actual data
+-- 2. send GetinteriorVD response to mobile app1 with actual data
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -48,6 +48,15 @@ local function getModuleData(module_type, pParams)
   return out
 end
 
+local function setActualInteriorVD(pInitialParams, pUpdatedParams)
+  local moduleType = pInitialParams.moduleType
+  if moduleType == "LIGHT" then
+    local mergedParams = common.cloneTable(pInitialParams)
+    mergedParams.lightControlData.lightState[2] = pUpdatedParams.lightControlData.lightState[1]
+    common.setActualInteriorVD(moduleType, { lightControlData = mergedParams.lightControlData })
+  end
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
@@ -58,11 +67,15 @@ runner.Step("Activate app1", common.activateApp, { 1 })
 runner.Title("Test")
 
 for _, mod in pairs(common.modules) do
+  local initialParams = common.cloneTable(common.actualInteriorDataStateOnHMI[mod])
+  local updatedParams = getModuleData(mod, OnInteriorVDparams[mod])
   runner.Step("App1 GetInteriorVehicleData with subscribe=true " .. mod, common.GetInteriorVehicleData,
     { mod, true, true, 1 })
   runner.Step("App1 OnInteriorVehicleData for " .. mod, common.OnInteriorVD,
-    { mod, true, 1, getModuleData(mod, OnInteriorVDparams[mod]) })
-  runner.Step("App2 GetInteriorVehicleData without subscribe " .. mod, common.GetInteriorVehicleData,
+    { mod, true, 1, updatedParams })
+  runner.Step("Set HMI data state for " .. mod .. " module", setActualInteriorVD, {
+    initialParams, updatedParams })
+  runner.Step("App1 GetInteriorVehicleData without subscribe " .. mod, common.GetInteriorVehicleData,
     { mod, nil, false, 1 })
 end
 

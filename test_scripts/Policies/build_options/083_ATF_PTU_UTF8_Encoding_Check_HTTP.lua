@@ -17,6 +17,8 @@
 -- Expected result:
 -- The texts in Russian & Chinese in appropriate are parsed correctly by SDL
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
@@ -47,6 +49,7 @@ local function update_ptu()
   end
 
   ptu.policy_table.device_data = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies["0000001"] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies["0000001"]["groups"] = { "Base-4", "Base-6" }

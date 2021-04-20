@@ -3,7 +3,6 @@ Test = require('connecttest')
 require('cardinalities')
 local events = require('events')	
 local mobile_session = require('mobile_session')
-local config = require('config')
 require('user_modules/AppTypes')
 
 local SmartDeviceLinkConfigurations = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')

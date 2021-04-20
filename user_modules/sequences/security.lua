@@ -9,7 +9,6 @@ config.serverCAChainCertPath = "./files/Security/spt_credential.pem"
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
 local events = require("events")
-local test = require("user_modules/dummy_connecttest")
 local constants = require("protocol_handler/ford_protocol_constants")
 
 --[[ Module ]]
@@ -29,21 +28,25 @@ local origGetMobileSession = actions.getMobileSession
 --! @return: none
 --]]
 local function registerStartSecureServiceFunc(pMobSession)
-  function pMobSession.mobile_session_impl.control_services:StartSecureService(pServiceId)
+  function pMobSession.mobile_session_impl.control_services:StartSecureService(pServiceId, pData)
     local msg = {
       serviceType = pServiceId,
       frameInfo = constants.FRAME_INFO.START_SERVICE,
       sessionId = self.session.sessionId.get(),
-      encryption = true
+      encryption = true,
+      binaryData = pData
     }
     self:Send(msg)
   end
-  function pMobSession.mobile_session_impl:StartSecureService(pServiceId)
+  function pMobSession.mobile_session_impl:StartSecureService(pServiceId, pData)
     if not self.isSecuredSession then
       self.security:registerSessionSecurity()
       self.security:prepareToHandshake()
     end
-    return self.control_services:StartSecureService(pServiceId)
+    return self.control_services:StartSecureService(pServiceId, pData)
+  end
+  function pMobSession:StartSecureService(pServiceId, pData)
+    return self.mobile_session_impl:StartSecureService(pServiceId, pData)
   end
 end
 
@@ -68,6 +71,9 @@ local function registerExpectServiceEventFunc(pMobSession)
     :Do(function(_, data)
         if data.encryption == true and data.frameInfo == constants.FRAME_INFO.START_SERVICE_ACK then
           session.security:registerSecureService(pServiceId)
+          if data.serviceType == constants.SERVICE_TYPE.RPC then
+            session.security:registerSecureService(constants.SERVICE_TYPE.BULK_DATA)
+          end
         end
       end)
     :ValidIf(function(_, data)
@@ -119,7 +125,8 @@ local function registerExpectServiceEventFunc(pMobSession)
       end)
     :Do(function()
         if session.security:isHandshakeFinished() then
-          event_dispatcher:RaiseEvent(test.mobileConnection, event)
+          local mobileConnection = self.mobile_session_impl.connection
+          event_dispatcher:RaiseEvent(mobileConnection, event)
         end
       end)
     :Times(AnyNumber())
@@ -135,12 +142,12 @@ end
 --]]
 function actions.getMobileSession(pAppId)
   if not pAppId then pAppId = 1 end
-  if not test.mobileSession[pAppId] then
-    local session = origGetMobileSession(pAppId)
-    registerStartSecureServiceFunc(session)
+  local session = origGetMobileSession(pAppId)
+  if not session.ExpectHandshakeMessage then
     registerExpectServiceEventFunc(session)
+    registerStartSecureServiceFunc(session)
   end
-  return origGetMobileSession(pAppId)
+  return session
 end
 
 return m

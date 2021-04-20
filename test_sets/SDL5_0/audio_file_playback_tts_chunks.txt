@@ -1,0 +1,9 @@
+./test_scripts/SDL5_0/TTSChunks/001_RegisterAppInterface.lua
+./test_scripts/SDL5_0/TTSChunks/002_SetGlobalProperties.lua
+./test_scripts/SDL5_0/TTSChunks/003_OnAppRegistered.lua
+./test_scripts/SDL5_0/TTSChunks/004_Alert.lua
+./test_scripts/SDL5_0/TTSChunks/005_ChangeRegistration.lua
+./test_scripts/SDL5_0/TTSChunks/006_PerformInteraction.lua
+./test_scripts/SDL5_0/TTSChunks/007_Speak.lua
+./test_scripts/SDL5_0/TTSChunks/008_PerformAudioPassThru.lua
+./test_scripts/SDL5_0/TTSChunks/009_AlertManeuver.lua

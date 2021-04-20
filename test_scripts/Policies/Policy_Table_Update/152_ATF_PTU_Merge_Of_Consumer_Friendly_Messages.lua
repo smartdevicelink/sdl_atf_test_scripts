@@ -17,6 +17,8 @@
 -- Expected result:
 -- Previous version of consumer_friendly_messages.messages section in LPT has to be replaced by a new one.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -68,6 +70,10 @@ function Test:Precondition_ActivateApp()
         :Do(function(_, _)
             self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
               { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() } })
+            EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+            :Do(function(_,data3)
+                self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+              end)
             EXPECT_HMICALL("BasicCommunication.ActivateApp")
             :Do(function(_, data2)
                 self.hmiConnection:SendResponse(data2.id,"BasicCommunication.ActivateApp", "SUCCESS", { })
@@ -76,6 +82,7 @@ function Test:Precondition_ActivateApp()
           end)
       end
     end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 --[[ Test ]]
@@ -83,7 +90,8 @@ commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_PTU_Up_To_Date()
   local policy_file_name = "PolicyTableUpdate"
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = policy_file_name })
@@ -102,8 +110,7 @@ function Test:TestStep_PTU_Up_To_Date()
             end)
         end)
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:StartNewMobileSession()

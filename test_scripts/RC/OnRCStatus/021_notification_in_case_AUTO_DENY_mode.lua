@@ -22,19 +22,11 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local allocatedModules = {
-  [1] = {},
-  [2] = {}
-}
-
 --[[ Local Functions ]]
 local function alocateModule(pModuleType)
-  local pModuleStatusAllocatedApp, pModuleStatusAnotherApp = common.setModuleStatus(common.getAllModules(), allocatedModules, pModuleType)
+  common.setModuleStatus(pModuleType)
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(1, pModuleStatusAllocatedApp)
-  common.validateOnRCStatusForApp(2, pModuleStatusAnotherApp)
-  common.validateOnRCStatusForHMI(2, { pModuleStatusAllocatedApp, pModuleStatusAnotherApp }, 1)
+  common.validateOnRCStatus({ 1, 2 })
 end
 
 local function allocateModuleFromSecondApp(pModuleType)

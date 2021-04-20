@@ -1,0 +1,2 @@
+./test_scripts/SDL5_0/FullAppID/001_PTU_full_app_ID_true.lua
+./test_scripts/SDL5_0/FullAppID/002_PTU_full_app_ID_false.lua

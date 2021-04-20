@@ -5,7 +5,6 @@ local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
 local file_connection  = require('file_connection')
-local config = require('config')
 local module = require('testbase')
 
 --ToDo: shall be removed when APPLINK-16610 is fixed
@@ -201,7 +200,7 @@ local function HMI_Send_Button_GetCapabilities_Response(Input_capabilities)
 		  return
 		  {
 			name = name,
-			characterSet = characterSet or "TYPE2SET",
+			characterSet = characterSet or "UTF_8",
 			width = width or 500,
 			rows = rows or 1
 		  }
@@ -249,12 +248,10 @@ local function HMI_Send_Button_GetCapabilities_Response(Input_capabilities)
 				text_field("navigationText2"),
 				text_field("ETA"),
 				text_field("totalDistance"),
-				text_field("navigationText"),
 				text_field("audioPassThruDisplayText1"),
 				text_field("audioPassThruDisplayText2"),
 				text_field("sliderHeader"),
 				text_field("sliderFooter"),
-				text_field("notificationText"),
 				text_field("menuName"),
 				text_field("secondaryText"),
 				text_field("tertiaryText"),

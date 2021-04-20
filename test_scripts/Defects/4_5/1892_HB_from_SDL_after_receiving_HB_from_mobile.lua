@@ -23,7 +23,6 @@ local mobile_session = require('mobile_session')
 local constants = require('protocol_handler/ford_protocol_constants')
 local events = require('events')
 local mobile = require('mobile_connection')
-local tcp = require('tcp_connection')
 local file_connection = require('file_connection')
 
 --[[ General configuration parameters ]]
@@ -83,8 +82,8 @@ end
 --! @return: none
 local function OpenConnectionCreateSession(self)
   config.defaultProtocolVersion = 3
-  local tcpConnection = tcp.Connection(config.mobileHost, config.mobilePort)
-  local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
+  local mobileAdapter = self.getDefaultMobileAdapter()
+  local fileConnection = file_connection.FileConnection("mobile.out", mobileAdapter)
   self.mobileConnection = mobile.MobileConnection(fileConnection)
   self.mobileSession1= mobile_session.MobileSession(self, self.mobileConnection)
   event_dispatcher:AddConnection(self.mobileConnection)

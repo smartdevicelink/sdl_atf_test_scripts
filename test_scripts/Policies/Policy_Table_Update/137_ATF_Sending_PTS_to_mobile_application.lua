@@ -20,6 +20,8 @@
 -- Expected result:
 -- SDL->app: OnSystemRequest ('url', requestType:PROPRIETARY, fileType="JSON", appID)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -99,7 +101,8 @@ function Test:Trigger_getting_device_consent()
   :Do(
     function(_, d)
       self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
-      local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+      local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
       EXPECT_HMIRESPONSE(requestId)
       :Do(
         function()

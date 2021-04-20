@@ -16,171 +16,100 @@
 -- PoliciesManager must initiate the PT Update through the app from consented device,
 -- second(non-consented) device should not be used e.i. no second query for user consent should be sent to HMI
 ---------------------------------------------------------------------------------------------------------------------
---[[ General Settings for configuration ]]
-Test = require('user_modules/connecttest_resumption')
-require('cardinalities')
-local mobile_session = require('mobile_session')
-local tcp = require('tcp_connection')
-local file_connection = require('file_connection')
-local mobile = require('mobile_connection')
-local events = require('events')
-local utils = require ('user_modules/utils')
-
---[[ General configuration parameters ]]
--- Create dummy connection
-os.execute("ifconfig lo:1 1.0.0.1")
+if config.defaultMobileAdapterType == "WS" or config.defaultMobileAdapterType == "WSS" then
+  require('user_modules/script_runner').skipTest("Test is not applicable for WS/WSS connection")
+end
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 
 --[[ Required Shared libraries ]]
-local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
-local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
-require('user_modules/AppTypes')
+local runner = require('user_modules/script_runner')
+local common = require('test_scripts/TheSameApp/commonTheSameApp')
+local SDL = require('SDL')
 
---[[ General Precondition before ATF start ]]
-commonFunctions:SDLForceStop()
-commonSteps:DeleteLogsFileAndPolicyTable()
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
---[[ Local variables ]]
-local deviceMAC2 = "54286cb92365be544aa7008b92854b9648072cf8d8b17b372fd0786bef69d7a2"
-local mobileHost = "1.0.0.1"
+--[[ Local Variables ]]
+local devices = {
+  [1] = { host = "1.0.0.1",         port = config.mobilePort, name = "1.0.0.1:" .. config.mobilePort },
+  [2] = { host = "192.168.100.199", port = config.mobilePort, name = "192.168.100.199:" .. config.mobilePort }
+}
 
---[[ Preconditions ]]
-commonFunctions:newTestCasesGroup("Preconditions")
+local appParams = {
+  [1] = { appName = "App1", appID = "0001", fullAppID = "0000001" },
+  [2] = { appName = "App2", appID = "0002", fullAppID = "0000002" }
+}
 
-function Test:Precondition_Connect_device1()
-  commonTestCases:DelayedExp(2000)
-  self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
+--[[ Local Functions ]]
+local function connectDeviceTwo()
+  local deviceList = {
     {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
-end
-
-function Test:Precondition_Register_app_1()
-  commonTestCases:DelayedExp(3000)
-  self.mobileSession = mobile_session.MobileSession(self, self.mobileConnection)
-  self.mobileSession:StartService(7)
-  :Do(function()
-      local RequestIDRai1 = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
-      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
-      :Do(function(_,data)
-          self.HMIAppID = data.params.application.appID
-        end)
-      self.mobileSession:ExpectResponse(RequestIDRai1, { success = true, resultCode = "SUCCESS" })
-      self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
-    end)
-end
-
-function Test:Precondition_Activate_app_1()
-  local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.HMIAppID})
-  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }, isSDLAllowed = false, method ="SDL.ActivateApp" }})
-  :Do(function(_, _)
-      local RequestIdGetMes = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
-      EXPECT_HMIRESPONSE(RequestIdGetMes)
-      :Do(function()
-          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
-          EXPECT_HMICALL("BasicCommunication.ActivateApp")
-          :Do(function(_, data)
-              self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
-            end)
-          :Times(AtLeast(1))
-        end)
-    end)
-  EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN", audioStreamingState = "AUDIBLE"})
-end
-
-function Test:Precondition_Connect_device_2()
-  local tcpConnection = tcp.Connection(mobileHost, config.mobilePort)
-  local fileConnection = file_connection.FileConnection("mobile.out", tcpConnection)
-  self.connection2 = mobile.MobileConnection(fileConnection)
-  self.mobileSession2 = mobile_session.MobileSession(self, self.connection2)
-  event_dispatcher:AddConnection(self.connection2)
-  self.mobileSession2:ExpectEvent(events.connectedEvent, "Connection started")
-  self.connection2:Connect()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
+      name = devices[1].name,
+      transportType = "WIFI"
+    },
     {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        },
-        {
-          id = deviceMAC2,
-          name = mobileHost,
-          transportType = "WIFI"
-        },
-      }
+      isSDLAllowed = false,
+      name = devices[2].name,
+      transportType = "WIFI"
     }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
+  }
+
+  if SDL.buildOptions.webSocketServerSupport == "ON" then
+    table.insert(deviceList, 1, { transportType = "WEBENGINE_WEBSOCKET" })
+  end
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.UpdateDeviceList",
+  {
+    deviceList = deviceList
+  })
+  :Do(function(_,data)
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+  end)
+
+  common.connectMobDevice(2, devices[2], false)
 end
 
---[[ Test ]]
-commonFunctions:newTestCasesGroup("Test")
-function Test:Test_Register_app_2()
-  self.mobileSession2:StartService(7)
+local function activateAppTwo()
+  local hmiConnection = common.getHMIConnection()
+  local RequestId = hmiConnection:SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId(2) })
+  hmiConnection:ExpectResponse(RequestId, {result = { code = 0, device = { name = devices[2].name }, isSDLAllowed = false, method = "SDL.ActivateApp" }})
   :Do(function()
-      local RaiIdSecond = self.mobileSession2:SendRPC("RegisterAppInterface", config.application2.registerAppInterfaceParams)
-      EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
-      :Do(function(_,data)
-          self.HMIAppID2 = data.params.application.appID
-        end)
-      self.mobileSession2:ExpectResponse(RaiIdSecond, { success = true, resultCode = "SUCCESS"})
-      self.mobileSession2:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
+    local RequestIdGetMes = hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", { language = "EN-US", messageCodes = { "DataConsent" } })
+    hmiConnection:ExpectResponse(RequestIdGetMes)
+    :Do(function()
+      hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+        { allowed = false, source = "GUI", device = { name = devices[2].name } })
     end)
+  end)
 end
 
-function Test:Teat_Activate_app_2()
-  local RequestId = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.HMIAppID2})
-  EXPECT_HMIRESPONSE(RequestId, {result = { code = 0, device = { id = deviceMAC2, name = mobileHost }, isSDLAllowed = false, method ="SDL.ActivateApp" }})
+local function startPTU()
+  local hmiConnection = common.getHMIConnection()
+  hmiConnection:ExpectRequest("BasicCommunication.PolicyUpdate")
   :Do(function()
-      local RequestIdGetMes = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
-      EXPECT_HMIRESPONSE(RequestIdGetMes)
-      :Do(function()
-          self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
-            {allowed = false, source = "GUI", device = {id = deviceMAC2, name = mobileHost}})
-          EXPECT_HMICALL("BasicCommunication.ActivateApp")
-          :Do(function(_, data)
-              self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
-            end)
-          :Times(AtLeast(1))
-        end)
+    hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
+      { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = common.getHMIAppId(1) })
+    common.getMobileSession(2):ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
+    :Times(0)
+    common.getMobileSession(1):ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
+    :Do(function(_, data)
+      hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-
+  end)
 end
 
-function Test:Test_Start_PTU()
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function()
-      self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
-        { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = self.HMIAppID })
-      self.mobileSession2:ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
-      :Times(0)
-      self.mobileSession:ExpectNotification("OnSystemRequest", {requestType = "PROPRIETARY"})
-      :Times(1)
-      :Do(function(_, data)
-          self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-        end)
-    end)
-end
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI", common.start)
+runner.Step("Connect device 1 to SDL", common.connectMobDevice, { 1, devices[1] })
+runner.Step("Register App1 from device 1", common.registerAppEx, { 1, appParams[1], 1 })
+runner.Step("Activate App1 from device 1", common.activateApp, { 1 })
+runner.Step("Connect device 2 to SDL", connectDeviceTwo)
 
---[[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postconditions")
+runner.Title("Test")
+runner.Step("Register App2 from device 2", common.registerAppEx, { 2, appParams[2], 2 })
+runner.Step("Activate App2 from device 2", activateAppTwo)
+runner.Step("Start PTU", startPTU)
 
-function Test.Postcondition_SDLForceStop()
-  StopSDL()
-end
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)

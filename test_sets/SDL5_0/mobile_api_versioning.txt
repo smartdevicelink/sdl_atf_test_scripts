@@ -1,0 +1,13 @@
+;Version Negotiation
+./test_scripts/SDL5_0/MobileVersioning/VersionNegotiation/001_register_legacy_app.lua
+./test_scripts/SDL5_0/MobileVersioning/VersionNegotiation/002_register_app_on_legacy_module.lua
+./test_scripts/SDL5_0/MobileVersioning/VersionNegotiation/003_legacy_app_new_rpc_fail.lua
+./test_scripts/Smoke/API/008_CreateInteractionChoiceSet_PositiveCase_SUCCESS.lua
+./test_scripts/Smoke/API/012_PerfomInteraction_PositiveCase_SUCCESS.lua
+;VR-Command Optional
+./test_scripts/SDL5_0/MobileVersioning/vrCommandOptional/001_create_interaction_choice_success_legacy_app.lua
+./test_scripts/SDL5_0/MobileVersioning/vrCommandOptional/002_create_interaction_choice_invalid_data_legacy_app.lua
+./test_scripts/SDL5_0/MobileVersioning/vrCommandOptional/003_perform_interaction_success_legacy_app.lua
+;Play/Pause Button
+./test_scripts/SDL5_0/MobileVersioning/PlayPauseButton/001_play_pause_v5_allowed.lua
+./test_scripts/SDL5_0/MobileVersioning/PlayPauseButton/002_play_pause_v4_invalid_data.lua

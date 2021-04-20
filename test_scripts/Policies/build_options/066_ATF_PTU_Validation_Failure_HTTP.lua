@@ -20,6 +20,8 @@
 -- Expected result:
 -- SDL->HMI: OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -63,6 +65,7 @@ local function updatePTU(ptu)
   ptu.policy_table.consumer_friendly_messages.messages = nil
   ptu.policy_table.device_data = nil
   ptu.policy_table.module_meta = nil
+  ptu.policy_table.vehicle_data = nil
   ptu.policy_table.usage_and_error_counts = nil
   ptu.policy_table.app_policies[app_id] = { keep_context = false, steal_focus = false, priority = "NONE", default_hmi = "NONE" }
   ptu.policy_table.app_policies[app_id]["groups"] = { "Base-4", "Base-6" }
@@ -131,22 +134,23 @@ function Test:RAI_PTU()
           log("SDL->HMI: N: SDL.OnStatusUpdate", d2.params.status)
         end)
       :Times(3)
-      -- workaround due to issue in Mobile API: APPLINK-30390
-      local onSystemRequestRecieved = false
-
-      self.mobileSession:ExpectNotification("OnSystemRequest")
-      :Do(
-        function(_, d2)
-          log("SDL->MOB: N: OnSystemRequest, RequestType: "..d2.payload.requestType )
-          if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
-            onSystemRequestRecieved = true
-            --log("SDL->MOB: N: OnSystemRequest")
-            ptu_table = json.decode(d2.binaryData)
-            ptu(self)
-          end
-        end)
-      :Times(2)
     end)
+
+  -- workaround due to issue in Mobile API: APPLINK-30390
+  local onSystemRequestRecieved = false
+
+  self.mobileSession:ExpectNotification("OnSystemRequest")
+  :Do(
+    function(_, d2)
+      log("SDL->MOB: N: OnSystemRequest, RequestType: "..d2.payload.requestType )
+      if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
+        onSystemRequestRecieved = true
+        --log("SDL->MOB: N: OnSystemRequest")
+        ptu_table = json.decode(d2.binaryData)
+        ptu(self)
+      end
+    end)
+  :Times(2)
 
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(

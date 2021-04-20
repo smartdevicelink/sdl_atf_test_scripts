@@ -195,7 +195,7 @@ local testCases = {
         action = { event = actions.embeddedNaviActivate, appId = "none" },
         checks = {
           ohs = {
-            [1] = { hLvl = "BACKGROUND", aSS = "NOT_AUDIBLE", vSS = "NOT_STREAMABLE" }, --
+            [1] = { }, -- hLvl = "LIMITED", aSS = "AUDIBLE", vSS = "NOT_STREAMABLE"
             [2] = { hLvl = "BACKGROUND", aSS = "NOT_AUDIBLE", vSS = "NOT_STREAMABLE" },
             [3] = { }, -- hLvl = "BACKGROUND", aSS = "NOT_AUDIBLE", vSS = "NOT_STREAMABLE"
             [4] = { hLvl = "BACKGROUND", aSS = "NOT_AUDIBLE", vSS = "NOT_STREAMABLE" }
@@ -206,7 +206,7 @@ local testCases = {
         action = { event = actions.embeddedNaviDeactivate, appId = "none" },
         checks = {
           ohs = {
-            [1] = { hLvl = "LIMITED", aSS = "AUDIBLE", vSS = "NOT_STREAMABLE" }, --
+            [1] = { }, -- hLvl = "LIMITED", aSS = "AUDIBLE", vSS = "NOT_STREAMABLE"
             [2] = { hLvl = "FULL", aSS = "NOT_AUDIBLE", vSS = "STREAMABLE" },
             [3] = { }, -- hLvl = "BACKGROUND", aSS = "NOT_AUDIBLE", vSS = "NOT_STREAMABLE"
             [4] = { hLvl = "LIMITED", aSS = "AUDIBLE", vSS = "NOT_STREAMABLE" }

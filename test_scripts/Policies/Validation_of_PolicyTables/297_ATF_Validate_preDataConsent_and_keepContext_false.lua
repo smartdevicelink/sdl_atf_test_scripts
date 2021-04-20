@@ -15,6 +15,8 @@
 --     PoliciesManager must validate "keep_context" section, SDL must reject RPC->
 --     respond (resultCode:DISALLOWED, success:false) to mobile application
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General Settings for configuration ]]
 Test = require('connecttest')
 require('cardinalities')

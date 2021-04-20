@@ -7,10 +7,8 @@ local commonFunctions = {}
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 require('atf.util')
 local json = require('json4lua/json/json')
-local expectations = require('expectations')
+local SDL = require("SDL")
 local events = require('events')
-
-require('modules/config')
 local NewTestSuiteNumber = 0 -- use as subfix of test case "NewTestSuite" to make different test case name.
 local path_config = commonPreconditions:GetPathToSDL()
 ---------------------------------------------------------------------------------------------
@@ -62,25 +60,7 @@ end
 
 --check that SDL ports are open then raise else RUN after timeout configured by step variable
 function commonFunctions:waitForSDLStart(test)
-  local step = 100
-  local hmiPort = config.hmiPort
-  local event = events.Event()
-  event.matches = function(self, e) return self == e end
-  local function raise_event()
-    assert(hmiPort ~= nil or hmiPort ~= "")
-    local output = os.execute ("netstat -vatn  | grep " .. hmiPort .. " | grep LISTEN")
-    if (output) then
-      RAISE_EVENT(event, event)
-    else
-      RUN_AFTER(raise_event, step)
-    end
-  end
-  RUN_AFTER(raise_event, step)
-  local ret = expectations.Expectation("Wait for SDL start", test.mobileConnection)
-  ret.event = event
-  event_dispatcher:AddEvent(test.mobileConnection, ret.event, ret)
-  test:AddExpectation(ret)
-  return ret
+  return SDL.WaitForSDLStart(test)
 end
 
 function commonFunctions:createMultipleExpectationsWaiter(test, name)
@@ -101,8 +81,9 @@ function commonFunctions:createMultipleExpectationsWaiter(test, name)
   function exp_waiter:AddExpectation(exp)
     table.insert(exp_waiter.expectation_list, exp)
     exp:Do(function()
-      exp_waiter:RemoveExpectation(exp)
-      exp_waiter:CheckStatus()
+      if exp_waiter:RemoveExpectation(exp) then
+        exp_waiter:CheckStatus()
+      end
     end)
   end
 
@@ -113,9 +94,9 @@ function commonFunctions:createMultipleExpectationsWaiter(test, name)
       end
       return nil
     end
-
-    table.remove(exp_waiter.expectation_list,
-                 AnIndexOf(exp_waiter.expectation_list, exp))
+    local index = AnIndexOf(exp_waiter.expectation_list, exp)
+    if index then table.remove(exp_waiter.expectation_list, index) end
+    return index
   end
 
   exp_waiter.event = events.Event()
@@ -276,6 +257,7 @@ function commonFunctions:cloneTable(original)
         end
         copy[k] = v
     end
+    if getmetatable(original) ~= nil then setmetatable(copy, getmetatable(original)) end
     return copy
 end
 
@@ -334,6 +316,14 @@ function commonFunctions:is_table_equal(table1, table2)
     return false
   end
   return true
+end
+
+function commonFunctions:table_contains(table, value)
+  if not table then return false end
+  for _,val in pairs(table) do
+    if val == value then return true end
+  end
+  return false
 end
 ---------------------------------------------------------------------------------------------
 
@@ -919,13 +909,14 @@ function commonFunctions:write_parameter_to_smart_device_link_ini(param_name, pa
   local result = false
   for line in io.lines(path_to_ini_file) do
     if is_find_string == false then
-      if string.match(line, "^%s*"..param_name.."%s*=%s*") ~= nil then
+      if string.match(line, "[; ]*"..param_name..".*=.*") ~= nil then
         line = param_name.." = "..param_value
         is_find_string = true
       end
     end
     new_file_content = new_file_content..line.."\n"
   end
+
   if is_find_string == true then
     local file = io.open(path_to_ini_file, "w")
     if file then
@@ -1347,5 +1338,39 @@ function commonFunctions.getURLs(pService)
   return url
 end
 
+--! @brief Acquire table with URLs for PTU from policy file
+--! @param pPtFileName - json file with policy table structure
+function commonFunctions:getUrlsTableFromPtFile(pPtFileName)
+  if not pPtFileName then
+    local function getPathToSDL()
+      local pathToSDL = config.pathToSDL
+      if pathToSDL:sub(-1) ~= '/' then
+        pathToSDL = pathToSDL .. "/"
+      end
+      return pathToSDL
+    end
+    pPtFileName = getPathToSDL() .. commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
+  end
+local pt = io.open(pPtFileName, "r")
+    if pt == nil then
+      error("PT file not found")
+    end
+  local ptString = pt:read("*all")
+  pt:close()
+
+  local ptTable = json.decode(ptString)
+  return ptTable.policy_table.module_config.endpoints["0x07"]
+end
+
+--! @brief This function perform base validation of URLs from response of SDl.GetPolicyConfigurationData
+--! @param expected_url_tbl - table with expected collection of URLs
+--! @param actual_data - table which represents response of SDl.GetPolicyConfigurationData
+function commonFunctions:validateUrls(pExpectedUrlTbl, pActualData)
+  local endpoints = json.decode(pActualData.result.value[1])
+  if endpoints then
+    return compareValues(pExpectedUrlTbl, endpoints["0x07"], "urls")
+  end
+  return false, "Value JSON is not correct"
+end
 
 return commonFunctions

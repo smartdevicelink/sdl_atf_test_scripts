@@ -17,10 +17,13 @@
 -- Expected:
 -- 2. PoliciesManager increment "count_of_rpcs_sent_in_hmi_none" at LocalPT for this app
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local testCasesForPolicyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
+local utils = require ('user_modules/utils')
 
 --[[ General Precondition before ATF start ]]
 config.defaultProtocolVersion = 2
@@ -30,6 +33,17 @@ testCasesForPolicyTable:Precondition_updatePolicy_By_overwriting_preloaded_pt("f
 --[[ General Settings for configuration ]]
 Test = require("connecttest")
 require('user_modules/AppTypes')
+
+local connectMobile_Orig = Test.connectMobile
+function Test:connectMobile()
+  local ret = connectMobile_Orig(self)
+  ret:Do(function()
+      self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+        { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }} )
+      utils.wait(500)
+    end)
+  return ret
+end
 
 --[[ Test ]]
 function Test:SendDissalowedRpcInNone()

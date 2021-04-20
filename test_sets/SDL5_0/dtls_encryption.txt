@@ -1,0 +1,6 @@
+./test_scripts/Security/DTLS/001_StartRPC_service.lua
+./test_scripts/Security/DTLS/002_Start_Audio_service.lua
+./test_scripts/Security/DTLS/003_Start_Video_service.lua
+./test_scripts/Security/DTLS/004_Processing_of_RPC.lua
+./test_scripts/Security/DTLS/005_Ignore_malformed_packet.lua
+./test_scripts/Security/DTLS/006_Ignore_unexpected_packet.lua

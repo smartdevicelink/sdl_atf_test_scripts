@@ -11,6 +11,8 @@
 -- device ('device' param) as NOT consented in Local PT ("user_consent_records"-> "device" sub-section) and send BasicCommunication.ActivateApp with
 -- 'level' param of the value from 'default_hmi' key of 'pre-DataConsent'section of Local PT to HMI. App should stay in NONE HMI level
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

@@ -15,90 +15,44 @@
 --  1. SPT sends UnregisterAppInterface and EndSession to SDL.
 --     SPT register in usual way, no resumption occurs
 ---------------------------------------------------------------------------------------------------
---[[ General Precondition before ATF start ]]
-config.defaultProtocolVersion = 2
-config.application1.registerAppInterfaceParams.isMediaApplication = true
 
--- [[ Required Shared Libraries ]]
-local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
-local commonSteps = require('user_modules/shared_testcases/commonSteps')
-local commonStepsResumption = require('user_modules/shared_testcases/commonStepsResumption')
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
+--[[ Required Shared libraries ]]
+local runner = require('user_modules/script_runner')
+local common = require('test_scripts/Smoke/commonSmoke')
 
---[[ General Settings for configuration ]]
-Test = require('user_modules/dummy_connecttest')
-require('cardinalities')
-require('user_modules/AppTypes')
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
--- [[Local variables]]
-local default_app_params = config.application1.registerAppInterfaceParams
-
---[[ Preconditions ]]
-commonFunctions:newTestCasesGroup("Preconditions")
-commonSteps:DeletePolicyTable()
-commonSteps:DeleteLogsFiles()
-
-function Test:Start_SDL_With_One_Activated_App()
-  self:runSDL()
-  commonFunctions:waitForSDLStart(self):Do(function()
-    self:initHMI():Do(function()
-      commonFunctions:userPrint(35, "HMI initialized")
-      self:initHMI_onReady():Do(function ()
-        commonFunctions:userPrint(35, "HMI is ready")
-        self:connectMobile():Do(function ()
-          commonFunctions:userPrint(35, "Mobile Connected")
-          self:startSession():Do(function ()
-            commonFunctions:userPrint(35, "App is registered")
-            commonSteps:ActivateAppInSpecificLevel(self, self.applications[default_app_params.appName])
-            EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL",audioStreamingState = "AUDIBLE", systemContext = "MAIN"})
-            commonFunctions:userPrint(35, "App is activated")
-          end)
-        end)
-      end)
-    end)
-  end)
+-- [[ Local Functions ]]
+local function expResData()
+  common.getHMIConnection():ExpectRequest("VR.AddCommand", common.reqParams.AddCommand.hmi)
+  :Times(0)
+  common.getHMIConnection():ExpectRequest("UI.AddSubMenu", common.reqParams.AddSubMenu.hmi)
+  :Times(0)
+  common.getMobileSession():ExpectNotification("OnHashChange")
+  :Times(0)
 end
 
-function Test:Add_Command_And_Put_File()
-  local correlation_id = self.mobileSession:SendRPC("AddCommand", { cmdID = 1, vrCommands = {"OnlyVRCommand"}})
-  local on_hmi_call = EXPECT_HMICALL("VR.AddCommand", {cmdID = 1, type = "Command",
-                      vrCommands = {"OnlyVRCommand"}})
-  on_hmi_call:Do(function(_, data)
-    self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-  end)
-  EXPECT_RESPONSE(correlation_id, { success = true, resultCode = "SUCCESS" })
-  EXPECT_NOTIFICATION("OnHashChange"):Do(function(_, data)
-    self.currentHashID = data.payload.hashID
-  end)
-
-  local cid = self.mobileSession:SendRPC(
-    "PutFile", {
-      syncFileName = "icon.png",
-      fileType = "GRAPHIC_PNG",
-      persistentFile = true,
-      systemFile = false,
-    }, "files/icon.png")
-    EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS" })
+local function expResLvl()
+  common.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp")
+  :Times(0)
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+  :Times(1)
 end
 
---[[ Test ]]
-commonFunctions:newTestCasesGroup("No resumption if App unregister itself")
+--[[ Scenario ]]
+runner.Title("Preconditions")
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Start SDL, HMI, connect Mobile", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Add Command", common.addCommand)
+runner.Step("Add SubMenu", common.addSubMenu)
 
-function Test:Unregister_App()
-  local cid = self.mobileSession:SendRPC("UnregisterAppInterface", default_app_params)
-  EXPECT_RESPONSE(cid, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", {unexpectedDisconnect = false,
-                   appID = self.applications[default_app_params]})
-end
+runner.Title("Test")
+runner.Step("UnRegister App", common.unregisterApp)
+runner.Step("ReRegister App", common.reregisterApp, { "RESUME_FAILED", expResData, expResLvl })
 
-function Test:Register_And_No_Resume_App()
-  commonStepsResumption:RegisterApp(default_app_params, commonStepsResumption.ExpectNoResumeApp, false)
-end
-
--- [[ Postconditions ]]
-commonFunctions:newTestCasesGroup("Postcondition")
-function Test.Stop_SDL()
-  StopSDL()
-end
-
-return Test
+runner.Title("Postconditions")
+runner.Step("Stop SDL", common.postconditions)

@@ -42,7 +42,7 @@ local function updatePTU(tbl)
   local CustomGroup = commonFunctions:cloneTable(tbl.policy_table.functional_groupings["Base-4"])
   CustomGroup.rpcs.SetAppIcon = nil
   tbl.policy_table.functional_groupings.GroupWithoutSetAppIcon = CustomGroup
-  tbl.policy_table.app_policies[common.getConfigAppParams().appID].groups = { "GroupWithoutSetAppIcon" }
+  tbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].groups = { "GroupWithoutSetAppIcon" }
 end
 
 --[[ Scenario ]]

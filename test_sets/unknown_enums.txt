@@ -1,0 +1,7 @@
+./test_scripts/UnknownEnums/001_unknown_mandatory_param.lua
+./test_scripts/UnknownEnums/002_unknown_nonmandatory_param.lua
+./test_scripts/UnknownEnums/003_single_unknown_enum_in_array.lua
+./test_scripts/UnknownEnums/004_multiple_unknown_enums_in_array.lua
+./test_scripts/UnknownEnums/005_unknown_enum_in_struct.lua
+./test_scripts/UnknownEnums/006_unkown_enum_in_array_of_structs.lua
+./test_scripts/UnknownEnums/007_multiple_unknown_enums_in_array_of_structs.lua

@@ -19,6 +19,8 @@
 -- SDL->HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 -- SDL->HMI: BasicCommunication.PolicyUpdate
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -82,7 +84,7 @@ function Test:TestStep_PTU_AppID_SecondApp_NotListed_PT()
         end
       end
     end)
-  :Times(Between(1,2))
+  :Times(Between(0,1))
 
   self.mobileSession:ExpectNotification("OnSystemRequest")
   :Do(function(_, data)

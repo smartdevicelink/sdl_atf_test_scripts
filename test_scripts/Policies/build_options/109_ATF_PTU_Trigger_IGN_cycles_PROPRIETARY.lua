@@ -13,6 +13,8 @@
 -- When amount of ignition cycles notified by HMI via BasicCommunication.OnIgnitionCycleOver gets equal to the value of "exchange_after_x_ignition_cycles"
 -- field ("module_config" section) of policies database, SDL must trigger a PolicyTableUpdate sequence
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.fullAppID = "123456"
 config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
@@ -65,17 +67,39 @@ for _, v in pairs({config.pathToSDL .. sdl_preloaded_pt, ptu_file}) do
 end
 
 --[[ General Settings for configuration ]]
-Test = require('connecttest')
+Test = require("user_modules/connecttest_resumption")
 require('user_modules/AppTypes')
 
 --[[ Preconditions ]]
 commonFunctions:newTestCasesGroup("Preconditions")
 
+function Test:Precondition_connectMobile()
+  self:connectMobile()
+end
+
+function Test:StartNewSession()
+  self.mobileSession = mobileSession.MobileSession(self, self.mobileConnection)
+  self.mobileSession:StartService(7)
+end
+
+function Test:RegisterNewApp()
+  local correlationId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
+  self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
+  self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_, d)
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+end
+
 function Test:Precondition_SUCCEESS_Flow_PROPRIETARY()
   local policy_file_name = "PolicyTableUpdate"
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath")
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = policy_file_name})
@@ -118,6 +142,16 @@ for i = 1, exchange_after do
   end
   function Test:TestStep_InitHMI_onReady()
     self:initHMI_onReady()
+    if i == exchange_after then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
+      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+      :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    else
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(0)
+    end
+    commonTestCases:DelayedExp(5000)
   end
   function Test:TestStep_StartMobileSession()
     self:connectMobile()
@@ -130,13 +164,6 @@ for i = 1, exchange_after do
     EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered")
     self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
     self.mobileSession:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
-    if i == exchange_after then
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
-      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-    else
-      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(0)
-    end
-    commonTestCases:DelayedExp(5000)
   end
 end
 

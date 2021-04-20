@@ -12,6 +12,9 @@ local apiLoader = require("modules/api_loader")
 local api = apiLoader.init("data/MOBILE_API.xml")
 local schema = api.interface[next(api.interface)]
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 local DefaultTimeout = 10000
 
@@ -343,18 +346,18 @@ local function PerformInteractionVR(params, self)
   local RequestTime
   local RespTime
   local TimeBetweenReqRes
-  local TimeToResponseForVR = 2000
-  local RespTimeout = params.timeout
+  local TimeToResponseForUI = 2000
+  local RespTimeout = DefaultTimeout + params.timeout
   local cid = self.mobileSession1:SendRPC("PerformInteraction", params)
   RequestTime = timestamp()
-  EXPECT_HMICALL("VR.PerformInteraction")
+  EXPECT_HMICALL("UI.PerformInteraction")
   :Do(function(_,data)
-      local function RespVR()
+      local function RespUI()
         self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
       end
-      RUN_AFTER(RespVR, TimeToResponseForVR)
+      RUN_AFTER(RespUI, TimeToResponseForUI)
     end)
-  EXPECT_HMICALL("UI.PerformInteraction")
+  EXPECT_HMICALL("VR.PerformInteraction")
   self.mobileSession1:ExpectResponse(cid, {success = false, resultCode = "GENERIC_ERROR"})
   :Timeout(RespTimeout + 1000)
   :ValidIf(function()

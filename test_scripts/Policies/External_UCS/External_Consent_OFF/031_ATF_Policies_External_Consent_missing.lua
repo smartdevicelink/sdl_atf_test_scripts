@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 --------------------------------------Requirement summary---------------------------------------------
 --[Policies] External UCS: "externalConsentStatus" was not received from HMI
 
@@ -127,7 +128,9 @@ Test["TEST_NAME_OFF_MainCheck_RPC_is_allowed"] = function(self)
   self.mobileSession:SendRPC("SubscribeVehicleData",{rpm = true})
   EXPECT_HMICALL("VehicleInfo.SubscribeVehicleData")
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS",{})
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {
+        rpm = { resultCode = "SUCCESS", dataType = "VEHICLEDATA_RPM" }
+      })
     end)
 
   EXPECT_RESPONSE("SubscribeVehicleData", {success = true , resultCode = "SUCCESS"})

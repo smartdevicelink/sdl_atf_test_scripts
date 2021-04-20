@@ -35,90 +35,113 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local requestParams = {
-	properties = {
-		"VRHELPTITLE",
-		"MENUNAME",
-		"MENUICON",
-		"KEYBOARDPROPERTIES",
-		"VRHELPITEMS",
-		"HELPPROMPT",
-		"TIMEOUTPROMPT"
-	}
+  properties = {
+    "VRHELPTITLE",
+    "MENUNAME",
+    "MENUICON",
+    "KEYBOARDPROPERTIES",
+    "VRHELPITEMS",
+    "HELPPROMPT",
+    "TIMEOUTPROMPT"
+  }
 }
 
 local responseUiParams = {
 	menuTitle = "",
-	vrHelpTitle = "Test Application",
+	vrHelpTitle = "Available Vr Commands List",
 	keyboardProperties = {
 		keyboardLayout = "QWERTY",
-		autoCompleteText = "",
+		autoCompleteList = {},
 		language = "EN-US"
-	}
+  },
+  vrHelp = {
+    {
+      position = 1,
+      text = "Test Application"
+    }
+  }
 }
 
 local responseTtsParams = {
-	helpPrompt = {},
-	timeoutPrompt = {}
+  helpPrompt = {
+    {
+      text = "Please speak one of the following commands,",
+      type = "TEXT"
+    },
+    {
+      text = "Please say a command,",
+      type = "TEXT"
+    }
+  },
+  timeoutPrompt = {}
 }
 
 local allParams = {
-	requestParams = requestParams,
-	responseUiParams = responseUiParams,
-	responseTtsParams = responseTtsParams
+  requestParams = requestParams,
+  responseUiParams = responseUiParams,
+  responseTtsParams = responseTtsParams
 }
 
 --[[ Local Functions ]]
-local function resetGlobalProperties(params, self)
-	local cid = self.mobileSession1:SendRPC("ResetGlobalProperties", params.requestParams)
+local function splitString(pInputStr, pSep)
+  if pSep == nil then
+    pSep = "%s"
+  end
+  local out, i = {}, 1
+  for str in string.gmatch(pInputStr, "([^" .. pSep .. "]+)") do
+    out[i] = str
+    i = i + 1
+  end
+  return out
+end
 
-	params.responseUiParams.appID = commonSmoke.getHMIAppId()
-	EXPECT_HMICALL("UI.SetGlobalProperties", params.responseUiParams)
-	:Do(function(_,data)
-		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
-	:ValidIf(function(_,data)
-		if data.params.vrHelp == nil then
-			return true
-		else
-			return false, "vrHelp array in UI.SetGlobalProperties request is not empty." ..
-			" Expected array size 0, actual " .. tostring(#data.params.vrHelp)
-		end
-	end)
+local function resetGlobalProperties(pParams)
+  local cid = common.getMobileSession():SendRPC("ResetGlobalProperties", pParams.requestParams)
 
-	local ttsDelimiter = commonSmoke.readParameterFromSmartDeviceLinkIni("TTSDelimiter")
-	local helpPromptString = commonSmoke.readParameterFromSmartDeviceLinkIni("HelpPromt")
-	local helpPromptList = commonSmoke.splitString(helpPromptString, ttsDelimiter);
+  pParams.responseUiParams.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", pParams.responseUiParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
 
-	for key,value in pairs(helpPromptList) do
-		params.responseTtsParams.timeoutPrompt[key] = {
-			type = "TEXT",
-			text = value .. ttsDelimiter
-		}
-	end
+  local ttsDelimiter = common.readParameterFromSDLINI("TTSDelimiter")
+  local helpPromptString = common.readParameterFromSDLINI("HelpPromt")
+  local helpPromptList = splitString(helpPromptString, ttsDelimiter)
 
-	params.responseTtsParams.appID = commonSmoke.getHMIAppId()
-	EXPECT_HMICALL("TTS.SetGlobalProperties", params.responseTtsParams)
-	:Do(function(_,data)
-		self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-	end)
+  for key, value in pairs(helpPromptList) do
+    pParams.responseTtsParams.timeoutPrompt[key] = {
+      type = "TEXT",
+      text = value .. ttsDelimiter
+    }
+  end
 
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
-	self.mobileSession1:ExpectNotification("OnHashChange")
+  pParams.responseTtsParams.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties", pParams.responseTtsParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
-runner.Step("ResetGlobalProperties Positive Case", resetGlobalProperties, {allParams})
+runner.Step("ResetGlobalProperties Positive Case", resetGlobalProperties, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

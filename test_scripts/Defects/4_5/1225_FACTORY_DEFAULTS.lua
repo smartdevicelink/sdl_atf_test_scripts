@@ -30,6 +30,9 @@ local sdl = require("SDL")
 local events = require('events')
 local json = require("modules/json")
 
+--[[ General configuration parameters ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 -- Path to policy table snapshot
 local pathToPTS = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"

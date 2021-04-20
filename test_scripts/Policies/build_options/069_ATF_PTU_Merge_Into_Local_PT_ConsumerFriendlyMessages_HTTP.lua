@@ -28,6 +28,8 @@
 --corresponding sections from PTU: module_config, functional_groupings, app_policies
 --and consumer_friendly_messages->'messages'
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')

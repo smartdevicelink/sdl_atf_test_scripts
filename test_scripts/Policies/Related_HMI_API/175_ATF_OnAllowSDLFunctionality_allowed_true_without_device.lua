@@ -11,6 +11,8 @@
 -- SDL->HMI:BC.ActivateApp(params, level: <”default_hmi”-value-from-assigned-policies>)
 -- SDL->app: OnHMIStatus(params, level: <”default_hmi”-value-from-assigned-policies>)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')

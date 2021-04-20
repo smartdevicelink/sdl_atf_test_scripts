@@ -20,6 +20,8 @@
 -- SDL chooses randomly between the app_2, app_3, app_4 to send OnSystemRequest
 -- app_1 doesn't take part in PTU (except of the case when app_1 is the only application being run on SDL)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -36,6 +38,7 @@ local hmiLevels = { }
 
 --[[ Local Functions ]]
 local function SetTimeout()
+  os.setlocale("C")
   local pathToFile = commonPreconditions:GetPathToSDL() .. 'sdl_preloaded_pt.json'
   local file = io.open(pathToFile, "r")
   local json_data = file:read("*all")
@@ -171,7 +174,8 @@ for time = 1, 5 do
   function Test:TestStep_CheckOnSystemRequest_AppLevel()
     print("Check OnSystemRequest sent to application. Time: "..time.."/10")
     local received_onsystemrequest = 0
-    -- local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+    -- local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+    --   { policyType = "module_config", property = "endpoints" })
     -- EXPECT_HMIRESPONSE(requestId)
     -- :Do(function()
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "HTTP", fileName = "PolicyTableUpdate" })

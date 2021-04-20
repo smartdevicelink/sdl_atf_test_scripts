@@ -21,6 +21,8 @@
 -- SDL->app: OnSystemRequest()
 
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -29,16 +31,19 @@ config.defaultProtocolVersion = 2
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ Local Variables ]]
 local seconds_between_retries = {1, 1, 1, 1, 1} -- in min
-local timeout_after_x_seconds = 30 -- in sec
+local timeout_after_x_seconds = 8 -- in sec
 local timeout = {} -- in sec
-timeout[1] = timeout_after_x_seconds -- 30
-timeout[2] = timeout_after_x_seconds + seconds_between_retries[1] -- 30 + 1 = 31
-timeout[3] = timeout_after_x_seconds + seconds_between_retries[2] + timeout[2] -- 30 + 1 + 31 = 62
-timeout[4] = timeout_after_x_seconds + seconds_between_retries[3] + timeout[3] -- 30 + 1 + 62 = 93
-timeout[5] = timeout_after_x_seconds + seconds_between_retries[4] + timeout[4] -- 30 + 1 + 93 = 124
-timeout[6] = timeout_after_x_seconds + seconds_between_retries[5] + timeout[5] -- 30 + 1 + 124 = 155
+timeout[1] = timeout_after_x_seconds -- 8
+timeout[2] = timeout_after_x_seconds + seconds_between_retries[1] -- 8 + 1 = 9
+timeout[3] = timeout_after_x_seconds + seconds_between_retries[2] + timeout[2] -- 8 + 1 + 9 = 18
+timeout[4] = timeout_after_x_seconds + seconds_between_retries[3] + timeout[3] -- 8 + 1 + 18 = 27
+timeout[5] = timeout_after_x_seconds + seconds_between_retries[4] + timeout[4] -- 8 + 1 + 27 = 36
+timeout[6] = timeout_after_x_seconds + seconds_between_retries[5] + timeout[5] -- 8 + 1 + 36 = 45
 
 local onsysrequest_app1 = false
 local onsysrequest_app2 = false
@@ -270,7 +275,7 @@ end
     EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
     self.mobileSession2:ExpectResponse(CorIdRAI2, {success = true, resultCode = "SUCCESS"})
 
-    commonTestCases:DelayedExp(10000)
+    commonTestCases:DelayedExp(5000)
   end
 
   function Test:TestStep_CheckHTTP_Received()

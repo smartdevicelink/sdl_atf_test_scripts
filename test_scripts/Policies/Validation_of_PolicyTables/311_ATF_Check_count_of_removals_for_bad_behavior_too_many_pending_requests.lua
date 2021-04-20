@@ -22,6 +22,8 @@
 -- Application is unregistered: SDL->appID: OnAppUnregistered(TOO_MANY_REQUESTS)
 -- PoliciesManager increments value of <count_of_removals_for_bad_behavior>
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false
@@ -46,6 +48,17 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 Test = require('connecttest')
 require('cardinalities')
 require('user_modules/AppTypes')
+
+local connectMobile_Orig = Test.connectMobile
+function Test:connectMobile()
+  local ret = connectMobile_Orig(self)
+  ret:Do(function()
+      self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
+        { allowed = true, source = "GUI", device = { id = utils.getDeviceMAC(), name = utils.getDeviceName() }} )
+      utils.wait(500)
+    end)
+  return ret
+end
 
 commonPreconditions:BackupFile("smartDeviceLink.ini")
 commonFunctions:write_parameter_to_smart_device_link_ini("FrequencyCount", count_of_requests)

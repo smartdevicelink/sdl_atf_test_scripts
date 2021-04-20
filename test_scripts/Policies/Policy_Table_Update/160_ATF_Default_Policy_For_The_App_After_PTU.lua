@@ -19,6 +19,8 @@
 -- b) PTU successfully passed
 -- c) SDL respons SUCCESS for allowed RPC and DISALLOW for disallow
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -86,6 +88,14 @@ function Test:Precondition_Register_Activate_App_And_Consent_Device()
       EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
+            {status = "UPDATE_NEEDED"},
+            {status = "UPDATING"})
+          :Times(2)
+          EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+          :Do(function(_,data)
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+            end)
           EXPECT_HMICALL("BasicCommunication.ActivateApp")
           :Do(function(_,data)
               self.hmiConnection:SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -112,8 +122,9 @@ function Test:TestStep_Check_Disallowed_RPC()
 end
 
 function Test:TestStep_Update_Policy_With_New_Permission_In_Default_Section()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "filename"})
 
@@ -134,8 +145,7 @@ function Test:TestStep_Update_Policy_With_New_Permission_In_Default_Section()
             end)
         end)
     end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 function Test:TestStep_Check_Allowed_RPC()

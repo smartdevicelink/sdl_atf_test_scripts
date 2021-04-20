@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -29,10 +28,15 @@ local enabledModule = "RADIO"
 
 --[[ Local Functions ]]
 local function getHMIParams()
-  local params = hmi_values.getDefaultHMITable()
+  local params = commonRC.getDefaultHMITable()
   params.RC.IsReady = nil
   params.RC.GetCapabilities = nil
   return params
+end
+
+local function start(pHMIParams)
+  commonRC.start(pHMIParams)
+  commonRC.wait(20000)
 end
 
 --[[ Scenario ]]
@@ -40,7 +44,7 @@ runner.Title("Preconditions")
 runner.Step("Backup HMI capabilities file", commonRC.backupHMICapabilities)
 runner.Step("Update HMI capabilities file", commonRC.updateDefaultCapabilities, { { disabledModule } })
 runner.Step("Clean environment", commonRC.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start, { getHMIParams() })
+runner.Step("Start SDL, HMI, connect Mobile, start Session", start, { getHMIParams() })
 runner.Step("RAI", commonRC.registerAppWOPTU)
 runner.Step("Activate App", commonRC.activateApp)
 

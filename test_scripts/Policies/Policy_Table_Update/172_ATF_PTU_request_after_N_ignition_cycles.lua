@@ -19,6 +19,8 @@
 -- HMI->SDL:BasicCommunication.OnIgnitionCycleOver->
 -- SDL must trigger a PolicyTableUpdate sequence
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = {"DEFAULT"}
 --[ToDo: should be removed when fixed: "ATF does not stop HB timers by closing session and connection"
@@ -28,6 +30,9 @@ config.defaultProtocolVersion = 2
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local utils = require ('user_modules/utils')
+
+--[[ Local Variables ]]
+local ptuInProgress = false
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFiles()
@@ -60,8 +65,9 @@ function Test:Precondition_Activate_App_Consent_Device_And_Update_Policy()
     end)
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
   :Do(function(_,_)
-      local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-      EXPECT_HMIRESPONSE(RequestIdGetURLS)
+      local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+          { policyType = "module_config", property = "endpoints" })
+      EXPECT_HMIRESPONSE(requestId)
       :Do(function()
           self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{requestType = "PROPRIETARY", fileName = "filename"})
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
@@ -148,6 +154,15 @@ end
 
 function Test:TestStep_InitHMI_onReady()
   self:initHMI_onReady()
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:TestStep_Register_App_And_Check_PTU_Triggered()
@@ -159,8 +174,13 @@ function Test:TestStep_Register_App_And_Check_PTU_Triggered()
       EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
       :Do(
         function()
-          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
-          EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+          if not ptuInProgress then
+            EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
+            EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+            :Do(function(_,data)
+              self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+            end)
+          end
         end)
       self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
     end)

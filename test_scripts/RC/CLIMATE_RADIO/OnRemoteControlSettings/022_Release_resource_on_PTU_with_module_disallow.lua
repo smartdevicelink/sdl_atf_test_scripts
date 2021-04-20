@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/resource_allocation.md
 -- Item: Use Case 3: Alternative Flow 2
 --
 -- Requirement summary:
@@ -42,6 +42,7 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", commonRC.preconditions, { false })
+runner.Step("Update SDL config", commonRC.setSDLIniParameter, { "ApplicationListUpdateTimeout", 5000 })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", commonRC.start)
 runner.Step("RAI1", commonRC.registerApp)
 runner.Step("PTU with RADIO for App1", commonRC.policyTableUpdate, { PTUfunc1 })

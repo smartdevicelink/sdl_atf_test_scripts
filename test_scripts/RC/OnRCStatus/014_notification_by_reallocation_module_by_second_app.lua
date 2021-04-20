@@ -20,28 +20,17 @@ local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local freeModules = common.getAllModules()
-local allocatedModules = {
-  [1] = {},
-  [2] = {}
-}
-
 --[[ Local Functions ]]
 local function alocateModuleFirstApp(pModuleType)
-  local pModuleStatusAllocatedApp, pModuleStatusAnotherApp = common.setModuleStatus(freeModules, allocatedModules, "CLIMATE")
+  common.setModuleStatus("CLIMATE")
   common.rpcAllowed(pModuleType, 1, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(1, pModuleStatusAllocatedApp)
-  common.validateOnRCStatusForApp(2, pModuleStatusAnotherApp)
-  common.validateOnRCStatusForHMI(2, { pModuleStatusAllocatedApp, pModuleStatusAnotherApp }, 1)
+  common.validateOnRCStatus({1,2})
 end
 
 local function alocateModuleSecondApp(pModuleType)
-  local pModuleStatusAllocatedApp, pModuleStatusAnotherApp = common.setModuleStatus(freeModules, allocatedModules, "CLIMATE", 2)
+  common.setModuleStatus("CLIMATE", 2)
   common.rpcAllowed(pModuleType, 2, "SetInteriorVehicleData")
-  common.validateOnRCStatusForApp(2, pModuleStatusAllocatedApp)
-  common.validateOnRCStatusForApp(1, pModuleStatusAnotherApp)
-  common.validateOnRCStatusForHMI(2, { pModuleStatusAnotherApp, pModuleStatusAllocatedApp }, 2)
+  common.validateOnRCStatus({1, 2})
 end
 
 --[[ Scenario ]]

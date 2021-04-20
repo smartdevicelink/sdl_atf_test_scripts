@@ -25,6 +25,8 @@
 -- Expected result:
 -- SDL sends to HMI empty array
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 -- ToDo (vvvakulenko): remove after issue "ATF does not stop HB timers by closing session and connection" is resolved
 config.defaultProtocolVersion = 2
@@ -39,9 +41,7 @@ local utils = require ('user_modules/utils')
 --[[Local Variables]]
 local params_invalid_data =
 {
-  {param_value = "invalidValue", comment = "Not_existing_enum"},
   {param_value = 1.32, comment = "Float"},
-  {param_value = 132, comment = "Integer"},
   {param_value = {}, comment = "Empty table" },
   {param_value = { entityType = 1, entityID = 1 }, comment = "Non-empty table"},
   {param_value = "", comment = "Empty" },

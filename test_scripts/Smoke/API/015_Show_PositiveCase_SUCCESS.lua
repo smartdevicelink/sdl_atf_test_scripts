@@ -29,7 +29,10 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local putFileParams = {
@@ -43,13 +46,14 @@ local putFileParams = {
 }
 
 local requestParams = {
-  mainField1 = "a",
-  mainField2 = "a",
-  mainField3 = "a",
-  mainField4 = "a",
-  statusBar = "a",
-  mediaClock = "a",
-  mediaTrack = "a",
+  mainField1 = "mainField1_text",
+  mainField2 = "mainField2_text",
+  mainField3 = "mainField3_text",
+  mainField4 = "mainField4_text",
+  templateTitle = "templateTitle_text",
+  statusBar = "statusBar_text",
+  mediaClock = "mediaClock_text",
+  mediaTrack = "mediaTrack_text",
   alignment = "CENTERED",
   graphic = {
     imageType = "DYNAMIC",
@@ -59,25 +63,39 @@ local requestParams = {
     imageType = "DYNAMIC",
     value = "icon.png"
   },
+  metadataTags = {
+    mainField1 = { "mediaTitle" },
+    mainField2 = { "mediaArtist" },
+    mainField3 = { "mediaAlbum" },
+    mainField4 = { "mediaYear" },
+  }
 }
 
 local responseUiParams = {
   showStrings = {
     {
       fieldName = "mainField1",
-      fieldText = requestParams.mainField1
+      fieldText = requestParams.mainField1,
+      fieldTypes = requestParams.metadataTags.mainField1
     },
     {
       fieldName = "mainField2",
-      fieldText = requestParams.mainField2
+      fieldText = requestParams.mainField2,
+      fieldTypes = requestParams.metadataTags.mainField2
     },
     {
       fieldName = "mainField3",
-      fieldText = requestParams.mainField3
+      fieldText = requestParams.mainField3,
+      fieldTypes = requestParams.metadataTags.mainField3
     },
     {
       fieldName = "mainField4",
-      fieldText = requestParams.mainField4
+      fieldText = requestParams.mainField4,
+      fieldTypes = requestParams.metadataTags.mainField4
+    },
+    {
+      fieldName = "templateTitle",
+      fieldText = requestParams.templateTitle
     },
     {
       fieldName = "mediaClock",
@@ -95,11 +113,11 @@ local responseUiParams = {
   alignment = requestParams.alignment,
   graphic = {
     imageType = requestParams.graphic.imageType,
-    value = commonSmoke.getPathToFileInStorage(requestParams.graphic.value)
+    value = common.getPathToFileInAppStorage(requestParams.graphic.value)
   },
   secondaryGraphic = {
     imageType = requestParams.secondaryGraphic.imageType,
-    value = commonSmoke.getPathToFileInStorage(requestParams.secondaryGraphic.value)
+    value = common.getPathToFileInAppStorage(requestParams.secondaryGraphic.value)
   }
 }
 
@@ -109,26 +127,27 @@ local allParams = {
 }
 
 --[[ Local Functions ]]
-local function Show(pParams, self)
-  local cid = self.mobileSession1:SendRPC("Show", pParams.requestParams)
-  pParams.responseUiParams.appID = commonSmoke.getHMIAppId()
-  EXPECT_HMICALL("UI.Show", pParams.responseUiParams)
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+local function show(pParams)
+  local cid = common.getMobileSession():SendRPC("Show", pParams.requestParams)
+  pParams.responseUiParams.appID = common.getHMIAppId()
+  common.getHMIConnection():ExpectRequest("UI.Show", pParams.responseUiParams)
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
-runner.Step("Upload icon file", commonSmoke.putFile, { putFileParams })
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Upload icon file", common.putFile, { putFileParams })
 
 runner.Title("Test")
-runner.Step("Show Positive Case", Show, { allParams })
+runner.Step("Show Positive Case", show, { allParams })
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

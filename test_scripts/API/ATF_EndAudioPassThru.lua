@@ -4,7 +4,6 @@ local events = require('events')
 local mobile_session = require('mobile_session')
 local mobile  = require('mobile_connection')
 local tcp = require('tcp_connection')
-local config = require('config')
 local file_connection  = require('file_connection')
 
 local module = require('testbase')

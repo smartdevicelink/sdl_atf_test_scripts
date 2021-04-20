@@ -16,6 +16,8 @@
 -- Expected result:
 --     PoliciesManager must validate "default_hmi" sub-section in "default" and treat it as valid -> PTU invalid
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -43,6 +45,10 @@ function Test:Precondition_Activate_app()
       :Do(function()
         self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
           {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName()}})
+        EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+        :Do(function(_,data3)
+          self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+        end)
         EXPECT_HMICALL("BasicCommunication.ActivateApp")
         :Do(function(_,_data1)
           self.hmiConnection:SendResponse(_data1.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -51,14 +57,16 @@ function Test:Precondition_Activate_app()
     end
   end)
   EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "FULL", systemContext = "MAIN"})
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 --[[ Test ]]
 commonFunctions:newTestCasesGroup("Test")
 
 function Test:TestStep_Validate_default_hmi_in_default_upon_PTU()
-  local RequestIdGetURLS = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestIdGetURLS)
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+        { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,data)
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",
       { requestType = "PROPRIETARY", fileName = "filename" } )
@@ -81,8 +89,7 @@ function Test:TestStep_Validate_default_hmi_in_default_upon_PTU()
       self.mobileSession:ExpectResponse(CorIdSystemRequest, {})
     end)
   end)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
 end
 
 --[[ Postconditions ]]

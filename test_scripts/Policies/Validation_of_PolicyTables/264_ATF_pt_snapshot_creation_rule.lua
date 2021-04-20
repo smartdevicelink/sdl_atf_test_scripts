@@ -13,6 +13,8 @@
 -- Expected result:
 -- SDL must copy the Local Policy Table into memory and remove "messages" sub-section from "consumer_friendly_messages" section and store information as PT snapshot
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -27,7 +29,6 @@ testCasesForPolicyTable.Delete_Policy_table_snapshot()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 require('cardinalities')
 
@@ -77,6 +78,7 @@ end
 commonFunctions:newTestCasesGroup("Postconditions")
 function Test.Postcondition_StopSDL()
   StopSDL()
+  commonSteps:DeletePolicyTable()
 end
 
 return Test

@@ -5,7 +5,7 @@
             "exchange_after_x_ignition_cycles": 100,
             "exchange_after_x_kilometers": 1800,
             "exchange_after_x_days": 30,
-            "timeout_after_x_seconds": 30,
+            "timeout_after_x_seconds": 8,
             "seconds_between_retries": [1,
             2,
             3,
@@ -31,6 +31,15 @@
                 "VOICECOM": 20,
                 "COMMUNICATION": 6,
                 "NORMAL": 4,
+                "NONE": 0
+            },
+            "subtle_notifications_per_minute_by_priority": {
+                "EMERGENCY": 60,
+                "NAVIGATION": 20,
+                "PROJECTION": 20,
+                "VOICECOM": 30,
+                "COMMUNICATION": 15,
+                "NORMAL": 10,
                 "NONE": 0
             }
         },

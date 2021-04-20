@@ -15,6 +15,8 @@
 -- Expected result:
 -- SDL.OnStatusUpdate(UP_TO_DATE) notification is send right after successful validation of received PTU
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
@@ -45,14 +47,15 @@ function Test:TestStep_CheckMessagesSequence_UpToDate()
   local policy_file_path = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath").."/"
   local corIdSystemRequest
 
-  local requestId = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_, _)
     if(message_number ~= 1) then
-      commonFunctions:printError("Error: SDL.GetURLS reponse is not received as message 1 after SDL.GetURLS request. Real: "..message_number)
+      commonFunctions:printError("Error: SDL.GetPolicyConfigurationData reponse is not received as message 1 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
-      print("SDL.GetURLS is received as message "..message_number.." after SDL.GetURLS request")
+      print("SDL.GetPolicyConfigurationData is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
     self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", {requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"})
@@ -61,45 +64,38 @@ function Test:TestStep_CheckMessagesSequence_UpToDate()
   EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY"})
   :Do(function(_, _)
     if( (message_number ~= 2) and (message_number ~= 3)) then
-      commonFunctions:printError("Error: OnSystemRequest reponse is not received as message 2/3 after SDL.GetURLS request. Real: "..message_number)
+      commonFunctions:printError("Error: OnSystemRequest reponse is not received as message 2/3 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
-      print("OnSystemRequest is received as message "..message_number.." after SDL.GetURLS request")
+      print("OnSystemRequest is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
     corIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {requestType = "PROPRIETARY", fileName = "PolicyTableUpdate"}, "files/ptu.json")
     EXPECT_RESPONSE(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
   end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :Do(function(exp,data)
     if(exp.occurences == 1) then
-      if( (message_number ~= 2) and (message_number ~= 3)) then
-        commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message 2/3 after SDL.GetURLS request. Real: "..message_number)
+      if (message_number ~= 4) then
+        commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message 4 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
         is_test_fail = true
       else
-        print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetURLS request")
-      end
-    elseif(exp.occurences == 2) then
-      if(message_number ~= 5) then
-        commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message 5 after SDL.GetURLS request. Real: "..message_number)
-        is_test_fail = true
-      else
-        print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetURLS request")
+        print("SDL.OnStatusUpdate("..data.params.status..") is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
       end
     else
-      commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message "..message_number.." after SDL.GetURLS request")
+      commonFunctions:printError("Error: SDL.OnStatusUpdate("..data.params.status..")  response is not received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
   end)
 
   EXPECT_HMICALL("BasicCommunication.SystemRequest")
   :Do(function(_, data)
-    if( (message_number ~= 4)) then
-      commonFunctions:printError("Error: BasicCommunication.SystemRequest reponse is not received as message 4 after SDL.GetURLS request. Real: "..message_number)
+    if( (message_number ~= 3)) then
+      commonFunctions:printError("Error: BasicCommunication.SystemRequest response is not received as message 3 after SDL.GetPolicyConfigurationData request. Real: "..message_number)
       is_test_fail = true
     else
-      print("BasicCommunication.SystemRequest is received as message "..message_number.." after SDL.GetURLS request")
+      print("BasicCommunication.SystemRequest is received as message "..message_number.." after SDL.GetPolicyConfigurationData request")
     end
     message_number = message_number + 1
     self.hmiConnection:SendResponse(data.id, "BasicCommunication.SystemRequest", "SUCCESS", {})

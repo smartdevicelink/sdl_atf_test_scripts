@@ -19,6 +19,8 @@
 -- Expected result:
 -- PoliciesManager must apply such <functional grouping> without asking User`s consent for it
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 

@@ -17,7 +17,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -40,7 +39,7 @@ local function disableRCFromHMI()
 
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered")
   :Times(0)
-  commonTestCases:DelayedExp(commonRC.timeout)
+  commonRC.wait(commonRC.timeout)
 end
 
 --[[ Scenario ]]

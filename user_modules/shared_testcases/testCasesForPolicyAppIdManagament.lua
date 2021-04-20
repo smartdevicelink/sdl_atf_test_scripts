@@ -18,8 +18,8 @@ local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 -- But this should be checked in appropriate scripts
 --TODO(istoimenova): functions with External_Proprietary should be merged at review of common functions.
 function common:updatePolicyTable(test, file)
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
-  local requestId = test.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
+  local requestId = test.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
     local pts_file_name = commonFunctions:read_parameter_from_smart_device_link_ini("SystemFilesPath") .. "/"
@@ -33,6 +33,7 @@ function common:updatePolicyTable(test, file)
           local corIdSystemRequest = test.mobileSession:SendRPC("SystemRequest", { requestType = "PROPRIETARY" }, file)
           EXPECT_HMICALL("BasicCommunication.SystemRequest",{ requestType = "PROPRIETARY" }, file)
           :Do(function(_, data)
+              EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
               test.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
               test.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = data.params.fileName } )
             end)

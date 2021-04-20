@@ -16,7 +16,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local json = require('modules/json')
 local common = require("test_scripts/RC/commonRC")
 
 --[[ Test Configuration ]]
@@ -25,7 +24,7 @@ runner.testSettings.isSelfIncluded = false
 local function PTUfunc(tbl)
   local appId = config.application1.registerAppInterfaceParams.fullAppID
   tbl.policy_table.app_policies[appId] = common.getRCAppConfig()
-  tbl.policy_table.app_policies[appId].moduleType = json.EMPTY_ARRAY
+  tbl.policy_table.app_policies[appId].moduleType = common.json.EMPTY_ARRAY
 end
 
 --[[ Scenario ]]

@@ -22,6 +22,8 @@
 -- SDL->HMI: SDL.GetUserFriendlyMessage ("messages":
 -- {messageCode: "AppPermissions", ttsString: "%appName% is requesting the use of the following ....", line1: "Grant Requested", line2: "Permission(s)?"} ring: "%appName% is requesting the use of the following ....", line1: "Grant Requested", line2: "Permission(s)?"})
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -56,7 +58,7 @@ function Test:TestStep_ActivateApp_StatusNeeded()
           self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
             {allowed = true, source = "GUI", device = {id = utils.getDeviceMAC(), name = utils.getDeviceName(), isSDLAllowed = true}})
 
-          -- EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" })
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
 
           EXPECT_HMICALL("BasicCommunication.PolicyUpdate",{})
           :Do(function(_,data)
@@ -79,7 +81,7 @@ end
 function Test:TestStep_PTU_SUCCESS_StatusPending_StatusUpToDate()
   local SystemFilesPath = "/tmp/fs/mp/images/ivsu_cache/"
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
   :Do(function(exp,_)
       if(exp.occurences == 1) then
         local language_status_pending = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("consumer_friendly_messages.messages.StatusPending.languages.en-us.line1")
@@ -92,8 +94,9 @@ function Test:TestStep_PTU_SUCCESS_StatusPending_StatusUpToDate()
       end
     end)
 
-  local RequestId_GetUrls = self.hmiConnection:SendRequest("SDL.GetURLS", { service = 7 })
-  EXPECT_HMIRESPONSE(RequestId_GetUrls,{ result = { code = 0, method = "SDL.GetURLS" } })
+  local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
+      { policyType = "module_config", property = "endpoints" })
+  EXPECT_HMIRESPONSE(requestId,{ result = { code = 0, method = "SDL.GetPolicyConfigurationData" } })
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",{ requestType = "PROPRIETARY", fileName = "PolicyTableUpdate" })
       EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })

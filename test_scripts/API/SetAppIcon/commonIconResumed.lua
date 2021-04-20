@@ -16,7 +16,6 @@ local mobile_session = require('mobile_session')
 local m = actions
 
 --[[ Variables ]]
-local hmiAppIds = {}
 
 --[[ @getPathToFileInStorage: Get path of app icon from storage
 --! @parameters:
@@ -27,7 +26,7 @@ local hmiAppIds = {}
 function m.getPathToFileInStorage(pFileName, pAppId)
   if not pAppId then pAppId = 1 end
   return commonPreconditions:GetPathToSDL() .. "storage/"
-    .. m.getConfigAppParams(pAppId).appID .. "_"
+    .. m.getConfigAppParams(pAppId).fullAppID .. "_"
     .. utils.getDeviceMAC() .. "/" .. pFileName
 end
 
@@ -38,7 +37,7 @@ end
 --]]
 function m.getIconValueForResumption(pAppId)
   if not pAppId then pAppId = 1 end
-  return commonPreconditions:GetPathToSDL() .. "storage/" .. m.getConfigAppParams(pAppId).appID
+  return commonPreconditions:GetPathToSDL() .. m.sdl.getSDLIniParameter("AppIconsFolder") .. "/" .. m.getConfigAppParams(pAppId).fullAppID
 end
 
 --[[ @registerAppWOPTU: register mobile application
@@ -62,9 +61,6 @@ function m.registerAppWOPTU(pAppId, pIconResumed, pReconnection)
           icon = pIconValue
         }
       })
-      :Do(function(_, d1)
-          hmiAppIds[m.getConfigAppParams(pAppId).appID] = d1.params.application.appID
-        end)
       :ValidIf(function(_,data)
         if false == pIconResumed and
           data.params.application.icon then
@@ -169,7 +165,8 @@ end
 --]]
 function m.closeConnection()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
-  test.mobileConnection:Close()
+  actions.mobile.disconnect()
+  actions.run.wait(1000)
 end
 
 --[[ @openConnection: Open mobile connection successfully
@@ -177,12 +174,10 @@ end
 --! return: none
 --]]
 function m.openConnection()
-  test.mobileSession[1] = mobile_session.MobileSession(
-    test,
-    test.mobileConnection,
-    config.application1.registerAppInterfaceParams)
-  test.mobileConnection:Connect()
-  test.mobileSession[1]:StartRPC()
+  actions.mobile.connect()
+  :Do(function()
+      m.mobile.createSession():StartRPC()
+    end)
 end
 
 local preconditionsOrig = m.preconditions
@@ -193,8 +188,8 @@ local preconditionsOrig = m.preconditions
 --]]
 function m.preconditions()
   preconditionsOrig()
-  local storage = commonPreconditions:GetPathToSDL() .. "storage"
-  os.execute("rm -rf " .. storage)
+  local storage = commonPreconditions:GetPathToSDL() .. "storage/*"
+  assert(os.execute("rm -rf " .. storage))
 end
 
 return m
