@@ -10,8 +10,6 @@
 -- Expected result:
 -- 1) SDL must set AUDIBLE audioStreamingState to this media app
 -- and send via OnHMIStatus together with resumed HMILevel (FULL or LIMITED).
--- Actual result:
--- SDL does not resume HMILevel and audioStreamingState.
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('user_modules/sequences/actions')
