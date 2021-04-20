@@ -61,17 +61,17 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function processRPCSuccess()
   local mobileSession = common.getMobileSession()
   local service_id = common.getAppServiceID()
   local requestParams = rpc.params
   requestParams.serviceID = service_id
   local cid = common.getHMIConnection():SendRequest(rpc.hmiName, requestParams)
   local serviceParams = common.appServiceCapability("ACTIVATED", manifest)
-  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):ValidIf(function(_, data)
       return common.findCapabilityUpdate(serviceParams, data.payload)
     end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):ValidIf(function(_, data)
       return common.findCapabilityUpdate(serviceParams, data.params)
     end)
   local passedRequestParams = requestParams
@@ -97,6 +97,8 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Set HMI Origin ID", common.setSDLIniParameter, { "HMIOriginID", hmiOriginID })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
+runner.Step("Activate App", common.activateApp)
+runner.Step("Dectivate App to Background", common.deactivateAppToBackground)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("Publish Embedded Service", common.publishEmbeddedAppService, { hmiManifest })
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })

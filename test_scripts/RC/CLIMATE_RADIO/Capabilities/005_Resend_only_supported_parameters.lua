@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/detailed_info_GetSystemCapability.md
 -- Item: Use Case 1:Exception 3.3
 --
 -- Requirement summary:
@@ -26,8 +26,7 @@ local radio_capabilities = {
   {
     moduleName = "Radio",
     moduleInfo = {moduleId = moduleId},
-    radioFrequencyAvailable = true,
-    radioBandAvailable = true
+    radioFrequencyAvailable = true
   }
 }
 local capParams = {}
@@ -39,12 +38,12 @@ local available_params =
 {
     moduleType = "RADIO",
     moduleId = moduleId,
-    radioControlData = {frequencyInteger = 1, frequencyFraction = 2, band = "AM"}
+    radioControlData = {frequencyInteger = 1, frequencyFraction = 2}
 }
 local absent_params = {
   moduleType = "RADIO",
   moduleId = moduleId,
-  radioControlData = {frequencyInteger = 1, frequencyFraction = 2}
+  radioControlData = {band = "AM"}
 }
 
 --[[ Local Functions ]]

@@ -30,6 +30,7 @@ m.seq = {
   app1 = {},
   app2 = {}
 }
+actions.minTimeout = 1000
 
 --[[ Proxy Functions ]]
 m.start = actions.start

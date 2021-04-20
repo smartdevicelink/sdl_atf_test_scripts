@@ -16,6 +16,7 @@ local m = { }
 
   m.HMIAppIds = { }
   m.pts = nil
+  m.ptuInProgress = false
 
 -- [[ Functions ]]
 
@@ -59,9 +60,10 @@ local m = { }
 --]]
   function m.removeLPT()
     local data = { "AppStorageFolder", "AppInfoStorage" }
-    for _, v in pairs(data) do
-      os.execute("rm -rf " .. commonPreconditions:GetPathToSDL()
-        .. commonFunctions:read_parameter_from_smart_device_link_ini(v))
+    for i, v in pairs(data) do
+      assert(os.execute("rm -rf " .. commonPreconditions:GetPathToSDL()
+        .. commonFunctions:read_parameter_from_smart_device_link_ini(v)
+        .. (i == 1 and "/*" or "")))
     end
   end
 
@@ -121,11 +123,27 @@ local m = { }
                 test.hmiConnection:SendResponse(d.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
                 test.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
                   { policyfile = policy_file_path .. "/" .. policy_file_name })
+                m.ptuInProgress = false
               end)
               test.mobileSession1:ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS"})
           end)
       end)
     os.remove(ptu_file_name)
+  end
+
+--[[@initHMI_onReady: Init HMI
+--]]
+  function m.initHMI_onReady(test)
+    test:initHMI_onReady()
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(exp, d)
+      if(exp.occurences == 1) then
+        test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+        m.pts = m.createTableFromJsonFile(d.params.file)
+        m.ptuInProgress = true
+      end
+    end)
+    :Times(AnyNumber())
   end
 
 --[[@startSession: Start mobile session
@@ -188,22 +206,30 @@ local m = { }
             end)
         end
       end)
-    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-    :Do(function(exp, d)
-      if(exp.occurences == 1) then
-        test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
-        m.pts = m.createTableFromJsonFile(d.params.file)
-        if status then
-          updatePTU()
-          if updateFunc then
-            updateFunc(m.pts)
-          end
-          ptu(test, status)
+    if m.ptuInProgress then
+      if status then
+        updatePTU()
+        if updateFunc then
+          updateFunc(m.pts)
         end
+        ptu(test, status)
       end
-    end)
-    --TODO: Remove when issue "[GENIVI] SDL restarts PTU sequence with sending redundant BC.PolicyUpdate" is resolved
-    :Times(AtLeast(1))
+    else
+      EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+      :Do(function(exp, d)
+        if(exp.occurences == 1) then
+          test.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+          m.pts = m.createTableFromJsonFile(d.params.file)
+          if status then
+            updatePTU()
+            if updateFunc then
+              updateFunc(m.pts)
+            end
+            ptu(test, status)
+          end
+        end
+      end)
+    end
   end
 
 --[[@updatePreloadedPT: Update PreloadedPT file

@@ -58,7 +58,7 @@ common.rpcSuccess = rc.rc.rpcSuccess
 common.releaseModule = rc.rc.releaseModule
 common.subscribeToModule = rc.rc.subscribeToModule
 common.unsubscribeFromModule = rc.rc.unsubscribeFromModule
-common.isSubscribed = rc.rc.isSubscribed
+common.isSubscribed = rc.rc.checkSubscription
 common.policyTableUpdate = rc.rc.policyTableUpdate
 common.rpcButtonPress = rc.rc.rpcButtonPress
 common.getAppEventName = rc.rpc.getAppEventName
@@ -106,7 +106,7 @@ setSyncMsgVersion()
 
 local function createDefaultRCCapabilitiesInFile()
   local hmiCapabilities = actions.sdl.getHMICapabilitiesFromFile()
-  local rcCapabilities = hmiCapabilities.UI.systemCapabilities.remoteControlCapability
+  local rcCapabilities = hmiCapabilities.RC.remoteControlCapability
   local defaultValue = "Default"
   for moduleType, params in pairs(rcCapabilities) do
     if moduleType ~= "buttonCapabilities"  then
@@ -125,7 +125,7 @@ local function createDefaultRCCapabilitiesInFile()
 end
 
 function common.getExpectedParameters()
-  local rcDefaultCapabilities = createDefaultRCCapabilitiesInFile().UI.systemCapabilities.remoteControlCapability
+  local rcDefaultCapabilities = createDefaultRCCapabilitiesInFile().RC.remoteControlCapability
   local expectedParameters = {
     remoteControlCapability = {
       climateControlCapabilities = rcDefaultCapabilities.climateControlCapabilities,
@@ -423,7 +423,7 @@ function common.driverConsentForReallocationToApp(pAppId, pModuleType, pModuleCo
   if pAccessMode == "ASK_DRIVER" then
     if type(pSdlDecisions) == "table" then
       for moduleId, isSdlDecision in pairs(pSdlDecisions) do
-        if not isSdlDecision then 
+        if not isSdlDecision then
           isHmiRequestExpected = true
           filteredConsentsArray[moduleId] = pModuleConsentArray[moduleId]
         end
@@ -507,7 +507,7 @@ local function getInfo(pModuleType, pModuleId, pInfoType)
   }
 
   if pInfoType == "INCORRECT_MODULE_TYPE" then
-    return "RPC.msg_params.moduleType: Invalid enum value: " .. pModuleType
+    return "Ignored invalid value"
   elseif pInfoType == "NOT_EXISTING_MODULE" then
     return "Accessing not supported module"
   end
@@ -536,7 +536,10 @@ function common.releaseModuleWithInfoCheck(pAppId, pModuleType, pModuleId, pResu
   end
   local cid = mobSession:SendRPC("ReleaseInteriorVehicleDataModule",
       { moduleType = pModuleType, moduleId = pModuleId })
-  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode, info = infoMsg })
+  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
+  :ValidIf(function(_, data)
+    return string.find(data.payload.info, infoMsg, 1, true) ~= nil
+  end)
 end
 
 function common.releaseModuleNoModuleId(pAppId, pModuleType, pModuleId, pResultCode, pInfoType, pRCAppIds)

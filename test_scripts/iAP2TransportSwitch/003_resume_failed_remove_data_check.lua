@@ -362,8 +362,7 @@ local function connectUSBDevice(self)
     keyboardProperties = {
       keyboardLayout = "QWERTY",
       language = "EN-US"
-    },
-    vrHelpTitle = "Test Application"
+    }
   })
   :Do(function(_, data)
       common.print("UI global properties removed")

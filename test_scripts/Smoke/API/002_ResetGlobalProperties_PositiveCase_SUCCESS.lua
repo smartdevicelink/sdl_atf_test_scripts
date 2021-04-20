@@ -55,16 +55,31 @@ local requestParams = {
 
 local responseUiParams = {
 	menuTitle = "",
-	vrHelpTitle = "Test Application",
+	vrHelpTitle = "Available Vr Commands List",
 	keyboardProperties = {
 		keyboardLayout = "QWERTY",
 		autoCompleteList = {},
 		language = "EN-US"
-	}
+  },
+  vrHelp = {
+    {
+      position = 1,
+      text = "Test Application"
+    }
+  }
 }
 
 local responseTtsParams = {
-  helpPrompt = {},
+  helpPrompt = {
+    {
+      text = "Please speak one of the following commands,",
+      type = "TEXT"
+    },
+    {
+      text = "Please say a command,",
+      type = "TEXT"
+    }
+  },
   timeoutPrompt = {}
 }
 
@@ -95,14 +110,6 @@ local function resetGlobalProperties(pParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
-  :ValidIf(function(_, data)
-    if data.params.vrHelp == nil then
-      return true
-    else
-      return false, "vrHelp array in UI.SetGlobalProperties request is not empty."
-        .. " Expected array size 0, actual " .. tostring(#data.params.vrHelp)
-    end
-  end)
 
   local ttsDelimiter = common.readParameterFromSDLINI("TTSDelimiter")
   local helpPromptString = common.readParameterFromSDLINI("HelpPromt")

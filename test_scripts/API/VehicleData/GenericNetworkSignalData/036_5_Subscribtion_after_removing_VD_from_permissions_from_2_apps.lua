@@ -164,10 +164,10 @@ runner.Step("Set ApplicationListUpdateTimeout=4000", common.setSDLIniParameter,
   { "ApplicationListUpdateTimeout", 4000 })
 runner.Step("App1 registration", common.registerAppWOPTU, {appSessionId1})
 runner.Step("App2 registration", common.registerAppWOPTU, {appSessionId2})
+runner.Step("PTU with VehicleDataItems", common.ptuWithPolicyUpdateReq,
+  { common.ptuFuncWithCustomData2Apps })
 runner.Step("App1 activation", common.activateApp, {appSessionId1})
 runner.Step("App2 activation", common.activateApp, {appSessionId2})
-runner.Step("PTU with VehicleDataItems", common.policyTableUpdateWithOnPermChange,
-  { common.ptuFuncWithCustomData2Apps })
 
 runner.Title("Test")
 runner.Step("App1 SubscribeVehicleData " .. itemToRemove, common.VDsubscription,

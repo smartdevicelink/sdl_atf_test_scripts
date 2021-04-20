@@ -47,7 +47,7 @@ local requestParams = {
   },
   endTime = {
     hours = 0,
-    minutes = 1 ,
+    minutes = 1,
     seconds = 35
   }
 }
@@ -62,6 +62,7 @@ local function setMediaClockTimer(pParams, pMode, pIndicator)
   end
   local cid = common.getMobileSession():SendRPC("SetMediaClockTimer", params)
   params.appID = common.getHMIAppId()
+  params.countRate = 1.0
   common.getHMIConnection():ExpectRequest("UI.SetMediaClockTimer", params)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -80,8 +81,8 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 for _, value in pairs (updateMode) do
   for _, value2 in pairs (indicator) do
-    runner.Step("SetMediaClockTimer Positive Case with udate mode " .. value
-      .. " " .. value2, setMediaClockTimer, { requestParams,value,value2 })
+    runner.Step("SetMediaClockTimer Positive Case with update mode " .. value
+      .. " " .. value2, setMediaClockTimer, { requestParams, value, value2 })
   end
 end
 

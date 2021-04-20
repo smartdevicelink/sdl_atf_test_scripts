@@ -1,9 +1,9 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/3
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/SetInteriorVehicleData.md
 -- Item: Use Case 1: Exceptions: 2.2
 --
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/SetInteriorVehicleData.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/SetInteriorVehicleData.md
 -- Item: Use Case 1: Use Case 1: Exceptions: 7.3
 --
 -- Requirement summary:

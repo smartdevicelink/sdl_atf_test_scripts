@@ -64,7 +64,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function processRPCSuccess()
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local service_id = common.getAppServiceID()
@@ -75,10 +75,10 @@ local function processRPCSuccess(self)
   -- Should not prompt user if app is in foreground
   EXPECT_HMICALL("AppService.GetActiveServiceConsent", { serviceID = service_id }):Times(0)
   local serviceParams = common.appServiceCapability("ACTIVATED", manifest)
-  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+  mobileSession:ExpectNotification("OnSystemCapabilityUpdated"):ValidIf(function(_, data)
       return common.findCapabilityUpdate(serviceParams, data.payload)
     end)
-  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):ValidIf(function(self, data)
+  EXPECT_HMINOTIFICATION("BasicCommunication.OnSystemCapabilityUpdated"):ValidIf(function(_, data)
       return common.findCapabilityUpdate(serviceParams, data.params)
     end)
 
@@ -96,8 +96,9 @@ runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
+runner.Step("Activate App 1", common.activateApp)
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
-runner.Step("Activate App", common.activateApp, { 2 })
+runner.Step("Activate App 2", common.activateApp, { 2 })
 runner.Step("Publish Embedded Service", common.publishEmbeddedAppService, { hmiManifest })
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 

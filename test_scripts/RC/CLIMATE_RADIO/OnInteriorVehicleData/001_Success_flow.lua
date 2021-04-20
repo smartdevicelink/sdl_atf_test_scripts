@@ -1,10 +1,10 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/4
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/subscription_on_module_status_change_notification.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/subscription_on_module_status_change_notification.md
 -- Item: Use Case 1: Main Flow
 --
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/5
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/unsubscribe_from_module_status_change_notification.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/unsubscribe_from_module_status_change_notification.md
 -- Item: Use Case 1: Main Flow
 --
 -- Requirement summary:

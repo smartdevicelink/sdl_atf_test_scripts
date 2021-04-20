@@ -13,7 +13,7 @@ local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
 local constants = require('protocol_handler/ford_protocol_constants')
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local SDL = require("SDL")
 
 constants.FRAME_SIZE["P9"] = 131084 -- add unsupported SDL protocol version
 config.SecurityProtocol = "DTLS"
@@ -142,9 +142,7 @@ end
 --// Most common functions
 --////////////////////////////////////
 function m.cleanUpCertificates()
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  os.execute("cd " .. sdlBin .. " && find . -type l -not -name 'lib*' -exec rm -f {} \\;")
-  os.execute("cd " .. sdlBin .. " && rm -rf rootCA.pem issuingCA.pem module_key.pem module_crt.pem")
+  SDL.CRT.clean()
 end
 
 local postconditionsOrig = m.postconditions
@@ -159,53 +157,9 @@ function m.preconditions()
   m.initSDLCertificates("./files/Security/client_credential.pem", false)
 end
 
-local function saveFile(pContent, pFileName)
-  local f = io.open(pFileName, "w")
-  f:write(pContent)
-  f:close()
-end
-
-local function createCrtHash(pCrtFilePath, pCrtFileName)
-  os.execute("cd " .. pCrtFilePath
-    .. " && openssl x509 -in " .. pCrtFileName
-    .. " -hash -noout | awk '{print $0\".0\"}' | xargs ln -sf " .. pCrtFileName)
-end
-
-local function updateSDLIniFile()
-  m.setSDLIniParameter("KeyPath", "module_key.pem")
-  m.setSDLIniParameter("CertificatePath", "module_crt.pem")
-end
-
-local function getAllCrtsFromPEM(pCrtsFileName)
-  local crts = utils.readFile(pCrtsFileName)
-  local o = {}
-  local i = 1
-  local s = crts:find("-----BEGIN RSA PRIVATE KEY-----", i, true)
-  local _, e = crts:find("-----END RSA PRIVATE KEY-----", i, true)
-  o.key = crts:sub(s, e) .. "\n"
-  for _, v in pairs({ "crt", "rootCA", "issuingCA" }) do
-    i = e
-    s = crts:find("-----BEGIN CERTIFICATE-----", i, true)
-    _, e = crts:find("-----END CERTIFICATE-----", i, true)
-    o[v] = crts:sub(s, e) .. "\n"
-  end
-  return o
-end
-
 function m.initSDLCertificates(pCrtsFileName, pIsModuleCrtDefined)
   if pIsModuleCrtDefined == nil then pIsModuleCrtDefined = true end
-  local allCrts = getAllCrtsFromPEM(pCrtsFileName)
-  local sdlBin = commonPreconditions:GetPathToSDL()
-  local ext = ".pem"
-  for _, v in pairs({ "rootCA", "issuingCA" }) do
-    saveFile(allCrts[v], sdlBin .. v .. ext)
-    createCrtHash(sdlBin, v .. ext)
-  end
-  if pIsModuleCrtDefined then
-    saveFile(allCrts.key, sdlBin .. "module_key.pem")
-    saveFile(allCrts.crt, sdlBin .. "module_crt.pem")
-  end
-  updateSDLIniFile()
+  SDL.CRT.set(pCrtsFileName, pIsModuleCrtDefined)
 end
 
 return m

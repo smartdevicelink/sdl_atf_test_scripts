@@ -23,6 +23,7 @@ local Event = events.Event
 local Expectation = expectations.Expectation
 local SUCCESS = expectations.SUCCESS
 local FAILED = expectations.FAILED
+local utils = require("user_modules/utils")
 
 --- HMI connection
 module.hmiConnection = hmi_connection.Connection(hmi_adapter_controller.getHmiAdapter({connection = ATF.remoteConnection}))
@@ -345,7 +346,8 @@ function module:initHMI()
           "BasicCommunication.OnSystemTimeReady",
           "BasicCommunication.OnSystemCapabilityUpdated",
           "BasicCommunication.OnServiceUpdate",
-          "BasicCommunication.OnAppPropertiesChange"
+          "BasicCommunication.OnAppPropertiesChange",
+          "BasicCommunication.OnAppCapabilityUpdated"
         })
       registerComponent("UI",
         {
@@ -375,8 +377,14 @@ end
 --[[ @initHMI_onReady: the function is HMI's onReady response
 --! @parameters:
 --! @hmi_table - hmi_table of hmi specification values, default one is specified in "user_modules/hmi_values"
+--! @is_cache_used - true if it's expected SDL will use HMI capabilities cache, otherwise false
 --! @example: self:initHMI_onReady(local_hmi_table) ]]
-function module:initHMI_onReady(hmi_table)
+function module:initHMI_onReady(hmi_table, is_cache_used)
+
+  if is_cache_used == nil and SDL.HMICapCache.file() ~= nil then
+    is_cache_used = SDL.HMICapCache.get() ~= nil
+  end
+
   local exp_waiter = commonFunctions:createMultipleExpectationsWaiter(module, "HMI on ready")
 
   local function ExpectRequest(name, hmi_table_element)
@@ -392,6 +400,7 @@ function module:initHMI_onReady(hmi_table)
       return data.method == name
     end
 
+    local delay = hmi_table_element.delay or 0
     local occurrence = hmi_table_element.occurrence
     if occurrence == nil then
       occurrence = hmi_table_element.mandatory and 1 or AnyNumber()
@@ -405,7 +414,10 @@ function module:initHMI_onReady(hmi_table)
           ["mandatory"] = hmi_table_element.mandatory,
           ["params"] = hmi_table_element.params
         })
-        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        local function sendHMIResponse()
+          self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", hmi_table_element.params)
+        end
+        RUN_AFTER(sendHMIResponse, delay)
       end)
     if hmi_table_element.mandatory then
       exp_waiter:AddExpectation(exp)
@@ -418,7 +430,7 @@ function module:initHMI_onReady(hmi_table)
 
   local hmi_table_internal
   if type(hmi_table) == "table" then
-    hmi_table_internal = commonFunctions:cloneTable(hmi_table)
+    hmi_table_internal = utils.cloneTable(hmi_table)
   else
     hmi_table_internal = hmi_values.getDefaultHMITable()
   end
@@ -432,6 +444,21 @@ function module:initHMI_onReady(hmi_table)
       bc_update_device_list.mandatory = true
       if not bc_update_device_list.occurrence then bc_update_device_list.occurrence = AtLeast(1) end
     end
+  end
+
+  if is_cache_used == true then
+    hmi_table_internal.UI.GetCapabilities = nil
+    hmi_table_internal.VR.GetCapabilities = nil
+    hmi_table_internal.TTS.GetCapabilities = nil
+    hmi_table_internal.RC.GetCapabilities = nil
+    hmi_table_internal.Buttons.GetCapabilities = nil
+    hmi_table_internal.VR.GetLanguage = nil
+    hmi_table_internal.UI.GetLanguage = nil
+    hmi_table_internal.TTS.GetLanguage = nil
+    hmi_table_internal.VR.GetSupportedLanguages = nil
+    hmi_table_internal.UI.GetSupportedLanguages = nil
+    hmi_table_internal.TTS.GetSupportedLanguages = nil
+    hmi_table_internal.VehicleInfo.GetVehicleType = nil
   end
 
   for k_module, v_module in pairs(hmi_table_internal) do

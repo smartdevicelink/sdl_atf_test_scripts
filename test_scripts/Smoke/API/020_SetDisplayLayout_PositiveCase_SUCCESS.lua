@@ -145,15 +145,13 @@ local function getDisplayCapTextFieldsValues()
     "statusBar",
     "tertiaryText",
     "totalDistance",
-    -- "notificationText",
-    -- "navigationText",
-    -- "timeToDestination",
-    -- "turnText"
+    "timeToDestination",
+    "turnText"
   }
   local values = { }
   for _, v in pairs(names) do
     local item = {
-      characterSet = "TYPE2SET",
+      characterSet = "UTF_8",
       name = v,
       rows = 1,
       width = 500

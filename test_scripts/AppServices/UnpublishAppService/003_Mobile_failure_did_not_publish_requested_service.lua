@@ -46,7 +46,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCFailure(self)
+local function processRPCFailure()
   rpc.params.serviceID = common.getAppServiceID(1)
   local mobileSession = common.getMobileSession(2)
   local cid = mobileSession:SendRPC(rpc.name, rpc.params)

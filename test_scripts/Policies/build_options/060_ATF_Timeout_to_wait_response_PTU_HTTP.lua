@@ -24,7 +24,6 @@ config.defaultProtocolVersion = 2
 local mobile_session = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 local testCasesForPolicyTableSnapshot = require('user_modules/shared_testcases/testCasesForPolicyTableSnapshot')
 local json = require("modules/json")
 
@@ -36,6 +35,9 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 Test = require("user_modules/connecttest_resumption")
 require("user_modules/AppTypes")
 
+--[[ Local Variables ]]
+local timeout_preloaded = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("module_config.timeout_after_x_seconds")
+
 function Test:ConnectMobile()
   self:connectMobile()
 end
@@ -46,7 +48,6 @@ function Test:StartSession()
 end
 
 function Test:RAI()
-  commonTestCases:DelayedExp(5000)
   local corId = self.mobileSession:SendRPC("RegisterAppInterface", config.application1.registerAppInterfaceParams)
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppRegistered", { application = { appName = config.application1.registerAppInterfaceParams.appName } })
   :Do(
@@ -54,28 +55,22 @@ function Test:RAI()
       self.applications[config.application1.registerAppInterfaceParams.fullAppID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" } )
       :Times(2)
-      local exp = self.mobileSession:ExpectNotification("OnSystemRequest")
-      exp:Do(
-        function(_, d2)
-          if d2.payload.requestType == "HTTP" then
-            exp:Unpin()
-            event_dispatcher:RemoveEvent(self.mobileConnection, exp.event)
-            if d2.binaryData then
-              local timeout_preloaded = testCasesForPolicyTableSnapshot:get_data_from_Preloaded_PT("module_config.timeout_after_x_seconds")
-              local ptu_table = json.decode(d2.binaryData)
-              local timeout_pts = ptu_table.policy_table.module_config.timeout_after_x_seconds
-              print("Timeout expected: " .. timeout_preloaded .. "s")
-              print("Timeout actual: " .. timeout_preloaded .. "s")
-              if ( timeout_pts ~= timeout_preloaded ) then
-                self:FailTestCase("timeout in PTS should be "..tostring(timeout_preloaded).."s, real: "..tostring(timeout_pts).."s")
-              end
-            end
-          else
-            exp:Pin()
-          end
-        end)
     end)
-
+  self.mobileSession:ExpectNotification("OnSystemRequest")
+  :Times(2)
+  :ValidIf(function(_, d2)
+    if d2.payload.requestType =="LOCK_SCREEN_ICON_URL" then return true end
+    if d2.payload.requestType == "HTTP" then
+        if d2.binaryData then
+          local ptu_table = json.decode(d2.binaryData)
+          local timeout_pts = ptu_table.policy_table.module_config.timeout_after_x_seconds
+          print("Timeout expected: " .. timeout_preloaded .. "s")
+          print("Timeout actual: " .. timeout_preloaded .. "s")
+          if ( timeout_pts == timeout_preloaded ) then return true end
+          return false, "timeout in PTS should be "..tostring(timeout_preloaded).."s, real: "..tostring(timeout_pts).."s"
+        end
+      end
+    end)
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 

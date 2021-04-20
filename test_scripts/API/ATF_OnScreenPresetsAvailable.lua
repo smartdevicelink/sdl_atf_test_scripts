@@ -253,7 +253,7 @@ function Test:initHMI_onReady(bOnScreenPresetsAvailable)
 	local function text_field(name, characterSet, width, rows)
 	return {
 		name = name,
-		characterSet = characterSet or "TYPE2SET",
+		characterSet = characterSet or "UTF_8",
 		width = width or 500,
 		rows = rows or 1
 	}
@@ -295,12 +295,10 @@ function Test:initHMI_onReady(bOnScreenPresetsAvailable)
 				text_field("navigationText2"),
 				text_field("ETA"),
 				text_field("totalDistance"),
-				text_field("navigationText"),
 				text_field("audioPassThruDisplayText1"),
 				text_field("audioPassThruDisplayText2"),
 				text_field("sliderHeader"),
 				text_field("sliderFooter"),
-				text_field("notificationText"),
 				text_field("menuName"),
 				text_field("secondaryText"),
 				text_field("tertiaryText"),
@@ -869,7 +867,7 @@ end
 			return
 			{
 				name = name,
-				characterSet = characterSet or "TYPE2SET",
+				characterSet = characterSet or "UTF_8",
 				width = width or 500,
 				rows = rows or 1
 			}
@@ -916,12 +914,10 @@ end
 						text_field("navigationText2"),
 						text_field("ETA"),
 						text_field("totalDistance"),
-						text_field("navigationText"),
 						text_field("audioPassThruDisplayText1"),
 						text_field("audioPassThruDisplayText2"),
 						text_field("sliderHeader"),
 						text_field("sliderFooter"),
-						text_field("notificationText"),
 						text_field("menuName"),
 						text_field("secondaryText"),
 						text_field("tertiaryText"),
