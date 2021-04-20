@@ -1,6 +1,7 @@
 -- This script contains common functions that are used in many script.
 -- How to use: common_functions:IsFileExist(path to file)
 --------------------------------------------------------------------------------
+local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 local CommonFunctions = {}
 -- COMMON FUNCTIONS FOR FILE AND FOLDER
 --------------------------------------------------------------------------------
