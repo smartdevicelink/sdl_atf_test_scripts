@@ -17,6 +17,7 @@
 ./test_scripts/Defects/5_0/2405/007_param_omitted_SUCCESS.lua
 ./test_scripts/Defects/5_0/2405/008_param_empty_SUCCESS_DISALLOWED.lua
 ./test_scripts/Defects/5_0/2405/009_param_param_SUCCESS.lua
+./test_scripts/Defects/5_0/2462_Need_updated_logic_for_checking_user_consent_prompt_after_PTU.lua
 ;Security
 ./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_1_secure_service_RPC.lua
 ./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_2_secure_video_force_off.lua
