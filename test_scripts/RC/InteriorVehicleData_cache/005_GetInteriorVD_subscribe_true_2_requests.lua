@@ -32,7 +32,7 @@ for _, mod in pairs(common.modules) do
   runner.Step("GetInteriorVehicleData with subscribe=true " .. mod, common.GetInteriorVehicleData,
     { mod, true, true, 1 })
   runner.Step("GetInteriorVehicleData with subscribe=true second request " .. mod, common.GetInteriorVehicleData,
-    { mod, true, false, 1 })
+    { mod, true, false, 1, "WARNINGS" })
 end
 
 runner.Title("Postconditions")

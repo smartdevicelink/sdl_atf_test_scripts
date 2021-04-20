@@ -10,6 +10,8 @@ local json = require("modules/json")
 local atf_logger = require("atf_logger")
 local sdl = require("SDL")
 local commonSteps = require("user_modules/shared_testcases/commonSteps")
+local utils = require ('user_modules/utils')
+local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ General configuration parameters ]]
 config.mobileHost = "127.0.0.1"
@@ -34,25 +36,16 @@ end
 
 -- Allow device from HMI
 local function allowSDL(self)
-  local function getDeviceName()
-    return config.mobileHost .. ":" .. config.mobilePort
-  end
-  local function getDeviceMAC()
-    local cmd = "echo -n " .. getDeviceName() .. " | sha256sum | awk '{printf $1}'"
-    local handle = io.popen(cmd)
-    local result = handle:read("*a")
-    handle:close()
-    return result
-  end
   -- sending notification OnAllowSDLFunctionality from HMI to allow connected device
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality", {
     allowed = true,
     source = "GUI",
     device = {
-      id = getDeviceMAC(),
-      name = getDeviceName()
+      id = utils.getDeviceMAC(),
+      name = utils.getDeviceName()
     }
   })
+  commonTestCases:DelayedExp(500)
 end
 
 -- Start SDL and HMI, establish connection between SDL and HMI, open mobile connection via TCP
@@ -272,6 +265,10 @@ local function raiPTU(self)
         { application = { appName = config.application1.registerAppInterfaceParams.appName } })
       :Do(function()
           log("SDL->HMI: N: BC.OnAppRegistered")
+        end)
+      -- Expect RegisterAppInterface response on mobile side with resultCode SUCCESS
+      self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
           if sdl.buildOptions.extendedPolicy == "PROPRIETARY"
           or sdl.buildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" then
             -- Expect PolicyUpdate request on HMI side
@@ -312,10 +309,6 @@ local function raiPTU(self)
               end)
             :Times(2)
           end
-        end)
-      -- Expect RegisterAppInterface response on mobile side with resultCode SUCCESS
-      self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-      :Do(function()
           log("SDL->MOB: RS: RegisterAppInterface")
           -- Expect OnHMIStatus with hmiLevel NONE on mobile side form SDL
           self.mobileSession:ExpectNotification("OnHMIStatus",

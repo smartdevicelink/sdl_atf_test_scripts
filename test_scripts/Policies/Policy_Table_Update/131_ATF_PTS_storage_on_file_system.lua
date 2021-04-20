@@ -14,6 +14,8 @@
 -- The policies manager must store the PT snapshot as a JSON file which filename and
 -- filepath are defined in "PathToSnapshot" parameter of smartDeviceLink.ini file.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')

@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 -------------------------------------- Requirement summary -------------------------------------------
 -- [Policies] External UCS: "ON" user disables "functional grouping" for specific app
 -- [Policies] External UCS: "ON" updates in "consent_groups" and "external_consent_status_groups" when user disables <functional_grouping> for specific app

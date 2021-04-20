@@ -20,6 +20,8 @@
 -- Expected result:
 -- SDL->HMI: OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -132,22 +134,23 @@ function Test:RAI_PTU()
           log("SDL->HMI: N: SDL.OnStatusUpdate", d2.params.status)
         end)
       :Times(3)
-      -- workaround due to issue in Mobile API: APPLINK-30390
-      local onSystemRequestRecieved = false
-
-      self.mobileSession:ExpectNotification("OnSystemRequest")
-      :Do(
-        function(_, d2)
-          log("SDL->MOB: N: OnSystemRequest, RequestType: "..d2.payload.requestType )
-          if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
-            onSystemRequestRecieved = true
-            --log("SDL->MOB: N: OnSystemRequest")
-            ptu_table = json.decode(d2.binaryData)
-            ptu(self)
-          end
-        end)
-      :Times(2)
     end)
+
+  -- workaround due to issue in Mobile API: APPLINK-30390
+  local onSystemRequestRecieved = false
+
+  self.mobileSession:ExpectNotification("OnSystemRequest")
+  :Do(
+    function(_, d2)
+      log("SDL->MOB: N: OnSystemRequest, RequestType: "..d2.payload.requestType )
+      if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
+        onSystemRequestRecieved = true
+        --log("SDL->MOB: N: OnSystemRequest")
+        ptu_table = json.decode(d2.binaryData)
+        ptu(self)
+      end
+    end)
+  :Times(2)
 
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(

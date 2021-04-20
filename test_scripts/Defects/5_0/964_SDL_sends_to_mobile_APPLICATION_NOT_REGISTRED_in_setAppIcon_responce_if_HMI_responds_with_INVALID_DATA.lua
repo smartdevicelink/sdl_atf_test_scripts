@@ -19,6 +19,9 @@ local commonPreconditions = require('user_modules/shared_testcases/commonPrecond
 local utils = require("user_modules/utils")
 local actions = require("user_modules/sequences/actions")
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Functions ]]
 local function getPathToFileInStorage(pFileName, pAppId)
   if not pAppId then pAppId = 1 end

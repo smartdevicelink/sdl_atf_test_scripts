@@ -132,7 +132,7 @@ end
 function module.createTextField(name, characterSet, width, rows)
   return {
     name = name,
-    characterSet = characterSet or "TYPE2SET",
+    characterSet = characterSet or "UTF_8",
     width = width or 500,
     rows = rows or 1
   }
@@ -198,7 +198,8 @@ function module.getDefaultHMITable()
     params = {
       ccpu_version = "ccpu_version",
       language = "EN-US",
-      wersCountryCode = "wersCountryCode"
+      wersCountryCode = "wersCountryCode",
+      systemHardwareVersion = "systemHardwareVersion"
     },
     mandatory = false,
     pinned = false
@@ -258,6 +259,12 @@ function module.getDefaultHMITable()
     pinned = true
   }
 
+  hmi_table.UI.SetGlobalProperties = {
+    params = { },
+    mandatory = false,
+    pinned = true
+  }
+
   hmi_table.UI.GetSupportedLanguages = {
     params = {
       languages = default_languages
@@ -312,10 +319,11 @@ function module.getDefaultHMITable()
           local fields = {
             "mainField1", "mainField2", "mainField3", "mainField4", "statusBar", "mediaClock", "mediaTrack",
             "alertText1", "alertText2", "alertText3", "scrollableMessageBody", "initialInteractionText",
-            "navigationText1", "navigationText2", "ETA", "totalDistance", "navigationText", "audioPassThruDisplayText1",
-            "audioPassThruDisplayText2", "sliderHeader", "sliderFooter", "notificationText", "menuName",
+            "navigationText1", "navigationText2", "ETA", "totalDistance", "audioPassThruDisplayText1",
+            "audioPassThruDisplayText2", "sliderHeader", "sliderFooter", "menuName",
             "secondaryText", "tertiaryText", "timeToDestination", "menuTitle", "locationName",
-            "locationDescription", "addressLines", "phoneNumber"
+            "locationDescription", "addressLines", "phoneNumber", "subtleAlertText1", "subtleAlertText2",
+            "subtleAlertSoftButtonText"
           }
           local out = { }
           for _, field in pairs(fields) do
@@ -326,7 +334,7 @@ function module.getDefaultHMITable()
         imageFields = (function()
           local fields = {
             "softButtonImage", "choiceImage", "choiceSecondaryImage", "vrHelpItem", "turnIcon", "menuIcon", "cmdIcon",
-            "showConstantTBTIcon", "locationImage"
+            "showConstantTBTIcon", "locationImage", "subtleAlertIcon"
           }
           local out = { }
           for _, field in pairs(fields) do
@@ -359,6 +367,11 @@ function module.getDefaultHMITable()
           bitsPerSample = "8_BIT",
           audioType = "PCM"
         }
+      },
+      pcmStreamCapabilities = {
+        samplingRate = "44KHZ",
+        bitsPerSample = "8_BIT",
+        audioType = "PCM"
       },
       hmiZoneCapabilities = "FRONT",
       softButtonCapabilities = {
@@ -393,7 +406,80 @@ function module.getDefaultHMITable()
           hapticSpatialDataSupported = false,
           diagonalScreenSize = 10,
           pixelPerInch = 150,
-          scale = 2.5
+          scale = 2.5,
+          preferredFPS = 15,
+          additionalVideoStreamingCapabilities = {
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 350
+                },
+                hapticSpatialDataSupported = true,
+                diagonalScreenSize = 10,
+                scale = 1
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 320,
+                    resolutionHeight = 240
+                },
+                diagonalScreenSize = 4,
+                hapticSpatialDataSupported = false
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 400,
+                    resolutionHeight = 480
+                },
+                diagonalScreenSize = 5,
+                hapticSpatialDataSupported = true
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 640,
+                    resolutionHeight = 480
+                },
+                diagonalScreenSize = 7,
+                hapticSpatialDataSupported = true
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 240
+                },
+                hapticSpatialDataSupported = true,
+                diagonalScreenSize = 8
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 350
+                },
+                hapticSpatialDataSupported = false,
+                diagonalScreenSize = 4,
+                scale = 2.5
+            },
+            {
+                preferredResolution =
+                {
+                    resolutionWidth = 800,
+                    resolutionHeight = 350
+                },
+                hapticSpatialDataSupported = true,
+                diagonalScreenSize = 2,
+                scale = 5
+            }
+          }
+        },
+        driverDistractionCapability = {
+            subMenuDepth = 3,
+            menuLength = 10
         }
       }
     },

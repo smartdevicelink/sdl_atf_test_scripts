@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 --------------------------------------Requirement summary---------------------------------------------
 --[Policies] External UCS: "OFF" in case of omitted "disallowed_by_external_consent_entities" param in functional groupings
 
@@ -125,6 +126,7 @@ Test["TEST_NAME_OFF" .. "_Precondition_HMI_sends_OnAllowSDLFunctionality"] = fun
   --hmi side: send request SDL.OnAllowSDLFunctionality
   self.hmiConnection:SendNotification("SDL.OnAllowSDLFunctionality",
     {allowed = false, source = "GUI"})
+  self.mobileSession:ExpectNotification("OnPermissionsChange")
 end
 
 --------------------------------------------------------------------------

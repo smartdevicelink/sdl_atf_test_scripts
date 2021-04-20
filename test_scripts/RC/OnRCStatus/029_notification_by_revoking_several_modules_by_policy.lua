@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
-local json = require('modules/json')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -28,7 +27,7 @@ config.application2.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 local function pTUfunc(tbl)
   local appId1 = config.application1.registerAppInterfaceParams.fullAppID
   tbl.policy_table.app_policies[appId1] = common.getRCAppConfig(tbl)
-  tbl.policy_table.app_policies[appId1].moduleType = json.EMPTY_ARRAY
+  tbl.policy_table.app_policies[appId1].moduleType = common.json.EMPTY_ARRAY
   local appId2 = config.application2.registerAppInterfaceParams.fullAppID
   tbl.policy_table.app_policies[appId2] = common.getRCAppConfig(tbl)
 end
@@ -47,6 +46,7 @@ end
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions, { true, 1 })
+runner.Step("Update SDL config", common.setSDLIniParameter, { "ApplicationListUpdateTimeout", 5000 })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register RC application 1", common.registerRCApplication)
 runner.Step("Activate App 1", common.activateApp)

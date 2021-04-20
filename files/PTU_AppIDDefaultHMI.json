@@ -31,6 +31,15 @@
                 "COMMUNICATION": 6,
                 "NORMAL": 4,
                 "NONE": 0
+            },
+            "subtle_notifications_per_minute_by_priority": {
+                "EMERGENCY": 60,
+                "NAVIGATION": 20,
+                "PROJECTION": 20,
+                "VOICECOM": 30,
+                "COMMUNICATION": 15,
+                "NORMAL": 10,
+                "NONE": 0
             }
         },
         "functional_groupings": {
@@ -2253,7 +2262,7 @@
                 "groups": ["Base-4"],
                 "RequestType": []
             },
-            "0000002": {
+            "0000001": {
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NONE",

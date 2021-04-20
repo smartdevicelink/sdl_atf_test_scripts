@@ -15,6 +15,8 @@
 -- Expected result:
 -- App should have only "pre_DataConsent" groups allowed
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -257,12 +259,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 function Test:Precondition_ConnectDevice()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    { deviceList = { { id = utils.getDeviceMAC(), isSDLAllowed = false, name = utils.getDeviceName(), transportType = "WIFI" }}})
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 --[[ Test ]]

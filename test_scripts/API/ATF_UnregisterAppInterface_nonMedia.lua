@@ -34,7 +34,6 @@ Test = require('connecttest')
 require('cardinalities')
 local events = require('events')
 local mobile_session = require('mobile_session')
-local config = require('config')
 
 config.deviceMAC      = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd4071a0"
 --ToDo: shall be removed when APPLINK-16610 is fixed

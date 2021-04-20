@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/RC/OnRCStatus/001_notification_by_apps_registration.lua
 ./test_scripts/RC/OnRCStatus/002_notification_by_rc_functionality_disallowed_on_hmi.lua
 ./test_scripts/RC/OnRCStatus/003_registration_non_rc_app.lua

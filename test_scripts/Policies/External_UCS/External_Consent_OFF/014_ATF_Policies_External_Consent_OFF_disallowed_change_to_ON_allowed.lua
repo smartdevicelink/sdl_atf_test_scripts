@@ -1,3 +1,4 @@
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
 --------------------------------------Requirement summary---------------------------------------------
 --[Policies] External UCS: "OFF" updates in "consent_groups" and "external_consent_status_groups" when externalConsentStatus changes to "ON"
 --[Policies] External UCS: "OFF" OnPermissionsChange after externalConsentStatus changes to "ON"

@@ -19,33 +19,20 @@
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
 local actions = require("user_modules/sequences/actions")
-local test = require("user_modules/dummy_connecttest")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local json = require("modules/json")
-local utils = require('user_modules/utils')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local function ]]
 local function updatePreloadedPT()
-  if not pCountOfRCApps then pCountOfRCApps = 2 end
-  local preloadedFile = commonPreconditions:GetPathToSDL()
-  .. commonFunctions:read_parameter_from_smart_device_link_ini("PreloadedPT")
-  local preloadedTable = utils.jsonFileToTable(preloadedFile)
-  preloadedTable.policy_table.functional_groupings["DataConsent-2"].rpcs = json.null
+  local preloadedTable = actions.sdl.getPreloadedPT()
+  preloadedTable.policy_table.functional_groupings["DataConsent-2"].rpcs = actions.json.null
   preloadedTable.policy_table.functional_groupings["RemoteControl"].rpcs.OnRCStatus = {
     hmi_levels = { "FULL", "BACKGROUND", "LIMITED", "NONE" }
   }
   preloadedTable.policy_table.app_policies.default.groups = {"Base-4", "RemoteControl"}
   preloadedTable.policy_table.app_policies.default.moduleType = nil
-  utils.tableToJsonFile(preloadedTable, preloadedFile)
-end
-
-function preconditions()
-  	actions.preconditions()
-    updatePreloadedPT()
+  actions.sdl.setPreloadedPT(preloadedTable)
 end
 
 local function ignitionOff()
@@ -58,15 +45,15 @@ local function ignitionOff()
   EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
   EXPECT_HMINOTIFICATION("BasicCommunication.OnSDLClose")
   :Do(function()
-      test.mobileSession[1] = nil
+      actions.mobile.closeSession()
       StopSDL()
     end)
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", preconditions)
-runner.Step("Backup preloaded pt", commonPreconditions.BackupFile, { test, "sdl_preloaded_pt.json" })
+runner.Step("Clean environment", actions.preconditions)
+runner.Step("Update SDL preloadedPT", updatePreloadedPT)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", actions.start)
 runner.Step("RAI", actions.registerAppWOPTU)
 runner.Step("Activate App", actions.activateApp)
@@ -78,7 +65,7 @@ runner.Step("GetInteriorVehicleData RADIO", commonRC.rpcDenied,
   { "RADIO", 1, "GetInteriorVehicleData", "DISALLOWED" })
 runner.Step("ignitionOff", ignitionOff)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", actions.start)
-runner.Step("RAI", actions.registerApp)
+runner.Step("RAI", actions.registerAppWOPTU)
 runner.Step("Activate App", actions.activateApp)
 runner.Step("GetInteriorVehicleData SEAT", commonRC.rpcDenied,
   { "SEAT", 1, "GetInteriorVehicleData", "DISALLOWED" })
@@ -86,5 +73,4 @@ runner.Step("GetInteriorVehicleData RADIO", commonRC.rpcDenied,
   { "RADIO", 1, "GetInteriorVehicleData", "DISALLOWED" })
 
 runner.Title("Postconditions")
-runner.Step("Restore preloaded pt", commonPreconditions.RestoreFile, { test, "sdl_preloaded_pt.json" })
 runner.Step("Stop SDL", actions.postconditions)

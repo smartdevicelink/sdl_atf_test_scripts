@@ -74,11 +74,21 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
       end)
     :Times(2)
     :Timeout(timeout)
+
+    common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication", { appID = common.getHMIAppId() })
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end)
+    :Timeout(timeout)
+
+    common.getMobileSession():ExpectNotification("OnHMIStatus",
+      { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+    :Timeout(timeout)
   end
   local curRetry = 0
   local function getExpOnStatusUpdate()
     local expRes = {}
-    for i = 1, numOfIter + 2 do
+    for i = 1, numOfIter + 1 do
       if pPTUNum == 1 or i > 1 then table.insert(expRes, { status = "UPDATE_NEEDED" }) end
       table.insert(expRes, { status = "UPDATING" })
     end
@@ -88,8 +98,8 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
   local function sendBCOnSystemRequest()
     curRetry = curRetry + 1
     local delay = 0
-    if curRetry > 2 then
-      delay = secondsBetweenRetries[curRetry - 2] * 1000
+    if curRetry > 1 then
+      delay = secondsBetweenRetries[curRetry - 1] * 1000
     end
     common.log("Delay:", delay)
     RUN_AFTER(function()
@@ -112,7 +122,7 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
       :Do(function(_, d)
           common.log("SDL->MOB:", "OnSystemRequest  ", d.payload.requestType)
         end)
-      :Times(numOfIter + 2)
+      :Times(numOfIter + 1)
       :Timeout(timeout)
     end
     local expNotifRes = getExpOnStatusUpdate()
@@ -156,6 +166,16 @@ local function startServiceWithOnServiceUpdate_INVALID_CERT(pServiceId, pHandSha
         common.log("SDL->HMI:", "BC.OnServiceUpdate", d.params.serviceEvent)
       end)
     :Times(2)
+
+    common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication", { appID = common.getHMIAppId() })
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end)
+    :Timeout(timeout)
+
+    common.getMobileSession():ExpectNotification("OnHMIStatus",
+      { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+    :Timeout(timeout)
   end
   common.startServiceWithOnServiceUpdate(pServiceId, pHandShakeExpeTimes, pGSTExpTimes)
 end
@@ -178,9 +198,13 @@ runner.Step("Start " .. common.serviceData[serviceId].serviceType .. " service p
     startServiceWithOnServiceUpdate_PTU_FAILED, { serviceId, 0, 1, 1 })
 runner.Step("Check result", common.checkResult, { result })
 
+runner.Step("App activation", common.activateApp)
+
 runner.Title("PTU 2")
 runner.Step("Start " .. common.serviceData[serviceId].serviceType .. " service protected, REJECTED, INVALID_CERT",
   startServiceWithOnServiceUpdate_INVALID_CERT, { serviceId, 0, 1 })
+
+runner.Step("App activation", common.activateApp)
 
 runner.Title("PTU 3")
 runner.Step("Start " .. common.serviceData[serviceId].serviceType .. " service protected, REJECTED, PTU_FAILED",

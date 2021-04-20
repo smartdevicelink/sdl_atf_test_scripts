@@ -1,9 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Utils
 ---------------------------------------------------------------------------------------------------
---[[ General configuration parameters ]]
-config.mobileHost = "127.0.0.1"
-
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
 local events = require('events')
@@ -72,6 +69,9 @@ function m.cloneTable(pTbl)
       v = m.cloneTable(v)
     end
     copy[k] = v
+  end
+  if getmetatable(pTbl) ~= nil then
+    setmetatable(copy, getmetatable(pTbl))
   end
   return copy
 end
@@ -168,6 +168,7 @@ function m.wait(pTimeOut)
   return ret
 end
 
+--- [DEPRECATED]
 --[[ @getDeviceName: provide device name
 --! @parameters: none
 --! @return: name of the device
@@ -175,19 +176,89 @@ end
 function m.getDeviceName(pHost, pPort)
   if not pHost then pHost = config.mobileHost end
   if not pPort then pPort = config.mobilePort end
-  return pHost .. ":" .. pPort
+  if config.defaultMobileAdapterType == "TCP" then
+    local parameters = {
+      host = pHost,
+      port = pPort
+    }
+    return m.buildDeviceName("TCP", parameters)
+  else
+    return m.buildDeviceName("WS")
+  end
 end
 
+--- [DEPRECATED]
 --[[ @getDeviceMAC: provide device MAC address
 --! @parameters: none
 --! @return: MAC address of the device
 --]]
 function m.getDeviceMAC(pHost, pPort)
-  local cmd = "echo -n " .. m.getDeviceName(pHost, pPort) .. " | sha256sum | awk '{printf $1}'"
-  local handle = io.popen(cmd)
-  local result = handle:read("*a")
-  handle:close()
-  return result
+  if not pHost then pHost = config.mobileHost end
+  if not pPort then pPort = config.mobilePort end
+  local parameters = nil
+  if config.defaultMobileAdapterType == "TCP" then
+    parameters = { host = pHost, port = pPort }
+  end
+  return m.buildDeviceMAC(config.defaultMobileAdapterType, parameters)
+end
+
+--[[ @buildDeviceName: provide device name
+--! @parameters:
+--! pDeviceType - device type (TCP, WS)
+--! pParams - device specific parameters
+--! TCP:
+--!   host - host of connection
+--!   port - port of connection
+--! WS: none
+--! @return: name of the device
+--]]
+function m.buildDeviceName(pDeviceType, pParams)
+  if pDeviceType == "TCP" then
+    local host = config.mobileHost
+    local port = config.mobilePort
+    if type(pParams) == "table" then
+      host = pParams.host or host
+      port = pParams.port or port
+    end
+    return host .. ":" .. port
+  elseif pDeviceType == "WS" or pDeviceType == "WSS" then
+    return "Web Engine"
+  else
+    m.cprint(35, "Unknown device type " .. tostring(pDeviceType)
+      .. "\n Possible values: TCP, WS, WSS")
+  end
+  return nil
+end
+
+--[[ @buildDeviceMAC: provide device MAC address
+--! @parameters:
+--! pDeviceType - device type (TCP, WS)
+--! pParams - device specific parameters
+--! TCP:
+--!   host - host of connection
+--!   port - port of connection
+--! WS:
+--!   vin - vin of vehicle
+--! @return: MAC address of the device
+--]]
+function m.buildDeviceMAC(pDeviceType, pParams)
+  local function makeHash(pValue)
+    local cmd = "echo -n " .. tostring(pValue) .. " | sha256sum | awk '{printf $1}'"
+    local handle = io.popen(cmd)
+    local result = handle:read("*a")
+    handle:close()
+    return result
+  end
+
+  if pDeviceType == "TCP" then
+    return makeHash(pParams.host .. ":" .. pParams.port)
+  elseif pDeviceType == "WS" or pDeviceType == "WSS" then
+    return makeHash(config.webengineUniqueId)
+  else
+    m.cprint(35, "ERROR: Unknown device type " .. tostring(pDeviceType)
+      .. "\n Possible values: TCP, WS, WSS")
+    return makeHash(nil)
+  end
 end
 
 --[[ @protect: make table immutable
@@ -322,7 +393,11 @@ end
 --! @return: none
 --]]
 function m.addNetworkInterface(pId, pAddress)
-  os.execute("ifconfig lo:" .. pId .." " .. pAddress)
+  if config.remoteConnection.enabled then
+    m.cprint(31, "!!! utils.addNetworkInterface has been not implemented yet !!!")
+  else
+    os.execute("ifconfig lo:" .. pId .." " .. pAddress)
+  end
 end
 
 --[[ @addNetworkInterface: remove network interface
@@ -332,7 +407,39 @@ end
 --! @return: none
 --]]
 function m.deleteNetworkInterface(pId)
-  os.execute("ifconfig lo:" .. pId .." down")
+  if config.remoteConnection.enabled then
+    m.cprint(31, "!!! utils.deleteNetworkInterface has been not implemented yet !!!")
+  else
+    os.execute("ifconfig lo:" .. pId .." down")
+  end
+end
+
+--[[ @getDeviceTransportType: provide transport type name
+--! @parameters: none
+--! @return: none
+--]]
+function m.getDeviceTransportType()
+  if config.defaultMobileAdapterType == "TCP" then
+    return "WIFI"
+  elseif config.defaultMobileAdapterType == "WS" then
+    return "WEBENGINE_WEBSOCKET"
+  elseif config.defaultMobileAdapterType == "WSS" then
+    return "WEBENGINE_WEBSOCKET"
+  end
+end
+
+--[[ @splitString: split string by defined delimiter
+--! @parameters:
+--! pStr - string to be split
+--! pDelimiter - delimiter
+--! @return: table with string parts
+--]]
+function m.splitString(pStr, pDelimiter)
+  local result = {}
+  for match in (pStr .. pDelimiter):gmatch("(.-)%" .. pDelimiter) do
+    if string.len(match) > 0 then table.insert(result, match) end
+  end
+  return result
 end
 
 return m

@@ -123,26 +123,22 @@ local function ExpectOnHMIStatusWithAudioStateChanged_PI(request)
     common.getMobileSession():ExpectNotification("OnHMIStatus",
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION" },
-      { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "VRSESSION" },
       { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "HMI_OBSCURED" },
-      { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" },
       { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-    :Times(6)
+    :Times(4)
   elseif "VR" == request then
     common.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
       { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
-      { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
-    :Times(5)
+    :Times(4)
   elseif "MANUAL" == request then
     common.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
-      { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
-    :Times(4)
+    :Times(3)
   end
 end
 
@@ -300,7 +296,7 @@ local function PI_PerformViaBOTH(paramsSend)
       RUN_AFTER(uiResponse, 30)
     end)
   ExpectOnHMIStatusWithAudioStateChanged_PI("BOTH")
-  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "WARNINGS",
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "WARNINGS",
     info = "Requested image(s) not found., Perform Interaction error response." })
 end
 

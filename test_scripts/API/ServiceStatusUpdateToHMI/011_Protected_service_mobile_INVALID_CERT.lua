@@ -26,6 +26,8 @@
 --   - finish TLS handshake unsuccessfully
 --   - send OnServiceUpdate (<service_type>, REQUEST_REJECTED, INVALID_CERT) to HMI
 --   - send StartServiceNACK(<service_type>, encryption = false) to App
+--   - send BC.CloseApplication to HMI
+--   - send OnHMIStatus(NONE) to mobile app
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -45,6 +47,14 @@ function common.onServiceUpdateFunc(pServiceTypeValue)
     { serviceEvent = "REQUEST_REJECTED", serviceType = pServiceTypeValue, appID = common.getHMIAppId(),
       reason = "INVALID_CERT" })
   :Times(2)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication", { appID = common.getHMIAppId() })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus",
+    { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
 end
 
 function common.serviceResponseFunc(pServiceId)
@@ -74,6 +84,7 @@ runner.Step("App activation", common.activateApp)
 
 runner.Title("Test")
 runner.Step("Start Video Service protected, REJECTED", common.startServiceWithOnServiceUpdate, { videoServiceId, 1, 1 })
+runner.Step("App activation", common.activateApp)
 runner.Step("Start Audio Service protected, REJECTED", common.startServiceWithOnServiceUpdate, { audioServiceId, 1, 1 })
 
 runner.Title("Postconditions")

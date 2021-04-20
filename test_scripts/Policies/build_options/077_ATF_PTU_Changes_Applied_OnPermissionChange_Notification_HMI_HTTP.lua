@@ -21,6 +21,8 @@
 -- SDL->app: onPermissionChange(<permisssionItem>)
 -- SDL->HMI: SDL.OnAppPermissionChanged(appID, params)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -95,19 +97,19 @@ function Test:RAI_PTU()
       self.applications[config.application1.registerAppInterfaceParams.fullAppID] = d1.params.application.appID
       EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, {status = "UP_TO_DATE" })
       :Times(3)
-
-      local onSystemRequestRecieved = false
-      self.mobileSession:ExpectNotification("OnSystemRequest")
-      :Do(
-        function(_, d2)
-          if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
-            onSystemRequestRecieved = true
-            ptu_table = json.decode(d2.binaryData)
-            ptu(self)
-          end
-        end)
-      :Times(2)
     end)
+
+  local onSystemRequestRecieved = false
+  self.mobileSession:ExpectNotification("OnSystemRequest")
+  :Do(
+    function(_, d2)
+      if (not onSystemRequestRecieved) and (d2.payload.requestType == "HTTP") then
+        onSystemRequestRecieved = true
+        ptu_table = json.decode(d2.binaryData)
+        ptu(self)
+      end
+    end)
+  :Times(2)
   self.mobileSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   :Do(
     function()

@@ -18,6 +18,8 @@
 -- Expected result:
 -- SDL -> App: RPC (DISALLOWED, success: "false")
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local testCasesForPolicyTable = require("user_modules/shared_testcases/testCasesForPolicyTable")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")

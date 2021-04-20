@@ -53,7 +53,7 @@ local function ptuFuncWithVDI(pTbl)
   rpcsGroupWithAllVehicleData.SubscribeVehicleData.parameters = allVehicleData
   rpcsGroupWithAllVehicleData.UnsubscribeVehicleData.parameters = allVehicleData
 
-  pTbl.policy_table.app_policies[common.getConfigAppParams(1).fullAppID].groups = {
+  pTbl.policy_table.app_policies[common.getPolicyAppId(1)].groups = {
     "Base-4", "NewGroupWithAllData"
   }
 end

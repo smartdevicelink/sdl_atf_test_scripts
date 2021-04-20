@@ -26,25 +26,29 @@
 
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local commonSmoke = require('test_scripts/Smoke/commonSmoke')
+local common = require('test_scripts/Smoke/commonSmoke')
+
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function unregisterAppInterface(self)
-	local cid = self.mobileSession1:SendRPC("UnregisterAppInterface", { })
-	EXPECT_HMINOTIFICATION("BasicCommunication.OnAppUnregistered",
-		{ appID = commonSmoke.getHMIAppId(), unexpectedDisconnect = false })
-	self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+local function unregisterAppInterface()
+  local cid = common.getMobileSession():SendRPC("UnregisterAppInterface", { })
+  common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
+    { appID = common.getHMIAppId(), unexpectedDisconnect = false })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
-runner.Step("Clean environment", commonSmoke.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", commonSmoke.start)
-runner.Step("RAI", commonSmoke.registerApp)
-runner.Step("Activate App", commonSmoke.activateApp)
+runner.Step("Clean environment", common.preconditions)
+runner.Step("Update Preloaded PT", common.updatePreloadedPT)
+runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+runner.Step("Register App", common.registerApp)
+runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 runner.Step("UnregisterAppInterface Positive Case", unregisterAppInterface)
 
 runner.Title("Postconditions")
-runner.Step("Stop SDL", commonSmoke.postconditions)
+runner.Step("Stop SDL", common.postconditions)

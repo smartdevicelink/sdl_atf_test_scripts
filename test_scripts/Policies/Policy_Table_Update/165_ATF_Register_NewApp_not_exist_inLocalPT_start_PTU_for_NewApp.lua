@@ -20,6 +20,8 @@
 -- 4. app_2 added to Local PT during PT Exchange process left after merge in LocalPT (not being lost on merge)
 -- 5. SDL creates the new snapshot and initiates the new PTU for the app_2 Policies obtaining: SDL-> HMI: SDL.PolicyUpdate()//new PTU sequence started
 -------------------------------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.appHMIType = { "MEDIA" }
@@ -83,7 +85,6 @@ function Test:Precondition_PolicyUpdateStarted()
         })
     end)
   EXPECT_NOTIFICATION("OnSystemRequest", {requestType = "PROPRIETARY" })
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"})
 end
 
 function Test:Precondition_OpenNewSession()
@@ -162,12 +163,17 @@ function Test:TestStep_CheckThatAppID_BothApps_Present_In_DataBase()
   if(is_test_fail == true) then
     self:FailTestCase("Test is FAILED. See prints.")
   end
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"})
 end
 
 function Test:TestStep_Start_New_PolicyUpdate_For_SecondApplication()
   local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
       { policyType = "module_config", property = "endpoints" })
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATING"}, {status = "UP_TO_DATE"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
   EXPECT_HMIRESPONSE(requestId)
   :Do(function()
       self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest",

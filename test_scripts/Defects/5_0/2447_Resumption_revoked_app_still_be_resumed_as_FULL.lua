@@ -19,6 +19,7 @@ local utils = require("user_modules/utils")
 local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
@@ -33,9 +34,10 @@ local function cleanMobileSessions()
 end
 
 local function unexpectedDisconnect()
-  common.getMobileConnection():Close()
+  common.mobile.disconnect()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
     { unexpectedDisconnect = true })
+  common.run.wait(1000)
 end
 
 local function reconnectMobileConnection()

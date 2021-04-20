@@ -19,8 +19,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/OnRCStatus/commonOnRCStatus')
-local commonRC = require('test_scripts/RC/commonRC')
-local test = require("user_modules/dummy_connecttest")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -40,7 +38,7 @@ local function registerRCAppRCDisallowed()
     allowed = false
   }
 
-  commonRC.registerAppWOPTU(1, test)
+  common.registerAppWOPTU(1)
   common.validateOnRCStatusForApp(1, pModuleStatusForApp, false)
   EXPECT_HMINOTIFICATION("RC.OnRCStatus")
   :Times(0)

@@ -25,9 +25,10 @@
 -- Expected result:
 -- SDL must: increment value of "minutes_in_hmi_none" for this <X+N> minutes in Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]
@@ -38,6 +39,9 @@ local mobile_session = require('mobile_session')
 local utils = require ('user_modules/utils')
 require('cardinalities')
 require('user_modules/AppTypes')
+
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ Local Variables ]]
 local PRELOADED_PT_FILE_NAME = "sdl_preloaded_pt.json"

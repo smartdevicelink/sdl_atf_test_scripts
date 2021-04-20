@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/10
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/resource_allocation.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/resource_allocation.md
 -- Item: Use Case 1: Alternative flow 2.2
 --
 -- Requirement summary:
@@ -21,7 +21,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local commonTestCases = require("user_modules/shared_testcases/commonTestCases")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -44,7 +43,7 @@ local function rpcHMIRespondAfterDefaultTimeout()
     end)
 
   commonRC.getMobileSession(2):ExpectResponse(cid1, { success = false, resultCode = "GENERIC_ERROR" })
-  commonTestCases:DelayedExp(12000)
+  commonRC.wait(12000)
 end
 
 --[[ Scenario ]]

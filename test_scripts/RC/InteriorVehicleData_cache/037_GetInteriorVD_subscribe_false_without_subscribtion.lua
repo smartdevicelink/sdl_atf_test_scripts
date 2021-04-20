@@ -20,7 +20,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/InteriorVehicleData_cache/common_interiorVDcache')
-local commonRC = require('test_scripts/RC/commonRC')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -30,11 +29,11 @@ local function GetInteriorVehicleData(pModuleType, isSubscribe)
   local rpc = "GetInteriorVehicleData"
   local subscribe = isSubscribe
   local mobSession = common.getMobileSession(1)
-  local cid = mobSession:SendRPC(commonRC.getAppEventName(rpc),
-    commonRC.getAppRequestParams(rpc, pModuleType, subscribe))
+  local cid = mobSession:SendRPC(common.getAppEventName(rpc),
+    common.getAppRequestParams(rpc, pModuleType, subscribe))
   local hmiRequestParams = common.getHMIRequestParams(rpc, pModuleType, 1, subscribe)
   hmiRequestParams.subscribe = nil
-  EXPECT_HMICALL(commonRC.getHMIEventName(rpc), hmiRequestParams)
+  EXPECT_HMICALL(common.getHMIEventName(rpc), hmiRequestParams)
   :Do(function(_, data)
 	    local hmiResponseParams = common.getHMIResponseParams(rpc, pModuleType, subscribe)
 	    hmiResponseParams.subscribe = nil

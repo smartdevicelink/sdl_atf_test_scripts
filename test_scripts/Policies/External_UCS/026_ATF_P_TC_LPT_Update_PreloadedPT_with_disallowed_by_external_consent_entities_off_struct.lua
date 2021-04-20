@@ -29,6 +29,8 @@
 --
 -- Note: Script is designed for EXTERNAL_PROPRIETARY flow
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -117,7 +119,7 @@ function Test:InitHMI()
 end
 
 function Test:InitHMI_onReady()
-  self:initHMI_onReady()
+  testCasesForExternalUCS.initHMI_onReady(self)
 end
 
 function Test:ConnectMobile()

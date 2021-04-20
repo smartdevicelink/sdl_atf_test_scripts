@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/9
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/button_press_emulation.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/button_press_emulation.md
 -- Item: Use Case 1: Exceptions: 1.2
 --
 -- Requirement summary:
@@ -17,14 +17,13 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local json = require('modules/json')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function PTUfunc(tbl)
-  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].moduleType = json.EMPTY_ARRAY
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].moduleType = commonRC.json.EMPTY_ARRAY
 end
 
 --[[ Scenario ]]

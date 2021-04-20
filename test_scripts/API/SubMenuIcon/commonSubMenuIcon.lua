@@ -91,8 +91,8 @@ local preconditionsOrig = m.preconditions
 
 function m.preconditions()
   preconditionsOrig()
-  local storage = commonPreconditions:GetPathToSDL() .. "storage"
-  os.execute("rm -rf " .. storage)
+  local storage = commonPreconditions:GetPathToSDL() .. "storage/*"
+  assert(os.execute("rm -rf " .. storage))
 end
 
 return m

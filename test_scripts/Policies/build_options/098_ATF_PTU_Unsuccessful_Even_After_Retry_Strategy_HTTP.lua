@@ -23,6 +23,8 @@
 -- Expected result:
 -- Status is UPDATE_NEEDED and PTS is sent as binary data of OnSystemRequest to Mobile
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -71,7 +73,7 @@ function Test:TestStep_OnStatusUpdate_UPDATE_NEEDED_new_PTU_request()
 end
 
 function Test:TestStep_Retry_Timeout_Expiration()
-  local total_time = 525000
+  local total_time =  185000
   print("Waiting " .. total_time .. "ms")
 
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",

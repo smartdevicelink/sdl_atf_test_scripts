@@ -30,7 +30,8 @@
 local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 
-
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion = {
   majorVersion = 5,
   minorVersion = 0
@@ -56,12 +57,12 @@ local buttonName = {
 }
 
 --[[ Local Functions ]]
-local function subscribeButton(pButName, self)
-  local cid = self.mobileSession1:SendRPC("SubscribeButton", { buttonName = pButName })
+local function subscribeButton(pButName)
+  local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
   EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { appID = appIDvalue, name = pButName, isSubscribed = true })
-  self.mobileSession1:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  self.mobileSession1:ExpectNotification("OnHashChange")
+  commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 --[[ Scenario ]]

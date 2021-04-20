@@ -22,6 +22,8 @@
 -- Expected result:
 -- PoliciesManager must respond with "isAppPermissionRevoked:true" and "AppRevokedPermissions" param containing the list of revoked permissions to HMI
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -58,7 +60,7 @@ function Test:TestStep_PTU_appPermissionsConsentNeeded_true()
       { policyType = "module_config", property = "endpoints" })
   EXPECT_HMIRESPONSE(requestId)
   :Do(function(_,_)
-          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate"):Times(2)
+          EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
           :Do(function(_,data)
               if(data.params.status == "UP_TO_DATE") then
 

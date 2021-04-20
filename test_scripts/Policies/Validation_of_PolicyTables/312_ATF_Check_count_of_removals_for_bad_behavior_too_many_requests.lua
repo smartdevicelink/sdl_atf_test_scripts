@@ -24,6 +24,8 @@
 -- Expected:
 -- 3. PoliciesManager increments value of <count_of_removals_for_bad_behavior>
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -95,6 +97,7 @@ end
 
 function Test:ActivateAppInFull()
   commonSteps:ActivateAppInSpecificLevel(self,HMIAppID)
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 --[[ end of Preconditions ]]

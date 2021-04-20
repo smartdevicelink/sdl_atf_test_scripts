@@ -16,6 +16,8 @@
 -- Expected result:
 -- a) RegisterAppInterface_response (<applicable resultCode>, success: true)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 --ToDo: shall be removed when issue: "ATF does not stop HB timers by closing session and connection" is fixed
 config.defaultProtocolVersion = 2
@@ -137,7 +139,7 @@ function Test:TestStep_Register_App_With_Name_Listed_In_LPT()
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }

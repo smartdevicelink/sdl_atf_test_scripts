@@ -18,6 +18,8 @@
 -- gets equal to the value of field "exchange_after_x_ignition_cycles" ("module_config" section)
 ----PTU sequence is triggered and SDL sends to HMI: SDL.OnStatusUpdate(UPDATE_NEEDED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "HTTP" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
 
@@ -121,7 +123,7 @@ for i = 1, (ignition_cycles_before_ptu) do
   function Test:Precondition_IGNITION_OFF()
 
     self.hmiConnection:SendNotification("BasicCommunication.OnIgnitionCycleOver")
-
+    commonTestCases:DelayedExp(500)
   end
 
   function Test.Precondition_StopSDL()
@@ -172,6 +174,7 @@ end
 function Test:TestStep_IGNITION_OFF()
   self.hmiConnection:SendNotification("BasicCommunication.OnIgnitionCycleOver")
   ignition_cycles_before_ptu = ignition_cycles_before_ptu + 1
+  commonTestCases:DelayedExp(500)
 end
 
 function Test.TestStep_StopSDL()
@@ -205,7 +208,7 @@ function Test:TestStep_Register_app()
       self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS" })
       self.mobileSession:ExpectNotification("OnHMIStatus", {hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN"})
     end)
-  EXPECT_NOTIFICATION("OnSystemRequest"):Times(2)-- {requestType = "LOCK_SCREEN_ICON_URL"}, {requestType = "HTTP"}
+  EXPECT_NOTIFICATION("OnSystemRequest")
   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate")
   :ValidIf(function(exp,data)
       if exp.occurences == 1 and data.params.status == "UPDATE_NEEDED" then

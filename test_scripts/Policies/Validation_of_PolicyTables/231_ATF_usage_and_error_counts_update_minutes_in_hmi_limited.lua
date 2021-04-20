@@ -25,6 +25,8 @@
 -- Expected result:
 -- SDL must: increment value of "minutes_in_hmi_limited" for this <X+N> minutes in Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.isMediaApplication = true
 
@@ -40,7 +42,6 @@ commonSteps:DeletePolicyTable()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('cardinalities')
 require('user_modules/AppTypes')
 

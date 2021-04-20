@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/Security/RPCMessageProtection/001_Protected_Mode_Protected_RPC_EncryptedRequired_TrueFalseOrMissing_Success.lua
 ./test_scripts/Security/RPCMessageProtection/002_Protected_Mode_Protected_RPC_EncryptedRequired_TrueFalseOrMissing_NotEncryptedNotification.lua
 ./test_scripts/Security/RPCMessageProtection/003_Protected_Mode_Unprotected_RPC_EncrypRequired_True_ExpNotification.lua

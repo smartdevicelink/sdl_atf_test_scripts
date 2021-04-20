@@ -27,7 +27,7 @@ local manifest = {
   handledRPCs = {39},    
   allowAppConsumers = true,
   rpcSpecVersion = config.application1.registerAppInterfaceParams.syncMsgVersion,
-  navigationServiceManifest = {}
+  navigationServiceManifest = {acceptsWayPoints = true}
 }
 
 local unsupportedResponse = {
@@ -96,10 +96,11 @@ runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI App 1", common.registerApp)
+runner.Step("Activate App 1", common.activateApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("PublishAppService", common.publishMobileAppService, { manifest, 1 })
 runner.Step("RAI App 2", common.registerAppWOPTU, { 2 })
-runner.Step("Activate App", common.activateApp, { 2 })   
+runner.Step("Activate App 2", common.activateApp, { 2 })   
 
 runner.Title("Test")    
 runner.Step("RPCPassThroughTest_UNSUPPORTED", RPCPassThruTest)   

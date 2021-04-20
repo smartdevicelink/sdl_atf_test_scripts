@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/2
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/current_module_status_data.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/current_module_status_data.md
 -- Item: Use Case 1: Main Flow
 --
 -- Requirement summary:
@@ -23,7 +23,7 @@ local commonRC = require('test_scripts/RC/commonRC')
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, pHMIRequest)
+local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, pHMIRequest, pResultCode)
   local cid = commonRC.getMobileSession():SendRPC("GetInteriorVehicleData", {
     moduleType = pModuleType,
     subscribe = pSubscribe
@@ -34,7 +34,7 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, p
     pSubscribeHMI = nil
   end
 
-  EXPECT_HMICALL("RC.GetInteriorVehicleData", {
+  commonRC.getHMIConnection():ExpectRequest("RC.GetInteriorVehicleData", {
     moduleType = pModuleType
   })
   :Do(function(_, data)
@@ -51,7 +51,8 @@ local function getDataForModule(pModuleType, isSubscriptionActive, pSubscribe, p
     end)
   :Times(pHMIRequest)
 
-  commonRC.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS",
+  local resultCode = pResultCode or "SUCCESS"
+  commonRC.getMobileSession():ExpectResponse(cid, { success = true, resultCode = resultCode,
     isSubscribed = isSubscriptionActive, -- return current value of subscription
     moduleData = commonRC.getModuleControlData(pModuleType)
   })
@@ -73,7 +74,7 @@ end
 
 for _, mod in pairs(commonRC.modules)  do
   runner.Step("Subscribe app to " .. mod, commonRC.subscribeToModule, { mod })
-  runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule, { mod, true, true, 0 })
+  runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_subscribe", getDataForModule, { mod, true, true, 0 , "WARNINGS"})
   runner.Step("GetInteriorVehicleData " .. mod .. " ActiveSubscription_unsubscribe", getDataForModule, { mod, true, false, 1 })
 end
 

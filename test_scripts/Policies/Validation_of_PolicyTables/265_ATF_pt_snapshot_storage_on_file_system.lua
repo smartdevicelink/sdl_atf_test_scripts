@@ -13,9 +13,10 @@
 -- Expected result:
 -- SDL must store the PT snapshot as a JSON file which filename and filepath are defined in "PathToSnapshot" parameter of smartDeviceLink.ini file.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 config.defaultProtocolVersion = 2
 
@@ -25,6 +26,9 @@ local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 require('cardinalities')
 local mobile_session = require('mobile_session')
 local utils = require ('user_modules/utils')
+
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ Local Variables ]]
 local POLICY_SNAPSHOT_FILE_NAME = "sdl_mega_snapshot.json"
@@ -199,7 +203,7 @@ function Test:Precondition_ActivateApp()
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }

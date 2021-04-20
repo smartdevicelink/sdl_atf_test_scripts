@@ -15,6 +15,8 @@
 -- Expected result:
 -- respond SDL.GetURLs_response (SUCCESS, urls: array(<SDL-chosen appID> + <url from policy database for service 7>)) to HMI
 ---------------------------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local mobileSession = require("mobile_session")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
@@ -39,20 +41,12 @@ commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:ConnectMobile()
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    })
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
-  :Times(AtLeast(1))
+  if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 --[[ Test ]]

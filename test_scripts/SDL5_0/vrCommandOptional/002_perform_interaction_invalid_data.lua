@@ -30,6 +30,8 @@ local runner = require('user_modules/script_runner')
 local commonSmoke = require('test_scripts/Smoke/commonSmoke')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
+--[[ Test Configuration ]]
+runner.testSettings.isSelfIncluded = false
 config.application1.registerAppInterfaceParams.syncMsgVersion.majorVersion = 5
 config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 0
 
@@ -150,8 +152,8 @@ end
 --! self - test object,
 --! ctx - systemContext value
 --! @return: none
-local function SendOnSystemContext(self, ctx)
-  self.hmiConnection:SendNotification("UI.OnSystemContext",
+local function SendOnSystemContext(ctx)
+  commonSmoke.getHMIConnection():SendNotification("UI.OnSystemContext",
     { appID = commonSmoke.getHMIAppId(), systemContext = ctx })
 end
 
@@ -180,9 +182,9 @@ end
 --! self - test object,
 --! request - interaction mode,
 --! @return: none
-local function ExpectOnHMIStatusWithAudioStateChanged_PI(self, request)
+local function ExpectOnHMIStatusWithAudioStateChanged_PI(request)
   if "BOTH" == request then
-    self.mobileSession1:ExpectNotification("OnHMIStatus",
+    commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION" },
       { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "VRSESSION" },
@@ -191,7 +193,7 @@ local function ExpectOnHMIStatusWithAudioStateChanged_PI(self, request)
       { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
     :Times(6)
   elseif "VR" == request then
-    self.mobileSession1:ExpectNotification("OnHMIStatus",
+    commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
       { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
@@ -199,7 +201,7 @@ local function ExpectOnHMIStatusWithAudioStateChanged_PI(self, request)
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
     :Times(5)
   elseif "MANUAL" == request then
-    self.mobileSession1:ExpectNotification("OnHMIStatus",
+    commonSmoke.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
@@ -213,9 +215,9 @@ end
 --! choiceSetID - id for choice set
 --! self - test object
 --! @return: none
-local function CreateInteractionChoiceSet(choiceSetID, self)
+local function CreateInteractionChoiceSet(choiceSetID)
   local choiceID = choiceSetID
-  local cid = self.mobileSession1:SendRPC("CreateInteractionChoiceSet", {
+  local cid = commonSmoke.getMobileSession():SendRPC("CreateInteractionChoiceSet", {
       interactionChoiceSetID = choiceSetID,
       choiceSet = setChoiceSet(choiceID),
     })
@@ -225,9 +227,9 @@ local function CreateInteractionChoiceSet(choiceSetID, self)
       vrCommands = { "VrChoice" .. tostring(choiceID) }
     })
   :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
-  self.mobileSession1:ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
+  commonSmoke.getMobileSession():ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
 end
 
 --! @CreateInteractionChoiceSet_noVR: Creation of Choice Set with no vrCommands
@@ -235,13 +237,13 @@ end
 --! choiceSetID - id for choice set
 --! self - test object
 --! @return: none
-local function CreateInteractionChoiceSet_noVR(choiceSetID, self)
+local function CreateInteractionChoiceSet_noVR(choiceSetID)
   local choiceID = choiceSetID
-  local cid = self.mobileSession1:SendRPC("CreateInteractionChoiceSet", {
+  local cid = commonSmoke.getMobileSession():SendRPC("CreateInteractionChoiceSet", {
       interactionChoiceSetID = choiceSetID,
       choiceSet = setChoiceSet_noVR(choiceID),
     })
-  self.mobileSession1:ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
+  commonSmoke.getMobileSession():ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
 end
 
 --! @PI_PerformViaVR_ONLY: Processing PI with interaction mode VR_ONLY with performing selection
@@ -249,10 +251,10 @@ end
 --! paramsSend - parameters for PI request
 --! self - test object
 --! @return: none
-local function PI_PerformViaVR_ONLY(paramsSend, self)
+local function PI_PerformViaVR_ONLY(paramsSend)
   paramsSend.interactionMode = "VR_ONLY"
-  local cid = self.mobileSession1:SendRPC("PerformInteraction",paramsSend)
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+  local cid = commonSmoke.getMobileSession():SendRPC("PerformInteraction",paramsSend)
+  commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 end
 
 --! @PI_PerformViaBOTH: Processing PI with interaction mode BOTH with timeout on VR and IU
@@ -260,10 +262,10 @@ end
 --! paramsSend - parameters for PI request
 --! self - test object
 --! @return: none
-local function PI_PerformViaBOTH(paramsSend, self)
+local function PI_PerformViaBOTH(paramsSend)
   paramsSend.interactionMode = "BOTH"
-  local cid = self.mobileSession1:SendRPC("PerformInteraction",paramsSend)
-  self.mobileSession1:ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
+  local cid = commonSmoke.getMobileSession():SendRPC("PerformInteraction",paramsSend)
+  commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA"})
 end
 
 --[[ Scenario ]]

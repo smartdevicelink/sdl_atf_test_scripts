@@ -24,6 +24,7 @@
 --   - finish TLS handshake successfully
 --   - send OnServiceUpdate (<service_type>, REQUEST_ACCEPTED) to HMI
 --   - send StartServiceACK(<service_type>, encryption = true) to App
+--   - leave the app in current HMI level
 -----------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -41,6 +42,12 @@ function common.onServiceUpdateFunc(pServiceTypeValue)
     { serviceEvent = "REQUEST_RECEIVED", serviceType = pServiceTypeValue, appID = common.getHMIAppId() },
     { serviceEvent = "REQUEST_ACCEPTED", serviceType = pServiceTypeValue, appID = common.getHMIAppId() })
   :Times(2)
+
+  common.getHMIConnection():ExpectRequest("BasicCommunication.CloseApplication")
+  :Times(0)
+
+  common.getMobileSession():ExpectNotification("OnHMIStatus")
+  :Times(0)
 end
 
 function common.serviceResponseFunc(pServiceId)

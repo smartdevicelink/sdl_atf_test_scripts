@@ -60,7 +60,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function processRPCSuccess()
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local service_id = common.getAppServiceID(2)
@@ -89,6 +89,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
+runner.Step("Activate App 2", common.activateApp, { 2 })
 runner.Step("Activate App", common.activateApp)
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 runner.Step("Publish App Service 2", common.publishSecondMobileAppService, { manifest, manifest2, 2 })

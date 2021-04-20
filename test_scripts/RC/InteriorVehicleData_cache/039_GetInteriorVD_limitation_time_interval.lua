@@ -18,7 +18,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/InteriorVehicleData_cache/common_interiorVDcache')
-local functionId = require('function_id')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -76,7 +75,7 @@ local function GetInteriorVehicleDataRejectedSuccess(pModuleType, pCompareReques
 
   mobSession:ExpectAny()
   :ValidIf(function(_, data)
-      if data.rpcFunctionId == functionId[rpc] then
+      if data.rpcFunctionId == common.functionId[rpc] then
         if data.payload.resultCode == "SUCCESS" then
           local timeToRequest = {
             [1] = timestampArray[4] - timestampArray[1],

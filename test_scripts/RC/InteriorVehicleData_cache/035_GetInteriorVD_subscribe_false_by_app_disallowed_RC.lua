@@ -16,10 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/RC/InteriorVehicleData_cache/common_interiorVDcache')
-local commonRC = require('test_scripts/RC/commonRC')
-local commonFunctions = require("user_modules/shared_testcases/commonFunctions")
-local test = require("user_modules/dummy_connecttest")
-
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,21 +23,21 @@ runner.testSettings.isSelfIncluded = false
 -- [[ Local Functions ]]
 local function dissalowRCFunctionality()
   local rpc = "GetInteriorVehicleData"
-  EXPECT_HMICALL(commonRC.getHMIEventName(rpc))
+  EXPECT_HMICALL(common.getHMIEventName(rpc))
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
       common.getHMIResponseParams(rpc, common.modules[1], false))
     end)
   :ValidIf(function(_, data)
       local ExpectedResult = common.getHMIRequestParams(rpc, common.modules[1], 1, false)
-      if false == commonFunctions:is_table_equal(data.params, ExpectedResult) then
+      if false == common.isTableEqual(data.params, ExpectedResult) then
         return false, "Parameters in RC.GetInteriorVehicleData are not match to expected result.\n" ..
           "Actual result:" .. common.tableToString(data.params) .. "\n" ..
           "Expected result:" ..common.tableToString(ExpectedResult) .."\n"
       end
       return true
     end)
-  commonRC.defineRAMode(false, nil, test)
+  common.defineRAMode(false, nil)
 end
 
 --[[ Scenario ]]

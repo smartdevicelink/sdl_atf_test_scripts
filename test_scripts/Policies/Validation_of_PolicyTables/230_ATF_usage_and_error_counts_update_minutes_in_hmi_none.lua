@@ -25,9 +25,16 @@
 -- Expected result:
 -- SDL must: increment value of "minutes_in_hmi_none" for this <X+N> minutes in Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
+--[[ Required Shared libraries ]]
+local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]

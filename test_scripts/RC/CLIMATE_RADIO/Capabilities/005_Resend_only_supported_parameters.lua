@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: https://github.com/smartdevicelink/sdl_requirements/issues/1
--- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/detailed_info_GetSystemCapability.md
+-- Use case: https://github.com/smartdevicelink/sdl_requirements/blob/master/detailed_docs/RC/detailed_info_GetSystemCapability.md
 -- Item: Use Case 1:Exception 3.3
 --
 -- Requirement summary:
@@ -16,7 +16,6 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local commonRC = require('test_scripts/RC/commonRC')
-local common_functions = require('user_modules/shared_testcases/commonTestCases')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -27,8 +26,7 @@ local radio_capabilities = {
   {
     moduleName = "Radio",
     moduleInfo = {moduleId = moduleId},
-    radioFrequencyAvailable = true,
-    radioBandAvailable = true
+    radioFrequencyAvailable = true
   }
 }
 local capParams = {}
@@ -40,21 +38,21 @@ local available_params =
 {
     moduleType = "RADIO",
     moduleId = moduleId,
-    radioControlData = {frequencyInteger = 1, frequencyFraction = 2, band = "AM"}
+    radioControlData = {frequencyInteger = 1, frequencyFraction = 2}
 }
 local absent_params = {
   moduleType = "RADIO",
   moduleId = moduleId,
-  radioControlData = {frequencyInteger = 1, frequencyFraction = 2}
+  radioControlData = {band = "AM"}
 }
 
 --[[ Local Functions ]]
 local function setVehicleData(params)
-	local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {moduleData = params})
+  local cid = commonRC.getMobileSession():SendRPC("SetInteriorVehicleData", {moduleData = params})
 
   if params.radioControlData.frequencyInteger then
-    EXPECT_HMICALL("RC.SetInteriorVehicleData",	{
-            appID = commonRC.getHMIAppId(1),
+    EXPECT_HMICALL("RC.SetInteriorVehicleData", {
+      appID = commonRC.getHMIAppId(1),
       moduleData = params})
     :Do(function(_, data)
         commonRC.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
@@ -64,7 +62,7 @@ local function setVehicleData(params)
   else
     EXPECT_HMICALL("RC.SetInteriorVehicleData"):Times(0)
     commonRC.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "UNSUPPORTED_RESOURCE" })
-        common_functions.DelayedExp(commonRC.timeout)
+    commonRC.wait(commonRC.timeout)
   end
 end
 

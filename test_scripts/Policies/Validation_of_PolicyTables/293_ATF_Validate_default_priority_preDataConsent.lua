@@ -16,6 +16,8 @@
 -- Expected result:
 -- PoliciesManager must not provide to HMI the app`s priority value
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
@@ -49,19 +51,12 @@ end
 function Test:Precondition_Connect_device()
   commonTestCases:DelayedExp(2000)
   self:connectMobile()
-  EXPECT_HMICALL("BasicCommunication.UpdateDeviceList",
-    {
-      deviceList = {
-        {
-          id = utils.getDeviceMAC(),
-          name = utils.getDeviceName(),
-          transportType = "WIFI"
-        }
-      }
-    }
-    ):Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+ if utils.getDeviceTransportType() == "WIFI" then
+    EXPECT_HMICALL("BasicCommunication.UpdateDeviceList")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 --[[ Test ]]

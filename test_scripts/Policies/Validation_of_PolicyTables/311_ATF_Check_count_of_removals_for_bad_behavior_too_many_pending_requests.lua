@@ -22,6 +22,8 @@
 -- Application is unregistered: SDL->appID: OnAppUnregistered(TOO_MANY_REQUESTS)
 -- PoliciesManager increments value of <count_of_removals_for_bad_behavior>
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.ExitOnCrash = false

@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/RC/SEAT/Capabilities/001_SEAT_all_params_SUCCESS.lua
 ./test_scripts/RC/SEAT/Capabilities/002_SEAT_all_params_UNSUPPORTED_RESOURCE.lua
 ./test_scripts/RC/SEAT/Capabilities/003_Resend_only_supported_parameters.lua

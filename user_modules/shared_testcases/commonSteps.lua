@@ -22,7 +22,6 @@
 
 local commonSteps = {}
 local mobile_session = require('mobile_session')
-local config = require('config')
 local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 local utils = require ('user_modules/utils')
 
@@ -456,6 +455,11 @@ function commonSteps:DeletePolicyTable()
 		os.remove(config.pathToSDL .. "policy.sqlite")
 	else
 		print( " \27[33m commonSteps:DeletePolicyTable : policy.sqlite is not found \27[0m " )
+	end
+
+	local hmiCapsFile = config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. SDLConfig:GetValue("HMICapabilitiesCacheFile")
+	if self:file_exists(hmiCapsFile) == true then
+		os.remove(hmiCapsFile)
 	end
 
 end

@@ -15,6 +15,8 @@
 -- Expected result:
 -- SDL must leave all fields & their values of "device_data" section as it was in the database without changes
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
@@ -25,12 +27,12 @@ local utils = require ('user_modules/utils')
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 require('user_modules/AppTypes')
 config.defaultProtocolVersion = 2
 config.application1.registerAppInterfaceParams.deviceInfo.hardware = "Nexus"
 
 --[[ Local Variables ]]
+local deviceFilter = ' where id = ' .. '"' .. utils.getDeviceMAC() .. '"'
 local TESTED_DATA = {
   preloaded_date = {"1988-12-01","2015-05-02"},
   device = {
@@ -207,7 +209,7 @@ function Test.checkLocalPT(checkTable)
   local isTestPass = true
   for _, check in pairs(checkTable) do
     expectedLocalPtValues = check.expectedValues
-    queryString = check.query
+    queryString = check.query .. deviceFilter
     actualLocalPtValues = executeSqliteQuery(queryString, constructPathToDatabase())
     if actualLocalPtValues then
       comparationResult = isValuesCorrect(actualLocalPtValues, expectedLocalPtValues)

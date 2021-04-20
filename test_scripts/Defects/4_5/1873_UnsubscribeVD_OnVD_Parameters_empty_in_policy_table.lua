@@ -6,6 +6,9 @@ local runner = require('user_modules/script_runner')
 local commonDefects = require('test_scripts/Defects/4_5/commonDefects')
 local json = require("json")
 
+--[[ Test Configuration ]]
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+
 --[[ Local Variables ]]
 local gpsDataResponse = {
   longitudeDegrees = 100,

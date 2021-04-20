@@ -69,7 +69,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function processRPCSuccess()
   local mobileSession = common.getMobileSession(1)
   local mobileSession2 = common.getMobileSession(2)
   local service_id = common.getAppServiceID(2)
@@ -91,7 +91,7 @@ local function processRPCSuccess(self)
   mobileSession2:ExpectNotification("OnSystemCapabilityUpdated", combinedParams):Times(AtLeast(1))
 end
 
-local function disconnectDefaultService(self)
+local function disconnectDefaultService()
   local mobileSession = common.getMobileSession(2)
   local cid = mobileSession:SendRPC("UnregisterAppInterface", {})
   mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
@@ -107,7 +107,7 @@ local function disconnectDefaultService(self)
 
 end
 
-local function republishDefaultApp(self)
+local function republishDefaultApp()
   local mobileSession = common.getMobileSession(2)
   local cid = mobileSession:SendRPC("PublishAppService", {
     appServiceManifest = manifest2
@@ -145,6 +145,7 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI", common.registerApp)
 runner.Step("PTU", common.policyTableUpdate, { PTUfunc })
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
+runner.Step("Activate App 2", common.activateApp, { 2 })
 runner.Step("Activate App", common.activateApp)
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 runner.Step("Publish App Service 2", common.publishSecondMobileAppService, { manifest, manifest2, 2 })
@@ -158,8 +159,9 @@ runner.Step("Stop SDL", common.postconditions)
 runner.Step("Clean environment", commonFunctions.SDLForceStop)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 1 })
+runner.Step("RAI w/o PTU App 2", common.registerAppWOPTU, { 2 })
+runner.Step("Activate App 2", common.activateApp, { 2 })
 runner.Step("Activate App", common.activateApp)
-runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 2 })
 runner.Step("Publish App Service", common.publishMobileAppService, { manifest })
 runner.Step("Reconnect Default Service App", republishDefaultApp)
 

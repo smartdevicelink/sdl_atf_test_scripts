@@ -18,6 +18,8 @@
 --1) The validation should not reject tables that include fields with a status of ‘omitted,’ it will assume these are to be ignored.
 --2) Validation must reject a policy table update if it does not include fields with a status of ‘required.’
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 -- local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
@@ -29,7 +31,6 @@ commonSteps:DeleteLogsFileAndPolicyTable()
 
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 require('cardinalities')
@@ -73,8 +74,7 @@ function Test:updatePolicyInDifferentSessions(_, appName, mobileSession)
         end)
     end)
 
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate",
-    {status = "UPDATING"}, {status = "UPDATE_NEEDED"}):Times(2)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"})
 end
 
 --[[ Preconditions ]]
@@ -84,7 +84,12 @@ function Test:ActivateApp()
   HMIAppId = self.applications[config.application1.registerAppInterfaceParams.appName]
 
   commonSteps:ActivateAppInSpecificLevel(Test, HMIAppId)
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(_,data3)
+      self.hmiConnection:SendResponse(data3.id, data3.method, "SUCCESS", {})
+    end)
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
 end
 
 --[[ Test ]]

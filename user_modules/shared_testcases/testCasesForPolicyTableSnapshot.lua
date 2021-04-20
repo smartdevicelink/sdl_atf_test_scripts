@@ -2,6 +2,14 @@ local testCasesForPolicyTableSnapshot = {}
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local expectations = require('expectations')
+
+local expOrig = expectations.Expectation
+function expectations.Expectation(name, connection)
+  local e = expOrig(name, connection)
+  e.timeout = e.timeout + 10000
+  return e
+end
 
 testCasesForPolicyTableSnapshot.preloaded_elements = {}
 testCasesForPolicyTableSnapshot.pts_elements = {}
@@ -132,6 +140,13 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     { name = "module_config.notifications_per_minute_by_priority.NORMAL", elem_required = "required"},
     { name = "module_config.notifications_per_minute_by_priority.NONE", elem_required = "required"},
     { name = "module_config.notifications_per_minute_by_priority.PROJECTION", elem_required = "optional"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.EMERGENCY", elem_required = "required"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.NAVIGATION", elem_required = "required"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.VOICECOM", elem_required = "required"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.COMMUNICATION", elem_required = "required"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.NORMAL", elem_required = "required"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.NONE", elem_required = "required"},
+    { name = "module_config.subtle_notifications_per_minute_by_priority.PROJECTION", elem_required = "optional"},
     { name = "module_config.certificate", elem_required = "optional"},
     { name = "module_config.vehicle_make", elem_required = "optional"},
     { name = "module_config.vehicle_model", elem_required = "optional"},
@@ -453,7 +468,15 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     local pts = '/tmp/fs/mp/images/ivsu_cache/sdl_snapshot.json'
     if ( commonSteps:file_exists(pts) ) then
       testCasesForPolicyTableSnapshot:extract_pts()
-
+      -- Skip other devices
+      if device_IDs ~= nil then
+        for i = #testCasesForPolicyTableSnapshot.pts_elements, 1, -1 do
+          local item = testCasesForPolicyTableSnapshot.pts_elements[i].name
+          if string.find(item, "^device_data") and not string.find(item, device_IDs[1]) then
+            table.remove(testCasesForPolicyTableSnapshot.pts_elements, i)
+          end
+        end
+      end
       --Check for ommited parameters
       for i = 1, #testCasesForPolicyTableSnapshot.pts_elements do
         local is_existing = false

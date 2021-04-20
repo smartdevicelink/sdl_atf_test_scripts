@@ -10,6 +10,8 @@
 -- Expected result:
 -- SDL->HMI: BasicCommunication.PolicyUpdate
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 
@@ -69,7 +71,7 @@ function Test:Precondtion_Activate_App_Consent_Update()
         {
           name = utils.getDeviceName(),
           id = utils.getDeviceMAC(),
-          transportType = "WIFI",
+          transportType = utils.getDeviceTransportType(),
           isSDLAllowed = false
         }
       }
@@ -92,7 +94,8 @@ function Test:Precondtion_Activate_App_Consent_Update()
     end)
   EXPECT_RESPONSE(CorIdRAI, { success = true, resultCode = "SUCCESS"})
   EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function(_,_)
+  :Do(function(_,data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
       local requestId = self.hmiConnection:SendRequest("SDL.GetPolicyConfigurationData",
           { policyType = "module_config", property = "endpoints" })
       EXPECT_HMIRESPONSE(requestId)
@@ -101,19 +104,14 @@ function Test:Precondtion_Activate_App_Consent_Update()
           EXPECT_NOTIFICATION("OnSystemRequest", { requestType = "PROPRIETARY" })
           :Do(function()
               local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {fileName = "PolicyTableUpdate", requestType = "PROPRIETARY"}, "files/ptu_general.json")
-              local systemRequestId
+              self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
               EXPECT_HMICALL("BasicCommunication.SystemRequest")
               :Do(function(_,data)
-                  systemRequestId = data.id
+                  self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
                   self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate",
                     {
                       policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"
                     })
-                  local function to_run()
-                    self.hmiConnection:SendResponse(systemRequestId, "BasicCommunication.SystemRequest", "SUCCESS", {})
-                    self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
-                  end
-                  RUN_AFTER(to_run, 800)
                   EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}):Timeout(500)
                 end)
             end)

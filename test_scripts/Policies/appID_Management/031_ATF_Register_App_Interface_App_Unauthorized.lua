@@ -21,6 +21,8 @@
 -- currently registered appName is different from value in policy table ->
 -- SDL->app: OnAppInterfaceUnregistered (APP_UNAUTHORIZED)
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local testCasesForPolicyAppIdManagament = require("user_modules/shared_testcases/testCasesForPolicyAppIdManagament")
 local commonFunctions = require("user_modules/shared_testcases/commonFunctions")

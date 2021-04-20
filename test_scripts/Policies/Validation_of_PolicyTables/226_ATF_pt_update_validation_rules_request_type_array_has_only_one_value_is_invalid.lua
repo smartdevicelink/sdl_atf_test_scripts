@@ -18,9 +18,16 @@
 -- a) assign "RequestType" field from "default" section of PolicyDataBase to such app
 -- b) copy "RequestType" field from "default" section to "<appID>" section of PolicyDataBase
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
+--[[ Required Shared libraries ]]
+local commonSteps = require ('user_modules/shared_testcases/commonSteps')
+
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ General configuration parameters ]]
 Test = require('connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 --[[ Required Shared libraries ]]

@@ -1,3 +1,4 @@
+; Supported Configurations: [Local, Remote]
 ./test_scripts/RC/AUDIO_LIGHT_HMI_SETTINGS/GetInteriorVehicleData/001_Success_flow.lua
 ./test_scripts/RC/AUDIO_LIGHT_HMI_SETTINGS/GetInteriorVehicleData/002_Disallow_flow_by_policy_AUDIO.lua
 ./test_scripts/RC/AUDIO_LIGHT_HMI_SETTINGS/GetInteriorVehicleData/003_Disallow_flow_by_policy_LIGHT.lua

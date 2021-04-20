@@ -14,13 +14,17 @@
 -- Expected result:
 -- SDL must: increment "count_of_sync_reboots" section value of Local Policy Table.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ General configuration parameters ]]
 Test = require('user_modules/dummy_connecttest')
-local config = require('config')
 config.defaultProtocolVersion = 2
 
 require('user_modules/AppTypes')

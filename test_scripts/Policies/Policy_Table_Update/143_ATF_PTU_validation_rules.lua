@@ -27,6 +27,8 @@
 -- SDL->HMI: OnStatusUpdate(UP_TO_DATE)
 -- SDL stops timeout started by OnSystemRequest. No other OnSystemRequest are received.
 ---------------------------------------------------------------------------------------------
+require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "EXTERNAL_PROPRIETARY" } } })
+
 --[[ Required Shared libraries ]]
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
