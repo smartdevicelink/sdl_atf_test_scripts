@@ -55,7 +55,7 @@ local function checkResumingNaviApp()
         common.getHMIConnection():SendResponse(data.id,"BasicCommunication.ActivateApp", "SUCCESS", {})
     end)
     common.getMobileSession():ExpectNotification("OnHMIStatus",
-        { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE" })
+        { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" })
 end
 
 --[[ Scenario ]]
