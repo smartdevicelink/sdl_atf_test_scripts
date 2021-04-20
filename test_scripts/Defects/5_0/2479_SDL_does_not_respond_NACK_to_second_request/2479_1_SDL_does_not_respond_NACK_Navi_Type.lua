@@ -1,12 +1,13 @@
 ---------------------------------------------------------------------------------------------------
--- User story: https://github.com/smartdevicelink/sdl_core/issues/2379
+-- User story: https://github.com/smartdevicelink/sdl_core/issues/2479
 --
 -- Description:
--- SDL does not respond NACK to second request
+-- SDL does respond NACK to second start service request
+--
 -- Steps to reproduce:
--- 1) In case mobile side send two start VIDEO secure service requests
+-- 1. In case mobile side send two start VIDEO secure service requests
 -- Expected:
--- 1) Respond NACK to second request keep active VIDEO service that was already started
+-- 1. Respond NACK to second request keep active VIDEO service that was already started
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Security/DTLS/common')

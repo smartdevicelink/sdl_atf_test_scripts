@@ -34,6 +34,7 @@ local utils = require ('user_modules/utils')
 
 --[[ Local variables ]]
 local ignition_cycles_before_ptu
+local ptuInProgress = false
 
 --[[ General Precondition before ATF start ]]
 commonSteps:DeleteLogsFileAndPolicyTable()
@@ -87,7 +88,15 @@ end
 
 function Test:Precondition_InitOnready()
   self:initHMI_onReady()
-  commonTestCases:DelayedExp(10000)
+  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+  :Do(function(exp, d)
+    if(exp.occurences == 1) then
+      EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATING" })
+      self.hmiConnection:SendResponse(d.id, d.method, "SUCCESS", { })
+      ptuInProgress = true
+    end
+  end)
+  :Times(AnyNumber())
 end
 
 function Test:Precondition_StartNewSession()
@@ -125,11 +134,13 @@ function Test:Precondition_Registering_app()
       self.applications[config.application1.registerAppInterfaceParams.appName] = d.params.application.appID
     end)
   self.mobileSession:ExpectResponse(correlationId, { success = true, resultCode = "SUCCESS"})
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
-  EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  if not ptuInProgress then
+    EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(2)
+    EXPECT_HMICALL("BasicCommunication.PolicyUpdate")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+  end
 end
 
 --[[ Test ]]
@@ -158,6 +169,7 @@ end
 
 function Test:ActivateAppInFULLLevel()
   commonSteps:ActivateAppInSpecificLevel(self,self.applications[config.application1.registerAppInterfaceParams.appName],"FULL")
+  EXPECT_NOTIFICATION("OnHMIStatus", { hmiLevel = "FULL" })
 end
 
 function Test:TestStep_flow_SUCCEESS_EXTERNAL_PROPRIETARY()

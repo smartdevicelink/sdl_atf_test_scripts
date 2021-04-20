@@ -31,6 +31,9 @@ config.defaultProtocolVersion = 2
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local commonTestCases = require ('user_modules/shared_testcases/commonTestCases')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ Local Variables ]]
 local seconds_between_retries = {1, 1, 1, 1, 1} -- in min
 local timeout_after_x_seconds = 8 -- in sec

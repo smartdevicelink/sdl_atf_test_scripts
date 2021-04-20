@@ -67,10 +67,12 @@ function common.registerApp()
 end
 
 local function retrySequence()
+  common.hmi():SendNotification("BasicCommunication.OnSystemRequest",
+    { requestType = "PROPRIETARY", fileName = "files/ptu.json" })
   local reserveTime = 2000
   local timeout = expectedTimeRetry[1] + expectedTimeRetry[2] + expectedTimeRetry[3] + reserveTime
   common.mobile():ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
-  :Times(2)
+  :Times(3)
   :Timeout(timeout)
 
   common.hmi():ExpectNotification("SDL.OnStatusUpdate",

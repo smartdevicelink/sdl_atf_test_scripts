@@ -130,15 +130,11 @@ local function performInteraction(pAppId)
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = params.windowID },
   { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = params.windowID },
-  { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = pMainId },
-  { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = params.windowID },
-  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = pMainId },
-  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = params.windowID },
   { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = params.windowID },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = params.windowID })
-  :Times(12)
+  :Times(8)
 
   common.getMobileSession(pAppId):ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT" })
 end

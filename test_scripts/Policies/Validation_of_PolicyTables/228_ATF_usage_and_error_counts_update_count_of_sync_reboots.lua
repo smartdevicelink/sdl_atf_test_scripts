@@ -20,6 +20,9 @@ require('user_modules/script_runner').isTestApplicable({ { extendedPolicy = { "E
 local commonFunctions = require('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require('user_modules/shared_testcases/commonSteps')
 
+--[[ General Precondition before ATF start ]]
+commonSteps:DeleteLogsFileAndPolicyTable()
+
 --[[ General configuration parameters ]]
 Test = require('user_modules/dummy_connecttest')
 config.defaultProtocolVersion = 2

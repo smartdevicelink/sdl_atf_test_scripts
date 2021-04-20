@@ -1,0 +1,9 @@
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/001_PositiveCase_With_SoftButtons_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/002_PositiveCase_Without_SoftButtons_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/003_PositiveCase_UI_Only_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/004_PositiveCase_TTS_Interrupted_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/005_PositiveCase_TwoApps_DEFAULT_ACTION_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/006_PositiveCase_TwoApps_STEAL_FOCUS_SUCCESS.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/007_Interrupted_By_VR_ABORTED.lua
+./test_scripts/API/SubtleAlertStyle/SubtleAlert/008_Phone_Call_Active_REJECTED.lua
+./test_scripts/API/SubtleAlertStyle/OnSubtleAlertPressed/001_PositiveCase_Subtle_Alert_Pressed.lua

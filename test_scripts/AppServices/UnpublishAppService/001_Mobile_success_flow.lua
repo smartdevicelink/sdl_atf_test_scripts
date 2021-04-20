@@ -30,9 +30,7 @@ local manifest = {
 
 local rpc = {
   name = "UnpublishAppService",
-  params = {
-    serviceID = "temp"
-  }
+  params = {}
 }
 
 local expectedResponse = {
@@ -45,7 +43,7 @@ local function PTUfunc(tbl)
 end
 
 --[[ Local Functions ]]
-local function processRPCSuccess(self)
+local function processRPCSuccess()
   rpc.params.serviceID = common.getAppServiceID(1)
   local mobileSession = common.getMobileSession(1)
   local cid = mobileSession:SendRPC(rpc.name, rpc.params)

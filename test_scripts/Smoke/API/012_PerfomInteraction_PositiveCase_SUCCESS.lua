@@ -163,26 +163,22 @@ local function expectOnHMIStatusWithAudioStateChanged_PI(pRequest)
     common.getMobileSession():ExpectNotification("OnHMIStatus",
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION" },
-      { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "VRSESSION" },
       { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "HMI_OBSCURED" },
-      { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" },
       { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-    :Times(6)
+    :Times(4)
   elseif pRequest == "VR" then
     common.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
       { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
-      { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
-    :Times(5)
+    :Times(4)
   elseif pRequest == "MANUAL" then
     common.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
       { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
-      { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
-    :Times(4)
+    :Times(3)
   end
 end
 

@@ -3,6 +3,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
+config.application1.registerAppInterfaceParams.isMediaApplication = false
 
 --[[ Required Shared libraries ]]
 local actions = require("user_modules/sequences/actions")
@@ -47,11 +48,18 @@ function m.showAppMenuSuccess(pMenuID)
   m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
 end
 
-function m.showAppMenuUnsuccess(pMenuID, pResultCode)
+function m.showAppMenuUnsuccess(pMenuID, pResultCode, infoExists)
   local cid = m.getMobileSession():SendRPC("ShowAppMenu", { menuID = pMenuID })
   m.getHMIConnection():ExpectRequest("UI.ShowAppMenu")
   :Times(0)
   m.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pResultCode })
+  :ValidIf(function(_,data)
+    if (infoExists == true) then
+      return data.payload.info ~= nil
+    else
+      return true
+    end
+  end)
   m.getMobileSession():ExpectNotification("OnHashChange")
   :Times(0)
 end
@@ -75,7 +83,7 @@ end
 function m.deactivateAppToBackground(pSystemContext)
   if not pSystemContext then pSystemContext = "MAIN" end
   m.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
-    { eventName = "AUDIO_SOURCE", isActive = true })
+    { eventName = "EMBEDDED_NAVI", isActive = true })
   m.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "BACKGROUND", audioStreamingState = "NOT_AUDIBLE", systemContext = pSystemContext })
 end
@@ -85,7 +93,7 @@ function m.hmiLeveltoLimited(pAppId, pSystemContext)
   m.getHMIConnection(pAppId):SendNotification("BasicCommunication.OnAppDeactivated",
     { appID = m.getHMIAppId(pAppId) })
   m.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
-    { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE", systemContext = pSystemContext })
+    { hmiLevel = "LIMITED", audioStreamingState = "NOT_AUDIBLE", systemContext = pSystemContext })
 end
 
 return m

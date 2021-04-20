@@ -1026,7 +1026,7 @@ function m.rc.unsubscribeFromModule(pModuleType, pModuleId, pAppId, pIsSubscript
   subscribeToIVData(pModuleType, pModuleId, pAppId, false, pIsSubscriptionCached)
 end
 
-function m.rc.isSubscribed(pModuleType, pModuleId, pAppId, pHasSubscription, pModuleData)
+function m.rc.checkSubscription(pModuleType, pModuleId, pAppId, pHasSubscription, pModuleData)
   local rpc = "OnInteriorVehicleData"
   updateIVData(pModuleType, pModuleId, rpc, pModuleData)
   local mobSession = actions.mobile.getSession(pAppId)
@@ -1231,7 +1231,7 @@ function m.rc.policyTableUpdate(pPTUpdateFunc, pExpNotificationFunc)
         appPolicies.moduleType = m.data.getRcModuleTypes()
       end
     end
-    pPTUpdateFunc(ptuTable)
+     if pPTUpdateFunc then pPTUpdateFunc(ptuTable) end
   end
   actions.ptu.policyTableUpdate(ptuUpdateFunc, pExpNotificationFunc)
 end

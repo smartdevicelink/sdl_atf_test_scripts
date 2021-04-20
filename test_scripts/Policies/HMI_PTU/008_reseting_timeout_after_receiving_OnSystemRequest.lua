@@ -37,7 +37,7 @@ local function resetTimeoutAfterOnSystemRequest()
   local systemRequestTime = timestamp()
   common.hmi():SendNotification("BasicCommunication.OnSystemRequest",
     { requestType = "PROPRIETARY", fileName = "files/ptu.json" })
-  common.mobile():ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
+  common.mobile():ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" }):Times(AtLeast(1))
   common.hmi():ExpectNotification("SDL.OnStatusUpdate", { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(AtLeast(1))
   :ValidIf(function(e)
     if e.occurences == 1 then
