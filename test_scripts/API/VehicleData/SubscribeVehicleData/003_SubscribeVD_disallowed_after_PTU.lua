@@ -63,7 +63,8 @@ for param in common.spairs(common.getVDParams(true)) do
 
   common.runner.Title("Test")
   common.runner.Step("PTU with disabling permissions for VD parameter", policyTableUpdate, { param })
-  common.runner.Step("RPC " .. common.rpc.sub .. " DISALLOWED after PTU", common.processRPCFailure, { common.rpc.sub, result })
+  common.runner.Step("RPC " .. common.rpc.sub .. " DISALLOWED after PTU", common.processRPCFailure,
+    { common.rpc.sub, param, result })
 
   common.runner.Title("Postconditions")
   common.runner.Step("Stop SDL", common.postconditions)

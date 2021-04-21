@@ -31,4 +31,13 @@
 ./test_scripts/Defects/7_1/3640_PTU_all_flows_Protected_Mode_v3.lua
 ./test_scripts/Defects/7_1/3659_OnSystemRequest_1st_frame_non-encrypted.lua
 ./test_scripts/Defects/7_1/3667_Revert_RC_SetGlobalProperties_on_failed_resumption.lua
+./test_scripts/Defects/7_1/2604_Starting_of_protected_RPC_service_before_and_after_app_registration.lua
+./test_scripts/Defects/7_1/1714_OnSystemRequest_send_binaryData_for_any_requestType.lua
+./test_scripts/Defects/7_1/3412_Two_Streaming_apps_and_Alert_requests.lua
+./test_scripts/Defects/7_1/3163_SDL_restart_with_gear_change.lua
+./test_scripts/Defects/7_1/3620/3620_1_RPC_Service_NACK_invalid_bson.lua
+./test_scripts/Defects/7_1/3620/3620_2_RPC_Service_NACK_protected_invalid_bson.lua
+./test_scripts/Defects/7_1/3620/3620_3_RPC_Service_NACK_non_existed_session_id.lua
+./test_scripts/Defects/7_1/3620/3620_4_RPC_Service_NACK_protected_non_existed_session_id.lua
+./test_scripts/Defects/7_1/3620/3620_5_RPC_Service_NACK_before_OnSystemTimeReady.lua
 ./test_scripts/Defects/7_1/1846_Mismatch_for_mandatory_parameter_between_MOBILE_API_and_HMI_API.lua
