@@ -1240,6 +1240,7 @@ function m.preconditions()
   SDL.AppInfo.clean()
   m.sdl.deletePTS()
   SDL.AppStorage.clean()
+  SDL.AppIcons.clean()
 end
 
 --[[ @postconditions: postcondition steps
