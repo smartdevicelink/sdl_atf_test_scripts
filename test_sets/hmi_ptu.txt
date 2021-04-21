@@ -19,3 +19,5 @@
 ./test_scripts/Policies/HMI_PTU/019_No_App_days_trigger.lua
 ./test_scripts/Policies/HMI_PTU/020_No_App_ignition_cycles_trigger.lua
 ./test_scripts/Policies/HMI_PTU/021_No_App_manual_trigger.lua
+./test_scripts/Policies/HMI_PTU/022_No_App_connected_days_trigger.lua
+./test_scripts/Policies/HMI_PTU/023_No_App_connected_ignition_cycles_trigger.lua

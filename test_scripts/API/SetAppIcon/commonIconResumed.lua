@@ -37,7 +37,7 @@ end
 --]]
 function m.getIconValueForResumption(pAppId)
   if not pAppId then pAppId = 1 end
-  return commonPreconditions:GetPathToSDL() .. "storage/" .. m.getConfigAppParams(pAppId).fullAppID
+  return commonPreconditions:GetPathToSDL() .. m.sdl.getSDLIniParameter("AppIconsFolder") .. "/" .. m.getConfigAppParams(pAppId).fullAppID
 end
 
 --[[ @registerAppWOPTU: register mobile application
