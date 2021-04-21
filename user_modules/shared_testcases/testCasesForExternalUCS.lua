@@ -59,12 +59,9 @@ local m = { }
 --! @parameters: NO
 --]]
   function m.removeLPT()
-    local data = { "AppStorageFolder" }
-    for i, v in pairs(data) do
-      assert(os.execute("rm -rf " .. commonPreconditions:GetPathToSDL()
-        .. commonFunctions:read_parameter_from_smart_device_link_ini(v)
-        .. (i == 1 and "/*" or "")))
-    end
+    assert(os.execute("rm -rf " .. commonPreconditions:GetPathToSDL()
+      .. commonFunctions:read_parameter_from_smart_device_link_ini("AppStorageFolder")
+      .. "/*"))
   end
 
 --[[@removePTS: Delete Policy Table Snapshot
