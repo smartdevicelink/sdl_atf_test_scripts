@@ -413,8 +413,8 @@ function commonSteps:DeleteLogsFiles()
 	self:CheckSDLPath()
 
 	--Delete app_info.dat and log files
-	if self:file_exists(config.pathToSDL .. "app_info.dat") == true then
-		os.remove(config.pathToSDL .. "app_info.dat")
+	if self:file_exists(config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. SDLConfig:GetValue("AppInfoStorage")) == true then
+		os.remove(config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. SDLConfig:GetValue("AppInfoStorage"))
 	end
 
 	if self:file_exists(config.pathToSDL .. "SmartDeviceLinkCore.log") == true then

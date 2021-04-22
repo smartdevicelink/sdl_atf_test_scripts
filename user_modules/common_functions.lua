@@ -1,6 +1,7 @@
 -- This script contains common functions that are used in many script.
 -- How to use: common_functions:IsFileExist(path to file)
 --------------------------------------------------------------------------------
+local SDLConfig = require('user_modules/shared_testcases/SmartDeviceLinkConfigurations')
 local CommonFunctions = {}
 -- COMMON FUNCTIONS FOR FILE AND FOLDER
 --------------------------------------------------------------------------------
@@ -28,8 +29,8 @@ end
 
 function CommonFunctions:DeleteLogsFiles()
   CommonFunctions:CheckSdlPath()
-  if self:IsFileExist(config.pathToSDL .. "app_info.dat") then
-    os.remove(config.pathToSDL .. "app_info.dat")
+  if self:IsFileExist(config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. SDLConfig:GetValue("AppInfoStorage")) then
+    os.remove(config.pathToSDL .. SDLConfig:GetValue("AppStorageFolder") .. "/" .. SDLConfig:GetValue("AppInfoStorage"))
   end
   os.execute("rm -f " .. config.pathToSDL .. "*.log")
 end

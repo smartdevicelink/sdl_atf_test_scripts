@@ -291,8 +291,7 @@ end
 function m.waitUntilResumptionDataIsStored()
   utils.cprint(35, "Wait ...")
   local timeoutToSafe = commonFunctions:read_parameter_from_smart_device_link_ini("AppSavePersistentDataTimeout")
-  local fileName = commonPreconditions:GetPathToSDL()
-    .. commonFunctions:read_parameter_from_smart_device_link_ini("AppInfoStorage")
+  local fileName = SDL.AppInfo.file()
   local function isFileExist()
     local f = io.open(fileName, "r")
     if f ~= nil then
