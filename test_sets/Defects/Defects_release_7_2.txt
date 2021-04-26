@@ -1,0 +1,2 @@
+./test_scripts/Defects/7_2/3556_1_GetListOfPermission_no_specific_permission.lua
+./test_scripts/Defects/7_2/3556_2_GetListOfPermission_contains_groups_with_user_consent_prompt.lua
