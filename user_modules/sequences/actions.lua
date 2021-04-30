@@ -1249,6 +1249,8 @@ end
 --]]
 function m.postconditions()
   StopSDL()
+  SDL.AppStorage.clean()
+  SDL.AppIcons.clean()
   m.sdl.restoreSDLIniFile()
   m.sdl.restorePreloadedPT()
   m.sdl.restoreHMICapabilitiesFile()
