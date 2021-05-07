@@ -120,7 +120,7 @@ function Test:TestStep_SubscribeVehicleData()
       fuelLevel = { dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS" },
       fuelLevel_State = { dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "DISALLOWED" },
       instantFuelConsumption = { dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "DISALLOWED" },
-      info = "'fuelLevel_State', 'instantFuelConsumption' disallowed by policies."
+      info = "'fuelLevel_State', 'instantFuelConsumption' are disallowed by policies"
     })
 end
 
@@ -158,7 +158,7 @@ function Test:TestStep_UnsubscribeVehicleData()
       fuelLevel = { dataType = "VEHICLEDATA_FUELLEVEL", resultCode = "SUCCESS" },
       fuelLevel_State = { dataType = "VEHICLEDATA_FUELLEVEL_STATE", resultCode = "DISALLOWED" },
       instantFuelConsumption = { dataType = "VEHICLEDATA_FUELCONSUMPTION", resultCode = "DISALLOWED" },
-      info = "'fuelLevel_State', 'instantFuelConsumption' disallowed by policies."
+      info = "'fuelLevel_State', 'instantFuelConsumption' are disallowed by policies"
     })
 end
 
