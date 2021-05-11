@@ -107,7 +107,7 @@ function Test:TestStep_GetVehicleData()
       speed = 101.00,
       rpm = 12345,
       fuelLevel = 20.00,
-      info = "'accPedalPosition', 'beltStatus', 'bodyInformation', 'deviceStatus', 'driverBraking', 'engineTorque', 'externalTemperature', 'fuelLevel_State', 'gps', 'headLampStatus', 'instantFuelConsumption', 'odometer', 'prndl', 'steeringWheelAngle', 'tirePressure', 'vin', 'wiperStatus' disallowed by policies."
+      info = "'accPedalPosition', 'beltStatus', 'bodyInformation', 'deviceStatus', 'driverBraking', 'engineTorque', 'externalTemperature', 'fuelLevel_State', 'gps', 'headLampStatus', 'instantFuelConsumption', 'odometer', 'prndl', 'steeringWheelAngle', 'tirePressure', 'vin', 'wiperStatus' are disallowed by policies"
     })
 end
 

@@ -91,7 +91,7 @@ local function processingAllowedAndDisallowedData()
       data.payload.custom_vd_item2_float then
       return false, "GetVehicleData response contains unexpected params rpm or " ..
       common.VehicleDataItemsWithData.custom_vd_item2_float.name .. ".\n" ..
-      "Received parameters are \n" .. common.tableToString(data.params)
+      "Received parameters are \n" .. common.tableToString(data.payload)
     end
     if not data.payload.info then
       return false, "GetVehicleData response does not contain parameter 'info'"

@@ -83,21 +83,21 @@ local function processingAllowedAndDisallowedData()
       data.params[common.VehicleDataItemsWithData.custom_vd_item2_float.key] then
       return false, "VI.GetVehicleData request contains unexpected params rpm or " ..
       common.VehicleDataItemsWithData.custom_vd_item2_float.key .. ".\n" ..
-      "Received parameters are \n" .. common.printTable(data.params)
+      "Received parameters are \n" .. common.tableToString(data.params)
     end
     return true
   end)
 
   MobResp.success = true
   MobResp.resultCode = "SUCCESS"
-  MobResp.info = "'custom_vd_item2_float', 'rpm' disallowed by policies."
+  MobResp.info = "'custom_vd_item2_float', 'rpm' are disallowed by policies"
   common.getMobileSession():ExpectResponse(cid, MobResp)
   :ValidIf(function(_, data)
     if data.payload.rpm or
       data.payload.custom_vd_item2_float then
       return false, "GetVehicleData response contains unexpected params rpm or " ..
       common.VehicleDataItemsWithData.custom_vd_item2_float.name .. ".\n" ..
-      "Received parameters are \n" .. common.printTable(data.params)
+      "Received parameters are \n" .. common.tableToString(data.payload)
     end
     return true
   end)
