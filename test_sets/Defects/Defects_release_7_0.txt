@@ -55,6 +55,7 @@
 ./test_scripts/Defects/7_0/3175/3175_5_VR.OnLanguageChange_during_PTU_after_receiving_of_BC_SystemRequest.lua
 ./test_scripts/Defects/7_0/3175/3175_6_VR.OnLanguageChange_during_PTU_after_responding_to_BC_SystemRequest.lua
 ./test_scripts/Defects/7_0/3175/3175_7_VR.OnLanguageChange_during_PTU_after_sending_of_SDL_OnReceivedPolicyUpdate.lua
+./test_scripts/Defects/7_0/3170_AddCommand_DeleteCommand_multiple_times.lua
 ./test_scripts/Defects/7_0/3175/3175_8_VR.OnLanguageChange_during_PTU_after_receiving_of_SystemRequest.lua
 ./test_scripts/Defects/7_0/3164_1_OnInteriorVehicleData_empty_module_data.lua
 ./test_scripts/Defects/7_0/3164_2_GetInteriorVehicleData_empty_module_data_to_cache.lua
