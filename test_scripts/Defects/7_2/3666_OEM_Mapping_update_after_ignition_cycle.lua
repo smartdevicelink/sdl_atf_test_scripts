@@ -164,6 +164,7 @@ local function ptuFuncVDIupdate(pTbl)
     for key, value in pairs(pTbl.policy_table.vehicle_data.schema_items) do
       if value.name == anotherValue.name then
         pTbl.policy_table.vehicle_data.schema_items[key] = anotherCustomDataType[anotherKey]
+        break
       end
     end
   end
