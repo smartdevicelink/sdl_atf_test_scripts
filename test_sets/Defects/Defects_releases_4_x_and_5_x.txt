@@ -62,6 +62,7 @@
 ./test_scripts/Defects/5_0/1868_SDL_does_not_respond_to_HMI_request_with_empty_string_parameter.lua
 ./test_scripts/Defects/5_1/2862_SDL_sends_UnsubscribeWayPoint_request_to_HMI.lua
 ./test_scripts/Defects/5_1/2874_SDL_sends_system_request_with_correlationid_-1_and_INAVLID_DATA.lua
+./test_scripts/Defects/5_1/1393_ListFiles_from_enumerating_through_the_file_system.lua
 ;Streaming
 ./test_scripts/Defects/4_5/1912_Video_service_start_via_2_protocol.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_1_SDL_does_not_respond_NACK_Navi_Type.lua
