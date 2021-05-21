@@ -16,6 +16,7 @@
 ./test_scripts/API/VehicleData/OnVehicleData/006_OnVD_mandatory_parameters.lua
 ./test_scripts/API/VehicleData/OnVehicleData/007_OnVD_min_max_boundary_values.lua
 ./test_scripts/API/VehicleData/OnVehicleData/008_OnVD_enum_and_bool_values.lua
+./test_scripts/API/VehicleData/OnVehicleData/009_OnVD_allowed_for_omitted_parameters_field.lua
 ./test_scripts/API/VehicleData/SubscribeVehicleData/001_SubscribeVD_Success.lua
 ./test_scripts/API/VehicleData/SubscribeVehicleData/002_SubscribeVD_disallowed.lua
 ./test_scripts/API/VehicleData/SubscribeVehicleData/003_SubscribeVD_disallowed_after_PTU.lua
