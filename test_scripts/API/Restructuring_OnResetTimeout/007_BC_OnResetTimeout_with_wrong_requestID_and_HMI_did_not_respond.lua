@@ -59,6 +59,8 @@ common.Step("Send ScrollableMessage" , common.rpcs.ScrollableMessage,
   { 12000, 11000, invalidParamOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
 common.Step("Send Alert" , common.rpcs.Alert,
   { 14000, 13000, invalidParamOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
+common.Step("Send SubtleAlert" , common.rpcs.SubtleAlert,
+  { 14000, 13000, invalidParamOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
 common.Step("Send Slider" , common.rpcs.Slider,
   { 12000, 11000, invalidParamOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
 

@@ -48,6 +48,7 @@ c.rpcs = {}
 c.rpcsArray = {
   "SendLocation",
   "Alert",
+  "SubtleAlert",
   "PerformInteraction",
   "Slider",
   "Speak",
@@ -252,6 +253,62 @@ function c.rpcs.Alert( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, 
   c.getHMIConnection():ExpectRequest("TTS.Speak", {
       ttsChunks = paramsAlert.ttsChunks,
       speakType = "ALERT",
+      appID = c.getHMIAppId()
+    })
+  :Do(function(_, data)
+      local function SpeakResponse()
+        c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
+      RUN_AFTER(SpeakResponse, 2000)
+    end)
+
+  c.getMobileSession():ExpectResponse(cid, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @SubtleAlert: Successful processing SubtleAlert RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.SubtleAlert( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local paramsAlert = {
+    ttsChunks = {
+      { type = "TEXT",
+        text = "pathToFile"
+      }
+    },
+    alertText1 = "alertText1",
+    duration = 3000
+  }
+  local cid = c.getMobileSession():SendRPC("SubtleAlert", paramsAlert)
+  local pRequestTime = timestamp()
+
+  c.getHMIConnection():ExpectRequest( "UI.SubtleAlert", {
+      alertStrings = {
+        { fieldName = "subtleAlertText1",
+          fieldText = "alertText1"
+        }
+      },
+      duration = 3000,
+      alertType = "BOTH",
+      appID = c.getHMIAppId()
+    })
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+
+  c.getHMIConnection():ExpectRequest("TTS.Speak", {
+      ttsChunks = paramsAlert.ttsChunks,
+      speakType = "SUBTLE_ALERT",
       appID = c.getHMIAppId()
     })
   :Do(function(_, data)

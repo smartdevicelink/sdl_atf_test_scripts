@@ -38,6 +38,8 @@ common.Step("Send ScrollableMessage" , common.rpcs.ScrollableMessage,
   { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 common.Step("Send Alert" , common.rpcs.Alert,
   { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
+common.Step("Send SubtleAlert" , common.rpcs.SubtleAlert,
+  { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 common.Step("Send Slider" , common.rpcs.Slider,
   { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 
