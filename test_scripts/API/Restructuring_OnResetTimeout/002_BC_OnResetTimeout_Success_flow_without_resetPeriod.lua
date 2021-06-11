@@ -1,33 +1,42 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to reset timeout for Mobile app response to default value
+--  by receiving 'OnResetTimeout(nil)' notification from HMI
+-- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
+--  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC is requested
--- 2) 15 seconds after receiving GetInteriorVehicleDataConsent request
---   or 5 seconds after receiving all other RPCs on HMI is passed
--- 3) HMI sends BC.OnResetTimeout(without resetPeriod) to SDL
--- 4)When HMI processes the RPC with InteriorVD consent, it sends the response in 21 seconds
---  to GetInteriorVehicleDataConsent request
---   and then responds to SetInteriorVD request after receiving request on HMI
--- 5)When HMI processes the requests without consent it sends the response in 11 seconds after receiving request on HMI
+-- 1) App sends applicable RPC
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL without 'resetPeriod' parameter within the <delay>
+-- after receiving request from SDL:
+--  - 15s for 'GetInteriorVehicleDataConsent' RPC
+--  - 5s for all other RPCs
+-- 4) HMI sends response after:
+--  - 21s for 'GetInteriorVehicleDataConsent'
+--  - 11s for all other requests
 -- SDL does:
--- 1) Apply default 10 sec timeout by receiving BC.OnResetTimeout(without resetPeriod)
--- 2) Receive response and successful process it
--- 3) Respond with SUCCESS resultCode to mobile app
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within reset period
+--  - once response received proceed with it successfully and transfer it to Mobile app
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
 	respTime = 11000,
-	notificationTime = 5000
+	notificationTime = 5000,
+  resetPeriod = nil
 }
 
 local paramsForRespFunctionWithConsent = {
   respTime = 21000,
   notificationTime = 15000,
+  resetPeriod = nil
 }
 
 local RespParams = { success = true, resultCode = "SUCCESS" }

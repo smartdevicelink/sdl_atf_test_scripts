@@ -1,17 +1,33 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to apply default RPC (or default System) timeout and
+--  respond with GENERIC_ERROR:false to Mobile app in case:
+--  - zero reset period received within 'OnResetTimeout()' notification from HMI
+--  - and HMI hasn't responded
+-- Notes:
+--  - RPCs without specific timeout: 'SendLocation', 'Speak', 'DiagnosticMessage', 'SetInteriorVehicleData'
+--  - RPCs with specific timeout: 'PerformInteraction' (5s), 'ScrollableMessage' (1s), 'Alert' (3s),
+--     'SubtleAlert' (3s), 'Slider' (1s)
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC is requested
--- 2) 15 seconds after receiving GetInteriorVehicleDataConsent request
---   or 5 seconds after receiving all other RPCs on HMI is passed
--- 3) HMI sends BC.OnResetTimeout(resetPeriod = 0) to SDL
--- 4) HMI does not respond
+-- 1) App sends applicable RPC
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL with 'resetPeriod=0' parameter within the <delay>
+-- after receiving request from SDL:
+--  - 15s for 'GetInteriorVehicleDataConsent' RPC
+--  - 5s for all other RPCs
+-- 4) HMI doesn't provide a response
 -- SDL does:
--- 1) Respond with GENERIC_ERROR resultCode to mobile app when 2*default timeout for SetInteriorVD with consent
---   and default timeout for all other RPCs is expired
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within:
+--    - '2 x default timeout' (20s) for 'GetInteriorVehicleDataConsent'
+--    - 'default timeout' (10s) for RPCs without specific timeout
+--    - 'default timeout + RPC timeout' for RPCs with specific timeout
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

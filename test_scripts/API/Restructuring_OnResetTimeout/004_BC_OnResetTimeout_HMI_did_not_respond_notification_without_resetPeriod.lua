@@ -1,17 +1,29 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to respond with GENERIC_ERROR:false to Mobile app in case:
+--  - default reset period received within 'OnResetTimeout(nil)' notification from HMI is expired
+--  - and HMI hasn't responded
+-- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
+--  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC is requested
--- 2) 16 seconds after receiving GetInteriorVehicleDataConsent request
---   or 6 seconds after receiving all other RPCs on HMI is passed
--- 3) HMI sends BC.OnResetTimeout(without resetPeriod)
--- 4) HMI does not send response
+-- 1) App sends applicable RPC
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL without 'resetPeriod' parameter within the <delay>
+-- after receiving request from SDL:
+--  - 16s for 'GetInteriorVehicleDataConsent' RPC
+--  - 6s for all other RPCs
+-- 4) HMI doesn't provide a response
 -- SDL does:
--- 1) Respond with GENERIC_ERROR resultCode to mobile app after 26 seconds to SetInteriorVD with consent
---   and after 16 seconds to all other RPCs
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within:
+--    - 'default timeout + delay' (26s) for 'GetInteriorVehicleDataConsent'
+--    - 'default timeout + delay' (16s) for all other requests
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

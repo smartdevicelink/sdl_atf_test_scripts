@@ -1,14 +1,23 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to ignore reset period received in 'OnResetTimeout()' notification in case
+--  if default timeout is greater
+-- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
+--  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC is requested
--- 2) HMI sends BC.OnResetTimeout(resetPeriod = 6000) to SDL right after receiving RPC request on HMI
--- 3) HMI does not respond
+-- 1) App sends applicable RPC
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL with 'resetPeriod=6s' right after receiving request from SDL
+-- 4) HMI doesn't provide a response
 -- SDL does:
--- 1) Respond with GENERIC_ERROR resultCode to mobile app to RPC in 10 seconds
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within 'default timeout' (10s)
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

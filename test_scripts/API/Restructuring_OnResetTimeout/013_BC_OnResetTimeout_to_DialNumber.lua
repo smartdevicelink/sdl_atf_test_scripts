@@ -1,17 +1,24 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL does not reset timeout for Mobile app response for a specifc RPC in case
+--  HMI sends 'OnResetTimeout(resetPeriod)' notification
+-- Applicable RPCs: 'DialNumber', 'Alert' (with soft buttons), 'SubtleAlert' (with soft buttons)
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) DialNumber is requested
--- 2) HMI sends response in 14 sec
--- 3) DialNumber is requested
--- 4) HMI sends BC.OnResetTimeout(resetPeriod = 12000) to SDL right after receiving DialNumber request on HMI
--- 5) HMI sends response in 14 sec
+-- 1) App sends applicable RPC
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL right after receiving request with 'resetPeriod = 12s'
+-- 4) HMI sends response after delay of 14s
 -- SDL does:
--- 1) not apply RPC timeout and not reset timeout by BC.OnResetTimeout
--- 2) process response from HMI and respond SUCCESS to mobile app
----------------------------------------------------------------------------------------------------
+--  - not apply default timeout
+--  - not reset timeout once 'BC.OnResetTimeout' notification is received
+--  - wait for the response from HMI
+--  - once received it proceed with response successfully and transfer it to Mobile app
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

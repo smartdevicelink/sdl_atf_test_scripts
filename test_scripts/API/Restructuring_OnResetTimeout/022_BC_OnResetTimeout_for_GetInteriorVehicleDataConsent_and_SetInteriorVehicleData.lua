@@ -1,21 +1,29 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL postpones response to a specific Remote Control RPCs until user consent is received
+--  and respond with SUCCESS:true to Mobile app in case HMI has responded
+-- Applicable RPCs: 'SetInteriorVehicleData', 'ButtonPress'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) SetInteriorVehicleData is requested by mobile app1
--- 2) SDL sends RC.GetInteriorVehicleDataConsent
--- 3) HMI sends BC.OnResetTimeout(resetPeriod =  25000) to SDL for RC.GetInteriorVehicleDataConsent
---  right after receiving requests on HMI
--- 4) HMI responds to RC.GetInteriorVehicleDataConsent with SUCCESS resultCode in 23 seconds
---  after receiving HMI requests
--- 5) SDL sends RC.SetInteriorVehicleData to HMI
--- 6) HMI sends BC.OnResetTimeout(resetPeriod =  15000) to SDL RC.SetInteriorVehicleData
---  right after receiving requests on HMI
--- 7) HMI responds to RC.SetInteriorVehicleData with SUCCESS resultCode in 13 seconds after receiving HMI requests
+-- 1) RC access mode is set to 'ASK_DRIVER'
+-- 2) RC <module> is allocated by mobile App_1
+-- 3) App_2 sends 'SetInteriorVehicleData' RPC for the RC <module>
+-- 4) SDL sends 'RC.GetInteriorVehicleDataConsent' to HMI
+-- 5) HMI sends 'BC.OnResetTimeout' to SDL with 'resetPeriod=25s' for 'RC.GetInteriorVehicleDataConsent'
+--  right after receiving request
+-- 6) HMI responds to 'RC.GetInteriorVehicleDataConsent(allow)' with SUCCESS resultCode in 23s
+-- 7) SDL sends 'RC.SetInteriorVehicleData' request to HMI
+-- 8) HMI sends 'BC.OnResetTimeout' to SDL with 'resetPeriod=15s' for 'RC.GetInteriorVehicleData'
+--  right after receiving request
+-- 9) HMI responds to 'RC.SetInteriorVehicleData' request with SUCCESS resultCode in 13s
 -- SDL does:
--- 1) Respond in 36 seconds with SUCCESS resultCode to mobile app.
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within 'reset period'
+--  - respond with SUCCESS:true to Mobile app once response is received
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

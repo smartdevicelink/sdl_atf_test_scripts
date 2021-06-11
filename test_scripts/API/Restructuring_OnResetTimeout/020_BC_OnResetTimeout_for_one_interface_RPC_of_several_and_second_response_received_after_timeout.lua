@@ -1,17 +1,25 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to reset timeout for Mobile app response to defined period
+--  and to respond with SUCCESS:true in case:
+--  - App sends request which is being split into 2 interfaces
+--  - and HMI provides 'OnResetTimeout()' for only one request with 'resetPeriod' > 'default timeout'
+--  - and HMI responded successfully after default timeout
+-- Applicable RPCs: 'AddCommand'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC_1 for several interfaces is requested by mobile app
--- 2) SDL sends Interface_1.RPC_1 and Interface_2.RPC_1
--- 3) HMI sends BC.OnResetTimeout(resetPeriod =  15000) to SDL for request on Interface_1
---  right after receiving requests on HMI
--- 4) HMI responds to Interface_1.RPC_1 and Interface_2.RPC_1 with SUCCESS resultCode in 12 seconds
---  after receiving HMI requests
+-- 1) App sends RPC which is being split into 2 interfaces
+-- 2) SDL sends 2 requests to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL for one request right after receiving it with 'resetPeriod=15s'
+-- 4) HMI sends response within 12s for both requests
 -- SDL does:
--- 1) Respond in 12 seconds with SUCCESS resultCode to mobile app.
----------------------------------------------------------------------------------------------------
+--  - wait for both responses from HMI within 'reset period' (15s)
+--  - respond with SUCCESS:true to Mobile app once both responses are received within the timeout
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

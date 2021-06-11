@@ -1,18 +1,27 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to reset timeout for Mobile app response to defined period
+--  by receiving 'OnResetTimeout(resetPeriod)' notification from HMI
+-- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
+--  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC is requested
--- 2) HMI sends BC.OnResetTimeout with resetPeriod = 25000 for GetInteriorVehicleDataConsent and
---   with resetPeriod = 15000 for all other RPCs to SDL right after receiving RPC request on HMI
--- 3)When HMI processes the RPC with InteriorVD consent, it sends the response in 21 seconds
---  to GetInteriorVehicleDataConsent request
---   and then responds to SetInteriorVD request after receiving request on HMI
--- 4)When HMI processes the requests without consent it sends the response in 11 seconds after receiving request on HMI
+-- 1) App sends applicable RPC
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL right after receiving request with data:
+--  - 'resetPeriod = 25s' for 'GetInteriorVehicleDataConsent' RPC
+--  - 'resetPeriod = 15s' for all other RPCs
+-- 4) HMI sends response after:
+--  - 21s for 'GetInteriorVehicleDataConsent'
+--  - 11s for all other requests
 -- SDL does:
--- 1) Respond with SUCCESS resultCode to mobile app
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within reset period
+--  - once received it proceed with response successfully and transfer it to Mobile app
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

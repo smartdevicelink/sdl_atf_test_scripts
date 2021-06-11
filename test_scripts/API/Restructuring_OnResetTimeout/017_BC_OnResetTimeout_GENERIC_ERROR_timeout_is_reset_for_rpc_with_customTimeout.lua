@@ -1,16 +1,27 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL does not apply default RPC timeout and respond with GENERIC_ERROR:false to Mobile app in case:
+--  - App sends RPC with specific timeout
+--  - reset period received within 'OnResetTimeout(resetPeriod)' notification from HMI is expired
+--  - and HMI hasn't responded
+-- Notes:
+--  - RPCs with specific timeout: 'PerformInteraction' (5s), 'ScrollableMessage' (1s), 'Alert' (3s),
+--     'SubtleAlert' (3s), 'Slider' (1s)
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC with own timeout is requested
--- 2) SDL re-sends this request to HMI and wait for response
--- 3) Default (10 sec) timeout is expired
--- 4) HMI sends BC.OnResetTimeout(resetPeriod = 7000) to SDL
--- 5) HMI does not send response
+-- 1) App sends applicable RPC with specific timeout
+-- 2) SDL transfers this request to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL with 'resetPeriod=7s' parameter within the 10.5s
+-- after receiving request from SDL
+-- 4) HMI doesn't provide a response
 -- SDL does:
--- 1) Respond with GENERIC_ERROR resultCode to mobile app after 17 seconds
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within 'delay + reset period' (17.5s)
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

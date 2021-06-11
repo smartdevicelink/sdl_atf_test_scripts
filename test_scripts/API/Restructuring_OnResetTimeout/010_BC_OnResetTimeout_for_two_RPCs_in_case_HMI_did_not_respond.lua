@@ -1,17 +1,29 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL is able to respond with GENERIC_ERROR:false to Mobile app in case:
+--  - App sends 2 different requests
+--  - and HMI provides 'OnResetTimeout(resetPeriod)' for each request
+--  - and HMI hasn't responded
+-- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
+--  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) RPC_1 is requested
--- 2) RPC_2 is requested
--- 3) HMI sends BC.OnResetTimeout(resetPeriod = 11000) to SDL for RPC_1 and BC.OnResetTimeout(resetPeriod = 13000)
---  for RPC_2 right after receiving requests on HMI
--- 4) HMI does not respond
+-- 1) App sends 2 different applicable RPCs
+-- 2) SDL transfers these requests to HMI
+-- 3) HMI sends 'BC.OnResetTimeout' notifications to SDL for these 2 requests right after receiving them:
+--  - 1st request with 'resetPeriod=11s'
+--  - 2nd request with 'resetPeriod=13s'
+-- 4) HMI doesn't provide a response for both requests
 -- SDL does:
--- 1) Respond with GENERIC_ERROR resultCode to mobile app to RPC_1 in 11 seconds
--- 2) Respond with GENERIC_ERROR resultCode to mobile app to RPC_2 in 13 seconds
----------------------------------------------------------------------------------------------------
+--  - wait for the 1st response from HMI within '1st reset period' (11s)
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+--  - wait for the 2nd response from HMI within '2nd reset period' (13s)
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 

@@ -1,19 +1,27 @@
----------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
+------------------------------------------------------------------------------------------------------------------------
+-- Description: Check SDL postpones response to a specific Remote Control RPCs until user consent is received
+--  and respond with GENERIC_ERROR:false to Mobile app in case HMI hasn't responded
+-- Applicable RPCs: 'SetInteriorVehicleData', 'ButtonPress'
+------------------------------------------------------------------------------------------------------------------------
+-- Preconditions:
+-- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
 --
--- Description:
 -- In case:
--- 1) SetInteriorVehicleData is requested by mobile app1
--- 2) SDL sends RC.GetInteriorVehicleDataConsent
--- 3) HMI sends BC.OnResetTimeout(resetPeriod =  25000) to SDL for RC.GetInteriorVehicleDataConsent
---  right after receiving requests on HMI
--- 4) HMI responds to RC.GetInteriorVehicleDataConsent with SUCCESS resultCode in 23 seconds
---  after receiving HMI requests
--- 5) SDL sends RC.SetInteriorVehicleData to HMI
--- 6) HMI does not respond to RC.SetInteriorVehicleData
+-- 1) RC access mode is set to 'ASK_DRIVER'
+-- 2) RC <module> is allocated by mobile App_1
+-- 3) App_2 sends 'SetInteriorVehicleData' RPC for the RC <module>
+-- 4) SDL sends 'RC.GetInteriorVehicleDataConsent' to HMI
+-- 5) HMI sends 'BC.OnResetTimeout' to SDL with 'resetPeriod=25s' for 'RC.GetInteriorVehicleDataConsent'
+--  right after receiving request
+-- 6) HMI responds to 'RC.GetInteriorVehicleDataConsent(allow)' with SUCCESS resultCode in 23s
+-- 7) SDL sends 'RC.SetInteriorVehicleData' request to HMI
+-- 8) HMI does not respond to 'RC.SetInteriorVehicleData' request
 -- SDL does:
--- 1) Respond in 33 seconds with GENERIC_ERROR resultCode to mobile app.
----------------------------------------------------------------------------------------------------
+--  - wait for the response from HMI within 'default timeout'
+--  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
+------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 
