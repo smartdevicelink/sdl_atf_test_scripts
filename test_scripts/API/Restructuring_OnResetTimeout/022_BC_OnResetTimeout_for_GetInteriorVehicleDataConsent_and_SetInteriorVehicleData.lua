@@ -49,12 +49,12 @@ local function SetInteriorVehicleDataWithConsentResetToBoth()
   local requestTime = timestamp()
   local delay
   local consentRPC = "GetInteriorVehicleDataConsent"
-  EXPECT_HMICALL(common.getHMIEventName(consentRPC), common.getHMIRequestParams(consentRPC, "CLIMATE", 2))
+  common.getHMIConnection():ExpectRequest(common.getHMIEventName(consentRPC), common.getHMIRequestParams(consentRPC, "CLIMATE", 2))
   :Do(function(_, data)
       paramsForRespFunctionConsent.respParams = common.getHMIResponseParams(consentRPC, true)
       common.responseWithOnResetTimeout(data, paramsForRespFunctionConsent)
 
-      EXPECT_HMICALL(common.getHMIEventName("SetInteriorVehicleData"),
+      common.getHMIConnection():ExpectRequest(common.getHMIEventName("SetInteriorVehicleData"),
       common.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE", 2))
       :Do(function(_, dataSet)
           paramsForRespFunction.respParams = common.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE")

@@ -200,7 +200,7 @@ function c.rpcs.SendLocation( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRes
   local cid = c.getMobileSession():SendRPC("SendLocation", sendLocationRequestParams)
   local pRequestTime = timestamp()
 
-  EXPECT_HMICALL("Navigation.SendLocation", { appID = c.getHMIAppId() })
+  c.getHMIConnection():ExpectRequest("Navigation.SendLocation", { appID = c.getHMIAppId() })
   :Do(function(_, data)
       pOnRTParams.respParams = { }
       pHMIRespFunc(data, pOnRTParams)
@@ -383,7 +383,7 @@ function c.rpcs.Slider( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc,
     })
   local pRequestTime = timestamp()
 
-  EXPECT_HMICALL("UI.Slider", { appID = c.getHMIAppId() })
+  c.getHMIConnection():ExpectRequest("UI.Slider", { appID = c.getHMIAppId() })
   :Do(function(_, data)
       pOnRTParams.respParams = { }
       pHMIRespFunc(data, pOnRTParams)
@@ -415,7 +415,7 @@ function c.rpcs.Speak( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, 
   }
   local cid = c.getMobileSession():SendRPC("Speak", paramsSpeak)
   local  pRequestTime = timestamp()
-  EXPECT_HMICALL("TTS.Speak", { ttsChunks = paramsSpeak.ttsChunks })
+  c.getHMIConnection():ExpectRequest("TTS.Speak", { ttsChunks = paramsSpeak.ttsChunks })
   :Do(function(_, data)
       pOnRTParams.respParams = { }
       pHMIRespFunc(data, pOnRTParams)
@@ -443,7 +443,7 @@ function c.rpcs.DiagnosticMessage( pExpTimoutForMobResp, pExpTimeBetweenResp, pH
       messageData = { 1 }
     })
   local pRequestTime = timestamp()
-  EXPECT_HMICALL("VehicleInfo.DiagnosticMessage",
+  c.getHMIConnection():ExpectRequest("VehicleInfo.DiagnosticMessage",
     { targetID = 1,
       messageLength = 1,
       messageData = { 1 }
@@ -476,7 +476,7 @@ function c.rpcs.ScrollableMessage( pExpTimoutForMobResp, pExpTimeBetweenResp, pH
   local cid = c.getMobileSession():SendRPC("ScrollableMessage", requestParams)
   local pRequestTime = timestamp()
 
-  EXPECT_HMICALL("UI.ScrollableMessage", {
+  c.getHMIConnection():ExpectRequest("UI.ScrollableMessage", {
       messageText = {
         fieldName = "scrollableMessageBody",
         fieldText = requestParams.scrollableMessageBody
@@ -510,7 +510,7 @@ function c.rpcs.SetInteriorVehicleData( pExpTimoutForMobResp, pExpTimeBetweenRes
     c.getAppRequestParams("SetInteriorVehicleData", "CLIMATE" ))
   local pRequestTime = timestamp()
 
-  EXPECT_HMICALL(c.getHMIEventName("SetInteriorVehicleData"),
+  c.getHMIConnection():ExpectRequest(c.getHMIEventName("SetInteriorVehicleData"),
     c.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE"))
   :Do(function(_, data)
       pOnRTParams.respParams = c.getHMIResponseParams("SetInteriorVehicleData", "CLIMATE")
@@ -537,13 +537,13 @@ function c.rpcs.rpcAllowedWithConsent( pExpTimoutForMobResp, pExpTimeBetweenResp
     c.getAppRequestParams("SetInteriorVehicleData", "CLIMATE"))
   local pRequestTime = timestamp()
   local consentRPC = "GetInteriorVehicleDataConsent"
-  EXPECT_HMICALL(c.getHMIEventName(consentRPC), c.getHMIRequestParams(consentRPC, "CLIMATE", 2))
+  c.getHMIConnection():ExpectRequest(c.getHMIEventName(consentRPC), c.getHMIRequestParams(consentRPC, "CLIMATE", 2))
   :Do(function(_, data)
       pOnRTParams.respParams = c.getHMIResponseParams(consentRPC, true)
       pHMIRespFunc(data, pOnRTParams)
     end)
 
-  EXPECT_HMICALL(c.getHMIEventName("SetInteriorVehicleData"),
+  c.getHMIConnection():ExpectRequest(c.getHMIEventName("SetInteriorVehicleData"),
     c.getHMIRequestParams("SetInteriorVehicleData", "CLIMATE", 2))
   :Do(function(_, data)
       c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",

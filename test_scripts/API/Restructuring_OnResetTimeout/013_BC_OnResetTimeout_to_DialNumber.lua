@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
 ------------------------------------------------------------------------------------------------------------------------
--- Description: Check SDL does not reset timeout for Mobile app response for a specifc RPC in case
+-- Description: Check SDL does not reset timeout for Mobile app response for a specific RPC in case
 --  HMI sends 'OnResetTimeout(resetPeriod)' notification
 -- Applicable RPCs: 'DialNumber', 'Alert' (with soft buttons), 'SubtleAlert' (with soft buttons)
 ------------------------------------------------------------------------------------------------------------------------
@@ -26,7 +26,7 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 local function DialNumber(isSendingNotification)
   local cid = common.getMobileSession():SendRPC("DialNumber", { number = "#3804567654*" })
   local requestTime = timestamp()
-  EXPECT_HMICALL("BasicCommunication.DialNumber", { appID = common.getHMIAppId(), number = "#3804567654*" })
+  common.getHMIConnection():ExpectRequest("BasicCommunication.DialNumber", { appID = common.getHMIAppId(), number = "#3804567654*" })
   :Do(function(_, data)
       if isSendingNotification == true then
         common.onResetTimeoutNotification(data.id, data.method, 12000)

@@ -41,13 +41,13 @@ local function ButtonPress()
   local requestTime = timestamp()
   local delay
   local consentRPC = "GetInteriorVehicleDataConsent"
-  EXPECT_HMICALL(common.getHMIEventName(consentRPC), common.getHMIRequestParams(consentRPC, "CLIMATE", 2))
+  common.getHMIConnection():ExpectRequest(common.getHMIEventName(consentRPC), common.getHMIRequestParams(consentRPC, "CLIMATE", 2))
   :Do(function(_, data)
       delay = timestamp() - requestTime
       paramsForRespFunctionConsent.respParams = common.getHMIResponseParams(consentRPC, true)
       common.responseWithOnResetTimeout(data, paramsForRespFunctionConsent)
 
-      EXPECT_HMICALL(common.getHMIEventName("ButtonPress"),
+      common.getHMIConnection():ExpectRequest(common.getHMIEventName("ButtonPress"),
       common.getHMIRequestParams("ButtonPress", "CLIMATE", 2))
       :Do(function()
           -- no response

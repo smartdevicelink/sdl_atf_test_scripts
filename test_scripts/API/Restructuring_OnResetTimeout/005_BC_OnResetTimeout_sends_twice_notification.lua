@@ -39,7 +39,7 @@ local function diagnosticMessageError()
   local requestParams = { targetID = 1, messageLength = 1, messageData = { 1 } }
   local cid = common.getMobileSession():SendRPC("DiagnosticMessage", requestParams)
 
-  EXPECT_HMICALL("VehicleInfo.DiagnosticMessage", requestParams)
+  common.getHMIConnection():ExpectRequest("VehicleInfo.DiagnosticMessage", requestParams)
   :Do(function(_, data)
       common.withoutResponseWithOnResetTimeout(data, paramsForRespFunctionFirstNot)
       common.withoutResponseWithOnResetTimeout(data, paramsForRespFunctionSecondNot)

@@ -35,7 +35,7 @@ local function DiagnosticMessage( )
   local cid2 = common.getMobileSession():SendRPC("DiagnosticMessage",
     { targetID = 2, messageLength = 1, messageData = { 1 } })
 
-  EXPECT_HMICALL("VehicleInfo.DiagnosticMessage",
+  common.getHMIConnection():ExpectRequest("VehicleInfo.DiagnosticMessage",
     { targetID = 1, messageLength = 1, messageData = { 1 } },
     { targetID = 2, messageLength = 1, messageData = { 1 } })
   :Times(2)

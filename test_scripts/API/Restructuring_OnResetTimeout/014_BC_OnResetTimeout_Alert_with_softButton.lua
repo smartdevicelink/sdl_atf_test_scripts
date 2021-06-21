@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Proposal: https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0189-Restructuring-OnResetTimeout.md
 ------------------------------------------------------------------------------------------------------------------------
--- Description: Check SDL does not reset timeout for Mobile app response for a specifc RPC in case
+-- Description: Check SDL does not reset timeout for Mobile app response for a specific RPC in case
 --  HMI sends 'OnResetTimeout(resetPeriod)' notification
 -- Applicable RPCs: 'DialNumber', 'Alert' (with soft buttons), 'SubtleAlert' (with soft buttons)
 ------------------------------------------------------------------------------------------------------------------------
