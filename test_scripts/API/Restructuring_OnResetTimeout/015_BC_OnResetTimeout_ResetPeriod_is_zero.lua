@@ -52,7 +52,9 @@ common.Step("App_1 registration", common.registerAppWOPTU)
 common.Step("App_2 registration", common.registerAppWOPTU, { 2 })
 common.Step("App_1 activation", common.activateApp)
 common.Step("Set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
-common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet)
+common.Step("Create InteractionChoiceSet id 100", common.createInteractionChoiceSet, { 100 })
+common.Step("Create InteractionChoiceSet id 200", common.createInteractionChoiceSet, { 200 })
+common.Step("Add AddSubMenu", common.addSubMenu)
 
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArrayWithoutRPCWithCustomTimeout) do

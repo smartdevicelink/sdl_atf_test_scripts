@@ -40,7 +40,7 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("App_1 registration", common.registerAppWOPTU)
 common.Step("App_2 registration", common.registerAppWOPTU, { 2 })
 common.Step("App_1 activation", common.activateApp)
-common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet)
+common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet, { 100 })
 
 common.Title("Test")
 common.Step("Send PerformInteraction" , common.rpcs.PerformInteraction,

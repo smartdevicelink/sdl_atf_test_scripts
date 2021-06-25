@@ -54,14 +54,22 @@ c.rpcsArray = {
   "Speak",
   "ScrollableMessage",
   "DiagnosticMessage",
-  "SetInteriorVehicleData"
+  "SetInteriorVehicleData",
+  "CreateInteractionChoiceSet",
+  "DeleteInteractionChoiceSet",
+  "DeleteSubMenu",
+  "AlertManeuver"
 }
 
 c.rpcsArrayWithoutRPCWithCustomTimeout = {
   "SendLocation",
   "Speak",
   "DiagnosticMessage",
-  "SetInteriorVehicleData"
+  "SetInteriorVehicleData",
+  "CreateInteractionChoiceSet",
+  "DeleteInteractionChoiceSet",
+  "DeleteSubMenu",
+  "AlertManeuver"
 }
 
 --[[ Common Functions ]]
@@ -85,13 +93,13 @@ local function updatePreloadedPT()
 
   --insert application "0000001" into "app_policies"
   pt.policy_table.app_policies["0000001"] = c.cloneTable(pt.policy_table.app_policies.default)
-  pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup", "RemoteControl" }
+  pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup", "RemoteControl", "Navigation-1" }
   pt.policy_table.app_policies["0000001"].moduleType = c.modules
   pt.policy_table.app_policies["0000001"].AppHMIType = { "REMOTE_CONTROL" }
 
   --insert application "0000002" into "app_policies"
   pt.policy_table.app_policies["0000002"] = c.cloneTable(pt.policy_table.app_policies.default)
-  pt.policy_table.app_policies["0000002"].groups = { "Base-4", "NewTestCaseGroup", "RemoteControl" }
+  pt.policy_table.app_policies["0000002"].groups = { "Base-4", "NewTestCaseGroup", "RemoteControl", "Navigation-1" }
   pt.policy_table.app_policies["0000002"].moduleType = c.modules
   pt.policy_table.app_policies["0000002"].AppHMIType = { "REMOTE_CONTROL" }
 
@@ -153,13 +161,14 @@ function c.withoutResponseWithOnResetTimeout(pData, pOnRTParams)
   RUN_AFTER(sendOnResetTimeout, pOnRTParams.notificationTime)
 end
 
---[[ @createInteractionChoiceSet: Creation of Choice Set
---! @parameters: none
+--[[ @CreateInteractionChoiceSet: Creation of Choice Set
+--! @parameters:
+--! pID - unique ID for interaction choice set
 --! @return: none
 --]]
-function c.createInteractionChoiceSet()
+function c.createInteractionChoiceSet(pID)
   local params = {
-    interactionChoiceSetID = 100,
+    interactionChoiceSetID = pID,
     choiceSet = {
       {
         choiceID = 111,
@@ -170,6 +179,24 @@ function c.createInteractionChoiceSet()
   }
   local corId = c.getMobileSession():SendRPC("CreateInteractionChoiceSet", params)
   c.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+    end)
+  c.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+end
+
+--[[ @AddSubMenu: Add AddSubMenu
+--! @parameters: none
+--! @return: none
+--]]
+function c.addSubMenu()
+  local params = {
+    menuID = 1000,
+    position = 500,
+    menuName ="SubMenupositive"
+  }
+  local corId = c.getMobileSession():SendRPC("AddSubMenu", params)
+  c.getHMIConnection():ExpectRequest("UI.AddSubMenu")
   :Do(function(_, data)
       c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
@@ -517,6 +544,132 @@ function c.rpcs.SetInteriorVehicleData( pExpTimoutForMobResp, pExpTimeBetweenRes
       pHMIRespFunc(data, pOnRTParams)
     end)
   c.getMobileSession():ExpectResponse(cid, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @CreateInteractionChoiceSet: Successful processing CreateInteractionChoiceSet RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.CreateInteractionChoiceSet( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    interactionChoiceSetID = 300,
+    choiceSet = {
+      {
+        choiceID = 333,
+        menuName = "Choice333",
+        vrCommands = { "Choice333" }
+      }
+    }
+  }
+  local corId = c.getMobileSession():SendRPC("CreateInteractionChoiceSet", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @DeleteInteractionChoiceSet: Successful processing DeleteInteractionChoiceSet RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.DeleteInteractionChoiceSet( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    interactionChoiceSetID = 200
+  }
+  local corId = c.getMobileSession():SendRPC("DeleteInteractionChoiceSet", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("VR.DeleteCommand")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @DeleteSubMenu: Successful processing DeleteSubMenu RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.DeleteSubMenu( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    menuID = 1000
+  }
+  local corId = c.getMobileSession():SendRPC("DeleteSubMenu", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("UI.DeleteSubMenu")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @AlertManeuver: Successful processing AlertManeuver RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.AlertManeuver( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    ttsChunks = {
+      { type = "TEXT",
+        text = "alertManeuver"
+      }
+    }
+  }
+  local corId = c.getMobileSession():SendRPC("AlertManeuver", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("Navigation.AlertManeuver")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getHMIConnection():ExpectRequest("TTS.Speak")
+  :Do(function(_, data)
+      local function SpeakResponse()
+        c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
+      RUN_AFTER(SpeakResponse, 2000)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
   :Timeout(pExpTimoutForMobResp)
   :ValidIf(function()
       return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
