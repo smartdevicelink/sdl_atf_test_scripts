@@ -60,7 +60,8 @@ c.rpcsArray = {
   "DeleteSubMenu",
   "AlertManeuver",
   "AddCommand",
-  "ChangeRegistration"
+  "ChangeRegistration",
+  "SetGlobalProperties"
 }
 
 c.rpcsArrayWithoutRPCWithCustomTimeout = {
@@ -73,7 +74,8 @@ c.rpcsArrayWithoutRPCWithCustomTimeout = {
   "DeleteSubMenu",
   "AlertManeuver",
   "AddCommand",
-  "ChangeRegistration"
+  "ChangeRegistration",
+  "SetGlobalProperties"
 }
 
 --[[ Common Functions ]]
@@ -755,6 +757,33 @@ function c.rpcs.ChangeRegistration( pExpTimoutForMobResp, pExpTimeBetweenResp, p
         c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
       end
       RUN_AFTER(response, 2000)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @SetGlobalProperties: Successful processing SetGlobalProperties RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.SetGlobalProperties( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    menuTitle = "Menu Title"
+  }
+  local corId = c.getMobileSession():SendRPC("SetGlobalProperties", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("UI.SetGlobalProperties")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
     end)
   c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
   :Timeout(pExpTimoutForMobResp)
