@@ -59,7 +59,8 @@ c.rpcsArray = {
   "DeleteInteractionChoiceSet",
   "DeleteSubMenu",
   "AlertManeuver",
-  "AddCommand"
+  "AddCommand",
+  "ChangeRegistration"
 }
 
 c.rpcsArrayWithoutRPCWithCustomTimeout = {
@@ -71,7 +72,8 @@ c.rpcsArrayWithoutRPCWithCustomTimeout = {
   "DeleteInteractionChoiceSet",
   "DeleteSubMenu",
   "AlertManeuver",
-  "AddCommand"
+  "AddCommand",
+  "ChangeRegistration"
 }
 
 --[[ Common Functions ]]
@@ -706,6 +708,48 @@ function c.rpcs.AddCommand( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespF
       pHMIRespFunc(data, pOnRTParams)
     end)
   c.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      local function response()
+        c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
+      RUN_AFTER(response, 2000)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @ChangeRegistration: Successful processing ChangeRegistration RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.ChangeRegistration( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    language ="EN-US",
+    hmiDisplayLanguage ="EN-US"
+  }
+  local corId = c.getMobileSession():SendRPC("ChangeRegistration", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("UI.ChangeRegistration")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getHMIConnection():ExpectRequest("VR.ChangeRegistration")
+  :Do(function(_, data)
+      local function response()
+        c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
+      RUN_AFTER(response, 1000)
+    end)
+  c.getHMIConnection():ExpectRequest("TTS.ChangeRegistration")
   :Do(function(_, data)
       local function response()
         c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
