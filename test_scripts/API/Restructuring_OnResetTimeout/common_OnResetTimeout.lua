@@ -58,7 +58,8 @@ c.rpcsArray = {
   "CreateInteractionChoiceSet",
   "DeleteInteractionChoiceSet",
   "DeleteSubMenu",
-  "AlertManeuver"
+  "AlertManeuver",
+  "AddCommand"
 }
 
 c.rpcsArrayWithoutRPCWithCustomTimeout = {
@@ -69,7 +70,8 @@ c.rpcsArrayWithoutRPCWithCustomTimeout = {
   "CreateInteractionChoiceSet",
   "DeleteInteractionChoiceSet",
   "DeleteSubMenu",
-  "AlertManeuver"
+  "AlertManeuver",
+  "AddCommand"
 }
 
 --[[ Common Functions ]]
@@ -668,6 +670,47 @@ function c.rpcs.AlertManeuver( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRe
         c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
       end
       RUN_AFTER(SpeakResponse, 2000)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @AddCommand: Successful processing AddCommand RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.AddCommand( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    cmdID = 123,
+    menuParams = {
+      position = 0,
+      menuName = "CommandPositive"
+    },
+    vrCommands = {
+      "VRCommandonepositive"
+    }
+  }
+  local corId = c.getMobileSession():SendRPC("AddCommand", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("UI.AddCommand")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getHMIConnection():ExpectRequest("VR.AddCommand")
+  :Do(function(_, data)
+      local function response()
+        c.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end
+      RUN_AFTER(response, 2000)
     end)
   c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
   :Timeout(pExpTimoutForMobResp)
