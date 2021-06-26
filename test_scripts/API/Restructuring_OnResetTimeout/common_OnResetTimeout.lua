@@ -64,18 +64,12 @@ c.rpcsArray = {
   "SetGlobalProperties"
 }
 
-c.rpcsArrayWithoutRPCWithCustomTimeout = {
-  "SendLocation",
-  "Speak",
-  "DiagnosticMessage",
-  "SetInteriorVehicleData",
-  "CreateInteractionChoiceSet",
-  "DeleteInteractionChoiceSet",
-  "DeleteSubMenu",
-  "AlertManeuver",
-  "AddCommand",
-  "ChangeRegistration",
-  "SetGlobalProperties"
+c.rpcsArrayWithCustomTimeout = {
+  ["PerformInteraction"] = { timeout = 5000 },
+  ["ScrollableMessage"] = { timeout = 1000 },
+  ["Alert"] = { timeout = 3000 },
+  ["SubtleAlert"] = { timeout = 3000 },
+  ["Slider"] = { timeout = 1000 }
 }
 
 --[[ Common Functions ]]
@@ -263,7 +257,7 @@ function c.rpcs.Alert( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, 
     },
     alertText1 = "alertText1",
     progressIndicator = true,
-    duration = 3000
+    duration = c.rpcsArrayWithCustomTimeout["Alert"].timeout
   }
   local cid = c.getMobileSession():SendRPC("Alert", paramsAlert)
   local pRequestTime = timestamp()
@@ -274,7 +268,7 @@ function c.rpcs.Alert( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, 
           fieldText = "alertText1"
         }
       },
-      duration = 3000,
+      duration = c.rpcsArrayWithCustomTimeout["Alert"].timeout,
       alertType = "BOTH",
       appID = c.getHMIAppId()
     })
@@ -319,7 +313,7 @@ function c.rpcs.SubtleAlert( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIResp
       }
     },
     alertText1 = "alertText1",
-    duration = 3000
+    duration = c.rpcsArrayWithCustomTimeout["SubtleAlert"].timeout
   }
   local cid = c.getMobileSession():SendRPC("SubtleAlert", paramsAlert)
   local pRequestTime = timestamp()
@@ -330,7 +324,7 @@ function c.rpcs.SubtleAlert( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIResp
           fieldText = "alertText1"
         }
       },
-      duration = 3000,
+      duration = c.rpcsArrayWithCustomTimeout["SubtleAlert"].timeout,
       alertType = "BOTH",
       appID = c.getHMIAppId()
     })
@@ -375,7 +369,7 @@ function c.rpcs.PerformInteraction( pExpTimoutForMobResp, pExpTimeBetweenResp, p
     initialPrompt = {
       { type = "TEXT", text = "pathToFile1" }
     },
-    timeout = 5000
+    timeout = c.rpcsArrayWithCustomTimeout["PerformInteraction"].timeout
   }
   local corId = c.getMobileSession():SendRPC("PerformInteraction", params)
   local pRequestTime = timestamp()
@@ -412,7 +406,7 @@ function c.rpcs.Slider( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc,
       position = 1,
       sliderHeader ="sliderHeader",
       sliderFooter = { "sliderFooter" },
-      timeout = 1000
+      timeout = c.rpcsArrayWithCustomTimeout["Slider"].timeout
     })
   local pRequestTime = timestamp()
 
@@ -504,7 +498,7 @@ end
 function c.rpcs.ScrollableMessage( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
   local requestParams = {
     scrollableMessageBody = "abc",
-    timeout = 1000
+    timeout = c.rpcsArrayWithCustomTimeout["ScrollableMessage"].timeout
   }
   local cid = c.getMobileSession():SendRPC("ScrollableMessage", requestParams)
   local pRequestTime = timestamp()

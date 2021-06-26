@@ -23,8 +23,8 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-	notificationTime = 0,
-	resetPeriod = 6000
+  notificationTime = 0,
+  resetPeriod = 6000
 }
 
 local RespParams = { success = false, resultCode = "GENERIC_ERROR" }

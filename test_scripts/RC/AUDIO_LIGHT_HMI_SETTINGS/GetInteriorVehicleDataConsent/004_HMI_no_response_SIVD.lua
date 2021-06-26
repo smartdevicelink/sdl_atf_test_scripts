@@ -29,7 +29,6 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 --modules array does not contain "RADIO" because "RADIO" module has read only parameters
 local modules = { "CLIMATE", "AUDIO", "LIGHT", "HMI_SETTINGS" }
-local timeout = 21000
 
 --[[ Local Functions ]]
 local function rpcNoHMIResponse(pModuleType, pAppId, pRPC)
@@ -40,10 +39,8 @@ local function rpcNoHMIResponse(pModuleType, pAppId, pRPC)
   :Do(function(_, _)
       -- HMI does not respond
       EXPECT_HMICALL(common.getHMIEventName(pRPC)):Times(0)
-      :Timeout(timeout)
     end)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
-  :Timeout(timeout)
 end
 
 --[[ Scenario ]]

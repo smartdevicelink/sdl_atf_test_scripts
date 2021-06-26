@@ -26,9 +26,6 @@ local commonRC = require('test_scripts/RC/commonRC')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
-local timeout = 21000
-
 --[[ Local Functions ]]
 local function rpcNoHMIResponse(pModuleType, pAppId, pRPC)
   local consentRPC = "GetInteriorVehicleDataConsent"
@@ -38,11 +35,9 @@ local function rpcNoHMIResponse(pModuleType, pAppId, pRPC)
   :Do(function(_, _)
       -- HMI does not respond
       EXPECT_HMICALL(commonRC.getHMIEventName(pRPC)):Times(0)
-      :Timeout(timeout)
     end)
   mobSession:ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })
-  :Timeout(timeout)
-  commonRC.wait(timeout)
+  commonRC.wait(11000)
 end
 
 --[[ Scenario ]]

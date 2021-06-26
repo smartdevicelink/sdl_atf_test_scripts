@@ -16,16 +16,11 @@
 -- In case:
 -- 1) App sends applicable RPC
 -- 2) SDL transfers this request to HMI
--- 3) HMI sends 'BC.OnResetTimeout' notification to SDL with 'resetPeriod=0' parameter within the <delay>
--- after receiving request from SDL:
---  - 15s for 'GetInteriorVehicleDataConsent' RPC
---  - 5s for all other RPCs
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL with 'resetPeriod=0' parameter within the delay of 5s
+-- after receiving request from SDL
 -- 4) HMI doesn't provide a response
 -- SDL does:
---  - wait for the response from HMI within:
---    - '2 x default timeout' (20s) for 'GetInteriorVehicleDataConsent'
---    - 'default timeout' (10s) for RPCs without specific timeout
---    - 'default timeout + RPC timeout' for RPCs with specific timeout
+--  - wait for the response from HMI within 'default timeout + custom timeout'
 --  - respond with GENERIC_ERROR:false to Mobile app once this timeout expires
 ------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
@@ -34,11 +29,6 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 --[[ Local Variables ]]
 local paramsForRespFunction = {
   notificationTime = 5000,
-  resetPeriod = 0
-}
-
-local paramsForRespFunctionWithConsent = {
-  notificationTime = 15000,
   resetPeriod = 0
 }
 
@@ -57,25 +47,21 @@ common.Step("Create InteractionChoiceSet id 200", common.createInteractionChoice
 common.Step("Add AddSubMenu", common.addSubMenu)
 
 common.Title("Test")
-for _, rpc in pairs(common.rpcsArrayWithoutRPCWithCustomTimeout) do
+for _, rpc in pairs(common.rpcsArray) do
+  local wait = 11000
+  local timeout = 5000
+  if common.rpcsArrayWithCustomTimeout[rpc] then
+    wait = wait + common.rpcsArrayWithCustomTimeout[rpc].timeout
+    timeout = timeout + common.rpcsArrayWithCustomTimeout[rpc].timeout
+  end
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { 11000, 5000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
+    { wait, timeout, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 end
-common.Step("Send PerformInteraction" , common.rpcs.PerformInteraction,
-  { 16000, 10000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send ScrollableMessage" , common.rpcs.ScrollableMessage,
-  { 12000, 6000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send Alert" , common.rpcs.Alert,
-  { 14000, 8000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send SubtleAlert" , common.rpcs.SubtleAlert,
-  { 14000, 8000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send Slider" , common.rpcs.Slider,
-  { 12000, 6000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 
 common.Step("Module allocation for App_1" , common.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { 21000, 5000, common.withoutResponseWithOnResetTimeout, paramsForRespFunctionWithConsent, rpcResponse, common.responseTimeCalculationFromNotif})
+  { 11000, 5000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

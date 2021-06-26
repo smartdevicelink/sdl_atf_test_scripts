@@ -12,12 +12,8 @@
 -- In case:
 -- 1) App sends applicable RPC
 -- 2) SDL transfers this request to HMI
--- 3) HMI sends 'BC.OnResetTimeout' notification to SDL right after receiving request with data:
---  - 'resetPeriod = 25s' for 'GetInteriorVehicleDataConsent' RPC
---  - 'resetPeriod = 15s' for all other RPCs
--- 4) HMI sends response after:
---  - 21s for 'GetInteriorVehicleDataConsent'
---  - 11s for all other requests
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL right after receiving request with 'resetPeriod = 15s'
+-- 4) HMI sends response after 11s
 -- SDL does:
 --  - wait for the response from HMI within reset period
 --  - once received it proceed with response successfully and transfer it to Mobile app
@@ -27,15 +23,9 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-	respTime = 11000,
-	notificationTime = 0,
-	resetPeriod = 15000
-}
-
-local paramsForRespFunctionWithConsent = {
-  respTime = 21000,
+  respTime = 11000,
   notificationTime = 0,
-  resetPeriod = 25000
+  resetPeriod = 15000
 }
 
 local RespParams = { success = true, resultCode = "SUCCESS" }
@@ -55,11 +45,11 @@ common.Step("Add AddSubMenu", common.addSubMenu)
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArray) do
   common.Step("Send " .. rpc , common.rpcs[rpc],
-	{ 12000, 11000, common.responseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
+  { 12000, 11000, common.responseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 end
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { 22000, 21000, common.responseWithOnResetTimeout, paramsForRespFunctionWithConsent, RespParams, common.responseTimeCalculationFromNotif })
+  { 12000, 11000, common.responseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
