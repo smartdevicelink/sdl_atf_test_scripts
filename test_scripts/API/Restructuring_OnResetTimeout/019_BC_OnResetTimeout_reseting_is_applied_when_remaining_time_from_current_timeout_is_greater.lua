@@ -3,8 +3,6 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Description: Check SDL is able to reset period received in 'OnResetTimeout()' notification even in case
 --  if it's lower than default timeout
--- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
---  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
 -- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)

@@ -6,7 +6,6 @@
 --  - App sends request which is being split into 2 interfaces
 --  - and HMI provides 'OnResetTimeout()' for only one request with 'resetPeriod' > 'default timeout'
 --  - and HMI responded successfully after default timeout
--- Applicable RPCs: 'AddCommand'
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
 -- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)

@@ -3,8 +3,6 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Description: Check SDL is able to reset timeout for Mobile app response to default value
 --  by receiving 'OnResetTimeout(nil)' notification from HMI
--- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
---  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
 -- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
