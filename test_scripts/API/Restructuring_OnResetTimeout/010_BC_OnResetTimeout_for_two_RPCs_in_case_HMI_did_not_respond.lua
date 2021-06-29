@@ -28,23 +28,25 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 --[[ Local Variables ]]
 local paramsForRespFunction = {
   notificationTime = 0,
-  resetPeriod = 11000
+  resetPeriod = common.defaultTimeout + 1000
 }
 
 local paramsForRespFunctionSecondNot = {
   notificationTime = 0,
-  resetPeriod = 13000
+  resetPeriod = common.defaultTimeout + 3000
 }
 
 local RespParams = { success = false, resultCode = "GENERIC_ERROR" }
 
 --[[ Local Functions ]]
 local function twoRequestsinSameTime()
-  common.rpcs.DiagnosticMessage(12000, 11000,
-    common.withoutResponseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif)
+  common.rpcs.DiagnosticMessage(common.defaultTimeout + 2000, common.defaultTimeout + 1000,
+    common.withoutResponseWithOnResetTimeout,
+    paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif)
 
-  common.rpcs.SetInteriorVehicleData(14000, 13000,
-    common.withoutResponseWithOnResetTimeout, paramsForRespFunctionSecondNot, RespParams, common.responseTimeCalculationFromNotif)
+  common.rpcs.SetInteriorVehicleData(common.defaultTimeout + 4000, common.defaultTimeout + 3000,
+    common.withoutResponseWithOnResetTimeout,
+    paramsForRespFunctionSecondNot, RespParams, common.responseTimeCalculationFromNotif)
 end
 
 --[[ Scenario ]]

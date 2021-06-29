@@ -46,7 +46,7 @@ local function AlertManeuver(pExpTimoutForMobResp, pExpTimeBetweenResp, isSendin
   common.getHMIConnection():ExpectRequest("Navigation.AlertManeuver")
   :Do(function(_, data)
       if isSendingNotificationForUI == true then
-        common.onResetTimeoutNotification(data.id, data.method, 15000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 5000)
       end
       local function sendresponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -61,7 +61,7 @@ local function AlertManeuver(pExpTimoutForMobResp, pExpTimeBetweenResp, isSendin
     })
   :Do(function(_, data)
       if isSendingNotificationForTTS == true then
-        common.onResetTimeoutNotification(data.id, data.method, 15000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 5000)
       end
       local function SpeakResponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
@@ -90,11 +90,12 @@ common.Step("App activation", common.activateApp)
 common.Title("Test")
 common.Step("Send AlertManeuver with ttsChunks and softButton", AlertManeuver, { 3000, 2000 })
 common.Step("Send AlertManeuver with softButton, ttsChunks and onResetTimeout notification for UI.SubtleAlert",
-  AlertManeuver, { 13000, 12000, true, false })
+  AlertManeuver, { common.defaultTimeout + 3000, common.defaultTimeout + 2000, true, false })
 common.Step("Send AlertManeuver with softButton, ttsChunks and onResetTimeout notification for TTS.Speak",
-  AlertManeuver, { 13000, 12000, false, true })
-common.Step("Send AlertManeuver with softButton, ttsChunks and onResetTimeout notification for TTS.Speak and Navigation.SubtleAlert",
-  AlertManeuver, { 13000, 12000, true, true })
+  AlertManeuver, { common.defaultTimeout + 3000, common.defaultTimeout + 2000, false, true })
+common.Step("Send AlertManeuver with softButton, ttsChunks and onResetTimeout notification for TTS.Speak"
+  .. "and Navigation.SubtleAlert",
+  AlertManeuver, { common.defaultTimeout + 3000, common.defaultTimeout + 2000, true, true })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

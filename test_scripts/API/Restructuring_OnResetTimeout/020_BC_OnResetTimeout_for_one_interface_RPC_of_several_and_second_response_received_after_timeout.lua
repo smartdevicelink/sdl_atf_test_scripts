@@ -24,9 +24,9 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-  respTime = 12000,
+  respTime = common.defaultTimeout + 2000,
   notificationTime = 0,
-  resetPeriod = 15000
+  resetPeriod = common.defaultTimeout + 5000
 }
 
 --[[ Local Functions ]]
@@ -49,7 +49,7 @@ local function addCommand()
       local function Response()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
       end
-      RUN_AFTER(Response, 12000)
+      RUN_AFTER(Response, common.defaultTimeout + 2000)
     end)
 
   common.getHMIConnection():ExpectRequest("VR.AddCommand")
@@ -58,9 +58,9 @@ local function addCommand()
     end)
 
   common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
-  :Timeout(13000)
+  :Timeout(common.defaultTimeout + 3000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromNotif(12000)
+      return common.responseTimeCalculationFromNotif(common.defaultTimeout + 2000)
     end)
 end
 

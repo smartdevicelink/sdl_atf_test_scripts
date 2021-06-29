@@ -27,9 +27,9 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunctionConsent = {
-  respTime = 23000,
+  respTime = common.defaultTimeout + 13000,
   notificationTime = 0,
-  resetPeriod = 25000
+  resetPeriod = common.defaultTimeout + 15000
 }
 
 local RespParams = { success = false, resultCode = "GENERIC_ERROR" }
@@ -52,13 +52,13 @@ local function SetInteriorVehicleDataWithConsent()
       :Do(function()
           -- no response
         end)
-      :Timeout(24000)
+      :Timeout(common.defaultTimeout + 14000)
     end)
 
   common.getMobileSession(2):ExpectResponse(cid, RespParams)
-  :Timeout(34000)
+  :Timeout(common.defaultTimeout + 24000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromMobReq(33000 + delay, nil, requestTime)
+      return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 23000 + delay, nil, requestTime)
     end)
 end
 

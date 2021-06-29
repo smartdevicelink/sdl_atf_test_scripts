@@ -50,12 +50,12 @@ local function SubtleAlert(isSendingNotificationForUI, isSendingNotificationForT
   common.getHMIConnection():ExpectRequest( "UI.SubtleAlert")
   :Do(function(_, data)
       if isSendingNotificationForUI == true then
-        common.onResetTimeoutNotification(data.id, data.method, 15000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 5000)
       end
       local function sendresponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
       end
-      RUN_AFTER(sendresponse, 18000)
+      RUN_AFTER(sendresponse, common.defaultTimeout + 8000)
     end)
 
   common.getHMIConnection():ExpectRequest("TTS.Speak", {
@@ -65,20 +65,20 @@ local function SubtleAlert(isSendingNotificationForUI, isSendingNotificationForT
     })
   :Do(function(_, data)
       if isSendingNotificationForTTS == true then
-        common.onResetTimeoutNotification(data.id, data.method, 15000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 5000)
       end
       local function SpeakResponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
         common.getHMIConnection():SendNotification("TTS.Stopped")
       end
-      RUN_AFTER(SpeakResponse, 17000)
+      RUN_AFTER(SpeakResponse, common.defaultTimeout + 7000)
     end)
 
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  :Timeout(19000)
+  :Timeout(common.defaultTimeout + 9000)
   :ValidIf(function()
       if isSendingNotificationForTTS == true or isSendingNotificationForUI == true then
-        return common.responseTimeCalculationFromMobReq(18000, nil, requestTime)
+        return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 8000, nil, requestTime)
       end
       return true
     end)

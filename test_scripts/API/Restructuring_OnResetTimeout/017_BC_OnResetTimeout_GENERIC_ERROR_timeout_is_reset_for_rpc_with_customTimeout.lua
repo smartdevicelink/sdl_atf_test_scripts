@@ -27,7 +27,7 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-  notificationTime = 10500,
+  notificationTime = common.defaultTimeout + 500,
   resetPeriod = 7000
 }
 
@@ -45,7 +45,8 @@ common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet, { 
 common.Title("Test")
 for rpc in pairs(common.rpcsArrayWithCustomTimeout) do
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
+    { common.defaultTimeout + 8000, 7000, common.withoutResponseWithOnResetTimeout,
+      paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 end
 
 common.Title("Postconditions")

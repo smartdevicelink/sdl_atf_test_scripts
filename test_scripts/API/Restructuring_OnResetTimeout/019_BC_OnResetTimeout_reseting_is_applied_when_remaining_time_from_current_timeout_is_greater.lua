@@ -36,7 +36,8 @@ common.Step("App activation", common.activateApp)
 
 common.Title("Test")
 common.Step("Send SendLocation" , common.rpcs.SendLocation,
-  { 7000, 6000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
+  { 7000, 6000, common.withoutResponseWithOnResetTimeout,
+    paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

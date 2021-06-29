@@ -66,7 +66,8 @@ common.Title("Test")
 for k, value in pairs(pOnResetTimeOut) do
   common.Step("Set params for OnResetTimeout notification", getOnResetTimeoutParams, { k, value })
   common.Step("Send SendLocation " .. k, common.rpcs.SendLocation,
-    { 11000, 10000, invalidParamOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
+    { common.defaultTimeout + 1000, common.defaultTimeout, invalidParamOnResetTimeout,
+      paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromMobReq })
 end
 
 common.Title("Postconditions")

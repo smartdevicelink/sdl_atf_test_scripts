@@ -22,7 +22,7 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-  respTime = 11000,
+  respTime = common.defaultTimeout + 1000,
   notificationTime = 5000,
   resetPeriod = nil
 }
@@ -44,11 +44,13 @@ common.Step("Add AddSubMenu", common.addSubMenu)
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArray) do
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { 12000, 6000, common.responseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
+    { common.defaultTimeout + 2000, 6000, common.responseWithOnResetTimeout,
+      paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 end
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { 12000, 6000, common.responseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
+  { common.defaultTimeout + 2000, 6000, common.responseWithOnResetTimeout,
+    paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

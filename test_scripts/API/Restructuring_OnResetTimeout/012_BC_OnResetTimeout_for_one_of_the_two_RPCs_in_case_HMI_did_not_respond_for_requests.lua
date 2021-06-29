@@ -39,20 +39,20 @@ local function diagnosticMessage()
   :Times(2)
   :Do(function(exp, data)
       if exp.occurences == 2 then
-        common.onResetTimeoutNotification(data.id, data.method, 13000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 3000)
       end
       -- HMI does not respond
     end)
   common.getMobileSession(1):ExpectResponse(cid1, { success = false, resultCode = "GENERIC_ERROR" })
-  :Timeout(11000)
+  :Timeout(common.defaultTimeout + 1000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromMobReq(10000, nil, requestTime)
+      return common.responseTimeCalculationFromMobReq(common.defaultTimeout, nil, requestTime)
     end)
 
   common.getMobileSession(2):ExpectResponse(cid2, { success = false, resultCode = "GENERIC_ERROR" })
-  :Timeout(14000)
+  :Timeout(common.defaultTimeout + 4000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromNotif(13000)
+      return common.responseTimeCalculationFromNotif(common.defaultTimeout + 3000)
     end)
 end
 

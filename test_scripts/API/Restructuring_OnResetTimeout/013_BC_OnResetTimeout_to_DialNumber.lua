@@ -26,21 +26,21 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 local function DialNumber(isSendingNotification)
   local cid = common.getMobileSession():SendRPC("DialNumber", { number = "#3804567654*" })
   local requestTime = timestamp()
-  common.getHMIConnection():ExpectRequest("BasicCommunication.DialNumber", { appID = common.getHMIAppId(), number = "#3804567654*" })
+  common.getHMIConnection():ExpectRequest("BasicCommunication.DialNumber")
   :Do(function(_, data)
       if isSendingNotification == true then
-        common.onResetTimeoutNotification(data.id, data.method, 12000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 2000)
       end
       local function sendresponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
       end
-      RUN_AFTER(sendresponse, 14000)
+      RUN_AFTER(sendresponse, common.defaultTimeout + 4000)
     end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  :Timeout(15000)
+  :Timeout(common.defaultTimeout + 5000)
   :ValidIf(function()
       if isSendingNotification == true then
-        return common.responseTimeCalculationFromMobReq(14000, nil, requestTime)
+        return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 4000, nil, requestTime)
       end
       return true
     end)

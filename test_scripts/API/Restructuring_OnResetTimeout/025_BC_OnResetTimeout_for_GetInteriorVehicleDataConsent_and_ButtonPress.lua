@@ -29,15 +29,15 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-  respTime = 13000,
+  respTime = common.defaultTimeout + 3000,
   notificationTime = 0,
-  resetPeriod = 15000
+  resetPeriod = common.defaultTimeout + 5000
 }
 
 local paramsForRespFunctionConsent = {
-  respTime = 23000,
+  respTime = common.defaultTimeout + 13000,
   notificationTime = 0,
-  resetPeriod = 25000
+  resetPeriod = common.defaultTimeout + 15000
 }
 
 local RespParams = { success = true, resultCode = "SUCCESS" }
@@ -61,13 +61,13 @@ local function ButtonPressWithConsentResetToBoth()
           delay = timestamp() - requestTime - paramsForRespFunctionConsent.respTime
           common.responseWithOnResetTimeout(dataSet, paramsForRespFunction)
         end)
-      :Timeout(24000)
+      :Timeout(common.defaultTimeout + 14000)
     end)
 
   common.getMobileSession(2):ExpectResponse(cid, RespParams)
-  :Timeout(37000)
+  :Timeout(common.defaultTimeout + 27000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromMobReq(36000 + delay, nil, requestTime)
+      return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 26000 + delay, nil, requestTime)
     end)
 end
 

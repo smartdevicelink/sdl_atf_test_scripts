@@ -48,20 +48,22 @@ common.Step("Add AddSubMenu", common.addSubMenu)
 
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArray) do
-  local wait = 11000
+  local wait = common.defaultTimeout + 1000
   local timeout = 5000
   if common.rpcsArrayWithCustomTimeout[rpc] then
     wait = wait + common.rpcsArrayWithCustomTimeout[rpc].timeout
     timeout = timeout + common.rpcsArrayWithCustomTimeout[rpc].timeout
   end
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { wait, timeout, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
+    { wait, timeout, common.withoutResponseWithOnResetTimeout,
+      paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 end
 
 common.Step("Module allocation for App_1" , common.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { 11000, 5000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
+  { common.defaultTimeout + 1000, 5000, common.withoutResponseWithOnResetTimeout,
+    paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

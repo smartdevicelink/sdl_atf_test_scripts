@@ -43,12 +43,14 @@ common.Step("Add AddSubMenu", common.addSubMenu)
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArray) do
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { 17000, 10000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
+    { common.defaultTimeout + 7000, common.defaultTimeout, common.withoutResponseWithOnResetTimeout,
+      paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 end
 common.Step("Module allocation for App_1" , common.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { 17000, 10000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
+  { common.defaultTimeout + 7000, common.defaultTimeout, common.withoutResponseWithOnResetTimeout,
+    paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

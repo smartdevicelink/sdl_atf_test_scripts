@@ -45,19 +45,19 @@ local function Alert(isSendingNotification)
   common.getHMIConnection():ExpectRequest( "UI.Alert")
   :Do(function(_, data)
       if isSendingNotification == true then
-        common.onResetTimeoutNotification(data.id, data.method, 15000)
+        common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 5000)
       end
       local function sendresponse()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
       end
-      RUN_AFTER(sendresponse, 17000)
+      RUN_AFTER(sendresponse, common.defaultTimeout + 7000)
     end)
 
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  :Timeout(18000)
+  :Timeout(common.defaultTimeout + 8000)
   :ValidIf(function()
       if isSendingNotification == true then
-        return common.responseTimeCalculationFromMobReq(17000, nil, requestTime)
+        return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 7000, nil, requestTime)
       end
       return true
     end)

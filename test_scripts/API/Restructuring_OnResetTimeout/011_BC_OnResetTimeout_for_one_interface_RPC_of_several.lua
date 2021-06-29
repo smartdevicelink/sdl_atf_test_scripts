@@ -44,13 +44,13 @@ local function addCommand()
 
   common.getHMIConnection():ExpectRequest("VR.AddCommand")
   :Do(function(_, data)
-      common.onResetTimeoutNotification(data.id, data.method, 12000)
+      common.onResetTimeoutNotification(data.id, data.method, common.defaultTimeout + 2000)
     end)
 
   common.getMobileSession():ExpectResponse(corId, { success = false, resultCode = "GENERIC_ERROR" })
-  :Timeout(13000)
+  :Timeout(common.defaultTimeout + 3000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromNotif(12000)
+      return common.responseTimeCalculationFromNotif(common.defaultTimeout + 2000)
     end)
 end
 

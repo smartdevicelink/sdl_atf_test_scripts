@@ -72,6 +72,8 @@ c.rpcsArrayWithCustomTimeout = {
   ["Slider"] = { timeout = 1000 }
 }
 
+c.defaultTimeout = actions.sdl.getSDLIniParameter("DefaultTimeout")
+
 --[[ Common Functions ]]
 
 --[[ @updatePreloadedPT: Update preloaded file with additional permissions
