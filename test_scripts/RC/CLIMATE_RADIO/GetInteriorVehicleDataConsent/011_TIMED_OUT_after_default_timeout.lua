@@ -28,7 +28,6 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local pModuleType = "CLIMATE"
 local pRPC1 = "SetInteriorVehicleData"
-local timeout = 21000
 
 --[[ Local Functions ]]
 local function rpcHMIRespondAfterDefaultTimeout()
@@ -39,14 +38,12 @@ local function rpcHMIRespondAfterDefaultTimeout()
       local function hmiRespond()
         commonRC.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "info")
         EXPECT_HMICALL(commonRC.getHMIEventName(pRPC1)):Times(0)
-        :Timeout(timeout)
       end
-      RUN_AFTER(hmiRespond, timeout)
+      RUN_AFTER(hmiRespond, 11000)
     end)
 
   commonRC.getMobileSession(2):ExpectResponse(cid1, { success = false, resultCode = "GENERIC_ERROR" })
-  :Timeout(timeout)
-  commonRC.wait(timeout)
+  commonRC.wait(12000)
 end
 
 --[[ Scenario ]]

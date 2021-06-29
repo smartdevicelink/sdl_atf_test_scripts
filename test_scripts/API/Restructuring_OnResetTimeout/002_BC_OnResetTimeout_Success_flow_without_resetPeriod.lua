@@ -3,8 +3,6 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Description: Check SDL is able to reset timeout for Mobile app response to default value
 --  by receiving 'OnResetTimeout(nil)' notification from HMI
--- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
---  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
 -- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)
@@ -12,13 +10,9 @@
 -- In case:
 -- 1) App sends applicable RPC
 -- 2) SDL transfers this request to HMI
--- 3) HMI sends 'BC.OnResetTimeout' notification to SDL without 'resetPeriod' parameter within the <delay>
--- after receiving request from SDL:
---  - 15s for 'GetInteriorVehicleDataConsent' RPC
---  - 5s for all other RPCs
--- 4) HMI sends response after:
---  - 21s for 'GetInteriorVehicleDataConsent'
---  - 11s for all other requests
+-- 3) HMI sends 'BC.OnResetTimeout' notification to SDL without 'resetPeriod' parameter within the delay of 5s
+-- after receiving request from SDL
+-- 4) HMI sends response after 11s
 -- SDL does:
 --  - wait for the response from HMI within reset period
 --  - once response received proceed with it successfully and transfer it to Mobile app
@@ -28,14 +22,8 @@ local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnR
 
 --[[ Local Variables ]]
 local paramsForRespFunction = {
-	respTime = 11000,
-	notificationTime = 5000,
-  resetPeriod = nil
-}
-
-local paramsForRespFunctionWithConsent = {
-  respTime = 21000,
-  notificationTime = 15000,
+  respTime = 11000,
+  notificationTime = 5000,
   resetPeriod = nil
 }
 
@@ -49,7 +37,9 @@ common.Step("App_1 registration", common.registerAppWOPTU)
 common.Step("App_2 registration", common.registerAppWOPTU, { 2 })
 common.Step("App_1 activation", common.activateApp)
 common.Step("Set RA mode: ASK_DRIVER", common.defineRAMode, { true, "ASK_DRIVER" })
-common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet)
+common.Step("Create InteractionChoiceSet id 100", common.createInteractionChoiceSet, { 100 })
+common.Step("Create InteractionChoiceSet id 200", common.createInteractionChoiceSet, { 200 })
+common.Step("Add AddSubMenu", common.addSubMenu)
 
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArray) do
@@ -58,7 +48,7 @@ for _, rpc in pairs(common.rpcsArray) do
 end
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { 22000, 6000, common.responseWithOnResetTimeout, paramsForRespFunctionWithConsent, RespParams, common.responseTimeCalculationFromNotif })
+  { 12000, 6000, common.responseWithOnResetTimeout, paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

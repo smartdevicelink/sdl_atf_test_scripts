@@ -4,8 +4,6 @@
 -- Description: Check SDL is able to respond with GENERIC_ERROR:false to Mobile app in case:
 --  - two reset periods received withing 2 'OnResetTimeout(resetPeriod)' notifications from HMI are expired
 --  - and HMI hasn't responded
--- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
---  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
 -- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)

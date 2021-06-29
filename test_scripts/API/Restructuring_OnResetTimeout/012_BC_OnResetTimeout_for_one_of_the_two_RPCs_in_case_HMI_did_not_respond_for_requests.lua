@@ -5,8 +5,6 @@
 --  - both Apps sends the same request
 --  - and HMI provides 'OnResetTimeout(resetPeriod)' for one of them
 --  - and HMI hasn't responded
--- Applicable RPCs: 'SendLocation', 'Alert', 'SubtleAlert', 'PerformInteraction', 'Slider', 'Speak',
---  'ScrollableMessage', 'DiagnosticMessage', 'SetInteriorVehicleData'
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
 -- 1) Default SDL timeout is 10s (defined in .INI by 'DefaultTimeout' parameter)

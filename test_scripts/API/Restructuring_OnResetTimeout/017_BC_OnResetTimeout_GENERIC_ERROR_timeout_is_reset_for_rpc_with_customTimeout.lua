@@ -40,19 +40,13 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("App_1 registration", common.registerAppWOPTU)
 common.Step("App_2 registration", common.registerAppWOPTU, { 2 })
 common.Step("App_1 activation", common.activateApp)
-common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet)
+common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet, { 100 })
 
 common.Title("Test")
-common.Step("Send PerformInteraction" , common.rpcs.PerformInteraction,
-  { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send ScrollableMessage" , common.rpcs.ScrollableMessage,
-  { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send Alert" , common.rpcs.Alert,
-  { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send SubtleAlert" , common.rpcs.SubtleAlert,
-  { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
-common.Step("Send Slider" , common.rpcs.Slider,
-  { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
+for rpc in pairs(common.rpcsArrayWithCustomTimeout) do
+  common.Step("Send " .. rpc , common.rpcs[rpc],
+    { 18000, 7000, common.withoutResponseWithOnResetTimeout, paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
+end
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
