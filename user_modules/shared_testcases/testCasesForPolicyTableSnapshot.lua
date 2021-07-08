@@ -241,25 +241,22 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
   if(app_IDs ~= nil) then
     for i = 1, #app_IDs do
       omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_TLS_errors", elem_required = "required"}
-
-      if(flag ~= "PROPRIETARY" and flag ~= "HTTP") then
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_full", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".app_registration_language_gui", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".app_registration_language_vui", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_limited", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_background", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_none", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_user_selections", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejections_sync_out_of_memory", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejections_nickname_mismatch", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejections_duplicate_name", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejected_rpc_calls", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rpcs_sent_in_hmi_none", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_removals_for_bad_behavior", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_run_attempts_while_revoked", elem_required = "required"}
-        -- omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_invalid_certificates", elem_required = "required"}
-        omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".time_stamp", elem_required = "optional"}
-      end
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_full", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".app_registration_language_gui", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".app_registration_language_vui", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_limited", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_background", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".minutes_in_hmi_none", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_user_selections", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejections_sync_out_of_memory", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejections_nickname_mismatch", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejections_duplicate_name", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rejected_rpc_calls", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_rpcs_sent_in_hmi_none", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_removals_for_bad_behavior", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_run_attempts_while_revoked", elem_required = "required"}
+      -- omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".count_of_invalid_certificates", elem_required = "required"}
+      omitted_preloaded_original[#omitted_preloaded_original + 1] = { name = "usage_and_error_counts.app_level."..app_IDs[i]..".time_stamp", elem_required = "optional"}
     end
   end
   if(device_IDs ~= nil) then
