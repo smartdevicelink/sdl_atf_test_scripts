@@ -56,8 +56,8 @@ local function speakSuccess()
         common.getHMIConnection():SendNotification("TTS.Stopped")
       end
       local function sendOnResetTimeout()
-        common.getHMIConnection():SendNotification("TTS.OnResetTimeout",
-          { appID = common.getHMIAppId(), methodName = "TTS.Speak" })
+        common.getHMIConnection():SendNotification("BasicCommunication.OnResetTimeout",
+          { requestID = data.id, methodName = data.method })
       end
       common.runAfter(sendOnResetTimeout, 9000)
       common.runAfter(sendSpeakResponse, 18000)
