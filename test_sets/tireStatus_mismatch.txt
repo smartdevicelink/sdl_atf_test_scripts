@@ -1,0 +1,3 @@
+./test_scripts/API/VehicleData/TireStatusMismatch/001_GetVD_TireStatus_default_values_for_old_app.lua
+./test_scripts/API/VehicleData/TireStatusMismatch/002_OnVD_TireStatus_default_values_for_old_app.lua
+./test_scripts/API/VehicleData/TireStatusMismatch/003_OnVD_TireStatus_default_values_for_different_apps_version.lua
