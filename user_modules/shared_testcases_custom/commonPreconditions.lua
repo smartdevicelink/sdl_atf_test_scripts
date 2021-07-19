@@ -313,10 +313,10 @@ function Preconditions:Connecttest_OnButtonSubscription(FileName, createFile)
 	local pattern1 = "registerComponent%s-%(%s-\"Buttons\"%s-[%w%s%{%}.,\"]-%)"
 	local pattern1Result = fileContent:match(pattern1)
 
-	if pattern1Result == nil then 
+	if pattern1Result == nil then
 		print(" \27[31m Buttons registerComponent function is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
-		fileContent  =  string.gsub(fileContent, pattern1, 'registerComponent("Buttons", {"Buttons.OnButtonSubscription"})')
+		fileContent  =  string.gsub(fileContent, pattern1, 'registerComponent("Buttons")')
 	end
 
 	f = assert(io.open('./user_modules/' .. tostring(FileName), "w+"))
