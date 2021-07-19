@@ -976,11 +976,10 @@ local function RAI_RESUME_FAILED()
 			--mobile side: sending SubscribeButton request
 			local cid = self.mobileSession:SendRPC("SubscribeButton", {buttonName = "PRESET_0"})
 			
-			--expect Buttons.OnButtonSubscription
-			EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", 
+			--expect Buttons.SubscribeButton
+			EXPECT_HMICALL("Buttons.SubscribeButton",
 			{
-				appID = self.applications[config.application1.registerAppInterfaceParams.appName], 
-				isSubscribed = true, 
+				appID = self.applications[config.application1.registerAppInterfaceParams.appName],
 				name = "PRESET_0"
 			})
 			:Times(0)
@@ -1292,12 +1291,11 @@ local function RAI_RESUME_FAILED()
 			--mobile side: sending SubscribeButton request
 			local cid = self.mobileSession:SendRPC("SubscribeButton", {buttonName = "PRESET_0"})
 			
-			--expect Buttons.OnButtonSubscription
-			EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", 
+			--expect Buttons.SubscribeButton
+			EXPECT_HMICALL("Buttons.SubscribeButton",
 			{
 				appID = self.applications[config.application1.registerAppInterfaceParams.appName], 
-				isSubscribed = true, 
-				name = "PRESET_0"
+				buttonName = "PRESET_0"
 			})
 			
 			--mobile side: expect SubscribeButton response

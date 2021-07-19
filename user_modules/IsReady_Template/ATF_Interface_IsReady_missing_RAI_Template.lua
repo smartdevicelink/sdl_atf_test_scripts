@@ -492,12 +492,11 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 					--mobile side: sending SubscribeButton request
 					local cid = self.mobileSession:SendRPC("SubscribeButton", {buttonName = "PRESET_0"})
 					
-					--expect Buttons.OnButtonSubscription
-					EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", 
+					--expect Buttons.SubscribeButton
+					EXPECT_HMICALL("Buttons.SubscribeButton",
 					{
-						appID = self.applications[config.application1.registerAppInterfaceParams.appName], 
-						isSubscribed = true, 
-						name = "PRESET_0"
+						appID = self.applications[config.application1.registerAppInterfaceParams.appName],
+						buttonName = "PRESET_0"
 					})
 					:Times(0)
 					
@@ -805,12 +804,11 @@ config.deviceMAC = "12ca17b49af2289436f303e0166030a21e525d266e209267433801a8fd40
 					--mobile side: sending SubscribeButton request
 					local cid = self.mobileSession:SendRPC("SubscribeButton", {buttonName = "PRESET_0"})
 					
-					--expect Buttons.OnButtonSubscription
-					EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", 
+					--expect Buttons.SubscribeButton
+					EXPECT_HMICALL("Buttons.SubscribeButton",
 					{
-						appID = self.applications[config.application1.registerAppInterfaceParams.appName], 
-						isSubscribed = true, 
-						name = "PRESET_0"
+						appID = self.applications[config.application1.registerAppInterfaceParams.appName],
+						buttonName = "PRESET_0"
 					})
 					
 					--mobile side: expect SubscribeButton response
