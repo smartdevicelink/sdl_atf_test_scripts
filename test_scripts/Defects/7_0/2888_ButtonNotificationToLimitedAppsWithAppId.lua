@@ -14,8 +14,9 @@
 -- Steps:
 -- 1. AppID -> SDL: SubscribeButton (<buttonName>)
 -- SDL validates and process request
+-- SDL -> HMI: SDL requests the Buttons.SubscribeButton (<buttonName>)
+-- HMI -> SDL: Buttons.SubscribeButton(SUCCESS)
 -- SDL -> AppID: SubscribeButton (resultCode:SUCCESS, success: true)
--- SDL -> HMI: OnButtonSubscription (<appID>, <buttonName, isSubscribed:True)
 --
 -- Expected:
 -- SDL resends OnButtonEvent and OnButtonPress notifications to the subscribed mobile app
@@ -55,8 +56,10 @@ local buttonPressMode = {
 local function subscribeButton(pButName)
   local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
-  commonSmoke.getHMIConnection():ExpectRequest("Buttons.OnButtonSubscription",
-    { appID = appIDvalue, name = pButName, isSubscribed = true })
+  commonSmoke.getHMIConnection():ExpectRequest("Buttons.SubscribeButton", { appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
 end

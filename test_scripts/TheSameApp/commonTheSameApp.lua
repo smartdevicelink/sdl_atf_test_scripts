@@ -320,12 +320,15 @@ function common.subscribeOnButton(pAppId, pButtonName, pResultCode)
 
   local mobSession = common.mobile.getSession(pAppId)
   local cid = mobSession:SendRPC("SubscribeButton", {buttonName = pButtonName})
-    if pResultCode == "SUCCESS" then
-      common.hmi.getConnection():ExpectNotification("Buttons.OnButtonSubscription",
-          {name = pButtonName, isSubscribed = true, appID = common.app.getHMIId(pAppId) })
-      mobSession:ExpectNotification("OnHashChange")
-    end
-    mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
+  if pResultCode == "SUCCESS" then
+    common.getHMIConnection():ExpectRequest("Buttons.SubscribeButton",
+      { appID = common.app.getHMIId(pAppId), buttonName = pButtonName })
+    :Do(function(_, data)
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end)
+    mobSession:ExpectNotification("OnHashChange")
+  end
+  mobSession:ExpectResponse(cid, { success = isSuccess, resultCode = pResultCode })
 end
 
 function common.sendLocation(pAppId, pResultCode)

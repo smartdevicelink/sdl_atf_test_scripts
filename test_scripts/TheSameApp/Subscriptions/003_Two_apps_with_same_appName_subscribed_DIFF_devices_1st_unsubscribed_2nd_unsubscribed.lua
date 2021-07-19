@@ -56,12 +56,14 @@ local appParams = {
 local function unsubscribeButton(pAppId, pButtonName)
   local mobSession = common.mobile.getSession(pAppId)
   local cid = mobSession:SendRPC("UnsubscribeButton", {buttonName = pButtonName})
-    common.hmi.getConnection():ExpectNotification("Buttons.OnButtonSubscription",
-        {name = pButtonName, isSubscribed = false, appID = common.app.getHMIId(pAppId) })
-    mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    mobSession:ExpectNotification("OnHashChange")
+  common.getHMIConnection():ExpectRequest("Buttons.UnsubscribeButton",
+    { appID = common.app.getHMIId(pAppId), buttonName = pButtonName })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  mobSession:ExpectNotification("OnHashChange")
 end
-
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
