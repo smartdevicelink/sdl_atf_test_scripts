@@ -22,7 +22,7 @@
 -- SDL checks if Buttons interface is available on HMI
 -- SDL checks if UnsubscribeButton is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL sends the Buttons notificaton to HMI
+-- SDL requests the Buttons.UnsubscribeButton and receives success response from HMI
 -- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
 ---------------------------------------------------------------------------------------------------
 
@@ -56,8 +56,10 @@ local buttonName = {
 local function subscribeButtons(pButName)
   local cid = common.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = common.getHMIAppId()
-  common.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription",
-    { appID = appIDvalue, name = pButName, isSubscribed = true })
+  common.getHMIConnection():ExpectRequest("Buttons.SubscribeButton", { appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getMobileSession():ExpectNotification("OnHashChange")
 end
@@ -65,8 +67,10 @@ end
 local function unsubscribeButton(pButName)
   local cid = common.getMobileSession():SendRPC("UnsubscribeButton", { buttonName = pButName })
   local appIDvalue = common.getHMIAppId()
-  common.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription",
-    { appID = appIDvalue, name = pButName, isSubscribed = false })
+  common.getHMIConnection():ExpectRequest("Buttons.UnsubscribeButton", { appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getMobileSession():ExpectNotification("OnHashChange")
 end

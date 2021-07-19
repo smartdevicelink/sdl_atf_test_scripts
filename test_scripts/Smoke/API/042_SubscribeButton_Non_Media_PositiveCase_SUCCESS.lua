@@ -22,7 +22,7 @@
 -- SDL checks if Buttons interface is available on HMI
 -- SDL checks if SubscribeButton is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL sends the Buttons notificaton to HMI
+-- SDL requests the Buttons.SubscribeButton and receives success response from HMI
 -- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
 ---------------------------------------------------------------------------------------------------
 
@@ -37,7 +37,15 @@ config.application1.registerAppInterfaceParams.appHMIType = { "DEFAULT" }
 
 --[[ Local Variables ]]
 local buttonName = {
-  "OK",
+  "OK"
+}
+
+local mediaButtonName = {
+  "PLAY_PAUSE",
+  "SEEKLEFT",
+  "SEEKRIGHT",
+  "TUNEUP",
+  "TUNEDOWN",
   "PRESET_0",
   "PRESET_1",
   "PRESET_2",
@@ -46,30 +54,25 @@ local buttonName = {
   "PRESET_5",
   "PRESET_6",
   "PRESET_7",
-  "PRESET_8"
-}
-
-local mediaButtonName = {
-  "PLAY_PAUSE",
-  "SEEKLEFT",
-  "SEEKRIGHT",
-  "TUNEUP",
-  "TUNEDOWN"
+  "PRESET_8",
+  "PRESET_9"
 }
 
 --[[ Local Functions ]]
 local function subscribeButton(pButName)
   local cid = common.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = common.getHMIAppId()
-  common.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription",
-    { appID = appIDvalue, name = pButName, isSubscribed = true })
+  common.getHMIConnection():ExpectRequest("Buttons.SubscribeButton", { appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 local function subscribeMediaButton(pButName)
   local cid = common.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
-  common.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
+  common.getHMIConnection():ExpectRequest("Buttons.SubscribeButton")
   :Times(0)
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
   common.getMobileSession():ExpectNotification("OnHashChange")
