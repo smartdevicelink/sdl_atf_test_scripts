@@ -509,6 +509,7 @@ function module.getDefaultHMITable()
   hmi_table.Buttons.GetCapabilities = {
     params = {
       capabilities = {
+        module.createButtonCapability("CUSTOM_BUTTON"),
         module.createButtonCapability("PRESET_0"),
         module.createButtonCapability("PRESET_1"),
         module.createButtonCapability("PRESET_2"),
@@ -525,6 +526,7 @@ function module.getDefaultHMITable()
         module.createButtonCapability("SEEKRIGHT"),
         module.createButtonCapability("TUNEUP"),
         module.createButtonCapability("TUNEDOWN"),
+        module.createButtonCapability("SEARCH"),
         module.createButtonCapability("NAV_CENTER_LOCATION"),
         module.createButtonCapability("NAV_ZOOM_IN"),
         module.createButtonCapability("NAV_ZOOM_OUT"),
@@ -540,7 +542,6 @@ function module.getDefaultHMITable()
         module.createButtonCapability("NAV_ROTATE_CLOCKWISE"),
         module.createButtonCapability("NAV_ROTATE_COUNTERCLOCKWISE"),
         module.createButtonCapability("NAV_HEADING_TOGGLE")
-
       },
       presetBankCapabilities = { onScreenPresetsAvailable = true },
     },
@@ -862,6 +863,12 @@ function module.getDefaultHMITable()
   }
 
   hmi_table.BasicCommunication.UpdateAppList = {
+    params = { },
+    mandatory = false,
+    pinned = true
+  }
+
+  hmi_table.Buttons.SubscribeButton = {
     params = { },
     mandatory = false,
     pinned = true
