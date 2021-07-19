@@ -32,6 +32,8 @@ m.registerAppWOPTU = actions.app.registerNoPTU
 m.getAppsCount = actions.getAppsCount
 m.getConfigAppParams = actions.getConfigAppParams
 m.policyTableUpdate = actions.policyTableUpdate
+m.getHMICapabilitiesFromFile = actions.sdl.getHMICapabilitiesFromFile
+m.setHMICapabilitiesToFile = actions.sdl.setHMICapabilitiesToFile
 m.getDefaultHMITable = hmi_values.getDefaultHMITable
 m.hashId = {}
 m.wait = utils.wait
@@ -43,7 +45,6 @@ m.createEvent = actions.run.createEvent
 m.isExpected = 1
 m.isNotExpected = 0
 m.customButtonID = 1
-
 
 m.buttons = {
   "OK",
@@ -119,7 +120,41 @@ m.errorCode = {
   "READ_ONLY"
 }
 
+m.customButtonCapabilities = {
+  name = "CUSTOM_BUTTON",
+  shortPressAvailable = true,
+  longPressAvailable = true,
+  upDownAvailable = true
+}
+
 --[[ Common Functions ]]
+--[[ @startCacheUsed: starting sequence: starting of SDL, initialization of HMI
+--! @pHMIParams - parameters with HMI capabilities
+--! @isCacheUsed - true if it's expected SDL will use HMI capabilities cache, otherwise false
+--! @return: Start event expectation
+--]]
+function m.startCacheUsed(pHMIParams, isCacheUsed)
+  local event = actions.run.createEvent()
+  actions.init.SDL()
+  :Do(function()
+      actions.init.HMI()
+      :Do(function()
+          utils.cprint(35, "HMI initialized")
+          test:initHMI_onReady(pHMIParams, isCacheUsed)
+          :Do(function()
+              actions.init.connectMobile()
+              :Do(function()
+                  actions.init.allowSDL()
+                  :Do(function()
+                      actions.hmi.getConnection():RaiseEvent(event, "Start event")
+                    end)
+                end)
+            end)
+        end)
+    end)
+  return actions.hmi.getConnection():ExpectEvent(event, "Start event")
+end
+
 --[[ @rpcSuccess: performs button Subscription and Unsubscription with SUCCESS resultCode
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
@@ -277,13 +312,32 @@ function m.unexpectedDisconnect()
   m.wait(1000)
 end
 
+--[[ @checkResumptionData: function to check resumption
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pExpTime - number of expected Buttons.SubscribeButton requests from SDL to HMI
+--! @return: none
+--]]
+function m.checkResumptionData(pAppId, pExpTime)
+  if not pExpTime then pExpTime = m.isExpected end
+  m.getHMIConnection():ExpectRequest("Buttons.SubscribeButton",
+    { appID = m.getHMIAppId(pAppId), buttonName = "CUSTOM_BUTTON" })
+  :Do(function(_, data)
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
+  :Times(pExpTime)
+  m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+  :Times(0)
+end
+
 --[[ @reRegisterAppSuccess: re-register application with SUCCESS resultCode
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! pCheckResumptionData - verification function for resumption data
+--! pExpTime - number of expectations
 --! @return: none
 --]]
-function m.reRegisterAppSuccess(pAppId, pCheckResumptionData)
+function m.reRegisterAppSuccess(pAppId, pCheckResumptionData, pExpTime)
   if not pAppId then pAppId = 1 end
   local mobSession = m.getMobileSession(pAppId)
   mobSession:StartService(7)
@@ -298,7 +352,7 @@ function m.reRegisterAppSuccess(pAppId, pCheckResumptionData)
           mobSession:ExpectNotification("OnPermissionsChange")
         end)
     end)
-  pCheckResumptionData(pAppId)
+  pCheckResumptionData(pAppId, pExpTime)
   m.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp", { appID = m.getHMIAppId(pAppId) })
   :Do(function(_, data)
       m.getHMIConnection():SendResponse(data.id, "BasicCommunication.ActivateApp", "SUCCESS", {})
@@ -377,15 +431,64 @@ function m.removeButtonFromCapabilities(pButtonName)
   return hmiValues
 end
 
+--[[ @addButtonToCapabilities: add button to HMI capabilities
+--! @parameters:
+--! pButtonCapabilities - button capabilities
+--! @return: returns HMI Table with supported button
+--]]
+function m.addButtonToCapabilities(pButtonCapabilities)
+  local hmiValues = m.getDefaultHMITable()
+  for i, buttonNameTab in pairs(hmiValues.Buttons.GetCapabilities.params.capabilities) do
+    if (buttonNameTab.name == pButtonCapabilities.name) then
+      table.remove(hmiValues.Buttons.GetCapabilities.params.capabilities, i)
+    end
+  end
+  table.insert(hmiValues.Buttons.GetCapabilities.params.capabilities, pButtonCapabilities)
+  return hmiValues
+end
+
+--[[ @removeButtonFromHMICapabilitiesFile: remove button support from hmi_capabilities.json file
+--! @parameters:
+--! pButtonName - button name
+--! @return: none
+--]]
+function m.removeButtonFromHMICapabilitiesFile(pButtonName)
+  local hmiCapTbl = m.getHMICapabilitiesFromFile()
+  for i, buttonNameTab in pairs(hmiCapTbl.Buttons.capabilities) do
+    if (buttonNameTab.name == pButtonName) then
+      table.remove(hmiCapTbl.Buttons.capabilities, i)
+    end
+  end
+  m.setHMICapabilitiesToFile(hmiCapTbl)
+end
+
+--[[ @addButtonToHMICapabilitiesFile: add button support to hmi_capabilities.json file
+--! @parameters:
+--! pButtonCapabilities - button capabilities
+--! @return: none
+--]]
+function m.addButtonToHMICapabilitiesFile(pButtonCapabilities)
+  local hmiCapTbl = m.getHMICapabilitiesFromFile()
+  for i, buttonNameTab in pairs(hmiCapTbl.Buttons.capabilities) do
+    if (buttonNameTab.name == pButtonCapabilities.name) then
+      table.remove(hmiCapTbl.Buttons.capabilities, i)
+    end
+  end
+  table.insert(hmiCapTbl.Buttons.capabilities, pButtonCapabilities)
+  m.setHMICapabilitiesToFile(hmiCapTbl)
+end
+
 --[[ @registerAppSubCustomButton: register App with subscription to "CUSTOM_BUTTON"
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! pResultCode - result code
+--! pExpRequest - count of expected Buttons.SubscribeButton requests from SDL to HMI)
 --! @return: none
 --]]
-function m.registerAppSubCustomButton(pAppId, pResultCode)
+function m.registerAppSubCustomButton(pAppId, pResultCode, pExpRequest)
   if not pAppId then pAppId = 1 end
   if not pResultCode then pResultCode = "SUCCESS" end
+  if not pExpRequest then pExpRequest = 1 end
   local session = actions.mobile.createSession(pAppId)
   session:StartService(7)
   :Do(function()
@@ -399,6 +502,7 @@ function m.registerAppSubCustomButton(pAppId, pResultCode)
           :Do(function(_, data)
               m.getHMIConnection():SendResponse(data.id, data.method, pResultCode, { })
             end)
+          :Times(pExpRequest)
           m.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
           :Times(0)
           m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
@@ -433,6 +537,25 @@ function m.registerSoftButton()
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+end
+
+--[[ @getUpdatedHMICaps: update HMI capabilities
+--! @parameters:
+--! pVersion - 'ccpu_version' parameter for GetSystemInfo response
+--! pHMIParams - parameters with HMI capabilities
+--! @return: returns HMI Table with updated parameters
+--]]
+function m.getUpdatedHMICaps(pVersion, pHMIParams)
+  if not pHMIParams then pHMIParams = m.getDefaultHMITable end
+  local hmiValues = pHMIParams
+  hmiValues.BasicCommunication.GetSystemInfo = {
+    params = {
+      ccpu_version = pVersion,
+      language = "EN-US",
+      wersCountryCode = "wersCountryCode"
+    }
+  }
+  return hmiValues
 end
 
 return m
