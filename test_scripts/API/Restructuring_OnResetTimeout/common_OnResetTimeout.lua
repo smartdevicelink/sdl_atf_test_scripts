@@ -4,8 +4,6 @@
 --[[ General configuration parameters ]]
 config.defaultProtocolVersion = 2
 config.checkAllValidations = true
-config.application1.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
-config.application2.registerAppInterfaceParams.appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Required Shared libraries ]]
 local json = require("modules/json")
@@ -33,6 +31,7 @@ c.getAppRequestParams = commonRC.getAppRequestParams
 c.getHMIEventName = commonRC.getHMIEventName
 c.getHMIRequestParams = commonRC.getHMIRequestParams
 c.getHMIResponseParams = commonRC.getHMIResponseParams
+c.getConfigAppParams = actions.getConfigAppParams
 
 c.notificationTime = 0
 c.jsonFileToTable = utils.jsonFileToTable
@@ -93,17 +92,18 @@ local function updatePreloadedPT()
     }
   end
 
-  --insert application "0000001" into "app_policies"
-  pt.policy_table.app_policies["0000001"] = c.cloneTable(pt.policy_table.app_policies.default)
-  pt.policy_table.app_policies["0000001"].groups = { "Base-4", "NewTestCaseGroup", "RemoteControl", "Navigation-1" }
-  pt.policy_table.app_policies["0000001"].moduleType = c.modules
-  pt.policy_table.app_policies["0000001"].AppHMIType = { "REMOTE_CONTROL" }
-
-  --insert application "0000002" into "app_policies"
-  pt.policy_table.app_policies["0000002"] = c.cloneTable(pt.policy_table.app_policies.default)
-  pt.policy_table.app_policies["0000002"].groups = { "Base-4", "NewTestCaseGroup", "RemoteControl", "Navigation-1" }
-  pt.policy_table.app_policies["0000002"].moduleType = c.modules
-  pt.policy_table.app_policies["0000002"].AppHMIType = { "REMOTE_CONTROL" }
+  --insert applications into "app_policies"
+  for i = 1, 2 do
+    local policyAppId = c.getConfigAppParams(i).fullAppID
+    pt.policy_table.app_policies[policyAppId] = c.cloneTable(pt.policy_table.app_policies.default)
+    pt.policy_table.app_policies[policyAppId].groups = { "Base-4", "NewTestCaseGroup", "Navigation-1" }
+    pt.policy_table.app_policies[policyAppId].moduleType = c.modules
+    if c.getConfigAppParams(i).appHMIType[1] == "REMOTE_CONTROL" then
+      pt.policy_table.app_policies[policyAppId].moduleType = c.modules
+      pt.policy_table.app_policies[policyAppId].AppHMIType = { "REMOTE_CONTROL" }
+      table.insert(pt.policy_table.app_policies[policyAppId].groups, "RemoteControl")
+    end
+  end
 
   actions.sdl.setPreloadedPT(pt)
 end

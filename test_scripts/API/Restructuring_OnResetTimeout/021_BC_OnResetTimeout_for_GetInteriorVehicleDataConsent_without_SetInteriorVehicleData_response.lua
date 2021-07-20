@@ -25,6 +25,10 @@
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/Restructuring_OnResetTimeout/common_OnResetTimeout')
 
+--[[ Apps configuration ]]
+common.getConfigAppParams(1).appHMIType = { "REMOTE_CONTROL" }
+common.getConfigAppParams(2).appHMIType = { "REMOTE_CONTROL" }
+
 --[[ Local Variables ]]
 local paramsForRespFunctionConsent = {
   respTime = common.defaultTimeout + 13000,
