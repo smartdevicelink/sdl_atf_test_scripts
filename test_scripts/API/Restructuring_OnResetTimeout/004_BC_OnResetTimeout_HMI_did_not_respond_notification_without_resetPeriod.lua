@@ -47,13 +47,13 @@ common.Step("Add AddSubMenu", common.addSubMenu)
 common.Title("Test")
 for _, rpc in pairs(common.rpcsArray) do
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { common.defaultTimeout + 7000, common.defaultTimeout, common.withoutResponseWithOnResetTimeout,
+    { common.defaultTimeout + 7000, common.defaultTimeout, common.onResetTimeoutOnly,
       paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 end
 common.Step("Module allocation for App_1" , common.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { common.defaultTimeout + 7000, common.defaultTimeout, common.withoutResponseWithOnResetTimeout,
+  { common.defaultTimeout + 7000, common.defaultTimeout, common.onResetTimeoutOnly,
     paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")

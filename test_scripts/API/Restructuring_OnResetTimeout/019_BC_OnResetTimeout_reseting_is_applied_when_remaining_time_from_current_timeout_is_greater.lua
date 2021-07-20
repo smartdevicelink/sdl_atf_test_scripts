@@ -36,7 +36,7 @@ common.Step("App activation", common.activateApp)
 
 common.Title("Test")
 common.Step("Send SendLocation" , common.rpcs.SendLocation,
-  { 7000, 6000, common.withoutResponseWithOnResetTimeout,
+  { 7000, 6000, common.onResetTimeoutOnly,
     paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif })
 
 common.Title("Postconditions")

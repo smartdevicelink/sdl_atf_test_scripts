@@ -141,7 +141,7 @@ end
 --]]
 function c.responseWithOnResetTimeout(pData, pOnRTParams)
   local function sendOnResetTimeout()
-    c.onResetTimeoutNotification(pData.id, pData.method, pOnRTParams. resetPeriod)
+    c.onResetTimeoutNotification(pData.id, pData.method, pOnRTParams.resetPeriod)
   end
   local function sendresponse()
     c.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", pOnRTParams.respParams)
@@ -150,13 +150,13 @@ function c.responseWithOnResetTimeout(pData, pOnRTParams)
   RUN_AFTER(sendOnResetTimeout, pOnRTParams.notificationTime)
 end
 
---[[ @withoutResponseWithOnResetTimeout: Send OnResetTimeout notification from HMI
+--[[ @onResetTimeoutOnly: Send OnResetTimeout notification from HMI
 --! @parameters:
 --! pData - request data for sending response
 --! pOnRTParams - parameters for BasicCommunication.OnResetTimeout
 --! @return: none
 --]]
-function c.withoutResponseWithOnResetTimeout(pData, pOnRTParams)
+function c.onResetTimeoutOnly(pData, pOnRTParams)
   local function sendOnResetTimeout()
     c.onResetTimeoutNotification(pData.id, pData.method, pOnRTParams.resetPeriod)
   end
@@ -187,7 +187,7 @@ function c.createInteractionChoiceSet(pID)
   c.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
 end
 
---[[ @AddSubMenu: Add AddSubMenu
+--[[ @AddSubMenu: Add SubMenu
 --! @parameters: none
 --! @return: none
 --]]

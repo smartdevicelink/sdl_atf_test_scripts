@@ -41,11 +41,11 @@ local RespParams = { success = false, resultCode = "GENERIC_ERROR" }
 --[[ Local Functions ]]
 local function twoRequestsinSameTime()
   common.rpcs.DiagnosticMessage(common.defaultTimeout + 2000, common.defaultTimeout + 1000,
-    common.withoutResponseWithOnResetTimeout,
+    common.onResetTimeoutOnly,
     paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif)
 
   common.rpcs.SetInteriorVehicleData(common.defaultTimeout + 4000, common.defaultTimeout + 3000,
-    common.withoutResponseWithOnResetTimeout,
+    common.onResetTimeoutOnly,
     paramsForRespFunctionSecondNot, RespParams, common.responseTimeCalculationFromNotif)
 end
 

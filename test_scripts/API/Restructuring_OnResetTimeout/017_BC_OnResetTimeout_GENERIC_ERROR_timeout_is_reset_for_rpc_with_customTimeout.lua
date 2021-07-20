@@ -45,7 +45,7 @@ common.Step("Create InteractionChoiceSet", common.createInteractionChoiceSet, { 
 common.Title("Test")
 for rpc in pairs(common.rpcsArrayWithCustomTimeout) do
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { common.defaultTimeout + 8000, 7000, common.withoutResponseWithOnResetTimeout,
+    { common.defaultTimeout + 8000, 7000, common.onResetTimeoutOnly,
       paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 end
 

@@ -59,14 +59,14 @@ for _, rpc in pairs(common.rpcsArray) do
     timeout = timeout + common.rpcsArrayWithCustomTimeout[rpc].timeout
   end
   common.Step("Send " .. rpc , common.rpcs[rpc],
-    { wait, timeout, common.withoutResponseWithOnResetTimeout,
+    { wait, timeout, common.onResetTimeoutOnly,
       paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 end
 
 common.Step("Module allocation for App_1" , common.rpcAllowed, { "CLIMATE", 1, "SetInteriorVehicleData" })
 common.Step("App_2 activation", common.activateApp, { 2 })
 common.Step("Send SetInteriorVehicleData with consent" , common.rpcs.rpcAllowedWithConsent,
-  { common.defaultTimeout + 1000, 5000, common.withoutResponseWithOnResetTimeout,
+  { common.defaultTimeout + 1000, 5000, common.onResetTimeoutOnly,
     paramsForRespFunction, rpcResponse, common.responseTimeCalculationFromNotif})
 
 common.Title("Postconditions")

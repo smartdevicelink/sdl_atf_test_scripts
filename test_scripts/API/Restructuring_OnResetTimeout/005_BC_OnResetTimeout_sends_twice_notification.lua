@@ -39,8 +39,8 @@ local function diagnosticMessageError()
 
   common.getHMIConnection():ExpectRequest("VehicleInfo.DiagnosticMessage", requestParams)
   :Do(function(_, data)
-      common.withoutResponseWithOnResetTimeout(data, paramsForRespFunctionFirstNot)
-      common.withoutResponseWithOnResetTimeout(data, paramsForRespFunctionSecondNot)
+      common.onResetTimeoutOnly(data, paramsForRespFunctionFirstNot)
+      common.onResetTimeoutOnly(data, paramsForRespFunctionSecondNot)
     end)
 
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR" })

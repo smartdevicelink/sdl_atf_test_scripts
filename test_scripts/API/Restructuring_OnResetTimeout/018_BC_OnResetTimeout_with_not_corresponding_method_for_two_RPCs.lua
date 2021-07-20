@@ -37,7 +37,7 @@ local paramsForRespFunctionSecondNot = {
 local RespParams = { success = false, resultCode = "GENERIC_ERROR" }
 
 --[[ Local Functions ]]
-function common.withoutResponseWithOnResetTimeout(pData, pOnRTParams)
+function common.onResetTimeoutOnly(pData, pOnRTParams)
   if pData.method == "VehicleInfo.DiagnosticMessage" then
     pData.method = "RC.SetInteriorVehicleData"
   else
@@ -51,11 +51,11 @@ end
 
 local function twoRequestsinSameTime()
   common.rpcs.DiagnosticMessage(common.defaultTimeout + 1000, common.defaultTimeout,
-    common.withoutResponseWithOnResetTimeout,
+    common.onResetTimeoutOnly,
     paramsForRespFunction, RespParams, common.responseTimeCalculationFromNotif)
 
   common.rpcs.SetInteriorVehicleData(common.defaultTimeout + 1000, common.defaultTimeout,
-    common.withoutResponseWithOnResetTimeout, paramsForRespFunctionSecondNot,
+    common.onResetTimeoutOnly, paramsForRespFunctionSecondNot,
     RespParams, common.responseTimeCalculationFromNotif)
 end
 
