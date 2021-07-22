@@ -1,0 +1,8 @@
+./test_scripts/Defects/8_0/3556_1_GetListOfPermission_no_specific_permission.lua
+./test_scripts/Defects/8_0/3556_2_GetListOfPermission_contains_groups_with_user_consent_prompt.lua
+./test_scripts/Defects/8_0/977_SDL_sends_appName_in_vrSynonyms_and_ttsName_in_case_of_lower_and_upper_bound_values_of_params_in_json_file.lua
+./test_scripts/Defects/8_0/2398_SendLocation_with_one_OR_more_allowed_params_and_one_OR_more_disallowed_params_by_user.lua
+./test_scripts/Defects/8_0/1584_AppNotRegistered.lua
+./test_scripts/Defects/8_0/3666_OEM_Mapping_update_after_ignition_cycle.lua
+./test_scripts/Defects/8_0/3725_populate_GetUserFriendlyMessage.lua
+./test_scripts/Defects/8_0/3668_App_resets_UserLocation.lua
