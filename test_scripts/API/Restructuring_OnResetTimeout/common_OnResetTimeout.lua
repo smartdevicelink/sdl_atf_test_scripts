@@ -60,7 +60,8 @@ c.rpcsArray = {
   "AlertManeuver",
   "AddCommand",
   "ChangeRegistration",
-  "SetGlobalProperties"
+  "SetGlobalProperties",
+  "AddSubMenu"
 }
 
 c.rpcsArrayWithCustomTimeout = {
@@ -629,6 +630,35 @@ function c.rpcs.DeleteSubMenu( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRe
   local corId = c.getMobileSession():SendRPC("DeleteSubMenu", params)
   local pRequestTime = timestamp()
   c.getHMIConnection():ExpectRequest("UI.DeleteSubMenu")
+  :Do(function(_, data)
+      pOnRTParams.respParams = { }
+      pHMIRespFunc(data, pOnRTParams)
+    end)
+  c.getMobileSession():ExpectResponse(corId, pExpMobRespParams)
+  :Timeout(pExpTimoutForMobResp)
+  :ValidIf(function()
+      return pCalculationFunction(pExpTimeBetweenResp, pOnRTParams, pRequestTime)
+    end)
+end
+
+--[[ @AddSubMenu: Successful processing AddSubMenu RPC
+--! @parameters:
+--! pExpTimoutForMobResp - timeout for mobile response expectation
+--! pExpTimeBetweenResp - time between the mobile response and sending the OnResetTimeout notification from HMI
+--! pHMIRespFunc - custom function which executed after HMI request is received
+--! pOnRTParams - parameters for BC.OnResetTimeout
+--! pExpMobRespParams - parameters for mobile response
+--! @return: none
+--]]
+function c.rpcs.AddSubMenu( pExpTimoutForMobResp, pExpTimeBetweenResp, pHMIRespFunc, pOnRTParams, pExpMobRespParams, pCalculationFunction )
+  local params = {
+    menuID = 2000,
+    position = 600,
+    menuName ="SubMenu2"
+  }
+  local corId = c.getMobileSession():SendRPC("AddSubMenu", params)
+  local pRequestTime = timestamp()
+  c.getHMIConnection():ExpectRequest("UI.AddSubMenu")
   :Do(function(_, data)
       pOnRTParams.respParams = { }
       pHMIRespFunc(data, pOnRTParams)
