@@ -18,8 +18,6 @@
 -- 7. HMI sends OnButtonEvent and OnButtonPress notifications for <button>
 -- SDL does:
 -- - not transfer OnButtonEvent and OnButtonPress to App
-
-
 ------------------------------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/API/ButtonSubscription/commonButtonSubscription')
