@@ -4,11 +4,11 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- Description: Check that SDL doesn't send SubscribeButton RPC with 'CUSTOM_BUTTON' parameter during resumption
 --  after unexpected disconnect in case:
---  - 'CUSTOM_BUTTON' is missing in the hmi_capabilities.json file
+--  - 'CUSTOM_BUTTON' is present in the hmi_capabilities.json file
 --  - 'CUSTOM_BUTTON' is not supported by HMI
 ------------------------------------------------------------------------------------------------------------------------
 -- Preconditions:
--- 1. CUSTOM_BUTTON is missing in hmi_capabilities.json
+-- 1. CUSTOM_BUTTON is present in hmi_capabilities.json
 -- 2. SDL and HMI are started
 -- 3. HMI doesn't support CUSTOM_BUTTON (HMI sends Buttons.GetCapabilities response without CUSTOM_BUTTON)
 -- 4. Mobile app is registered and activated
