@@ -126,7 +126,7 @@ function commonSubtleAlert.subtleAlertRejectedPhoneCall(pParams, prepareFunc)
     end)
 
   common.getMobileSession():ExpectNotification("OnHMIStatus",
-    { systemContext = "MAIN", hmiLevel = "LIMITED", audioStreamingState = "NOT_AUDIBLE" },
+    { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE" },
     { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
   :Times(2)
 
