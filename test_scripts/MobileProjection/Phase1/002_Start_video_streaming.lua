@@ -1,9 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- User story: TBD
--- Use case: TBD
---
--- Requirement summary:
--- TBD
+-- User story: 0125 Validate ATF Streaming Data
+-- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0125-atf-videostreaming-full-support.md
+-- Use case: Validate data transmitted by mobile can be received by an HMI from Core
 --
 -- Description:
 -- In case:
@@ -42,6 +40,7 @@ runner.Step("Start video service", common.startService, { 11 })
 
 runner.Title("Test")
 runner.Step("Start video streaming", common.StartStreaming, { 11, "files/SampleVideo_5mb.mp4" })
+runner.Step("Listen video streaming", common.ListenStreaming, { 11, 100000, "files/SampleVideo_5mb.mp4" })
 
 runner.Title("Postconditions")
 runner.Step("Stop video streaming", common.StopStreaming, { 11, "files/SampleVideo_5mb.mp4" })

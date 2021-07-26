@@ -15,3 +15,5 @@
 ./test_scripts/MobileProjection/Phase1/015_Restore_video_streaming_from_NONE.lua
 ./test_scripts/MobileProjection/Phase1/016_Restore_audio_streaming_from_NONE.lua
 ./test_scripts/MobileProjection/Phase1/017_HappyPath_flow_with_audio_video_streamings.lua
+./test_scripts/MobileProjection/Phase1/018_Pipe_video_streaming.lua
+./test_scripts/MobileProjection/Phase1/019_Pipe_audio_streaming.lua

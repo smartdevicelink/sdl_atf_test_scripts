@@ -6,10 +6,12 @@
 -- Description:
 -- In case:
 -- 1) Application is registered with PROJECTION appHMIType
--- 2) and starts audio streaming
+-- 2) and starts video streaming
 -- SDL must:
 -- 1) Start service successful
 -- 2) Process streaming from mobile
+-- HMI must:
+-- 1) Receive valid data from SDL
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/MobileProjection/Phase1/common')
@@ -29,19 +31,24 @@ local function ptUpdate(pTbl)
   pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].AppHMIType = { appHMIType }
 end
 
+local function switchToPipeStreaming()
+  common.setSDLIniParameter("VideoStreamConsumer", "pipe")
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Switch to Pipe Streaming", switchToPipeStreaming)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate with HMI types", common.policyTableUpdate, { ptUpdate })
 runner.Step("Activate App", common.activateApp)
-runner.Step("Start audio service", common.startService, { 10 })
+runner.Step("Start video service", common.startService, { 11 })
 
 runner.Title("Test")
-runner.Step("Start audio streaming", common.StartStreaming, { 10, "files/MP3_4555kb.mp3" })
-runner.Step("Listen audio streaming", common.ListenStreaming, { 10, 10000, "files/MP3_4555kb.mp3" })
+runner.Step("Start video streaming", common.StartStreaming, { 11, "files/SampleVideo_5mb.mp4" })
+runner.Step("Listen video streaming", common.ListenStreaming, { 11, 100000, "files/SampleVideo_5mb.mp4" })
 
 runner.Title("Postconditions")
-runner.Step("Stop audio streaming", common.StopStreaming, { 10, "files/MP3_4555kb.mp3" })
+runner.Step("Stop video streaming", common.StopStreaming, { 11, "files/SampleVideo_5mb.mp4" })
 runner.Step("Stop SDL", common.postconditions)

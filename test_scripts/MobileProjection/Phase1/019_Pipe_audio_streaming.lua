@@ -10,6 +10,8 @@
 -- SDL must:
 -- 1) Start service successful
 -- 2) Process streaming from mobile
+-- HMI must:
+-- 1) Receive valid data from SDL
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/MobileProjection/Phase1/common')
@@ -29,9 +31,14 @@ local function ptUpdate(pTbl)
   pTbl.policy_table.app_policies[common.getConfigAppParams().fullAppID].AppHMIType = { appHMIType }
 end
 
+local function switchToPipeStreaming()
+  common.setSDLIniParameter("AudioStreamConsumer", "pipe")
+end
+
 --[[ Scenario ]]
 runner.Title("Preconditions")
 runner.Step("Clean environment", common.preconditions)
+runner.Step("Switch to Pipe Streaming", switchToPipeStreaming)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate with HMI types", common.policyTableUpdate, { ptUpdate })
