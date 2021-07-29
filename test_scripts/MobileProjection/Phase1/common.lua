@@ -88,7 +88,7 @@ end
 --]]
 function m.ValidateStreamingData(event, compare_file)
   EXPECT_EVENT(event, "Stream event")
-  :Do(function(_, data)
+  :ValidIf(function(_, data)
     if data.success then
       local recv_file = io.open(data.file_name, "rb")
       local recv_data = recv_file:read(data.total_bytes)
@@ -98,10 +98,14 @@ function m.ValidateStreamingData(event, compare_file)
       local sent_data = sent_file:read(data.total_bytes)
       sent_file:close()
 
-      if sent_data ~= recv_data then
-        actions.run.fail("Streaming Data Received by HMI did not match the file sent")
+      if sent_data == recv_data then
+        return true
+      else
+        return false, "Streaming Data Received by HMI did not match the file sent"
       end
     end
+
+    return false, "HMI received " .. tostring(data.total_bytes) .. " bytes of streaming data"
   end)
 end
 

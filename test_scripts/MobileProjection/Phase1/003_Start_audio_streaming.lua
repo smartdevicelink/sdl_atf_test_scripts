@@ -40,7 +40,7 @@ runner.Step("Start audio service", common.startService, { 10 })
 
 runner.Title("Test")
 runner.Step("Start audio streaming", common.StartStreaming, { 10, "files/MP3_4555kb.mp3" })
-runner.Step("Listen audio streaming", common.ListenStreaming, { 10, 10000, "files/MP3_4555kb.mp3" })
+runner.Step("Listen audio streaming", common.ListenStreaming, { 10, 500000, "files/MP3_4555kb.mp3" })
 
 runner.Title("Postconditions")
 runner.Step("Stop audio streaming", common.StopStreaming, { 10, "files/MP3_4555kb.mp3" })

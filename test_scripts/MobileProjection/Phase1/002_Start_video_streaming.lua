@@ -40,7 +40,7 @@ runner.Step("Start video service", common.startService, { 11 })
 
 runner.Title("Test")
 runner.Step("Start video streaming", common.StartStreaming, { 11, "files/SampleVideo_5mb.mp4" })
-runner.Step("Listen video streaming", common.ListenStreaming, { 11, 100000, "files/SampleVideo_5mb.mp4" })
+runner.Step("Listen video streaming", common.ListenStreaming, { 11, 500000, "files/SampleVideo_5mb.mp4" })
 
 runner.Title("Postconditions")
 runner.Step("Stop video streaming", common.StopStreaming, { 11, "files/SampleVideo_5mb.mp4" })
