@@ -58,7 +58,7 @@ function common.serviceResponseFunc(pServiceId)
     frameInfo = common.frameInfo.START_SERVICE_NACK,
     encryption = false
   })
-  :Timeout(11000)
+  :Timeout(runner.testSettings.defaultTimeout + 1000)
 end
 
 function common.policyTableUpdateFunc()
