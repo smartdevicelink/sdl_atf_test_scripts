@@ -32,6 +32,7 @@ c.getHMIEventName = commonRC.getHMIEventName
 c.getHMIRequestParams = commonRC.getHMIRequestParams
 c.getHMIResponseParams = commonRC.getHMIResponseParams
 c.getConfigAppParams = actions.getConfigAppParams
+c.setSDLIniParameter = actions.setSDLIniParameter
 
 c.notificationTime = 0
 c.jsonFileToTable = utils.jsonFileToTable
@@ -73,6 +74,7 @@ c.rpcsArrayWithCustomTimeout = {
 }
 
 c.defaultTimeout = actions.sdl.getSDLIniParameter("DefaultTimeout")
+c.defaultTimeoutCompensation = actions.sdl.getSDLIniParameter("DefaultTimeoutCompensation")
 
 --[[ Common Functions ]]
 
@@ -115,6 +117,7 @@ end
 --]]
 function c.preconditions()
   actions.preconditions()
+  actions.sdl.setSDLIniParameter("DefaultTimeoutCompensation", "0")
   updatePreloadedPT()
 end
 
