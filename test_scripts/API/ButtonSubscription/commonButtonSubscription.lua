@@ -133,8 +133,6 @@ function m.rpcSuccess(pAppId, pRpc, pButtonName)
   :Do(function(_, data)
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
-  m.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
-  :Times(0)
   m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Do(function(_, data)
@@ -372,9 +370,9 @@ function m.removeButtonFromCapabilities(pButtonName)
   for i, buttonNameTab in pairs(hmiValues.Buttons.GetCapabilities.params.capabilities) do
     if (buttonNameTab.name == pButtonName) then
       table.remove(hmiValues.Buttons.GetCapabilities.params.capabilities, i)
+      return hmiValues
     end
   end
-  return hmiValues
 end
 
 --[[ @registerAppSubCustomButton: register App with subscription to "CUSTOM_BUTTON"
@@ -399,8 +397,6 @@ function m.registerAppSubCustomButton(pAppId, pResultCode)
           :Do(function(_, data)
               m.getHMIConnection():SendResponse(data.id, data.method, pResultCode, { })
             end)
-          m.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
-          :Times(0)
           m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
           :Times(0)
         end)

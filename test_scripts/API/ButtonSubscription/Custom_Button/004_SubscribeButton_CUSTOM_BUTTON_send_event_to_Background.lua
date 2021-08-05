@@ -51,7 +51,7 @@ local function pTUpdateFunc(pTbl)
   pTbl.policy_table.app_policies[common.getConfigAppParams(appSessionId1).fullAppID].steal_focus = true
 end
 
-local function registerSoftButton(pAppId)
+local function activateAlert(pAppId)
   common.getMobileSession(pAppId):SendRPC("Alert", RequestAlert)
   common.getHMIConnection():ExpectRequest("UI.Alert")
   :Do(function(_,data)
@@ -79,13 +79,13 @@ common.runner.Step("App_1 registration", common.registerApp)
 common.runner.Step("PTU", common.policyTableUpdate, { pTUpdateFunc })
 common.runner.Step("App_2 registration", common.registerAppWOPTU, { appSessionId2 })
 common.runner.Step("Activate app_1", common.activateApp, { appSessionId1 })
-common.runner.Step("Subscribe on Soft button, Alert", registerSoftButton, { appSessionId1 })
+common.runner.Step("Activate Alert", activateAlert, { appSessionId1 })
 common.runner.Step("Press on " .. buttonName .. " Alert", pressOnButton,
   { appSessionId1, buttonName, common.isExpected, customButtonIDAlert })
 common.runner.Step("Activate App_2, App_1 goes to BACKGROUND", app_1_to_BACKGROUND)
 
 common.runner.Title("Test")
-common.runner.Step("Subscribe on Soft button, Alert", registerSoftButton, { appSessionId1 })
+common.runner.Step("Activate Alert", activateAlert, { appSessionId1 })
 common.runner.Step("Press on " .. buttonName .. " Alert",  pressOnButton,
   { appSessionId1, buttonName, common.isExpected, customButtonIDAlert })
 
