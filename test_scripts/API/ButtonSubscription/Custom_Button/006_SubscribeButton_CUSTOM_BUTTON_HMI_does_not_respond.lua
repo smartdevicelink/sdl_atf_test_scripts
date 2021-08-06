@@ -7,8 +7,9 @@
 ------------------------------------------------------------------------------------------------------------------------
 -- In case:
 -- 1. Mobile app starts registration
--- 2. HMI does not send Buttons.SubscribeButton response during default timeout
--- 3. HMI sends OnButtonEvent and OnButtonPress notification to App
+-- 2. SDL sends Buttons.SubscribeButton request to HMI
+-- 3. HMI does not respond to Buttons.SubscribeButton request during default timeout
+-- 4. HMI sends OnButtonEvent and OnButtonPress notification to App
 -- SDL does:
 -- - not resend notifications to App
 ------------------------------------------------------------------------------------------------------------------------
@@ -33,6 +34,7 @@ local function registerAppSubCustomButton(pAppId, pExpTimesApp)
   :Times(pExpTimesApp)
   common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Times(0)
+  common.wait(11000)
 end
 
 --[[ Scenario ]]

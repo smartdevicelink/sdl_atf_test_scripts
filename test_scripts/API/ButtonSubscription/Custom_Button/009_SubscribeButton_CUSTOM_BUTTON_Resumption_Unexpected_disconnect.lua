@@ -38,12 +38,8 @@ end
 common.runner.Title("Preconditions")
 common.runner.Step("Clean environment", common.preconditions)
 common.runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-common.runner.Step("App registration", common.registerAppWOPTU)
+common.runner.Step("App registration and check Subscribe on CUSTOM_BUTTON", common.registerAppSubCustomButton)
 common.runner.Step("App activation", common.activateApp)
-common.runner.Step("UnsubscribeButton " .. buttonName, common.rpcSuccess,
-  { appSessionId1, "UnsubscribeButton", buttonName })
-common.runner.Step("SubscribeButton " .. buttonName, common.rpcSuccess,
-  { appSessionId1, "SubscribeButton", buttonName })
 common.runner.Step("Subscribe on Soft button", common.registerSoftButton)
 common.runner.Step("On Custom_button press ", common.buttonPress,
   { appSessionId1, buttonName, common.isExpected, common.customButtonID })
