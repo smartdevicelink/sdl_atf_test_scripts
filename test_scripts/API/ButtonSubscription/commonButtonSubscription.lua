@@ -441,6 +441,7 @@ function m.addButtonToCapabilities(pButtonCapabilities)
   for i, buttonNameTab in pairs(hmiValues.Buttons.GetCapabilities.params.capabilities) do
     if (buttonNameTab.name == pButtonCapabilities.name) then
       table.remove(hmiValues.Buttons.GetCapabilities.params.capabilities, i)
+      break
     end
   end
   table.insert(hmiValues.Buttons.GetCapabilities.params.capabilities, pButtonCapabilities)
@@ -457,6 +458,7 @@ function m.removeButtonFromHMICapabilitiesFile(pButtonName)
   for i, buttonNameTab in pairs(hmiCapTbl.Buttons.capabilities) do
     if (buttonNameTab.name == pButtonName) then
       table.remove(hmiCapTbl.Buttons.capabilities, i)
+      break
     end
   end
   m.setHMICapabilitiesToFile(hmiCapTbl)
@@ -472,6 +474,7 @@ function m.addButtonToHMICapabilitiesFile(pButtonCapabilities)
   for i, buttonNameTab in pairs(hmiCapTbl.Buttons.capabilities) do
     if (buttonNameTab.name == pButtonCapabilities.name) then
       table.remove(hmiCapTbl.Buttons.capabilities, i)
+      break
     end
   end
   table.insert(hmiCapTbl.Buttons.capabilities, pButtonCapabilities)
