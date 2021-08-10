@@ -57,10 +57,10 @@ local mobileDeleteSubMenuRequestParams = {
 
 local hmiDeleteSubMenuRequestParams = {
     {
-        menuID = mobileAddSubMenuRequestParams[2].menuID
+        menuID = mobileAddSubMenuRequestParams[3].menuID
     },
     {
-        menuID = mobileAddSubMenuRequestParams[3].menuID
+        menuID = mobileAddSubMenuRequestParams[2].menuID
     },
     {
         menuID = mobileDeleteSubMenuRequestParams.menuID
@@ -69,10 +69,10 @@ local hmiDeleteSubMenuRequestParams = {
 
 local hmiDeleteCommandRequestParams = {
     {
-        cmdID = mobileAddCommandRequestParams[1].cmdID
+        cmdID = mobileAddCommandRequestParams[2].cmdID
     },
     {
-        cmdID = mobileAddCommandRequestParams[2].cmdID
+        cmdID = mobileAddCommandRequestParams[1].cmdID
     }
 }
 
