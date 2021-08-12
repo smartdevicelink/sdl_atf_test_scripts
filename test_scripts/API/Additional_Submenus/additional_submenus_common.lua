@@ -1,13 +1,5 @@
 local common = require('test_scripts/Smoke/commonSmoke')
 
-local function reverseArray(arr)
-    local rev = {}
-    for i=#arr, 1, -1 do
-        rev[#rev+1] = arr[i]
-    end
-    return rev
-end
-
 common.reqParams = {
     AddCommand = {
       mob = { cmdID = 1, vrCommands = { "OnlyVRCommand" }}
@@ -71,7 +63,7 @@ function common.DeleteSubMenu(mobileParams, hmiDeleteCommandParams, hmiDeleteSub
     local cid = common.getMobileSession():SendRPC("DeleteSubMenu", mobileParams)
 
     common.getHMIConnection():ExpectRequest("UI.DeleteCommand", 
-        unpack(reverseArray(hmiDeleteCommandParams))
+        unpack(hmiDeleteCommandParams)
     )
     :Times(#hmiDeleteCommandParams)
     :Do(function(_, data)
@@ -79,7 +71,7 @@ function common.DeleteSubMenu(mobileParams, hmiDeleteCommandParams, hmiDeleteSub
     end)
 
     common.getHMIConnection():ExpectRequest("UI.DeleteSubMenu", 
-        unpack(reverseArray(hmiDeleteSubMenuParams))
+        unpack(hmiDeleteSubMenuParams)
     )
     :Times(#hmiDeleteSubMenuParams)
     :Do(function(_, data)

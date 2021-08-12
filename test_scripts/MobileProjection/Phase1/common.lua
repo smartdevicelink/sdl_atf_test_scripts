@@ -11,6 +11,8 @@ local actions = require("user_modules/sequences/actions")
 local utils = require("user_modules/utils")
 local events = require("events")
 local constants = require("protocol_handler/ford_protocol_constants")
+local hmi_stream = require("modules/hmi_adapter/hmi_stream_adapter_controller")
+local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
 
 --[[ Module ]]
 local m = actions
@@ -76,6 +78,87 @@ function m.StopStreaming(pService, pFile, pAppId)
   else
     m.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false }):Timeout(15000)
   end
+end
+
+--[[ @ValidateStreamingData: Validate HMI bound streaming data
+--! @parameters:
+--! event - Streaming data captured event
+--! compare_file - file that was streamed to compare data against what was received
+--! @return: none
+--]]
+function m.ValidateStreamingData(event, compare_file)
+  EXPECT_EVENT(event, "Stream event")
+  :ValidIf(function(_, data)
+    if data.success then
+      local recv_file = io.open(data.file_name, "rb")
+      local recv_data = recv_file:read(data.total_bytes)
+      recv_file:close()
+
+      local sent_file = io.open(compare_file, "rb")
+      local sent_data = sent_file:read(data.total_bytes)
+      sent_file:close()
+
+      if sent_data == recv_data then
+        return true
+      else
+        return false, "Streaming Data Received by HMI did not match the file sent"
+      end
+    end
+
+    return false, "HMI received " .. tostring(data.total_bytes) .. " bytes of streaming data"
+  end)
+end
+
+--[[ @ListenStreaming: Capture HMI bound streaming data to file
+--! @parameters:
+--! pService - service value
+--! bytes - how many bytes before the callback will be called
+--! compare_file - file to compare received data to
+--! @return: event which will be raised when stream data is received or times out
+--]]
+function m.ListenStreaming(pService, bytes, compare_file)
+  local consumer = "socket"
+  if pService == 10 then
+    consumer = actions.sdl.getSDLIniParameter("AudioStreamConsumer")
+  elseif pService == 11 then
+    consumer = actions.sdl.getSDLIniParameter("VideoStreamConsumer")
+  end
+  local isTcp = "socket" == consumer
+
+  local event = events.Event()
+  event.service = pService
+  event.matches = function(event1, event2)
+    return event1.service == event2.service
+  end
+
+  if compare_file then
+    m.ValidateStreamingData(event, compare_file)
+  end
+
+  local callback = function(success, total_bytes, file_name)
+    event.success = success
+    event.total_bytes = total_bytes
+    event.file_name = file_name
+    RAISE_EVENT(event, event)
+  end
+
+  if isTcp then
+    local host = config.mobileHost
+    local port = actions.sdl.getSDLIniParameter("VideoStreamingPort")
+    if pService == 10 then port = actions.sdl.getSDLIniParameter("AudioStreamingPort") end
+
+    hmi_stream.TcpConnection(host, port, bytes, callback)
+  else
+    local pipe = commonPreconditions:GetPathToSDL() .. "storage/"
+    if pService == 10 then
+      pipe = pipe .. actions.sdl.getSDLIniParameter("NamedAudioPipePath")
+    else
+      pipe = pipe .. actions.sdl.getSDLIniParameter("NamedVideoPipePath")
+    end
+    hmi_stream.PipeConnection(pipe, bytes, callback)
+  end
+
+  return event
 end
 
 --[[ @RejectingServiceStart: Rejecting audio/video service start
