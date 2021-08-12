@@ -59,7 +59,6 @@ for k, value in common.pairs(common.rpcs) do
     for rpc in pairs(common.rpcs) do
       runner.Step("Add " .. rpc, common[rpc])
     end
-    runner.Step("Add buttonSubscription", common.buttonSubscription)
     runner.Step("WaitUntilResumptionDataIsStored", common.waitUntilResumptionDataIsStored)
     runner.Step("IGNITION OFF", common.ignitionOff)
     runner.Step("IGNITION ON", common.start)

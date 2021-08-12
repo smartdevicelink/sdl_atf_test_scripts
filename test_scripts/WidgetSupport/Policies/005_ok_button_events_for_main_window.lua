@@ -102,8 +102,11 @@ end
 
 local function subscribeButton(pButName)
   local cid = common.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
-  common.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription",
-    { appID = common.getHMIAppId(), name = pButName, isSubscribed = true })
+  common.getHMIConnection():ExpectRequest("Buttons.SubscribeButton",
+    { appID = common.getHMIAppId(), buttonName = pButName })
+  :Do(function(_, data)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getMobileSession():ExpectNotification("OnHashChange")
   :Do(function(_, data)

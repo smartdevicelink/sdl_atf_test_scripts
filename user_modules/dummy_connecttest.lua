@@ -327,7 +327,7 @@ function module:initHMI()
 
   local web_socket_connected_event = EXPECT_HMIEVENT(events.connectedEvent, "Connected websocket")
   :Do(function()
-      registerComponent("Buttons", {"Buttons.OnButtonSubscription"})
+      registerComponent("Buttons")
       registerComponent("TTS")
       registerComponent("VR")
       registerComponent("BasicCommunication",

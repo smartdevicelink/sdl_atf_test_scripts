@@ -43,7 +43,6 @@ for k, value in common.pairs(common.rpcs) do
     for rpc in pairs(common.rpcs) do
       runner.Step("Add " .. rpc, common[rpc])
     end
-    runner.Step("Add buttonSubscription", common.buttonSubscription)
     runner.Step("Check subscriptions", common.checkSubscriptions, { true })
     runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
     runner.Step("Connect mobile", common.connectMobile)

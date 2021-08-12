@@ -22,7 +22,7 @@
 -- SDL checks if Buttons interface is available on HMI
 -- SDL checks if SubscribeButton is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL sends the Buttons notificaton to HMI
+-- SDL requests the Buttons.SubscribeButton and receives success response from HMI
 -- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
 ---------------------------------------------------------------------------------------------------
 
@@ -60,7 +60,10 @@ local buttonName = {
 local function subscribeButton(pButName)
   local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { appID = appIDvalue, name = pButName, isSubscribed = true })
+  commonSmoke.getHMIConnection():ExpectRequest("Buttons.SubscribeButton", { appID = appIDvalue, buttonName = pButName })
+  :Do(function(_, data)
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
 end
