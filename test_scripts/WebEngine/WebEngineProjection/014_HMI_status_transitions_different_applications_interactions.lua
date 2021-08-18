@@ -97,10 +97,10 @@ local testCase = {
       action = { event = common.userActions.phoneCallStart, appId = "none" },
       checks = {
         onHmiStatus = {
-          [1] = { hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE" },
+          [1] = { hmiLvl = "LIMITED", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE" },
           [2] = { }, -- hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE"
           [3] = { }, -- hmiLvl = "BACKGROUND", audio = "NOT_AUDIBLE", video = "NOT_STREAMABLE"
-          [4] = { hmiLvl = "LIMITED", audio = "NOT_AUDIBLE", video = "STREAMABLE" }
+          [4] = { hmiLvl = "FULL", audio = "NOT_AUDIBLE", video = "STREAMABLE" }
         }
       }
     },
