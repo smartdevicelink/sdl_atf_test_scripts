@@ -76,10 +76,14 @@ function m.cloneTable(pTbl)
   return copy
 end
 
--- Get table size on top level
-local function getTableSize(T)
+--[[ @getTableSize: get table size on top level
+--! @parameters:
+--! pTbl - table
+--! @return: number of elements on a top level
+--]]
+function m.getTableSize(pTbl)
   local count = 0
-  for _ in pairs(T) do count = count + 1 end
+  for _ in pairs(pTbl) do count = count + 1 end
   return count
 end
 
@@ -95,8 +99,8 @@ function m.isTableEqual(pTable1, pTable2)
   local type2 = type(pTable2)
   if type1 ~= type2 then return false end
   if type1 ~= 'table' and type2 ~= 'table' then return pTable1 == pTable2 end
-  local size_tab1 = getTableSize(pTable1)
-  local size_tab2 = getTableSize(pTable2)
+  local size_tab1 = m.getTableSize(pTable1)
+  local size_tab2 = m.getTableSize(pTable2)
   if size_tab1 ~= size_tab2 then return false end
 
   --compare arrays
@@ -116,7 +120,7 @@ function m.isTableEqual(pTable1, pTable2)
         break
       end
     end
-    if getTableSize(copy_table2) == 0 then
+    if m.getTableSize(copy_table2) == 0 then
       return true
     else
       return false
@@ -132,7 +136,7 @@ function m.isTableEqual(pTable1, pTable2)
       end
     end
   end
-  if size_tab2 ~= getTableSize(already_compared) then
+  if size_tab2 ~= m.getTableSize(already_compared) then
     return false
   end
   return true

@@ -853,6 +853,22 @@ local function createTestCases(pAPIType, pEventType, pFuncName, pIsMandatory, pI
   return tcs
 end
 
+--[[ @getChild: Return one child element
+--! @parameters:
+--! pTcs: array of test cases
+--! pId: parameter identifier
+--! @return: id and data for the child element
+--]]
+local function getChild(pTcs, pId)
+  for _, tc in pairs(pTcs) do
+    for k, v in pairs(tc.graph) do
+      if v.parentId == pId then
+        return k, v
+      end
+    end
+  end
+end
+
 --[[ Tests Generator Functions ]]-------------------------------------------------------------------
 
 --[[ @getValidRandomTests: Generate tests for VALID_RANDOM_SUB test type
@@ -865,7 +881,7 @@ local function getValidRandomTests()
   local tests = {}
   for _, tc in pairs(tcs) do
     local paramData = tc.graph[tc.paramId]
-    if paramData.type ~= api.dataType.STRUCT.type and paramData.parentId ~= nil then
+    if paramData.type ~= api.dataType.STRUCT.type then
       table.insert(tests, {
           name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId),
           params = getParamsFuncMap.VALID[rpcType](tc.graph),
@@ -925,6 +941,7 @@ local function getInBoundTests()
   local dataTypes = { api.dataType.INTEGER.type, api.dataType.FLOAT.type, api.dataType.DOUBLE.type, api.dataType.STRING.type }
   local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
+  local tcsCopy = utils.cloneTable(tcs)
   for _, tc in pairs(tcs) do
     tc.graph[tc.paramId].valueType = boundValueTypeMap[testType]
     table.insert(tests, {
@@ -936,6 +953,11 @@ local function getInBoundTests()
   tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.YES, m.isVersion.ALL, {})
   for _, tc in pairs(tcs) do
+    -- add at least one child to empty struct
+    if tc.graph[tc.paramId].type == api.dataType.STRUCT.type and utils.getTableSize(tc.graph) == 1 then
+      local k, v = getChild(tcsCopy, tc.paramId)
+      if k ~= nil then tc.graph[k] = v end
+    end
     tc.graph[tc.paramId].valueTypeArray = boundValueTypeMap[testType]
     table.insert(tests, {
         name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_ARRAY",
@@ -955,6 +977,7 @@ local function getOutOfBoundTests()
   local dataTypes = { api.dataType.INTEGER.type, api.dataType.FLOAT.type, api.dataType.DOUBLE.type, api.dataType.STRING.type }
   local tcs = createTestCases(api.apiType.HMI, rpcType, m.rpcHMIMap[rpc],
     m.isMandatory.ALL, m.isArray.ALL, m.isVersion.ALL, dataTypes)
+  local tcsCopy = utils.cloneTable(tcs)
   for _, tc in pairs(tcs) do
     local function isSkipped()
       local paramData = tc.graph[tc.paramId]
@@ -992,6 +1015,11 @@ local function getOutOfBoundTests()
       return false
     end
     if not isSkipped() then
+      -- add at least one child to empty struct
+      if tc.graph[tc.paramId].type == api.dataType.STRUCT.type and utils.getTableSize(tc.graph) == 1 then
+        local k, v = getChild(tcsCopy, tc.paramId)
+        if k ~= nil then tc.graph[k] = v end
+      end
       tc.graph[tc.paramId].valueTypeArray = boundValueTypeMap[testType]
       table.insert(tests, {
           name = "Param_" .. api.getFullParamName(tc.graph, tc.paramId) .. "_ARRAY",
