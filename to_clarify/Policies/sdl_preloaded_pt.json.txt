@@ -1091,9 +1091,6 @@
                         "en-gb": {
                             "tts": "App authorizations have changed. %appName% can no longer access %functionalGroupLabels%. Please ensure you have the most recent app version installed on your mobile device."
                         },
-                        "en-ie": {
-                            "tts": "App authorizations have changed. %appName% can no longer access %functionalGroupLabels%. Please ensure you have the most recent app version installed on your mobile device."
-                        },
                         "en-us": {
                             "tts": "App authorizations have changed. %appName% can no longer access %functionalGroupLabels%. Please ensure you have the most recent app version installed on your mobile device."
                         },
@@ -1155,10 +1152,6 @@
                             "tts": "This version of %appName% is not authorized and will not work with SYNC.",
                             "line1": "not authorized",
                             "textBody": "This version of %appName% is not authorized and will not work with SYNC."
-                        },
-                        "en-ie": {
-                            "tts": "This version of %appName% is not authorized and will not work with SYNC.",
-                            "line1": "not authorized"
                         },
                         "en-us": {
                             "tts": "This version of %appName% is not authorized and will not work with SYNC.",
@@ -1239,10 +1232,6 @@
                             "tts": "This version of %appName% is not supported by SYNC.",
                             "line1": "not supported",
                             "textBody": "This version of %appName% is not supported by SYNC."
-                        },
-                        "en-ie": {
-                            "tts": "This version of %appName% is not supported by SYNC.",
-                            "line1": "not supported"
                         },
                         "en-us": {
                             "tts": "This version of %appName% is not supported by SYNC.",
@@ -1358,11 +1347,6 @@
                             "line2": "and Mobile Apps?",
                             "textBody": "Disabling automatic updates will also disable SYNC mobile apps. You will not be able to use any mobile apps with SYNC. Please press Yes to confirm or No to cancel."
                         },
-                        "en-ie": {
-                            "tts": "Disabling automatic updates will also disable SYNC mobile apps. You will not be able to use any mobile apps with SYNC. Please press Yes to confirm or No to cancel.",
-                            "line1": "Disable auto-updates",
-                            "line2": "and Mobile Apps?"
-                        },
                         "en-us": {
                             "tts": "Disabling automatic updates will also disable sync mobile apps. You will not be able to use any mobile apps with SYNC. Please press yes to confirm or no to cancel.",
                             "line1": "Disable Auto-Updates",
@@ -1458,10 +1442,6 @@
                             "label": "Driving characteristics",
                             "textBody": "An app can access the following driving characteristics: Fuel consumption, MyKey, Seat belt status."
                         },
-                        "en-ie": {
-                            "tts": "An app can access the following driving characteristics: Fuel consumption, MyKey, Seat belt status.",
-                            "label": "Driving characteristics"
-                        },
                         "en-us": {
                             "tts": "An app can access the following driving characteristics: Fuel Consumption, MyKey, Seat Belt Status.",
                             "label": "Driving Characteristics",
@@ -1541,10 +1521,6 @@
                             "tts": "An app can access vehicle GPS and speed.",
                             "label": "GPS and speed",
                             "textBody": "An app can access vehicle GPS and speed."
-                        },
-                        "en-ie": {
-                            "tts": "An app can access vehicle GPS and speed.",
-                            "label": "GPS and speed"
                         },
                         "en-us": {
                             "tts": "An app can access vehicle GPS and speed.",
@@ -1626,10 +1602,6 @@
                             "label": "Push notifications",
                             "textBody": "An app can send notifications when running in the background."
                         },
-                        "en-ie": {
-                            "tts": "An app can send notifications when running in the background.",
-                            "label": "Push notifications"
-                        },
                         "en-us": {
                             "tts": "An app can send notifications when running in the background.",
                             "label": "Push notifications",
@@ -1706,9 +1678,6 @@
                         "en-gb": {
                             "line1": "Disable updates"
                         },
-                        "en-ie": {
-                            "line1": "Disable updates"
-                        },
                         "en-us": {
                             "line1": "Disable Updates",
                             "textBody": "Disable Updates"
@@ -1770,9 +1739,6 @@
                         "en-gb": {
                             "line1": "Enable Apps"
                         },
-                        "en-ie": {
-                            "line1": "Enable Apps"
-                        },
                         "en-us": {
                             "line1": "Enable Apps"
                         },
@@ -1830,9 +1796,6 @@
                             "line1": "Request update"
                         },
                         "en-gb": {
-                            "line1": "Request update"
-                        },
-                        "en-ie": {
                             "line1": "Request update"
                         },
                         "en-us": {
@@ -1897,9 +1860,6 @@
                             "line1": "Update needed",
                             "textBody": "Update needed"
                         },
-                        "en-ie": {
-                            "line1": "Update needed"
-                        },
                         "en-us": {
                             "line1": "Update Needed",
                             "textBody": "Update Needed"
@@ -1962,9 +1922,6 @@
                             "line1": "Updating...",
                             "textBody": "Updating..."
                         },
-                        "en-ie": {
-                            "line1": "Updating..."
-                        },
                         "en-us": {
                             "line1": "Updating...",
                             "textBody": "Updating..."
@@ -2026,9 +1983,6 @@
                         "en-gb": {
                             "line1": "Up-to-date",
                             "textBody": "Up-to-date"
-                        },
-                        "en-ie": {
-                            "line1": "Up-to-date"
                         },
                         "en-us": {
                             "line1": "Up-To-Date",
@@ -2094,10 +2048,6 @@
                             "tts": "An app can access the following vehicle information: Fuel level, Fuel economy, Engine RPMs, Odometer, VIN, Outside air temperature, Gear position, Tire pressure.",
                             "label": "Vehicle information",
                             "textBody": "An app can access the following vehicle information: Fuel level, Fuel economy, Engine RPMs, Odometer, VIN, Outside air temperature, Gear position, Tire pressure."
-                        },
-                        "en-ie": {
-                            "tts": "An app can access the following vehicle information: Fuel level, Fuel economy, Engine RPMs, Odometer, VIN, Outside air temperature, Gear position, Tyre pressure.",
-                            "label": "Vehicle information"
                         },
                         "en-us": {
                             "tts": "An app can access the following vehicle information: Fuel Level, Fuel Economy, Engine RPMs, Odometer, VIN, External Temperature, Gear Position, Tire Pressure.",
