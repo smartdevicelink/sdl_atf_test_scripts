@@ -22,7 +22,7 @@ local common = require('user_modules/sequences/actions')
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
---[[ Local Variables ]]
+--[[ Local Functions ]]
 local function ptUpdate(pTbl)
   pTbl.policy_table.app_policies[common.app.getParams().fullAppID].groups = { "Base-4", "Location-1" }
   pTbl.policy_table.functional_groupings["Location-1"].user_consent_prompt = nil
@@ -31,7 +31,6 @@ local function ptUpdate(pTbl)
   end
 end
 
---[[ Local Functions ]]
 local function getVD()
   local cid = common.getMobileSession():SendRPC("GetVehicleData", { fuelRange = true })
   common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { fuelRange = true })
