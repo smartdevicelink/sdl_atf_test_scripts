@@ -151,8 +151,9 @@ local function VehicleDataItemsWithDataTableCreation()
     common.VehicleDataItemsWithData.prndl.APItype = "VEHICLEDATA_PRNDL"
     common.VehicleDataItemsWithData.handsOffSteering.value = true
     common.VehicleDataItemsWithData.handsOffSteering.APItype = "VEHICLEDATA_HANDSOFFSTEERING"
-    common.VehicleDataItemsWithData.stabilityControlsStatus.value = {
-      escSystem = "ON" , trailerSwayControl = "OFF" }
+    local stabilityControlsStatusParams = common.VehicleDataItemsWithData.stabilityControlsStatus.params
+    stabilityControlsStatusParams.escSystem.value = "ON"
+    stabilityControlsStatusParams.trailerSwayControl.value = "OFF"
     common.VehicleDataItemsWithData.stabilityControlsStatus.APItype = "VEHICLEDATA_STABILITYCONTROLSSTATUS"
     local gearStatusParams = common.VehicleDataItemsWithData.gearStatus.params
     gearStatusParams.userSelectedGear.value = "NINTH"
