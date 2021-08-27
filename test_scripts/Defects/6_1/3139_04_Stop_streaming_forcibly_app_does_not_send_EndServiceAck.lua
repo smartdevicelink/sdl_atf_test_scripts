@@ -83,7 +83,7 @@ local function activateApp2()
   :Do(function()
       log("SDL->App1", "EndService(VIDEO)")
       ts("EndService", "app1")
-      common.stopStreaming(1)
+      -- App_1 continue streaming
       -- App_1 doesn't send EndServiceAck
     end)
 
