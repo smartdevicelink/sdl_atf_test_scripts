@@ -16,8 +16,8 @@ m.services = {
   audio = {
     id = 10,
     name = "AUDIO",
-    rpc = "Navigation.StartAudioStream",
-    rpc2 = "Navigation.StopAudioStream",
+    startRpc = "Navigation.StartAudioStream",
+    stopRpc = "Navigation.StopAudioStream",
     notif = "Navigation.OnAudioDataStreaming",
     const = constants.SERVICE_TYPE.PCM,
     file = "files/MP3_1140kb.mp3",
@@ -26,8 +26,8 @@ m.services = {
   video = {
     id = 11,
     name = "VIDEO",
-    rpc = "Navigation.StartStream",
-    rpc2 = "Navigation.StopStream",
+    startRpc = "Navigation.StartStream",
+    stopRpc = "Navigation.StopStream",
     notif = "Navigation.OnVideoDataStreaming",
     const = constants.SERVICE_TYPE.VIDEO,
     file = "files/MP3_4555kb.mp3",
@@ -127,7 +127,7 @@ function m.startStreaming(pServiceType, pStartStreamingDelay)
   local function f()
     m.getMobileSession():StartService(pServiceType.id)
     :Do(function() m.log(m.ld[1], "StartService", pServiceType.name) end)
-    m.getHMIConnection():ExpectRequest(pServiceType.rpc)
+    m.getHMIConnection():ExpectRequest(pServiceType.startRpc)
     :Do(function(e, data)
         m.log(m.ld[2], data.method, e.occurences)
         m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
@@ -173,11 +173,11 @@ function m.startStreamingNoAnswer(pServiceType, pStartStreamingDelay, pStopStrea
         :Times(2)
         pServiceType.status = true
       end)
-    m.getHMIConnection():ExpectRequest(pServiceType.rpc)
+    m.getHMIConnection():ExpectRequest(pServiceType.startRpc)
     :Do(function(e, data) m.log(m.ld[2], data.method, e.occurences) end)
     :Times(4)
   end
-  local ret = m.getHMIConnection():ExpectRequest(pServiceType.rpc2)
+  local ret = m.getHMIConnection():ExpectRequest(pServiceType.stopRpc)
   :Do(function(_, data)
       m.log(m.ld[2], data.method)
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
