@@ -103,7 +103,6 @@ local function registerExpectServiceEventFunc(pMobSession)
         return data.frameType ~= constants.FRAME_TYPE.CONTROL_FRAME
           and data.serviceType == constants.SERVICE_TYPE.CONTROL
           and data.sessionId == session.sessionId.get()
-          and data.rpcType == constants.BINARY_RPC_TYPE.NOTIFICATION
           and data.rpcFunctionId == constants.BINARY_RPC_FUNCTION_ID.HANDSHAKE
       end
     session:ExpectEvent(handshakeEvent, "Handshake internal")
@@ -115,7 +114,7 @@ local function registerExpectServiceEventFunc(pMobSession)
             frameInfo = 0,
             serviceType = constants.SERVICE_TYPE.CONTROL,
             encryption = false,
-            rpcType = constants.BINARY_RPC_TYPE.NOTIFICATION,
+            rpcType = constants.BINARY_RPC_TYPE.RESPONSE,
             rpcFunctionId = constants.BINARY_RPC_FUNCTION_ID.HANDSHAKE,
             rpcCorrelationId = data.rpcCorrelationId,
             binaryData = dataToSend
