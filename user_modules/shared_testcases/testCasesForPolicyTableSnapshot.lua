@@ -158,11 +158,9 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     { name = "consumer_friendly_messages.version", elem_required = "required"},
 
     { name = "app_policies.default.priority", elem_required = "required"},
-    { name = "app_policies.default.memory_kb", elem_required = "optional"},
     { name = "app_policies.default.heart_beat_timeout_ms", elem_required = "optional"},
     { name = "app_policies.default.RequestType", elem_required = "optional"},
     { name = "app_policies.pre_DataConsent.priority", elem_required = "required"},
-    { name = "app_policies.pre_DataConsent.memory_kb", elem_required = "optional"},
     { name = "app_policies.pre_DataConsent.heart_beat_timeout_ms", elem_required = "optional"},
     { name = "app_policies.pre_DataConsent.RequestType", elem_required = "optional"},
     -- RC
@@ -187,7 +185,6 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
     { name = "app_policies.default.groups_primaryRC.2", elem_required = "optional"},
     { name = "app_policies.default.moduleType.1", elem_required = "optional"},
     { name = "app_policies.default.moduleType.2", elem_required = "optional"},
-    { name = "app_policies.pre_consent_passengersRC.memory_kb", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.heart_beat_timeout_ms", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.RequestType", elem_required = "optional"},
     { name = "app_policies.pre_consent_passengersRC.certificate", elem_required = "optional"},
@@ -414,7 +411,6 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
 
         --TODO(istoimenova): should be updated in future, due to luck of time
         data_dictionary[#data_dictionary + 1] = { name = "usage_and_error_counts.app_level."..tostring(app_IDs[i])..".AppHMIType", value = nil, elem_required = "optional" }
-        data_dictionary[#data_dictionary + 1] = { name = "usage_and_error_counts.app_level."..tostring(app_IDs[i])..".memory_kb", value = nil, elem_required = "optional" }
         data_dictionary[#data_dictionary + 1] = { name = "usage_and_error_counts.app_level."..tostring(app_IDs[i])..".heart_beat_timeout_ms", value = nil, elem_required = "optional" }
         data_dictionary[#data_dictionary + 1] = { name = "usage_and_error_counts.app_level."..tostring(app_IDs[i])..".RequestType", value = nil, elem_required = "optional" }
         data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i]), value = nil, elem_required = "optional" }
@@ -424,7 +420,6 @@ function testCasesForPolicyTableSnapshot:verify_PTS(is_created, app_IDs, device_
         -- data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i])..".priority", value = nil, elem_required = "required" }
         -- data_dictionary[#data_dictionary + 1 + 19] = { name = "app_policies."..tostring(app_IDs[i])..".groups", value = nil, elem_required = "required" }
         data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i])..".AppHMIType", value = nil, elem_required = "optional" }
-        data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i])..".memory_kb", value = nil, elem_required = "optional" }
         data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i])..".heart_beat_timeout_ms", value = nil, elem_required = "optional" }
         data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i])..".RequestType", value = nil, elem_required = "optional" }
         data_dictionary[#data_dictionary + 1] = { name = "app_policies."..tostring(app_IDs[i]), value = nil, elem_required = "optional" }
