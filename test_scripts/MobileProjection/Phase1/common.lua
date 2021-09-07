@@ -80,43 +80,37 @@ function m.StopStreaming(pService, pFile, pAppId)
   end
 end
 
---[[ @ValidateStreamingData: Validate HMI bound streaming data
---! @parameters:
---! event - Streaming data captured event
---! compare_file - file that was streamed to compare data against what was received
---! @return: none
---]]
-function m.ValidateStreamingData(event, compare_file)
-  actions.hmi.getConnection():ExpectEvent(event, "Stream event")
-  :ValidIf(function(_, data)
-    if data.success then
-      local recv_file = io.open(data.file_name, "rb")
-      local recv_data = recv_file:read(data.total_bytes)
-      recv_file:close()
-
-      local sent_file = io.open(compare_file, "rb")
-      local sent_data = sent_file:read(data.total_bytes)
-      sent_file:close()
-
-      if sent_data == recv_data then
-        return true
-      else
-        return false, "Streaming Data Received by HMI did not match the file sent"
-      end
-    end
-
-    return false, "HMI received " .. tostring(data.total_bytes) .. " bytes of streaming data"
-  end)
-end
-
 --[[ @ListenStreaming: Capture HMI bound streaming data to file
 --! @parameters:
 --! pService - service value
---! bytes - how many bytes before the callback will be called
---! compare_file - file to compare received data to
+--! pBytesCount - how many bytes before the callback will be called
+--! pFileToComparePath - file to compare received data to
 --! @return: event which will be raised when stream data is received or times out
 --]]
-function m.ListenStreaming(pService, bytes, compare_file)
+function m.ListenStreaming(pService, pBytesCount, pFileToComparePath)
+  local function validateStreamingData(event, pFilePath)
+    actions.hmi.getConnection():ExpectEvent(event, "Stream event")
+    :ValidIf(function(_, data)
+      if data.success then
+        local recvFile = io.open(data.fileName, "rb")
+        local recvData = recvFile:read(data.totalBytes)
+        recvFile:close()
+
+        local sentFile = io.open(pFilePath, "rb")
+        local sentData = sentFile:read(data.totalBytes)
+        sentFile:close()
+
+        if sentData == recvData then
+          return true
+        else
+          return false, "Streaming Data Received by HMI did not match the file sent"
+        end
+      end
+
+      return false, "HMI received " .. tostring(data.totalBytes) .. " bytes of streaming data"
+    end)
+  end
+
   local consumer = "socket"
   if pService == 10 then
     consumer = actions.sdl.getSDLIniParameter("AudioStreamConsumer")
@@ -131,23 +125,27 @@ function m.ListenStreaming(pService, bytes, compare_file)
     return event1.service == event2.service
   end
 
-  if compare_file then
-    m.ValidateStreamingData(event, compare_file)
+  if pFileToComparePath then
+    validateStreamingData(event, pFileToComparePath)
   end
 
-  local callback = function(success, total_bytes, file_name)
-    event.success = success
-    event.total_bytes = total_bytes
-    event.file_name = file_name
+  local callback = function(pSuccess, pTotalBytes, pFileName)
+    event.success = pSuccess
+    event.totalBytes = pTotalBytes
+    event.fileName = pFileName
     actions.hmi.getConnection():RaiseEvent(event, "Stream event")
   end
 
   if isTcp then
     local host = config.mobileHost
-    local port = actions.sdl.getSDLIniParameter("VideoStreamingPort")
-    if pService == 10 then port = actions.sdl.getSDLIniParameter("AudioStreamingPort") end
+    local port
+    if pService == 10 then
+      port = actions.sdl.getSDLIniParameter("AudioStreamingPort")
+    else
+      port = actions.sdl.getSDLIniParameter("VideoStreamingPort")
+    end
 
-    hmi_stream.TcpConnection(host, port, bytes, callback)
+    hmi_stream.TcpConnection(host, port, pBytesCount, callback)
   else
     local pipe = SDL.AppStorage.path()
     if pService == 10 then
@@ -155,7 +153,7 @@ function m.ListenStreaming(pService, bytes, compare_file)
     else
       pipe = pipe .. actions.sdl.getSDLIniParameter("NamedVideoPipePath")
     end
-    hmi_stream.PipeConnection(pipe, bytes, callback)
+    hmi_stream.PipeConnection(pipe, pBytesCount, callback)
   end
 
   return event
