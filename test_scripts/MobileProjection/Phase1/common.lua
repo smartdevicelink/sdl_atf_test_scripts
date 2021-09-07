@@ -12,7 +12,7 @@ local utils = require("user_modules/utils")
 local events = require("events")
 local constants = require("protocol_handler/ford_protocol_constants")
 local hmi_stream = require("modules/hmi_adapter/hmi_stream_adapter_controller")
-local commonPreconditions = require('user_modules/shared_testcases/commonPreconditions')
+local SDL = require('SDL')
 
 --[[ Module ]]
 local m = actions
@@ -87,7 +87,7 @@ end
 --! @return: none
 --]]
 function m.ValidateStreamingData(event, compare_file)
-  EXPECT_EVENT(event, "Stream event")
+  actions.hmi.getConnection():ExpectEvent(event, "Stream event")
   :ValidIf(function(_, data)
     if data.success then
       local recv_file = io.open(data.file_name, "rb")
@@ -125,7 +125,7 @@ function m.ListenStreaming(pService, bytes, compare_file)
   end
   local isTcp = "socket" == consumer
 
-  local event = events.Event()
+  local event = actions.run.createEvent()
   event.service = pService
   event.matches = function(event1, event2)
     return event1.service == event2.service
@@ -139,7 +139,7 @@ function m.ListenStreaming(pService, bytes, compare_file)
     event.success = success
     event.total_bytes = total_bytes
     event.file_name = file_name
-    RAISE_EVENT(event, event)
+    actions.hmi.getConnection():RaiseEvent(event, "Stream event")
   end
 
   if isTcp then
@@ -149,7 +149,7 @@ function m.ListenStreaming(pService, bytes, compare_file)
 
     hmi_stream.TcpConnection(host, port, bytes, callback)
   else
-    local pipe = commonPreconditions:GetPathToSDL() .. "storage/"
+    local pipe = SDL.AppStorage.path()
     if pService == 10 then
       pipe = pipe .. actions.sdl.getSDLIniParameter("NamedAudioPipePath")
     else
