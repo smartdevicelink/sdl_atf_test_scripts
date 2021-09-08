@@ -37,6 +37,22 @@ local function getSystemTimeValue()
   }
 end
 
+function common.expectSecurityQuery(params)
+  local session = common.getMobileSession().mobile_session_impl.control_services.session
+  local queryEvent = events.Event()
+  queryEvent.matches = function(_, data)
+      return data.frameType ~= constants.FRAME_TYPE.CONTROL_FRAME
+        and (not data.rpcType or data.rpcType == params.rpcType)
+        and data.serviceType == constants.SERVICE_TYPE.CONTROL
+        and data.sessionId == session.sessionId.get()
+        and data.rpcFunctionId == params.rpcFunctionId
+    end
+  session:ExpectEvent(queryEvent, "Error internal")
+  :ValidIf(function(exp, data)
+      return compareValues(params, data, "data")
+    end)
+end
+
 function common.HandshakeMessageError(handshakeResponse, expErrorNotification)
   local session = common.getMobileSession().mobile_session_impl.control_services.session
   local handshakeEvent = events.Event()
@@ -62,24 +78,8 @@ function common.HandshakeMessageError(handshakeResponse, expErrorNotification)
   :Times(AnyNumber())
 
   if expErrorNotification then
-    expectSecurityQuery(expErrorNotification)
+    common.expectSecurityQuery(expErrorNotification)
   end
-end
-
-function common.expectSecurityQuery(params)
-  local session = common.getMobileSession().mobile_session_impl.control_services.session
-  local queryEvent = events.Event()
-  queryEvent.matches = function(_, data)
-      return data.frameType ~= constants.FRAME_TYPE.CONTROL_FRAME
-        and (not data.rpcType or data.rpcType == params.rpcType)
-        and data.serviceType == constants.SERVICE_TYPE.CONTROL
-        and data.sessionId == session.sessionId.get()
-        and data.rpcFunctionId == params.rpcFunctionId
-    end
-  session:ExpectEvent(queryEvent, "Error internal")
-  :ValidIf(function(exp, data)
-      return compareValues(params, data, "data")
-    end)
 end
 
 local function registerGetSystemTimeResponse()
