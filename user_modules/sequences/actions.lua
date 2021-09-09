@@ -6,12 +6,14 @@ local mobile = require("mobile_connection")
 local mobile_adapter_controller = require("mobile_adapter/mobile_adapter_controller")
 local file_connection = require("file_connection")
 local mobileSession = require("mobile_session")
+local hmi_stream_adapter_controller = require("modules/hmi_adapter/hmi_stream_adapter_controller")
 local events = require("events")
 local test = require("user_modules/dummy_connecttest")
 local expectations = require('expectations')
 local reporter = require("reporter")
 local utils = require("user_modules/utils")
 local SDL = require('SDL')
+local constants = require("protocol_handler/ford_protocol_constants")
 
 --[[ Module ]]
 local m = {
@@ -28,6 +30,7 @@ local m = {
 --[[ Constants ]]
 m.minTimeout = 500
 m.timeout = 2000
+m.serviceType = constants.SERVICE_TYPE
 
 --[[ Variables ]]
 local hmiAppIds = {}
@@ -248,6 +251,75 @@ end
 --]]
 function m.hmi.getConnection()
   return test.hmiConnection
+end
+
+--[[ @ListenStreaming: Capture HMI bound streaming data to file
+--! @parameters:
+--! pService - service value
+--! pBytesCount - how many bytes before the callback will be called
+--! pFileToComparePath - file to compare received data to
+--! @return: event which will be raised when stream data is received or times out
+--]]
+function m.hmi.listenStreaming(pService, pBytesCount, pFileToComparePath)
+  local function validateStreamingData(event, pFilePath)
+    m.hmi.getConnection():ExpectEvent(event, "Stream event")
+    :ValidIf(function(_, data)
+      if data.success then
+        local recvFile = io.open(data.fileName, "rb")
+        local recvData = recvFile:read(data.totalBytes)
+        recvFile:close()
+        local sentFile = io.open(pFilePath, "rb")
+        local sentData = sentFile:read(data.totalBytes)
+        sentFile:close()
+        if sentData == recvData then
+          return true
+        else
+          return false, "Streaming Data Received by HMI did not match the file sent"
+        end
+      end
+      return false, "HMI received " .. tostring(data.totalBytes) .. " bytes of streaming data"
+    end)
+  end
+
+  local event = m.run.createEvent()
+  event.service = pService
+  event.matches = function(event1, event2)
+    return event1.service == event2.service
+  end
+  if pFileToComparePath then
+    validateStreamingData(event, pFileToComparePath)
+  end
+  local callback = function(pSuccess, pTotalBytes, pFileName)
+    event.success = pSuccess
+    event.totalBytes = pTotalBytes
+    event.fileName = pFileName
+    m.hmi.getConnection():RaiseEvent(event, "Stream event")
+  end
+  local consumer = "socket"
+  if pService == m.serviceType.PCM then
+    consumer = m.sdl.getSDLIniParameter("AudioStreamConsumer")
+  elseif pService == m.serviceType.VIDEO then
+    consumer = m.sdl.getSDLIniParameter("VideoStreamConsumer")
+  end
+  if "socket" == consumer then
+    local host = config.mobileHost
+    local port = -1
+    if pService == m.serviceType.PCM then
+      port = m.sdl.getSDLIniParameter("AudioStreamingPort")
+    elseif pService == m.serviceType.VIDEO then
+      port = m.sdl.getSDLIniParameter("VideoStreamingPort")
+    end
+    hmi_stream_adapter_controller.TcpConnection(host, port, pBytesCount, callback)
+  else
+    local pipe = SDL.AppStorage.path()
+    if pService == m.serviceType.PCM then
+      pipe = pipe .. m.sdl.getSDLIniParameter("NamedAudioPipePath")
+    elseif pService == m.serviceType.VIDEO then
+      pipe = pipe .. m.sdl.getSDLIniParameter("NamedVideoPipePath")
+    end
+    hmi_stream_adapter_controller.PipeConnection(pipe, pBytesCount, callback)
+  end
+  return event
 end
 
 --[[ Functions of mobile submodule ]]
