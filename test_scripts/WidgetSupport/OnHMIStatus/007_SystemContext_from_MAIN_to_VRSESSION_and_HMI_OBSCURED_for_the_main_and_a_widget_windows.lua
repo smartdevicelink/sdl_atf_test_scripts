@@ -128,13 +128,17 @@ local function performInteraction(pAppId)
   common.getMobileSession(pAppId):ExpectNotification("OnHMIStatus",
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = params.windowID },
-  { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = pMainId },
-  { systemContext = "VRSESSION", hmiLevel = "FULL", windowID = params.windowID },
-  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = pMainId },
-  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", windowID = params.windowID },
+  { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", windowID = pMainId },
+  { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", windowID = params.windowID },
+  { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "ATTENUATED", windowID = pMainId },
+  { systemContext = "VRSESSION", hmiLevel = "FULL", audioStreamingState = "ATTENUATED", windowID = params.windowID },
+  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "ATTENUATED", windowID = pMainId },
+  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "ATTENUATED", windowID = params.windowID },
+  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE", windowID = pMainId },
+  { systemContext = "HMI_OBSCURED", hmiLevel = "FULL", audioStreamingState = "AUDIBLE", windowID = params.windowID },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = pMainId },
   { systemContext = "MAIN", hmiLevel = "FULL", windowID = params.windowID })
-  :Times(8)
+  :Times(12)
 
   common.getMobileSession(pAppId):ExpectResponse(cid, { success = false, resultCode = "TIMED_OUT" })
 end

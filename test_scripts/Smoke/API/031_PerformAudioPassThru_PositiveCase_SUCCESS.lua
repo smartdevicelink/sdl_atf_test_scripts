@@ -111,8 +111,9 @@ local function performAudioPassThru(pParams)
   common.getMobileSession():ExpectNotification("OnHMIStatus",
     { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "MAIN" },
     { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "HMI_OBSCURED" },
+    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" }, -- after PerformAudioPassThruResponse before OnSysCtx(MAIN)
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-  :Times(3)
+  :Times(4)
   common.getMobileSession():ExpectNotification("OnAudioPassThru")
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf(function()
