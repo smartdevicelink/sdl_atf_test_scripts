@@ -23,6 +23,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local appHMIType = "PROJECTION"
+local audio = common.serviceType.PCM
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
@@ -49,10 +50,10 @@ runner.Step("Activate App", common.activateApp)
 runner.Step("Bring app to limited HMI level", bringAppToLimited)
 
 runner.Title("Test")
-runner.Step("Start audio service", common.startService, { 10 })
-runner.Step("Start audio streaming", common.StartStreaming, { 10, "files/MP3_4555kb.mp3" })
-runner.Step("Listen audio streaming", common.ListenStreaming, { 10, 500000, "files/MP3_4555kb.mp3" })
+runner.Step("Start audio service", common.startService, { audio })
+runner.Step("Start audio streaming", common.StartStreaming, { audio, "files/MP3_4555kb.mp3" })
+runner.Step("Listen audio streaming", common.hmi.listenStreaming, { audio, 500000, "files/MP3_4555kb.mp3" })
 
 runner.Title("Postconditions")
-runner.Step("Stop audio streaming", common.StopStreaming, { 10, "files/MP3_4555kb.mp3" })
+runner.Step("Stop audio streaming", common.StopStreaming, { audio, "files/MP3_4555kb.mp3" })
 runner.Step("Stop SDL", common.postconditions)

@@ -77,8 +77,6 @@ function m.StopStreaming(pService, pFile, pAppId)
   end
 end
 
-m.ListenStreaming = m.hmi.listenStreaming
-
 --[[ @RejectingServiceStart: Rejecting audio/video service start
 --! @parameters:
 --! pService - service value
