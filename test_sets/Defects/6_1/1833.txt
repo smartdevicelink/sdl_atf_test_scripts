@@ -1,1 +1,0 @@
-./test_scripts/Defects/6_1/1833_Core_prematurely_sends_success_for_DeleteInteractionChoiceSet.lua
