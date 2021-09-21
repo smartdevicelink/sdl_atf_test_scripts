@@ -302,7 +302,7 @@ function m.hmi.listenStreaming(pService, pBytesCount, pFileToComparePath)
     consumer = m.sdl.getSDLIniParameter("VideoStreamConsumer")
   end
   if "socket" == consumer then
-    local host = config.mobileHost
+    local host = config.remoteConnection.enabled and config.remoteConnection.url or config.mobileHost
     local port = -1
     if pService == m.serviceType.PCM then
       port = m.sdl.getSDLIniParameter("AudioStreamingPort")
