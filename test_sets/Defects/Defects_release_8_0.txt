@@ -16,4 +16,4 @@
 ./test_scripts/Defects/8_0/3479_3_Audio-Video_streaming_delayed_no_response_from_HMI_for_Audio.lua
 ./test_scripts/Defects/8_0/3479_4_Audio-Video_streaming_delayed_no_response_from_HMI_for_Video.lua
 ./test_scripts/Defects/8_0/3768_activate_media_app_via_vr.lua
-test_scripts/Defects/8_0/2206_Icon_Folder_Minimum_Size.lua
+./test_scripts/Defects/8_0/2206_Icon_Folder_Minimum_Size.lua
