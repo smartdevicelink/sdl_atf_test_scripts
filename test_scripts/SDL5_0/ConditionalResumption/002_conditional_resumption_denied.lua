@@ -42,8 +42,7 @@ for option,appHMIType in pairs(common.appHMITypesByOption) do
   runner.Step("Set HMI level config for " .. option, common.writeLowBandwidthResumptionLevel, { option, "NONE" })
   runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   runner.Step("App registration", common.registerAppWOPTU)
-  runner.Step("Pin OnHashChange", common.pinOnHashChange)
-  runner.Step("App activation", common.activateApp)
+    runner.Step("App activation", common.activateApp)
   for i = 1,3 do
     runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
   end
