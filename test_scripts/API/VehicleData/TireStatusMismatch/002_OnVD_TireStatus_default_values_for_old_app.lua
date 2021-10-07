@@ -18,8 +18,7 @@
 --      with default value for missing <sub_vd_param> sub-parameter
 -- 2. HMI sends 'OnVehicleData' notification with empty <tirePressure> array to SDL
 -- SDL does:
---  - a) transfer 'OnVehicleData' notification with default value to App
---      for all missing <sub_vd_param> sub-parameter
+--  - a) not transfer 'OnVehicleData' notification to App
 -- 3. HMI sends 'OnVehicleData' notification with 'tirePressure' data to SDL
 --   with all <sub_vd_param> sub-parameters
 -- SDL does:
@@ -34,8 +33,10 @@ config.application1.registerAppInterfaceParams.syncMsgVersion.minorVersion = 1
 
 --[[ Local Functions ]]
 local function sendOnVehicleData(pHmiNotification, pAppNotification)
+  local times = (pAppNotification == nil) and 0 or 1
   common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { tirePressure = pHmiNotification })
   common.getMobileSession():ExpectNotification("OnVehicleData", { tirePressure = pAppNotification })
+  :Times(times)
 end
 
 --[[ Scenario ]]
@@ -56,7 +57,7 @@ for _, p in common.spairs(common.tirePressureParams) do
   common.Step("Send OnVehicleData param " .. p .. " missing", sendOnVehicleData, { hmiValue, appValue })
 end
 common.Step("Send OnVehicleData all params missing", sendOnVehicleData,
-  { {}, common.getTirePressureDefaultValue() })
+  { {}, nil })
 common.Step("Send OnVehicleData all params present", sendOnVehicleData,
   { common.getTirePressureNonDefaultValue(), common.getTirePressureNonDefaultValue() })
 
