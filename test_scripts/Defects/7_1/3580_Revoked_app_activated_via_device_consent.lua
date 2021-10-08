@@ -49,7 +49,7 @@ local function activateApp(pAppId)
     }})
   :Do(function(_,_)
       local RequestId1 = common.getHMIConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"DataConsent"}})
-      local RequestId2 = common.getHMIConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"AppUnsupported"}})
+      local RequestId2 = common.getHMIConnection():SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"AppUnauthorized"}})
 
       common.getHMIConnection():ExpectResponse(RequestId1, {result = {code = 0, method = "SDL.GetUserFriendlyMessage"}})
       :Do(function(_,_)
