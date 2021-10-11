@@ -20,9 +20,7 @@
 --  - b) transfer 'OnVehicleData' notification with <tirePressure> data received from HMI to App_2
 -- 2. HMI sends 'OnVehicleData' notification with empty <tirePressure> array to SDL
 -- SDL does:
---  - a) transfer 'OnVehicleData' notification with default value to App
---      for all missing <sub_vd_param> sub-parameter
---  - b) transfer 'OnVehicleData' notification with <tirePressure> data received from HMI to App_2
+--  - a) not transfer 'OnVehicleData' notification to both Apps
 -- 3. HMI sends 'OnVehicleData' notification with 'tirePressure' data to SDL
 --   with all <sub_vd_param> sub-parameters
 -- SDL does:
@@ -56,15 +54,19 @@ local function validation(actualData, expectedData, pMessage)
 end
 
 local function sendOnVehicleDataTwoApps(pHmiNotification, pAppNotification1, pAppNotification2)
+  local times1 = (pAppNotification1 == nil) and 0 or 1
+  local times2 = (pAppNotification2 == nil) and 0 or 1
   common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { tirePressure = pHmiNotification })
   common.getMobileSession(appSessionId1):ExpectNotification("OnVehicleData")
   :ValidIf(function(_,data)
     return validation(data.payload, { tirePressure = pAppNotification1 }, "OnVehicleData notification for App_1")
   end)
+  :Times(times1)
   common.getMobileSession(appSessionId2):ExpectNotification("OnVehicleData")
   :ValidIf(function(_,data)
     return validation(data.payload, { tirePressure = pAppNotification2 }, "OnVehicleData notification for App_2")
   end)
+  :Times(times2)
 end
 
 --[[ Scenario ]]
@@ -91,7 +93,7 @@ for _, p in common.spairs(common.tirePressureParams) do
     { hmiValue, appValue, hmiValue })
 end
 common.Step("Send OnVehicleData all params missing", sendOnVehicleDataTwoApps ,
-  { {}, common.getTirePressureDefaultValue(), {} })
+  { {}, nil, nil })
 common.Step("Send OnVehicleData all params present", sendOnVehicleDataTwoApps,
   { tirePressureNonDefaultValue, tirePressureNonDefaultValue, tirePressureNonDefaultValue })
 

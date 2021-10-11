@@ -107,7 +107,7 @@ local function registerExpectServiceEventFunc(pMobSession)
       end
     session:ExpectEvent(handshakeEvent, "Handshake internal")
     :Do(function(_, data)
-      local binData = data.binaryData
+        local binData = data.binaryData
         local dataToSend = session.security:performHandshake(binData)
         if dataToSend then
           local handshakeMessage = {
