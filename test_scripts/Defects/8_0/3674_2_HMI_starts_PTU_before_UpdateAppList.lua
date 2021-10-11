@@ -113,12 +113,13 @@ local function policyTableUpdateHttp()
     ptuTable.policy_table.app_policies[common.app.getPolicyAppId(i)] = common.ptu.getAppData(i)
   end
   utils.tableToJsonFile(ptuTable, ptuFileName)
-  local cid = common.getMobileSession(ptuAppNum):SendRPC("SystemRequest",
-    { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptuFileName)
   if not pExpNotificationFunc then
     common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
+    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
+      { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(3)
   end
+  local cid = common.getMobileSession(ptuAppNum):SendRPC("SystemRequest",
+    { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptuFileName)
   common.getMobileSession(ptuAppNum):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :Do(function() os.remove(ptuFileName) end)
 end
