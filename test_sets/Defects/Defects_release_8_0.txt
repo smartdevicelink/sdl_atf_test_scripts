@@ -23,3 +23,4 @@
 ./test_scripts/Defects/8_0/1833_Core_prematurely_sends_success_for_DeleteInteractionChoiceSet.lua
 ./test_scripts/Defects/8_0/2399_SDL_respond_UNSUPPORTED_RESOURCE_in_case_SDL_4_0_was_omited.lua
 ./test_scripts/Defects/8_0/3226_SDL_crashes_if_HMI_sends_UI_OnTouchEvent_and_ts_has_value_greater_than_maxvalue.lua
+./test_scripts/Defects/8_0/3541_Resumption_of_MenuLayout.lua
