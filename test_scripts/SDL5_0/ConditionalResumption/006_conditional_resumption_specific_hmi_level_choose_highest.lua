@@ -48,7 +48,6 @@ runner.Step("Set HMI level config for " .. option, common.writeLowBandwidthResum
 runner.Step("Set HMI level config for " .. option, common.writeMediaLowBandwidthResumptionLevel, { "FULL" })
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("App registration", common.registerAppWOPTU)
-runner.Step("Pin OnHashChange", common.pinOnHashChange)
 runner.Step("App activation", common.activateApp)
 for i = 1,3 do
   runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
