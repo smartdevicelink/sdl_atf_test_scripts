@@ -300,7 +300,10 @@ function m.spairs(pTbl)
   for k in pairs(pTbl) do
     keys[#keys+1] = k
   end
-  table.sort(keys, function(a, b) return tostring(a) < tostring(b) end)
+  table.sort(keys, function(a, b)
+    if type(a) == "number" and type(b) == "number" then return a < b end
+    return tostring(a) < tostring(b)
+  end)
   local i = 0
   return function()
     i = i + 1
