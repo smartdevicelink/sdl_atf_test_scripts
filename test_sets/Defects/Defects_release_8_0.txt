@@ -26,4 +26,3 @@
 ./test_scripts/Defects/8_0/3541_Resumption_of_MenuLayout.lua
 ./test_scripts/Defects/8_0/3698_SDL_rejects_invalid_PTU.lua
 ./test_scripts/Defects/8_0/2957_Consent_func_group.lua
-./test_scripts/Defects/8_0/2989_RC_RPCs_and_disabled_policies.lua
