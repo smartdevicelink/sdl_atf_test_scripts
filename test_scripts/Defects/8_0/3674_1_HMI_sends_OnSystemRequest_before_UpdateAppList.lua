@@ -17,6 +17,7 @@ local runner = require('user_modules/script_runner')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 
 --[[ Local Variables ]]
 local sysRequestParams = {
