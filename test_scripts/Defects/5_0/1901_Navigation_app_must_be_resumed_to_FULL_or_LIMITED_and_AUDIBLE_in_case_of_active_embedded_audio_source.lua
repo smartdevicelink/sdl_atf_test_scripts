@@ -69,7 +69,7 @@ runner.Step("Active embedded audio source", embeddedAudioSource)
 
 -- [[ Test ]]
 runner.Title("Test")
-runner.Step("Register App", common.registerApp)
+runner.Step("Register App", common.registerAppWOPTU)
 runner.Step("checkResumingActivationApp", checkResumingNaviApp)
 
 -- [[ Postconditions ]]
