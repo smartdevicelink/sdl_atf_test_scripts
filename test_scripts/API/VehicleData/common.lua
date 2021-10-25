@@ -175,7 +175,7 @@ local isRestricted = false
 
 --[[ @restrictAvailableVDParams: Restrict VD parameters for test by only ones defined in 'VD_PARAMS' environment variable
 --! @parameters: none
---! @return: none
+--! @return: table with restrict VD parameters
 --]]
 local function restrictAvailableVDParams()
   local extVDParams = os.getenv("VD_PARAMS")
@@ -206,9 +206,10 @@ local function restrictAvailableVDParams()
   else
     m.cprint(color.magenta, "Testing VD parameters are not restricted")
   end
+  return checkedExtVDParams
 end
 
-restrictAvailableVDParams()
+m.restrictedVDParams = restrictAvailableVDParams()
 
 --[[ @getAvailableVDParams: Return VD parameters available for processing
 --! @parameters: none
@@ -323,6 +324,28 @@ function m.getVDParams(pIsSubscribable)
     if pIsSubscribable == m.isSubscribable(param) then out[param] = true end
   end
   return out
+end
+
+--[[ @getAnotherSubVDParam: Return another available VD parameter for subscription
+--! @parameters:
+--! pParam: name of the VD parameter
+--! @return: another VD parameter
+--]]
+function m.getAnotherSubVDParam(pParam)
+  local params = m.getVDParams(true)
+  local sortedParams = {}
+  for k in m.spairs(params) do
+    table.insert(sortedParams, k)
+  end
+  for i, p in pairs(sortedParams) do
+    if p == pParam then
+      if i == #sortedParams then
+        return sortedParams[1]
+      else
+        return sortedParams[i+1]
+      end
+    end
+  end
 end
 
 --[[ @getVehicleData: Successful processing of GetVehicleData RPC
@@ -442,30 +465,83 @@ end
 
 --[[ @unexpectedDisconnect: Unexpected disconnect sequence
 --! @parameters:
---! pParam: name of the VD parameter
+--! pParam1: name of the VD parameter
+--! pParam2: name of the VD parameter
 --! @return: none
 --]]
-function m.unexpectedDisconnect(pParam)
+function m.unexpectedDisconnect(pParam1, pParam2)
+  local expTimes = 0
+  if pParam1 and pParam2 then expTimes = 2
+  elseif pParam1 or pParam2 then expTimes = 1 end
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
   :Times(actions.mobile.getAppsCount())
-  if pParam then
-    m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { [pParam] = true })
-  end
+  m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData")
+  :ValidIf(function(_, data)
+    if data.params[pParam1] == true or data.params[pParam2] == true then
+      return true
+    else
+      return false, "VehicleInfo.UnsubscribeVehicleData request contains unexpected parameter" ..
+        utils.tableToString(data.params)
+    end
+  end)
+  :Times(expTimes)
   actions.mobile.disconnect()
   utils.wait(1000)
 end
 
---[[ @ignitionOff: Ignition Off sequence
+--[[ @unregisterAppWithUnsubscription: Unregister App sequence
 --! @parameters:
---! pParam: name of the VD parameter
+--! pAppId: application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.ignitionOff(pParam)
+function m.unregisterAppWithUnsubscription(pParam, pAppId, isRequestOnHMIExpected)
+  if pAppId == nil then pAppId = 1 end
+  if isRequestOnHMIExpected == nil then isRequestOnHMIExpected = true end
+  local response = {
+    dataType = m.vd[pParam],
+    resultCode = "SUCCESS"
+  }
+  local responseParam = pParam
+  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
+  if isRequestOnHMIExpected == true then
+    m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { [pParam] = true })
+    :Do(function(_,data)
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [responseParam] = response })
+    end)
+  else
+    m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData"):Times(0)
+  end
+  local mobileSession = m.getMobileSession(pAppId)
+  local cid = mobileSession:SendRPC("UnregisterAppInterface",{})
+  actions.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
+    { unexpectedDisconnect = false })
+  mobileSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+end
+
+--[[ @ignitionOff: Ignition Off sequence
+--! @parameters:
+--! pParam1: name of the VD parameter
+--! pParam2: name of the VD parameter
+--! @return: none
+--]]
+function m.ignitionOff(pParam1, pParam2)
+  local expTimes = 0
+  if pParam1 and pParam2 then expTimes = 2
+  elseif pParam1 or pParam2 then expTimes = 1 end
   local isOnSDLCloseSent = false
   m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
   m.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLPersistenceComplete")
   :Do(function()
-    m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { [pParam] = true })
+    m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData")
+    :ValidIf(function(_, data)
+      if data.params[pParam1] == true or data.params[pParam2] == true then
+        return true
+      else
+        return false, "VehicleInfo.UnsubscribeVehicleData request contains unexpected parameter" ..
+          utils.tableToString(data.params)
+      end
+    end)
+    :Times(expTimes)
     m.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "IGNITION_OFF" })
     m.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose")
     :Do(function()
