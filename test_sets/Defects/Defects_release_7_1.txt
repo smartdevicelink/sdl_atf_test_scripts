@@ -5,6 +5,7 @@
 ./test_scripts/Defects/7_1/1597_2_SubtleAlert_Unsupported_Speech_Type.lua
 ./test_scripts/Defects/7_1/1597_3_AlertManeuver_Unsupported_Speech_Type.lua
 ./test_scripts/Defects/7_1/1597_4_PerformAudioPassThru_Unsupported_Speech_Type.lua
+./test_scripts/Defects/7_1/1600_SetGlobalProperties_UNSUPPORTED_RESOURCE_response_success.lua
 ./test_scripts/Defects/7_1/2803_Resumption_of_HMI_level_of_2nd_app.lua
 ./test_scripts/Defects/7_1/3406_SetAppIcon_spec_chars_in_syncFileName.lua
 ./test_scripts/Defects/7_1/2353_1_Request.lua
