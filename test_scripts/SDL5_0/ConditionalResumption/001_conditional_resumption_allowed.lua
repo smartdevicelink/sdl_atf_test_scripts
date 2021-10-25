@@ -39,8 +39,7 @@ for option,appHMIType in pairs(common.appHMITypesByOption) do
   runner.Step("Set resumption config for " .. option, common.write_parameter_to_smart_device_link_ini, { option .. "TransportRequiredForResumption", "TCP_WIFI" })
   runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   runner.Step("App registration", common.registerAppWOPTU)
-  runner.Step("Pin OnHashChange", common.pinOnHashChange)
-  runner.Step("App activation", common.activateApp)
+    runner.Step("App activation", common.activateApp)
   for i = 1,3 do
     runner.Step("AddCommand" .. i, common.addCommand, { common.getAddCommandParams(i) })
   end

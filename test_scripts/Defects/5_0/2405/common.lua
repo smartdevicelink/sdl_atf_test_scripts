@@ -35,7 +35,12 @@ function m.policyTableUpdate(pGrp)
       table.insert(pTbl.policy_table.app_policies[appId].groups, pGrp[i].name)
     end
   end
-  ptuOrig(ptUpdate)
+  local function expMsgs()
+    common.getMobileSession():ExpectNotification("OnPermissionsChange")
+    common.hmi.getConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+    common.hmi.getConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
+  end
+  ptuOrig(ptUpdate, expMsgs)
 end
 
 local function getGroupId(pData, pGrpName)
