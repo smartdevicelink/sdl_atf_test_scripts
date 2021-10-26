@@ -30,6 +30,7 @@ local function pTUfunc(tbl)
   tbl.policy_table.app_policies[appId1].moduleType = common.json.EMPTY_ARRAY
   local appId2 = config.application2.registerAppInterfaceParams.fullAppID
   tbl.policy_table.app_policies[appId2] = common.getRCAppConfig(tbl)
+  tbl.policy_table.app_policies[appId2].AppHMIType = { "DEFAULT" }
 end
 
 local function alocateModule(pModuleType)
@@ -54,7 +55,7 @@ runner.Step("Allocating module CLIMATE", alocateModule, { "CLIMATE" })
 runner.Step("Allocating module RADIO", alocateModule, { "RADIO" })
 
 runner.Title("Test")
-runner.Step("Register RC application 2", common.registerApp, { 2 })
+runner.Step("Register application 2", common.registerApp, { 2 })
 runner.Step("OnRCStatus by PTU with revoking of allocated module", ptuWithRevokingModule)
 
 runner.Title("Postconditions")

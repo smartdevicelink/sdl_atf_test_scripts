@@ -504,7 +504,6 @@ end
 function common.startWithExtension(pDelayGetSI, pDelayGetVT, pExtensionFunc)
     local hmiCap = common.setHMIcap(common.vehicleTypeInfoParams.default)
     local rpcServiceAckParams = common.getRpcServiceAckParams(hmiCap)
-    local mobileConnectionDelay = 50
     common.init.SDL()
     :Do(function()
         common.init.HMI()
@@ -516,12 +515,12 @@ function common.startWithExtension(pDelayGetSI, pDelayGetVT, pExtensionFunc)
             hmiCap.BasicCommunication.GetSystemInfo = nil
             registerExpFor_GetSI_and_GetVT(getSIparams, getVTparams, pDelayGetSI, pDelayGetVT, ts)
             common.init.HMI_onReady(hmiCap)
-            common.run.runAfter(function()
+            :Do(function()
                 common.init.connectMobile()
                 :Do(function()
                     pExtensionFunc(pDelayGetVT, ts, rpcServiceAckParams)
                 end)
-            end, mobileConnectionDelay)
+            end)
         end)
     end)
 end
@@ -546,7 +545,7 @@ function common.delayedStartServiceAckNewApp(pDelayGetVT, pTS, pRpcServiceAckPar
         local ts_req = timestamp()
         common.registerAppEx(common.vehicleTypeInfoParams.default)
         :ValidIf(function()
-            local tolerance = 750
+            local tolerance = 850
             local ts_res = timestamp()
             local act_delay = ts_res - ts_req
             common.log("RAIResponse", act_delay)
