@@ -35,6 +35,7 @@ local json = require("modules/json")
 local commonFunctions = require ('user_modules/shared_testcases/commonFunctions')
 local commonSteps = require ('user_modules/shared_testcases/commonSteps')
 local mobile_session = require('mobile_session')
+local SDL = require("SDL")
 local utils = require ('user_modules/utils')
 
 commonSteps:DeleteLogsFiles()
@@ -409,7 +410,7 @@ end
 function Test:StopSDL()
   StopSDL(self)
   TestData:store("Store first LocalPT ", constructPathToDatabase(), "first_policy.sqlite" )
-  os.remove(config.pathToSDL .. "app_info.dat")
+  SDL.AppInfo.clean()
 end
 
 function Test:StartSDL()

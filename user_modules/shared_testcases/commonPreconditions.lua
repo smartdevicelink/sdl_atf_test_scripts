@@ -330,7 +330,7 @@ function Preconditions:Connecttest_OnButtonSubscription(FileName, createFile)
 	if pattern1Result == nil then
 		print(" \27[31m Buttons registerComponent function is not found in /user_modules/" .. tostring(FileName) .. " \27[0m ")
 	else
-		fileContent  =  string.gsub(fileContent, pattern1, 'registerComponent("Buttons", {"Buttons.OnButtonSubscription"})')
+		fileContent  =  string.gsub(fileContent, pattern1, 'registerComponent("Buttons")')
 	end
 
 	f = assert(io.open('./user_modules/' .. tostring(FileName), "w+"))

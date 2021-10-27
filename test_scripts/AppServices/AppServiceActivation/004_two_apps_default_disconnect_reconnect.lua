@@ -109,9 +109,7 @@ end
 
 local function republishDefaultApp()
   local mobileSession = common.getMobileSession(2)
-  local cid = mobileSession:SendRPC("PublishAppService", {
-    appServiceManifest = manifest2
-  })
+
   local onSystemCapabilityParams = common.appServiceCapabilityUpdateParams("ACTIVATED", manifest)
   local onSystemCapabilityParams1 = common.appServiceCapabilityUpdateParams("DEACTIVATED", manifest)
 
@@ -128,6 +126,9 @@ local function republishDefaultApp()
 
   mobileSession:ExpectNotification("OnSystemCapabilityUpdated", publishedParams, activatedParams):Times((2))
 
+  local cid = mobileSession:SendRPC("PublishAppService", {
+    appServiceManifest = manifest2
+  })
   mobileSession:ExpectResponse(cid, {
     appServiceRecord = {
       serviceManifest = manifest2,
@@ -155,8 +156,7 @@ runner.Step("RPC " .. rpc.name .. "_resultCode_SUCCESS", processRPCSuccess)
 runner.Step("Disconnect Default Service App", disconnectDefaultService)
 runner.Step("Clean sessions", common.cleanSession, {1})
 runner.Step("Clean sessions", common.cleanSession, {2})
-runner.Step("Stop SDL", common.postconditions)
-runner.Step("Clean environment", commonFunctions.SDLForceStop)
+runner.Step("Stop SDL", commonFunctions.SDLForceStop)
 runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("RAI w/o PTU", common.registerAppWOPTU, { 1 })
 runner.Step("RAI w/o PTU App 2", common.registerAppWOPTU, { 2 })

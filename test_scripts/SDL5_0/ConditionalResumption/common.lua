@@ -61,16 +61,6 @@ function common.preconditions()
   common.hashID = nil
 end
 
-function common.pinOnHashChange(pAppId)
-  if not pAppId then pAppId = 1 end
-  common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
-  :Pin()
-  :Times(AnyNumber())
-  :Do(function(_, data)
-    common.hashId = data.payload.hashID
-  end)
-end
-
 function common.cleanSessions()
   for i = 1, common.getAppsCount() do
     test.mobileSession[i]:StopRPC()
@@ -165,6 +155,10 @@ function common.addCommand(pParams, pAppId)
     end)
   end
   mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  common.getMobileSession(pAppId):ExpectNotification("OnHashChange")
+  :Do(function(_, data)
+    common.hashId = data.payload.hashID
+  end)
 end
 
 

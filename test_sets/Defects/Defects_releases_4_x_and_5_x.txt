@@ -17,6 +17,7 @@
 ./test_scripts/Defects/5_0/2405/007_param_omitted_SUCCESS.lua
 ./test_scripts/Defects/5_0/2405/008_param_empty_SUCCESS_DISALLOWED.lua
 ./test_scripts/Defects/5_0/2405/009_param_param_SUCCESS.lua
+./test_scripts/Defects/5_0/2462_Need_updated_logic_for_checking_user_consent_prompt_after_PTU.lua
 ;Security
 ./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_1_secure_service_RPC.lua
 ./test_scripts/Defects/4_5/Trigger_PTU_NO_Certificate/1888_2_secure_video_force_off.lua
@@ -41,6 +42,8 @@
 ./test_scripts/Defects/5_0/1898_Canceling_HMILevel_resumption_of_media_app_after_unexpectedDisconnect.lua
 ./test_scripts/Defects/5_0/2446_SDL_doesn_t_resume_HMILevel_when_DEACTIVATE_HMI_with_isActive_is_true_then_false.lua
 ./test_scripts/Defects/5_0/2447_Resumption_revoked_app_still_be_resumed_as_FULL.lua
+./test_scripts/Defects/5_0/1900_Media_app_does_not_get_AUDIBLE_if_it_is_successfully_resuming_during_active_embedded_navigation.lua
+./test_scripts/Defects/5_0/1901_Navigation_app_must_be_resumed_to_FULL_or_LIMITED_and_AUDIBLE_in_case_of_active_embedded_audio_source.lua
 ;RPC
 ./test_scripts/Defects/4_5/1211_ATF_Check_count_of_removals_for_bad_behavior_REQUEST_WHILE_IN_NONE_HMI_LEVEL.lua
 ./test_scripts/Defects/4_5/1880_DefaultAndRPCTimeoutGENERIC_ERROR.lua
@@ -59,6 +62,7 @@
 ./test_scripts/Defects/5_0/1868_SDL_does_not_respond_to_HMI_request_with_empty_string_parameter.lua
 ./test_scripts/Defects/5_1/2862_SDL_sends_UnsubscribeWayPoint_request_to_HMI.lua
 ./test_scripts/Defects/5_1/2874_SDL_sends_system_request_with_correlationid_-1_and_INAVLID_DATA.lua
+./test_scripts/Defects/5_1/1002_SDL_sends_StopAudioStream_in_case_User_Exit_during_Audio_Video_streaming.lua
 ;Streaming
 ./test_scripts/Defects/4_5/1912_Video_service_start_via_2_protocol.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_1_SDL_does_not_respond_NACK_Navi_Type.lua

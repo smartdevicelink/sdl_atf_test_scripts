@@ -56,6 +56,7 @@ require("user_modules/AppTypes")
 commonFunctions:newTestCasesGroup("Preconditions")
 
 function Test:Precondition_ActivateApp()
+  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UPDATE_NEEDED"}, {status = "UPDATING"}):Times(2)
   local requestId1 = self.hmiConnection:SendRequest("SDL.ActivateApp", { appID = self.applications["Test Application"] })
   EXPECT_HMIRESPONSE(requestId1)
   :Do(function(_, data1)

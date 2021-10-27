@@ -22,7 +22,7 @@
 -- SDL checks if Buttons interface is available on HMI
 -- SDL checks if SubscribeButton is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL sends the Buttons notificaton to HMI
+-- SDL requests the Buttons.SubscribeButton and receives success response from HMI
 -- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
 ---------------------------------------------------------------------------------------------------
 
@@ -42,14 +42,18 @@ config.application1.registerAppInterfaceParams.syncMsgVersion = {
 local function subscribeButtonSuccess(pButName)
   local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
   local appIDvalue = commonSmoke.getHMIAppId()
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { appID = appIDvalue, name = "PLAY_PAUSE", isSubscribed = true })
+  commonSmoke.getHMIConnection():ExpectRequest("Buttons.SubscribeButton",
+    { appID = appIDvalue, buttonName = "PLAY_PAUSE" })
+  :Do(function(_, data)
+      commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   commonSmoke.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   commonSmoke.getMobileSession():ExpectNotification("OnHashChange")
 end
 
 local function subscribeButtonInvalidData(pButName)
   local cid = commonSmoke.getMobileSession():SendRPC("SubscribeButton", { buttonName = pButName })
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription")
+  commonSmoke.getHMIConnection():ExpectRequest("Buttons.SubscribeButton")
   :Times(0)
   commonSmoke.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "INVALID_DATA" })
   commonSmoke.getMobileSession():ExpectNotification("OnHashChange")

@@ -14,7 +14,6 @@ local constants = require("protocol_handler/ford_protocol_constants")
 
 --[[ Module ]]
 local m = actions
-
 m.wait = utils.wait
 m.cloneTable = utils.cloneTable
 

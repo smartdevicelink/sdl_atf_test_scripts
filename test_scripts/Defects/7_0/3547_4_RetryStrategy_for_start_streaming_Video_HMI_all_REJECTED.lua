@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Issue: https://github.com/smartdevicelink/sdl_core/issues/3547
+-- Issue: https://github.com/smartdevicelink/sdl_core/issues/3547, 3479
 ---------------------------------------------------------------------------------------------------
 -- Steps:
 -- 1. Navigation app is registered
@@ -13,7 +13,8 @@
 -- 4. HMI responds with 'REJECTED' to all requests
 -- SDL does:
 --  - not send new `Navi.StartStream` requests to HMI
---  - unregister App once last response is received
+--  - send EndService request to the App
+--  - not unregister App
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/7_0/common_3547')
@@ -23,16 +24,16 @@ local expNumOfAttempts = 3
 
 --[[ Local Functions ]]
 local function startAudioVideoService(pServiceId)
-  common.mobile.getSession():StartService(pServiceId)
   common.hmi.getConnection():ExpectRequest(common.requestNames[pServiceId].start)
   :Do(function(_, data)
       common.sendErrorResponse(data, 500)
     end)
   :Times(expNumOfAttempts + 1)
+  common.mobile.getSession():StartService(pServiceId)
   common.mobile.getSession():ExpectEndService(pServiceId)
   common.hmi.getConnection():ExpectRequest(common.requestNames[pServiceId].stop)
-  common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered")
-  common.mobile.getSession():ExpectNotification("OnAppInterfaceUnregistered", { reason = "PROTOCOL_VIOLATION" })
+  common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered"):Times(0)
+  common.mobile.getSession():ExpectNotification("OnAppInterfaceUnregistered"):Times(0)
   common.run.wait(4000)
 end
 

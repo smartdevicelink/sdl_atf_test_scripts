@@ -16,11 +16,11 @@
 -- Steps:
 -- 1) Mobile №1 App1 requests SubscribeButton ("PLAY_PAUSE")
 --   Check:
---    SDL sends Buttons.OnButtonSubscription ( appId, isSubscribed = true, name = "PLAY_PAUSE" ) to HMI
 --    SDL responds SubscribeButton (INVALID_DATA) to Mobile №1
 -- 2) Mobile №2 App2 requests SubscribeButton ("PLAY_PAUSE")
 --   Check:
---    SDL sends Buttons.OnButtonSubscription ( appId, isSubscribed = true, name = "PLAY_PAUSE" ) to HMI
+--    SDL sends Buttons.SubscribeButton ( appId, buttonName = "PLAY_PAUSE" ) to HMI
+--    SDL receives Buttons.SubscribeButton("SUCCESS") response from HMI
 --    SDL responds SubscribeButton (SUCCESS) to Mobile №2
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]

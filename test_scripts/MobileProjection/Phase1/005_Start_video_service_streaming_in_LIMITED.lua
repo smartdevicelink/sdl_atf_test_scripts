@@ -23,6 +23,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local appHMIType = "PROJECTION"
+local video = common.serviceType.VIDEO
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
@@ -49,9 +50,10 @@ runner.Step("Activate App", common.activateApp)
 runner.Step("Bring app to limited HMI level", bringAppToLimited)
 
 runner.Title("Test")
-runner.Step("Start video service", common.startService, { 11 })
-runner.Step("Start video streaming", common.StartStreaming, { 11, "files/SampleVideo_5mb.mp4" })
+runner.Step("Start video service", common.startService, { video })
+runner.Step("Start video streaming", common.StartStreaming, { video, "files/SampleVideo_5mb.mp4" })
+runner.Step("Listen video streaming", common.hmi.listenStreaming, { video, 500000, "files/SampleVideo_5mb.mp4" })
 
 runner.Title("Postconditions")
-runner.Step("Stop video streaming", common.StopStreaming, { 11, "files/SampleVideo_5mb.mp4" })
+runner.Step("Stop video streaming", common.StopStreaming, { video, "files/SampleVideo_5mb.mp4" })
 runner.Step("Stop SDL", common.postconditions)

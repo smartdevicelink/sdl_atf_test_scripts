@@ -7,13 +7,13 @@
 -- [SubscribeButton] SUCCESS: getting SUCCESS:SubscribeButton()
 --
 -- Description:
--- Mobile application sends valid SubscribeButton request and gets SubscribeButton "SUCCESS" response from SDL
+-- Mobile application sends valid SubscribeButton request and gets SubscribeButton "REJECTED" response from SDL
 
 -- Pre-conditions:
 -- a. HMI and SDL are started
 -- b. appID is registered and activated on SDL
 -- c. appID is currently in Background, Full or Limited HMI level
--- d. appID is a navigation type app
+-- d. appID is a 'default' type app
 
 -- Steps:
 -- appID requests Navigation SubscribeButton with valid parameters
@@ -23,8 +23,8 @@
 -- SDL checks if Buttons interface is available on HMI
 -- SDL checks if SubscribeButton is allowed by Policies
 -- SDL checks if all parameters are allowed by Policies
--- SDL sends the Buttons notificaton to HMI
--- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
+-- SDL does not send the Buttons.SubscribeButton request to HMI
+-- SDL responds with (resultCode: REJECTED, success:false) to mobile application
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -60,9 +60,8 @@ local buttonName = {
 local function subscribeButton(pButName)
   local mobileSession = common.getMobileSession()
   local cid = mobileSession:SendRPC("SubscribeButton", { buttonName = pButName })
-  local appIDvalue = common.getHMIAppId()
-  common.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription",
-      { appID = appIDvalue, name = pButName, isSubscribed = true }):Times(0)
+  common.getHMIConnection():ExpectRequest("Buttons.SubscribeButton")
+  :Times(0)
   mobileSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
 end
 

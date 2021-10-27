@@ -150,7 +150,7 @@ function Test:TestStep_Get_HeartBeat_Time()
 end
 
 function Test:TestStep_Check_HB_Time()
-  if ( (HBTime_min < 3850) or (HBTime_max > 4150) ) then
+  if ( (HBTime_min < 3850) or (HBTime_max > 4250) ) then
     self:FailTestCase("Wrong HearBeat time! Expected: 4000ms, Actual: ["..HBTime_min.." ; "..HBTime_max.."]ms ")
   else
     print("HearBeat is in range ["..HBTime_min.." ; "..HBTime_max.."]ms ")

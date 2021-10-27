@@ -60,7 +60,8 @@ m.rpcs = {
   subscribeVehicleData = { "VehicleInfo" },
   subscribeWayPoints = { "Navigation" },
   createWindow = { "UI" },
-  getInteriorVehicleData = { "RC" }
+  getInteriorVehicleData = { "RC" },
+  subscribeButton = { "Buttons" }
 }
 
 m.timeToRegApp2 = {
@@ -351,6 +352,14 @@ m.removeData = {
     :Do(function(_,deleteData)
         m.sendResponse(deleteData)
       end)
+  end,
+  UnsubscribeButton = function(pAppId, pTimes)
+    if not pTimes then pTimes = 1 end
+    m.getHMIConnection():ExpectRequest("Buttons.UnsubscribeButton", m.resumptionData[pAppId].subscribeButton.Buttons)
+    :Do(function(_,deleteData)
+        m.sendResponse(deleteData)
+      end)
+    :Times(pTimes)
   end
 }
 
@@ -537,6 +546,22 @@ m.rpcsRevert = {
         :Times(pTimes)
       end
     }
+  },
+  subscribeButton = {
+    rpc = "UnsubscribeButton",
+    iface = {
+      Buttons = function(pAppId, pTimes)
+        if not pTimes then pTimes = 1 end
+        m.getHMIConnection():ExpectRequest("Buttons.SubscribeButton",
+          { buttonName = "CUSTOM_BUTTON", appID = m.getHMIAppId(pAppId) },
+          m.resumptionData[pAppId].subscribeButton.Buttons)
+        :Do(function(_, data)
+            m.sendResponse(data)
+          end)
+        :Times(2)
+        m.removeData.UnsubscribeButton(pAppId, pTimes)
+      end
+    }
   }
 }
 
@@ -574,6 +599,19 @@ function m.checkAllResumptionDataWithOneErrorResponse(pAppId, pErrorResponseRpc,
         end
       end)
     :Times(2)
+  elseif pErrorResponseRpc == "subscribeButton" then
+    rpcsRevertLocal.subscribeButton.iface.Buttons = nil
+    m.getHMIConnection():ExpectRequest("Buttons.SubscribeButton")
+    :Do(function(_, data)
+        if data.params.buttonName ~= "CUSTOM_BUTTON" then
+          m.errorResponse(data)
+          m.getHMIConnection():ExpectRequest("Buttons.UnsubscribeButton")
+          :Times(0)
+        else
+          m.sendResponse(data)
+        end
+      end)
+    :Times(2)
   else
     local errorResponseRpc = m.getRpcName(pErrorResponseRpc, pErrorResponseInterface)
     local revertRpc = rpcsRevertLocal[pErrorResponseRpc].rpc
@@ -596,24 +634,6 @@ function m.checkAllResumptionDataWithOneErrorResponse(pAppId, pErrorResponseRpc,
     end
   end
 
-  local isCustomButtonSubscribed = false
-  local isOkButtonSubscribed = false
-  local isOkButtonUnsubscribed = false
-  m.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
-  :ValidIf(function(_, data)
-      local params = data.params
-      if params.name == "CUSTOM_BUTTON" and params.isSubscribed == true and isCustomButtonSubscribed == false then
-        isCustomButtonSubscribed = true
-      elseif params.name == "OK" and params.isSubscribed == true and isOkButtonSubscribed == false then
-        isOkButtonSubscribed = true
-      elseif params.name == "OK" and params.isSubscribed == false and isOkButtonUnsubscribed == false then
-        isOkButtonUnsubscribed = true
-      else
-        return false, "Came unexpected Buttons.OnButtonSubscription notification"
-      end
-      return true
-    end)
-  :Times(3)
 end
 
 --[[ @reRegisterAppResumeFailed: re-register application with RESUME_FAILED resultCode
@@ -891,15 +911,19 @@ function m.subscribeWayPoints(pAppId, pHMIrequest)
     end)
 end
 
---[[ @buttonSubscription: adding buttonSubscription
+--[[ @subscribeButton: adding buttonSubscription
 --! @parameters:
 --! pAppId - application number (1, 2, etc.)
 --! @return: none
 --]]
-function m.buttonSubscription(pAppId)
+function m.subscribeButton(pAppId)
   if not pAppId then pAppId = 1 end
   local cid = m.getMobileSession(pAppId):SendRPC("SubscribeButton", { buttonName = "OK" })
-  m.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
+  m.getHMIConnection():ExpectRequest("Buttons.SubscribeButton", { appID = m.getHMIAppId(pAppId), buttonName = "OK" })
+  :Do(function(_, data)
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      m.resumptionData[pAppId].subscribeButton = { Buttons = data.params }
+    end)
   m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Do(function(_, data)
@@ -1063,6 +1087,26 @@ function m.getInteriorVehicleDataResumption(pAppId, pErrorResponseInterface)
   :Do(function(_, data)
       m.sendResponse(data, pErrorResponseInterface, "RC")
     end)
+end
+
+--[[ @subscribeButtonResumption: check resumption of subscribeButton data
+--! @parameters:
+--! pAppId - application number (1, 2, etc.)
+--! pErrorResponseInterface - interface of RPC for error response
+--! @return: none
+--]]
+function m.subscribeButtonResumption(pAppId, pErrorResponseInterface)
+  m.getHMIConnection():ExpectRequest("Buttons.SubscribeButton",
+    { buttonName = "CUSTOM_BUTTON", appID = m.getHMIAppId(pAppId) },
+  m.resumptionData[pAppId].subscribeButton.Buttons)
+  :Do(function(_, data)
+      if data.params.buttonName ~= "CUSTOM_BUTTON" then
+        m.sendResponse(data, pErrorResponseInterface, "Buttons")
+      else
+        m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end
+    end)
+  :Times(2)
 end
 
 --[[ @unregisterAppInterface: unregister app
@@ -1266,11 +1310,13 @@ function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
   elseif pErrorRpc == "addCommand" and pErrorInterface == "UI" then
     revertRpcToUpdate.DeleteUICommand = nil
   elseif pErrorRpc == "addSubMenu" then
-      revertRpcToUpdate.DeleteSubMenu = nil
+    revertRpcToUpdate.DeleteSubMenu = nil
   elseif pErrorRpc == "subscribeVehicleData" then
-      revertRpcToUpdate.UnsubscribeVehicleData = nil
+    revertRpcToUpdate.UnsubscribeVehicleData = nil
   elseif pErrorRpc == "createWindow" then
     revertRpcToUpdate.DeleteWindow = nil
+  elseif pErrorRpc == "subscribeButton" then
+    revertRpcToUpdate.UnsubscribeButton = nil
   end
 
   for k in pairs(revertRpcToUpdate) do
@@ -1325,6 +1371,16 @@ function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
       m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
     end)
   :Times(rcGIVDtimes)
+
+   m.getHMIConnection():ExpectRequest("Buttons.SubscribeButton")
+  :Do(function(_, data)
+      if data.params.buttonName ~= "CUSTOM_BUTTON" then
+        m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+      else
+        m.sendResponse(data)
+      end
+    end)
+  :Times(4)
 end
 
 --[[ @errorResponse: sending error response
@@ -1572,6 +1628,7 @@ function m.checkResumptionDataSuccess(pAppId)
   m.subscribeWayPointsResumption(pAppId)
   m.createWindowResumption(pAppId)
   m.getInteriorVehicleDataResumption(pAppId)
+  m.subscribeButtonResumption(pAppId)
   m.getHMIConnection():ExpectRequest("UI.AddCommand",
     m.resumptionData[pAppId].addCommand.UI)
   :Do(function(_, data)
@@ -1582,21 +1639,6 @@ function m.checkResumptionDataSuccess(pAppId)
     m.resumptionData[pAppId].createIntrerationChoiceSet.VR)
   :Do(function(_, data)
       m.sendResponse(data)
-    end)
-  :Times(2)
-
-  local isCustomButtonSubscribed = false
-  local isOkButtonSubscribed = false
-  m.getHMIConnection():ExpectNotification("Buttons.OnButtonSubscription")
-  :ValidIf(function(_, data)
-      if data.params.name == "CUSTOM_BUTTON" and isCustomButtonSubscribed == false then
-        isCustomButtonSubscribed = true
-      elseif data.params.name == "OK" and data.params.isSubscribed == true and isOkButtonSubscribed == false then
-        isOkButtonSubscribed = true
-      else
-        return false, "Came unexpected Buttons.OnButtonSubscription notification"
-      end
-      return true
     end)
   :Times(2)
 end

@@ -77,7 +77,7 @@ for param in common.spairs(common.getVDParams(true)) do
   common.runner.Step("RPC " .. common.rpc.sub .. " SUCCESS", common.processSubscriptionRPC,
     { common.rpc.sub, param })
   common.runner.Step("RPC " .. common.rpc.unsub .. " DISALLOWED after PTU", common.processRPCFailure,
-    { common.rpc.unsub, result })
+    { common.rpc.unsub, param, result })
 
   common.runner.Title("Postconditions")
   common.runner.Step("Stop SDL", common.postconditions)

@@ -72,7 +72,8 @@ local function changeAudioSource(pAudioState)
     videoStreamingState = "STREAMABLE"
   })
   common.wait(2000)
-  common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false }):Times(0)
+  local stopStreaming = (pAudioState == "NOT_AUDIBLE") and 1 or 0
+  common.getHMIConnection():ExpectNotification("Navigation.OnAudioDataStreaming", { available = false }):Times(stopStreaming)
   common.getHMIConnection():ExpectNotification("Navigation.OnVideoDataStreaming", { available = false }):Times(0)
   common.getHMIConnection():ExpectRequest("Navigation.StopAudioStream", { appID = common.getHMIAppId() }):Times(0)
   common.getHMIConnection():ExpectRequest("Navigation.StopStream", { appID = common.getHMIAppId() }):Times(0)

@@ -16,7 +16,7 @@ local schema = api.interface[next(api.interface)]
 runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 
 --[[ Local Variables ]]
-local DefaultTimeout = 10000
+local DefaultTimeout = runner.testSettings.defaultTimeout
 
 local AlertRequestParams = {
   alertText1 = "alertText1",

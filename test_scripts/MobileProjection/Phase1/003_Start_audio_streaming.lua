@@ -1,9 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- User story: TBD
--- Use case: TBD
---
--- Requirement summary:
--- TBD
+-- User story: 0125 Validate ATF Streaming Data
+-- https://github.com/smartdevicelink/sdl_evolution/blob/master/proposals/0125-atf-videostreaming-full-support.md
+-- Use case: Validate data transmitted by mobile can be received by an HMI from Core
 --
 -- Description:
 -- In case:
@@ -22,6 +20,7 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
 local appHMIType = "PROJECTION"
+local audio = common.serviceType.PCM
 
 --[[ General configuration parameters ]]
 config.application1.registerAppInterfaceParams.appHMIType = { appHMIType }
@@ -38,11 +37,12 @@ runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 runner.Step("Register App", common.registerApp)
 runner.Step("PolicyTableUpdate with HMI types", common.policyTableUpdate, { ptUpdate })
 runner.Step("Activate App", common.activateApp)
-runner.Step("Start audio service", common.startService, { 10 })
+runner.Step("Start audio service", common.startService, { audio })
 
 runner.Title("Test")
-runner.Step("Start audio streaming", common.StartStreaming, { 10, "files/MP3_4555kb.mp3" })
+runner.Step("Start audio streaming", common.StartStreaming, { audio, "files/MP3_4555kb.mp3" })
+runner.Step("Listen audio streaming", common.hmi.listenStreaming, { audio, 500000, "files/MP3_4555kb.mp3" })
 
 runner.Title("Postconditions")
-runner.Step("Stop audio streaming", common.StopStreaming, { 10, "files/MP3_4555kb.mp3" })
+runner.Step("Stop audio streaming", common.StopStreaming, { audio, "files/MP3_4555kb.mp3" })
 runner.Step("Stop SDL", common.postconditions)

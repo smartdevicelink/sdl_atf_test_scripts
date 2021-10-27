@@ -30,6 +30,9 @@
 ./test_scripts/Security/GetSystemTime/023_GetSystemTime_without_response_from_HMI.lua
 ./test_scripts/Security/GetSystemTime/024_GetSystemTime_with_response_from_HMI_in_9_sec.lua
 ./test_scripts/Security/GetSystemTime/025_GetSystemTime_is_sent_later.lua
+./test_scripts/Security/SecurityQueryErrorHandling/001_Invalid_query_size.lua
+./test_scripts/Security/SecurityQueryErrorHandling/002_Invalid_query_id.lua
+./test_scripts/Security/SecurityQueryErrorHandling/003_Service_not_protected.lua
 ./test_scripts/Security/SSLHandshakeFlow/001_Navi_Predefined_cert_valid_SUCCESS.lua
 ./test_scripts/Security/SSLHandshakeFlow/002_Navi_Predefined_cert_expired_PTU_cert_valid_SUCCESS.lua
 ./test_scripts/Security/SSLHandshakeFlow/003_Navi_Predefined_cert_expired_PTU_cert_missing_NACK.lua

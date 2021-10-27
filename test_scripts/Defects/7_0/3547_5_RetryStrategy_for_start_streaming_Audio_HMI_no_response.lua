@@ -1,5 +1,5 @@
 ---------------------------------------------------------------------------------------------------
--- Issue: https://github.com/smartdevicelink/sdl_core/issues/3547
+-- Issue: https://github.com/smartdevicelink/sdl_core/issues/3547, 3479
 ---------------------------------------------------------------------------------------------------
 -- Steps:
 -- 1. Navigation app is registered
@@ -13,7 +13,8 @@
 -- 4. HMI doesn't responds to any request
 -- SDL does:
 --  - not send new `Navi.StartAudioStream` requests to HMI
---  - unregister App once timeout for last request is expired
+--  - send EndService request to the App
+--  - not unregister App
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require('test_scripts/Defects/7_0/common_3547')
@@ -23,16 +24,18 @@ local expNumOfAttempts = 3
 
 --[[ Local Functions ]]
 local function startAudioVideoService(pServiceId)
-  common.mobile.getSession():StartService(pServiceId)
   common.hmi.getConnection():ExpectRequest(common.requestNames[pServiceId].start)
-  :Do(function()
-      -- common.sendErrorResponse(data, 500) -- no response from HMI
+  :Do(function(e, data)
+      if e.occurences == 1 then
+        common.sendErrorResponse(data, 500)
+      end
     end)
   :Times(expNumOfAttempts + 1)
+  common.mobile.getSession():StartService(pServiceId)
   common.mobile.getSession():ExpectEndService(pServiceId)
   common.hmi.getConnection():ExpectRequest(common.requestNames[pServiceId].stop)
-  common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered")
-  common.mobile.getSession():ExpectNotification("OnAppInterfaceUnregistered", { reason = "PROTOCOL_VIOLATION" })
+  common.hmi.getConnection():ExpectNotification("BasicCommunication.OnAppUnregistered"):Times(0)
+  common.mobile.getSession():ExpectNotification("OnAppInterfaceUnregistered"):Times(0)
   common.run.wait(4000)
 end
 

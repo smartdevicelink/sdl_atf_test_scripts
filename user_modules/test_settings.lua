@@ -4,7 +4,7 @@ local testSettings = {
 	restrictions = {
 		sdlBuildOptions = {} -- no restrictions on SDL configuration
 	},
-	defaultTimeout = 10000,
+	defaultTimeout = 11000,
 	isSelfIncluded = true
 }
 

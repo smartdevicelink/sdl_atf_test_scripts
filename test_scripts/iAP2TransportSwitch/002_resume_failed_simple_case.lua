@@ -32,7 +32,7 @@
 --     application remains registered internally
 --     application does not send OnAppUnregistered notification to HMI
 --     application does not send OnAppRegistered notification to HMI
---     SDL->HMI: Buttons.OnButtonSubscription, isSubscribed = false, name = PRESET_0
+--     SDL does not send Buttons.SubscribeButton, buttonName = PRESET_0 to HMI
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -78,19 +78,19 @@ local function connectBluetoothDevice(self)
       :Do(function(_, data)
           self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
         end)
-      EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {
-        isSubscribed = true,
-        name = "CUSTOM_BUTTON"
-      })
+      EXPECT_HMICALL("Buttons.SubscribeButton", { buttonName = "CUSTOM_BUTTON" })
+      :Do(function(_, data)
+          self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+        end)
     end)
 end
 
-local function addDataForResumption()
+local function addDataForResumption(self)
   local cid = sessionBluetooth:SendRPC("SubscribeButton", { buttonName = "PRESET_0" })
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", {
-    isSubscribed = true,
-    name = "PRESET_0"
-  })
+  EXPECT_HMICALL("Buttons.SubscribeButton", { buttonName = "PRESET_0" })
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
   sessionBluetooth:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   sessionBluetooth:ExpectNotification("OnHashChange")
 end
@@ -150,7 +150,10 @@ local function connectUSBDevice(self)
 
   self:connectMobile(deviceUsb)
 
-  EXPECT_HMINOTIFICATION("Buttons.OnButtonSubscription", { isSubscribed = false, name = "PRESET_0" })
+  EXPECT_HMICALL("Buttons.UnsubscribeButton", { buttonName = "PRESET_0" })
+  :Do(function(_, data)
+      self.hmiConnection:SendResponse(data.id, data.method, "SUCCESS", { })
+    end)
 
   self:waitForAllEvents(2000)
 end

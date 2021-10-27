@@ -66,10 +66,10 @@ local hmiDeleteSubMenuRequestParams = {
 
 local hmiDeleteCommandRequestParams = {
     {
-        cmdID = mobileAddCommandRequestParams[1].cmdID
+        cmdID = mobileAddCommandRequestParams[2].cmdID
     },
     {
-        cmdID = mobileAddCommandRequestParams[2].cmdID
+        cmdID = mobileAddCommandRequestParams[1].cmdID
     }
 }
 

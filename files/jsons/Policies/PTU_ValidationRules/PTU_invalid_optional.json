@@ -1230,9 +1230,6 @@
             "tr-tr": {
               "tts": "Uygulama yetkileri değişti. %appName% artık %functionalGroupLabels%'e erişemeyecek. Lütfen mobil aygıtınızda en son uygulama sürümünün yüklü olduğundan emin olun."
             },
-            "en-ie": {
-              "tts": "App authorizations have changed. %appName% can no longer access %functionalGroupLabels%. Please ensure you have the most recent app version installed on your mobile device."
-            },
             "sv-se": {
               "tts": "Appens behörigheter har ändrats. %appName% har inte längre åtkomst till %functionalGroupLabels%. Kontrollera att du har installerat den senaste versionen av appen på mobilenheten."
             },
@@ -1250,9 +1247,6 @@
             },
             "en-au": {
               "tts": "App authorizations have changed. %appName% can no longer access %functionalGroupLabels%. Please ensure you have the most recent app version installed on your mobile device."
-            },
-            "es-en": {
-              "tts": "Las autorizaciones de la aplicación han cambiado. %appName% ya no puede acceder a %functionalGroupLabels%. Asegúrese de haber instalado la versión más reciente de la aplicación en su dispositivo móvil."
             },
             "pl-pl": {
               "tts": "Dane dostępu aplikacji zostały zmienione. %appName% nie ma już dostępu do %functionalGroupLabels%. Sprawdź, czy na telefonie komórkowym zainstalowano najnowszą wersję aplikacji."
@@ -1321,10 +1315,6 @@
               "label": "Sürüş karakteristikleri",
               "tts": "Bir uygulama şu sürüş karakteristiklerine erişebilir: Yakıt tüketimi, MyKey, Emniyet kemeri durumu."
             },
-            "en-ie": {
-              "label": "Driving characteristics",
-              "tts": "An app can access the following driving characteristics: Fuel consumption, MyKey, Seat belt status."
-            },
             "sv-se": {
               "label": "Köregenskaper",
               "tts": "Appen kan komma åt följande köregenskaper: Bränsleförbrukning, MyKey, Bältesstatus."
@@ -1348,11 +1338,6 @@
             "en-au": {
               "label": "Driving characteristics",
               "tts": "An app can access the following driving characteristics: Fuel consumption, MyKey, Seat belt status."
-            },
-            "es-en": {
-              "label": "Características del manejo",
-              "textBody": "Las aplicaciones pueden acceder a las siguientes características del manejo: Consumo de combustible, MyKey, Estado del cinturón de seguridad.",
-              "tts": "Las aplicaciones pueden acceder a las siguientes características del manejo: Consumo de combustible, MyKey, Estado del cinturón de seguridad."
             },
             "pl-pl": {
               "label": "Informacje dotyczące stylu jazdy",
@@ -1400,9 +1385,6 @@
             "tr-tr": {
               "line1": "Güncellenmeli"
             },
-            "en-ie": {
-              "line1": "Update needed"
-            },
             "sv-se": {
               "line1": "Uppdat. krävs"
             },
@@ -1420,10 +1402,6 @@
             },
             "en-au": {
               "line1": "Update needed"
-            },
-            "es-en": {
-              "line1": "Actualiz. neces.",
-              "textBody": "Actualiz. neces."
             },
             "pl-pl": {
               "line1": "Potrzeba aktual."
@@ -1479,10 +1457,6 @@
               "label": "Anlık bildirimleri",
               "tts": "Bir uygulama arka planda çalışırken bildirim gönderebilir."
             },
-            "en-ie": {
-              "label": "Push notifications",
-              "tts": "An app can send notifications when running in the background."
-            },
             "sv-se": {
               "label": "Push-notiser",
               "tts": "Appen kan skicka meddelanden när den körs i bakgrunden."
@@ -1506,11 +1480,6 @@
             "en-au": {
               "label": "Push notifications",
               "tts": "An app can send notifications when running in the background."
-            },
-            "es-en": {
-              "label": "Notificaciones tipo Push",
-              "textBody": "Las aplicaciones pueden enviar notificaciones cuando se ejecutan en segundo plano.",
-              "tts": "Las aplicaciones pueden enviar notificaciones cuando se ejecutan en segundo plano."
             },
             "pl-pl": {
               "label": "Powiadomienia Push",
@@ -1557,9 +1526,6 @@
             "tr-tr": {
               "line1": "Güncelleme iste"
             },
-            "en-ie": {
-              "line1": "Request update"
-            },
             "sv-se": {
               "line1": "Begär uppdat."
             },
@@ -1577,10 +1543,6 @@
             },
             "en-au": {
               "line1": "Request update"
-            },
-            "es-en": {
-              "line1": "Solicit. actualiz.",
-              "textBody": "Solicit. actualiz."
             },
             "pl-pl": {
               "line1": "Zażądaj aktual."
@@ -1623,9 +1585,6 @@
             "tr-tr": {
               "line1": "Uygulamaları aç"
             },
-            "en-ie": {
-              "line1": "Enable Apps"
-            },
             "sv-se": {
               "line1": "Aktivera appar"
             },
@@ -1643,9 +1602,6 @@
             },
             "en-au": {
               "line1": "Enable Apps"
-            },
-            "es-en": {
-              "line1": "Hab. aplic."
             },
             "pl-pl": {
               "line1": "Włącz aplikacje"
@@ -1691,9 +1647,6 @@
             "tr-tr": {
               "line1": "Güncelleniyor..."
             },
-            "en-ie": {
-              "line1": "Updating..."
-            },
             "sv-se": {
               "line1": "Uppdaterar..."
             },
@@ -1711,10 +1664,6 @@
             },
             "en-au": {
               "line1": "Updating..."
-            },
-            "es-en": {
-              "line1": "Actualizando...",
-              "textBody": "Actualizando..."
             },
             "pl-pl": {
               "line1": "Aktualizowanie"
@@ -1770,10 +1719,6 @@
               "line1": "için izin yok",
               "tts": "Bu %appName% sürümüne izin verilmediğinden SYNC ile çalışamaz."
             },
-            "en-ie": {
-              "line1": "not authorized",
-              "tts": "This version of %appName% is not authorized and will not work with SYNC."
-            },
             "sv-se": {
               "line1": "är ej godkänd",
               "tts": "Den här versionen av %appName% är inte godkänd och fungerar inte med SYNC."
@@ -1797,11 +1742,6 @@
             "en-au": {
               "line1": "not authorized",
               "tts": "This version of %appName% is not authorized and will not work with SYNC."
-            },
-            "es-en": {
-              "line1": "no autorizada",
-              "textBody": "Esta versión de %appName% no tiene autorización y no funcionará con SYNC.",
-              "tts": "Esta versión de %appName% no tiene autorización y no funcionará con SYNC."
             },
             "pl-pl": {
               "line1": "brak autoryzacji",
@@ -1845,9 +1785,6 @@
             "tr-tr": {
               "tts": "%appName%, şu araç bilgilerini ve izinleri istiyor: %functionalGroupLabels%. Bu izinleri değiştirebilir ve mobil uygulamalar ayarlar menüsünden ayrıntılı açıklamaları dinleyebilirsiniz. Lütfen izin vermek için Evet'e veya reddetmek için Hayır'a basın."
             },
-            "en-ie": {
-              "tts": "%appName% is requesting the following vehicle information and permissions: %functionalGroupLabels%. You can change these permissions and hear detailed descriptions in the mobile apps settings menu. Please press Yes to grant permissions or No to deny."
-            },
             "sv-se": {
               "tts": "%appName% begär tillgång till följande fordonsinformation och tillstånd: %functionalGroupLabels%. Du kan ändra tillstånden och höra detaljerade beskrivningar i menyn för mobilappsinställningar. Tryck Ja för att ge tillstånd eller Nej för att neka."
             },
@@ -1865,9 +1802,6 @@
             },
             "en-au": {
               "tts": "%appName% is requesting the following vehicle information and permissions: %functionalGroupLabels%. You can change these permissions and hear detailed descriptions in the mobile apps settings menu. Please press Yes to grant permissions or No to deny."
-            },
-            "es-en": {
-              "tts": "%appName% solicita la siguiente información y permisos del vehículo: %functionalGroupLabels%. Puede cambiar estos permisos y consultar descripciones detalladas en el menú de configuración de las aplicaciones móviles. Presione Sí para otorgar permisos y No para denegar."
             },
             "pl-pl": {
               "tts": "%appName% wymaga następujących informacji o pojeździe oraz zezwoleń: %functionalGroupLabels%. W menu ustawień aplikacji mobilnych można zmienić owe zezwolenia i usłyszeć ich szczegółowy opis. Naciśnij TAK, aby wyrazić zgodę lub NIE w celu odrzucenia żądania."
@@ -1923,10 +1857,6 @@
               "label": "GPS ve hız",
               "tts": "Bu uygulama aracın GPS ve hız bilgilerine erişebilir."
             },
-            "en-ie": {
-              "label": "GPS and speed",
-              "tts": "An app can access vehicle GPS and speed."
-            },
             "sv-se": {
               "label": "GPS och hastighet",
               "tts": "Appen kan komma åt fordonets GPS och hastighetsmätare."
@@ -1950,11 +1880,6 @@
             "en-au": {
               "label": "GPS and speed",
               "tts": "An app can access vehicle GPS and speed."
-            },
-            "es-en": {
-              "label": "GPS y velocidad",
-              "textBody": "Las aplicaciones pueden acceder al GPS y a la velocidad del vehículo.",
-              "tts": "Las aplicaciones pueden acceder al GPS y a la velocidad del vehículo."
             },
             "pl-pl": {
               "label": "GPS i prędkość",
@@ -2012,10 +1937,6 @@
               "label": "Araç bilgisi",
               "tts": "Bir uygulama şu araç bilgilerine erişebilir: Yakıt seviyesi, Yakıt ekonomisi, Motor devirleri, Kilometre sayacı, VIN, Dış sıcaklık, Vites konumu, Lastik basıncı."
             },
-            "en-ie": {
-              "label": "Vehicle information",
-              "tts": "An app can access the following vehicle information: Fuel level, Fuel economy, Engine RPMs, Odometer, VIN, Outside air temperature, Gear position, Tyre pressure."
-            },
             "sv-se": {
               "label": "Fordonsinformation",
               "tts": "Appen kan komma åt följande fordonsinformation: Bränslenivå, Bränsleekonomi, Motorns varvtal, Vägmätare, VIN, Utetemperatur, Växelläge, Däcktryck."
@@ -2039,11 +1960,6 @@
             "en-au": {
               "label": "Vehicle information",
               "tts": "An app can access the following vehicle information: Fuel level, Fuel economy, Engine RPMs, Odometer, VIN, Outside air temperature, Gear position, Tyre pressure."
-            },
-            "es-en": {
-              "label": "Información del vehículo",
-              "textBody": "Las aplicaciones pueden acceder a la siguiente información del vehículo: Nivel de combustible, Economía de combustible, RPM del motor, Cuentakilómetros, Número de identificación del vehículo, Temperatura externa, Posición del cambio, Presión de los neumáticos.",
-              "tts": "Las aplicaciones pueden acceder a la siguiente información del vehículo: Nivel de combustible, Economía de combustible, RPM del motor, Cuentakilómetros, Número de identificación del vehículo, Temperatura externa, Posición del cambio, Presión de los neumáticos."
             },
             "pl-pl": {
               "label": "Informacje o pojeździe",
@@ -2090,9 +2006,6 @@
             "tr-tr": {
               "line1": "Güncell. Kapat"
             },
-            "en-ie": {
-              "line1": "Disable updates"
-            },
             "sv-se": {
               "line1": "Inaktivera uppd."
             },
@@ -2110,10 +2023,6 @@
             },
             "en-au": {
               "line1": "Disable updates"
-            },
-            "es-en": {
-              "line1": "Deshab. actual.",
-              "textBody": "Deshab. actual."
             },
             "pl-pl": {
               "line1": "Wyłącz aktual."
@@ -2159,9 +2068,6 @@
             "tr-tr": {
               "line1": "Güncel"
             },
-            "en-ie": {
-              "line1": "Up-to-date"
-            },
             "sv-se": {
               "line1": "Uppdat. krävs ej"
             },
@@ -2179,10 +2085,6 @@
             },
             "en-au": {
               "line1": "Up-to-date"
-            },
-            "es-en": {
-              "line1": "Actualizado",
-              "textBody": "Actualizado"
             },
             "pl-pl": {
               "line1": "Aktualne"
@@ -2248,11 +2150,6 @@
               "line2": "verilsin mi?",
               "tts": "%appName%, şu araç bilgilerini ve izinleri kullanma isteğinde bulunuyor: %functionalGroupLabels%. Evet'e basarsanız, %appName%'in verilerinizi kullanması sonucunda oluşabilecek hasarlardan veya gizlilik kaybından %vehicleMake%'in sorumlu olmayacağını kabul etmiş olacaksınız. Lütfen kabul etmek için Evet'e veya reddetmek için Hayır'a basın."
             },
-            "en-ie": {
-              "line1": "Grant requested",
-              "line2": "permission(s)?",
-              "tts": "%appName% is requesting the use of the following vehicle information and permissions: %functionalGroupLabels%. If you press Yes, you agree that %vehicleMake% will not be liable for any damages or loss of privacy related to %appName%'s use of your data. Please press Yes to allow or No to deny."
-            },
             "sv-se": {
               "line1": "Vill du ge",
               "line2": "tillstånd?",
@@ -2282,12 +2179,6 @@
               "line1": "Grant requested",
               "line2": "permission(s)?",
               "tts": "%appName% is requesting the use of the following vehicle information and permissions: %functionalGroupLabels%. If you press Yes, you agree that %vehicleMake% will not be liable for any damages or loss of privacy related to %appName%'s use of your data. Please press Yes to allow or No to deny."
-            },
-            "es-en": {
-              "line1": "¿Otorgar permiso(s)",
-              "line2": "solicitado(s)?",
-              "textBody": "%appName% solicita el uso de la siguiente información y permisos del vehículo: %functionalGroupLabels%. Si presiona Sí, acepta que %vehicleMake% no se hará responsable por los daños o pérdidas de privacidad relacionados con el uso que %appName% haga de sus datos. Presione Sí para permitir y No para denegar. \n\n Puede cambiar estos permisos y consultar descripciones detalladas en el menú de configuración de las aplicaciones móviles.",
-              "tts": "%appName% solicita el uso de la siguiente información y permisos del vehículo: %functionalGroupLabels%. Si presiona Sí, acepta que %vehicleMake% no se hará responsable por los daños o pérdidas de privacidad relacionados con el uso que %appName% haga de sus datos. Presione Sí para permitir y No para denegar."
             },
             "pl-pl": {
               "line1": "Udzielić żądanych",
@@ -2365,10 +2256,6 @@
               "line1": "desteklenmiyor",
               "tts": "Bu %appName% sürümü SYNC tarafından desteklenmiyor."
             },
-            "en-ie": {
-              "line1": "not supported",
-              "tts": "This version of %appName% is not supported by SYNC."
-            },
             "sv-se": {
               "line1": "stöds ej",
               "tts": "SYNC har inte stöd för den här versionen av %appName%."
@@ -2392,11 +2279,6 @@
             "en-au": {
               "line1": "not supported",
               "tts": "This version of %appName% is not supported by SYNC."
-            },
-            "es-en": {
-              "line1": "no compatible",
-              "textBody": "Esta versión de %appName% no es compatible con SYNC.",
-              "tts": "Esta versión de %appName% no es compatible con SYNC."
             },
             "pl-pl": {
               "line1": "aplikacja nie obsług.",
@@ -2464,11 +2346,6 @@
               "line2": "mobil uygul. kapat?",
               "tts": "Otomatik güncellemeleri devre dışı bırakırsanız sync mobil uygulamalar da devre dışı kalır. SYNC ile mobil uygulama kullanmanız mümkün olmaz. Lütfen onaylamak için Evet'e veya iptal etmek için Hayır'a basın."
             },
-            "en-ie": {
-              "line1": "Disable auto-updates",
-              "line2": "and Mobile Apps?",
-              "tts": "Disabling automatic updates will also disable SYNC mobile apps. You will not be able to use any mobile apps with SYNC. Please press Yes to confirm or No to cancel."
-            },
             "sv-se": {
               "line1": "Avaktiverar autouppdat.",
               "line2": "och mobilappar?",
@@ -2498,12 +2375,6 @@
               "line1": "Disable auto-updates",
               "line2": "and Mobile Apps?",
               "tts": "Disabling automatic updates will also disable SYNC mobile apps. You will not be able to use any mobile apps with SYNC. Please press Yes to confirm or No to cancel."
-            },
-            "es-en": {
-              "line1": "¿Deshab. actualiz.",
-              "line2": "autom. y aplic. móv.?",
-              "textBody": "Si se desactivan las actualizaciones automáticas, también se desactivarán las aplicaciones móviles de SYNC. No podrá usar ninguna aplicación móvil con SYNC. Presione Sí para confirmar o No para cancelar.",
-              "tts": "Si se desactivan las actualizaciones automáticas, también se desactivarán las aplicaciones móviles de SYNC. No podrá usar ninguna aplicación móvil con SYNC. Presione Sí para confirmar o No para cancelar."
             },
             "pl-pl": {
               "line1": "Wył. automat. aktual.",
