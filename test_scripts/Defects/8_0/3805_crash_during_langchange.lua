@@ -22,7 +22,6 @@ runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
 local function registerApp(pAppId)
-    --local session = common.mobile.createSession(pAppId, 1)
     local session = common.getMobileSession(pAppId, 1)
     session:StartService(7)
     :Do(function()
