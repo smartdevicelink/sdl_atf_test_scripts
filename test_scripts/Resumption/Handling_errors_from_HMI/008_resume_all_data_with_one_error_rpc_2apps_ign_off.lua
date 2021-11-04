@@ -38,7 +38,7 @@ local rpcs = {
   addCommand = { "UI", "VR" },
   addSubMenu = { "UI" },
   createIntrerationChoiceSet = { "VR" },
-  setGlobalProperties = { "UI", "TTS" },
+  setGlobalProperties = { "UI", "TTS", "RC" },
   subscribeVehicleData = { "VehicleInfo" },
   getInteriorVehicleData = { "RC" },
   createWindow = { "UI" },
@@ -49,7 +49,7 @@ local rpcsForApp2 = {
   addCommand = { "UI", "VR" },
   addSubMenu = { "UI" },
   createIntrerationChoiceSet = { "VR" },
-  setGlobalProperties = { "UI", "TTS" },
+  setGlobalProperties = { "UI", "TTS", "RC" },
   createWindow = { "UI" },
   subscribeButton = { "Buttons" }
 }
