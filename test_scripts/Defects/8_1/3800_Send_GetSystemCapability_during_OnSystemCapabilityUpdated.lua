@@ -5,7 +5,7 @@
 -- Attempt to get display capabilities for app while capabilities are being updated
 --
 -- Precondition:
--- 1) Media, Non-media, and Navigation apps are registered (with heart)
+-- 1) Media, Non-media, and Navigation apps are registered (with heartbeat functionality disabled)
 -- Steps:
 -- 1. HMI sends OnSystemCapabilityUpdated(DISPLAYS) with a large amount of data for apps 1, 2, and 3
 -- 2. Apps 1, 2, and 3 repeatedly request GetSystemCapability(DISPLAYS) while SDL processes previous message
