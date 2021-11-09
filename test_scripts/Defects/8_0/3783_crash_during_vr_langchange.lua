@@ -54,9 +54,6 @@ local function registerAllApps()
     common.getMobileSession(i, 1):SendRPC("RegisterAppInterface", common.app.getParams(i))
   end
   utils.wait(250)
-  for j = 1,5 do
-    common.getMobileSession(j):SendRPC("UnregisterAppInterface", {})
-  end
 end
 
 local function checkCrashed()
@@ -75,7 +72,6 @@ runner.Step("Register App 4", registerApp, { 4 })
 runner.Step("Register App 5", registerApp, { 5 })
 
 runner.Title("Test")
-runner.Step("Re-register all apps", registerAllApps)
 runner.Step("Change VR Language to FR-CA", changeHMILanguage, { "VR", "FR-CA" })
 runner.Step("Re-register all apps", registerAllApps)
 runner.Step("Check SDL Core status", checkCrashed)
