@@ -19,6 +19,7 @@
 local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
 local utils = require("user_modules/utils")
+local SDL = require('SDL')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -34,6 +35,9 @@ local appProperties = {
   transportType = "WS",
   hybridAppPreference = "CLOUD",
 }
+-- normal policies should specify there are NO_APPS_REGISTERED,
+-- external policies does not check for other apps and replies APPLICATION_NOT_REGISTERED
+local activateResult = SDL.buildOptions.extendedPolicy == "EXTERNAL_PROPRIETARY" and 15 or 19
 local hmiAppId
 
 --[[ Local Functions ]]
@@ -82,7 +86,7 @@ end
 
 local function activateApp()
   local corId = common.hmi.getConnection():SendRequest("SDL.ActivateApp", { appID = hmiAppId })
-  common.hmi.getConnection():ExpectResponse(corId, { error = { code = 19 }})
+  common.hmi.getConnection():ExpectResponse(corId, { error = { code = activateResult }})
 end
 
 --[[ Scenario ]]
