@@ -2127,7 +2127,6 @@
         },
         "app_policies": {
             "default": {
-		"memory_kb":1500,
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NONE",
@@ -2143,7 +2142,6 @@
                 "groups": ["DataConsent-2"]
             },
             "pre_DataConsent": {
-		"memory_kb":200,
                 "keep_context": false,
                 "steal_focus": false,
                 "priority": "NORMAL",
