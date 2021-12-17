@@ -1,7 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Issue: https://github.com/SmartDeviceLink/sdl_core/issues/3838
 ---------------------------------------------------------------------------------------------------
---
 -- Description: Check that SDL does not send UI.ClosePopUp to HMI in case
 --  mobile App sends two PerformInteraction request with VR_ONLY interaction mode to SDL
 --
@@ -12,13 +11,13 @@
 -- Steps:
 -- 1. Mobile app requests PerformInteraction(VR_ONLY) to SDL
 -- 2. Mobile app requests PerformInteraction(VR_ONLY) one more time while the first one is in progress
--- 3. HMI responds with 'REJECT' to second UI/VR.PerformInteraction requests
+-- 3. HMI responds with 'REJECTED' to second UI/VR.PerformInteraction requests
 -- SDL does:
 -- - not send UI.ClosePopUp request to HMI
--- - sens PerformInteraction response with (resultCode: REJECT, success:false) to mobile App
+-- - send PerformInteraction response with (resultCode: REJECTED, success:false) to mobile App
 -- 4. HMI responds with 'SUCCESS' to first UI/VR.PerformInteraction requests
 -- SDL does:
--- - sens PerformInteraction response with choiceID from VR response (resultCode: SUCCESS, success:true) to mobile App
+-- - send PerformInteraction response with choiceID from VR response (resultCode: SUCCESS, success:true) to mobile App
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
@@ -49,7 +48,7 @@ local function setChoiceSet(pChoiceIDValue)
   local temp = {
     {
       choiceID = pChoiceIDValue,
-      menuName ="Choice" .. tostring(pChoiceIDValue),
+      menuName = "Choice" .. tostring(pChoiceIDValue),
       vrCommands = {
         "VrChoice" .. tostring(pChoiceIDValue),
       }
@@ -59,15 +58,14 @@ local function setChoiceSet(pChoiceIDValue)
 end
 
 local function createInteractionChoiceSet(pChoiceSetID)
-  local choiceID = pChoiceSetID
   local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", {
       interactionChoiceSetID = pChoiceSetID,
-      choiceSet = setChoiceSet(choiceID),
+      choiceSet = setChoiceSet(pChoiceSetID),
     })
   common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-      cmdID = choiceID,
+      cmdID = pChoiceSetID,
       type = "Choice",
-      vrCommands = { "VrChoice" .. tostring(choiceID) }
+      vrCommands = { "VrChoice" .. tostring(pChoiceSetID) }
     })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
@@ -93,9 +91,8 @@ local function sendPI(pChoiceVR, pExpResult)
 end
 
 local function PI_ViaVR_ONLY()
-
-  common.run.runAfter(function() sendPI("ChoiceVR1", "SUCCESS") end, 500)
-  common.run.runAfter(function() sendPI("ChoiceVR2", "REJECTED") end, 1000)
+  sendPI("ChoiceVR1", "SUCCESS")
+  common.run.runAfter(function() sendPI("ChoiceVR2", "REJECTED") end, 500)
   common.getHMIConnection():ExpectRequest("UI.ClosePopUp", { methodName = "UI.PerformInteraction" })
   :Times(0)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction")
@@ -116,7 +113,7 @@ local function PI_ViaVR_ONLY()
   :Do(function(exp, data)
       if exp.occurences == 1 then
       common.run.runAfter(function()
-        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+        common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
         end, 1000)
       else
         common.getHMIConnection():SendError(data.id, data.method, "REJECTED",

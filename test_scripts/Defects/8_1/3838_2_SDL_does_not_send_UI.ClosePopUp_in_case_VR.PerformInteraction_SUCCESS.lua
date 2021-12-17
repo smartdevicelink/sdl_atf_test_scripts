@@ -1,7 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- Issue: https://github.com/SmartDeviceLink/sdl_core/issues/3838
 ---------------------------------------------------------------------------------------------------
---
 -- Description: Check that SDL does not send UI.ClosePopUp to HMI in case:
 -- - mobile App sends PerformInteraction request with VR_ONLY interaction mode to SDL
 -- - HMI responds with 'SUCCESS' to VR.PerformInteraction request
@@ -16,9 +15,8 @@
 -- 3. HMI responds with 'SUCCESS' to VR.PerformInteraction request
 -- SDL does:
 -- - not send UI.ClosePopUp request to HMI
--- - sens PerformInteraction response with choiceID from VR response (resultCode: SUCCESS, success:true) to mobile App
+-- - send PerformInteraction response with choiceID from VR response (resultCode: SUCCESS, success:true) to mobile App
 ---------------------------------------------------------------------------------------------------
-
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require("user_modules/sequences/actions")
@@ -53,9 +51,7 @@ local requestParams = {
   initialText = "StartPerformInteraction",
   initialPrompt = initialPromptValue,
   interactionMode = "BOTH",
-  interactionChoiceSetIDList = {
-    100
-  },
+  interactionChoiceSetIDList = { 100 },
   helpPrompt = helpPromptValue,
   timeoutPrompt = timeoutPromptValue,
   timeout = 5000,
@@ -68,7 +64,7 @@ local function setChoiceSet(pChoiceIDValue)
   local temp = {
     {
       choiceID = pChoiceIDValue,
-      menuName ="Choice" .. tostring(pChoiceIDValue),
+      menuName = "Choice" .. tostring(pChoiceIDValue),
       vrCommands = {
         "VrChoice" .. tostring(pChoiceIDValue),
       }
@@ -113,15 +109,14 @@ local function expectOnHMIStatusWithAudioStateChanged_PI(pRequest)
 end
 
 local function createInteractionChoiceSet(pChoiceSetID)
-  local choiceID = pChoiceSetID
   local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", {
       interactionChoiceSetID = pChoiceSetID,
-      choiceSet = setChoiceSet(choiceID),
+      choiceSet = setChoiceSet(pChoiceSetID),
     })
   common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-      cmdID = choiceID,
+      cmdID = pChoiceSetID,
       type = "Choice",
-      vrCommands = { "VrChoice" .. tostring(choiceID) }
+      vrCommands = { "VrChoice" .. tostring(pChoiceSetID) }
     })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
@@ -135,11 +130,11 @@ local function PI_ViaVR_ONLY(pParams)
   common.getHMIConnection():ExpectRequest("UI.ClosePopUp")
   :Times(0)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction", {
-      helpPrompt = pParams.helpPrompt,
-      initialPrompt = pParams.initialPrompt,
-      timeout = pParams.timeout,
-      timeoutPrompt = pParams.timeoutPrompt
-    })
+    helpPrompt = pParams.helpPrompt,
+    initialPrompt = pParams.initialPrompt,
+    timeout = pParams.timeout,
+    timeoutPrompt = pParams.timeoutPrompt
+  })
   :Do(function(_, data)
       local function vrResponse()
         common.getHMIConnection():SendNotification("TTS.Started")
@@ -155,12 +150,12 @@ local function PI_ViaVR_ONLY(pParams)
     end)
 
   common.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
-      timeout = pParams.timeout,
-      vrHelp = pParams.vrHelp,
-      vrHelpTitle = pParams.initialText,
-    })
+    timeout = pParams.timeout,
+    vrHelp = pParams.vrHelp,
+    vrHelpTitle = pParams.initialText,
+  })
   :Do(function(_,data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
     end)
   expectOnHMIStatusWithAudioStateChanged_PI("VR")
   common.getMobileSession():ExpectResponse(cid, {
