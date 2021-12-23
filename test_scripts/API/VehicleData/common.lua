@@ -272,6 +272,18 @@ local function updatePreloadedPTFile(pGroup)
   actions.sdl.setPreloadedPT(pt)
 end
 
+--[[ @getResponseParamName: Handle 'clusterModeStatus' VD parameter name
+--! @parameters:
+--! pParam: name of the parameter in request
+--! @return: name of the parameter in response
+--]]
+local function getResponseParamName(pParam)
+  if pParam == "clusterModeStatus" then
+    return "clusterModes"
+  end
+  return pParam
+end
+
 --[[ @preconditions: Clean environment, optional backup and update of sdl_preloaded_pt.json file
 --! @parameters:
 --! pGroup: data for updating sdl_preloaded_pt.json file
@@ -488,12 +500,7 @@ function m.processSubscriptionRPCMultipleParams(pRPC, pParamsArray, pAppId, isRe
   local SDLResponseData = { success = true, resultCode = "SUCCESS" }
   for _, param in pairs(pParamsArray) do
     mobileRequestData[param] = true
-    local response_param
-    if param == "clusterModeStatus" then
-      response_param = "clusterModes"
-    else
-      response_param = param
-    end
+    local response_param = getResponseParamName(param)
     HMIResponseData[response_param] = {
       dataType = m.vd[param],
       resultCode = "SUCCESS"
@@ -520,8 +527,14 @@ function m.processSubscriptionRPCMultipleParams(pRPC, pParamsArray, pAppId, isRe
   end
   m.getMobileSession(pAppId):ExpectResponse(cid, SDLResponseData)
   :ValidIf(function(_, data)
-      if pDisallowedParam ~= nil and data.payload[pDisallowedParam].resultCode ~= "DISALLOWED" then
-        return false, "Disallowed param '" .. pDisallowedParam .. "' is received by App"
+      local disallowedResponseParam = getResponseParamName(pDisallowedParam)
+      if disallowedResponseParam ~= nil then
+        local msg = "Disallowed param '" .. disallowedResponseParam .. "'"
+        if data.payload[disallowedResponseParam] == nil then
+          return false, msg .. " is not received by App"
+        elseif data.payload[disallowedResponseParam].resultCode ~= "DISALLOWED" then
+          return false, msg .. " is received by App with unexpected resultCode"
+        end
       end
       return true
     end)
@@ -631,8 +644,7 @@ function m.unregisterAppWithUnsubscription(pParam, pAppId, isRequestOnHMIExpecte
     dataType = m.vd[pParam],
     resultCode = "SUCCESS"
   }
-  local responseParam = pParam
-  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
+  local responseParam = getResponseParamName(pParam)
   if isRequestOnHMIExpected == true then
     m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { [pParam] = true })
     :Do(function(_,data)
@@ -702,8 +714,7 @@ function m.registerAppWithResumption(pParam, pAppId, isRequestOnHMIExpected)
     dataType = m.vd[pParam],
     resultCode = "SUCCESS"
   }
-  local responseParam = pParam
-  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
+  local responseParam = getResponseParamName(pParam)
   m.getMobileSession(pAppId):StartService(7)
   :Do(function()
     local appParams = utils.cloneTable(actions.app.getParams(pAppId))
