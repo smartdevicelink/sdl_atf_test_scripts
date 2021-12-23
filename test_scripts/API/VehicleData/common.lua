@@ -500,7 +500,7 @@ function m.processSubscriptionRPCMultipleParams(pRPC, pParamsArray, pAppId, isRe
     }
     if param ~= pDisallowedParam then
       SDLRequestData[param] = true
-      SDLResponseData[param] = HMIResponseData[response_param]
+      SDLResponseData[response_param] = HMIResponseData[response_param]
     end
   end
   local cid = m.getMobileSession(pAppId):SendRPC(pRPC, mobileRequestData)
