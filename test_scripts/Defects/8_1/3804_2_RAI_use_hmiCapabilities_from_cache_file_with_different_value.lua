@@ -92,7 +92,7 @@ end
 
 --[[ Scenario ]]
 for p, v in utils.spairs(hmiCapabilitiesParam) do
-  for i = 1, 3 do
+  for i = 1, #v do
     runner.Title("Test case [" .. p .. "]: '" .. tostring(v[i]) .. "'")
     runner.Title("Preconditions")
     runner.Step("Clean environment", common.preconditions)
