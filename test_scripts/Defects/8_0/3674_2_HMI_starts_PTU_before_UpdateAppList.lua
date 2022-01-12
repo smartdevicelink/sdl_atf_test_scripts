@@ -68,9 +68,6 @@ local function policyTableUpdateProprietary()
       for i, _ in pairs(common.mobile.getApps()) do
         ptuTable.policy_table.app_policies[common.app.getPolicyAppId(i)] = common.ptu.getAppData(i)
       end
-      if pPTUpdateFunc then
-        pPTUpdateFunc(ptuTable)
-      end
       utils.tableToJsonFile(ptuTable, ptuFileName)
     end)
 
@@ -85,10 +82,8 @@ local function policyTableUpdateProprietary()
         if d2.payload.requestType == "PROPRIETARY" then
           common.getHMIConnection():ExpectRequest("BasicCommunication.SystemRequest", { requestType = "PROPRIETARY" })
           :Do(function(_, d3)
-              if not pExpNotificationFunc then
-                common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-                common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
-              end
+              common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+              common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
               common.getHMIConnection():SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
               common.getHMIConnection():SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = d3.params.fileName })
             end)
@@ -113,26 +108,29 @@ local function policyTableUpdateHttp()
     ptuTable.policy_table.app_policies[common.app.getPolicyAppId(i)] = common.ptu.getAppData(i)
   end
   utils.tableToJsonFile(ptuTable, ptuFileName)
-  if not pExpNotificationFunc then
-    common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-      { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(3)
-  end
-  local cid = common.getMobileSession(ptuAppNum):SendRPC("SystemRequest",
-    { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptuFileName)
-  common.getMobileSession(ptuAppNum):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  :Do(function() os.remove(ptuFileName) end)
+
+  common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
+    { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(3)
+
+  common.getMobileSession():ExpectNotification("OnSystemRequest")
+  :Do(function(_, d)
+      if d.payload.requestType == "HTTP" then
+        local cid = common.getMobileSession():SendRPC("SystemRequest",
+          { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptuFileName)
+        common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+        :Do(function() os.remove(ptuFileName) end)
+      end
+    end)
+  :Times(AtMost(2))
 end
 
 local function policyTableUpdate()
-  if pExpNotificationFunc then
-    pExpNotificationFunc()
-  end
   local policyMode = SDL.buildOptions.extendedPolicy
   if policyMode == policyModes.P or policyMode == policyModes.EP then
-    policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
+    policyTableUpdateProprietary()
   elseif policyMode == policyModes.H then
-    policyTableUpdateHttp(pPTUpdateFunc, pExpNotificationFunc)
+    policyTableUpdateHttp()
   end
 end
 
