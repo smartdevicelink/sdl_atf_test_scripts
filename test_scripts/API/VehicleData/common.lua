@@ -272,6 +272,18 @@ local function updatePreloadedPTFile(pGroup)
   actions.sdl.setPreloadedPT(pt)
 end
 
+--[[ @getResponseParamName: Handle 'clusterModeStatus' VD parameter name
+--! @parameters:
+--! pParam: name of the parameter in request
+--! @return: name of the parameter in response
+--]]
+local function getResponseParamName(pParam)
+  if pParam == "clusterModeStatus" then
+    return "clusterModes"
+  end
+  return pParam
+end
+
 --[[ @preconditions: Clean environment, optional backup and update of sdl_preloaded_pt.json file
 --! @parameters:
 --! pGroup: data for updating sdl_preloaded_pt.json file
@@ -356,13 +368,52 @@ end
 --]]
 function m.getVehicleData(pParam, pValue)
   if pValue == nil then pValue = m.vdValues[pParam] end
-  local cid = m.getMobileSession():SendRPC("GetVehicleData", { [pParam] = true })
-  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { [pParam] = true })
-  :Do(function(_, data)
-    m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [pParam] = pValue })
+  m.getVehicleDataMultipleParams({ pParam }, { pParam = pValue })
+end
+
+--[[ @getVehicleDataMultipleParams: Successful processing of GetVehicleData RPC for multiple params
+--! @parameters:
+--! pParamsArray: array of VD parameters
+--! pValueOverrides: table with data to override default test values
+--! pDisallowedParam: param which SDL is expected to exclude
+--! @return: none
+--]]
+function m.getVehicleDataMultipleParams(pParamsArray, pValueOverrides, pDisallowedParam)
+  if pValueOverrides == nil then pValueOverrides = {} end
+  local mobileRequestData = {}
+  local SDLRequestData = {}
+  local HMIResponseData = {}
+  local SDLResponseData = { success = true, resultCode = "SUCCESS" }
+  for _, param in pairs(pParamsArray) do
+    mobileRequestData[param] = true
+    if pValueOverrides[param] == nil then
+      HMIResponseData[param] = m.vdValues[param]
+    else
+      HMIResponseData[param] = pValueOverrides[param]
+    end
+    if param ~= pDisallowedParam then
+      SDLRequestData[param] = true
+      SDLResponseData[param] = HMIResponseData[param]
+    end
+  end
+  local cid = m.getMobileSession():SendRPC("GetVehicleData", mobileRequestData)
+  m.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", SDLRequestData)
+  :ValidIf(function(_, data)
+    if data.params[pDisallowedParam] ~= nil then
+      return false, "Disallowed param '" .. pDisallowedParam .. "' is received by HMI"
+    end
+    return true
   end)
-  m.getMobileSession():ExpectResponse(cid,
-    { success = true, resultCode = "SUCCESS", [pParam] = pValue })
+  :Do(function(_, data)
+    m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", HMIResponseData)
+  end)
+  m.getMobileSession():ExpectResponse(cid, SDLResponseData)
+  :ValidIf(function(_, data)
+    if data.payload[pDisallowedParam] ~= nil then
+      return false, "Disallowed param '" .. pDisallowedParam .. "' is received by App"
+    end
+    return true
+  end)
 end
 
 --[[ @processRPCFailure: Processing VehicleData RPC with ERROR resultCode
@@ -375,7 +426,28 @@ end
 --]]
 function m.processRPCFailure(pRPC, pParam, pResult, pRequestValue)
   if pRequestValue == nil then pRequestValue = true end
-  local cid = m.getMobileSession():SendRPC(pRPC, { [pParam] = pRequestValue })
+  m.processRPCFailureMultipleParams(pRPC, { pParam }, pResult, { [pParam] = pRequestValue })
+end
+
+--[[ @processRPCFailureMultipleParams: Processing VehicleData RPC with ERROR resultCode for multiple params
+--! @parameters:
+--! pRPC: RPC for mobile request
+--! pParamsArray: array of names of VD parameters
+--! pResult: expected result code
+--! pRequestValueOverrides: table with data for App request to override default test value
+--! @return: none
+--]]
+function m.processRPCFailureMultipleParams(pRPC, pParamsArray, pResult, pRequestValueOverrides)
+  if pRequestValueOverrides == nil then pRequestValueOverrides = {} end
+  local HMIRequestData = {}
+  for _, param in pairs(pParamsArray) do
+    if pRequestValueOverrides[param] == nil then
+      HMIRequestData[param] = true
+    else
+      HMIRequestData[param] = pRequestValueOverrides[param]
+    end
+  end
+  local cid = m.getMobileSession():SendRPC(pRPC, HMIRequestData)
   m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRPC):Times(0)
   m.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pResult })
 end
@@ -406,25 +478,66 @@ end
 --! @return: none
 --]]
 function m.processSubscriptionRPC(pRPC, pParam, pAppId, isRequestOnHMIExpected)
+  return m.processSubscriptionRPCMultipleParams(pRPC, { pParam }, pAppId, isRequestOnHMIExpected)
+end
+
+--[[ @processSubscriptionRPCMultipleParams: Processing SubscribeVehicleData for multiple VD params
+--! @parameters:
+--! pRPC: RPC for mobile request
+--! pParamsArray: array of names of VD parameters
+--! pAppId: application number (1, 2, etc.)
+--! isRequestOnHMIExpected: if true or omitted VI.Sub/UnsubscribeVehicleData request is expected on HMI,
+--!   otherwise - not expected
+--! pDisallowedParam: param which SDL is expected to exclude
+--! @return: none
+--]]
+function m.processSubscriptionRPCMultipleParams(pRPC, pParamsArray, pAppId, isRequestOnHMIExpected, pDisallowedParam)
   if pAppId == nil then pAppId = 1 end
   if isRequestOnHMIExpected == nil then isRequestOnHMIExpected = true end
-  local response = {
-    dataType = m.vd[pParam],
-    resultCode = "SUCCESS"
-  }
-  local responseParam = pParam
-  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
-  local cid = m.getMobileSession(pAppId):SendRPC(pRPC, { [pParam] = true })
+  local mobileRequestData = {}
+  local SDLRequestData = {}
+  local HMIResponseData = {}
+  local SDLResponseData = { success = true, resultCode = "SUCCESS" }
+  for _, param in pairs(pParamsArray) do
+    mobileRequestData[param] = true
+    local response_param = getResponseParamName(param)
+    HMIResponseData[response_param] = {
+      dataType = m.vd[param],
+      resultCode = "SUCCESS"
+    }
+    if param ~= pDisallowedParam then
+      SDLRequestData[param] = true
+      SDLResponseData[response_param] = HMIResponseData[response_param]
+    end
+  end
+  local cid = m.getMobileSession(pAppId):SendRPC(pRPC, mobileRequestData)
   if isRequestOnHMIExpected == true then
-    m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRPC, { [pParam] = true })
+    m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRPC, SDLRequestData)
+    :ValidIf(function(_, data)
+        if data.params[pDisallowedParam] ~= nil then
+          return false, "Disallowed param '" .. pDisallowedParam .. "' is received by HMI"
+        end
+        return true
+      end)
     :Do(function(_,data)
-      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [responseParam] = response })
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", HMIResponseData)
     end)
   else
     m.getHMIConnection():ExpectRequest("VehicleInfo." .. pRPC):Times(0)
   end
-  m.getMobileSession(pAppId):ExpectResponse(cid,
-    { success = true, resultCode = "SUCCESS", [responseParam] = response })
+  m.getMobileSession(pAppId):ExpectResponse(cid, SDLResponseData)
+  :ValidIf(function(_, data)
+      local disallowedResponseParam = getResponseParamName(pDisallowedParam)
+      if disallowedResponseParam ~= nil then
+        local msg = "Disallowed param '" .. disallowedResponseParam .. "'"
+        if data.payload[disallowedResponseParam] == nil then
+          return false, msg .. " is not received by App"
+        elseif data.payload[disallowedResponseParam].resultCode ~= "DISALLOWED" then
+          return false, msg .. " is received by App with unexpected resultCode"
+        end
+      end
+      return true
+    end)
   local ret = m.getMobileSession(pAppId):ExpectNotification("OnHashChange")
   :Do(function(_, data)
     m.setHashId(data.payload.hashID, pAppId)
@@ -440,11 +553,41 @@ end
 --! @return: none
 --]]
 function m.sendOnVehicleData(pParam, pExpTime, pValue)
-  if pExpTime == nil then pExpTime = 1 end
-  if pValue == nil then pValue = m.vdValues[pParam] end
-  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { [pParam] = pValue })
-  m.getMobileSession():ExpectNotification("OnVehicleData", { [pParam] = pValue })
-  :Times(pExpTime)
+  return m.sendOnVehicleDataMultipleParams({ pParam }, pExpTime, { [pParam] = pValue })
+end
+
+--[[ @sendOnVehicleDataMultipleParams: Processing OnVehicleData RPC for multiple params
+--! @parameters:
+--! pParamsArray: array of names of VD parameters
+--! pExpTimes: number of notifications (0, 1 or more)
+--! pValueOverrides: table with values of parameters to override default test values
+--! pDisallowedParam: param which SDL is expected to exclude when passing the notification to the app
+--! @return: none
+--]]
+function m.sendOnVehicleDataMultipleParams(pParamsArray, pExpTimes, pValueOverrides, pDisallowedParam)
+  if pExpTimes == nil then pExpTimes = 1 end
+  if pValueOverrides == nil then pValueOverrides = {} end
+  local HMINotificationData = {}
+  local SDLNotificationData = {}
+  for _, param in pairs(pParamsArray) do
+    if pValueOverrides[param] == nil then
+      HMINotificationData[param] = m.vdValues[param]
+    else
+      HMINotificationData[param] = pValueOverrides[param]
+    end
+    if param ~= pDisallowedParam then
+      SDLNotificationData[param] = HMINotificationData[param]
+    end
+  end
+  m.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", HMINotificationData)
+  m.getMobileSession():ExpectNotification("OnVehicleData", SDLNotificationData)
+  :Times(pExpTimes)
+  :ValidIf(function(_, data)
+      if data.payload[pDisallowedParam] ~= nil then
+        return false, "Disallowed param '" .. pDisallowedParam .. "' is received by App"
+      end
+      return true
+    end)
 end
 
 --[[ @sendOnVehicleDataTwoApps: Processing OnVehicleData RPC for two apps
@@ -501,8 +644,7 @@ function m.unregisterAppWithUnsubscription(pParam, pAppId, isRequestOnHMIExpecte
     dataType = m.vd[pParam],
     resultCode = "SUCCESS"
   }
-  local responseParam = pParam
-  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
+  local responseParam = getResponseParamName(pParam)
   if isRequestOnHMIExpected == true then
     m.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { [pParam] = true })
     :Do(function(_,data)
@@ -572,8 +714,7 @@ function m.registerAppWithResumption(pParam, pAppId, isRequestOnHMIExpected)
     dataType = m.vd[pParam],
     resultCode = "SUCCESS"
   }
-  local responseParam = pParam
-  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
+  local responseParam = getResponseParamName(pParam)
   m.getMobileSession(pAppId):StartService(7)
   :Do(function()
     local appParams = utils.cloneTable(actions.app.getParams(pAppId))
