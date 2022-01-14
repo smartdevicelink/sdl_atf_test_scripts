@@ -37,11 +37,14 @@ local resultCodes = {
 local function unsubscribeVDwithUnsuccessCodeForVD(pParam, pCode)
   local response = { dataType = common.vd[pParam], resultCode = pCode}
   local cid = common.getMobileSession():SendRPC("UnsubscribeVehicleData", { [pParam] = true })
+  local responseParam = pParam
+  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
   common.getHMIConnection():ExpectRequest("VehicleInfo.UnsubscribeVehicleData", { [pParam] = true })
   :Do(function(_,data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [pParam] = response })
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [responseParam] = response })
   end)
-  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR", [pParam] = response })
+  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "GENERIC_ERROR",
+    [responseParam] = response })
 end
 
 --[[ Scenario ]]
