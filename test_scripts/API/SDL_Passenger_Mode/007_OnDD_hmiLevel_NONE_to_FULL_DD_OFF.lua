@@ -42,13 +42,13 @@ local function registerApp()
 end
 
 local function onDriverDistractionUnsuccess()
-  common.getHMIConnection():SendNotification("UI.OnDriverDistraction", { state = "DD_OFF" })
+  common.getHMIConnection():SendNotification("UI.OnDriverDistraction", { state = "DD_OFF", lockScreenDismissalEnabled = lockScreenDismissalEnabled })
   common.getMobileSession():ExpectNotification("OnDriverDistraction")
   :Times(0)
 end
 
 local function activateApp()
-  common.expOnDriverDistraction("DD_OFF", nil)
+  common.expOnDriverDistraction("DD_OFF", lockScreenDismissalEnabled)
   common.activateApp()
 end
 
@@ -62,7 +62,7 @@ runner.Step("App registration HMI level NONE", registerApp)
 runner.Title("Test")
 runner.Step("OnDriverDistraction OFF not transfered", onDriverDistractionUnsuccess)
 runner.Step("App activation HMI level FULL", activateApp)
-runner.Step("OnDriverDistraction OFF missing", common.onDriverDistraction, { "DD_OFF", nil })
+runner.Step("OnDriverDistraction OFF missing", common.onDriverDistraction, { "DD_OFF", lockScreenDismissalEnabled })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
