@@ -20,59 +20,17 @@
 -- - send PerformInteraction response with choiceID from VR response (resultCode: SUCCESS, success:true) to mobile App
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
-local runner = require('user_modules/script_runner')
-local common = require("user_modules/sequences/actions")
+local common = require("test_scripts/Defects/8_1/3838/common")
 local utils = require('user_modules/utils')
 
---[[ Test Configuration ]]
-runner.testSettings.isSelfIncluded = false
-
 --[[ Local Variables ]]
-local function getPromptValue(pText)
-  return {
-    {
-      text = pText,
-      type = "TEXT"
-    }
-  }
-end
+local initialPromptValue = common.getPromptValue(" Make your choice ")
 
-local initialPromptValue = getPromptValue(" Make your choice ")
+local helpPromptValue = common.getPromptValue(" Help Prompt ")
 
-local helpPromptValue = getPromptValue(" Help Prompt ")
-
-local timeoutPromptValue = getPromptValue(" Time out ")
+local timeoutPromptValue = common.getPromptValue(" Time out ")
 
 --[[ Local Functions ]]
-local function setChoiceSet(pChoiceIDValue)
-  local temp = {
-    {
-      choiceID = pChoiceIDValue,
-      menuName = "Choice" .. tostring(pChoiceIDValue),
-      vrCommands = {
-        "VrChoice" .. tostring(pChoiceIDValue),
-      }
-    }
-  }
-  return temp
-end
-
-local function createInteractionChoiceSet(pChoiceSetID)
-  local cid = common.getMobileSession():SendRPC("CreateInteractionChoiceSet", {
-      interactionChoiceSetID = pChoiceSetID,
-      choiceSet = setChoiceSet(pChoiceSetID),
-    })
-  common.getHMIConnection():ExpectRequest("VR.AddCommand", {
-      cmdID = pChoiceSetID,
-      type = "Choice",
-      vrCommands = { "VrChoice" .. tostring(pChoiceSetID) }
-    })
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
-    end)
-  common.getMobileSession():ExpectResponse(cid, { resultCode = "SUCCESS", success = true })
-end
-
 local function sendPI(pChoiceVR, pExpResult)
   local params1 = {
     initialText = "StartPerformInteraction",
@@ -92,13 +50,13 @@ end
 
 local function PI_ViaVR_ONLY()
   sendPI("ChoiceVR1", "SUCCESS")
-  common.run.runAfter(function() sendPI("ChoiceVR2", "REJECTED") end, 500)
+  common.runAfter(function() sendPI("ChoiceVR2", "REJECTED") end, 500)
   common.getHMIConnection():ExpectRequest("UI.ClosePopUp", { methodName = "UI.PerformInteraction" })
   :Times(0)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction")
   :Do(function(exp, data)
       if exp.occurences == 1 then
-        common.run.runAfter(function()
+        common.runAfter(function()
           common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
             { choiceID = 100 })
           end, 1500)
@@ -112,7 +70,7 @@ local function PI_ViaVR_ONLY()
   common.getHMIConnection():ExpectRequest("UI.PerformInteraction")
   :Do(function(exp, data)
       if exp.occurences == 1 then
-      common.run.runAfter(function()
+      common.runAfter(function()
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
         end, 1000)
       else
@@ -126,15 +84,15 @@ local function PI_ViaVR_ONLY()
 end
 
 --[[ Scenario ]]
-runner.Title("Preconditions")
-runner.Step("Clean environment", common.preconditions)
-runner.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
-runner.Step("Register App", common.registerApp)
-runner.Step("Activate App", common.activateApp)
-runner.Step("CreateInteractionChoiceSet with id 100", createInteractionChoiceSet, { 100 })
+common.Title("Preconditions")
+common.Step("Clean environment", common.preconditions)
+common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
+common.Step("Register App", common.registerApp)
+common.Step("Activate App", common.activateApp)
+common.Step("CreateInteractionChoiceSet with id 100", common.createInteractionChoiceSet, { 100 })
 
-runner.Title("Test")
-runner.Step("Two PerformInteraction requests with VR_ONLY", PI_ViaVR_ONLY)
+common.Title("Test")
+common.Step("Two PerformInteraction requests with VR_ONLY", PI_ViaVR_ONLY)
 
-runner.Title("Postconditions")
-runner.Step("Stop SDL", common.postconditions)
+common.Title("Postconditions")
+common.Step("Stop SDL", common.postconditions)
