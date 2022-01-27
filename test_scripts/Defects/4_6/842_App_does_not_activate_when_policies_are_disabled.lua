@@ -36,6 +36,10 @@ local function registerApp()
           hmiAppId = d1.params.application.appID
         end)
       common.getMobileSession():ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
+      :Do(function()
+          common.getMobileSession():ExpectNotification("OnHMIStatus",
+            { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
+        end)
     end)
 end
 
