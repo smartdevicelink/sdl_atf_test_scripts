@@ -59,6 +59,8 @@ m.getHMIConnection = actions.getHMIConnection
 m.registerApp = actions.registerApp
 m.activateApp = actions.activateApp
 m.runAfter = actions.run.runAfter
+m.disconnect = actions.mobile.disconnect
+m.getHMIId = actions.app.getHMIId
 
 --[[ Common Functions ]]
 function m.log(...)
@@ -185,6 +187,21 @@ function m.startStreamingNoAnswer(pServiceType, pStartStreamingDelay, pStopStrea
     end)
   m.run.runAfter(f, pStartStreamingDelay)
   return ret
+end
+
+function m.unexpectedDisconnect(pServiceType)
+  m.disconnect()
+  m.getHMIConnection():ExpectNotification(pServiceType.notif, { available = false })
+  :Do(function(_, data) m.log(m.ld[2], data.method, data.params.available) end)
+  m.getHMIConnection():ExpectRequest(pServiceType.stopRpc, { appID = m.getHMIId() })
+  :Do(function(_, data)
+      m.log(m.ld[2], data.method)
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      m.log(m.ld[3], "SUCCESS:", data.method)
+    end)
+  m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered",
+    { appID = m.getHMIId(), unexpectedDisconnect = true })
+  :Do(function() m.log(m.ld[2], "OnAppUnregistered") end)
 end
 
 return m

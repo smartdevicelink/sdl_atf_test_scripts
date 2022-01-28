@@ -24,7 +24,7 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
-local common = require('test_scripts/Defects/8_0/common_3479')
+local common = require('test_scripts/Defects/8_0/common_3479_2810')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
