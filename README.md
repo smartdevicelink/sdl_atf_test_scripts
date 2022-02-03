@@ -60,7 +60,7 @@ This repository contains ATF scripts and data to run it.
   ```
   ATF will use the provided path to derive the location of the MOBILE_API.xml and HMI_API.xml files within the directory.
 
-  * Instead of including the path to your local SDL Core Source directory, you can alternatively include the path to your local HMI_API and MOBILE_API directories:
+  * Instead of including the path to your local SDL Core Source directory, you can alternatively include the paths to your local directories containing the HMI_API and MOBILE_API files:
 
   ```lua
   --- Define path to SDL MOBILE interface
