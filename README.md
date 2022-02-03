@@ -52,13 +52,13 @@ This repository contains ATF scripts and data to run it.
   config.pathToSDL = "/home/user/sdl_build/bin"
   ```
 
-  * Include the path to your local SDL Core Source directory (ex. `<sdl_build>/bin/`):
+  * Include the path to your local SDL Core Source directory (ex. `<sdl_core>/`):
   ```lua
   --- Define path to SDL source
   -- Example: "/home/user/sdl_core"
   config.pathToSDLSource = "<sdl_core>"
   ```
-  ATF will use this path to derive the path to the MOBILE_API.xml and HMI_API.xml files in the `<sdl_core>` directory.
+  ATF will use the provided path to derive the location of the MOBILE_API.xml and HMI_API.xml files within the directory.
 
   * Instead of including the path to your local SDL Core Source directory, you can alternatively include the path to your local HMI_API and MOBILE_API directories:
 
@@ -70,7 +70,7 @@ This repository contains ATF scripts and data to run it.
   -- Example: "/home/user/sdl_core/src/components/interfaces"
   config.pathToSDLHMIInterface = "/home/user/sdl_core/src/components/interfaces"
   ```
-  **NOTE:** If both `pathToSDLSource` and `pathToSDLMobileInterface`/`pathToSDLHMIInterface` are defined in the config file, the `pathToSDLMobileInterface`/`pathToSDLHMIInterface` will be used instead of the path derived from `pathToSDLSource`.
+  **NOTE:** If both `pathToSDLSource` and `pathToSDLMobileInterface`/`pathToSDLHMIInterface` are defined in the config file, the paths provided in `pathToSDLMobileInterface`/`pathToSDLHMIInterface` will override the paths derived from `pathToSDLSource`.
 
 
 * Run ATF.
