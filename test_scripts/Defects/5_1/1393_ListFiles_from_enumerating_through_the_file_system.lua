@@ -52,8 +52,7 @@ local function listFiles(pResult)
 end
 
 local function deleteFile()
-  local cid = common.getMobileSession():SendRPC("DeleteFile", { syncFileName = requestParams.syncFileName })
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  os.remove(common.sdl.getPathToFileInStorage("icon.png"))
 end
 
 --[[ Scenario ]]
