@@ -8,7 +8,7 @@
 -- 2) Application is registered
 -- 3) Upload the icon.png file
 -- 4) App sends the ListFiles request to the SDL and receives a response with the icon.png file from the SDL
--- 5) App sends the DeleteFile request for the icon.png file to the SDL
+-- 5) System deletes icon.png file
 -- Step:
 -- 1) App sends the ListFiles request to the SDL
 -- SDL does:
