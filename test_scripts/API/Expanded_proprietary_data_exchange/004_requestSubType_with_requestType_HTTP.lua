@@ -33,7 +33,8 @@ local function systemRequest(pParams, pFile)
   if pParams.fileName then pParams.fileName = "/tmp/fs/mp/images/ivsu_cache/" .. pParams.fileName end
   EXPECT_HMICALL("BasicCommunication.SystemRequest",pParams)
   :Times(0)
-  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+  -- will be rejected because not UPDATING
+  mobSession:ExpectResponse(cid, { success = false, resultCode = "REJECTED" })
 end
 
 --[[ Scenario ]]
