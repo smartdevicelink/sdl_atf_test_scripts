@@ -115,7 +115,7 @@ end
 --! @parameters: none
 --! @return: PTU table
 --]]
-local function getPTUFromPTS()
+function m.getPTUFromPTS()
   local pTbl = m.sdl.getPTS()
   if pTbl == nil then
     utils.cprint(35, "PTS file was not found, PreloadedPT is used instead")
@@ -644,7 +644,7 @@ local function policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
   :Do(function()
       m.hmi.getConnection():SendNotification("BasicCommunication.OnSystemRequest",
         { requestType = "PROPRIETARY", fileName = m.sdl.getPTSFilePath() })
-      local ptuTable = getPTUFromPTS()
+      local ptuTable = m.getPTUFromPTS()
       for i, _ in pairs(m.mobile.getApps()) do
         ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
       end
@@ -680,7 +680,7 @@ end
 
 local function policyTableUpdateHttp(pPTUpdateFunc, pExpNotificationFunc)
   local ptuFileName = os.tmpname()
-  local ptuTable = getPTUFromPTS()
+  local ptuTable = m.getPTUFromPTS()
   for i, _ in pairs(m.mobile.getApps()) do
     ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
   end
