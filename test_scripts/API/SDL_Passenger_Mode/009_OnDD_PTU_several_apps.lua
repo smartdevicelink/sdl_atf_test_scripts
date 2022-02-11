@@ -68,16 +68,10 @@ local function onDriverDistractionTwoApps(pLockScreenDismissalEnabled)
   common.getHMIConnection():SendNotification("UI.OnDriverDistraction", { state = "DD_OFF" })
   common.getHMIConnection():SendNotification("UI.OnDriverDistraction", { state = "DD_ON" })
   common.getMobileSession():ExpectNotification("OnDriverDistraction",
-    { state = "DD_OFF" },
+    { state = "DD_OFF", lockScreenDismissalEnabled = pLockScreenDismissalEnabled },
     { state = "DD_ON", lockScreenDismissalEnabled = pLockScreenDismissalEnabled })
   :ValidIf(function(e, d)
-      if e.occurences == 1 and d.payload.lockScreenDismissalEnabled ~= nil then
-        return false, d.payload.state .. ": " .. msg(d.payload.lockScreenDismissalEnabled)
-      end
-      return true
-    end)
-  :ValidIf(function(e, d)
-      if e.occurences == 2 and pLockScreenDismissalEnabled == nil and d.payload.lockScreenDismissalEnabled ~= nil then
+      if pLockScreenDismissalEnabled == nil and d.payload.lockScreenDismissalEnabled ~= nil then
         return false, d.payload.state .. ": " .. msg(d.payload.lockScreenDismissalEnabled)
       end
       return true
@@ -85,16 +79,10 @@ local function onDriverDistractionTwoApps(pLockScreenDismissalEnabled)
   :Times(2)
 
   common.getMobileSession(2):ExpectNotification("OnDriverDistraction",
-    { state = "DD_OFF" },
+    { state = "DD_OFF", lockScreenDismissalEnabled = pLockScreenDismissalEnabled },
     { state = "DD_ON", lockScreenDismissalEnabled = pLockScreenDismissalEnabled })
   :ValidIf(function(e, d)
-      if e.occurences == 1 and d.payload.lockScreenDismissalEnabled ~= nil then
-        return false, d.payload.state .. ": " .. msg(d.payload.lockScreenDismissalEnabled)
-      end
-      return true
-    end)
-  :ValidIf(function(e, d)
-      if e.occurences == 2 and pLockScreenDismissalEnabled == nil and d.payload.lockScreenDismissalEnabled ~= nil then
+      if pLockScreenDismissalEnabled == nil and d.payload.lockScreenDismissalEnabled ~= nil then
         return false, d.payload.state .. ": " .. msg(d.payload.lockScreenDismissalEnabled)
       end
       return true

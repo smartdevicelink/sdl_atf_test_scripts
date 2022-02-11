@@ -63,6 +63,7 @@
 ./test_scripts/Defects/5_1/2862_SDL_sends_UnsubscribeWayPoint_request_to_HMI.lua
 ./test_scripts/Defects/5_1/2874_SDL_sends_system_request_with_correlationid_-1_and_INAVLID_DATA.lua
 ./test_scripts/Defects/5_1/1002_SDL_sends_StopAudioStream_in_case_User_Exit_during_Audio_Video_streaming.lua
+./test_scripts/Defects/5_1/1393_ListFiles_from_enumerating_through_the_file_system.lua
 ;Streaming
 ./test_scripts/Defects/4_5/1912_Video_service_start_via_2_protocol.lua
 ./test_scripts/Defects/5_0/2479_SDL_does_not_respond_NACK_to_second_request/2479_1_SDL_does_not_respond_NACK_Navi_Type.lua
@@ -75,6 +76,7 @@
 ./test_scripts/Defects/4_5/1893_ATF_HeartBeat_App_does_not_send_HB_and_does_not_respond.lua
 ./test_scripts/Defects/4_5/1892_HB_from_SDL_after_receiving_HB_from_mobile.lua
 ;Remote Controol
+./test_scripts/Defects/5_0/2664_SDL_cut_off_parameters_related_to_RADIO_from_request_SetInteriorVD_CLIMATE.lua
 ./test_scripts/Defects/5_0/2670_GetInteriorVD_after_ignition_off.lua
 ./test_scripts/Defects/5_0/2670_2_GetInteriorVD_after_ignition_off.lua
 ./test_scripts/Defects/5_0/2670_3_GetInteriorVD_after_ignition_off.lua

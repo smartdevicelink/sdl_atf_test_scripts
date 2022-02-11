@@ -35,10 +35,25 @@ local function getRequestParams()
   }
 end
 
+local function getHMIRequestParams()
+  return {
+    templateConfiguration = {
+      template = "ONSCREEN_PRESETS",
+      dayColorScheme = {
+        primaryColor = {
+          red = 0,
+          green = 255,
+          blue = 100
+        }
+      }
+    }
+  }
+end
+
 local function setDisplayWithColorsSuccess()
   local responseParams = {}
   local cid = commonSmoke.getMobileSession():SendRPC("SetDisplayLayout", getRequestParams())
-  EXPECT_HMICALL("UI.SetDisplayLayout", getRequestParams())
+  EXPECT_HMICALL("UI.Show", getHMIRequestParams())
   :Do(function(_, data)
     commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
   end)
@@ -51,7 +66,7 @@ end
 local function setDisplayWithSameColorsSuccess()
   local responseParams = {}
   local cid = commonSmoke.getMobileSession():SendRPC("SetDisplayLayout", getRequestParams())
-  EXPECT_HMICALL("UI.SetDisplayLayout", getRequestParams())
+  EXPECT_HMICALL("UI.Show", getHMIRequestParams())
   :Do(function(_, data)
     commonSmoke.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
   end)

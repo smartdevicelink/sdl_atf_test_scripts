@@ -369,8 +369,8 @@ function module.getDefaultHMITable()
         }
       },
       pcmStreamCapabilities = {
-        samplingRate = "44KHZ",
-        bitsPerSample = "8_BIT",
+        samplingRate = "16KHZ",
+        bitsPerSample = "16_BIT",
         audioType = "PCM"
       },
       hmiZoneCapabilities = "FRONT",

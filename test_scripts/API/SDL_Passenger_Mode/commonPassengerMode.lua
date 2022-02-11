@@ -29,16 +29,11 @@ end
 function c.expOnDriverDistraction(pState, pLockScreenDismissalEnabled, pAppId)
   c.getMobileSession(pAppId):ExpectNotification("OnDriverDistraction", { state = pState })
   :ValidIf(function(_, d)
-      if d.payload.state == "DD_OFF" and d.payload.lockScreenDismissalEnabled ~= nil then
+      if pLockScreenDismissalEnabled == nil and d.payload.lockScreenDismissalEnabled ~= nil then
         return false, d.payload.state .. ": Parameter `lockScreenDismissalEnabled` is not expected"
       end
-      if d.payload.state == "DD_ON" then
-        if pLockScreenDismissalEnabled == nil and d.payload.lockScreenDismissalEnabled ~= nil then
-          return false, d.payload.state .. ": Parameter `lockScreenDismissalEnabled` is not expected"
-        end
-        if pLockScreenDismissalEnabled ~= d.payload.lockScreenDismissalEnabled then
-          return false, d.payload.state .. ": Parameter `lockScreenDismissalEnabled` is not the same as expected"
-        end
+      if pLockScreenDismissalEnabled ~= d.payload.lockScreenDismissalEnabled then
+        return false, d.payload.state .. ": Parameter `lockScreenDismissalEnabled` is not the same as expected"
       end
       return true
     end)
