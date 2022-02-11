@@ -1738,7 +1738,7 @@ local function TC_APPLINK_18428_AppPermissionIsNull()
 		EXPECT_HMINOTIFICATION("SDL.OnAppPermissionChanged", {appID = self.applications["AppNullPermission"], appRevoked =  true, priority = "EMERGENCY"})
 			:Do(function(_,data)
 				--hmi side: sending SDL.GetUserFriendlyMessage request to SDL
-				local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"AppUnsupported"}})
+				local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage", {language = "EN-US", messageCodes = {"AppUnauthorized"}})
 			
 				--hmi side: expect BC.ActivateApp 
 				EXPECT_HMICALL("BasicCommunication.ActivateApp",{appID=self.applications["AppNullPermission"],level="NONE",priority="NONE"})
@@ -1752,10 +1752,10 @@ local function TC_APPLINK_18428_AppPermissionIsNull()
 					self.hmiConnection:SendResponse(data.id,data.method, "SUCCESS",{})
 				end)	
 				EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage,{result = {code = 0, method = "SDL.GetUserFriendlyMessage", messages = {{
-												line1 = "Not Supported", 
-												messageCode = "AppUnsupported", 
-												textBody = "Your version of %appName% is not supported by SYNC.",
-												ttsString = "This version of %appName% is not supported by SYNC."}}}})
+												line1 = "Not Authorized",
+												messageCode = "AppUnauthorized",
+												textBody = "This version of %appName% is no longer authorized to work with AppLink. Please update to the latest version of %appName%.",
+												ttsString = "This version of %appName% is not authorized and will not work with SYNC."}}}})
 			end)
 		--mobile side: expect notification
 		EXPECT_NOTIFICATION("OnHMIStatus", {hmiLevel = "NONE", systemContext = "MAIN"}) 
