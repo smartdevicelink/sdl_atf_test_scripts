@@ -73,7 +73,6 @@ local function PI_ViaBOTH(pParams)
       common.sendOnSystemContext("VRSESSION")
       local function firstSpeakTimeOut()
         common.getHMIConnection():SendNotification("TTS.Stopped")
-        common.getHMIConnection():SendNotification("TTS.Started")
       end
       common.runAfter(firstSpeakTimeOut, 5)
       local function vrResponse()
@@ -98,7 +97,6 @@ local function PI_ViaBOTH(pParams)
       end
       common.runAfter(choiceIconDisplayed, 2050)
       local function uiResponse()
-        common.getHMIConnection():SendNotification("TTS.Stopped")
         common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",
           { choiceID = pParams.interactionChoiceSetIDList[1] })
         common.sendOnSystemContext("MAIN")

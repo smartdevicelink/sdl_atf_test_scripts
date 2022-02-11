@@ -59,11 +59,10 @@ function m.expectOnHMIStatusWithAudioStateChanged_PI(pRequest)
     actions.getMobileSession():ExpectNotification("OnHMIStatus",
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" },
       { hmiLevel = "FULL", audioStreamingState = "NOT_AUDIBLE", systemContext = "VRSESSION" },
-      { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "VRSESSION" },
-      { hmiLevel = "FULL", audioStreamingState = "ATTENUATED", systemContext = "HMI_OBSCURED" },
+      { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "VRSESSION" },
       { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" },
       { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-    :Times(6)
+    :Times(5)
   elseif pRequest == "VR" then
     actions.getMobileSession():ExpectNotification("OnHMIStatus",
       { systemContext = "MAIN", hmiLevel = "FULL", audioStreamingState = "ATTENUATED" },
