@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Issue: https://github.com/smartdevicelink/sdl_core/issues/3845
 ---------------------------------------------------------------------------------------------------
--- Description: SDL responds with success=false to mobile app in case of receiving the next result codes from HMI
+-- Description: SDL responds with success = true to mobile app in case of receiving the next result codes from HMI
 -- in error structure: "UNSUPPORTED_RESOURCE", "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "TRUNCATED_DATA"
 --
 -- Steps:
@@ -12,7 +12,7 @@
 -- 5. HMI responds to UI.PerformAudioPassThru request in error structure with one of result code:
 --  "UNSUPPORTED_RESOURCE", "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "TRUNCATED_DATA"
 -- SDL does:
--- - send PerformAudioPassThru(resultCode = <received result code>, success = false) response to mobile app
+-- - send PerformAudioPassThru(resultCode = <received result code>, success = true) response to mobile app
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -31,14 +31,13 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for tc, resultCode in ipairs(common.tcs) do
-  local resultCodes = {
-    speak = "SUCCESS",
-    performAudioPassThru = resultCode,
+  local responses = {
+    speak = { code = "SUCCESS", structure = common.responsesStructures.result },
+    performAudioPassThru = { code = resultCode, structure = common.responsesStructures.error },
     general = resultCode
   }
   runner.Title("Test case [" .. string.format("%02d", tc) .. "]: '" .. tostring(resultCode) .. "'")
-  runner.Step("PerformAudioPassThru response with success=false", common.performAudioPassThruErrorResponse,
-    { resultCodes })
+  runner.Step("PerformAudioPassThru response with success=true", common.performAudioPassThru, { responses })
 end
 
 runner.Title("Postconditions")

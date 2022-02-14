@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Issue: https://github.com/smartdevicelink/sdl_core/issues/3845
 ---------------------------------------------------------------------------------------------------
--- Description: SDL responds with success = false to mobile app in case
+-- Description: SDL responds with success = true to mobile app in case
 -- HMI responds with not "SUCCESS" result code to TTS.Speak and UI.PerformAudioPassThru requests
 -- in error structure
 --
@@ -12,7 +12,7 @@
 -- 4. HMI responds to TTS.Speak and UI.PerformAudioPassThr requests in error structure with one of result code:
 --  "UNSUPPORTED_RESOURCE", "WARNINGS", "RETRY", "SAVED", "WRONG_LANGUAGE", "TRUNCATED_DATA"
 -- SDL does:
--- - send PerformAudioPassThru(resultCode = <result code received for UI part>, success = false) response to mobile app
+-- - send PerformAudioPassThru(resultCode = <result code received for UI part>, success = true) response to mobile app
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -32,14 +32,13 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 for _, resultCodeUI in ipairs(common.tcs) do
   for _, resultCodeSpeak in ipairs(common.tcs) do
-    local resultCodes = {
-      speak = resultCodeSpeak,
-      performAudioPassThru = resultCodeUI,
+    local responses = {
+      speak = { code = resultCodeSpeak, structure = common.responsesStructures.error },
+      performAudioPassThru = { code = resultCodeUI, structure = common.responsesStructures.error },
       general = resultCodeUI
     }
     runner.Title("Test case: '" .. tostring(resultCodeSpeak) .. "' to tts, '" .. tostring(resultCodeUI) .. "' to ui")
-    runner.Step("PerformAudioPassThru response with success=false", common.performAudioPassThruErrorResponse,
-      { resultCodes })
+    runner.Step("PerformAudioPassThru response with success=true", common.performAudioPassThru, { responses })
   end
 end
 

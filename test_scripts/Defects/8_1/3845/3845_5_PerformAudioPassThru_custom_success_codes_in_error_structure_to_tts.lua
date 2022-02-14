@@ -31,13 +31,13 @@ runner.Step("Activate App", common.activateApp)
 
 runner.Title("Test")
 for tc, resultCode in ipairs(common.tcs) do
-  local resultCodes = {
-    speak = resultCode,
-    performAudioPassThru = "SUCCESS",
+  local responses = {
+    speak = { code = resultCode, structure = common.responsesStructures.error },
+    performAudioPassThru = { code = "SUCCESS", structure = common.responsesStructures.result },
     general = "WARNINGS"
   }
   runner.Title("Test case [" .. string.format("%02d", tc) .. "]: '" .. tostring(resultCode) .. "'")
-  runner.Step("PerformAudioPassThru response with success=true", common.performAudioPassThruErrorSpeak, { resultCodes })
+  runner.Step("PerformAudioPassThru response with success=true", common.performAudioPassThru, { responses })
 end
 
 runner.Title("Postconditions")

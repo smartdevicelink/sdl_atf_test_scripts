@@ -31,6 +31,11 @@ m.tcs = {
   [06] = "TRUNCATED_DATA"
 }
 
+m.responsesStructures = {
+  result = function(data, code) m.getHMIConnection():SendResponse(data.id, data.method, code, {}) end,
+  error = function(data, code) m.getHMIConnection():SendError(data.id, data.method, code, "Error message") end
+}
+
 --[[ Local Variables ]]
 local requestParams = {
   initialPrompt = {
@@ -70,14 +75,14 @@ local function sendOnSystemContext(pCtx)
   m.getHMIConnection():SendNotification("UI.OnSystemContext", { appID = m.getHMIAppId(), systemContext = pCtx })
 end
 
-function m.performAudioPassThru(pResultCodes)
+function m.performAudioPassThru(pResult)
   local cid = m.getMobileSession():SendRPC("PerformAudioPassThru", allParams.requestParams)
   allParams.requestUIparams.appID = m.getHMIAppId()
   m.getHMIConnection():ExpectRequest("TTS.Speak", allParams.requestTTSparams)
   :Do(function(_, data)
       m.getHMIConnection():SendNotification("TTS.Started")
       local function ttsSpeakResponse()
-        m.getHMIConnection():SendResponse(data.id, data.method, pResultCodes.speak, {})
+        pResult.speak.structure(data, pResult.speak.code)
         m.getHMIConnection():SendNotification("TTS.Stopped")
       end
       m.runAfter(ttsSpeakResponse, 100)
@@ -86,7 +91,7 @@ function m.performAudioPassThru(pResultCodes)
   :Do(function(_, data)
       sendOnSystemContext("HMI_OBSCURED", allParams.requestUIparams.appID)
       local function uiResponse()
-        m.getHMIConnection():SendResponse(data.id, data.method, pResultCodes.performAudioPassThru, {})
+        pResult.performAudioPassThru.structure(data, pResult.performAudioPassThru.code)
         sendOnSystemContext("MAIN", allParams.requestUIparams.appID)
       end
       m.runAfter(uiResponse, 1500)
@@ -99,52 +104,7 @@ function m.performAudioPassThru(pResultCodes)
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
   :Times(4)
   m.getMobileSession():ExpectNotification("OnAudioPassThru")
-  m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = pResultCodes.general })
-  :ValidIf(function()
-      if utils.isFileExist(m.SDLStoragePath("audio.wav")) ~= true then
-        return false, "Can not found file: audio.wav"
-      end
-      return true
-    end)
-end
-
-function m.performAudioPassThruErrorResponse(pResultCodes)
-  local cid = m.getMobileSession():SendRPC("PerformAudioPassThru", allParams.requestParams)
-  allParams.requestUIparams.appID = m.getHMIAppId()
-  m.getHMIConnection():ExpectRequest("TTS.Speak", allParams.requestTTSparams)
-  :Do(function(_, data)
-      m.getHMIConnection():SendError(data.id, data.method, pResultCodes.speak, "Error message")
-    end)
-  m.getHMIConnection():ExpectRequest("UI.PerformAudioPassThru", allParams.requestUIparams)
-  :Do(function(_, data)
-      m.getHMIConnection():SendError(data.id, data.method,  pResultCodes.performAudioPassThru, "Error message")
-    end)
-  m.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pResultCodes.general })
-end
-
-function m.performAudioPassThruErrorSpeak(pResultCodes)
-  local cid = m.getMobileSession():SendRPC("PerformAudioPassThru", allParams.requestParams)
-  allParams.requestUIparams.appID = m.getHMIAppId()
-  m.getHMIConnection():ExpectRequest("TTS.Speak", allParams.requestTTSparams)
-  :Do(function(_, data)
-      m.getHMIConnection():SendResponse(data.id, data.method, pResultCodes.speak, {})
-    end)
-  m.getHMIConnection():ExpectRequest("UI.PerformAudioPassThru", allParams.requestUIparams)
-  :Do(function(_, data)
-      sendOnSystemContext("HMI_OBSCURED", allParams.requestUIparams.appID)
-      local function uiResponse()
-        m.getHMIConnection():SendResponse(data.id, data.method, pResultCodes.performAudioPassThru, {})
-        sendOnSystemContext("MAIN", allParams.requestUIparams.appID)
-      end
-      m.runAfter(uiResponse, 1500)
-    end)
-  m.getHMIConnection():ExpectNotification("UI.OnRecordStart", { appID = m.getHMIAppId() })
-  m.getMobileSession():ExpectNotification("OnHMIStatus",
-    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" }, -- after PerformAudioPassThruResponse before OnSysCtx(MAIN)
-    { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
-  :Times(2)
-  m.getMobileSession():ExpectNotification("OnAudioPassThru")
-  m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = pResultCodes.general })
+  m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = pResult.general })
   :ValidIf(function()
       if utils.isFileExist(m.SDLStoragePath("audio.wav")) ~= true then
         return false, "Can not found file: audio.wav"

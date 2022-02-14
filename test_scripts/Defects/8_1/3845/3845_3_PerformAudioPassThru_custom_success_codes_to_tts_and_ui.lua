@@ -32,13 +32,13 @@ runner.Step("Activate App", common.activateApp)
 runner.Title("Test")
 for _, resultCodeUI in ipairs(common.tcs) do
   for _, resultCodeSpeak in ipairs(common.tcs) do
-    local resultCodes = {
-      speak = resultCodeSpeak,
-      performAudioPassThru = resultCodeUI,
+    local responses = {
+      speak = { code = resultCodeSpeak, structure = common.responsesStructures.result },
+      performAudioPassThru = { code = resultCodeUI, structure = common.responsesStructures.result },
       general = resultCodeUI
     }
     runner.Title("Test case: '" .. tostring(resultCodeSpeak) .. "' to tts, '" .. tostring(resultCodeUI) .. "' to ui")
-    runner.Step("PerformAudioPassThru response with success=true", common.performAudioPassThru, { resultCodes })
+    runner.Step("PerformAudioPassThru response with success=true", common.performAudioPassThru, { responses })
   end
 end
 
