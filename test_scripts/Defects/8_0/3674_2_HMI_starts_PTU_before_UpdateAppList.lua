@@ -29,6 +29,8 @@ local policyModes = {
   H  = "HTTP"
 }
 
+local propEvent = common.run.createEvent()
+
 --[[ Local Functions ]]
 local function getPTUFromPTS()
   local pTbl = common.sdl.getPTS()
@@ -71,15 +73,11 @@ local function policyTableUpdateProprietary()
       utils.tableToJsonFile(ptuTable, ptuFileName)
     end)
 
-
-  local lsEvent = common.run.createEvent()
-  common.getHMIConnection():ExpectEvent(lsEvent, "Lock Screen URL event")
   local ptuEvent = common.run.createEvent()
   common.getHMIConnection():ExpectEvent(ptuEvent, "PTU event")
   for id, _ in pairs(common.mobile.getApps()) do
-    common.getMobileSession(id):ExpectNotification("OnSystemRequest")
-    :Do(function(_, d2)
-        if d2.payload.requestType == "PROPRIETARY" then
+    common.getHMIConnection():ExpectEvent(propEvent, "PROPRIETARY")
+    :Do(function()
           common.getHMIConnection():ExpectRequest("BasicCommunication.SystemRequest", { requestType = "PROPRIETARY" })
           :Do(function(_, d3)
               common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
@@ -93,11 +91,7 @@ local function policyTableUpdateProprietary()
             requestType = "PROPRIETARY" }, ptuFileName)
           common.getMobileSession(id):ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
           :Do(function() os.remove(ptuFileName) end)
-        elseif d2.payload.requestType == "LOCK_SCREEN_ICON_URL" then
-          common.getHMIConnection():RaiseEvent(lsEvent, "Lock Screen URL event")
-        end
       end)
-    :Times(AtMost(2))
   end
 end
 
@@ -137,6 +131,7 @@ end
 local function registerAppWithPTU(pAppId, pMobConnId)
   if not pAppId then pAppId = 1 end
   if not pMobConnId then pMobConnId = 1 end
+
   local session = common.mobile.createSession(pAppId, pMobConnId)
   session:StartService(7)
   :Do(function()
@@ -153,6 +148,20 @@ local function registerAppWithPTU(pAppId, pMobConnId)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           session:ExpectNotification("OnPermissionsChange")
           :Times(AnyNumber())
+          local policyMode = SDL.buildOptions.extendedPolicy
+          if policyMode == policyModes.P or policyMode == policyModes.EP then
+            local lsEvent = common.run.createEvent()
+            common.getHMIConnection():ExpectEvent(lsEvent, "Lock Screen URL event")
+            session:ExpectNotification("OnSystemRequest")
+            :Do(function(_, d2)
+                if d2.payload.requestType == "LOCK_SCREEN_ICON_URL" then
+                  common.getHMIConnection():RaiseEvent(lsEvent, "Lock Screen URL event")
+                elseif d2.payload.requestType == "PROPRIETARY" then
+                  common.getHMIConnection():RaiseEvent(propEvent, "PROPRIETARY")
+                end
+              end)
+            :Times(2)
+          end
         end)
     end)
 end
