@@ -24,7 +24,7 @@ local function sendSetDisplayLayout()
     displayLayout = "Layout1"
   }
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", params)
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout")
+  common.getHMIConnection():ExpectRequest("UI.Show")
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)

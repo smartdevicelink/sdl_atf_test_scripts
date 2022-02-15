@@ -28,10 +28,6 @@ local params = {
   fileName = "action.png"
 }
 
-local paramsProprietary = {
-  requestType = "PROPRIETARY",
-  fileName = "action.png"
-}
 --[[ Local Functions ]]
 local function ptuFuncRPC(tbl)
 	tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].RequestType = nil
@@ -61,12 +57,8 @@ runner.Title("Test")
 runner.Step("Policy table update", policyUpdate)
 runner.Step("SystemRequest with request type OEM_SPECIFIC", common.systemRequest,
   {params, usedFile})
-runner.Step("SystemRequest with request type PROPRIETARY", common.systemRequest,
-  {paramsProprietary, usedFile})
 runner.Step("onSystemRequest with request type OEM_SPECIFIC", common.onSystemRequest,
   {params})
-runner.Step("onSystemRequest with request type PROPRIETARY", common.onSystemRequest,
-  {paramsProprietary})
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

@@ -38,7 +38,7 @@ local params = {
 --[[ Local Functions ]]
 local function sendSetDisplayLayout_UNSUCCESS_noHMIResponse()
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", params)
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout")
+  common.getHMIConnection():ExpectRequest("UI.Show")
   :Do(function()
       -- no response from HMI
     end)
@@ -47,7 +47,7 @@ end
 
 local function sendSetDisplayLayout_UNSUCCESS_errorHMIResponse()
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", params)
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout")
+  common.getHMIConnection():ExpectRequest("UI.Show")
   :Do(function(_, data)
       common.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "Error code")
     end)
@@ -56,7 +56,7 @@ end
 
 local function sendSetDisplayLayout_UNSUCCESS_invalidHMIResponse()
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", params)
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout")
+  common.getHMIConnection():ExpectRequest("UI.Show")
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, 123, "SUCCESS", {}) -- invalid method
     end)
