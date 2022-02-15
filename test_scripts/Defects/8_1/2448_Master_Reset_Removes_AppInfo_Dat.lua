@@ -13,7 +13,6 @@
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local runner = require("user_modules/script_runner")
---local common = require("user_modules/sequences/actions")
 local common = require("test_scripts/Smoke/commonSmoke")
 
 --[[ Test Configuration ]]
@@ -27,7 +26,7 @@ local function checkAppInfoWasCleared()
   
   local f=io.open(name,"r")
   if f ~= nil then 
- 		io.close(f)
+    io.close(f)
     common.run.fail("App Info file was not cleared after MASTER_RESET")
   end
 end
