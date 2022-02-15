@@ -103,13 +103,17 @@ end
 
 function Test:TestStep_SDL_Allow_SystemRequest_Of_PROPRIETARY_Type()
 
-  local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {fileName = "PolicyTableUpdate", requestType = "PROPRIETARY"}, "files/icon.png")
-  EXPECT_HMICALL("BasicCommunication.SystemRequest")
-  :Do(function(_,data)
-      self.hmiConnection:SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
-    end)
-  self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
+  self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = self.applications["App_1"] })
 
+  self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
+  :Do(function()
+    local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest", {fileName = "PolicyTableUpdate", requestType = "PROPRIETARY"}, "files/icon.png")
+    EXPECT_HMICALL("BasicCommunication.SystemRequest")
+    :Do(function(_,data)
+        self.hmiConnection:SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
+      end)
+    self.mobileSession:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
+  end)
 end
 
 function Test:TestStep_SDL_Disallow_SystemRequest_Of_HTTP_Type()

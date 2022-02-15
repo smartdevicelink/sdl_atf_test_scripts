@@ -37,11 +37,8 @@ local param = {
 --[[ Local Functions ]]
 local function rpcUnencryptedEncryptionNotRequired()
   local cid = common.getMobileSession():SendRPC("SystemRequest", param, file)
-  common.getHMIConnection():ExpectRequest("BasicCommunication.SystemRequest")
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
-    end)
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+  -- REJECTED because not UPDATING
+  common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = "REJECTED"})
 end
 
 local function rpcUnencryptedEncryptionRequired()
@@ -51,11 +48,8 @@ end
 
 local function rpcEncryptedEncryptionRequired()
   local cid = common.getMobileSession():SendEncryptedRPC("SystemRequest", param, file)
-  common.getHMIConnection():ExpectRequest("BasicCommunication.SystemRequest")
-  :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id,"BasicCommunication.SystemRequest", "SUCCESS", {})
-    end)
-  common.getMobileSession():ExpectEncryptedResponse(cid, { success = true, resultCode = "SUCCESS"})
+  -- REJECTED because not UPDATING
+  common.getMobileSession():ExpectEncryptedResponse(cid, { success = false, resultCode = "REJECTED"})
 end
 
 --[[ Scenario ]]

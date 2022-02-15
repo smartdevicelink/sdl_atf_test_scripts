@@ -1,4 +1,5 @@
 ./test_scripts/Defects/7_1/1583_PerformInteraction_UNSUPPORTED_and_ABORTED_response_success.lua
+./test_scripts/Defects/7_1/1585_AlertManeuver_UNSUPPORTED_RESOURCE_response_success.lua
 ./test_scripts/Defects/7_1/1596_1_VRPerformInteraction_UNSUPPORTED_RESOURCE_success.lua
 ./test_scripts/Defects/7_1/1596_2_UIPerformInteraction_UNSUPPORTED_RESOURCE_success.lua
 ./test_scripts/Defects/7_1/1597_1_Alert_Unsupported_Speech_Type.lua
