@@ -624,7 +624,7 @@ function m.ptu.expectStart()
           if d3.payload.requestType == "HTTP" then
             utils.cprint(35, "App ".. appNum .. " will be used for PTU")
             ptuAppNum = appNum
-            if d3.binaryData ~= nil then
+            if d3.binaryData ~= nil and #d3.binaryData > 0 then
               pts = m.json.decode(d3.binaryData)
             end
             raisePtuEvent()

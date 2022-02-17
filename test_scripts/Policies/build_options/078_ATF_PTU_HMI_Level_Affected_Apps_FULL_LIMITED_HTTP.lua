@@ -177,20 +177,24 @@ end
 
 function Test:TestStep_UpdatePolicyAfterAddSecondApp_ExpectOnHMIStatusNotCall()
 
-  local CorIdSystemRequest = self.mobileSession1:SendRPC("SystemRequest",
+  self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "HTTP", fileName = "PolicyTableUpdate", appID = self.applications["App_1"] })
+  self.mobileSession1:ExpectNotification("OnSystemRequest", { requestType = "HTTP" })
+  :Do(function()
+    local CorIdSystemRequest = self.mobileSession1:SendRPC("SystemRequest",
     {
       requestType = "HTTP",
       fileName = "ptu2app.json",
     },"files/ptu2app.json")
-  self.mobileSession1:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
-
-  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
-
-  self.mobileSession1:ExpectNotification("OnPermissionsChange")
-  -- Expect after updating HMI status will not change
-  self.mobileSession1:ExpectNotification("OnHMIStatus"):Times(0)
-  self.mobileSession:ExpectNotification("OnHMIStatus"):Times(0)
-  commonTestCases:DelayedExp(10000)
+    self.mobileSession1:ExpectResponse(CorIdSystemRequest, {success = true, resultCode = "SUCCESS"})
+    
+    EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"})
+    
+    self.mobileSession1:ExpectNotification("OnPermissionsChange")
+    -- Expect after updating HMI status will not change
+    self.mobileSession1:ExpectNotification("OnHMIStatus"):Times(0)
+    self.mobileSession:ExpectNotification("OnHMIStatus"):Times(0)
+    commonTestCases:DelayedExp(10000)
+  end)
 end
 
 --[[ Postconditions ]]

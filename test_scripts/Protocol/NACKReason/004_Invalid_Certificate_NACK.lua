@@ -43,6 +43,7 @@ local common = require("test_scripts/Protocol/commonProtocol")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 config.defaultProtocolVersion = 5
 
 --[[ Local Variables ]]
@@ -91,7 +92,7 @@ local function setUpdating()
   odometerValue = odometerValue + 20
   common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { odometer = odometerValue })
   common.hmi.getConnection():ExpectNotification("SDL.OnStatusUpdate",
-    { status = "UPDATE_NEEDED" })
+    { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(AtLeast(1))
 end
 
 --[[ Scenario ]]
