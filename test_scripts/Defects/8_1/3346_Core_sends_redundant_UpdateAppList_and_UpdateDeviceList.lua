@@ -38,11 +38,13 @@ local function checkAppListUpdates()
 
             if isDifferent then duplicateAppUpdates = duplicateAppUpdates + 1 else duplicateAppUpdates = 0 end
             previousAppList = appList
-            local info = "Duplicate app list updates were received"
-            local isValid = duplicateAppUpdates <= 1 --Workaround, sometimes a single duplicate app list update 
-                                                     --can happen when a new app connects
 
-            return isValid, (not isValid) and info or nil
+            --Workaround, sometimes a single duplicate app list update can happen when a new app connects
+            if duplicateAppUpdates > 1 then
+                return false, "Duplicate app list updates were received"
+            else
+                return true
+            end
         end)
 
     local previousDeviceList = nil
@@ -50,14 +52,17 @@ local function checkAppListUpdates()
         :ValidIf(function(_, data)
             local deviceList = data.params.deviceList
 
-            local isValid = true
+            local isDifferent = true
             if previousDeviceList ~= nil then
-                isValid = not compareValues(deviceList, previousDeviceList, "deviceList")
+                isDifferent = not compareValues(deviceList, previousDeviceList, "deviceList")
             end
             previousDeviceList = deviceList
 
-            local info = "Duplicate device list updates were received"
-            return isValid, (not isValid) and info or nil
+            if isDifferent then
+                return true
+            else
+                return false, "Duplicate device list updates were received"
+            end
         end)
 
     commonTestCases:DelayedExp(60000)
