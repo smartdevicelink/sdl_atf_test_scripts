@@ -92,7 +92,7 @@ local function setUpdating()
   odometerValue = odometerValue + 20
   common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { odometer = odometerValue })
   common.hmi.getConnection():ExpectNotification("SDL.OnStatusUpdate",
-    { status = "UPDATE_NEEDED" }, { status = "UPDATING" }):Times(AtLeast(1))
+    { status = "UPDATE_NEEDED" })
 end
 
 --[[ Scenario ]]
