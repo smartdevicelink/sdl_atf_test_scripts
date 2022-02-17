@@ -276,10 +276,10 @@ function Test:Test_PTU_2()
   self.mobileSession2:ExpectNotification("OnSystemRequest", { requestType = "HTTP" })
   :Do(function()
     ptu(self, 2)
-    commonTestCases:DelayedExp(10000)
   end)
   self["mobileSession1"]:ExpectNotification("OnHMIStatus"):Times(0)
   self["mobileSession2"]:ExpectNotification("OnHMIStatus"):Times(0)
+  commonTestCases:DelayedExp(10000)
 end
 
 function Test:Test_UP_TO_DATE()
