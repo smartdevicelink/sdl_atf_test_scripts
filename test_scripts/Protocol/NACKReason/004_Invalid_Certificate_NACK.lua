@@ -43,6 +43,7 @@ local common = require("test_scripts/Protocol/commonProtocol")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 config.defaultProtocolVersion = 5
 
 --[[ Local Variables ]]
