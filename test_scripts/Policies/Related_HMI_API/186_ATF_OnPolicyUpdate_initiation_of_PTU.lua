@@ -112,7 +112,7 @@ function Test:Precondtion_Activate_App_Consent_Update()
                     {
                       policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate"
                     })
-                  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}):Timeout(500)
+                  EXPECT_HMINOTIFICATION("SDL.OnStatusUpdate", {status = "UP_TO_DATE"}):Timeout(1000)
                 end)
             end)
         end)
