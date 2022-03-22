@@ -416,3 +416,5 @@
 ./test_scripts/Policies/Validation_of_PolicyTables/312_ATF_Check_count_of_removals_for_bad_behavior_too_many_requests.lua
 ./test_scripts/Policies/Validation_of_PolicyTables/313_ATF_Check_count_of_rpcs_sent_in_hmi_none.lua
 ./test_scripts/Policies/Validation_of_PolicyTables/314_ATF_Check_count_of_user_selections.lua
+./test_scripts/Policies/Policy_Table_Update/173_PTU_when_not_UPDATING.lua
+./test_scripts/Policies/Policy_Table_Update/174_PTU_from_wrong_app.lua
