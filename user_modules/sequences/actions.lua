@@ -643,7 +643,7 @@ local function policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
   m.hmi.getConnection():ExpectResponse(requestId)
   :Do(function()
       m.hmi.getConnection():SendNotification("BasicCommunication.OnSystemRequest",
-        { requestType = "PROPRIETARY", fileName = m.sdl.getPTSFilePath() })
+        { requestType = "PROPRIETARY", fileName = m.sdl.getPTSFilePath(), url = "http://x.x.x.x:3000/api/1/policies/proprietary" })
       local ptuTable = m.getPTUFromPTS()
       for i, _ in pairs(m.mobile.getApps()) do
         ptuTable.policy_table.app_policies[m.app.getPolicyAppId(i)] = m.ptu.getAppData(i)
