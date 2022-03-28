@@ -33,7 +33,7 @@ function common.sendResponse(pData, pErrorRespInterface, pCurrentInterface)
     common.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", common.getSuccessHMIResponseData(pData))
   end
   if pErrorRespInterface ~= nil and pErrorRespInterface == pCurrentInterface then
-    common.run.runAfter(response, 11000)
+    common.run.runAfter(response, common.defaultTimeoutWithCompensation + 1000)
   else
     response()
   end
