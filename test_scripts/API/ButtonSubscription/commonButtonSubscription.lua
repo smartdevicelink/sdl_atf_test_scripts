@@ -343,6 +343,7 @@ function m.reRegisterAppSuccess(pAppId, pCheckResumptionData, pExpTime)
       local params = m.cloneTable(m.getConfigAppParams(pAppId))
       params.hashID = m.hashId[pAppId]
       local corId = mobSession:SendRPC("RegisterAppInterface", params)
+      mobSession:ExpectNotification("OnHMIStatus", { hmiLevel = "NONE" }, { hmiLevel = "FULL" }):Times(2)
       m.getHMIConnection():ExpectNotification("BasicCommunication.OnAppRegistered",
         { application = { appName = m.getConfigAppParams(pAppId).appName } })
       mobSession:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
