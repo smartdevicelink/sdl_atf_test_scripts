@@ -36,11 +36,13 @@ local resultCodes = {
 local function subscribeToVDwithUnsuccessCodeForVD(pParam, pCode)
   local response = { dataType = common.vd[pParam], resultCode = pCode}
   local cid = common.getMobileSession():SendRPC("SubscribeVehicleData", { [pParam] = true })
+  local responseParam = pParam
+  if pParam == "clusterModeStatus" then responseParam = "clusterModes" end
   common.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData", { [pParam] = true })
   :Do(function(_,data)
-    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [pParam] = response })
+    common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { [responseParam] = response })
   end)
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", [pParam] = response })
+  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS", [responseParam] = response })
 end
 
 --[[ Scenario ]]

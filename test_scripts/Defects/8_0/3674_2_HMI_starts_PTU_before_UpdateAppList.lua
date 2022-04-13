@@ -29,6 +29,8 @@ local policyModes = {
   H  = "HTTP"
 }
 
+local propEvent = common.run.createEvent()
+
 --[[ Local Functions ]]
 local function getPTUFromPTS()
   local pTbl = common.sdl.getPTS()
@@ -68,27 +70,18 @@ local function policyTableUpdateProprietary()
       for i, _ in pairs(common.mobile.getApps()) do
         ptuTable.policy_table.app_policies[common.app.getPolicyAppId(i)] = common.ptu.getAppData(i)
       end
-      if pPTUpdateFunc then
-        pPTUpdateFunc(ptuTable)
-      end
       utils.tableToJsonFile(ptuTable, ptuFileName)
     end)
 
-
-  local lsEvent = common.run.createEvent()
-  common.getHMIConnection():ExpectEvent(lsEvent, "Lock Screen URL event")
   local ptuEvent = common.run.createEvent()
   common.getHMIConnection():ExpectEvent(ptuEvent, "PTU event")
   for id, _ in pairs(common.mobile.getApps()) do
-    common.getMobileSession(id):ExpectNotification("OnSystemRequest")
-    :Do(function(_, d2)
-        if d2.payload.requestType == "PROPRIETARY" then
+    common.getHMIConnection():ExpectEvent(propEvent, "PROPRIETARY")
+    :Do(function()
           common.getHMIConnection():ExpectRequest("BasicCommunication.SystemRequest", { requestType = "PROPRIETARY" })
           :Do(function(_, d3)
-              if not pExpNotificationFunc then
-                common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-                common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
-              end
+              common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+              common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", { status = "UP_TO_DATE" })
               common.getHMIConnection():SendResponse(d3.id, "BasicCommunication.SystemRequest", "SUCCESS", { })
               common.getHMIConnection():SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = d3.params.fileName })
             end)
@@ -98,11 +91,7 @@ local function policyTableUpdateProprietary()
             requestType = "PROPRIETARY" }, ptuFileName)
           common.getMobileSession(id):ExpectResponse(corIdSystemRequest, { success = true, resultCode = "SUCCESS" })
           :Do(function() os.remove(ptuFileName) end)
-        elseif d2.payload.requestType == "LOCK_SCREEN_ICON_URL" then
-          common.getHMIConnection():RaiseEvent(lsEvent, "Lock Screen URL event")
-        end
       end)
-    :Times(AtMost(2))
   end
 end
 
@@ -113,32 +102,36 @@ local function policyTableUpdateHttp()
     ptuTable.policy_table.app_policies[common.app.getPolicyAppId(i)] = common.ptu.getAppData(i)
   end
   utils.tableToJsonFile(ptuTable, ptuFileName)
-  if not pExpNotificationFunc then
-    common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
-      { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(3)
-  end
-  local cid = common.getMobileSession(ptuAppNum):SendRPC("SystemRequest",
-    { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptuFileName)
-  common.getMobileSession(ptuAppNum):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  :Do(function() os.remove(ptuFileName) end)
+
+  common.getHMIConnection():ExpectRequest("VehicleInfo.GetVehicleData", { odometer = true })
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
+    { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" }):Times(3)
+
+  common.getMobileSession():ExpectNotification("OnSystemRequest")
+  :Do(function(_, d)
+      if d.payload.requestType == "HTTP" then
+        local cid = common.getMobileSession():SendRPC("SystemRequest",
+          { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptuFileName)
+        common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
+        :Do(function() os.remove(ptuFileName) end)
+      end
+    end)
+  :Times(AtMost(2))
 end
 
 local function policyTableUpdate()
-  if pExpNotificationFunc then
-    pExpNotificationFunc()
-  end
   local policyMode = SDL.buildOptions.extendedPolicy
   if policyMode == policyModes.P or policyMode == policyModes.EP then
-    policyTableUpdateProprietary(pPTUpdateFunc, pExpNotificationFunc)
+    policyTableUpdateProprietary()
   elseif policyMode == policyModes.H then
-    policyTableUpdateHttp(pPTUpdateFunc, pExpNotificationFunc)
+    policyTableUpdateHttp()
   end
 end
 
 local function registerAppWithPTU(pAppId, pMobConnId)
   if not pAppId then pAppId = 1 end
   if not pMobConnId then pMobConnId = 1 end
+
   local session = common.mobile.createSession(pAppId, pMobConnId)
   session:StartService(7)
   :Do(function()
@@ -155,6 +148,20 @@ local function registerAppWithPTU(pAppId, pMobConnId)
             { hmiLevel = "NONE", audioStreamingState = "NOT_AUDIBLE", systemContext = "MAIN" })
           session:ExpectNotification("OnPermissionsChange")
           :Times(AnyNumber())
+          local policyMode = SDL.buildOptions.extendedPolicy
+          if policyMode == policyModes.P or policyMode == policyModes.EP then
+            local lsEvent = common.run.createEvent()
+            common.getHMIConnection():ExpectEvent(lsEvent, "Lock Screen URL event")
+            session:ExpectNotification("OnSystemRequest")
+            :Do(function(_, d2)
+                if d2.payload.requestType == "LOCK_SCREEN_ICON_URL" then
+                  common.getHMIConnection():RaiseEvent(lsEvent, "Lock Screen URL event")
+                elseif d2.payload.requestType == "PROPRIETARY" then
+                  common.getHMIConnection():RaiseEvent(propEvent, "PROPRIETARY")
+                end
+              end)
+            :Times(2)
+          end
         end)
     end)
 end

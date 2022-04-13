@@ -56,7 +56,7 @@ m.rpcs = {
   addCommand = { "UI", "VR" },
   addSubMenu = { "UI" },
   createIntrerationChoiceSet = { "VR" },
-  setGlobalProperties = { "UI", "TTS" },
+  setGlobalProperties = { "UI", "TTS", "RC" },
   subscribeVehicleData = { "VehicleInfo" },
   subscribeWayPoints = { "Navigation" },
   createWindow = { "UI" },
@@ -153,12 +153,26 @@ local function isResponseErroneous(pData, pErrorRpc, pErrorInterface)
     elseif pErrorRpc == "setGlobalProperties" then
       local helpPromptText = "Help prompt1"
       local vrHelpTitle ="VR help title1"
+      local userLocation = {
+        grid = {
+          col = 1,
+          colspan = 1,
+          level = 2,
+          levelspan = 1,
+          row = 2,
+          rowspan =1
+        }
+      }
       if pData.method == "TTS.SetGlobalProperties" then
         if pErrorInterface == "TTS" and pData.params.helpPrompt[1].text == helpPromptText then
           return true
         end
-      else
+      elseif pData.method == "UI.SetGlobalProperties" then
         if pErrorInterface == "UI" and pData.params.vrHelpTitle == vrHelpTitle then
+          return true
+        end
+      elseif pData.method == "RC.SetGlobalProperties" then
+        if pErrorInterface == "RC" and utils.isTableEqual(pData.params.userLocation, userLocation) then
           return true
         end
       end
@@ -223,10 +237,22 @@ function m.getGlobalPropertiesResetData(pAppId, pInterface)
       resetData.timeoutPrompt[key] = data
       resetData.helpPrompt[key] = data
     end
-  else
+  elseif pInterface == "UI" then
     resetData.menuTitle = ""
     resetData.vrHelp = { [1] = { position = 1, text = m.getConfigAppParams(pAppId).appName }}
     resetData.vrHelpTitle = SDL.INI.get("HelpTitle")
+  elseif pInterface == "RC" then
+    local defaultUserLocation = {
+      grid = {
+        col = 0,
+        colspan = 1,
+        level = 0,
+        levelspan = 1,
+        row = 0,
+        rowspan =1
+      }
+    }
+    resetData.userLocation = defaultUserLocation
   end
   return resetData
 end
@@ -479,6 +505,34 @@ m.rpcsRevert = {
                 return true
               else
                 return false, "Params in UI.SetGlobalProperties are not match to expected result.\n" ..
+                "Actual result:" .. m.tableToString(data.params) .. "\n" ..
+                "Expected result:" .. m.tableToString(resetData) .."\n"
+              end
+            end
+          end)
+        :Times(pTimes)
+      end,
+      RC = function(pAppId, pTimes)
+        if not pTimes then pTimes = 2 end
+        m.getHMIConnection():ExpectRequest("RC.SetGlobalProperties")
+        :Do(function(_, data)
+            m.sendResponse(data)
+          end)
+        :ValidIf(function(exp, data)
+            if exp.occurences == 1 then
+              if utils.isTableEqual(data.params, m.resumptionData[pAppId].setGlobalProperties.RC) == true then
+                return true
+              else
+                return false, "Params in RC.SetGlobalProperties are not match to expected result.\n" ..
+                "Actual result:" .. m.tableToString(data.params) .. "\n" ..
+                "Expected result:" .. m.tableToString(m.resumptionData[pAppId].setGlobalProperties.RC) .."\n"
+              end
+            else
+              local resetData = m.getGlobalPropertiesResetData(pAppId, "RC")
+              if utils.isTableEqual(data.params, resetData) == true then
+                return true
+              else
+                return false, "Params in RC.SetGlobalProperties are not match to expected result.\n" ..
                 "Actual result:" .. m.tableToString(data.params) .. "\n" ..
                 "Expected result:" .. m.tableToString(resetData) .."\n"
               end
@@ -833,6 +887,16 @@ function m.setGlobalProperties(pAppId)
       }
     },
     menuTitle = "Menu Title" .. pAppId,
+    userLocation = {
+      grid = {
+      col = pAppId,
+      colspan = 1,
+      level = 2,
+      levelspan = 1,
+      row = 2,
+      rowspan =1
+    }
+  }
   }
   local cid = m.getMobileSession(pAppId):SendRPC("SetGlobalProperties", params)
   m.resumptionData[pAppId].setGlobalProperties = {}
@@ -846,6 +910,12 @@ function m.setGlobalProperties(pAppId)
   :Do(function(_,data)
       m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
       m.resumptionData[pAppId].setGlobalProperties.TTS = data.params
+    end)
+
+  m.getHMIConnection():ExpectRequest("RC.SetGlobalProperties")
+  :Do(function(_,data)
+      m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      m.resumptionData[pAppId].setGlobalProperties.RC = data.params
     end)
 
   m.getMobileSession(pAppId):ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
@@ -1010,28 +1080,45 @@ end
 function m.setGlobalPropertiesResumption(pAppId, pErrorResponseInterface)
   local timesTTS = 1
   local timesUI  = 1
+  local timesRC  = 1
   local restoreData = {}
   if pErrorResponseInterface == "TTS" then
     timesUI  = 2
-    restoreData = m.getGlobalPropertiesResetData(pAppId, "UI")
+    timesRC  = 2
+    restoreData.UI = m.getGlobalPropertiesResetData(pAppId, "UI")
+    restoreData.RC = m.getGlobalPropertiesResetData(pAppId, "RC")
   elseif pErrorResponseInterface == "UI" then
     timesTTS = 2
-    restoreData = m.getGlobalPropertiesResetData(pAppId, "TTS")
+    timesRC  = 2
+    restoreData.TTS = m.getGlobalPropertiesResetData(pAppId, "TTS")
+    restoreData.RC = m.getGlobalPropertiesResetData(pAppId, "RC")
+  elseif pErrorResponseInterface == "RC" then
+    timesUI = 2
+    timesTTS  = 2
+    restoreData.UI = m.getGlobalPropertiesResetData(pAppId, "UI")
+    restoreData.TTS = m.getGlobalPropertiesResetData(pAppId, "TTS")
   end
   m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties",
     m.resumptionData[pAppId].setGlobalProperties.UI,
-    restoreData)
+    restoreData.UI)
   :Do(function(_, data)
       m.sendResponse(data, pErrorResponseInterface, "UI")
     end)
   :Times(timesUI)
   m.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties",
     m.resumptionData[pAppId].setGlobalProperties.TTS,
-    restoreData)
+    restoreData.TTS)
   :Do(function(_, data)
       m.sendResponse(data, pErrorResponseInterface, "TTS")
     end)
   :Times(timesTTS)
+  m.getHMIConnection():ExpectRequest("RC.SetGlobalProperties",
+    m.resumptionData[pAppId].setGlobalProperties.RC,
+    restoreData.RC)
+  :Do(function(_, data)
+      m.sendResponse(data, pErrorResponseInterface, "RC")
+    end)
+  :Times(timesRC)
 end
 
 --[[ @subscribeVehicleDataResumption: check resumption of subscribeVehicleDat data
@@ -1285,13 +1372,16 @@ end
 function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
   local uiSetGPtimes = 3
   local ttsSetGPtimes = 3
+  local rcSetGPtimes = 3
   local rcGIVDtimes = 3
 
   if pErrorRpc == "setGlobalProperties" then
     if pErrorInterface == "UI" then
       uiSetGPtimes = 2
-    else
+    elseif pErrorInterface == "TTS" then
       ttsSetGPtimes = 2
+    elseif pErrorInterface == "RC" then
+      rcSetGPtimes = 2
     end
   end
   if pErrorRpc == "getInteriorVehicleData" then
@@ -1352,6 +1442,12 @@ function m.checkResumptionData2Apps(pErrorRpc, pErrorInterface)
       m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
     end)
   :Times(ttsSetGPtimes)
+
+  m.getHMIConnection():ExpectRequest("RC.SetGlobalProperties")
+  :Do(function(_, data)
+      m.sendResponse2Apps(data, pErrorRpc, pErrorInterface)
+    end)
+  :Times(rcSetGPtimes)
 
   m.getHMIConnection():ExpectRequest("VehicleInfo.SubscribeVehicleData")
   :Do(function(_, data)

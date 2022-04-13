@@ -40,3 +40,4 @@
 ./test_scripts/Policies/build_options/116_ATF_DEXTENDED_POLICY_OFF_HTTP.lua
 ./test_scripts/Policies/build_options/117_ATF_DEXTENDED_POLICY_No_Flag_HTTP.lua
 ./test_scripts/Policies/build_options/118_ATF_Request_PTU_Trigger_App_Excluded_PT_HTTP.lua
+./test_scripts/Policies/Policy_Table_Update/175_PTU_from_wrong_app_HTTP.lua

@@ -40,6 +40,7 @@ local testCases = {
 
 local id
 local params = { }
+local HMIParams = { }
 
 local schemaTypes = {
   DAY = "day",
@@ -90,12 +91,19 @@ local function setParams(pTC)
     dayColorScheme = getColorScheme(schemaTypes.DAY, pTC.day),
     nightColorScheme = getColorScheme(schemaTypes.NIGHT, pTC.night)
   }
+  HMIParams = {
+    templateConfiguration = {
+      template = getLayout(pTC.layout),
+      dayColorScheme = getColorScheme(schemaTypes.DAY, pTC.day),
+      nightColorScheme = getColorScheme(schemaTypes.NIGHT, pTC.night)
+    }
+  }
   id = id + 1
 end
 
 local function sendSetDisplayLayout_SUCCESS()
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", params)
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout", params)
+  common.getHMIConnection():ExpectRequest("UI.Show", HMIParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
@@ -104,7 +112,7 @@ end
 
 local function sendSetDisplayLayout_UNSUCCESS(pResultCode)
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", params)
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout")
+  common.getHMIConnection():ExpectRequest("UI.Show")
   :Times(0)
   common.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pResultCode })
 end

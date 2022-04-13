@@ -54,27 +54,32 @@ function Test:Precondition_RegisterApp2()
 end
 
 function Test:Precondition_PTU_with_new_default_permissions()
-  local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
-    { fileName = "PolicyTableUpdate", requestType = "PROPRIETARY", appID = self.HMIAppID2 },
-  "files/PTU_NewDefaultPermissions.json")
+  self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "PROPRIETARY", fileName = "PolicyTableUpdate", appID = self.applications["App_1"] })
 
-  EXPECT_HMICALL("BasicCommunication.SystemRequest")
-  :Do(function(_,data)
-      local systemRequestId = data.id
-      self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate" })
-
-      local function to_run()
-        self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
-      end
-      RUN_AFTER(to_run, 500)
-    end)
-
-  EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+  self.mobileSession:ExpectNotification("OnSystemRequest", { requestType = "PROPRIETARY" })
   :Do(function()
-      local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
-        {language = "EN-US", messageCodes = {"StatusUpToDate"}})
-      EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage)
-    end)
+    local CorIdSystemRequest = self.mobileSession:SendRPC("SystemRequest",
+      { fileName = "PolicyTableUpdate", requestType = "PROPRIETARY", appID = self.HMIAppID2 },
+    "files/PTU_NewDefaultPermissions.json")
+  
+    EXPECT_HMICALL("BasicCommunication.SystemRequest")
+    :Do(function(_,data)
+        local systemRequestId = data.id
+        self.hmiConnection:SendNotification("SDL.OnReceivedPolicyUpdate", { policyfile = "/tmp/fs/mp/images/ivsu_cache/PolicyTableUpdate" })
+  
+        local function to_run()
+          self.hmiConnection:SendResponse(systemRequestId,"BasicCommunication.SystemRequest", "SUCCESS", {})
+        end
+        RUN_AFTER(to_run, 500)
+      end)
+  
+    EXPECT_RESPONSE(CorIdSystemRequest, { success = true, resultCode = "SUCCESS"})
+    :Do(function()
+        local RequestIdGetUserFriendlyMessage = self.hmiConnection:SendRequest("SDL.GetUserFriendlyMessage",
+          {language = "EN-US", messageCodes = {"StatusUpToDate"}})
+        EXPECT_HMIRESPONSE(RequestIdGetUserFriendlyMessage)
+      end)
+  end)
 end
 
 --[[ Test ]]

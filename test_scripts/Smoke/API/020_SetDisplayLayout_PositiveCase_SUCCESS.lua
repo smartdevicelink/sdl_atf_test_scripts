@@ -30,195 +30,39 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local common = require('test_scripts/Smoke/commonSmoke')
+local hmi_values = require('user_modules/hmi_values')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Functions ]]
-local function getSoftButCapValues()
-  return {
-    {
-      shortPressAvailable = true,
-      longPressAvailable = true,
-      upDownAvailable = true,
-      imageSupported = true
-    }
-  }
-end
-
-local function getPresetBankCapValues()
-  return { onScreenPresetsAvailable = true }
-end
-
-local function getButCapValues()
-  local names = {
-    "PRESET_0",
-    "PRESET_1",
-    "PRESET_2",
-    "PRESET_3",
-    "PRESET_4",
-    "PRESET_5",
-    "PRESET_6",
-    "PRESET_7",
-    "PRESET_8",
-    "PRESET_9",
-    "OK",
-    "SEEKLEFT",
-    "SEEKRIGHT",
-    "TUNEUP",
-    "TUNEDOWN"
-  }
-  local values = { }
-  for _, v in pairs(names) do
-    local item = {
-      name = v,
-      shortPressAvailable = true,
-      longPressAvailable = true,
-      upDownAvailable = true
-    }
-    table.insert(values, item)
-  end
-  return values
-end
-
-local function getDisplayCapImageFieldsValues()
-  local names = {
-    "softButtonImage",
-    "choiceImage",
-    "choiceSecondaryImage",
-    "vrHelpItem",
-    "turnIcon",
-    "menuIcon",
-    "cmdIcon",
-    "graphic",
-    "secondaryGraphic",
-    "showConstantTBTIcon",
-    "showConstantTBTNextTurnIcon"
-  }
-  local values = { }
-  for _, v in pairs(names) do
-    local item = {
-      imageResolution = {
-        resolutionHeight = 64,
-        resolutionWidth = 64
-      },
-      imageTypeSupported = {
-        "GRAPHIC_BMP",
-        "GRAPHIC_JPEG",
-        "GRAPHIC_PNG"
-      },
-      name = v
-    }
-    table.insert(values, item)
-  end
-  return values
-end
-
-local function getDisplayCapTextFieldsValues()
-  -- some text fields are excluded due to SDL issue
-  local names = {
-    "alertText1",
-    "alertText2",
-    "alertText3",
-    "audioPassThruDisplayText1",
-    "audioPassThruDisplayText2",
-    "ETA",
-    "initialInteractionText",
-    -- "phoneNumber",
-    "mainField1",
-    "mainField2",
-    "mainField3",
-    "mainField4",
-    "mediaClock",
-    "mediaTrack",
-    "menuName",
-    "menuTitle",
-    -- "addressLines",
-    -- "locationName",
-    "navigationText1",
-    "navigationText2",
-    -- "locationDescription",
-    "scrollableMessageBody",
-    "secondaryText",
-    "sliderFooter",
-    "sliderHeader",
-    "statusBar",
-    "tertiaryText",
-    "totalDistance",
-    "timeToDestination",
-    "turnText"
-  }
-  local values = { }
-  for _, v in pairs(names) do
-    local item = {
-      characterSet = "UTF_8",
-      name = v,
-      rows = 1,
-      width = 500
-    }
-    table.insert(values, item)
-  end
-  return values
-end
-
-local function getDisplayCapValues()
-  -- some capabilities are excluded due to SDL issue
-  return {
-    displayType = "GEN2_8_DMA",
-    displayName = "GENERIC_DISPLAY",
-    graphicSupported = true,
-    -- imageCapabilities = {
-    --  "DYNAMIC",
-    --  "STATIC"
-    -- },
-    imageFields = getDisplayCapImageFieldsValues(),
-    mediaClockFormats = {
-      "CLOCK1",
-      "CLOCK2",
-      "CLOCK3",
-      "CLOCKTEXT1",
-      "CLOCKTEXT2",
-      "CLOCKTEXT3",
-      "CLOCKTEXT4"
-    },
-    numCustomPresetsAvailable = 10,
-    screenParams = {
-      resolution = {
-        resolutionHeight = 480,
-        resolutionWidth = 800
-      },
-      touchEventAvailable = {
-        doublePressAvailable = false,
-        multiTouchAvailable = true,
-        pressAvailable = true
-      }
-    },
-    templatesAvailable = {
-      "ONSCREEN_PRESETS"
-    },
-    textFields = getDisplayCapTextFieldsValues()
-  }
-end
-
 local function getRequestParams()
-  return { displayLayout = "ONSCREEN_PRESETS" }
+  return { displayLayout = "TEMPLATE" }
+end
+
+local function getHMIRequestParams()
+  return  { templateConfiguration = { template = "TEMPLATE" } }
 end
 
 local function getResponseParams()
+  local hmiTable = hmi_values.getDefaultHMITable()
+  local defaultDisplayCapabilities = hmiTable.UI.GetCapabilities.params.displayCapabilities
+  defaultDisplayCapabilities.imageCapabilities = nil -- some capabilities are excluded due to SDL issue
+
   return {
-    displayCapabilities = getDisplayCapValues(),
-    buttonCapabilities = getButCapValues(),
-    softButtonCapabilities = getSoftButCapValues(),
-    presetBankCapabilities = getPresetBankCapValues()
+    displayCapabilities = defaultDisplayCapabilities,
+    buttonCapabilities = hmiTable.Buttons.GetCapabilities.params.capabilities,
+    softButtonCapabilities = hmiTable.UI.GetCapabilities.params.softButtonCapabilities,
+    presetBankCapabilities = hmiTable.Buttons.GetCapabilities.params.presetBankCapabilities
   }
 end
 
 local function setDisplaySuccess()
   local responseParams = getResponseParams()
   local cid = common.getMobileSession():SendRPC("SetDisplayLayout", getRequestParams())
-  common.getHMIConnection():ExpectRequest("UI.SetDisplayLayout", getRequestParams())
+  common.getHMIConnection():ExpectRequest("UI.Show", getHMIRequestParams())
   :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", responseParams)
+      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   common.getMobileSession():ExpectResponse(cid, {
     success = true,

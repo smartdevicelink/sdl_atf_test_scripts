@@ -22,6 +22,7 @@ local common = require('test_scripts/TheSameApp/commonTheSameApp')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 
 --[[ Local Data ]]
 local devices = {

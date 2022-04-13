@@ -255,6 +255,8 @@ end
 local function PI_ViaMANUAL_ONLY(pParams)
   pParams.interactionMode = "MANUAL_ONLY"
   local cid = common.getMobileSession():SendRPC("PerformInteraction", pParams)
+   common.getHMIConnection():ExpectRequest("UI.ClosePopUp")
+  :Times(0)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction", {
       helpPrompt = pParams.helpPrompt,
       initialPrompt = pParams.initialPrompt,
@@ -293,6 +295,8 @@ end
 local function PI_ViaBOTH(pParams)
   pParams.interactionMode = "BOTH"
   local cid = common.getMobileSession():SendRPC("PerformInteraction",pParams)
+  common.getHMIConnection():ExpectRequest("UI.ClosePopUp")
+  :Times(0)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction", {
       helpPrompt = pParams.helpPrompt,
       initialPrompt = pParams.initialPrompt,
@@ -343,6 +347,8 @@ end
 local function PI_ViaBOTHuiChoice(pParams)
   pParams.interactionMode = "BOTH"
   local cid = common.getMobileSession():SendRPC("PerformInteraction",pParams)
+  common.getHMIConnection():ExpectRequest("UI.ClosePopUp")
+  :Times(0)
   common.getHMIConnection():ExpectRequest("VR.PerformInteraction", {
       helpPrompt = pParams.helpPrompt,
       initialPrompt = pParams.initialPrompt,

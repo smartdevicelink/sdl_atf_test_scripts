@@ -127,8 +127,8 @@ local function ptu(self, id)
   local ptu_table = ptsToTable("files/ptu.json")
   updatePTU(ptu_table, id)
   storePTUInFile(ptu_table, ptu_file_name)
-  local corId = self.mobileSession:SendRPC("SystemRequest", { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptu_file_name)
-  EXPECT_RESPONSE(corId, { success = true, resultCode = "SUCCESS" })
+  local corId = self["mobileSession"..id]:SendRPC("SystemRequest", { requestType = "HTTP", fileName = "PolicyTableUpdate" }, ptu_file_name)
+  self["mobileSession"..id]:ExpectResponse(corId, { success = true, resultCode = "SUCCESS" })
   os.remove(ptu_file_name)
 end
 
@@ -272,7 +272,11 @@ function Test:Test_UPDATING()
 end
 
 function Test:Test_PTU_2()
-  ptu(self, 2)
+  self.hmiConnection:SendNotification("BasicCommunication.OnSystemRequest", { requestType = "HTTP", fileName = "PolicyTableUpdate", appID = self.applications["App_2"] })
+  self.mobileSession2:ExpectNotification("OnSystemRequest", { requestType = "HTTP" })
+  :Do(function()
+    ptu(self, 2)
+  end)
   self["mobileSession1"]:ExpectNotification("OnHMIStatus"):Times(0)
   self["mobileSession2"]:ExpectNotification("OnHMIStatus"):Times(0)
   commonTestCases:DelayedExp(10000)

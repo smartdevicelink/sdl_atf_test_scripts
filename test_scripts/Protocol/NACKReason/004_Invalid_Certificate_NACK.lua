@@ -43,9 +43,12 @@ local common = require("test_scripts/Protocol/commonProtocol")
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
 config.defaultProtocolVersion = 5
 
 --[[ Local Variables ]]
+local odometerValue = 0
+
 rpcServiceParams = {
   [1] = {
     reqParams = {
@@ -68,6 +71,7 @@ local function missingCertificateNACK(pAppId, pServiceId, pRequestPayload, pResp
   :Times(0)
   local function ptUpdate(pTbl)
     pTbl.policy_table.module_config.certificate = nil
+    pTbl.policy_table.module_config.exchange_after_x_kilometers = 10
   end
   common.policyTableUpdateSuccess(ptUpdate)
 end
@@ -84,6 +88,12 @@ local function expiredCertificateNACK(pAppId, pServiceId, pRequestPayload, pResp
   common.policyTableUpdateSuccess(ptUpdate)
 end
 
+local function setUpdating()
+  odometerValue = odometerValue + 20
+  common.getHMIConnection():SendNotification("VehicleInfo.OnVehicleData", { odometer = odometerValue })
+  common.hmi.getConnection():ExpectNotification("SDL.OnStatusUpdate",
+    { status = "UPDATE_NEEDED" })
+end
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -96,13 +106,16 @@ runner.Step("Register App 2", common.registerApp, {2})
 runner.Title("Test NAK reason param(protocol version 5.3.0)")
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Switch RPC Service to Protected mode NACK (Missing certificate)", missingCertificateNACK, {1, common.serviceType.RPC, rpcServiceParams[1].reqParams, rpcServiceParams[1].nackParams})
+runner.Step("Begin PTU process", setUpdating)
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Switch RPC Service to Protected mode NACK(Expired certificate)", expiredCertificateNACK, {1, common.serviceType.RPC, rpcServiceParams[1].reqParams, rpcServiceParams[1].nackParams})
 
 runner.Title("Test NAK reason param(protocol version 5.2.0)")
 
+runner.Step("Begin PTU process", setUpdating)
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Switch RPC Service to Protected mode NACK (Missing certificate)", missingCertificateNACK, {2, common.serviceType.RPC, rpcServiceParams[2].reqParams, rpcServiceParams[2].nackParams})
+runner.Step("Begin PTU process", setUpdating)
 runner.Step("PolicyTableUpdate", common.policyTableUpdate)
 runner.Step("Switch RPC Service to Protected mode NACK(Expired certificate)", expiredCertificateNACK, {2, common.serviceType.RPC, rpcServiceParams[2].reqParams, rpcServiceParams[2].nackParams})
 
