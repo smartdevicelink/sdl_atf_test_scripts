@@ -71,7 +71,11 @@ local function ButtonPressWithConsentResetToBoth()
   common.getMobileSession(2):ExpectResponse(cid, RespParams)
   :Timeout(common.defaultTimeout + 27000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 26000 + delay, nil, requestTime)
+      if delay then
+        return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 26000 + delay, nil, requestTime)
+      else
+        return false, "delay calculation is failed"
+      end
     end)
 end
 
