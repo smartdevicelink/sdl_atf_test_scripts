@@ -13,8 +13,9 @@
 -- 4) App_2 is activated (FULL)
 -- 5) App_2->SDL: <RC_control_RPC> for <module>
 -- 6) SDL->HMI: GetInteriorVehicleDataConsent (App_2)
--- 7) HMI doesn't respond for GetInteriorVehicleDataConsent (App_2) during default period (10s)
--- 8) HMI->SDL: TIMED_OUT: GetInteriorVehicleDataConsent (App_2) after default period (10s)
+-- 7) HMI doesn't respond for GetInteriorVehicleDataConsent (App_2)
+--  during default period + DefaultTimeoutCompensation (11s)
+-- 8) HMI->SDL: TIMED_OUT: GetInteriorVehicleDataConsent (App_2) after default period + DefaultTimeoutCompensation (11s)
 -- 9) SDL->App_2: GENERIC_ERROR: SetInteriorVehicleData (success:false)
 -- 10) SDL doesn't transfer <RC_control_RPC> request for <module> to HMI
 ---------------------------------------------------------------------------------------------------
@@ -39,11 +40,11 @@ local function rpcHMIRespondAfterDefaultTimeout()
         commonRC.getHMIConnection():SendError(data.id, data.method, "TIMED_OUT", "info")
         EXPECT_HMICALL(commonRC.getHMIEventName(pRPC1)):Times(0)
       end
-      RUN_AFTER(hmiRespond, 11000)
+      RUN_AFTER(hmiRespond, commonRC.defaultTimeoutWithCompensation + 1000)
     end)
 
   commonRC.getMobileSession(2):ExpectResponse(cid1, { success = false, resultCode = "GENERIC_ERROR" })
-  commonRC.wait(12000)
+  commonRC.wait(commonRC.defaultTimeoutWithCompensation + 2000)
 end
 
 --[[ Scenario ]]
