@@ -30,16 +30,16 @@ runner.testSettings.isSelfIncluded = false
 --[[ Local Variables ]]
 local hashID = nil
 
+local vrGlobalPropertyNames = { 
+  "VRHELPTITLE", "VRHELPITEMS" 
+}
+
 local vrGlobalProperties = {
   vrHelpTitle = "title",
   vrHelp = {
     { text = "VR Help 1", position = 1 },
     { text = "VR Help 2", position = 2 }
   }
-}
-
-vrGlobalPropertyNames = { 
-  "VRHELPTITLE", "VRHELPITEMS" 
 }
 
 local defaultVrGlobalProperties = {
@@ -60,7 +60,7 @@ local function sendSetGlobalProperties(pParams)
   common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", pParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  end)
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   common.getMobileSession():ExpectNotification("OnHashChange")
 end
@@ -74,7 +74,7 @@ local function sendResetGlobalProperties(pParams, pDefaultParamValues)
   	:Do(function(_,data)
   		common.hmi.getConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   	end)
-    	common.mobile.getSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
+    common.mobile.getSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS"})
   	common.mobile.getSession():ExpectNotification("OnHashChange")
     :Do(function(_, data)
       hashID = data.payload.hashID
@@ -83,7 +83,6 @@ end
 
 local function unexpectedDisconnect()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = true })
-  :Times(common.mobile.getAppsCount())
   common.mobile.disconnect()
   utils.wait(1000)
 end
@@ -94,9 +93,8 @@ local function reRegisterApp(pParams)
   common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", pParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-    end)
+  end)
 end
-
 
 --[[ Scenario ]]
 runner.Title("Preconditions")
@@ -110,7 +108,6 @@ runner.Title("Test vrHelp Resumption")
 runner.Step("Unexpected Disconnect", unexpectedDisconnect)
 runner.Step("Reconnect App", common.mobile.connect)
 runner.Step("Re-register App", reRegisterApp, {defaultVrGlobalProperties })
-
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
