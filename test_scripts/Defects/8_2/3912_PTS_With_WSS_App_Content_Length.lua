@@ -24,7 +24,7 @@ local color = require("user_modules/consts").color
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY", "EXTERNAL_PROPRIETARY" } } }
+runner.testSettings.restrictions.sdlBuildOptions = { { extendedPolicy = { "PROPRIETARY" } } }
 
 --[[ Local Functions ]]
 local function calculateContentLength(content)
