@@ -85,3 +85,4 @@
 ;IGNITION OFF
 ./test_scripts/Defects/4_5/1225_FACTORY_DEFAULTS.lua
 ./test_scripts/Defects/5_0/2464_SDL_does_not_send_OnSDLClose_notification_by_switching_off_with_reason_IGNITION_OFF.lua
+./test_scripts/Defects/5_0/2467_Policy_table_corupted_after_first_ign_cycle.lua
