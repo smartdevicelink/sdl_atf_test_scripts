@@ -32,7 +32,7 @@ end
 local function sendLocation()
   local cid = common.getMobileSession():SendRPC("SendLocation",
     { longitudeDegrees = 1.1, latitudeDegrees = 1.1 })
-  common.getHMIConnection():ExpectRequest("Navigation.SendLocation")
+  common.getHMIConnection():ExpectRequest("Navigation.SendLocation", { longitudeDegrees = 1.1, latitudeDegrees = 1.1 })
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS",{})
     end)
