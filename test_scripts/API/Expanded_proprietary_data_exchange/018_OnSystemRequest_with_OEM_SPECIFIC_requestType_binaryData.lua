@@ -17,7 +17,7 @@ local common = require('test_scripts/API/Expanded_proprietary_data_exchange/comm
 runner.testSettings.isSelfIncluded = false
 
 --[[ Local Variables ]]
-local content = "ABC"
+local content = "{\"key\":\"value\"}"
 local file = os.tmpname()
 
 --[[ Local Functions ]]
@@ -37,7 +37,7 @@ local function onSystemRequest()
     requestType = "OEM_SPECIFIC",
     fileName = file,
   })
-  common.getMobileSession():ExpectNotification("OnSystemRequest")
+  common.getMobileSession():ExpectNotification("OnSystemRequest", { requestType = "OEM_SPECIFIC" })
   :ValidIf(function(_, d)
       if d.binaryData == content then
         return true
