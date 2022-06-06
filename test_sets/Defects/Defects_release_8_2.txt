@@ -1,1 +1,2 @@
+./test_scripts/Defects/8_2/3895_SDL_sends_redundant_BC_PolicyUpdate.lua
 ./test_scripts/Defects/8_2/3912_PTS_With_WSS_App_Content_Length.lua
