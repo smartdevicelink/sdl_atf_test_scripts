@@ -107,7 +107,7 @@ runner.Step("Reset VR Global Properties", sendResetGlobalProperties, { vrGlobalP
 runner.Title("Test vrHelp Resumption")
 runner.Step("Unexpected Disconnect", unexpectedDisconnect)
 runner.Step("Reconnect App", common.mobile.connect)
-runner.Step("Re-register App", reRegisterApp, {defaultVrGlobalProperties })
+runner.Step("Re-register App", reRegisterApp, { defaultVrGlobalProperties })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
