@@ -1,7 +1,7 @@
 ---------------------------------------------------------------------------------------------------
 -- Issue: https://github.com/smartdevicelink/sdl_core/issues/3858
 ---------------------------------------------------------------------------------------------------
--- Description: Check that SDL transfers succeed result code in error structure from HMI to the mobile app
+-- Description: Check that SDL transfers success result code in error structure from HMI to the mobile app
 -- during processing of CreateInteractionChoiceSet
 
 -- Precondition:
@@ -11,7 +11,7 @@
 -- Steps:
 -- 1. Mobile app requests CreateInteractionChoiceSet RPC with vrCommands
 -- 2. SDL sends VR.AddCommand(type="Choice") request to the HMI
--- 3. HMI responds with succeed result code in error structure to VR.AddCommand
+-- 3. HMI responds with success result code in error structure to VR.AddCommand
 --
 -- SDL does:
 -- 1. send CreateInteractionChoiceSet(success = true, resultCode = <code received from HMI>) response to the mobile app
