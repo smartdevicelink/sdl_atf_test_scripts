@@ -33,6 +33,7 @@ end
 
 function m.policyTableUpdate()
   local function updFunc(tbl)
+      tbl.policy_table.functional_groupings["Location-1"].user_consent_prompt = nil
       tbl.policy_table.app_policies[actions.app.getParams().fullAppID].groups = {"Base-4", "Location-1"}
   end
   actions.policyTableUpdate(updFunc)
