@@ -69,7 +69,7 @@ end
 function m.sendRPC(pParams)
   local cid = m.getMobileSession():SendRPC(pParams.rpc, pParams.requestParam)
   if pParams.expectExtraRequest then
-    pParams.expectExtraRequest(pParams)
+    pParams.expectExtraRequest()
   end
   m.getHMIConnection():ExpectRequest("UI." .. pParams.rpc)
   :Times(0)

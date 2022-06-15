@@ -14,6 +14,10 @@
 -- - not send UI.AddCommand request to HMI
 -- - send VR.AddCommand request to HMI
 -- - respond AddCommand(resultCode: UNSUPPORTED_RESOURCE, success: true) to App
+-- 2. App requests AddCommand with only VR part to SDL
+-- SDL does:
+-- - send VR.AddCommand request to HMI
+-- - respond AddCommand(resultCode: SUCCESS, success: true) to App
 ---------------------------------------------------------------------------------------------------
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Defects/5_0/1006/common")
