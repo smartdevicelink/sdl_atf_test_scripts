@@ -16,6 +16,7 @@ local runner = require('user_modules/script_runner')
 local common = require('user_modules/sequences/actions')
 local constants = require("protocol_handler/ford_protocol_constants")
 local events = require('events')
+local SDL = require('SDL')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
@@ -90,6 +91,9 @@ local function ignitionOffwithEndServices()
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnAppUnregistered", { unexpectedDisconnect = false })
 
   common.getHMIConnection():ExpectNotification("BasicCommunication.OnSDLClose")
+  :Do(function()
+      SDL.DeleteFile()
+    end)
 
   common.getHMIConnection():SendNotification("BasicCommunication.OnExitAllApplications", { reason = "SUSPEND" })
 end

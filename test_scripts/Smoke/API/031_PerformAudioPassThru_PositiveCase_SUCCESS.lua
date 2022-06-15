@@ -114,7 +114,7 @@ local function performAudioPassThru(pParams)
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "HMI_OBSCURED" }, -- after PerformAudioPassThruResponse before OnSysCtx(MAIN)
     { hmiLevel = "FULL", audioStreamingState = "AUDIBLE", systemContext = "MAIN" })
   :Times(4)
-  common.getMobileSession():ExpectNotification("OnAudioPassThru")
+  common.getMobileSession():ExpectNotification("OnAudioPassThru"):Times(AtLeast(1))
   common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
   :ValidIf(function()
       if common.isFileExistInAppStorage("audio.wav") ~= true then

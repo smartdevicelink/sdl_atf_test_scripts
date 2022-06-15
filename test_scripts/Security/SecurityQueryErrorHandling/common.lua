@@ -53,6 +53,11 @@ function common.expectSecurityQuery(params)
     end)
 end
 
+function common.sendSecurityQuery(params)
+  local session = common.getMobileSession().mobile_session_impl.control_services.session
+  session:Send(params)
+end
+
 function common.HandshakeMessageError(handshakeResponse, expErrorNotification)
   local session = common.getMobileSession().mobile_session_impl.control_services.session
   local handshakeEvent = events.Event()

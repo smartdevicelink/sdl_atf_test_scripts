@@ -62,7 +62,11 @@ local function ButtonPress()
   common.getMobileSession(2):ExpectResponse(cid, RespParams)
   :Timeout(common.defaultTimeout + 24000)
   :ValidIf(function()
-      return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 23000 + delay, nil, requestTime)
+      if delay then
+        return common.responseTimeCalculationFromMobReq(common.defaultTimeout + 23000 + delay, nil, requestTime)
+      else
+        return false, "delay calculation is failed"
+      end
     end)
 end
 

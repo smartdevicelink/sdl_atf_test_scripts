@@ -33,13 +33,16 @@ local function embeddedNavigation()
 end
 
 local function activateMediaApp()
+    common.getMobileSession():ExpectNotification("OnHMIStatus",
+        { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" },
+        { hmiLevel = "LIMITED", audioStreamingState = "AUDIBLE" })
+    :Times(2)
     local requestId = common.getHMIConnection():SendRequest("SDL.ActivateApp", { appID = common.getHMIAppId() })
     common.getHMIConnection():ExpectResponse(requestId)
     :Do(function()
         common.getHMIConnection():SendNotification("BasicCommunication.OnEventChanged",
         { eventName = "EMBEDDED_NAVI", isActive = true })
     end)
-    common.getMobileSession():ExpectNotification("OnHMIStatus", { hmiLevel = "FULL", audioStreamingState = "AUDIBLE" })
 end
 
 --[[ Scenario ]]
