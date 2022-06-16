@@ -126,7 +126,7 @@ local function startServiceWithOnServiceUpdate_PTU_FAILED(pServiceId, pHandShake
       :Timeout(timeout)
     end
     local expNotifRes = getExpOnStatusUpdate()
-    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", unpack(expNotifRes))
+    common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", table.unpack(expNotifRes))
     :Times(#expNotifRes)
     :Do(function(e, d)
         common.log("SDL->HMI:", d.method, d.params.status)
