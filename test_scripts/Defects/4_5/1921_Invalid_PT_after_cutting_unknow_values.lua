@@ -137,6 +137,29 @@ local function ptuUpdateFuncNotValid(tbl)
     { "Base-4", "NewTestCaseGroup1", "NewTestCaseGroup2", "NewTestCaseGroup3" }
 end
 
+--[[ @ptuFuncEmptyArray: update table for PTU with empty array after removing unknown parameter
+--! @parameters:
+--! tbl - table for update
+--! @return: none
+--]]
+local function ptuFuncEmptyArray(tbl)
+  local VDgroup = {
+    rpcs = {
+      GetVehicleData = {
+        hmi_levels = { "NONE", "BACKGROUND", "FULL", "LIMITED" },
+        parameters = { unknownParameter }
+      },
+      SubscribeVehicleData = {
+        hmi_levels = { "NONE", "BACKGROUND", "FULL", "LIMITED" },
+        parameters = { unknownParameter }
+      }
+    }
+  }
+  tbl.policy_table.functional_groupings["NewTestCaseGroup4"] = VDgroup
+  tbl.policy_table.app_policies[config.application1.registerAppInterfaceParams.fullAppID].groups =
+    { "Base-4", "NewTestCaseGroup4" }
+end
+
 --[[ @contains: verify if defined value is present in table
 --! @parameters:
 --! pTbl - table for update
@@ -314,6 +337,13 @@ runner.Step("Trigger PTU from HMI", triggerPTU)
 runner.Step("PTU with unknown parameters", ptu, { ptuUpdateFuncParams })
 runner.Step("Check applying of PT by processing GetVehicleData", SuccessfulProcessingRPC,
   { "GetVehicleData", { gps = true }, "VehicleInfo", { gps = gpsDataResponse } })
+runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC,
+  { "SubscribeVehicleData", { gps = true }, "VehicleInfo" })
+
+runner.Step("Trigger PTU from HMI", triggerPTU)
+runner.Step("PTU with unknown parameters, empty array", ptu, { ptuFuncEmptyArray })
+runner.Step("Check applying of PT by processing GetVehicleData", DisallowedRPC,
+  { "GetVehicleData", { gps = true }, "VehicleInfo" })
 runner.Step("Check applying of PT by processing SubscribeVehicleData", DisallowedRPC,
   { "SubscribeVehicleData", { gps = true }, "VehicleInfo" })
 

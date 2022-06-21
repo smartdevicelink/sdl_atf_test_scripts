@@ -96,12 +96,14 @@ end
 function m.startServiceSecuredwithPTU(pData, pServiceId, pGetSystemTimeOccur, pTime, pPTUpdateFunc, pHandshakeOccurences)
   m.getMobileSession():StartSecureService(pServiceId)
   m.getMobileSession():ExpectControlMessage(pServiceId, pData)
-
+  local policyMode = SDL.buildOptions.extendedPolicy
   m.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate",
     { status = "UPDATE_NEEDED" }, { status = "UPDATING" }, { status = "UP_TO_DATE" })
     :Times(3)
     :Do(function(e)
-      if e.occurences == 1 then
+      if e.occurences == 1 and policyMode ~= "HTTP"then
+        m.policyTableUpdate(pPTUpdateFunc)
+      elseif e.occurences == 2 and policyMode == "HTTP"then
         m.policyTableUpdate(pPTUpdateFunc)
       end
     end)
