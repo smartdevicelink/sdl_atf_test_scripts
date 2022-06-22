@@ -25,6 +25,11 @@
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Defects/8_2/3888/common")
 
+--[[ Test Configuration ]]
+local result = "INVALID_ID"
+common.testCases.with_vr_command.performInteractionVR.result = result
+common.testCases.without_vr_command.performInteractionMANUAL.result = result
+
 --[[ Test ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -41,6 +46,10 @@ common.Step("Unexpected disconnect", common.unexpectedDisconnect)
 common.Step("Connect mobile", common.connectMobile)
 common.Step("RAI with resumption", common.raiWithResumption,
   { common.testCases.with_vr_command, common.additionalResumptionContions, common.resumeFailedResult })
+common.Step("PerformInteraction VR", common.performInteractionVR,
+  { common.testCases.with_vr_command.performInteractionVR })
+common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL,
+  { common.testCases.without_vr_command.performInteractionMANUAL })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)

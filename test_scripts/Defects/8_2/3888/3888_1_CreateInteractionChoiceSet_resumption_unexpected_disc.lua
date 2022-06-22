@@ -33,6 +33,8 @@ for k, v in common.spairs(common.testCases) do
   common.Step("Unexpected disconnect", common.unexpectedDisconnect)
   common.Step("Connect mobile", common.connectMobile)
   common.Step("RAI with resumption", common.raiWithResumption, { v })
+  common.Step("PerformInteraction VR", common.performInteractionVR, { v.performInteractionVR })
+  common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL, { v.performInteractionMANUAL })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

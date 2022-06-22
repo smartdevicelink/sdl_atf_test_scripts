@@ -19,6 +19,13 @@
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Defects/8_2/3888/common")
 
+--[[ Test Configuration ]]
+local result = "INVALID_ID"
+common.testCases.with_vr_command.performInteractionVR.result = result
+common.testCases.with_vr_command.performInteractionMANUAL.result = result
+common.testCases.without_vr_command.performInteractionVR.result = result
+common.testCases.without_vr_command.performInteractionMANUAL.result = result
+
 --[[ Test ]]
 common.Title("Preconditions")
 common.Step("Clean environment", common.preconditions)
@@ -31,6 +38,8 @@ for k, v in common.spairs(common.testCases) do
   common.Step("CreateInteractionChoiceSet " .. k, common.createInteractionChoiceSet, { v })
   common.Step("DeleteInteractionChoiceSet " .. k, common.deleteInteractionChoiceSet,
     { v.parameters.interactionChoiceSetID, v.vrCommandTimes })
+  common.Step("PerformInteraction VR", common.performInteractionVR, { v.performInteractionVR })
+  common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL, { v.performInteractionMANUAL })
 end
 
 common.Title("Postconditions")

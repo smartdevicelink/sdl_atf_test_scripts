@@ -32,6 +32,8 @@ for k, v in common.spairs(common.testCases) do
   common.Step("Ignition OFF", common.ignitionOff)
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   common.Step("RAI with resumption", common.raiWithResumption, { v })
+  common.Step("PerformInteraction VR", common.performInteractionVR, { v.performInteractionVR })
+  common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL, { v.performInteractionMANUAL })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

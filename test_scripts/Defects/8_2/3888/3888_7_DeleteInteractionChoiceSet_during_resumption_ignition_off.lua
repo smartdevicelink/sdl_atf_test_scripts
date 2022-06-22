@@ -25,6 +25,13 @@
 --[[ Required Shared libraries ]]
 local common = require("test_scripts/Defects/8_2/3888/common")
 
+--[[ Test Configuration ]]
+local result = "INVALID_ID"
+common.testCases.with_vr_command.performInteractionVR.result = result
+common.testCases.with_vr_command.performInteractionMANUAL.result = result
+common.testCases.without_vr_command.performInteractionVR.result = result
+common.testCases.without_vr_command.performInteractionMANUAL.result = result
+
 --[[ Test ]]
 for k, v in common.spairs(common.testCases) do
   common.Title("Test case: CreateInteractionChoiceSet " .. k)
@@ -40,6 +47,8 @@ for k, v in common.spairs(common.testCases) do
   common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
   common.Step("RAI with resumption", common.raiWithResumption,
     { v, common.additionalResumptionContions, common.resumeFailedResult })
+  common.Step("PerformInteraction VR", common.performInteractionVR, { v.performInteractionVR })
+  common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL, { v.performInteractionMANUAL })
 
   common.Title("Postconditions")
   common.Step("Stop SDL", common.postconditions)

@@ -53,6 +53,14 @@ m.testCases = {
       vrCommands = {
         "Choice1001"
       }
+    },
+    performInteractionVR = {
+      choiceId = 1001,
+      result = "SUCCESS"
+    },
+    performInteractionMANUAL = {
+      choiceId = 1001,
+      result = "SUCCESS"
     }
   },
   without_vr_command = {
@@ -65,7 +73,15 @@ m.testCases = {
         }
       }
     },
-    vrCommandTimes = 0
+    vrCommandTimes = 0,
+    performInteractionVR = {
+      choiceId = 1002,
+      result = "INVALID_DATA"
+    },
+    performInteractionMANUAL = {
+      choiceId = 1002,
+      result = "SUCCESS"
+    }
   }
 }
 m.hashID = 0
@@ -80,6 +96,7 @@ function m.createInteractionChoiceSet(pParams)
     end)
   :ValidIf(function(_, data)
       if data.params.grammarID ~= nil then
+        pParams.vrAddCommandRequest.grammarID = data.params.grammarID
         return true
       else
         return false, "grammarID should not be empty"
@@ -131,6 +148,14 @@ function m.raiWithResumption(pParams, additionalExpectations, raiResult)
         application = { appName = params.appName } })
       mobSession:ExpectResponse(corId, { success = true, resultCode = raiResult or "SUCCESS" })
     end)
+
+  actions.getHMIConnection():ExpectRequest("BasicCommunication.ActivateApp", { appID = actions.getHMIAppId() })
+  :Do(function(_, data)
+      actions.getHMIConnection():SendResponse(data.id, "BasicCommunication.ActivateApp", "SUCCESS", {})
+    end)
+
+  actions.getMobileSession():ExpectNotification("OnHMIStatus",{ hmiLevel = "NONE" }, { hmiLevel = "FULL" })
+  :Times(2)
 
   actions.getHMIConnection():ExpectRequest("VR.AddCommand", pParams.vrAddCommandRequest or {})
   :Do(function(_, data)
@@ -188,6 +213,102 @@ function m.additionalResumptionContions(pTimes, pCmdId)
       actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
     end)
   :Times(pTimes)
+end
+
+local function getPIreqParams()
+  return {
+    initialText = "StartPerformInteraction",
+    interactionMode = "MODE",
+    interactionChoiceSetIDList = { 0 },
+    helpPrompt = {
+      {
+        text = "Help Prompt",
+        type = "TEXT"
+      }
+    },
+    timeoutPrompt = {
+      {
+        text = "Timeout Prompt",
+        type = "TEXT"
+      }
+    }
+  }
+end
+
+function m.performInteractionVR(pParams)
+  local params = getPIreqParams()
+  params.interactionMode = "VR_ONLY"
+  params.interactionChoiceSetIDList = { pParams.choiceId }
+
+  local cid = actions.getMobileSession():SendRPC("PerformInteraction", params)
+  if pParams.result ~= "SUCCESS" then
+    actions.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pParams.result })
+  else
+    local grammarIDvalue = m.testCases.with_vr_command.vrAddCommandRequest.grammarID
+    actions.getHMIConnection():ExpectRequest("VR.PerformInteraction", { grammarID = { grammarIDvalue } })
+    :Do(function(_, data)
+        local function vrResponse()
+          actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+            choiceID = params.interactionChoiceSetIDList[1]
+          })
+        end
+        actions.run.runAfter(vrResponse, 500)
+      end)
+    actions.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
+      vrHelp = {
+        {
+          text = "Choice" .. pParams.choiceId,
+          position = 1
+        }
+      },
+      vrHelpTitle = params.initialText
+    })
+    :Do(function(_, data)
+        actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    actions.getMobileSession():ExpectResponse(cid, {
+      success = true, resultCode = "SUCCESS", choiceID = params.interactionChoiceSetIDList[1]
+    })
+  end
+end
+
+function m.performInteractionMANUAL(pParams)
+  local params = getPIreqParams()
+  params.interactionMode = "MANUAL_ONLY"
+  params.interactionChoiceSetIDList = { pParams.choiceId }
+
+  local cid = actions.getMobileSession():SendRPC("PerformInteraction", params)
+  if pParams.result ~= "SUCCESS" then
+    actions.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pParams.result })
+  else
+    actions.getHMIConnection():ExpectRequest("VR.PerformInteraction")
+    :Do(function(_, data)
+        actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end)
+    actions.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
+      choiceSet = {
+        {
+          choiceID = pParams.choiceId,
+          menuName = "Choice" .. pParams.choiceId
+        }
+      },
+      initialText = {
+        fieldName = "initialInteractionText",
+        fieldText = params.initialText
+      }
+    })
+    :Do(function(_, data)
+        local function uiResponse()
+          actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+            choiceID = params.interactionChoiceSetIDList[1]
+          })
+        end
+        actions.run.runAfter(uiResponse, 500)
+      end)
+    actions.getMobileSession():ExpectResponse(cid, {
+      success = true, resultCode = "SUCCESS", choiceID = params.interactionChoiceSetIDList[1]
+    })
+  end
 end
 
 return m

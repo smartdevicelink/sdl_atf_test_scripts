@@ -34,6 +34,10 @@ common.Step("CreateInteractionChoiceSet without vr command", common.createIntera
 common.Step("Unexpected disconnect", common.unexpectedDisconnect)
 common.Step("Connect mobile", common.connectMobile)
 common.Step("RAI with resumption", common.raiWithResumption, { common.testCases.with_vr_command })
+common.Step("PerformInteraction VR", common.performInteractionVR,
+  { common.testCases.with_vr_command.performInteractionVR })
+common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL,
+  { common.testCases.without_vr_command.performInteractionMANUAL })
 
 common.Title("Postconditions")
 common.Step("Stop SDL", common.postconditions)
