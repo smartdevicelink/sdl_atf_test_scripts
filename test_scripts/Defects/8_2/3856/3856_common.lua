@@ -87,7 +87,7 @@ function m.putFile()
       persistentFile = true,
       systemFile = false
     },
-    filePath = "files/icon.png"
+    filePath = "files/action.png"
   }
   local cid = actions.getMobileSession():SendRPC("PutFile", params.requestParams, params.filePath)
   actions.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
