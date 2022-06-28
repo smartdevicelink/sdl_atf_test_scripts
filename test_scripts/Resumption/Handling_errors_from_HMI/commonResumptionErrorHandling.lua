@@ -70,6 +70,10 @@ m.timeToRegApp2 = {
   AFTER_ERRONEOUS_RESPONSE = 3,
 }
 
+local defaultTimeout = actions.sdl.getSDLIniParameter("DefaultTimeout")
+local defaultTimeoutCompensation = actions.sdl.getSDLIniParameter("DefaultTimeoutCompensation")
+m.defaultTimeoutWithCompensation = defaultTimeout + defaultTimeoutCompensation
+
 --[[ Local Functions ]]
 
 --[[ @getOnSCUParams: return parameters for OnSystemCapabilityUpdated
