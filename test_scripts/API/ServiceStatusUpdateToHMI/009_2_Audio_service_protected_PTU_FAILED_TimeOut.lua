@@ -118,7 +118,7 @@ function common.policyTableUpdateFunc()
     table.insert(expRes, { status = "UPDATING" })
   end
   table.insert(expRes, { status = "UPDATE_NEEDED" })
-  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", unpack(expRes))
+  common.getHMIConnection():ExpectNotification("SDL.OnStatusUpdate", table.unpack(expRes))
   :Times(#expRes)
   :Do(function(e, d)
       common.log("SDL->HMI:", d.method, d.params.status)

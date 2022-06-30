@@ -67,7 +67,7 @@ local function unsuccessfulPTUviaMobile()
     { status = "UPDATING" },
     { status = "UPDATE_NEEDED" }
   }
-  common.hmi():ExpectNotification("SDL.OnStatusUpdate", unpack(exp))
+  common.hmi():ExpectNotification("SDL.OnStatusUpdate", table.unpack(exp))
   :Times(#exp)
   :Timeout(timeout)
   :Do(function(_, data)
