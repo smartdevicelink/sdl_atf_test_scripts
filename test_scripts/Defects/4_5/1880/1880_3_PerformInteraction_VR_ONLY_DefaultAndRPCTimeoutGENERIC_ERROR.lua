@@ -51,13 +51,13 @@ runner.Step("CreateInteractionChoiceSet", common.createInteractionChoiceSet)
 
 runner.Title("Test")
 runner.Step("PerformInteraction_timeout_VR", common.performInteraction,
-  { params_with_timeout, common.notSendUIresp, common.notSsendVRresp, common.noAdditionalTimeout })
+  { params_with_timeout, common.notSendUIresp, common.notSendVRresp, common.noAdditionalTimeout })
 runner.Step("PerformInteraction_default_timeout_VR", common.performInteraction,
-  { params_without_timeout, common.notSendUIresp, common.notSsendVRresp, common.noAdditionalTimeout })
+  { params_without_timeout, common.notSendUIresp, common.notSendVRresp, common.noAdditionalTimeout })
 runner.Step("PerformInteraction_timeout_VR_with_UI_response", common.performInteraction,
-  { params_with_timeout, common.sendUIresp, common.notSsendVRresp, common.noAdditionalTimeout })
+  { params_with_timeout, common.sendUIresp, common.notSendVRresp, common.noAdditionalTimeout })
 runner.Step("PerformInteraction_default_timeout_VR_with_UI_response", common.performInteraction,
-  { params_without_timeout, common.sendUIresp, common.notSsendVRresp, common.noAdditionalTimeout })
+  { params_without_timeout, common.sendUIresp, common.notSendVRresp, common.noAdditionalTimeout })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

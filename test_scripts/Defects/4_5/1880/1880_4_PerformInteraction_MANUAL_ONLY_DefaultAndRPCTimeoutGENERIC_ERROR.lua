@@ -55,9 +55,9 @@ runner.Step("PerformInteraction_default_timeout_and_PI_timeout_with_VR_response"
 runner.Step("PerformInteraction_default_timeout_and_PI_default_timeout_with_VR_response", common.performInteraction,
   { params_without_timeout, common.notSendUIresp, common.sendVRresp, common.noAdditionalTimeout })
 runner.Step("PerformInteraction_default_timeout_and_PI_timeout", common.performInteraction,
-  { params_with_timeout, common.notSendUIresp, common.notSsendVRresp, common.noAdditionalTimeout })
+  { params_with_timeout, common.notSendUIresp, common.notSendVRresp, common.noAdditionalTimeout })
 runner.Step("PerformInteraction_default_timeout_and_PI_default_timeout", common.performInteraction,
-  { params_without_timeout, common.notSendUIresp, common.notSsendVRresp, common.noAdditionalTimeout })
+  { params_without_timeout, common.notSendUIresp, common.notSendVRresp, common.noAdditionalTimeout })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
