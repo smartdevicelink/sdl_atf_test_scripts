@@ -1,5 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Issue: https://github.com/smartdevicelink/sdl_core/issues/2451
+-- Issues:
+--  https://github.com/smartdevicelink/sdl_core/issues/2451
+--  https://github.com/smartdevicelink/sdl_core/issues/3934
 ---------------------------------------------------------------------------------------------------
 -- Description: SDL does not provide the invalid values of supportedDiagModes parameter in RAI response from .ini file
 --
@@ -27,7 +29,7 @@ local maxValue = "0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x11,0x12,0x13,0x
   "0x95,0x96,0x97,0x98,0x99,0x10,0x20,0x30,0x40,0x50,0x60,0x70,0x80,0x90,0x9A"
 
 local tcs = {
-  [01] = { name = "out of min size", value = "" },
+  [01] = { name = "out of min size", value = "", expected = nil },
   [02] = { name = "out of max size", value = maxValue .. ",0x9B", expected = maxValue }
 }
 

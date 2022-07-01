@@ -1,5 +1,7 @@
 ---------------------------------------------------------------------------------------------------
--- Issue: https://github.com/smartdevicelink/sdl_core/issues/2451
+-- Issues:
+--  https://github.com/smartdevicelink/sdl_core/issues/2451
+--  https://github.com/smartdevicelink/sdl_core/issues/3935
 ---------------------------------------------------------------------------------------------------
 -- Description: SDL provides valid values of supportedDiagModes parameter in RAI response from .ini file
 --
