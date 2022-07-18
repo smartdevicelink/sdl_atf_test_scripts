@@ -46,6 +46,11 @@ local addCommandParams = {
   [2] = {cmdID = 10, menuParams = {menuName = "Second Menu name"}, vrCommands = {"VR Command 1", "VR Command 2", "VR Command 3"}}
 }
 
+local generatedGlobalProperties = {
+  vrHelp = {},
+  helpPrompt = {}
+}
+
 local setGlobalPropertiesParams = {
   helpPrompt = { {text = "Prompt", type = "TEXT"} },
   vrHelpTitle = "Help title",
@@ -89,14 +94,16 @@ local function AddCommand(pParams)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
 
+  table.insert(generatedGlobalProperties.vrHelp, { position = (#generatedGlobalProperties.vrHelp + 1), text = pParams.vrCommands[1] })
+  table.insert(generatedGlobalProperties.helpPrompt, { text = pParams.vrCommands[1], type = "TEXT" })
   common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", {
-    vrHelp = {{ position = 1, text = pParams.vrCommands[1] }}
+    vrHelp = generatedGlobalProperties.vrHelp
   })
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
   common.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties", {
-    helpPrompt = {{ text = pParams.vrCommands[1], type = "TEXT" }}
+    helpPrompt = generatedGlobalProperties.helpPrompt
   })
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
