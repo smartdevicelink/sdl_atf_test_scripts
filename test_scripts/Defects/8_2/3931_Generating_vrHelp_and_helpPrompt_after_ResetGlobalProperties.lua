@@ -134,14 +134,13 @@ end
 local function ResetGlobalProperties(pParams, defaultParams)
   local cid = common.getMobileSession():SendRPC("ResetGlobalProperties", pParams)
   common.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", {
-    vrHelp = defaultParams.vrHelp,
-    vrHelpTitle = defaultParams.vrHelpTitle
+    vrHelp = generatedGlobalProperties.vrHelp
   })
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
   end)
   common.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties", {
-    helpPrompt = defaultParams.helpPrompt
+    helpPrompt = generatedGlobalProperties.helpPrompt
   })
   :Do(function(_, data)
     common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
