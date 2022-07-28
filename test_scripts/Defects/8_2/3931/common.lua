@@ -4,13 +4,9 @@
 --[[ Required Shared libraries ]]
 local runner = require('user_modules/script_runner')
 local actions = require('user_modules/sequences/actions')
-local rc = require('user_modules/sequences/remote_control')
-local json = require("modules/json")
-local SDL = require('SDL')
 
 --[[ Test Configuration ]]
 runner.testSettings.isSelfIncluded = false
-actions.app.getParams().appHMIType = { "REMOTE_CONTROL" }
 
 --[[ Module ]]
 local m = { }
@@ -45,6 +41,14 @@ local function isItemInArray(pItem, pArray)
       if i == pItem then return true end
     end
     return false
+end
+
+local function getResetVRHelpItems()
+    vrHelpItems = {{position = 1, text = "Test Application"}}
+    for index, item in pairs(m.generatedGlobalProperties.vrHelp) do
+        table.insert(vrHelpItems, {position = index + 1, text = item.text})
+    end
+    return vrHelpItems
 end
 
 --[[ Common Functions ]]
@@ -113,7 +117,7 @@ function m.ResetGlobalProperties(pParams)
     local cid = m.getMobileSession():SendRPC("ResetGlobalProperties", pParams)
     if isItemInArray("VRHELPITEMS", pParams.properties) or isItemInArray("VRHELPTITLE", pParams.properties) then
         m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", {
-            vrHelp = m.generatedGlobalProperties.vrHelp,
+            vrHelp = getResetVRHelpItems(),
             vrHelpTitle = m.defaultINIGlobalProperties.vrHelpTitle
         })
         :Do(function(_, data)
