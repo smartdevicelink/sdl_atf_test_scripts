@@ -28,7 +28,7 @@ m.connectMobile = actions.mobile.connect
 local addSubMenuParams = {
   menuID = 1000,
   position = 500,
-  menuName ="Sub Menu"
+  menuName = "Sub Menu"
 }
 
 --[[ Common Variables ]]
@@ -39,7 +39,7 @@ m.testCases = {
       choiceSet = {
         {
           choiceID = 1001,
-          menuName ="Choice1001",
+          menuName = "Choice1001",
           vrCommands = {
             "Choice1001"
           }
@@ -69,7 +69,7 @@ m.testCases = {
       choiceSet = {
         {
           choiceID = 1002,
-          menuName ="Choice1002"
+          menuName = "Choice1002"
         }
       }
     },
@@ -217,23 +217,23 @@ end
 
 local function getPIReqParams()
     return {
-        initialText = "StartPerformInteraction",
-        interactionMode = "MODE",
-        interactionChoiceSetIDList = { 0 },
-        helpPrompt = {
-          {
-            text = "Help Prompt",
-            type = "TEXT"
-          }
-        },
-        timeoutPrompt = {
-          {
-            text = "Timeout Prompt",
-            type = "TEXT"
-          }
+      initialText = "StartPerformInteraction",
+      interactionMode = "MODE",
+      interactionChoiceSetIDList = { 0 },
+      helpPrompt = {
+        {
+          text = "Help Prompt",
+          type = "TEXT"
+        }
+      },
+      timeoutPrompt = {
+        {
+          text = "Timeout Prompt",
+          type = "TEXT"
         }
       }
-    end
+    }
+end
     
     function m.performInteractionVR(pParams)
       local params = getPIReqParams()
