@@ -111,9 +111,7 @@ end
   
 function m.ResetGlobalProperties(pParams)
     local cid = m.getMobileSession():SendRPC("ResetGlobalProperties", pParams)
-    print(cid)
     if isItemInArray("VRHELPITEMS", pParams.properties) or isItemInArray("VRHELPTITLE", pParams.properties) then
-        print("Resetting VR")
         m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", {
             vrHelp = m.generatedGlobalProperties.vrHelp,
             vrHelpTitle = m.defaultINIGlobalProperties.vrHelpTitle
@@ -123,19 +121,15 @@ function m.ResetGlobalProperties(pParams)
         end)
     end
     if isItemInArray("HELPPROMPT", pParams.properties) then
-        print("Resetting HelpPrompt")
         m.getHMIConnection():ExpectRequest("TTS.SetGlobalProperties", {
             helpPrompt = m.defaultINIGlobalProperties.helpPrompt
         })
         :Do(function(_, data)
-            print(data.method)
             m.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
         end)
     end
-    print("Not here")
 
     m.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-    print("Not here either")
 
 end
 
