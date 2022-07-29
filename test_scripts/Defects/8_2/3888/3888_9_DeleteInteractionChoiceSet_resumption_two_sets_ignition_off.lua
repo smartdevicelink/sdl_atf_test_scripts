@@ -37,6 +37,7 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerAppWOPTU)
 common.Step("Activate App", common.activateApp)
 
+common.Title("Test")
 common.Step("CreateInteractionChoiceSet with vr command", common.createInteractionChoiceSet,
   { common.testCases.with_vr_command })
 common.Step("CreateInteractionChoiceSet without vr command", common.createInteractionChoiceSet,
@@ -45,7 +46,7 @@ common.Step("AddSubMenu", common.addSubMenu)
 common.Step("Ignition OFF", common.ignitionOff)
 common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("RAI with resumption", common.raiWithResumption,
-  { common.testCases.with_vr_command, common.additionalResumptionConditions, common.resumeFailedResult })
+  { common.testCases.with_vr_command, common.addSubMenuResumptionFail, common.resumeFailedResult })
 common.Step("PerformInteraction VR", common.performInteractionVR,
   { common.testCases.with_vr_command.performInteractionVR })
 common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL,

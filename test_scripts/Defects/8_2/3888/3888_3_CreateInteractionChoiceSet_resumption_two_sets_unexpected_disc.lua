@@ -27,6 +27,7 @@ common.Step("Start SDL, HMI, connect Mobile, start Session", common.start)
 common.Step("Register App", common.registerAppWOPTU)
 common.Step("Activate App", common.activateApp)
 
+common.Title("Test")
 common.Step("CreateInteractionChoiceSet with vr command", common.createInteractionChoiceSet,
   { common.testCases.with_vr_command })
 common.Step("CreateInteractionChoiceSet without vr command", common.createInteractionChoiceSet,

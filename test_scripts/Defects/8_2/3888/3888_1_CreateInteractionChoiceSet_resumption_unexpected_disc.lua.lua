@@ -29,6 +29,7 @@ for k, v in common.spairs(common.testCases) do
   common.Step("Register App", common.registerAppWOPTU)
   common.Step("Activate App", common.activateApp)
 
+  common.Title("Test")
   common.Step("App requests CreateInteractionChoiceSet " .. k, common.createInteractionChoiceSet, { v })
   common.Step("Unexpected disconnect", common.unexpectedDisconnect)
   common.Step("Connect mobile", common.connectMobile)

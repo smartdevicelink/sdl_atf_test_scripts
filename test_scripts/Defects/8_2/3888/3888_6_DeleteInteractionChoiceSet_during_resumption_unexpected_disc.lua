@@ -41,12 +41,13 @@ for k, v in common.spairs(common.testCases) do
   common.Step("Register App", common.registerAppWOPTU)
   common.Step("Activate App", common.activateApp)
 
+  common.Title("Test")
   common.Step("App requests CreateInteractionChoiceSet " .. k, common.createInteractionChoiceSet, { v })
   common.Step("AddSubMenu", common.addSubMenu)
   common.Step("Unexpected disconnect", common.unexpectedDisconnect)
   common.Step("Connect mobile", common.connectMobile)
   common.Step("RAI with resumption", common.raiWithResumption,
-    { v, common.additionalResumptionConditions, common.resumeFailedResult })
+    { v, common.addSubMenuResumptionFail, common.resumeFailedResult })
   common.Step("PerformInteraction VR", common.performInteractionVR, { v.performInteractionVR })
   common.Step("PerformInteraction MANUAL", common.performInteractionMANUAL, { v.performInteractionMANUAL })
 
