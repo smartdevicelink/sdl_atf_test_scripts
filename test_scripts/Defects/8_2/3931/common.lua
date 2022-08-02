@@ -43,14 +43,6 @@ local function isItemInArray(pItem, pArray)
     return false
 end
 
-local function getResetVRHelpItems()
-    vrHelpItems = {{position = 1, text = "Test Application"}}
-    for index, item in pairs(m.generatedGlobalProperties.vrHelp) do
-        table.insert(vrHelpItems, {position = index + 1, text = item.text})
-    end
-    return vrHelpItems
-end
-
 --[[ Common Functions ]]
 function m.AddCommand(pParams)
     local cid = m.getMobileSession():SendRPC("AddCommand", pParams)
@@ -117,7 +109,7 @@ function m.ResetGlobalProperties(pParams)
     local cid = m.getMobileSession():SendRPC("ResetGlobalProperties", pParams)
     if isItemInArray("VRHELPITEMS", pParams.properties) or isItemInArray("VRHELPTITLE", pParams.properties) then
         m.getHMIConnection():ExpectRequest("UI.SetGlobalProperties", {
-            vrHelp = getResetVRHelpItems(),
+            vrHelp = m.generatedGlobalProperties.vrHelp,
             vrHelpTitle = m.defaultINIGlobalProperties.vrHelpTitle
         })
         :Do(function(_, data)
