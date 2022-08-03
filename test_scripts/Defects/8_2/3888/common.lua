@@ -203,7 +203,7 @@ function m.addSubMenu()
     end)
 end
 
-function m.additionalResumptionConditions(pTimes, pCmdId)
+function m.addSubMenuResumptionFail(pTimes, pCmdId)
     actions.getHMIConnection():ExpectRequest("UI.AddSubMenu")
     :Do(function(_, data)
         actions.getHMIConnection():SendError(data.id, data.method, "REJECTED", "Error response")
@@ -235,80 +235,80 @@ local function getPIReqParams()
     }
 end
     
-    function m.performInteractionVR(pParams)
-      local params = getPIReqParams()
-      params.interactionMode = "VR_ONLY"
-      params.interactionChoiceSetIDList = { pParams.choiceId }
-    
-      local cid = actions.getMobileSession():SendRPC("PerformInteraction", params)
-      if pParams.result ~= "SUCCESS" then
-        actions.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pParams.result })
-      else
-        local grammarIDvalue = m.testCases.with_vr_command.vrAddCommandRequest.grammarID
-        actions.getHMIConnection():ExpectRequest("VR.PerformInteraction", { grammarID = { grammarIDvalue } })
-        :Do(function(_, data)
-            local function vrResponse()
-              actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
-                choiceID = params.interactionChoiceSetIDList[1]
-              })
-            end
-            actions.run.runAfter(vrResponse, 500)
-          end)
-        actions.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
-          vrHelp = {
-            {
-              text = "Choice" .. pParams.choiceId,
-              position = 1
-            }
-          },
-          vrHelpTitle = params.initialText
-        })
-        :Do(function(_, data)
-            actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
-          end)
-        actions.getMobileSession():ExpectResponse(cid, {
-          success = true, resultCode = "SUCCESS", choiceID = params.interactionChoiceSetIDList[1]
-        })
-      end
-    end
-    
-    function m.performInteractionMANUAL(pParams)
-      local params = getPIReqParams()
-      params.interactionMode = "MANUAL_ONLY"
-      params.interactionChoiceSetIDList = { pParams.choiceId }
-    
-      local cid = actions.getMobileSession():SendRPC("PerformInteraction", params)
-      if pParams.result ~= "SUCCESS" then
-        actions.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pParams.result })
-      else
-        actions.getHMIConnection():ExpectRequest("VR.PerformInteraction")
-        :Do(function(_, data)
-            actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
-          end)
-        actions.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
-          choiceSet = {
-            {
-              choiceID = pParams.choiceId,
-              menuName = "Choice" .. pParams.choiceId
-            }
-          },
-          initialText = {
-            fieldName = "initialInteractionText",
-            fieldText = params.initialText
-          }
-        })
-        :Do(function(_, data)
-            local function uiResponse()
-              actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
-                choiceID = params.interactionChoiceSetIDList[1]
-              })
-            end
-            actions.run.runAfter(uiResponse, 500)
-          end)
-        actions.getMobileSession():ExpectResponse(cid, {
-          success = true, resultCode = "SUCCESS", choiceID = params.interactionChoiceSetIDList[1]
-        })
-      end
-    end
-    
+function m.performInteractionVR(pParams)
+  local params = getPIReqParams()
+  params.interactionMode = "VR_ONLY"
+  params.interactionChoiceSetIDList = { pParams.choiceId }
+
+  local cid = actions.getMobileSession():SendRPC("PerformInteraction", params)
+  if pParams.result ~= "SUCCESS" then
+    actions.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pParams.result })
+  else
+    local grammarIDvalue = m.testCases.with_vr_command.vrAddCommandRequest.grammarID
+    actions.getHMIConnection():ExpectRequest("VR.PerformInteraction", { grammarID = { grammarIDvalue } })
+    :Do(function(_, data)
+        local function vrResponse()
+          actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+            choiceID = params.interactionChoiceSetIDList[1]
+          })
+        end
+        actions.run.runAfter(vrResponse, 500)
+      end)
+    actions.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
+      vrHelp = {
+        {
+          text = "Choice" .. pParams.choiceId,
+          position = 1
+        }
+      },
+      vrHelpTitle = params.initialText
+    })
+    :Do(function(_, data)
+        actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      end)
+    actions.getMobileSession():ExpectResponse(cid, {
+      success = true, resultCode = "SUCCESS", choiceID = params.interactionChoiceSetIDList[1]
+    })
+  end
+end
+
+function m.performInteractionMANUAL(pParams)
+  local params = getPIReqParams()
+  params.interactionMode = "MANUAL_ONLY"
+  params.interactionChoiceSetIDList = { pParams.choiceId }
+
+  local cid = actions.getMobileSession():SendRPC("PerformInteraction", params)
+  if pParams.result ~= "SUCCESS" then
+    actions.getMobileSession():ExpectResponse(cid, { success = false, resultCode = pParams.result })
+  else
+    actions.getHMIConnection():ExpectRequest("VR.PerformInteraction")
+    :Do(function(_, data)
+        actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", { })
+      end)
+    actions.getHMIConnection():ExpectRequest("UI.PerformInteraction", {
+      choiceSet = {
+        {
+          choiceID = pParams.choiceId,
+          menuName = "Choice" .. pParams.choiceId
+        }
+      },
+      initialText = {
+        fieldName = "initialInteractionText",
+        fieldText = params.initialText
+      }
+    })
+    :Do(function(_, data)
+        local function uiResponse()
+          actions.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {
+            choiceID = params.interactionChoiceSetIDList[1]
+          })
+        end
+        actions.run.runAfter(uiResponse, 500)
+      end)
+    actions.getMobileSession():ExpectResponse(cid, {
+      success = true, resultCode = "SUCCESS", choiceID = params.interactionChoiceSetIDList[1]
+    })
+  end
+end
+
 return m
