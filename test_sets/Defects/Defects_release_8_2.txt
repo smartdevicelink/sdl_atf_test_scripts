@@ -30,3 +30,4 @@
 ./test_scripts/Defects/8_2/3931/3931_2_Generating_vrHelp_after_ResetGlobalProperties.lua
 ./test_scripts/Defects/8_2/3931/3931_3_Generating_helpPrompt_after_ResetGlobalProperties.lua
 ./test_scripts/Defects/8_2/3931/3931_4_Generating_properties_after_separate_ResetGlobalProperties.lua
+./test_scripts/Defects/8_2/3857_Crash_on_Ignition_Off_during_registering_Apps.lua
