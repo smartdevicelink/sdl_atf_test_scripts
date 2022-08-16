@@ -1,34 +1,28 @@
 ---------------------------------------------------------------------------------------------------
--- User story: Smoke
 -- Use case: AddCommand
--- Item: Happy path
+-- Item: Timeout from VR portion of request
 --
 -- Requirement summary:
--- [AddCommand] SUCCESS: getting SUCCESS on VR and UI.AddCommand()
+-- [AddCommand] GENERIC_ERROR: getting GENERIC_ERROR on VR.AddCommand timeout
 --
 -- Description:
--- Mobile application sends valid AddCommand request with the both "vrCommands"
--- and "menuParams" data and gets "SUCCESS" for the both VR.AddCommand and VR.AddCommand
--- responses from HMI
+-- Mobile application sends valid AddCommand request with both "vrCommands"and "menuParams" 
+-- data and gets "SUCCESS" for UI.AddCommand and no response for VR.AddCommand from HMI
 
 -- Pre-conditions:
 -- a. HMI and SDL are started
 -- b. appID is registered and activated on SDL
--- c. appID is currently in Background, Full or Limited HMI level
 
 -- Steps:
--- appID requests AddCommand with the both vrCommands and menuParams
+-- 1. appID requests AddCommand with both vrCommands and menuParams
+-- 2. SDL transfers the UI part of request with allowed parameters to HMI
+-- 3. SDL transfers the VR part of request with allowed parameters to HMI
+-- 4. SDL receives UI part of response from HMI with "SUCCESS" result code
+-- 5. SDL does not receive VR part of response
 
 -- Expected:
--- SDL validates parameters of the request
--- SDL checks if UI interface is available on HMI
--- SDL checks if VR interface is available on HMI
--- SDL checks if AddCommand is allowed by Policies
--- SDL checks if all parameters are allowed by Policies
--- SDL transfers the UI part of request with allowed parameters to HMI
--- SDL transfers the VR part of request with allowed parameters to HMI
--- SDL receives UI and VR part of response from HMI with "SUCCESS" result code
--- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
+-- SDL responds with (resultCode: GENERIC_ERROR, success: false) to mobile application
+-- SDL sends UI.DeleteCommand and VR.DeleteCommand based on the original request
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -100,12 +94,21 @@ local function addCommand(pParams)
   common.getHMIConnection():ExpectRequest("UI.AddCommand", pParams.responseUiParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():ExpectRequest("UI.DeleteCommand", {
+        cmdID = pParams.requestParams.cmdID
+      }):Timeout(20000)
     end)
 
   pParams.responseVrParams.appID = common.getHMIAppId()
   common.getHMIConnection():ExpectRequest("VR.AddCommand", pParams.responseVrParams)
   :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      -- No VR response
+      -- common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():ExpectRequest("VR.DeleteCommand", { 
+        cmdID = pParams.requestParams.cmdID,
+        type = "Command",
+        grammarID = data.params.grammarID
+      }):Timeout(20000)
     end)
   :ValidIf(function(_, data)
     if data.params.grammarID ~= nil then
@@ -115,8 +118,11 @@ local function addCommand(pParams)
     end
   end)
 
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  common.getMobileSession():ExpectNotification("OnHashChange")
+  common.getMobileSession():ExpectResponse(cid, {
+    success = false,
+    resultCode = "GENERIC_ERROR"
+  }):Timeout(20000)
+  common.getMobileSession():ExpectNotification("OnHashChange"):Times(0)
 end
 
 --[[ Scenario ]]
@@ -129,7 +135,7 @@ runner.Step("Activate App", common.activateApp)
 runner.Step("Upload icon file", common.putFile, { putFileParams })
 
 runner.Title("Test")
-runner.Step("AddCommand Positive Case", addCommand, { allParams })
+runner.Step("AddCommand", addCommand, { allParams })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)

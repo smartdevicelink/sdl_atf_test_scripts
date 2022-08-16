@@ -1,34 +1,28 @@
 ---------------------------------------------------------------------------------------------------
--- User story: Smoke
 -- Use case: AddCommand
--- Item: Happy path
+-- Item: Failure from UI portion of request
 --
 -- Requirement summary:
--- [AddCommand] SUCCESS: getting SUCCESS on VR and UI.AddCommand()
+-- [AddCommand] REJECTED: Getting REJECTED on UI.AddCommand
 --
 -- Description:
--- Mobile application sends valid AddCommand request with the both "vrCommands"
--- and "menuParams" data and gets "SUCCESS" for the both VR.AddCommand and VR.AddCommand
--- responses from HMI
+-- Mobile application sends valid AddCommand request with both "vrCommands"and "menuParams" 
+-- data and gets "SUCCESS" for VR.AddCommand and "REJECTED" for UI.AddCommand from HMI
 
 -- Pre-conditions:
 -- a. HMI and SDL are started
 -- b. appID is registered and activated on SDL
--- c. appID is currently in Background, Full or Limited HMI level
 
 -- Steps:
--- appID requests AddCommand with the both vrCommands and menuParams
+-- 1. appID requests AddCommand with both vrCommands and menuParams
+-- 2. SDL transfers the UI part of request with allowed parameters to HMI
+-- 3. SDL transfers the VR part of request with allowed parameters to HMI
+-- 4. SDL receives VR part of response from HMI with "SUCCESS" result code
+-- 5. SDL receives UI part of response from HMI with "REJECTED" result code
 
 -- Expected:
--- SDL validates parameters of the request
--- SDL checks if UI interface is available on HMI
--- SDL checks if VR interface is available on HMI
--- SDL checks if AddCommand is allowed by Policies
--- SDL checks if all parameters are allowed by Policies
--- SDL transfers the UI part of request with allowed parameters to HMI
--- SDL transfers the VR part of request with allowed parameters to HMI
--- SDL receives UI and VR part of response from HMI with "SUCCESS" result code
--- SDL responds with (resultCode: SUCCESS, success:true) to mobile application
+-- SDL responds with (resultCode: REJECTED, success: false) to mobile application
+-- SDL sends UI.DeleteCommand based on the original request
 ---------------------------------------------------------------------------------------------------
 
 --[[ Required Shared libraries ]]
@@ -90,6 +84,8 @@ local allParams = {
   responseVrParams = responseVrParams
 }
 
+local uiResponseCode = "REJECTED"
+
 --[[ Local Functions ]]
 local function addCommand(pParams)
   local cid = common.getMobileSession():SendRPC("AddCommand", pParams.requestParams)
@@ -99,13 +95,21 @@ local function addCommand(pParams)
   pParams.responseUiParams.secondaryImage.value = common.getPathToFileInAppStorage("icon.png")
   common.getHMIConnection():ExpectRequest("UI.AddCommand", pParams.responseUiParams)
   :Do(function(_, data)
-      common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():SendResponse(data.id, data.method, uiResponseCode, {})
+      common.getHMIConnection():ExpectRequest("UI.DeleteCommand", {
+        cmdID = pParams.requestParams.cmdID
+      }):Times(0)
     end)
 
   pParams.responseVrParams.appID = common.getHMIAppId()
   common.getHMIConnection():ExpectRequest("VR.AddCommand", pParams.responseVrParams)
   :Do(function(_, data)
       common.getHMIConnection():SendResponse(data.id, data.method, "SUCCESS", {})
+      common.getHMIConnection():ExpectRequest("VR.DeleteCommand", { 
+        cmdID = pParams.requestParams.cmdID,
+        type = "Command",
+        grammarID = data.params.grammarID
+      })
     end)
   :ValidIf(function(_, data)
     if data.params.grammarID ~= nil then
@@ -115,8 +119,11 @@ local function addCommand(pParams)
     end
   end)
 
-  common.getMobileSession():ExpectResponse(cid, { success = true, resultCode = "SUCCESS" })
-  common.getMobileSession():ExpectNotification("OnHashChange")
+  common.getMobileSession():ExpectResponse(cid, {
+    success = false,
+    resultCode = uiResponseCode
+  })
+  common.getMobileSession():ExpectNotification("OnHashChange"):Times(0)
 end
 
 --[[ Scenario ]]
@@ -129,7 +136,7 @@ runner.Step("Activate App", common.activateApp)
 runner.Step("Upload icon file", common.putFile, { putFileParams })
 
 runner.Title("Test")
-runner.Step("AddCommand Positive Case", addCommand, { allParams })
+runner.Step("AddCommand", addCommand, { allParams })
 
 runner.Title("Postconditions")
 runner.Step("Stop SDL", common.postconditions)
