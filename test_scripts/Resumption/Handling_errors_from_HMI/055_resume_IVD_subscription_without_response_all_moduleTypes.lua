@@ -84,7 +84,7 @@ end
 runner.Step("Unexpected disconnect", common.unexpectedDisconnect, { #common.rcModuleTypes })
 runner.Step("Connect mobile", common.connectMobile)
 runner.Step("Reregister App resumption data", common.reRegisterAppResumeFailed,
-  { 1, checkResumptionData, common.resumptionFullHMILevel, nil, nil, 15000 })
+  { 1, checkResumptionData, common.resumptionFullHMILevel, nil, nil, 20000 })
 for _, moduleType in pairs(common.rcModuleTypes) do
   runner.Step("Check no subscriptions for getInteriorVehicleData ".. moduleType, common.isSubscribed,
     { false, nil, moduleType })
