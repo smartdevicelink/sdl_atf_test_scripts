@@ -1,6 +1,6 @@
 ---------------------------------------------------------------------------------------------------
 -- User story: Smoke
--- Use case: AddComand
+-- Use case: AddCommand
 -- Item: Happy path
 --
 -- Requirement summary:
@@ -61,7 +61,6 @@ local requestParams = {
     "VRCommandonepositive",
     "VRCommandonepositivedouble"
   },
-  grammarID = 1,
   cmdIcon = {
     value = "icon.png",
     imageType = "DYNAMIC"
