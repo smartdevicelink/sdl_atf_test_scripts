@@ -63,7 +63,7 @@ function common.DeleteSubMenu(mobileParams, hmiDeleteCommandParams, hmiDeleteSub
     local cid = common.getMobileSession():SendRPC("DeleteSubMenu", mobileParams)
 
     common.getHMIConnection():ExpectRequest("UI.DeleteCommand", 
-        unpack(hmiDeleteCommandParams)
+        table.unpack(hmiDeleteCommandParams)
     )
     :Times(#hmiDeleteCommandParams)
     :Do(function(_, data)
@@ -71,7 +71,7 @@ function common.DeleteSubMenu(mobileParams, hmiDeleteCommandParams, hmiDeleteSub
     end)
 
     common.getHMIConnection():ExpectRequest("UI.DeleteSubMenu", 
-        unpack(hmiDeleteSubMenuParams)
+        table.unpack(hmiDeleteSubMenuParams)
     )
     :Times(#hmiDeleteSubMenuParams)
     :Do(function(_, data)

@@ -89,6 +89,10 @@ commonRC.LightsNameList = { "FRONT_LEFT_HIGH_BEAM", "FRONT_RIGHT_HIGH_BEAM", "FR
   "EXTERIOR_ALL_LIGHTS" }
 commonRC.readOnlyLightStatus = { "RAMP_UP", "RAMP_DOWN", "UNKNOWN", "INVALID" }
 
+local defaultTimeout = actions.sdl.getSDLIniParameter("DefaultTimeout")
+local defaultTimeoutCompensation = actions.sdl.getSDLIniParameter("DefaultTimeoutCompensation")
+commonRC.defaultTimeoutWithCompensation = defaultTimeout + defaultTimeoutCompensation
+
 --[[ Common Functions ]]
 function commonRC.registerAppWOPTU(pAppId, self)
    return actions.registerAppWOPTU(pAppId)

@@ -40,6 +40,7 @@ m.wait = utils.wait
 m.cloneTable = utils.cloneTable
 m.spairs = utils.spairs
 m.createEvent = actions.run.createEvent
+m.cprint = utils.cprint
 
 --[[ Common Constants and Variables ]]
 m.isExpected = 1

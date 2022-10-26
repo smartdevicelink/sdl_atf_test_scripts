@@ -113,7 +113,8 @@ local function getFloatValue(pTypeData)
     local max = pTypeData.maxvalue
     if not min then min = api.dataType.FLOAT.min end
     if not max then max = api.dataType.FLOAT.max end
-    value = tonumber(string.format('%.02f', math.random() + math.random(min, max-1)))
+    local random = math.random() + math.random(min, max-1)
+    value = tonumber(string.format('%.02f', math.min(math.max(random, min), max)))
   elseif pTypeData.valueType == m.valueType.INVALID_TYPE then
     return true
   end
@@ -146,7 +147,8 @@ local function getDoubleValue(pTypeData)
     local max = pTypeData.maxvalue
     if not min then min = api.dataType.DOUBLE.min end
     if not max then max = api.dataType.DOUBLE.max end
-    value = tonumber(string.format('%.02f', math.random() + math.random(min, max-1)))
+    local random = math.random() + math.random(min, max-1)
+    value = tonumber(string.format('%.02f', math.min(math.max(random, min), max)))
   elseif pTypeData.valueType == m.valueType.INVALID_TYPE then
     return true
   end

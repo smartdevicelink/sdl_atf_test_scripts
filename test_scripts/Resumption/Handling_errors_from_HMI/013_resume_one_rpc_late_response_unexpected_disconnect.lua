@@ -33,7 +33,7 @@ function common.sendResponse(pData, pErrorRespInterface, pCurrentInterface)
     common.getHMIConnection():SendResponse(pData.id, pData.method, "SUCCESS", common.getSuccessHMIResponseData(pData))
   end
   if pErrorRespInterface ~= nil and pErrorRespInterface == pCurrentInterface then
-    common.run.runAfter(response, 11000)
+    common.run.runAfter(response, common.defaultTimeoutWithCompensation + 1000)
   else
     response()
   end
@@ -54,7 +54,7 @@ for k, value in common.pairs(common.rpcs) do
     runner.Step("Unexpected disconnect", common.unexpectedDisconnect)
     runner.Step("Connect mobile", common.connectMobile)
     runner.Step("Reregister App resumption " .. k, common.reRegisterAppResumeFailed,
-      { 1, common.checkResumptionData, common.resumptionFullHMILevel, k, interface, 15000})
+      { 1, common.checkResumptionData, common.resumptionFullHMILevel, k, interface, 20000})
     runner.Step("Unregister App", common.unregisterAppInterface)
   end
 end

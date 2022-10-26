@@ -65,7 +65,12 @@ local function getInteriorVehicleData(pModuleData, pIsSubscribe, pIsCached)
         hmi:SendResponse(data.id, data.method, "SUCCESS", resData)
       end)
   end
-  mobSession:ExpectResponse(cid, { success = true, resultCode = "SUCCESS", table.unpack(resData) })
+  mobSession:ExpectResponse(cid, {
+    success = true,
+    resultCode = "SUCCESS",
+    moduleData = resData.moduleData,
+    isSubscribed = resData.isSubscribed
+  })
 end
 
 local function getActualModuleData(pModuleType)
